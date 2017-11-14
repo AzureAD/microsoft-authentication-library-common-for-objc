@@ -1,0 +1,3 @@
+#include "identitycore__common.xcconfig"
+
+MTL_ENABLE_DEBUG_INFO = NO;

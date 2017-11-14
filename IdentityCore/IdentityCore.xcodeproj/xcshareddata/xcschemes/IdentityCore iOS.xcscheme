@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D68FB4861FBA698A005308BB"
-               BuildableName = "libIdentityCore iOS.a"
+               BuildableName = "libIdentityCore.a"
                BlueprintName = "IdentityCore iOS"
                ReferencedContainer = "container:IdentityCore.xcodeproj">
             </BuildableReference>
@@ -34,7 +34,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D626FF491FBA6DFC00EE4487"
-               BuildableName = "IdentityCoreTests iOS.xctest"
+               BuildableName = "IdentityCoreTests.xctest"
                BlueprintName = "IdentityCoreTests iOS"
                ReferencedContainer = "container:IdentityCore.xcodeproj">
             </BuildableReference>
@@ -44,7 +44,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D68FB4861FBA698A005308BB"
-            BuildableName = "libIdentityCore iOS.a"
+            BuildableName = "libIdentityCore.a"
             BlueprintName = "IdentityCore iOS"
             ReferencedContainer = "container:IdentityCore.xcodeproj">
          </BuildableReference>
@@ -67,7 +67,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D68FB4861FBA698A005308BB"
-            BuildableName = "libIdentityCore iOS.a"
+            BuildableName = "libIdentityCore.a"
             BlueprintName = "IdentityCore iOS"
             ReferencedContainer = "container:IdentityCore.xcodeproj">
          </BuildableReference>
@@ -85,7 +85,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D68FB4861FBA698A005308BB"
-            BuildableName = "libIdentityCore iOS.a"
+            BuildableName = "libIdentityCore.a"
             BlueprintName = "IdentityCore iOS"
             ReferencedContainer = "container:IdentityCore.xcodeproj">
          </BuildableReference>

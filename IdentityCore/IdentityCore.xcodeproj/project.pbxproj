@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D626FF4F1FBA6DFD00EE4487 /* libIdentityCore iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D68FB4871FBA698A005308BB /* libIdentityCore iOS.a */; };
+		D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D68FB4871FBA698A005308BB /* libIdentityCore.a */; };
 		D626FF561FBA6E4500EE4487 /* MSIDCommonCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */; };
-		D626FF6D1FBA6EDF00EE4487 /* libIdentityCore Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore Mac.a */; };
+		D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */; };
 		D626FF731FBA710300EE4487 /* MSIDCommonCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */; };
 		D626FF741FBA710900EE4487 /* MSIDCommonCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */; };
 		D6DA89761FBA6A74004C56C7 /* MSIDCommonCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */; };
@@ -45,11 +45,22 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "IdentityCoreTests iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IdentityCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDCommonCacheTests.m; sourceTree = "<group>"; };
-		D626FF5B1FBA6E9500EE4487 /* libIdentityCore Mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIdentityCore Mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D626FF681FBA6EDF00EE4487 /* IdentityCoreTests Mac.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "IdentityCoreTests Mac.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D68FB4871FBA698A005308BB /* libIdentityCore iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIdentityCore iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D626FF681FBA6EDF00EE4487 /* IdentityCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IdentityCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D626FF761FBA7A6600EE4487 /* identitycore__common__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common__mac.xcconfig; sourceTree = "<group>"; };
+		D626FF771FBA7A6600EE4487 /* identitycore__debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__debug.xcconfig; sourceTree = "<group>"; };
+		D626FF781FBA7A6600EE4487 /* identitycore__tests__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__common.xcconfig; sourceTree = "<group>"; };
+		D626FF791FBA7A6600EE4487 /* identitycore__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common.xcconfig; sourceTree = "<group>"; };
+		D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__ios.xcconfig; sourceTree = "<group>"; };
+		D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__ios.xcconfig; sourceTree = "<group>"; };
+		D626FF7C1FBA7A6600EE4487 /* identitycore__common__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common__ios.xcconfig; sourceTree = "<group>"; };
+		D626FF7D1FBA7A6600EE4487 /* identitycore__lib__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__common.xcconfig; sourceTree = "<group>"; };
+		D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__mac.xcconfig; sourceTree = "<group>"; };
+		D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__mac.xcconfig; sourceTree = "<group>"; };
+		D626FF801FBA7CD300EE4487 /* identitycore__release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__release.xcconfig; sourceTree = "<group>"; };
+		D68FB4871FBA698A005308BB /* libIdentityCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6DA89741FBA6A74004C56C7 /* MSIDCommonCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCommonCache.h; sourceTree = "<group>"; };
 		D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCommonCache.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -59,7 +70,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D626FF4F1FBA6DFD00EE4487 /* libIdentityCore iOS.a in Frameworks */,
+				D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,7 +85,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D626FF6D1FBA6EDF00EE4487 /* libIdentityCore Mac.a in Frameworks */,
+				D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,12 +99,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D626FF751FBA7A6600EE4487 /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				D626FF771FBA7A6600EE4487 /* identitycore__debug.xcconfig */,
+				D626FF791FBA7A6600EE4487 /* identitycore__common.xcconfig */,
+				D626FF7C1FBA7A6600EE4487 /* identitycore__common__ios.xcconfig */,
+				D626FF761FBA7A6600EE4487 /* identitycore__common__mac.xcconfig */,
+				D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */,
+				D626FF7D1FBA7A6600EE4487 /* identitycore__lib__common.xcconfig */,
+				D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */,
+				D626FF781FBA7A6600EE4487 /* identitycore__tests__common.xcconfig */,
+				D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */,
+				D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */,
+				D626FF801FBA7CD300EE4487 /* identitycore__release.xcconfig */,
+			);
+			path = xcconfig;
+			sourceTree = "<group>";
+		};
 		D68FB47E1FBA698A005308BB = {
 			isa = PBXGroup;
 			children = (
 				D6DA89721FBA6A4E004C56C7 /* src */,
 				D6DA89711FBA6A4E004C56C7 /* resources */,
 				D6DA89731FBA6A4E004C56C7 /* tests */,
+				D626FF751FBA7A6600EE4487 /* xcconfig */,
 				D68FB4881FBA698A005308BB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -101,10 +131,10 @@
 		D68FB4881FBA698A005308BB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D68FB4871FBA698A005308BB /* libIdentityCore iOS.a */,
-				D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests iOS.xctest */,
-				D626FF5B1FBA6E9500EE4487 /* libIdentityCore Mac.a */,
-				D626FF681FBA6EDF00EE4487 /* IdentityCoreTests Mac.xctest */,
+				D68FB4871FBA698A005308BB /* libIdentityCore.a */,
+				D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests.xctest */,
+				D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */,
+				D626FF681FBA6EDF00EE4487 /* IdentityCoreTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -161,7 +191,7 @@
 			);
 			name = "IdentityCoreTests iOS";
 			productName = IdentityCoreTests;
-			productReference = D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests iOS.xctest */;
+			productReference = D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */ = {
@@ -178,7 +208,7 @@
 			);
 			name = "IdentityCore Mac";
 			productName = IdentityCoreMac;
-			productReference = D626FF5B1FBA6E9500EE4487 /* libIdentityCore Mac.a */;
+			productReference = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		D626FF671FBA6EDF00EE4487 /* IdentityCoreTests Mac */ = {
@@ -196,7 +226,7 @@
 			);
 			name = "IdentityCoreTests Mac";
 			productName = IdentityCoreTests;
-			productReference = D626FF681FBA6EDF00EE4487 /* IdentityCoreTests Mac.xctest */;
+			productReference = D626FF681FBA6EDF00EE4487 /* IdentityCoreTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		D68FB4861FBA698A005308BB /* IdentityCore iOS */ = {
@@ -213,7 +243,7 @@
 			);
 			name = "IdentityCore iOS";
 			productName = IdentityCore;
-			productReference = D68FB4871FBA698A005308BB /* libIdentityCore iOS.a */;
+			productReference = D68FB4871FBA698A005308BB /* libIdentityCore.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -332,213 +362,71 @@
 /* Begin XCBuildConfiguration section */
 		D626FF521FBA6DFD00EE4487 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				INFOPLIST_FILE = tests/ios/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.IdentityCoreTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		D626FF531FBA6DFD00EE4487 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				INFOPLIST_FILE = tests/ios/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.IdentityCoreTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 		D626FF621FBA6E9500EE4487 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				EXECUTABLE_PREFIX = lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		D626FF631FBA6E9500EE4487 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				EXECUTABLE_PREFIX = lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};
 		D626FF711FBA6EDF00EE4487 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				INFOPLIST_FILE = tests/mac/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.IdentityCoreTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		D626FF721FBA6EDF00EE4487 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				INFOPLIST_FILE = tests/mac/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.IdentityCoreTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};
 		D68FB48E1FBA698A005308BB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF771FBA7A6600EE4487 /* identitycore__debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
 		D68FB48F1FBA698A005308BB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF801FBA7CD300EE4487 /* identitycore__release.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				SDKROOT = iphoneos;
-				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 		D68FB4911FBA698A005308BB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		D68FB4921FBA698A005308BB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
