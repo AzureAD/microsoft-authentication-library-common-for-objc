@@ -1,0 +1,484 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D68FB4871FBA698A005308BB /* libIdentityCore.a */; };
+		D626FF561FBA6E4500EE4487 /* MSIDCommonCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */; };
+		D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */; };
+		D626FF731FBA710300EE4487 /* MSIDCommonCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */; };
+		D626FF741FBA710900EE4487 /* MSIDCommonCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */; };
+		D6DA89761FBA6A74004C56C7 /* MSIDCommonCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D626FF501FBA6DFD00EE4487 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D68FB4861FBA698A005308BB;
+			remoteInfo = IdentityCore;
+		};
+		D626FF6E1FBA6EDF00EE4487 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D626FF5A1FBA6E9500EE4487;
+			remoteInfo = "IdentityCore Mac";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D68FB4851FBA698A005308BB /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IdentityCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDCommonCacheTests.m; sourceTree = "<group>"; };
+		D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D626FF681FBA6EDF00EE4487 /* IdentityCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IdentityCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D626FF761FBA7A6600EE4487 /* identitycore__common__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common__mac.xcconfig; sourceTree = "<group>"; };
+		D626FF771FBA7A6600EE4487 /* identitycore__debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__debug.xcconfig; sourceTree = "<group>"; };
+		D626FF781FBA7A6600EE4487 /* identitycore__tests__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__common.xcconfig; sourceTree = "<group>"; };
+		D626FF791FBA7A6600EE4487 /* identitycore__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common.xcconfig; sourceTree = "<group>"; };
+		D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__ios.xcconfig; sourceTree = "<group>"; };
+		D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__ios.xcconfig; sourceTree = "<group>"; };
+		D626FF7C1FBA7A6600EE4487 /* identitycore__common__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common__ios.xcconfig; sourceTree = "<group>"; };
+		D626FF7D1FBA7A6600EE4487 /* identitycore__lib__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__common.xcconfig; sourceTree = "<group>"; };
+		D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__mac.xcconfig; sourceTree = "<group>"; };
+		D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__mac.xcconfig; sourceTree = "<group>"; };
+		D626FF801FBA7CD300EE4487 /* identitycore__release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__release.xcconfig; sourceTree = "<group>"; };
+		D68FB4871FBA698A005308BB /* libIdentityCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6DA89741FBA6A74004C56C7 /* MSIDCommonCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCommonCache.h; sourceTree = "<group>"; };
+		D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCommonCache.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D626FF471FBA6DFC00EE4487 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D626FF581FBA6E9500EE4487 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D626FF651FBA6EDF00EE4487 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D68FB4841FBA698A005308BB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D626FF751FBA7A6600EE4487 /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				D626FF771FBA7A6600EE4487 /* identitycore__debug.xcconfig */,
+				D626FF791FBA7A6600EE4487 /* identitycore__common.xcconfig */,
+				D626FF7C1FBA7A6600EE4487 /* identitycore__common__ios.xcconfig */,
+				D626FF761FBA7A6600EE4487 /* identitycore__common__mac.xcconfig */,
+				D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */,
+				D626FF7D1FBA7A6600EE4487 /* identitycore__lib__common.xcconfig */,
+				D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */,
+				D626FF781FBA7A6600EE4487 /* identitycore__tests__common.xcconfig */,
+				D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */,
+				D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */,
+				D626FF801FBA7CD300EE4487 /* identitycore__release.xcconfig */,
+			);
+			path = xcconfig;
+			sourceTree = "<group>";
+		};
+		D68FB47E1FBA698A005308BB = {
+			isa = PBXGroup;
+			children = (
+				D6DA89721FBA6A4E004C56C7 /* src */,
+				D6DA89711FBA6A4E004C56C7 /* resources */,
+				D6DA89731FBA6A4E004C56C7 /* tests */,
+				D626FF751FBA7A6600EE4487 /* xcconfig */,
+				D68FB4881FBA698A005308BB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D68FB4881FBA698A005308BB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D68FB4871FBA698A005308BB /* libIdentityCore.a */,
+				D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests.xctest */,
+				D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */,
+				D626FF681FBA6EDF00EE4487 /* IdentityCoreTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D6DA89711FBA6A4E004C56C7 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = resources;
+			sourceTree = "<group>";
+		};
+		D6DA89721FBA6A4E004C56C7 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				D6DA89741FBA6A74004C56C7 /* MSIDCommonCache.h */,
+				D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		D6DA89731FBA6A4E004C56C7 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */,
+			);
+			path = tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D626FF591FBA6E9500EE4487 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D626FF541FBA6DFD00EE4487 /* Build configuration list for PBXNativeTarget "IdentityCoreTests iOS" */;
+			buildPhases = (
+				D626FF461FBA6DFC00EE4487 /* Sources */,
+				D626FF471FBA6DFC00EE4487 /* Frameworks */,
+				D626FF481FBA6DFC00EE4487 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D626FF511FBA6DFD00EE4487 /* PBXTargetDependency */,
+			);
+			name = "IdentityCoreTests iOS";
+			productName = IdentityCoreTests;
+			productReference = D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D626FF611FBA6E9500EE4487 /* Build configuration list for PBXNativeTarget "IdentityCore Mac" */;
+			buildPhases = (
+				D626FF571FBA6E9500EE4487 /* Sources */,
+				D626FF581FBA6E9500EE4487 /* Frameworks */,
+				D626FF591FBA6E9500EE4487 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "IdentityCore Mac";
+			productName = IdentityCoreMac;
+			productReference = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D626FF671FBA6EDF00EE4487 /* IdentityCoreTests Mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D626FF701FBA6EDF00EE4487 /* Build configuration list for PBXNativeTarget "IdentityCoreTests Mac" */;
+			buildPhases = (
+				D626FF641FBA6EDF00EE4487 /* Sources */,
+				D626FF651FBA6EDF00EE4487 /* Frameworks */,
+				D626FF661FBA6EDF00EE4487 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D626FF6F1FBA6EDF00EE4487 /* PBXTargetDependency */,
+			);
+			name = "IdentityCoreTests Mac";
+			productName = IdentityCoreTests;
+			productReference = D626FF681FBA6EDF00EE4487 /* IdentityCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		D68FB4861FBA698A005308BB /* IdentityCore iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D68FB4901FBA698A005308BB /* Build configuration list for PBXNativeTarget "IdentityCore iOS" */;
+			buildPhases = (
+				D68FB4831FBA698A005308BB /* Sources */,
+				D68FB4841FBA698A005308BB /* Frameworks */,
+				D68FB4851FBA698A005308BB /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "IdentityCore iOS";
+			productName = IdentityCore;
+			productReference = D68FB4871FBA698A005308BB /* libIdentityCore.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D68FB47F1FBA698A005308BB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = MSID;
+				LastUpgradeCheck = 0910;
+				ORGANIZATIONNAME = Microsoft;
+				TargetAttributes = {
+					D626FF491FBA6DFC00EE4487 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					D626FF5A1FBA6E9500EE4487 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					D626FF671FBA6EDF00EE4487 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					D68FB4861FBA698A005308BB = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = D68FB4821FBA698A005308BB /* Build configuration list for PBXProject "IdentityCore" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = D68FB47E1FBA698A005308BB;
+			productRefGroup = D68FB4881FBA698A005308BB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D68FB4861FBA698A005308BB /* IdentityCore iOS */,
+				D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */,
+				D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */,
+				D626FF671FBA6EDF00EE4487 /* IdentityCoreTests Mac */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D626FF481FBA6DFC00EE4487 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D626FF661FBA6EDF00EE4487 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D626FF461FBA6DFC00EE4487 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D626FF561FBA6E4500EE4487 /* MSIDCommonCacheTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D626FF571FBA6E9500EE4487 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D626FF741FBA710900EE4487 /* MSIDCommonCache.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D626FF641FBA6EDF00EE4487 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D626FF731FBA710300EE4487 /* MSIDCommonCacheTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D68FB4831FBA698A005308BB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6DA89761FBA6A74004C56C7 /* MSIDCommonCache.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D626FF511FBA6DFD00EE4487 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D68FB4861FBA698A005308BB /* IdentityCore iOS */;
+			targetProxy = D626FF501FBA6DFD00EE4487 /* PBXContainerItemProxy */;
+		};
+		D626FF6F1FBA6EDF00EE4487 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */;
+			targetProxy = D626FF6E1FBA6EDF00EE4487 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		D626FF521FBA6DFD00EE4487 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		D626FF531FBA6DFD00EE4487 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		D626FF621FBA6E9500EE4487 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		D626FF631FBA6E9500EE4487 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		D626FF711FBA6EDF00EE4487 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		D626FF721FBA6EDF00EE4487 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		D68FB48E1FBA698A005308BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF771FBA7A6600EE4487 /* identitycore__debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		D68FB48F1FBA698A005308BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF801FBA7CD300EE4487 /* identitycore__release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		D68FB4911FBA698A005308BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		D68FB4921FBA698A005308BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D626FF541FBA6DFD00EE4487 /* Build configuration list for PBXNativeTarget "IdentityCoreTests iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D626FF521FBA6DFD00EE4487 /* Debug */,
+				D626FF531FBA6DFD00EE4487 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D626FF611FBA6E9500EE4487 /* Build configuration list for PBXNativeTarget "IdentityCore Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D626FF621FBA6E9500EE4487 /* Debug */,
+				D626FF631FBA6E9500EE4487 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D626FF701FBA6EDF00EE4487 /* Build configuration list for PBXNativeTarget "IdentityCoreTests Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D626FF711FBA6EDF00EE4487 /* Debug */,
+				D626FF721FBA6EDF00EE4487 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D68FB4821FBA698A005308BB /* Build configuration list for PBXProject "IdentityCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D68FB48E1FBA698A005308BB /* Debug */,
+				D68FB48F1FBA698A005308BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D68FB4901FBA698A005308BB /* Build configuration list for PBXNativeTarget "IdentityCore iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D68FB4911FBA698A005308BB /* Debug */,
+				D68FB4921FBA698A005308BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D68FB47F1FBA698A005308BB /* Project object */;
+}
