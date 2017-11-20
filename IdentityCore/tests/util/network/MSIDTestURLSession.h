@@ -21,8 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCommonCache.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDCommonCache
+@class MSIDTestURLResponse;
+
+@interface MSIDTestURLSession : NSObject
+
+@property id delegate;
+@property NSOperationQueue* delegateQueue;
+
+- (id)initWithDelegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue;
+
+// This adds an expected request, and response to it.
++ (void)addResponse:(MSIDTestURLResponse *)response;
+
+// If you need to test a series of requests and responses use this API
++ (void)addResponses:(NSArray *)responses;
+
+// Helper methods for common responses
++ (void)addNotFoundResponseForURLString:(NSString *)URLString;
++ (BOOL)noResponsesLeft;
++ (void)clearResponses;
+
+// Helper method to retrieve a response for a request
++ (MSIDTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request;
+
+// Helper dispatch method that URLSessionTask can utilize
+- (void)dispatchIfNeed:(void (^)(void))block;
 
 @end

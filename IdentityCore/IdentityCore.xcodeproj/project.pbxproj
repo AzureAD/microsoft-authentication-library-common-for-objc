@@ -7,12 +7,41 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
+		D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
+		D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */; };
+		D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */; };
+		D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */; };
+		D62600181FBD380500EE4487 /* NSString+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D62600121FBD380500EE4487 /* NSString+MSIDExtensions.h */; };
 		D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D68FB4871FBA698A005308BB /* libIdentityCore.a */; };
-		D626FF561FBA6E4500EE4487 /* MSIDCommonCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */; };
 		D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */; };
-		D626FF731FBA710300EE4487 /* MSIDCommonCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */; };
-		D626FF741FBA710900EE4487 /* MSIDCommonCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */; };
-		D6DA89761FBA6A74004C56C7 /* MSIDCommonCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */; };
+		D626FFF11FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FFEB1FBD200A00EE4487 /* MSIDTestURLResponse.m */; };
+		D626FFF21FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FFEB1FBD200A00EE4487 /* MSIDTestURLResponse.m */; };
+		D626FFF31FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D626FFEC1FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h */; };
+		D626FFF41FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FFED1FBD200A00EE4487 /* MSIDTestURLSession.m */; };
+		D626FFF51FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FFED1FBD200A00EE4487 /* MSIDTestURLSession.m */; };
+		D626FFF61FBD200A00EE4487 /* MSIDTestURLResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = D626FFEE1FBD200A00EE4487 /* MSIDTestURLResponse.h */; };
+		D626FFF71FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FFEF1FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m */; };
+		D626FFF81FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FFEF1FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m */; };
+		D626FFF91FBD200A00EE4487 /* MSIDTestURLSession.h in Headers */ = {isa = PBXBuildFile; fileRef = D626FFF01FBD200A00EE4487 /* MSIDTestURLSession.h */; };
+		D6D9A44C1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = D6D9A44A1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.h */; };
+		D6D9A44D1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A44B1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m */; };
+		D6D9A44E1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A44B1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m */; };
+		D6D9A4511FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A44F1FBD3FB700EFA430 /* NSURL+MSIDExtensions.m */; };
+		D6D9A4521FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A44F1FBD3FB700EFA430 /* NSURL+MSIDExtensions.m */; };
+		D6D9A4531FBD3FB800EFA430 /* NSURL+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D6D9A4501FBD3FB700EFA430 /* NSURL+MSIDExtensions.h */; };
+		D6D9A4561FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = D6D9A4541FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h */; };
+		D6D9A4571FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4551FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m */; };
+		D6D9A4581FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4551FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m */; };
+		D6D9A45B1FBD420300EFA430 /* MSIDDeviceId.h in Headers */ = {isa = PBXBuildFile; fileRef = D6D9A4591FBD420300EFA430 /* MSIDDeviceId.h */; };
+		D6D9A4BC1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */; };
+		D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */; };
+		D6D9A4BE1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */; };
+		D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */; };
+		D6D9A4C31FBE718C00EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */; };
+		D6D9A4C81FBE71A100EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */; };
+		D6D9A4D11FBF5BEF00EFA430 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */; };
+		D6D9A4D21FBF5BF000EFA430 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,9 +59,32 @@
 			remoteGlobalIDString = D626FF5A1FBA6E9500EE4487;
 			remoteInfo = "IdentityCore Mac";
 		};
+		D6D9A4C01FBE718200EFA430 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D626FFD21FBD1F2B00EE4487;
+			remoteInfo = "IdentityTest iOS";
+		};
+		D6D9A4C61FBE719D00EFA430 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D626FFDF1FBD1F5700EE4487;
+			remoteInfo = "IdentityTest Mac";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		D626FFD11FBD1F2B00EE4487 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D68FB4851FBA698A005308BB /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -45,24 +97,50 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDExtensions.m"; sourceTree = "<group>"; };
+		D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
+		D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
+		D62600121FBD380500EE4487 /* NSString+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+MSIDExtensions.h"; sourceTree = "<group>"; };
 		D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IdentityCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDCommonCacheTests.m; sourceTree = "<group>"; };
 		D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D626FF681FBA6EDF00EE4487 /* IdentityCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IdentityCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D626FF761FBA7A6600EE4487 /* identitycore__common__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common__mac.xcconfig; sourceTree = "<group>"; };
-		D626FF771FBA7A6600EE4487 /* identitycore__debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__debug.xcconfig; sourceTree = "<group>"; };
-		D626FF781FBA7A6600EE4487 /* identitycore__tests__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__common.xcconfig; sourceTree = "<group>"; };
-		D626FF791FBA7A6600EE4487 /* identitycore__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common.xcconfig; sourceTree = "<group>"; };
-		D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__ios.xcconfig; sourceTree = "<group>"; };
-		D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__ios.xcconfig; sourceTree = "<group>"; };
-		D626FF7C1FBA7A6600EE4487 /* identitycore__common__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common__ios.xcconfig; sourceTree = "<group>"; };
-		D626FF7D1FBA7A6600EE4487 /* identitycore__lib__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__common.xcconfig; sourceTree = "<group>"; };
-		D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__mac.xcconfig; sourceTree = "<group>"; };
-		D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__mac.xcconfig; sourceTree = "<group>"; };
-		D626FF801FBA7CD300EE4487 /* identitycore__release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__release.xcconfig; sourceTree = "<group>"; };
+		D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityTest.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityTest.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D626FFEB1FBD200A00EE4487 /* MSIDTestURLResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestURLResponse.m; sourceTree = "<group>"; };
+		D626FFEC1FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestURLSessionDataTask.h; sourceTree = "<group>"; };
+		D626FFED1FBD200A00EE4487 /* MSIDTestURLSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestURLSession.m; sourceTree = "<group>"; };
+		D626FFEE1FBD200A00EE4487 /* MSIDTestURLResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestURLResponse.h; sourceTree = "<group>"; };
+		D626FFEF1FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestURLSessionDataTask.m; sourceTree = "<group>"; };
+		D626FFF01FBD200A00EE4487 /* MSIDTestURLSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestURLSession.h; sourceTree = "<group>"; };
 		D68FB4871FBA698A005308BB /* libIdentityCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		D6DA89741FBA6A74004C56C7 /* MSIDCommonCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCommonCache.h; sourceTree = "<group>"; };
-		D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCommonCache.m; sourceTree = "<group>"; };
+		D6CF4E911FC3626900CD70C5 /* identitycore__lib__common__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__common__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4E921FC3626900CD70C5 /* identitycore__common__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4E931FC3626A00CD70C5 /* identitycore__debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__debug.xcconfig; sourceTree = "<group>"; };
+		D6CF4E941FC3626A00CD70C5 /* identitycore__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common.xcconfig; sourceTree = "<group>"; };
+		D6CF4E951FC3626A00CD70C5 /* identitycore__lib__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__common.xcconfig; sourceTree = "<group>"; };
+		D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__testlib__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__idlib__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4E991FC3626A00CD70C5 /* identitycore__testlib__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__testlib__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4E9A1FC3626B00CD70C5 /* identitycore__tests__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__common.xcconfig; sourceTree = "<group>"; };
+		D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4E9C1FC3626B00CD70C5 /* identitycore__release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__release.xcconfig; sourceTree = "<group>"; };
+		D6CF4E9D1FC3626B00CD70C5 /* identitycore__common__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4E9E1FC3626B00CD70C5 /* identitycore__idlib__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__idlib__common.xcconfig; sourceTree = "<group>"; };
+		D6CF4E9F1FC3626B00CD70C5 /* identitycore__lib__common__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__common__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__idlib__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4EA11FC3626C00CD70C5 /* identitycore__testlib__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__testlib__common.xcconfig; sourceTree = "<group>"; };
+		D6D9A44A1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MSIDTestUtil.h"; sourceTree = "<group>"; };
+		D6D9A44B1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+MSIDTestUtil.m"; sourceTree = "<group>"; };
+		D6D9A44F1FBD3FB700EFA430 /* NSURL+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+MSIDExtensions.m"; sourceTree = "<group>"; };
+		D6D9A4501FBD3FB700EFA430 /* NSURL+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+MSIDExtensions.h"; sourceTree = "<group>"; };
+		D6D9A4541FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+MSIDTestUtil.h"; sourceTree = "<group>"; };
+		D6D9A4551FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+MSIDTestUtil.m"; sourceTree = "<group>"; };
+		D6D9A4591FBD420300EFA430 /* MSIDDeviceId.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDDeviceId.h; sourceTree = "<group>"; };
+		D6D9A4B91FBE6D1C00EFA430 /* IdentityCore.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentityCore.pch; sourceTree = "<group>"; };
+		D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDURLExtensionsTests.m; sourceTree = "<group>"; };
+		D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDStringExtensionsTests.m; sourceTree = "<group>"; };
+		D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDeviceId.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +148,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6D9A4C31FBE718C00EFA430 /* libIdentityTest.a in Frameworks */,
 				D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -86,6 +165,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */,
+				D6D9A4C81FBE71A100EFA430 /* libIdentityTest.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D626FFD01FBD1F2B00EE4487 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D626FFDD1FBD1F5700EE4487 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,32 +193,76 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D62600091FBD305800EE4487 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */,
+				D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */,
+				D62600121FBD380500EE4487 /* NSString+MSIDExtensions.h */,
+				D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */,
+				D6D9A4501FBD3FB700EFA430 /* NSURL+MSIDExtensions.h */,
+				D6D9A44F1FBD3FB700EFA430 /* NSURL+MSIDExtensions.m */,
+			);
+			path = util;
+			sourceTree = "<group>";
+		};
 		D626FF751FBA7A6600EE4487 /* xcconfig */ = {
 			isa = PBXGroup;
 			children = (
-				D626FF771FBA7A6600EE4487 /* identitycore__debug.xcconfig */,
-				D626FF791FBA7A6600EE4487 /* identitycore__common.xcconfig */,
-				D626FF7C1FBA7A6600EE4487 /* identitycore__common__ios.xcconfig */,
-				D626FF761FBA7A6600EE4487 /* identitycore__common__mac.xcconfig */,
-				D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */,
-				D626FF7D1FBA7A6600EE4487 /* identitycore__lib__common.xcconfig */,
-				D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */,
-				D626FF781FBA7A6600EE4487 /* identitycore__tests__common.xcconfig */,
-				D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */,
-				D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */,
-				D626FF801FBA7CD300EE4487 /* identitycore__release.xcconfig */,
+				D6CF4E9D1FC3626B00CD70C5 /* identitycore__common__ios.xcconfig */,
+				D6CF4E921FC3626900CD70C5 /* identitycore__common__mac.xcconfig */,
+				D6CF4E941FC3626A00CD70C5 /* identitycore__common.xcconfig */,
+				D6CF4E931FC3626A00CD70C5 /* identitycore__debug.xcconfig */,
+				D6CF4E9E1FC3626B00CD70C5 /* identitycore__idlib__common.xcconfig */,
+				D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */,
+				D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */,
+				D6CF4E9F1FC3626B00CD70C5 /* identitycore__lib__common__ios.xcconfig */,
+				D6CF4E911FC3626900CD70C5 /* identitycore__lib__common__mac.xcconfig */,
+				D6CF4E951FC3626A00CD70C5 /* identitycore__lib__common.xcconfig */,
+				D6CF4E9C1FC3626B00CD70C5 /* identitycore__release.xcconfig */,
+				D6CF4EA11FC3626C00CD70C5 /* identitycore__testlib__common.xcconfig */,
+				D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */,
+				D6CF4E991FC3626A00CD70C5 /* identitycore__testlib__mac.xcconfig */,
+				D6CF4E9A1FC3626B00CD70C5 /* identitycore__tests__common.xcconfig */,
+				D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */,
+				D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */,
 			);
 			path = xcconfig;
+			sourceTree = "<group>";
+		};
+		D626FFE91FBD200A00EE4487 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				D6D9A44A1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.h */,
+				D6D9A44B1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m */,
+				D6D9A4541FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h */,
+				D6D9A4551FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m */,
+				D626FFEA1FBD200A00EE4487 /* network */,
+			);
+			path = util;
+			sourceTree = "<group>";
+		};
+		D626FFEA1FBD200A00EE4487 /* network */ = {
+			isa = PBXGroup;
+			children = (
+				D626FFF01FBD200A00EE4487 /* MSIDTestURLSession.h */,
+				D626FFED1FBD200A00EE4487 /* MSIDTestURLSession.m */,
+				D626FFEE1FBD200A00EE4487 /* MSIDTestURLResponse.h */,
+				D626FFEB1FBD200A00EE4487 /* MSIDTestURLResponse.m */,
+				D626FFEC1FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h */,
+				D626FFEF1FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m */,
+			);
+			path = network;
 			sourceTree = "<group>";
 		};
 		D68FB47E1FBA698A005308BB = {
 			isa = PBXGroup;
 			children = (
 				D6DA89721FBA6A4E004C56C7 /* src */,
-				D6DA89711FBA6A4E004C56C7 /* resources */,
 				D6DA89731FBA6A4E004C56C7 /* tests */,
 				D626FF751FBA7A6600EE4487 /* xcconfig */,
 				D68FB4881FBA698A005308BB /* Products */,
+				D6D9A4C21FBE718C00EFA430 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -135,22 +273,25 @@
 				D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests.xctest */,
 				D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */,
 				D626FF681FBA6EDF00EE4487 /* IdentityCoreTests.xctest */,
+				D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */,
+				D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D6DA89711FBA6A4E004C56C7 /* resources */ = {
+		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
-			path = resources;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		D6DA89721FBA6A4E004C56C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				D6DA89741FBA6A74004C56C7 /* MSIDCommonCache.h */,
-				D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */,
+				D6D9A4591FBD420300EFA430 /* MSIDDeviceId.h */,
+				D62600091FBD305800EE4487 /* util */,
+				D6D9A4B91FBE6D1C00EFA430 /* IdentityCore.pch */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -158,7 +299,10 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
-				D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */,
+				D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */,
+				D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */,
+				D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */,
+				D626FFE91FBD200A00EE4487 /* util */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -170,6 +314,22 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */,
+				D62600181FBD380500EE4487 /* NSString+MSIDExtensions.h in Headers */,
+				D6D9A45B1FBD420300EFA430 /* MSIDDeviceId.h in Headers */,
+				D6D9A4531FBD3FB800EFA430 /* NSURL+MSIDExtensions.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D626FFDE1FBD1F5700EE4487 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6D9A4561FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h in Headers */,
+				D626FFF61FBD200A00EE4487 /* MSIDTestURLResponse.h in Headers */,
+				D626FFF91FBD200A00EE4487 /* MSIDTestURLSession.h in Headers */,
+				D6D9A44C1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.h in Headers */,
+				D626FFF31FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,6 +347,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D6D9A4C11FBE718200EFA430 /* PBXTargetDependency */,
 				D626FF511FBA6DFD00EE4487 /* PBXTargetDependency */,
 			);
 			name = "IdentityCoreTests iOS";
@@ -222,12 +383,47 @@
 			buildRules = (
 			);
 			dependencies = (
+				D6D9A4C71FBE719D00EFA430 /* PBXTargetDependency */,
 				D626FF6F1FBA6EDF00EE4487 /* PBXTargetDependency */,
 			);
 			name = "IdentityCoreTests Mac";
 			productName = IdentityCoreTests;
 			productReference = D626FF681FBA6EDF00EE4487 /* IdentityCoreTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		D626FFD21FBD1F2B00EE4487 /* IdentityTest iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D626FFDB1FBD1F2B00EE4487 /* Build configuration list for PBXNativeTarget "IdentityTest iOS" */;
+			buildPhases = (
+				D626FFCF1FBD1F2B00EE4487 /* Sources */,
+				D626FFD01FBD1F2B00EE4487 /* Frameworks */,
+				D626FFD11FBD1F2B00EE4487 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "IdentityTest iOS";
+			productName = "IdentityTest iOS";
+			productReference = D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D626FFDF1FBD1F5700EE4487 /* IdentityTest Mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D626FFE61FBD1F5700EE4487 /* Build configuration list for PBXNativeTarget "IdentityTest Mac" */;
+			buildPhases = (
+				D626FFDC1FBD1F5700EE4487 /* Sources */,
+				D626FFDD1FBD1F5700EE4487 /* Frameworks */,
+				D626FFDE1FBD1F5700EE4487 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "IdentityTest Mac";
+			productName = "IdentityTest Mac";
+			productReference = D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 		D68FB4861FBA698A005308BB /* IdentityCore iOS */ = {
 			isa = PBXNativeTarget;
@@ -268,6 +464,14 @@
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
 					};
+					D626FFD21FBD1F2B00EE4487 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					D626FFDF1FBD1F5700EE4487 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
 					D68FB4861FBA698A005308BB = {
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
@@ -288,6 +492,8 @@
 			targets = (
 				D68FB4861FBA698A005308BB /* IdentityCore iOS */,
 				D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */,
+				D626FFD21FBD1F2B00EE4487 /* IdentityTest iOS */,
+				D626FFDF1FBD1F5700EE4487 /* IdentityTest Mac */,
 				D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */,
 				D626FF671FBA6EDF00EE4487 /* IdentityCoreTests Mac */,
 			);
@@ -316,7 +522,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D626FF561FBA6E4500EE4487 /* MSIDCommonCacheTests.m in Sources */,
+				D6D9A4BC1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
+				D6D9A4D11FBF5BEF00EFA430 /* MSIDDeviceId.m in Sources */,
+				D6D9A4BE1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,7 +532,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D626FF741FBA710900EE4487 /* MSIDCommonCache.m in Sources */,
+				D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
+				D6D9A4521FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
+				D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -332,7 +542,33 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D626FF731FBA710300EE4487 /* MSIDCommonCacheTests.m in Sources */,
+				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
+				D6D9A4D21FBF5BF000EFA430 /* MSIDDeviceId.m in Sources */,
+				D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D626FFCF1FBD1F2B00EE4487 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6D9A4571FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
+				D626FFF11FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
+				D626FFF71FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
+				D626FFF41FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
+				D6D9A44D1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D626FFDC1FBD1F5700EE4487 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6D9A4581FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
+				D626FFF21FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
+				D626FFF81FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
+				D626FFF51FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
+				D6D9A44E1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -340,7 +576,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6DA89761FBA6A74004C56C7 /* MSIDCommonCache.m in Sources */,
+				D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
+				D6D9A4511FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
+				D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -357,75 +595,113 @@
 			target = D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */;
 			targetProxy = D626FF6E1FBA6EDF00EE4487 /* PBXContainerItemProxy */;
 		};
+		D6D9A4C11FBE718200EFA430 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D626FFD21FBD1F2B00EE4487 /* IdentityTest iOS */;
+			targetProxy = D6D9A4C01FBE718200EFA430 /* PBXContainerItemProxy */;
+		};
+		D6D9A4C71FBE719D00EFA430 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D626FFDF1FBD1F5700EE4487 /* IdentityTest Mac */;
+			targetProxy = D6D9A4C61FBE719D00EFA430 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D626FF521FBA6DFD00EE4487 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */;
+			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
 			};
 			name = Debug;
 		};
 		D626FF531FBA6DFD00EE4487 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D626FF7A1FBA7A6600EE4487 /* identitycore__tests__ios.xcconfig */;
+			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
 			};
 			name = Release;
 		};
 		D626FF621FBA6E9500EE4487 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */;
+			baseConfigurationReference = D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */;
 			buildSettings = {
 			};
 			name = Debug;
 		};
 		D626FF631FBA6E9500EE4487 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D626FF7E1FBA7A6600EE4487 /* identitycore__lib__mac.xcconfig */;
+			baseConfigurationReference = D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */;
 			buildSettings = {
 			};
 			name = Release;
 		};
 		D626FF711FBA6EDF00EE4487 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */;
+			baseConfigurationReference = D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
 			};
 			name = Debug;
 		};
 		D626FF721FBA6EDF00EE4487 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D626FF7F1FBA7A6600EE4487 /* identitycore__tests__mac.xcconfig */;
+			baseConfigurationReference = D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		D626FFD91FBD1F2B00EE4487 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		D626FFDA1FBD1F2B00EE4487 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		D626FFE71FBD1F5700EE4487 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4E991FC3626A00CD70C5 /* identitycore__testlib__mac.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		D626FFE81FBD1F5700EE4487 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4E991FC3626A00CD70C5 /* identitycore__testlib__mac.xcconfig */;
 			buildSettings = {
 			};
 			name = Release;
 		};
 		D68FB48E1FBA698A005308BB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D626FF771FBA7A6600EE4487 /* identitycore__debug.xcconfig */;
+			baseConfigurationReference = D6CF4E931FC3626A00CD70C5 /* identitycore__debug.xcconfig */;
 			buildSettings = {
 			};
 			name = Debug;
 		};
 		D68FB48F1FBA698A005308BB /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D626FF801FBA7CD300EE4487 /* identitycore__release.xcconfig */;
+			baseConfigurationReference = D6CF4E9C1FC3626B00CD70C5 /* identitycore__release.xcconfig */;
 			buildSettings = {
 			};
 			name = Release;
 		};
 		D68FB4911FBA698A005308BB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */;
+			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
 			buildSettings = {
 			};
 			name = Debug;
 		};
 		D68FB4921FBA698A005308BB /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D626FF7B1FBA7A6600EE4487 /* identitycore__lib__ios.xcconfig */;
+			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
 			buildSettings = {
 			};
 			name = Release;
@@ -456,6 +732,24 @@
 			buildConfigurations = (
 				D626FF711FBA6EDF00EE4487 /* Debug */,
 				D626FF721FBA6EDF00EE4487 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D626FFDB1FBD1F2B00EE4487 /* Build configuration list for PBXNativeTarget "IdentityTest iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D626FFD91FBD1F2B00EE4487 /* Debug */,
+				D626FFDA1FBD1F2B00EE4487 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D626FFE61FBD1F5700EE4487 /* Build configuration list for PBXNativeTarget "IdentityTest Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D626FFE71FBD1F5700EE4487 /* Debug */,
+				D626FFE81FBD1F5700EE4487 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
