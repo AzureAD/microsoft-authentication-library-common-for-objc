@@ -27,11 +27,15 @@
 
 @implementation MSIDDeviceId
 
-
 /*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
 + (NSDictionary *)deviceId
 {
     return @{ @"deviceId" : @"test-lib" };
+}
+
++ (NSString *)deviceOSId
+{
+    return @"OS Version";
 }
 
 /*! Used by Broker SDK */
