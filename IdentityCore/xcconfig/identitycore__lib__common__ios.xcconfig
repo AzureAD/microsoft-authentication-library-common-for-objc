@@ -1,0 +1,11 @@
+//
+//	identitycore__lib__common__ios.xcconfig
+//  Common settings for library and framework targets on iOS
+//
+
+#include "identitycore__lib__common.xcconfig"
+#include "identitycore__common__ios.xcconfig"
+
+// This setting should only be on for iOS Framework and lib targets (but not included in
+// app targets)
+APPLICATION_EXTENSION_API_ONLY = YES

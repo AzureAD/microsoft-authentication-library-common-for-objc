@@ -1,0 +1,2 @@
+#include "identitycore__lib__common__ios.xcconfig"
+#include "identitycore__testlib__common.xcconfig"

@@ -1,4 +1,4 @@
-CODE_SIGN_IDENTITY = Mac Developer
-CODE_SIGN_STYLE = Automatic
+#include "identitycore__common.xcconfig"
+
 MACOSX_DEPLOYMENT_TARGET = 10.10
 SDKROOT = macosx
