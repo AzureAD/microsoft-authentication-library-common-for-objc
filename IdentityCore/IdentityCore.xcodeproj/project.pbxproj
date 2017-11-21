@@ -329,11 +329,14 @@
 		D6DA89721FBA6A4E004C56C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				B25A35721FC4D7BE00C7FD43 /* MSIDVersion.h */,
 				D6D9A4591FBD420300EFA430 /* MSIDDeviceId.h */,
 				B25A35711FC4D71000C7FD43 /* MSIDRequestContext.h */,
 				B25A35681FC4D6B600C7FD43 /* logger */,
 				D62600091FBD305800EE4487 /* util */,
 				D6D9A4B91FBE6D1C00EFA430 /* IdentityCore.pch */,
+				B25A357C1FC4D9B500C7FD43 /* MSIDOAuth2Constants.h */,
+				B25A357D1FC4D9B500C7FD43 /* MSIDOAuth2Constants.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -581,7 +584,9 @@
 				B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
 				D6D9A4521FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
+				B20E3CA51FC4E3F30029C097 /* MSIDDeviceId.m in Sources */,
 				D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
+				B25A35801FC4D9B500C7FD43 /* MSIDOAuth2Constants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -626,7 +631,9 @@
 				B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
 				D6D9A4511FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
+				B20E3CA41FC4E3F30029C097 /* MSIDDeviceId.m in Sources */,
 				D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
+				B25A357F1FC4D9B500C7FD43 /* MSIDOAuth2Constants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
