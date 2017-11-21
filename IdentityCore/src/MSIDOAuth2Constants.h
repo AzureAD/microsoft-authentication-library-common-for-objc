@@ -21,22 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
-
-@interface MSIDDeviceId : NSObject
-
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
-
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
-
-@end
+//Diagnostic traces sent to the Azure Active Directory servers:
+extern NSString *const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
+extern NSString *const MSID_VERSION_KEY;
+extern NSString *const MSID_CPU_KEY;//E.g. ARM64
+extern NSString *const MSID_OS_VER_KEY;//iOS/OSX version
+extern NSString *const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
