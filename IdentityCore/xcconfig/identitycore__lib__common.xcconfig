@@ -1,1 +1,6 @@
-PRODUCT_NAME = IdentityCore
+//
+//	identitycore__common__lib.xcconfig
+//  Common settings for library and framework targets on all Apple platforms
+//
+
+ENABLE_TESTABILITY = YES

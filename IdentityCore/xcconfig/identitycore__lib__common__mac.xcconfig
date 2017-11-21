@@ -1,0 +1,7 @@
+//
+//	identitycore__lib__common__mac.xcconfig
+//  Common settings for library and framework targets on macOS
+//
+
+#include "identitycore__lib__common.xcconfig"
+#include "identitycore__common__mac.xcconfig"

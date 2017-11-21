@@ -21,31 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
-#import "MSIDCommonCache.h"
+// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
 
-@interface IdentityCoreTests : XCTestCase
+#import "MSIDDeviceId.h"
 
-@end
+@implementation MSIDDeviceId
 
-@implementation IdentityCoreTests
 
-- (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+/*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
++ (NSDictionary *)deviceId
+{
+    return @{ @"deviceId" : @"test-lib" };
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
+/*! Used by Broker SDK */
++ (void)setIdValue:(NSString*)value
+            forKey:(NSString*)key
+{
+    (void)value;
+    (void)key;
 }
-
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
-    
-    XCTAssertNotNil([MSIDCommonCache new]);
-}
-
 
 @end

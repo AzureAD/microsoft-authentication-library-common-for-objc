@@ -23,6 +23,14 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDCommonCache : NSObject
+@class MSIDTestURLSession;
+
+@interface MSIDTestURLSessionDataTask : NSObject
+
+- (id)initWithRequest:(NSURLRequest *)request
+             delegate:(id)delegate
+              session:(MSIDTestURLSession *)session;
+
+
 
 @end

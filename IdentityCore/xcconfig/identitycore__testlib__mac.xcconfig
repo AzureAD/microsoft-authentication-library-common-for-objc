@@ -1,0 +1,4 @@
+#include "identitycore__lib__common__mac.xcconfig"
+#include "identitycore__testlib__common.xcconfig"
+
+EXECUTABLE_PREFIX = lib

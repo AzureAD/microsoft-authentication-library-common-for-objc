@@ -1,2 +1,5 @@
 PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.IdentityCoreTests
 PRODUCT_NAME = IdentityCoreTests
+ENABLE_TESTING = YES
+GCC_PREFIX_HEADER = src/IdentityCore.pch
+GCC_PRECOMPILE_PREFIX_HEADER = YES
