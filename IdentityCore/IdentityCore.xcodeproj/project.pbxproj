@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = B262B0781FC3BA8200FB111B /* MSIDLogger.h */; };
+		B262B07B1FC3BA8200FB111B /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B262B0791FC3BA8200FB111B /* MSIDLogger.m */; };
+		B262B07C1FC3BA8200FB111B /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B262B0791FC3BA8200FB111B /* MSIDLogger.m */; };
+		B2D227AB1FC4BFEB0003579F /* MSIDLogger+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D227AA1FC4BFEB0003579F /* MSIDLogger+Internal.h */; };
+		B2D227AD1FC4C06C0003579F /* MSIDRequestContext.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D227AC1FC4C06C0003579F /* MSIDRequestContext.h */; };
+		B2D227B01FC4C5E50003579F /* MSIDVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D227AE1FC4C5E50003579F /* MSIDVersion.h */; };
+		B2D227B11FC4C5E60003579F /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D227AF1FC4C5E50003579F /* MSIDVersion.m */; };
+		B2D227B21FC4C5E60003579F /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D227AF1FC4C5E50003579F /* MSIDVersion.m */; };
 		D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D68FB4871FBA698A005308BB /* libIdentityCore.a */; };
 		D626FF561FBA6E4500EE4487 /* MSIDCommonCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */; };
 		D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */; };
@@ -45,6 +53,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B262B0781FC3BA8200FB111B /* MSIDLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLogger.h; sourceTree = "<group>"; };
+		B262B0791FC3BA8200FB111B /* MSIDLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLogger.m; sourceTree = "<group>"; };
+		B2D227AA1FC4BFEB0003579F /* MSIDLogger+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDLogger+Internal.h"; sourceTree = "<group>"; };
+		B2D227AC1FC4C06C0003579F /* MSIDRequestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRequestContext.h; sourceTree = "<group>"; };
+		B2D227AE1FC4C5E50003579F /* MSIDVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDVersion.h; sourceTree = "<group>"; };
+		B2D227AF1FC4C5E50003579F /* MSIDVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDVersion.m; sourceTree = "<group>"; };
 		D626FF4A1FBA6DFC00EE4487 /* IdentityCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IdentityCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D626FF551FBA6E4500EE4487 /* MSIDCommonCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDCommonCacheTests.m; sourceTree = "<group>"; };
 		D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -99,6 +113,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B262B0771FC3BA6800FB111B /* logger */ = {
+			isa = PBXGroup;
+			children = (
+				B262B0781FC3BA8200FB111B /* MSIDLogger.h */,
+				B262B0791FC3BA8200FB111B /* MSIDLogger.m */,
+				B2D227AA1FC4BFEB0003579F /* MSIDLogger+Internal.h */,
+			);
+			path = logger;
+			sourceTree = "<group>";
+		};
 		D626FF751FBA7A6600EE4487 /* xcconfig */ = {
 			isa = PBXGroup;
 			children = (
@@ -149,8 +173,12 @@
 		D6DA89721FBA6A4E004C56C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				B262B0771FC3BA6800FB111B /* logger */,
 				D6DA89741FBA6A74004C56C7 /* MSIDCommonCache.h */,
 				D6DA89751FBA6A74004C56C7 /* MSIDCommonCache.m */,
+				B2D227AC1FC4C06C0003579F /* MSIDRequestContext.h */,
+				B2D227AE1FC4C5E50003579F /* MSIDVersion.h */,
+				B2D227AF1FC4C5E50003579F /* MSIDVersion.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -170,6 +198,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2D227AB1FC4BFEB0003579F /* MSIDLogger+Internal.h in Headers */,
+				B2D227AD1FC4C06C0003579F /* MSIDRequestContext.h in Headers */,
+				B2D227B01FC4C5E50003579F /* MSIDVersion.h in Headers */,
+				B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,6 +356,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2D227B21FC4C5E60003579F /* MSIDVersion.m in Sources */,
+				B262B07C1FC3BA8200FB111B /* MSIDLogger.m in Sources */,
 				D626FF741FBA710900EE4487 /* MSIDCommonCache.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -340,6 +374,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2D227B11FC4C5E60003579F /* MSIDVersion.m in Sources */,
+				B262B07B1FC3BA8200FB111B /* MSIDLogger.m in Sources */,
 				D6DA89761FBA6A74004C56C7 /* MSIDCommonCache.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
