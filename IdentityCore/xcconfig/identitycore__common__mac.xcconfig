@@ -1,4 +1,2 @@
-#include "identitycore__common.xcconfig"
-
 MACOSX_DEPLOYMENT_TARGET = 10.10
 SDKROOT = macosx
