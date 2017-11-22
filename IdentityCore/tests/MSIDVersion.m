@@ -23,27 +23,27 @@
 
 // Core test impolementation of MSIDDeviceId, not to be used in actual prod code
 
-#import "MSIDDeviceId.h"
+#import "MSIDVersion.h"
 
-@implementation MSIDDeviceId
+@implementation MSIDVersion
 
-/*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
-+ (NSDictionary *)deviceId
++ (NSString *)platformName
 {
-    return @{ @"deviceId" : @"test-lib" };
+#if TARGET_OS_IPHONE
+    return @"TEST.iOS";
+#else
+    return @"TEST.OSX";
+#endif
 }
 
-+ (NSString *)deviceOSId
++ (NSString *)sdkName
 {
-    return @"OS Version";
+    return @"TEST";
 }
 
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key
++ (NSString *)sdkVersion
 {
-    (void)value;
-    (void)key;
+    return @"1.0.0";
 }
 
 @end
