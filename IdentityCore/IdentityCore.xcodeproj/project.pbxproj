@@ -47,8 +47,6 @@
 		D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */; };
 		D6D9A4C31FBE718C00EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */; };
 		D6D9A4C81FBE71A100EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */; };
-		D6D9A4D11FBF5BEF00EFA430 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */; };
-		D6D9A4D21FBF5BF000EFA430 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -159,7 +157,6 @@
 		D6D9A4B91FBE6D1C00EFA430 /* IdentityCore.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentityCore.pch; sourceTree = "<group>"; };
 		D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDURLExtensionsTests.m; sourceTree = "<group>"; };
 		D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDStringExtensionsTests.m; sourceTree = "<group>"; };
-		D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDeviceId.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -346,7 +343,7 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
-				D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */,
+				B20E3CB11FC4FA550029C097 /* MSIDVersion.m */,
 				D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */,
 				D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */,
 				D626FFE91FBD200A00EE4487 /* util */,
@@ -574,7 +571,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6D9A4BC1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
-				D6D9A4D11FBF5BEF00EFA430 /* MSIDDeviceId.m in Sources */,
+				B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				D6D9A4BE1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -596,7 +593,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
-				D6D9A4D21FBF5BF000EFA430 /* MSIDDeviceId.m in Sources */,
+				B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
