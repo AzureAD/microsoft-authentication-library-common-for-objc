@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */; };
+		B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
+		B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
+		B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */; };
 		B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */; };
 		B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */; };
 		B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = B262B0781FC3BA8200FB111B /* MSIDLogger.h */; };
@@ -104,6 +107,9 @@
 /* Begin PBXFileReference section */
 		B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDeviceId.m; sourceTree = "<group>"; };
 		B20E3CAF1FC4F1540029C097 /* MSIDVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDVersion.h; sourceTree = "<group>"; };
+		B20E3CB11FC4FA550029C097 /* MSIDVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDVersion.m; sourceTree = "<group>"; };
+		B20E3CB41FC4FE3F0029C097 /* MSIDOAuth2Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDOAuth2Constants.h; sourceTree = "<group>"; };
+		B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuth2Constants.m; sourceTree = "<group>"; };
 		B25A35691FC4D6B600C7FD43 /* MSIDLogger+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDLogger+Internal.h"; sourceTree = "<group>"; };
 		B25A356A1FC4D6B600C7FD43 /* MSIDLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLogger.h; sourceTree = "<group>"; };
 		B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLogger.m; sourceTree = "<group>"; };
@@ -332,6 +338,8 @@
 				B20E3CAF1FC4F1540029C097 /* MSIDVersion.h */,
 				D6D9A4591FBD420300EFA430 /* MSIDDeviceId.h */,
 				B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */,
+				B20E3CB41FC4FE3F0029C097 /* MSIDOAuth2Constants.h */,
+				B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */,
 				B25A35711FC4D71000C7FD43 /* MSIDRequestContext.h */,
 				B25A35681FC4D6B600C7FD43 /* logger */,
 				D62600091FBD305800EE4487 /* util */,
@@ -583,6 +591,7 @@
 				B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
 				B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */,
+				B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */,
 				D6D9A4521FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
 				D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 			);
