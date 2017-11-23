@@ -37,3 +37,5 @@ GCC_WARN_UNUSED_VARIABLE = YES
 
 OTHER_LDFLAGS = -ObjC
 SKIP_INSTALL = YES
+
+OTHER_CFLAGS=$(inherited) -fstack-protector-strong
