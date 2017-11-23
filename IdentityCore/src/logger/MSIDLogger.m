@@ -24,6 +24,7 @@
 #import "MSIDLogger.h"
 #import "MSIDLogger+Internal.h"
 #import "MSIDVersion.h"
+#import "MSIDDeviceId.h"
 
 @interface MSIDLogger()
 {
@@ -82,7 +83,6 @@
 @implementation MSIDLogger (Internal)
 
 static NSDateFormatter *s_dateFormatter = nil;
-static NSString *s_OSString = nil; // TODO: set this one!
 
 + (void)initialize
 {
@@ -133,14 +133,14 @@ static NSString *s_OSString = nil; // TODO: set this one!
     {
         NSString *levelStr = [self stringForLogLevel:_level];
         
-        NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@%@]%@ %@: %@", sdkName, sdkVersion, s_OSString, dateStr, correlationIdStr, componentStr, levelStr, message];
+        NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@%@]%@ %@: %@", sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, levelStr, message];
         
         NSLog(@"%@", log);
     }
     
     if (_callback)
     {
-        NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@%@]%@ %@", sdkName, sdkVersion, s_OSString, dateStr, correlationIdStr, componentStr, message];
+        NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@%@]%@ %@", sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, message];
         
         _callback(level, log, isPii);
     }
