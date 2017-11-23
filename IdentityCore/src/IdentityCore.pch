@@ -33,4 +33,8 @@
 #import "NSString+MSIDExtensions.h"
 #import "NSURL+MSIDExtensions.h"
 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
+
 #endif /* IdentityCore_pch */

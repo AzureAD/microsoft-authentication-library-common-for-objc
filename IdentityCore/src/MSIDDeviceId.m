@@ -25,10 +25,6 @@
 #import "MSIDVersion.h"
 #import "MSIDOAuth2Constants.h"
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
-
 @implementation MSIDDeviceId
 
 //Extracts the CPU information according to the constants defined in

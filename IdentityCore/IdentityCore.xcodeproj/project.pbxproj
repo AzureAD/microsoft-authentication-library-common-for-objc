@@ -170,6 +170,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2C17AEA1FC790420070A514 /* UIKit.framework in Frameworks */,
 				D6D9A4C31FBE718C00EFA430 /* libIdentityTest.a in Frameworks */,
 				D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */,
 			);
@@ -328,6 +329,7 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B2C17AE91FC790420070A514 /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
