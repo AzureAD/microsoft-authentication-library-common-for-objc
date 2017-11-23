@@ -21,22 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+#import "MSIDVersion.h"
 
-@interface MSIDDeviceId : NSObject
+@implementation MSIDVersion
 
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
++ (NSString *)platformName
+{
+#if TARGET_OS_IPHONE
+    return @"TEST.iOS";
+#else
+    return @"TEST.OSX";
+#endif
+}
 
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
++ (NSString *)sdkName
+{
+    return @"TEST";
+}
 
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
++ (NSString *)sdkVersion
+{
+    return @"1.0.0";
+}
 
 @end
