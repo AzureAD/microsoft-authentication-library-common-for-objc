@@ -28,38 +28,39 @@
 #import "MSIDLogger.h"
 #import "MSIDRequestContext.h"
 
-#define MSID_LOG(_LVL, _CTX, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logLevel:_LVL context:_CTX isPII:_PII format:_FMT, ##__VA_ARGS__]
+#define MSID_LOG(_LVL, _CORRELATION, _CTX, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logLevel:_LVL context:_CTX correlationId:_CORRELATION isPII:_PII format:_FMT, ##__VA_ARGS__]
 
-#define MSID_LOG_ERROR(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, _ctx, NO, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_ERROR(_correlationId, _ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelError, _correlationId, _ctx, NO, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_ERROR_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, _ctx, YES, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_ERROR_PII(_correlationId, _ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelError, _correlationId, _ctx, YES, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_WARN(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, _ctx, NO, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_WARN(_correlationId, _ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelWarning, _correlationId, _ctx, NO, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_WARN_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, _ctx, YES, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_WARN_PII(_correlationId, _ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelWarning, _correlationId, _ctx, YES, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_INFO(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, _ctx, NO, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_INFO(_correlationId, _ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelInfo, _correlationId, _ctx, NO, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_INFO_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, _ctx, YES, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_INFO_PII(_correlationId, _ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelInfo, _correlationId, _ctx, YES, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_VERBOSE(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, _ctx, NO, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_VERBOSE(_correlationId, _ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelVerbose, _correlationId, _ctx, NO, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_VERBOSE_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, _ctx, YES, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_VERBOSE_PII(_correlationId, _ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelVerbose, _correlationId, _ctx, YES, _fmt, ##__VA_ARGS__)
 
 @interface MSIDLogger (Internal)
 
 - (void)logLevel:(MSIDLogLevel)level
          context:(id<MSIDRequestContext>)context
+   correlationId:(NSUUID *)correlationId
            isPII:(BOOL)isPii
-          format:(NSString *)format, ... NS_FORMAT_FUNCTION(4, 5);
+          format:(NSString *)format, ... NS_FORMAT_FUNCTION(5, 6);
 
 - (void)logToken:(NSString *)token
        tokenType:(NSString *)tokenType

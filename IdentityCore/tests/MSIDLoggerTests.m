@@ -41,12 +41,12 @@
 
 - (void)testLog_whenLogLevelNothingMessageValid_shouldNotThrow
 {
-    XCTAssertNoThrow([[MSIDLogger sharedLogger] logLevel:MSIDLogLevelNothing context:nil isPII:NO format:@"Message"]);
+    XCTAssertNoThrow([[MSIDLogger sharedLogger] logLevel:MSIDLogLevelNothing context:nil correlationId:nil isPII:NO format:@"Message"]);
 }
 
 - (void)testLog_whenLogLevelErrorMessageNil_shouldNotThrow
 {
-    XCTAssertNoThrow([[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil isPII:NO format:nil]);
+    XCTAssertNoThrow([[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:nil]);
 }
 
 #pragma mark - PII flag
@@ -54,7 +54,7 @@
 - (void)testLog_whenPiiEnabledPiiMessage_shouldReturnMessageInCallback
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil isPII:YES format:@"pii-message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES format:@"pii-message"];
     
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(testLogger.lastMessage);
@@ -65,7 +65,7 @@
 - (void)testLog_whenPiiEnabledNonPiiMessage_shouldReturnMessageInCallback
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil isPII:NO format:@"non-pii-message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:@"non-pii-message"];
     
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(testLogger.lastMessage);
@@ -76,7 +76,7 @@
 - (void)testLog_whenPiiNotEnabledNonPiiMessage_shouldReturnMessageInCallback
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil isPII:NO format:@"non-pii-message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:@"non-pii-message"];
     
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(testLogger.lastMessage);
@@ -87,7 +87,7 @@
 - (void)testLog_whenPiiNotEnabledPiiMessage_shouldNotInvokeCallback
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil isPII:YES format:@"pii-message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES format:@"pii-message"];
     
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     XCTAssertNil(testLogger.lastMessage);
@@ -97,7 +97,7 @@
 
 - (void)testLogErrorMacro_shouldReturnMessageNoPIIErrorLevel
 {
-    MSID_LOG_ERROR(nil, @"Error message! %d", 0);
+    MSID_LOG_ERROR(nil, nil, @"Error message! %d", 0);
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(logger.lastMessage);
@@ -108,7 +108,7 @@
 
 - (void)testLogWarningMacro_shouldReturnMessageNoPIIWarningLevel
 {
-    MSID_LOG_WARN(nil, @"Oh no, a %@ thing happened!", @"bad");
+    MSID_LOG_WARN(nil, nil, @"Oh no, a %@ thing happened!", @"bad");
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(logger.lastMessage);
@@ -119,7 +119,7 @@
 
 - (void)testLogInfoMacro_shouldReturnMessageNoPIIInfoLevel
 {
-    MSID_LOG_INFO(nil, @"This informative message has been seen %d times", 20);
+    MSID_LOG_INFO(nil, nil, @"This informative message has been seen %d times", 20);
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(logger.lastMessage);
@@ -130,7 +130,7 @@
 
 - (void)testLogVerboseMacro_shouldReturnMessageNoPIIVerboseLevel
 {
-    MSID_LOG_VERBOSE(nil, @"So much noise, this message is %@ useful", @"barely");
+    MSID_LOG_VERBOSE(nil, nil, @"So much noise, this message is %@ useful", @"barely");
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(logger.lastMessage);
@@ -142,7 +142,7 @@
 - (void)testLogErrorPiiMacro_shouldReturnMessagePIITrueErrorLevel
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
-    MSID_LOG_ERROR_PII(nil, @"userId: %@ failed to sign in", @"user@contoso.com");
+    MSID_LOG_ERROR_PII(nil, nil, @"userId: %@ failed to sign in", @"user@contoso.com");
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(logger.lastMessage);
@@ -154,7 +154,7 @@
 - (void)testLogWarningPiiMacro_shouldReturnMessagePIITrueWarningLevel
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
-    MSID_LOG_WARN_PII(nil, @"%@ pressed the cancel button", @"user@contoso.com");
+    MSID_LOG_WARN_PII(nil, nil, @"%@ pressed the cancel button", @"user@contoso.com");
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(logger.lastMessage);
@@ -166,7 +166,7 @@
 - (void)testLogInfoPiiMacro_shouldReturnMessagePIITrueInfoLevel
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
-    MSID_LOG_INFO_PII(nil, @"%@ is trying to log in", @"user@contoso.com");
+    MSID_LOG_INFO_PII(nil, nil, @"%@ is trying to log in", @"user@contoso.com");
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(logger.lastMessage);
@@ -178,7 +178,7 @@
 - (void)testLogVerbosePiiMacro_shouldReturnMessagePIITrueVerboseLevel
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
-    MSID_LOG_VERBOSE_PII(nil, @"waiting on response from %@", @"contoso.com");
+    MSID_LOG_VERBOSE_PII(nil, nil, @"waiting on response from %@", @"contoso.com");
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(logger.lastMessage);
@@ -192,7 +192,7 @@
 - (void)testSetLogLevel_withLogLevelNothing_shouldNotInvokeCallback
 {
     [MSIDLogger sharedLogger].level = MSIDLogLevelNothing;
-    MSID_LOG_ERROR(nil, @"test error message");
+    MSID_LOG_ERROR(nil, nil, @"test error message");
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNil(logger.lastMessage);
@@ -201,7 +201,7 @@
 - (void)testSetLogLevel_withLogErrorLoggingError_shouldInvokeCallback
 {
     [MSIDLogger sharedLogger].level = MSIDLogLevelError;
-    MSID_LOG_ERROR(nil, @"test error message");
+    MSID_LOG_ERROR(nil, nil, @"test error message");
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNotNil(logger.lastMessage);
@@ -213,7 +213,7 @@
 - (void)testSetLogLevel_withLogErrorLoggingVerbose_shouldNotInvokeCallback
 {
     [MSIDLogger sharedLogger].level = MSIDLogLevelError;
-    MSID_LOG_VERBOSE(nil, @"test error message");
+    MSID_LOG_VERBOSE(nil, nil, @"test error message");
     
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     XCTAssertNil(logger.lastMessage);

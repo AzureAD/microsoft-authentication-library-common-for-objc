@@ -93,6 +93,7 @@ static NSDateFormatter *s_dateFormatter = nil;
 
 - (void)logLevel:(MSIDLogLevel)level
          context:(id<MSIDRequestContext>)context
+   correlationId:(NSUUID *)correlationId
            isPII:(BOOL)isPii
           format:(NSString *)format, ...
 {
@@ -124,8 +125,7 @@ static NSDateFormatter *s_dateFormatter = nil;
     NSString *logComponent = [context logComponent];
     NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
     
-    NSString *correlationId = context.correlationId.UUIDString;
-    NSString *correlationIdStr = correlationId ? [NSString stringWithFormat:@" - %@", correlationId] : @"";
+    NSString *correlationIdStr = correlationId ? [NSString stringWithFormat:@" - %@", correlationId.UUIDString] : @"";
     
     NSString *dateStr = [s_dateFormatter stringFromDate:[NSDate date]];
     
@@ -181,7 +181,7 @@ static NSDateFormatter *s_dateFormatter = nil;
         [logString appendFormat:@" expires on %@", expiresOn];
     }
     
-    MSID_LOG_INFO_PII(context, @"%@", logString);
+    MSID_LOG_INFO_PII(context.correlationId, context, @"%@", logString);
 }
 
 @end
