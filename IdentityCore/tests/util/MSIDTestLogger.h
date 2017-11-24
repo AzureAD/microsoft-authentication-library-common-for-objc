@@ -31,8 +31,7 @@
 
 /*!
     This class provides a logging callback for the MSID logger and allows tests
-    to inspect the last log message sent to the logger. It is automatically reset
-    at the beginning of each test by MSALTestCase.
+    to inspect the last log message sent to the logger. It is used in the logger tests.
  */
 @interface MSIDTestLogger : NSObject
 
@@ -42,10 +41,10 @@
 
 + (MSIDTestLogger *)sharedLogger;
 
-/*! Resets all of the test logger variables to default state and sets the MSAL log level to MSALLogLevelLast. */
+/*! Resets all of the test logger variables to default state and sets the MSID log level to MSIDLogLevelLast. */
 - (void)reset;
 
-/*! Resets all of the test logger variables to default state and sets the MSAL log level to the provided log level. */
+/*! Resets all of the test logger variables to default state and sets the MSID log level to the provided log level. */
 - (void)reset:(MSIDLogLevel)level;
 
 @end

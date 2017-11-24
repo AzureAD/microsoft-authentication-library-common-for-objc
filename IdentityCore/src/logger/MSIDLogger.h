@@ -65,7 +65,7 @@ typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL cont
 @property (readwrite) BOOL NSLoggingEnabled;
 
 /*!
- Sets the callback block to send MSAL log messages to.
+ Sets the callback block to send MSID log messages to.
  
  NOTE: Once this is set this can not be unset, and it should be set early in
  the program's execution.
