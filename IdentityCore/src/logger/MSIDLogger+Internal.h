@@ -30,29 +30,60 @@
 
 #define MSID_LOG(_LVL, _CORRELATION, _CTX, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logLevel:_LVL context:_CTX correlationId:_CORRELATION isPII:_PII format:_FMT, ##__VA_ARGS__]
 
-#define MSID_LOG_ERROR(_correlationId, _ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, _correlationId, _ctx, NO, _fmt, ##__VA_ARGS__)
+/*
+ Macros that take context should be prefered as context provides both log component and correlationId.
+ However, ADAL has lots of components that don't know their context and only know their correlationId.
+ Also, in some cases correlationId arriving from the broker or in the server response should be used and not the one in context.
+ Therefore, _CORR macros are also provided for backward compatibility, but they should be used only when context is not otherwise available.
+ */
 
-#define MSID_LOG_ERROR_PII(_correlationId, _ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, _correlationId, _ctx, YES, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_ERROR(_ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelError, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_WARN(_correlationId, _ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, _correlationId, _ctx, NO, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_ERROR_CORR(_correlationId, _fmt, ...) \
+MSID_LOG(MSIDLogLevelError, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_WARN_PII(_correlationId, _ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, _correlationId, _ctx, YES, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_ERROR_PII(_ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelError, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_INFO(_correlationId, _ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, _correlationId, _ctx, NO, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_ERROR_CORR_PII(_correlationId, _fmt, ...) \
+MSID_LOG(MSIDLogLevelError, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_INFO_PII(_correlationId, _ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, _correlationId, _ctx, YES, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_WARN(_ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelWarning, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_VERBOSE(_correlationId, _ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, _correlationId, _ctx, NO, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_CORR_WARN(_correlationId, _fmt, ...) \
+MSID_LOG(MSIDLogLevelWarning, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
 
-#define MSID_LOG_VERBOSE_PII(_correlationId, _ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, _correlationId, _ctx, YES, _fmt, ##__VA_ARGS__)
+#define MSID_LOG_WARN_PII(_ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelWarning, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
+
+#define MSID_LOG_WARN_CORR_PII(_correlationId, _fmt, ...) \
+MSID_LOG(MSIDLogLevelWarning, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
+
+#define MSID_LOG_INFO(_ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelInfo, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
+
+#define MSID_LOG_INFO_CORR(_correlationId, _fmt, ...) \
+MSID_LOG(MSIDLogLevelInfo, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
+
+#define MSID_LOG_INFO_PII(_ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelInfo, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
+
+#define MSID_LOG_INFO_CORR_PII(_correlationId, _fmt, ...) \
+MSID_LOG(MSIDLogLevelInfo, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
+
+#define MSID_LOG_VERBOSE(_ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
+
+#define MSID_LOG_VERBOSE_CORR(_correlationId, _fmt, ...) \
+MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
+
+#define MSID_LOG_VERBOSE_PII(_ctx, _fmt, ...) \
+MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
+
+#define MSID_LOG_VERBOSE_CORR_PII(_correlationId, _fmt, ...) \
+MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
 
 @interface MSIDLogger (Internal)
 
@@ -62,6 +93,7 @@ MSID_LOG(MSIDLogLevelVerbose, _correlationId, _ctx, YES, _fmt, ##__VA_ARGS__)
  @param correlationId   Alternative way to pass correlationId for cases when context is not available
  @param isPii           Specifies if message contains PII
  @param format          Message format
+
  */
 
 - (void)logLevel:(MSIDLogLevel)level

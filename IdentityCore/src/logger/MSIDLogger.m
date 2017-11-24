@@ -190,7 +190,7 @@ static NSDateFormatter *s_dateFormatter = nil;
         [logString appendFormat:@" expires on %@", expiresOn];
     }
     
-    MSID_LOG_INFO_PII(context.correlationId, context, @"%@", logString);
+    MSID_LOG_INFO_PII(context, @"%@", logString);
 }
 
 @end
