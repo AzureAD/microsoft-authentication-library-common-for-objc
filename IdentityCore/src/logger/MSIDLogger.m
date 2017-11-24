@@ -125,7 +125,16 @@ static NSDateFormatter *s_dateFormatter = nil;
     NSString *logComponent = [context logComponent];
     NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
     
-    NSString *correlationIdStr = correlationId ? [NSString stringWithFormat:@" - %@", correlationId.UUIDString] : @"";
+    NSString *correlationIdStr = @"";
+    
+    if (correlationId)
+    {
+        correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
+    }
+    else if (context)
+    {
+        correlationIdStr = [NSString stringWithFormat:@" - %@", [context correlationId]];
+    }
     
     NSString *dateStr = [s_dateFormatter stringFromDate:[NSDate date]];
     
