@@ -161,4 +161,27 @@ static NSDateFormatter *s_dateFormatter = nil;
     }
 }
 
+- (void)logToken:(NSString *)token
+       tokenType:(NSString *)tokenType
+   expiresOnDate:(NSDate *)expiresOn
+    additionaLog:(NSString *)additionalLog
+         context:(id<MSIDRequestContext>)context
+{
+    NSMutableString *logString = nil;
+    
+    if (context)
+    {
+        [logString appendFormat:@"%@ ", additionalLog];
+    }
+    
+    [logString appendFormat:@"%@ (%@)", tokenType, [token msidTokenHash]];
+    
+    if (expiresOn)
+    {
+        [logString appendFormat:@" expires on %@", expiresOn];
+    }
+    
+    MSID_LOG_INFO_PII(context, @"%@", logString);
+}
+
 @end

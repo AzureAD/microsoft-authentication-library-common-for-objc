@@ -61,4 +61,10 @@ MSID_LOG(MSIDLogLevelVerbose, _ctx, YES, _fmt, ##__VA_ARGS__)
            isPII:(BOOL)isPii
           format:(NSString *)format, ... NS_FORMAT_FUNCTION(4, 5);
 
+- (void)logToken:(NSString *)token
+       tokenType:(NSString *)tokenType
+   expiresOnDate:(NSDate *)expiresOn
+    additionaLog:(NSString *)additionalLog
+         context:(id<MSIDRequestContext>)context;
+
 @end

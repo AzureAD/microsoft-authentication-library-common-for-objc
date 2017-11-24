@@ -345,4 +345,12 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return [[NSURL alloc] initWithString:self];
 }
 
+- (NSString *)msidTokenHash
+{
+    NSMutableString *returnStr = [[self msidComputeSHA256] mutableCopy];
+    
+    // 7 characters is sufficient to differentiate tokens in the log, otherwise the hashes start making log lines hard to read
+    return [returnStr substringToIndex:7];
+}
+
 @end
