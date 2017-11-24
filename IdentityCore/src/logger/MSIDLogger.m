@@ -69,7 +69,7 @@
     
     if (self->_callback != nil)
     {
-        @throw @"MSAL logging callback can only be set once per process and should never changed once set.";
+        @throw @"MSID logging callback can only be set once per process and should never changed once set.";
     }
     
     dispatch_once(&once, ^{
@@ -91,7 +91,10 @@ static NSDateFormatter *s_dateFormatter = nil;
     [s_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
 }
 
-- (void)logLevel:(MSIDLogLevel)level isPII:(BOOL)isPii context:(id<MSIDRequestContext>)context format:(NSString *)format, ...
+- (void)logLevel:(MSIDLogLevel)level
+         context:(id<MSIDRequestContext>)context
+           isPII:(BOOL)isPii
+          format:(NSString *)format, ...
 {
     if (!format)
     {
@@ -103,7 +106,7 @@ static NSDateFormatter *s_dateFormatter = nil;
         return;
     }
     
-    if (level >= _level)
+    if (level > _level)
     {
         return;
     }

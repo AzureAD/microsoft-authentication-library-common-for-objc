@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,18 +17,35 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
+
 
 #import <Foundation/Foundation.h>
+#import "MSIDLogger.h"
 
-@protocol MSIDRequestContext
+/*!
+    This class provides a logging callback for the MSID logger and allows tests
+    to inspect the last log message sent to the logger. It is automatically reset
+    at the beginning of each test by MSALTestCase.
+ */
+@interface MSIDTestLogger : NSObject
 
-- (NSUUID *)correlationId;
-- (NSString *)logComponent;
-- (NSString *)telemetryRequestId;
+@property (readwrite) BOOL containsPII;
+@property (readwrite, retain) NSString *lastMessage;
+@property (readwrite) MSIDLogLevel lastLevel;
+
++ (MSIDTestLogger *)sharedLogger;
+
+/*! Resets all of the test logger variables to default state and sets the MSAL log level to MSALLogLevelLast. */
+- (void)reset;
+
+/*! Resets all of the test logger variables to default state and sets the MSAL log level to the provided log level. */
+- (void)reset:(MSIDLogLevel)level;
 
 @end

@@ -25,40 +25,51 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDLogger.h"
-#import "MSIDRequestContext.h"
 
-#define MSID_LOG(_LVL, _CTX, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logLevel:_LVL context:_CTX isPII:_PII format:_FMT, ##__VA_ARGS__]
+#import "MSIDTestLogger.h"
 
-#define MSID_LOG_ERROR(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, _ctx, NO, _fmt, ##__VA_ARGS__)
+@implementation MSIDTestLogger
 
-#define MSID_LOG_ERROR_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, _ctx, YES, _fmt, ##__VA_ARGS__)
++ (void)load
+{
+    // We want the shared test logger to get created early so it grabs the log callback
+    [MSIDTestLogger sharedLogger];
+}
 
-#define MSID_LOG_WARN(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, _ctx, NO, _fmt, ##__VA_ARGS__)
++ (MSIDTestLogger *)sharedLogger
+{
+    static dispatch_once_t onceToken;
+    static MSIDTestLogger *logger;
+    dispatch_once(&onceToken, ^{
+        logger = [MSIDTestLogger new];
+        
+        [[MSIDLogger sharedLogger] setCallback:^(MSIDLogLevel level, NSString *message, BOOL containsPII) {
+            [logger logLevel:level isPii:containsPII message:message];
+        }];
+    });
+    
+    return logger;
+}
 
-#define MSID_LOG_WARN_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, _ctx, YES, _fmt, ##__VA_ARGS__)
+- (void)logLevel:(MSIDLogLevel)level isPii:(BOOL)isPii message:(NSString *)message
+{
+    _lastLevel = level;
+    _containsPII = isPii;
+    _lastMessage = message;
+}
 
-#define MSID_LOG_INFO(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, _ctx, NO, _fmt, ##__VA_ARGS__)
+- (void)reset
+{
+    [self reset:MSIDLogLevelLast];
+}
 
-#define MSID_LOG_INFO_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, _ctx, YES, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_VERBOSE(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, _ctx, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_VERBOSE_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, _ctx, YES, _fmt, ##__VA_ARGS__)
-
-@interface MSIDLogger (Internal)
-
-- (void)logLevel:(MSIDLogLevel)level
-         context:(id<MSIDRequestContext>)context
-           isPII:(BOOL)isPii
-          format:(NSString *)format, ... NS_FORMAT_FUNCTION(4, 5);
+- (void)reset:(MSIDLogLevel)level
+{
+    _lastMessage = nil;
+    _lastLevel = -1;
+    _containsPII = NO;
+    [[MSIDLogger sharedLogger] setLevel:level];
+    [[MSIDLogger sharedLogger] setPiiLoggingEnabled:NO];
+}
 
 @end
