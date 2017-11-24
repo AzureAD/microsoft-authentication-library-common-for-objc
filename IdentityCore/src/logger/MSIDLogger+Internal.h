@@ -56,6 +56,14 @@ MSID_LOG(MSIDLogLevelVerbose, _correlationId, _ctx, YES, _fmt, ##__VA_ARGS__)
 
 @interface MSIDLogger (Internal)
 
+/*!
+ Logs message with the specified level. If correlationId is nil, uses correlationId from the context.
+ @param context         Log context, provides correlationId and log component
+ @param correlationId   Alternative way to pass correlationId for cases when context is not available
+ @param isPii           Specifies if message contains PII
+ @param format          Message format
+ */
+
 - (void)logLevel:(MSIDLogLevel)level
          context:(id<MSIDRequestContext>)context
    correlationId:(NSUUID *)correlationId
