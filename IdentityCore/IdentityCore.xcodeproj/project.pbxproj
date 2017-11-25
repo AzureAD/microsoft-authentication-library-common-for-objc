@@ -44,6 +44,9 @@
 		B20657CF1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657CE1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m */; };
 		B20657D01FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657CE1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m */; };
 		B20657DC1FC92EC600412B7D /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20657D61FC92D2700412B7D /* IOKit.framework */; };
+		B20657DF1FCA208C00412B7D /* NSDate+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657DD1FCA208C00412B7D /* NSDate+MSIDExtensions.h */; };
+		B20657E01FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657DE1FCA208C00412B7D /* NSDate+MSIDExtensions.m */; };
+		B20657E11FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657DE1FCA208C00412B7D /* NSDate+MSIDExtensions.m */; };
 		B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */; };
 		B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
 		B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
@@ -176,6 +179,8 @@
 		B20657CE1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryUIEventTests.m; sourceTree = "<group>"; };
 		B20657D61FC92D2700412B7D /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		B20657D81FC92D7600412B7D /* libswiftIOKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftIOKit.tbd; path = System/Library/PrivateFrameworks/Swift/libswiftIOKit.tbd; sourceTree = SDKROOT; };
+		B20657DD1FCA208C00412B7D /* NSDate+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDate+MSIDExtensions.h"; sourceTree = "<group>"; };
+		B20657DE1FCA208C00412B7D /* NSDate+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDate+MSIDExtensions.m"; sourceTree = "<group>"; };
 		B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDeviceId.m; sourceTree = "<group>"; };
 		B20E3CAF1FC4F1540029C097 /* MSIDVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDVersion.h; sourceTree = "<group>"; };
 		B20E3CB11FC4FA550029C097 /* MSIDVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDVersion.m; sourceTree = "<group>"; };
@@ -354,6 +359,8 @@
 				D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */,
 				D6D9A4501FBD3FB700EFA430 /* NSURL+MSIDExtensions.h */,
 				D6D9A44F1FBD3FB700EFA430 /* NSURL+MSIDExtensions.m */,
+				B20657DD1FCA208C00412B7D /* NSDate+MSIDExtensions.h */,
+				B20657DE1FCA208C00412B7D /* NSDate+MSIDExtensions.m */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -502,6 +509,7 @@
 				B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */,
 				B20657AB1FC91F6400412B7D /* MSIDTelemetry+Internal.h in Headers */,
 				B20657A51FC91C1600412B7D /* MSIDTelemetryDispatcher.h in Headers */,
+				B20657DF1FCA208C00412B7D /* NSDate+MSIDExtensions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -728,6 +736,7 @@
 				B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */,
 				B20657B11FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
 				D6D9A4521FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
+				B20657E11FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
 				B20657BF1FC9254900412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				B20657B31FC922A400412B7D /* MSIDTelemetryDefaultEvent.m in Sources */,
 				D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
@@ -789,6 +798,7 @@
 				B2C17AED1FC796FE0070A514 /* MSIDOAuth2Constants.m in Sources */,
 				B20657B01FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
 				D6D9A4511FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
+				B20657E01FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
 				B20657BE1FC9254800412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				B20657B41FC922A400412B7D /* MSIDTelemetryDefaultEvent.m in Sources */,
 				D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
