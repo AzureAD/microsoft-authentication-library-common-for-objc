@@ -21,34 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
+@protocol MSIDTelemetryEventInterface <NSObject>
 
-#import "MSIDVersion.h"
+@property (readonly) NSDictionary *propertyMap;
 
-@implementation MSIDVersion
+- (void)setProperty:(NSString *)name value:(NSString *)value;
+- (NSDictionary *)getProperties;
 
-+ (NSString *)platformName
-{
-#if TARGET_OS_IPHONE
-    return @"TEST.iOS";
-#else
-    return @"TEST.OSX";
-#endif
-}
-
-+ (NSString *)sdkName
-{
-    return @"TEST";
-}
-
-+ (NSString *)sdkVersion
-{
-    return @"1.0.0";
-}
-
-+ (NSString *)telemetryEventPrefix
-{
-    return @"Microsoft.Test.";
-}
+- (void)setStartTime:(NSDate *)time;
+- (void)setStopTime:(NSDate *)time;
+- (void)setResponseTime:(NSTimeInterval)responseTime;
+- (void)deleteProperty:(NSString *)name;
 
 @end

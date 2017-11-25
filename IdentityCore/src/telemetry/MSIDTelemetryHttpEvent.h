@@ -21,34 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
+#import "MSIDTelemetryDefaultEvent.h"
 
-#import "MSIDVersion.h"
+@interface MSIDTelemetryHttpEvent : MSIDTelemetryDefaultEvent
 
-@implementation MSIDVersion
-
-+ (NSString *)platformName
-{
-#if TARGET_OS_IPHONE
-    return @"TEST.iOS";
-#else
-    return @"TEST.OSX";
-#endif
-}
-
-+ (NSString *)sdkName
-{
-    return @"TEST";
-}
-
-+ (NSString *)sdkVersion
-{
-    return @"1.0.0";
-}
-
-+ (NSString *)telemetryEventPrefix
-{
-    return @"Microsoft.Test.";
-}
+- (void)setHttpMethod:(NSString *)method;
+- (void)setHttpPath:(NSString *)path;
+- (void)setHttpRequestIdHeader:(NSString *)requestIdHeader;
+- (void)setHttpResponseCode:(NSString *)code;
+- (void)setHttpResponseMethod:(NSString *)method;
+- (void)setHttpRequestQueryParams:(NSString *)params;
+- (void)setHttpUserAgent:(NSString *)userAgent;
+- (void)setHttpErrorCode:(NSString *)code;
+- (void)setOAuthErrorCode:(NSString *)oauthErrorCode;
+- (void)setHttpErrorDomain:(NSString *)errorDomain;
+- (void)setClientTelemetry:(NSString *)clientTelemetry;
 
 @end

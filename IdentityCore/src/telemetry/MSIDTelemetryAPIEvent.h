@@ -21,34 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
+#import "MSIDTelemetryDefaultEvent.h"
 
-#import "MSIDVersion.h"
+@interface MSIDTelemetryAPIEvent : MSIDTelemetryDefaultEvent
 
-@implementation MSIDVersion
+- (void)setCorrelationId:(NSUUID *)correlationId;
+- (void)setExtendedExpiresOnSetting:(NSString *)extendedExpiresOnSetting;
+- (void)setUserId:(NSString *)userId;
+- (void)setClientId:(NSString *)clientId;
+- (void)setIsExtendedLifeTimeToken:(NSString *)isExtendedLifeToken;
+- (void)setErrorDescription:(NSString *)errorDescription;
+- (void)setErrorDomain:(NSString *)errorDomain;
 
-+ (NSString *)platformName
-{
-#if TARGET_OS_IPHONE
-    return @"TEST.iOS";
-#else
-    return @"TEST.OSX";
-#endif
-}
+- (void)setAuthorityValidationStatus:(NSString *)status;
+- (void)setAuthority:(NSString *)authority;
 
-+ (NSString *)sdkName
-{
-    return @"TEST";
-}
+- (void)setGrantType:(NSString *)grantType;
+- (void)setAPIStatus:(NSString *)status;
 
-+ (NSString *)sdkVersion
-{
-    return @"1.0.0";
-}
-
-+ (NSString *)telemetryEventPrefix
-{
-    return @"Microsoft.Test.";
-}
+- (void)setApiId:(NSString *)apiId;
 
 @end

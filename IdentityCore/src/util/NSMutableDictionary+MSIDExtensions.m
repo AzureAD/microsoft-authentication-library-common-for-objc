@@ -21,34 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
 
-#import "MSIDVersion.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
 
-@implementation MSIDVersion
+@implementation NSMutableDictionary (MSID)
 
-+ (NSString *)platformName
+- (void)msidSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey
 {
-#if TARGET_OS_IPHONE
-    return @"TEST.iOS";
-#else
-    return @"TEST.OSX";
-#endif
-}
-
-+ (NSString *)sdkName
-{
-    return @"TEST";
-}
-
-+ (NSString *)sdkVersion
-{
-    return @"1.0.0";
-}
-
-+ (NSString *)telemetryEventPrefix
-{
-    return @"Microsoft.Test.";
+    if (dictObject)
+    {
+        [self setObject:dictObject forKey:dictKey];
+    }
 }
 
 @end

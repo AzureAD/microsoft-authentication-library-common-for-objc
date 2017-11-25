@@ -21,34 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
+#import "MSIDTelemetryDispatcher.h"
 
-#import "MSIDVersion.h"
+/*!
+    @class ADTelemetry
+ 
+    The central class for ADAL telemetry.
+ 
+    Usage: Get a singleton instance of ADTelemetry; register a dispatcher for receiving telemetry events.
+ */
+@interface MSIDTelemetry : NSObject
 
-@implementation MSIDVersion
+/*!
+    Get a singleton instance of ADTelemetry.
+ */
++ (nonnull MSIDTelemetry*)sharedInstance;
 
-+ (NSString *)platformName
-{
-#if TARGET_OS_IPHONE
-    return @"TEST.iOS";
-#else
-    return @"TEST.OSX";
-#endif
-}
+/*!
+ Set to YES to allow events possibly containing Personally Identifiable Information (PII) to be
+ sent to dispatcher. By default it is NO.
+ */
+@property (nonatomic) BOOL piiEnabled;
 
-+ (NSString *)sdkName
-{
-    return @"TEST";
-}
+/*!
+    Register a telemetry dispatcher for receiving telemetry events.
+    @param dispatcher            An instance of MSIDTelemetryDispatcher implementation.
+ */
+- (void)addDispatcher:(nonnull id<MSIDTelemetryDispatcher>)dispatcher;
 
-+ (NSString *)sdkVersion
-{
-    return @"1.0.0";
-}
+/*!
+ Remove a telemetry dispatcher added for receiving telemetry events.
+ @param dispatcher            An instance of MSIDTelemetryDispatcher implementation added to the dispatches before.
+ */
+- (void)removeDispatcher:(nonnull id<MSIDTelemetryDispatcher>)dispatcher;
 
-+ (NSString *)telemetryEventPrefix
-{
-    return @"Microsoft.Test.";
-}
+/*!
+ Remove all telemetry dispatchers added to the dispatchers collection.
+ */
+- (void)removeAllDispatchers;
 
 @end

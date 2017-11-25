@@ -21,34 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
-
+#import <XCTest/XCTest.h>
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "MSIDVersion.h"
 
-@implementation MSIDVersion
+@interface MSIDTelemetryUIEventTests : XCTestCase
 
-+ (NSString *)platformName
-{
-#if TARGET_OS_IPHONE
-    return @"TEST.iOS";
-#else
-    return @"TEST.OSX";
-#endif
-}
+@end
 
-+ (NSString *)sdkName
-{
-    return @"TEST";
-}
+@implementation MSIDTelemetryUIEventTests
 
-+ (NSString *)sdkVersion
+- (void)testSetLoginHint_whenLogingHintNotNil_shouldHashLoginHint
 {
-    return @"1.0.0";
-}
-
-+ (NSString *)telemetryEventPrefix
-{
-    return @"Microsoft.Test.";
+    MSIDTelemetryUIEvent *event = [[MSIDTelemetryUIEvent alloc] initWithName:@"testEvent"
+                                                                   requestId:@"requestId"
+                                                               correlationId:[NSUUID UUID]];
+    
+    [event setLoginHint:@"eric_cartman@contoso.com"];
+    
+    NSString *key = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], MSID_TELEMETRY_KEY_LOGIN_HINT];
+    
+    XCTAssertEqualObjects([event getProperties][key], [@"eric_cartman@contoso.com" msidComputeSHA256]);
 }
 
 @end

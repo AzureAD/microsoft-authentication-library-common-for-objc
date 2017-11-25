@@ -34,4 +34,8 @@
 + (NSString *)sdkName;
 + (NSString *)sdkVersion;
 
+// Prefix that will be added to each telemetry field
+// e.g. "msal." for MSAL and "Microsoft.ADAL." for ADAL
++ (NSString *)telemetryEventPrefix;
+
 @end

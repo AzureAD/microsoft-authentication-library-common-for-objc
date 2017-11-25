@@ -21,34 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
+#import "MSIDTelemetry.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 
-#import "MSIDVersion.h"
+@implementation MSIDTelemetryUIEvent
 
-@implementation MSIDVersion
-
-+ (NSString *)platformName
+- (id)initWithName:(NSString *)eventName
+         requestId:(NSString *)requestId
+     correlationId:(NSUUID *)correlationId
 {
-#if TARGET_OS_IPHONE
-    return @"TEST.iOS";
-#else
-    return @"TEST.OSX";
-#endif
+    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
+    {
+        return nil;
+    }
+    
+    [self setProperty:MSID_TELEMETRY_KEY_USER_CANCEL value:@""];
+    [self setProperty:MSID_TELEMETRY_KEY_NTLM_HANDLED value:@""];
+    
+    return self;
 }
 
-+ (NSString *)sdkName
+- (void)setLoginHint:(NSString *)hint
 {
-    return @"TEST";
+    [self setProperty:MSID_TELEMETRY_KEY_LOGIN_HINT value:hint];
 }
 
-+ (NSString *)sdkVersion
+- (void)setNtlm:(NSString *)ntlmHandled
 {
-    return @"1.0.0";
+    [self setProperty:MSID_TELEMETRY_KEY_NTLM_HANDLED value:ntlmHandled];
 }
 
-+ (NSString *)telemetryEventPrefix
+- (void)setIsCancelled:(BOOL)cancelled
 {
-    return @"Microsoft.Test.";
+    [self setProperty:MSID_TELEMETRY_KEY_UI_CANCELLED value:cancelled ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
 }
 
 @end

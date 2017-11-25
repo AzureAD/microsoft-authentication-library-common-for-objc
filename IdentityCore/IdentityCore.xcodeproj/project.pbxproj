@@ -7,6 +7,43 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B20657A51FC91C1600412B7D /* MSIDTelemetryDispatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657A41FC91C1600412B7D /* MSIDTelemetryDispatcher.h */; };
+		B20657A61FC91C9A00412B7D /* MSIDTelemetryEventInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */; };
+		B20657A81FC91EC900412B7D /* MSIDTelemetry.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657A71FC91DA900412B7D /* MSIDTelemetry.h */; };
+		B20657A91FC91ECC00412B7D /* MSIDTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */; };
+		B20657AA1FC91ECC00412B7D /* MSIDTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */; };
+		B20657AB1FC91F6400412B7D /* MSIDTelemetry+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657A01FC91BE100412B7D /* MSIDTelemetry+Internal.h */; };
+		B20657AC1FC91FB100412B7D /* MSIDTelemetryPiiRules.m in Sources */ = {isa = PBXBuildFile; fileRef = B206579A1FC91BE000412B7D /* MSIDTelemetryPiiRules.m */; };
+		B20657AD1FC91FB100412B7D /* MSIDTelemetryPiiRules.m in Sources */ = {isa = PBXBuildFile; fileRef = B206579A1FC91BE000412B7D /* MSIDTelemetryPiiRules.m */; };
+		B20657AE1FC91FB700412B7D /* MSIDTelemetryPiiRules.h in Headers */ = {isa = PBXBuildFile; fileRef = B206579F1FC91BE100412B7D /* MSIDTelemetryPiiRules.h */; };
+		B20657AF1FC91FC900412B7D /* MSIDTelemetryEventStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = B206578D1FC91BDF00412B7D /* MSIDTelemetryEventStrings.h */; };
+		B20657B01FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = B206579E1FC91BE100412B7D /* MSIDTelemetryEventStrings.m */; };
+		B20657B11FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = B206579E1FC91BE100412B7D /* MSIDTelemetryEventStrings.m */; };
+		B20657B21FC9225F00412B7D /* MSIDTelemetryDefaultEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657941FC91BDF00412B7D /* MSIDTelemetryDefaultEvent.h */; };
+		B20657B31FC922A400412B7D /* MSIDTelemetryDefaultEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B206579D1FC91BE000412B7D /* MSIDTelemetryDefaultEvent.m */; };
+		B20657B41FC922A400412B7D /* MSIDTelemetryDefaultEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B206579D1FC91BE000412B7D /* MSIDTelemetryDefaultEvent.m */; };
+		B20657B71FC9235000412B7D /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657B61FC9234200412B7D /* NSMutableDictionary+MSIDExtensions.m */; };
+		B20657B81FC9235000412B7D /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657B61FC9234200412B7D /* NSMutableDictionary+MSIDExtensions.m */; };
+		B20657B91FC9235400412B7D /* NSMutableDictionary+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657B51FC9234200412B7D /* NSMutableDictionary+MSIDExtensions.h */; };
+		B20657BA1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657971FC91BE000412B7D /* MSIDTelemetryAPIEvent.m */; };
+		B20657BB1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657971FC91BE000412B7D /* MSIDTelemetryAPIEvent.m */; };
+		B20657BD1FC9253D00412B7D /* MSIDTelemetryCacheEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = B206578F1FC91BDF00412B7D /* MSIDTelemetryCacheEvent.h */; };
+		B20657BE1FC9254800412B7D /* MSIDTelemetryCacheEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657961FC91BE000412B7D /* MSIDTelemetryCacheEvent.m */; };
+		B20657BF1FC9254900412B7D /* MSIDTelemetryCacheEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657961FC91BE000412B7D /* MSIDTelemetryCacheEvent.m */; };
+		B20657C21FC9261C00412B7D /* NSString+MSIDTelemetryExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657C11FC9261A00412B7D /* NSString+MSIDTelemetryExtensions.h */; };
+		B20657C31FC9262700412B7D /* NSString+MSIDTelemetryExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657C01FC9261A00412B7D /* NSString+MSIDTelemetryExtensions.m */; };
+		B20657C41FC9262800412B7D /* NSString+MSIDTelemetryExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657C01FC9261A00412B7D /* NSString+MSIDTelemetryExtensions.m */; };
+		B20657C61FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657C51FC9265800412B7D /* MSIDTelemetryExtensionsTests.m */; };
+		B20657C71FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657C51FC9265800412B7D /* MSIDTelemetryExtensionsTests.m */; };
+		B20657C81FC926AE00412B7D /* MSIDTelemetryHttpEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = B206579C1FC91BE000412B7D /* MSIDTelemetryHttpEvent.h */; };
+		B20657C91FC926B200412B7D /* MSIDTelemetryHttpEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657991FC91BE000412B7D /* MSIDTelemetryHttpEvent.m */; };
+		B20657CA1FC926B200412B7D /* MSIDTelemetryHttpEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657991FC91BE000412B7D /* MSIDTelemetryHttpEvent.m */; };
+		B20657CB1FC926FF00412B7D /* MSIDTelemetryUIEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = B206579B1FC91BE000412B7D /* MSIDTelemetryUIEvent.h */; };
+		B20657CC1FC9271000412B7D /* MSIDTelemetryUIEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B206578B1FC91BDF00412B7D /* MSIDTelemetryUIEvent.m */; };
+		B20657CD1FC9271000412B7D /* MSIDTelemetryUIEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B206578B1FC91BDF00412B7D /* MSIDTelemetryUIEvent.m */; };
+		B20657CF1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657CE1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m */; };
+		B20657D01FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657CE1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m */; };
+		B20657DC1FC92EC600412B7D /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20657D61FC92D2700412B7D /* IOKit.framework */; };
 		B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */; };
 		B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
 		B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
@@ -112,6 +149,33 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B206578B1FC91BDF00412B7D /* MSIDTelemetryUIEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryUIEvent.m; sourceTree = "<group>"; };
+		B206578D1FC91BDF00412B7D /* MSIDTelemetryEventStrings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryEventStrings.h; sourceTree = "<group>"; };
+		B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetry.m; sourceTree = "<group>"; };
+		B206578F1FC91BDF00412B7D /* MSIDTelemetryCacheEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryCacheEvent.h; sourceTree = "<group>"; };
+		B20657921FC91BDF00412B7D /* MSIDTelemetryAPIEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryAPIEvent.h; sourceTree = "<group>"; };
+		B20657941FC91BDF00412B7D /* MSIDTelemetryDefaultEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryDefaultEvent.h; sourceTree = "<group>"; };
+		B20657961FC91BE000412B7D /* MSIDTelemetryCacheEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryCacheEvent.m; sourceTree = "<group>"; };
+		B20657971FC91BE000412B7D /* MSIDTelemetryAPIEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryAPIEvent.m; sourceTree = "<group>"; };
+		B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryEventInterface.h; sourceTree = "<group>"; };
+		B20657991FC91BE000412B7D /* MSIDTelemetryHttpEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryHttpEvent.m; sourceTree = "<group>"; };
+		B206579A1FC91BE000412B7D /* MSIDTelemetryPiiRules.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryPiiRules.m; sourceTree = "<group>"; };
+		B206579B1FC91BE000412B7D /* MSIDTelemetryUIEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryUIEvent.h; sourceTree = "<group>"; };
+		B206579C1FC91BE000412B7D /* MSIDTelemetryHttpEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryHttpEvent.h; sourceTree = "<group>"; };
+		B206579D1FC91BE000412B7D /* MSIDTelemetryDefaultEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryDefaultEvent.m; sourceTree = "<group>"; };
+		B206579E1FC91BE100412B7D /* MSIDTelemetryEventStrings.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryEventStrings.m; sourceTree = "<group>"; };
+		B206579F1FC91BE100412B7D /* MSIDTelemetryPiiRules.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryPiiRules.h; sourceTree = "<group>"; };
+		B20657A01FC91BE100412B7D /* MSIDTelemetry+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDTelemetry+Internal.h"; sourceTree = "<group>"; };
+		B20657A41FC91C1600412B7D /* MSIDTelemetryDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryDispatcher.h; sourceTree = "<group>"; };
+		B20657A71FC91DA900412B7D /* MSIDTelemetry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetry.h; sourceTree = "<group>"; };
+		B20657B51FC9234200412B7D /* NSMutableDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
+		B20657B61FC9234200412B7D /* NSMutableDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
+		B20657C01FC9261A00412B7D /* NSString+MSIDTelemetryExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDTelemetryExtensions.m"; sourceTree = "<group>"; };
+		B20657C11FC9261A00412B7D /* NSString+MSIDTelemetryExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+MSIDTelemetryExtensions.h"; sourceTree = "<group>"; };
+		B20657C51FC9265800412B7D /* MSIDTelemetryExtensionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryExtensionsTests.m; sourceTree = "<group>"; };
+		B20657CE1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryUIEventTests.m; sourceTree = "<group>"; };
+		B20657D61FC92D2700412B7D /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		B20657D81FC92D7600412B7D /* libswiftIOKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftIOKit.tbd; path = System/Library/PrivateFrameworks/Swift/libswiftIOKit.tbd; sourceTree = SDKROOT; };
 		B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDeviceId.m; sourceTree = "<group>"; };
 		B20E3CAF1FC4F1540029C097 /* MSIDVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDVersion.h; sourceTree = "<group>"; };
 		B20E3CB11FC4FA550029C097 /* MSIDVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDVersion.m; sourceTree = "<group>"; };
@@ -198,6 +262,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B20657DC1FC92EC600412B7D /* IOKit.framework in Frameworks */,
 				D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */,
 				D6D9A4C81FBE71A100EFA430 /* libIdentityTest.a in Frameworks */,
 			);
@@ -227,6 +292,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B206578A1FC917D900412B7D /* telemetry */ = {
+			isa = PBXGroup;
+			children = (
+				B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */,
+				B20657A41FC91C1600412B7D /* MSIDTelemetryDispatcher.h */,
+				B20657A71FC91DA900412B7D /* MSIDTelemetry.h */,
+				B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */,
+				B20657A01FC91BE100412B7D /* MSIDTelemetry+Internal.h */,
+				B20657921FC91BDF00412B7D /* MSIDTelemetryAPIEvent.h */,
+				B20657971FC91BE000412B7D /* MSIDTelemetryAPIEvent.m */,
+				B206578F1FC91BDF00412B7D /* MSIDTelemetryCacheEvent.h */,
+				B20657961FC91BE000412B7D /* MSIDTelemetryCacheEvent.m */,
+				B20657941FC91BDF00412B7D /* MSIDTelemetryDefaultEvent.h */,
+				B206579D1FC91BE000412B7D /* MSIDTelemetryDefaultEvent.m */,
+				B206578D1FC91BDF00412B7D /* MSIDTelemetryEventStrings.h */,
+				B206579E1FC91BE100412B7D /* MSIDTelemetryEventStrings.m */,
+				B206579C1FC91BE000412B7D /* MSIDTelemetryHttpEvent.h */,
+				B20657991FC91BE000412B7D /* MSIDTelemetryHttpEvent.m */,
+				B206579F1FC91BE100412B7D /* MSIDTelemetryPiiRules.h */,
+				B206579A1FC91BE000412B7D /* MSIDTelemetryPiiRules.m */,
+				B206579B1FC91BE000412B7D /* MSIDTelemetryUIEvent.h */,
+				B206578B1FC91BDF00412B7D /* MSIDTelemetryUIEvent.m */,
+			);
+			path = telemetry;
+			sourceTree = "<group>";
+		};
 		B25A35671FC4D69A00C7FD43 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
@@ -253,6 +344,10 @@
 		D62600091FBD305800EE4487 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				B20657C11FC9261A00412B7D /* NSString+MSIDTelemetryExtensions.h */,
+				B20657C01FC9261A00412B7D /* NSString+MSIDTelemetryExtensions.m */,
+				B20657B51FC9234200412B7D /* NSMutableDictionary+MSIDExtensions.h */,
+				B20657B61FC9234200412B7D /* NSMutableDictionary+MSIDExtensions.m */,
 				D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */,
 				D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */,
 				D62600121FBD380500EE4487 /* NSString+MSIDExtensions.h */,
@@ -342,6 +437,8 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B20657D81FC92D7600412B7D /* libswiftIOKit.tbd */,
+				B20657D61FC92D2700412B7D /* IOKit.framework */,
 				B2C17AE91FC790420070A514 /* UIKit.framework */,
 			);
 			name = Frameworks;
@@ -356,6 +453,7 @@
 				B20E3CB41FC4FE3F0029C097 /* MSIDOAuth2Constants.h */,
 				B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */,
 				B25A35711FC4D71000C7FD43 /* MSIDRequestContext.h */,
+				B206578A1FC917D900412B7D /* telemetry */,
 				B25A35681FC4D6B600C7FD43 /* logger */,
 				D62600091FBD305800EE4487 /* util */,
 				D6D9A4B91FBE6D1C00EFA430 /* IdentityCore.pch */,
@@ -366,9 +464,11 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				B20657CE1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m */,
 				B20E3CB11FC4FA550029C097 /* MSIDVersion.m */,
 				D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */,
 				D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */,
+				B20657C51FC9265800412B7D /* MSIDTelemetryExtensionsTests.m */,
 				D626FFE91FBD200A00EE4487 /* util */,
 				B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */,
 			);
@@ -385,11 +485,23 @@
 				D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */,
 				D62600181FBD380500EE4487 /* NSString+MSIDExtensions.h in Headers */,
 				D6D9A45B1FBD420300EFA430 /* MSIDDeviceId.h in Headers */,
+				B20657B91FC9235400412B7D /* NSMutableDictionary+MSIDExtensions.h in Headers */,
 				D6D9A4531FBD3FB800EFA430 /* NSURL+MSIDExtensions.h in Headers */,
+				B20657C21FC9261C00412B7D /* NSString+MSIDTelemetryExtensions.h in Headers */,
+				B20657CB1FC926FF00412B7D /* MSIDTelemetryUIEvent.h in Headers */,
+				B20657BD1FC9253D00412B7D /* MSIDTelemetryCacheEvent.h in Headers */,
+				B20657A81FC91EC900412B7D /* MSIDTelemetry.h in Headers */,
+				B20657A61FC91C9A00412B7D /* MSIDTelemetryEventInterface.h in Headers */,
+				B20657AE1FC91FB700412B7D /* MSIDTelemetryPiiRules.h in Headers */,
+				B20657C81FC926AE00412B7D /* MSIDTelemetryHttpEvent.h in Headers */,
+				B20657B21FC9225F00412B7D /* MSIDTelemetryDefaultEvent.h in Headers */,
 				B2D227AB1FC4BFEB0003579F /* MSIDLogger+Internal.h in Headers */,
 				B2D227AD1FC4C06C0003579F /* MSIDRequestContext.h in Headers */,
+				B20657AF1FC91FC900412B7D /* MSIDTelemetryEventStrings.h in Headers */,
 				B2D227B01FC4C5E50003579F /* MSIDVersion.h in Headers */,
 				B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */,
+				B20657AB1FC91F6400412B7D /* MSIDTelemetry+Internal.h in Headers */,
+				B20657A51FC91C1600412B7D /* MSIDTelemetryDispatcher.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -595,9 +707,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				B2C17AF01FC7A1BF0070A514 /* MSIDLoggerTests.m in Sources */,
+				B20657C61FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */,
 				D6D9A4BC1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
 				B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */,
 				B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */,
+				B20657CF1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
 				D6D9A4BE1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -606,12 +720,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B20657A91FC91ECC00412B7D /* MSIDTelemetry.m in Sources */,
 				B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
+				B20657BB1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */,
 				D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
 				B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */,
 				B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */,
+				B20657B11FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
 				D6D9A4521FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
+				B20657BF1FC9254900412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
+				B20657B31FC922A400412B7D /* MSIDTelemetryDefaultEvent.m in Sources */,
 				D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
+				B20657CA1FC926B200412B7D /* MSIDTelemetryHttpEvent.m in Sources */,
+				B20657B71FC9235000412B7D /* NSMutableDictionary+MSIDExtensions.m in Sources */,
+				B20657C31FC9262700412B7D /* NSString+MSIDTelemetryExtensions.m in Sources */,
+				B20657AC1FC91FB100412B7D /* MSIDTelemetryPiiRules.m in Sources */,
+				B20657CD1FC9271000412B7D /* MSIDTelemetryUIEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -620,9 +744,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				B2C17AF11FC7A1C00070A514 /* MSIDLoggerTests.m in Sources */,
+				B20657C71FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */,
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
 				B2C17AF51FC7A6BD0070A514 /* MSIDTestLogger.m in Sources */,
 				B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */,
+				B20657D01FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
 				D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -655,12 +781,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B20657AA1FC91ECC00412B7D /* MSIDTelemetry.m in Sources */,
 				B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
+				B20657BA1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */,
 				D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
 				B2C17AEC1FC796E60070A514 /* MSIDDeviceId.m in Sources */,
 				B2C17AED1FC796FE0070A514 /* MSIDOAuth2Constants.m in Sources */,
+				B20657B01FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
 				D6D9A4511FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
+				B20657BE1FC9254800412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
+				B20657B41FC922A400412B7D /* MSIDTelemetryDefaultEvent.m in Sources */,
 				D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
+				B20657C91FC926B200412B7D /* MSIDTelemetryHttpEvent.m in Sources */,
+				B20657B81FC9235000412B7D /* NSMutableDictionary+MSIDExtensions.m in Sources */,
+				B20657C41FC9262800412B7D /* NSString+MSIDTelemetryExtensions.m in Sources */,
+				B20657AD1FC91FB100412B7D /* MSIDTelemetryPiiRules.m in Sources */,
+				B20657CC1FC9271000412B7D /* MSIDTelemetryUIEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -708,6 +844,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks/Swift",
+				);
 			};
 			name = Debug;
 		};
@@ -715,6 +855,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks/Swift",
+				);
 			};
 			name = Release;
 		};

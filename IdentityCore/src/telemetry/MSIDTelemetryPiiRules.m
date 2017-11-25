@@ -21,34 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
+#import "MSIDTelemetryPiiRules.h"
+#import "MSIDTelemetryEventStrings.h"
 
-#import "MSIDVersion.h"
+static NSSet *_piiFields;
 
-@implementation MSIDVersion
+@implementation MSIDTelemetryPiiRules
 
-+ (NSString *)platformName
++ (void)initialize
 {
-#if TARGET_OS_IPHONE
-    return @"TEST.iOS";
-#else
-    return @"TEST.OSX";
-#endif
+    _piiFields = [[NSSet alloc] initWithArray:@[MSID_TELEMETRY_KEY_TENANT_ID,
+                                               MSID_TELEMETRY_KEY_USER_ID,
+                                               MSID_TELEMETRY_KEY_DEVICE_ID,
+                                               MSID_TELEMETRY_KEY_LOGIN_HINT,
+                                               MSID_TELEMETRY_KEY_CLIENT_ID,
+                                               MSID_TELEMETRY_KEY_ERROR_DESCRIPTION,
+                                               MSID_TELEMETRY_KEY_HTTP_PATH,
+                                               MSID_TELEMETRY_KEY_REQUEST_QUERY_PARAMS,
+                                               MSID_TELEMETRY_KEY_AUTHORITY]];
 }
 
-+ (NSString *)sdkName
-{
-    return @"TEST";
-}
+#pragma mark - Public
 
-+ (NSString *)sdkVersion
++ (BOOL)isPii:(NSString *)propertyName
 {
-    return @"1.0.0";
-}
-
-+ (NSString *)telemetryEventPrefix
-{
-    return @"Microsoft.Test.";
+    return [_piiFields containsObject:propertyName];
 }
 
 @end
