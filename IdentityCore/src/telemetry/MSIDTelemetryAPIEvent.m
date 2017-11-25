@@ -72,6 +72,11 @@
     [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY value:authority];
 }
 
+- (void)setAuthorityType:(NSString *)authorityType
+{
+    [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY_TYPE value:authorityType];
+}
+
 - (void)setGrantType:(NSString *)grantType
 {
     [self setProperty:MSID_TELEMETRY_KEY_GRANT_TYPE value:grantType];
