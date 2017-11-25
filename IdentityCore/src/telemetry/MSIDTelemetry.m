@@ -32,7 +32,7 @@ static NSString* const s_delimiter = @"|";
 
 @interface MSIDTelemetry ()
 {
-    NSMutableArray *_dispatchers;
+    NSMutableArray<id<MSIDTelemetryDispatcher>> *_dispatchers;
     NSMutableDictionary *_eventTracking;
 }
 
@@ -200,6 +200,11 @@ static NSString* const s_delimiter = @"|";
             [dispatcher flush:requestId];
         }
     }
+}
+
+- (NSArray *)dispatchers
+{
+    return _dispatchers;
 }
 
 @end

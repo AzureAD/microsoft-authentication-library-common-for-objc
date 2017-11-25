@@ -22,8 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDTelemetryEventInterface.h"
+#import "MSIDTelemetryDispatcher.h"
 
 @interface MSIDTelemetry (Internal)
+
+@property (nonatomic, readonly) NSArray<id<MSIDTelemetryDispatcher>> *dispatchers;
 
 - (NSString *)registerNewRequest;
 
