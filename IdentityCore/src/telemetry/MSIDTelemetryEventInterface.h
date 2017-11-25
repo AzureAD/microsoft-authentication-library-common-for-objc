@@ -29,6 +29,8 @@
 - (void)setProperty:(NSString *)name value:(NSString *)value;
 - (NSDictionary *)getProperties;
 
+- (void)addDefaultProperties;
+
 - (void)setStartTime:(NSDate *)time;
 - (void)setStopTime:(NSDate *)time;
 - (void)setResponseTime:(NSTimeInterval)responseTime;

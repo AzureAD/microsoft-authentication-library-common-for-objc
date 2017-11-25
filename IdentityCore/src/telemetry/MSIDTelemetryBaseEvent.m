@@ -117,4 +117,9 @@
     [_propertyMap setValue:[NSString stringWithFormat:@"%f", responseTime*1000] forKey:MSID_TELEMETRY_KEY_RESPONSE_TIME];
 }
 
+- (void)addDefaultProperties
+{
+    // None for base event
+}
+
 @end

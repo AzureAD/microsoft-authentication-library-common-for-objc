@@ -31,7 +31,7 @@
 
 @implementation MSIDTelemetryDefaultEvent
 
-- (void)addDefaultParameters
+- (void)addDefaultProperties
 {
     NSDictionary *defaultParameters = [MSIDTelemetryDefaultEvent defaultParameters];
     

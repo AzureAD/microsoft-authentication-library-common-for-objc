@@ -26,6 +26,5 @@
 @interface MSIDTelemetryDefaultEvent : MSIDTelemetryBaseEvent
 
 + (NSDictionary *)defaultParameters;
-- (void)addDefaultParameters;
 
 @end
