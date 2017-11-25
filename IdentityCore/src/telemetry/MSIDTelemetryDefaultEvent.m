@@ -23,112 +23,22 @@
 
 #import "MSIDTelemetry.h"
 #import "MSIDTelemetryDefaultEvent.h"
-#import "MSIDTelemetryEventInterface.h"
-#import "MSIDTelemetryEventStrings.h"
-#import "MSIDLogger.h"
-#import "MSIDTelemetryPiiRules.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
-#import "NSDate+MSIDExtensions.h"
+#import "MSIDTelemetryEventStrings.h"
 
 #import "MSIDDeviceId.h"
 #import "MSIDVersion.h"
 
-#if !TARGET_OS_IPHONE
-#include <CoreFoundation/CoreFoundation.h>
-#include <IOKit/IOKitLib.h>
-#endif
-
 @implementation MSIDTelemetryDefaultEvent
 
-@synthesize propertyMap = _propertyMap;
-
-- (id)init
+- (void)addDefaultParameters
 {
-    //Ensure that the appropriate init function is called. This will cause the runtime to throw.
-    [super doesNotRecognizeSelector:_cmd];
-    return nil;
-}
-
-- (id)initWithName:(NSString *)eventName
-         requestId:(NSString *)requestId
-     correlationId:(NSUUID *)correlationId
-{
-    if (!(self = [super init]))
+    NSDictionary *defaultParameters = [MSIDTelemetryDefaultEvent defaultParameters];
+    
+    for (NSString *paramaterName in [defaultParameters allKeys])
     {
-        return nil;
+        [self setProperty:paramaterName value:defaultParameters[paramaterName]];
     }
-    
-    _propertyMap = [[MSIDTelemetryDefaultEvent defaultParameters] mutableCopy];
-    [_propertyMap msidSetObjectIfNotNil:requestId forKey:MSID_TELEMETRY_KEY_REQUEST_ID];
-    [_propertyMap msidSetObjectIfNotNil:[correlationId UUIDString] forKey:MSID_TELEMETRY_KEY_CORRELATION_ID];
-    
-    [_propertyMap msidSetObjectIfNotNil:eventName forKey:MSID_TELEMETRY_KEY_EVENT_NAME];
-    
-    return self;
-}
-
-- (id)initWithName:(NSString *)eventName
-           context:(id<MSIDRequestContext>)requestParams
-{
-    return [self initWithName:eventName requestId:requestParams.telemetryRequestId correlationId:requestParams.correlationId];
-}
-
-- (void)setProperty:(NSString *)name value:(NSString *)value
-{
-    // value can be empty but not nil
-    if ([NSString msidIsStringNilOrBlank:name] || !value)
-    {
-        return;
-    }
-    
-    if ([MSIDTelemetryPiiRules isPii:name])
-    {
-        value = [value msidComputeSHA256];
-    }
-    
-    NSString *prefixedName = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], name];
-    [_propertyMap setValue:value forKey:prefixedName];
-}
-
-- (void)deleteProperty:(NSString  *)name
-{
-    if ([NSString msidIsStringNilOrBlank:name])
-    {
-        return;
-    }
-        
-    [_propertyMap removeObjectForKey:name];
-}
-
-- (NSDictionary *)getProperties
-{
-    return _propertyMap;
-}
-
-- (void)setStartTime:(NSDate *)time
-{
-    if (!time)
-    {
-        return;
-    }
-    
-    [_propertyMap setValue:[time msidToString] forKey:MSID_TELEMETRY_KEY_START_TIME];
-}
-
-- (void)setStopTime:(NSDate *)time
-{
-    if (!time)
-    {
-        return;
-    }
-    
-    [_propertyMap setValue:[time msidToString] forKey:MSID_TELEMETRY_KEY_END_TIME];
-}
-
-- (void)setResponseTime:(NSTimeInterval)responseTime
-{
-    //the property is set in milliseconds
-    [_propertyMap setValue:[NSString stringWithFormat:@"%f", responseTime*1000] forKey:MSID_TELEMETRY_KEY_RESPONSE_TIME];
 }
 
 + (NSDictionary *)defaultParameters
@@ -140,28 +50,19 @@
         
         s_defaultParameters = [NSMutableDictionary new];
         
-        // TODO: move this to MSIDDeviceId
+        NSString *deviceId = [MSIDDeviceId deviceTelemetryId];
+        NSString *applicationName = [MSIDDeviceId applicationName];
+        NSString *applicationVersion = [MSIDDeviceId applicationVersion];
         
-#if TARGET_OS_IPHONE
-        //iOS:
-        NSString *deviceId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-        NSString *applicationName = [[NSBundle mainBundle] bundleIdentifier];
-#else
-        CFStringRef macSerialNumber = nil;
-        CopySerialNumber(&macSerialNumber);
-        NSString *deviceId = CFBridgingRelease(macSerialNumber);
-        NSString *applicationName = [[NSProcessInfo processInfo] processName];
-#endif
-        
-        [s_defaultParameters msidSetObjectIfNotNil:[deviceId msidComputeSHA256] forKey:MSID_TELEMETRY_KEY_DEVICE_ID];
+        [s_defaultParameters msidSetObjectIfNotNil:deviceId forKey:MSID_TELEMETRY_KEY_DEVICE_ID];
         [s_defaultParameters msidSetObjectIfNotNil:applicationName forKey:MSID_TELEMETRY_KEY_APPLICATION_NAME];
-        [s_defaultParameters msidSetObjectIfNotNil:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]
-                                            forKey:MSID_TELEMETRY_KEY_APPLICATION_VERSION];
+        [s_defaultParameters msidSetObjectIfNotNil:applicationVersion forKey:MSID_TELEMETRY_KEY_APPLICATION_VERSION];
         
         NSDictionary *adalId = [MSIDDeviceId deviceId];
+        
         for (NSString *key in adalId)
         {
-            NSString *propertyName = [NSString stringWithFormat:@"Microsoft.ADAL.%@",
+            NSString *propertyName = [NSString stringWithFormat:@"%@.%@", [MSIDVersion telemetryEventPrefix],
                                       [[key lowercaseString] stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
             
             [s_defaultParameters msidSetObjectIfNotNil:[adalId objectForKey:key] forKey:propertyName];
@@ -170,41 +71,5 @@
     
     return s_defaultParameters;
 }
-
-- (void)addPropertiesToAggregatedEvent:(NSMutableDictionary *)eventToBeDispatched
-                         propertyNames:(NSArray *)propertyNames
-{
-    NSDictionary *properties = [self getProperties];
-    for (NSString *name in propertyNames)
-    {
-        [eventToBeDispatched msidSetObjectIfNotNil:[properties objectForKey:name] forKey:name];
-    }
-}
-
-#if !TARGET_OS_IPHONE
-// Returns the serial number as a CFString.
-// It is the caller's responsibility to release the returned CFString when done with it.
-void CopySerialNumber(CFStringRef *serialNumber)
-{
-    if (serialNumber != NULL) {
-        *serialNumber = NULL;
-        
-        io_service_t    platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
-                                                                     IOServiceMatching("IOPlatformExpertDevice"));
-        
-        if (platformExpert) {
-            CFTypeRef serialNumberAsCFString =
-            IORegistryEntryCreateCFProperty(platformExpert,
-                                            CFSTR(kIOPlatformSerialNumberKey),
-                                            kCFAllocatorDefault, 0);
-            if (serialNumberAsCFString) {
-                *serialNumber = serialNumberAsCFString;
-            }
-            
-            IOObjectRelease(platformExpert);
-        }
-    }
-}
-#endif
 
 @end
