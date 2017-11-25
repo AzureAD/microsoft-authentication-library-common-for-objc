@@ -74,7 +74,24 @@ static NSString* const s_delimiter = @"|";
 {
     @synchronized (self)
     {
-        [_dispatchers addObject:dispatcher];
+        if (![_dispatchers containsObject:dispatcher])
+        {
+            [_dispatchers addObject:dispatcher];
+        }
+    }
+}
+
+- (void)findAndRemoveDispatcher:(nonnull id)clientDispatcher
+{
+    @synchronized (self)
+    {
+        for (id<MSIDTelemetryDispatcher> msidDispatcher in _dispatchers)
+        {
+            if ([msidDispatcher containsDispatcher:clientDispatcher])
+            {
+                [_dispatchers removeObject:clientDispatcher];
+            }
+        }
     }
 }
 
@@ -200,11 +217,6 @@ static NSString* const s_delimiter = @"|";
             [dispatcher flush:requestId];
         }
     }
-}
-
-- (NSArray *)dispatchers
-{
-    return _dispatchers;
 }
 
 @end

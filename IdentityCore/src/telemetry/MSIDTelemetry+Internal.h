@@ -26,8 +26,6 @@
 
 @interface MSIDTelemetry (Internal)
 
-@property (nonatomic, readonly) NSArray<id<MSIDTelemetryDispatcher>> *dispatchers;
-
 - (NSString *)registerNewRequest;
 
 - (void)startEvent:(NSString *)requestId
@@ -40,5 +38,7 @@
                    event:(id<MSIDTelemetryEventInterface>)event;
 
 - (void)flush:(NSString *)requestId;
+
+- (void)findAndRemoveDispatcher:(id)clientDispatcher;
 
 @end
