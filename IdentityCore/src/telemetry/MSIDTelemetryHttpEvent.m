@@ -67,12 +67,14 @@
 
 - (void)setHttpErrorCode:(NSString*)code
 {
+    self.errorInEvent = YES;
     [self setProperty:MSID_TELEMETRY_KEY_HTTP_RESPONSE_CODE value:code];
 }
 
 - (void)setOAuthErrorCode:(NSString *)oauthErrorCode
 {
     [self setProperty:MSID_TELEMETRY_KEY_OAUTH_ERROR_CODE value:oauthErrorCode];
+    self.errorInEvent = ![NSString msidIsStringNilOrBlank:oauthErrorCode];
 }
 
 - (void)setHttpResponseMethod:(NSString*)method

@@ -31,6 +31,7 @@
 @implementation MSIDTelemetryBaseEvent
 
 @synthesize propertyMap = _propertyMap;
+@synthesize errorInEvent = _errorInEvent;
 
 - (instancetype)initWithName:(NSString *)eventName
                    requestId:(NSString *)requestId
@@ -40,6 +41,8 @@
     {
         return nil;
     }
+    
+    _errorInEvent = NO;
     
     _propertyMap = [NSMutableDictionary dictionary];
     [_propertyMap msidSetObjectIfNotNil:requestId forKey:MSID_TELEMETRY_KEY_REQUEST_ID];
