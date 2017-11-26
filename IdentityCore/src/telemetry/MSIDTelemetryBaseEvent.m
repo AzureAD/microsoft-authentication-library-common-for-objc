@@ -83,7 +83,8 @@
         return;
     }
     
-    [_propertyMap removeObjectForKey:name];
+    NSString *prefixedName = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], name];
+    [_propertyMap removeObjectForKey:prefixedName];
 }
 
 - (NSDictionary *)getProperties
@@ -98,7 +99,7 @@
         return;
     }
     
-    [_propertyMap setValue:[time msidToString] forKey:MSID_TELEMETRY_KEY_START_TIME];
+    [self setProperty:MSID_TELEMETRY_KEY_START_TIME value:[time msidToString]];
 }
 
 - (void)setStopTime:(NSDate *)time
@@ -108,13 +109,13 @@
         return;
     }
     
-    [_propertyMap setValue:[time msidToString] forKey:MSID_TELEMETRY_KEY_END_TIME];
+    [self setProperty:MSID_TELEMETRY_KEY_END_TIME value:[time msidToString]];
 }
 
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
     //the property is set in milliseconds
-    [_propertyMap setValue:[NSString stringWithFormat:@"%f", responseTime*1000] forKey:MSID_TELEMETRY_KEY_RESPONSE_TIME];
+    [self setProperty:MSID_TELEMETRY_KEY_RESPONSE_TIME value:[NSString stringWithFormat:@"%f", responseTime*1000]];
 }
 
 - (void)addDefaultProperties
