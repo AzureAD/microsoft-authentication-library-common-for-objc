@@ -75,8 +75,7 @@
         value = [value msidComputeSHA256];
     }
     
-    NSString *prefixedName = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], name];
-    [_propertyMap setValue:value forKey:prefixedName];
+    [_propertyMap setValue:value forKey:[[self class] prefixedPropertyName:name]];
 }
 
 - (NSString *)propertyWithName:(NSString *)name
@@ -86,8 +85,7 @@
         return nil;
     }
     
-    NSString *prefixedName = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], name];
-    return _propertyMap[prefixedName];
+    return _propertyMap[[[self class] prefixedPropertyName:name]];
 }
 
 - (void)deleteProperty:(NSString  *)name
@@ -97,8 +95,7 @@
         return;
     }
     
-    NSString *prefixedName = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], name];
-    [_propertyMap removeObjectForKey:prefixedName];
+    [_propertyMap removeObjectForKey:[[self class] prefixedPropertyName:name]];
 }
 
 - (NSDictionary *)getProperties
@@ -137,6 +134,12 @@
     [_propertyMap addEntriesFromDictionary:[[self class] defaultParameters]];
 }
 
++ (NSString *)prefixedPropertyName:(NSString *)name
+{
+    NSString *prefixedName = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], name];
+    return prefixedName;
+}
+
 + (NSDictionary *)defaultParameters
 {
     static NSMutableDictionary *s_defaultParameters;
@@ -150,17 +153,18 @@
         NSString *applicationName = [MSIDDeviceId applicationName];
         NSString *applicationVersion = [MSIDDeviceId applicationVersion];
         
-        [s_defaultParameters msidSetObjectIfNotNil:deviceId forKey:MSID_TELEMETRY_KEY_DEVICE_ID];
-        [s_defaultParameters msidSetObjectIfNotNil:applicationName forKey:MSID_TELEMETRY_KEY_APPLICATION_NAME];
-        [s_defaultParameters msidSetObjectIfNotNil:applicationVersion forKey:MSID_TELEMETRY_KEY_APPLICATION_VERSION];
+        [s_defaultParameters msidSetObjectIfNotNil:deviceId
+                                            forKey:[self prefixedPropertyName:MSID_TELEMETRY_KEY_DEVICE_ID]];
+        [s_defaultParameters msidSetObjectIfNotNil:applicationName
+                                            forKey:[self prefixedPropertyName:MSID_TELEMETRY_KEY_APPLICATION_NAME]];
+        [s_defaultParameters msidSetObjectIfNotNil:applicationVersion
+                                            forKey:[self prefixedPropertyName:MSID_TELEMETRY_KEY_APPLICATION_VERSION]];
         
         NSDictionary *adalId = [MSIDDeviceId deviceId];
         
         for (NSString *key in adalId)
         {
-            NSString *propertyName = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix],
-                                      [[key lowercaseString] stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
-            
+            NSString *propertyName = [self prefixedPropertyName:[[key lowercaseString] stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
             [s_defaultParameters msidSetObjectIfNotNil:[adalId objectForKey:key] forKey:propertyName];
         }
     });
