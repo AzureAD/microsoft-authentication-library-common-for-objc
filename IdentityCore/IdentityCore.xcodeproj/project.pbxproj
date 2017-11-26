@@ -19,9 +19,6 @@
 		B20657AF1FC91FC900412B7D /* MSIDTelemetryEventStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = B206578D1FC91BDF00412B7D /* MSIDTelemetryEventStrings.h */; };
 		B20657B01FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = B206579E1FC91BE100412B7D /* MSIDTelemetryEventStrings.m */; };
 		B20657B11FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = B206579E1FC91BE100412B7D /* MSIDTelemetryEventStrings.m */; };
-		B20657B21FC9225F00412B7D /* MSIDTelemetryDefaultEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657941FC91BDF00412B7D /* MSIDTelemetryDefaultEvent.h */; };
-		B20657B31FC922A400412B7D /* MSIDTelemetryDefaultEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B206579D1FC91BE000412B7D /* MSIDTelemetryDefaultEvent.m */; };
-		B20657B41FC922A400412B7D /* MSIDTelemetryDefaultEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B206579D1FC91BE000412B7D /* MSIDTelemetryDefaultEvent.m */; };
 		B20657B71FC9235000412B7D /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657B61FC9234200412B7D /* NSMutableDictionary+MSIDExtensions.m */; };
 		B20657B81FC9235000412B7D /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B20657B61FC9234200412B7D /* NSMutableDictionary+MSIDExtensions.m */; };
 		B20657B91FC9235400412B7D /* NSMutableDictionary+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657B51FC9234200412B7D /* NSMutableDictionary+MSIDExtensions.h */; };
@@ -160,7 +157,6 @@
 		B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetry.m; sourceTree = "<group>"; };
 		B206578F1FC91BDF00412B7D /* MSIDTelemetryCacheEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryCacheEvent.h; sourceTree = "<group>"; };
 		B20657921FC91BDF00412B7D /* MSIDTelemetryAPIEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryAPIEvent.h; sourceTree = "<group>"; };
-		B20657941FC91BDF00412B7D /* MSIDTelemetryDefaultEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryDefaultEvent.h; sourceTree = "<group>"; };
 		B20657961FC91BE000412B7D /* MSIDTelemetryCacheEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryCacheEvent.m; sourceTree = "<group>"; };
 		B20657971FC91BE000412B7D /* MSIDTelemetryAPIEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryAPIEvent.m; sourceTree = "<group>"; };
 		B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryEventInterface.h; sourceTree = "<group>"; };
@@ -168,7 +164,6 @@
 		B206579A1FC91BE000412B7D /* MSIDTelemetryPiiRules.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryPiiRules.m; sourceTree = "<group>"; };
 		B206579B1FC91BE000412B7D /* MSIDTelemetryUIEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryUIEvent.h; sourceTree = "<group>"; };
 		B206579C1FC91BE000412B7D /* MSIDTelemetryHttpEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryHttpEvent.h; sourceTree = "<group>"; };
-		B206579D1FC91BE000412B7D /* MSIDTelemetryDefaultEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryDefaultEvent.m; sourceTree = "<group>"; };
 		B206579E1FC91BE100412B7D /* MSIDTelemetryEventStrings.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryEventStrings.m; sourceTree = "<group>"; };
 		B206579F1FC91BE100412B7D /* MSIDTelemetryPiiRules.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryPiiRules.h; sourceTree = "<group>"; };
 		B20657A01FC91BE100412B7D /* MSIDTelemetry+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDTelemetry+Internal.h"; sourceTree = "<group>"; };
@@ -312,8 +307,6 @@
 				B20657A01FC91BE100412B7D /* MSIDTelemetry+Internal.h */,
 				B2908C051FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.h */,
 				B2908C061FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m */,
-				B20657941FC91BDF00412B7D /* MSIDTelemetryDefaultEvent.h */,
-				B206579D1FC91BE000412B7D /* MSIDTelemetryDefaultEvent.m */,
 				B20657921FC91BDF00412B7D /* MSIDTelemetryAPIEvent.h */,
 				B20657971FC91BE000412B7D /* MSIDTelemetryAPIEvent.m */,
 				B206578F1FC91BDF00412B7D /* MSIDTelemetryCacheEvent.h */,
@@ -509,7 +502,6 @@
 				B20657A61FC91C9A00412B7D /* MSIDTelemetryEventInterface.h in Headers */,
 				B20657AE1FC91FB700412B7D /* MSIDTelemetryPiiRules.h in Headers */,
 				B20657C81FC926AE00412B7D /* MSIDTelemetryHttpEvent.h in Headers */,
-				B20657B21FC9225F00412B7D /* MSIDTelemetryDefaultEvent.h in Headers */,
 				B2D227AB1FC4BFEB0003579F /* MSIDLogger+Internal.h in Headers */,
 				B2D227AD1FC4C06C0003579F /* MSIDRequestContext.h in Headers */,
 				B20657AF1FC91FC900412B7D /* MSIDTelemetryEventStrings.h in Headers */,
@@ -747,7 +739,6 @@
 				B20657E11FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
 				B20657BF1FC9254900412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				B2908C091FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m in Sources */,
-				B20657B31FC922A400412B7D /* MSIDTelemetryDefaultEvent.m in Sources */,
 				D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 				B20657CA1FC926B200412B7D /* MSIDTelemetryHttpEvent.m in Sources */,
 				B20657B71FC9235000412B7D /* NSMutableDictionary+MSIDExtensions.m in Sources */,
@@ -810,7 +801,6 @@
 				B20657E01FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
 				B20657BE1FC9254800412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				B2908C081FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m in Sources */,
-				B20657B41FC922A400412B7D /* MSIDTelemetryDefaultEvent.m in Sources */,
 				D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 				B20657C91FC926B200412B7D /* MSIDTelemetryHttpEvent.m in Sources */,
 				B20657B81FC9235000412B7D /* NSMutableDictionary+MSIDExtensions.m in Sources */,

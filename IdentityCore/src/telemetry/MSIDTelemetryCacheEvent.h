@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryDefaultEvent.h"
+#import "MSIDTelemetryBaseEvent.h"
 
-@interface MSIDTelemetryCacheEvent : MSIDTelemetryDefaultEvent
+@interface MSIDTelemetryCacheEvent : MSIDTelemetryBaseEvent
 
 - (void)setTokenType:(NSString *)tokenType;
 - (void)setStatus:(NSString *)status;

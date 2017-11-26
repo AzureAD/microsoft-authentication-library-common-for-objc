@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryDefaultEvent.h"
+#import "MSIDTelemetryBaseEvent.h"
 
-@interface MSIDTelemetryAPIEvent : MSIDTelemetryDefaultEvent
+@interface MSIDTelemetryAPIEvent : MSIDTelemetryBaseEvent
 
 - (void)setCorrelationId:(NSUUID *)correlationId;
 - (void)setExtendedExpiresOnSetting:(NSString *)extendedExpiresOnSetting;

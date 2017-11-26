@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryDefaultEvent.h"
+#import "MSIDTelemetryBaseEvent.h"
 
-@interface MSIDTelemetryUIEvent : MSIDTelemetryDefaultEvent
+@interface MSIDTelemetryUIEvent : MSIDTelemetryBaseEvent
 
 - (void)setLoginHint:(NSString *)hint;
 - (void)setNtlm:(NSString *)ntlmHandled;

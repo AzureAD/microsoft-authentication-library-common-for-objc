@@ -39,4 +39,6 @@
 - (instancetype)initWithName:(NSString*)eventName
                      context:(id<MSIDRequestContext>)requestParams;
 
++ (NSDictionary *)defaultParameters;
+
 @end

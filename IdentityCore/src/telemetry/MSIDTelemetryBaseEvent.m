@@ -28,6 +28,9 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDVersion.h"
 
+#import "MSIDDeviceId.h"
+#import "MSIDVersion.h"
+
 @implementation MSIDTelemetryBaseEvent
 
 @synthesize propertyMap = _propertyMap;
@@ -45,10 +48,10 @@
     _errorInEvent = NO;
     
     _propertyMap = [NSMutableDictionary dictionary];
-    [_propertyMap msidSetObjectIfNotNil:requestId forKey:MSID_TELEMETRY_KEY_REQUEST_ID];
-    [_propertyMap msidSetObjectIfNotNil:[correlationId UUIDString] forKey:MSID_TELEMETRY_KEY_CORRELATION_ID];
     
-    [_propertyMap msidSetObjectIfNotNil:eventName forKey:MSID_TELEMETRY_KEY_EVENT_NAME];
+    [self setProperty:MSID_TELEMETRY_KEY_REQUEST_ID value:requestId];
+    [self setProperty:MSID_TELEMETRY_KEY_CORRELATION_ID value:[correlationId UUIDString]];
+    [self setProperty:MSID_TELEMETRY_KEY_EVENT_NAME value:eventName];
     
     return self;
 }
@@ -120,7 +123,38 @@
 
 - (void)addDefaultProperties
 {
-    // None for base event
+    [_propertyMap addEntriesFromDictionary:[[self class] defaultParameters]];
+}
+
++ (NSDictionary *)defaultParameters
+{
+    static NSMutableDictionary *s_defaultParameters;
+    static dispatch_once_t s_parametersOnce;
+    
+    dispatch_once(&s_parametersOnce, ^{
+        
+        s_defaultParameters = [NSMutableDictionary new];
+        
+        NSString *deviceId = [[MSIDDeviceId deviceTelemetryId] msidComputeSHA256];
+        NSString *applicationName = [MSIDDeviceId applicationName];
+        NSString *applicationVersion = [MSIDDeviceId applicationVersion];
+        
+        [s_defaultParameters msidSetObjectIfNotNil:deviceId forKey:MSID_TELEMETRY_KEY_DEVICE_ID];
+        [s_defaultParameters msidSetObjectIfNotNil:applicationName forKey:MSID_TELEMETRY_KEY_APPLICATION_NAME];
+        [s_defaultParameters msidSetObjectIfNotNil:applicationVersion forKey:MSID_TELEMETRY_KEY_APPLICATION_VERSION];
+        
+        NSDictionary *adalId = [MSIDDeviceId deviceId];
+        
+        for (NSString *key in adalId)
+        {
+            NSString *propertyName = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix],
+                                      [[key lowercaseString] stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
+            
+            [s_defaultParameters msidSetObjectIfNotNil:[adalId objectForKey:key] forKey:propertyName];
+        }
+    });
+    
+    return s_defaultParameters;
 }
 
 @end
