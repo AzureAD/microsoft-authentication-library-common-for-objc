@@ -106,6 +106,7 @@ NSString *const MSID_TELEMETRY_VALUE_TRIED                           = @"tried";
 NSString *const MSID_TELEMETRY_VALUE_USER_CANCELLED                  = @"user_cancelled";
 NSString *const MSID_TELEMETRY_VALUE_NOT_FOUND                       = @"not_found";
 NSString *const MSID_TELEMETRY_VALUE_ACCESS_TOKEN                    = @"access_token";
+NSString *const MSID_TELEMETRY_VALUE_REFRESH_TOKEN                   = @"refresh_token";
 NSString *const MSID_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN    = @"multi_resource_refresh_token";
 NSString *const MSID_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN            = @"family_refresh_token";
 NSString *const MSID_TELEMETRY_VALUE_ADFS_TOKEN                      = @"ADFS_access_token_refresh_token";
