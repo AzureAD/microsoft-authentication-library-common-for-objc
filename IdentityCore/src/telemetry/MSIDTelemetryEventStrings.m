@@ -25,6 +25,7 @@
 
 
 // Telemetry event name
+NSString *const MSID_TELEMETRY_EVENT_DEFAULT_EVENT          = @"default_event";
 NSString *const MSID_TELEMETRY_EVENT_API_EVENT              = @"api_event";
 NSString *const MSID_TELEMETRY_EVENT_UI_EVENT               = @"ui_event";
 NSString *const MSID_TELEMETRY_EVENT_HTTP_REQUEST           = @"http_event";

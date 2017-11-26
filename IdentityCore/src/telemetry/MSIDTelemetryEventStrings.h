@@ -27,6 +27,7 @@
 
 #define TELEMETRY_KEY(_KEY) [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], _KEY]
 
+extern NSString *const MSID_TELEMETRY_EVENT_DEFAULT_EVENT;
 extern NSString *const MSID_TELEMETRY_EVENT_API_EVENT;
 extern NSString *const MSID_TELEMETRY_EVENT_TOKEN_GRANT;
 extern NSString *const MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION;
