@@ -33,7 +33,7 @@
 - (void)setHttpRequestQueryParams:(NSString *)params;
 - (void)setHttpUserAgent:(NSString *)userAgent;
 - (void)setHttpErrorCode:(NSString *)code;
-- (void)setOAuthErrorCode:(NSString *)oauthErrorCode;
+- (void)setOAuthErrorCodeFromResponseData:(NSData *)responseData;
 - (void)setHttpErrorDomain:(NSString *)errorDomain;
 - (void)setClientTelemetry:(NSString *)clientTelemetry;
 

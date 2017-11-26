@@ -71,10 +71,24 @@
     [self setProperty:MSID_TELEMETRY_KEY_HTTP_RESPONSE_CODE value:code];
 }
 
-- (void)setOAuthErrorCode:(NSString *)oauthErrorCode
+- (void)setOAuthErrorCodeFromResponseData:(NSData *)responseData
 {
-    [self setProperty:MSID_TELEMETRY_KEY_OAUTH_ERROR_CODE value:oauthErrorCode];
-    self.errorInEvent = ![NSString msidIsStringNilOrBlank:oauthErrorCode];
+    if (!responseData)
+    {
+        return;
+    }
+    
+    NSError* jsonError  = nil;
+    id jsonObject = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&jsonError];
+    
+    if (!jsonObject || ![jsonObject isKindOfClass:[NSDictionary class]])
+    {
+        return;
+    }
+    
+    NSString *oauthError = [(NSDictionary *)jsonObject objectForKey:MSID_OAUTH2_ERROR];
+    [self setProperty:MSID_TELEMETRY_KEY_OAUTH_ERROR_CODE value:oauthError];
+    self.errorInEvent = ![NSString msidIsStringNilOrBlank:oauthError];
 }
 
 - (void)setHttpResponseMethod:(NSString*)method

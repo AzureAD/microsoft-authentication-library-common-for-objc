@@ -24,8 +24,10 @@
 #import "MSIDOAuth2Constants.h"
 
 //Diagnostic traces sent to the Azure Active Directory servers:
-NSString *const MSID_PLATFORM_KEY          = @"x-client-SKU";
-NSString *const MSID_VERSION_KEY           = @"x-client-Ver";
-NSString *const MSID_CPU_KEY               = @"x-client-CPU";
-NSString *const MSID_OS_VER_KEY            = @"x-client-OS";
-NSString *const MSID_DEVICE_MODEL_KEY      = @"x-client-DM";
+NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
+NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
+NSString *const MSID_CPU_KEY                    = @"x-client-CPU";
+NSString *const MSID_OS_VER_KEY                 = @"x-client-OS";
+NSString *const MSID_DEVICE_MODEL_KEY           = @"x-client-DM";
+
+NSString *const MSID_OAUTH2_ERROR               = @"error";

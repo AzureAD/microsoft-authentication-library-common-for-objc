@@ -27,3 +27,5 @@ extern NSString *const MSID_VERSION_KEY;
 extern NSString *const MSID_CPU_KEY;//E.g. ARM64
 extern NSString *const MSID_OS_VER_KEY;//iOS/OSX version
 extern NSString *const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
+
+extern NSString *const MSID_OAUTH2_ERROR;
