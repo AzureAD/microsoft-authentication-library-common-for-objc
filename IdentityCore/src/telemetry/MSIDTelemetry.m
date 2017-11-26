@@ -81,20 +81,6 @@ static NSString* const s_delimiter = @"|";
     }
 }
 
-- (void)findAndRemoveDispatcher:(nonnull id)clientDispatcher
-{
-    @synchronized (self)
-    {
-        for (id<MSIDTelemetryDispatcher> msidDispatcher in _dispatchers)
-        {
-            if ([msidDispatcher containsDispatcher:clientDispatcher])
-            {
-                [_dispatchers removeObject:clientDispatcher];
-            }
-        }
-    }
-}
-
 - (void)removeDispatcher:(nonnull id<MSIDTelemetryDispatcher>)dispatcher
 {
     @synchronized (self)
@@ -134,6 +120,20 @@ static NSString* const s_delimiter = @"|";
     {
         [_eventTracking setObject:currentTime
                            forKey:[self getEventTrackingKey:requestId eventName:eventName]];
+    }
+}
+
+- (void)findAndRemoveDispatcher:(nonnull id)clientDispatcher
+{
+    @synchronized (self)
+    {
+        for (id<MSIDTelemetryDispatcher> msidDispatcher in _dispatchers)
+        {
+            if ([msidDispatcher containsDispatcher:clientDispatcher])
+            {
+                [_dispatchers removeObject:clientDispatcher];
+            }
+        }
     }
 }
 
