@@ -141,7 +141,7 @@ static NSString* const s_delimiter = @"|";
             event:(id<MSIDTelemetryEventInterface>)event
 {
     NSDate *stopTime = [NSDate date];
-    NSString *eventName = [self getPropertyFromEvent:event propertyName:MSID_TELEMETRY_KEY_EVENT_NAME];
+    NSString *eventName = [event propertyWithName:MSID_TELEMETRY_KEY_EVENT_NAME];
     
     if ([NSString msidIsStringNilOrBlank:requestId] || [NSString msidIsStringNilOrBlank:eventName] || !event)
     {
@@ -199,13 +199,6 @@ static NSString* const s_delimiter = @"|";
                        eventName:(NSString*)eventName
 {
     return [NSString stringWithFormat:@"%@%@%@", requestId, s_delimiter, eventName];
-}
-
-- (NSString *)getPropertyFromEvent:(id<MSIDTelemetryEventInterface>)event
-                     propertyName:(NSString*)propertyName
-{
-    NSDictionary *properties = [event getProperties];
-    return [properties objectForKey:propertyName];
 }
 
 - (void)flush:(NSString *)requestId

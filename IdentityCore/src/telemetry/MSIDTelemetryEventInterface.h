@@ -27,6 +27,8 @@
 @property (assign) BOOL errorInEvent;
 
 - (void)setProperty:(NSString *)name value:(NSString *)value;
+- (NSString *)propertyWithName:(NSString *)name;
+
 - (NSDictionary *)getProperties;
 
 - (void)addDefaultProperties;

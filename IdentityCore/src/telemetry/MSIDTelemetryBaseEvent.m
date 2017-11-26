@@ -79,6 +79,17 @@
     [_propertyMap setValue:value forKey:prefixedName];
 }
 
+- (NSString *)propertyWithName:(NSString *)name
+{
+    if ([NSString msidIsStringNilOrBlank:name])
+    {
+        return nil;
+    }
+    
+    NSString *prefixedName = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], name];
+    return _propertyMap[prefixedName];
+}
+
 - (void)deleteProperty:(NSString  *)name
 {
     if ([NSString msidIsStringNilOrBlank:name])

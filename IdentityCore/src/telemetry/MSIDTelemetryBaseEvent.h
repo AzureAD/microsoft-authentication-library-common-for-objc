@@ -28,8 +28,6 @@
     NSMutableDictionary *_propertyMap;
 }
 
-@property (nonatomic, strong, readonly) NSDictionary *properties;
-
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithName:(NSString*)eventName
