@@ -40,9 +40,7 @@
     
     [event setLoginHint:@"eric_cartman@contoso.com"];
     
-    NSString *key = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], MSID_TELEMETRY_KEY_LOGIN_HINT];
-    
-    XCTAssertEqualObjects([event getProperties][key], [@"eric_cartman@contoso.com" msidComputeSHA256]);
+    XCTAssertEqualObjects([event propertyWithName:MSID_TELEMETRY_KEY_LOGIN_HINT], [@"eric_cartman@contoso.com" msidComputeSHA256]);
 }
 
 @end
