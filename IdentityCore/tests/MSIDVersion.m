@@ -46,4 +46,9 @@
     return @"1.0.0";
 }
 
++ (NSString *)telemetryEventPrefix
+{
+    return @"Microsoft.Test.";
+}
+
 @end

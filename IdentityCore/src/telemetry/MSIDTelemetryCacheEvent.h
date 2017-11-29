@@ -21,31 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTelemetryBaseEvent.h"
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+@interface MSIDTelemetryCacheEvent : MSIDTelemetryBaseEvent
 
-@interface MSIDDeviceId : NSObject
-
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
-
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
-
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
-
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
+- (void)setTokenType:(NSString *)tokenType;
+- (void)setStatus:(NSString *)status;
+- (void)setIsRT:(NSString *)isRT;
+- (void)setIsMRRT:(NSString *)isMRRT;
+- (void)setIsFRT:(NSString *)isFRT;
+- (void)setRTStatus:(NSString *)status;
+- (void)setMRRTStatus:(NSString *)status;
+- (void)setFRTStatus:(NSString *)status;
+- (void)setSpeInfo:(NSString  *)speInfo;
 
 @end

@@ -21,31 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTelemetry.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+@implementation MSIDTelemetryUIEvent
 
-@interface MSIDDeviceId : NSObject
+- (id)initWithName:(NSString *)eventName
+         requestId:(NSString *)requestId
+     correlationId:(NSUUID *)correlationId
+{
+    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
+    {
+        return nil;
+    }
+    
+    [self setProperty:MSID_TELEMETRY_KEY_USER_CANCEL value:@""];
+    [self setProperty:MSID_TELEMETRY_KEY_NTLM_HANDLED value:@""];
+    
+    return self;
+}
 
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
+- (void)setLoginHint:(NSString *)hint
+{
+    [self setProperty:MSID_TELEMETRY_KEY_LOGIN_HINT value:hint];
+}
 
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
+- (void)setNtlm:(NSString *)ntlmHandled
+{
+    [self setProperty:MSID_TELEMETRY_KEY_NTLM_HANDLED value:ntlmHandled];
+}
 
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
-
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
+- (void)setIsCancelled:(BOOL)cancelled
+{
+    [self setProperty:MSID_TELEMETRY_KEY_UI_CANCELLED value:cancelled ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
+}
 
 @end

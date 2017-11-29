@@ -21,31 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+@protocol MSIDTelemetryEventInterface <NSObject>
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+@property (readonly) NSDictionary *propertyMap;
+@property (assign) BOOL errorInEvent;
 
-@interface MSIDDeviceId : NSObject
+- (void)setProperty:(NSString *)name value:(NSString *)value;
+- (NSString *)propertyWithName:(NSString *)name;
 
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
+- (NSDictionary *)getProperties;
 
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
+- (void)addDefaultProperties;
 
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
-
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
+- (void)setStartTime:(NSDate *)time;
+- (void)setStopTime:(NSDate *)time;
+- (void)setResponseTime:(NSTimeInterval)responseTime;
+- (void)deleteProperty:(NSString *)name;
 
 @end

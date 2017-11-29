@@ -21,31 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTelemetryBaseEvent.h"
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+@interface MSIDTelemetryAPIEvent : MSIDTelemetryBaseEvent
 
-@interface MSIDDeviceId : NSObject
+- (void)setCorrelationId:(NSUUID *)correlationId;
+- (void)setExtendedExpiresOnSetting:(NSString *)extendedExpiresOnSetting;
+- (void)setUserId:(NSString *)userId;
+- (void)setClientId:(NSString *)clientId;
+- (void)setIsExtendedLifeTimeToken:(NSString *)isExtendedLifeToken;
+- (void)setErrorDescription:(NSString *)errorDescription;
+- (void)setErrorDomain:(NSString *)errorDomain;
 
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
+- (void)setAuthorityValidationStatus:(NSString *)status;
+- (void)setAuthority:(NSString *)authority;
+- (void)setAuthorityType:(NSString *)authorityType;
 
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
+- (void)setGrantType:(NSString *)grantType;
+- (void)setAPIStatus:(NSString *)status;
 
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
-
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
+- (void)setApiId:(NSString *)apiId;
 
 @end

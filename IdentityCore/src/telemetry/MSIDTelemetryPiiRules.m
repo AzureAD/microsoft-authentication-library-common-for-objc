@@ -21,31 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTelemetryPiiRules.h"
+#import "MSIDTelemetryEventStrings.h"
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+static NSSet *_piiFields;
 
-@interface MSIDDeviceId : NSObject
+@implementation MSIDTelemetryPiiRules
 
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
++ (void)initialize
+{
+    _piiFields = [[NSSet alloc] initWithArray:@[MSID_TELEMETRY_KEY_TENANT_ID,
+                                               MSID_TELEMETRY_KEY_USER_ID,
+                                               MSID_TELEMETRY_KEY_DEVICE_ID,
+                                               MSID_TELEMETRY_KEY_LOGIN_HINT,
+                                               MSID_TELEMETRY_KEY_CLIENT_ID,
+                                               MSID_TELEMETRY_KEY_ERROR_DESCRIPTION,
+                                               MSID_TELEMETRY_KEY_HTTP_PATH,
+                                               MSID_TELEMETRY_KEY_REQUEST_QUERY_PARAMS,
+                                               MSID_TELEMETRY_KEY_AUTHORITY]];
+}
 
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
+#pragma mark - Public
 
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
-
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
++ (BOOL)isPii:(NSString *)propertyName
+{
+    return [_piiFields containsObject:propertyName];
+}
 
 @end

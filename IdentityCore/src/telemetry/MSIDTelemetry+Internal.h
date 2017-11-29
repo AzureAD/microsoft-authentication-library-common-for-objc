@@ -21,31 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTelemetry.h"
+#import "MSIDTelemetryEventInterface.h"
+#import "MSIDTelemetryDispatcher.h"
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+@interface MSIDTelemetry (Internal)
 
-@interface MSIDDeviceId : NSObject
+- (NSString *)generateRequestId;
 
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
+- (void)startEvent:(NSString *)requestId
+         eventName:(NSString *)eventName;
 
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
+- (void)stopEvent:(NSString *)requestId
+            event:(id<MSIDTelemetryEventInterface>)event;
 
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
+- (void)dispatchEventNow:(NSString*)requestId
+                   event:(id<MSIDTelemetryEventInterface>)event;
 
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
+- (void)flush:(NSString *)requestId;
 
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
+- (void)findAndRemoveDispatcher:(id)clientDispatcher;
 
 @end
