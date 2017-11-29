@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		23BDA6691FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA6671FC7774300FE14BE /* MSIDDictionaryExtensionsTests.m */; };
+		23BDA66A1FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA6671FC7774300FE14BE /* MSIDDictionaryExtensionsTests.m */; };
+		23BDA66E1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */; };
+		23BDA67A1FCE693800FE14BE /* MSIDKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA6791FCE693800FE14BE /* MSIDKeychainUtil.m */; };
 		B20657A51FC91C1600412B7D /* MSIDTelemetryDispatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657A41FC91C1600412B7D /* MSIDTelemetryDispatcher.h */; };
 		B20657A61FC91C9A00412B7D /* MSIDTelemetryEventInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */; };
 		B20657A81FC91EC900412B7D /* MSIDTelemetry.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657A71FC91DA900412B7D /* MSIDTelemetry.h */; };
@@ -48,6 +52,7 @@
 		B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */; };
 		B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */; };
 		B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = B262B0781FC3BA8200FB111B /* MSIDLogger.h */; };
+		B2893CAF1FCF68B200E348E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2893CAE1FCF68B200E348E9 /* Security.framework */; };
 		B2908C071FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = B2908C051FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.h */; };
 		B2908C081FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B2908C061FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m */; };
 		B2908C091FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B2908C061FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m */; };
@@ -149,6 +154,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		23BDA6671FC7774300FE14BE /* MSIDDictionaryExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDDictionaryExtensionsTests.m; sourceTree = "<group>"; };
+		23BDA66C1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
+		23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
+		23BDA6781FCE693800FE14BE /* MSIDKeychainUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDKeychainUtil.h; sourceTree = "<group>"; };
+		23BDA6791FCE693800FE14BE /* MSIDKeychainUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDKeychainUtil.m; sourceTree = "<group>"; };
 		B206578B1FC91BDF00412B7D /* MSIDTelemetryUIEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryUIEvent.m; sourceTree = "<group>"; };
 		B206578D1FC91BDF00412B7D /* MSIDTelemetryEventStrings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryEventStrings.h; sourceTree = "<group>"; };
 		B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetry.m; sourceTree = "<group>"; };
@@ -185,6 +195,7 @@
 		B25A35711FC4D71000C7FD43 /* MSIDRequestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRequestContext.h; sourceTree = "<group>"; };
 		B262B0781FC3BA8200FB111B /* MSIDLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLogger.h; sourceTree = "<group>"; };
 		B262B0791FC3BA8200FB111B /* MSIDLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLogger.m; sourceTree = "<group>"; };
+		B2893CAE1FCF68B200E348E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		B2908C051FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryBaseEvent.h; sourceTree = "<group>"; };
 		B2908C061FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryBaseEvent.m; sourceTree = "<group>"; };
 		B2C17AE91FC790420070A514 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -245,6 +256,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2893CAF1FCF68B200E348E9 /* Security.framework in Frameworks */,
 				B2C17AEA1FC790420070A514 /* UIKit.framework in Frameworks */,
 				D6D9A4C31FBE718C00EFA430 /* libIdentityTest.a in Frameworks */,
 				D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */,
@@ -344,6 +356,8 @@
 		D62600091FBD305800EE4487 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				23BDA6781FCE693800FE14BE /* MSIDKeychainUtil.h */,
+				23BDA6791FCE693800FE14BE /* MSIDKeychainUtil.m */,
 				B20657C11FC9261A00412B7D /* NSString+MSIDTelemetryExtensions.h */,
 				B20657C01FC9261A00412B7D /* NSString+MSIDTelemetryExtensions.m */,
 				D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */,
@@ -439,6 +453,7 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B2893CAE1FCF68B200E348E9 /* Security.framework */,
 				B20657D81FC92D7600412B7D /* libswiftIOKit.tbd */,
 				B20657D61FC92D2700412B7D /* IOKit.framework */,
 				B2C17AE91FC790420070A514 /* UIKit.framework */,
@@ -470,6 +485,7 @@
 				B20E3CB11FC4FA550029C097 /* MSIDVersion.m */,
 				D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */,
 				D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */,
+				23BDA6671FC7774300FE14BE /* MSIDDictionaryExtensionsTests.m */,
 				B20657C51FC9265800412B7D /* MSIDTelemetryExtensionsTests.m */,
 				D626FFE91FBD200A00EE4487 /* util */,
 				B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */,
@@ -785,6 +801,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23BDA66E1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m in Sources */,
 				B20657AA1FC91ECC00412B7D /* MSIDTelemetry.m in Sources */,
 				B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				B20657BA1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */,
