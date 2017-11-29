@@ -348,6 +348,8 @@
 				B20657C01FC9261A00412B7D /* NSString+MSIDTelemetryExtensions.m */,
 				D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */,
 				D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */,
+				23BDA66C1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.h */,
+				23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */,
 				D62600121FBD380500EE4487 /* NSString+MSIDExtensions.h */,
 				D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */,
 				D6D9A4501FBD3FB700EFA430 /* NSURL+MSIDExtensions.h */,
@@ -706,6 +708,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23BDA6691FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */,
 				B2C17AF01FC7A1BF0070A514 /* MSIDLoggerTests.m in Sources */,
 				B20657C61FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */,
 				D6D9A4BC1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
@@ -743,6 +746,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23BDA66A1FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */,
 				B2C17AF11FC7A1C00070A514 /* MSIDLoggerTests.m in Sources */,
 				B20657C71FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */,
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
@@ -786,6 +790,7 @@
 				B20657BA1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */,
 				D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
 				B2C17AEC1FC796E60070A514 /* MSIDDeviceId.m in Sources */,
+				23BDA67A1FCE693800FE14BE /* MSIDKeychainUtil.m in Sources */,
 				B2C17AED1FC796FE0070A514 /* MSIDOAuth2Constants.m in Sources */,
 				B20657B01FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
 				D6D9A4511FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,

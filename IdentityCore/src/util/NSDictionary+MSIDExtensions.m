@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 
@@ -65,11 +64,10 @@
 {
     __block NSMutableString *parameters = nil;
     
-    [self enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL *stop)
+    [self enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL __unused *stop)
     {
-        (void)stop;
-        NSString* encodedKey = [[((NSString *)key) msidTrimmedString] msidUrlFormEncode];
-        NSString* encodedValue = [[((NSString *)value) msidTrimmedString] msidUrlFormEncode];
+        NSString* encodedKey = [[[key description] msidTrimmedString] msidUrlFormEncode];
+        NSString* encodedValue = [[[value description] msidTrimmedString] msidUrlFormEncode];
         
         if ( parameters == nil )
         {

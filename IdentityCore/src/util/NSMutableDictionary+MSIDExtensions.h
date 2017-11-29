@@ -21,9 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@interface NSDictionary (MSIDExtensions)
+#import <Foundation/Foundation.h>
 
-+ (NSDictionary *)msidURLFormDecode:(NSString *)string;
-- (NSString *)msidURLFormEncode;
+@interface NSMutableDictionary (MSIDExtensions)
+
+- (void)msidSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey;
 
 @end
