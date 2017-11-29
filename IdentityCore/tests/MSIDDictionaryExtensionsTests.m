@@ -21,9 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@interface NSDictionary (MSIDExtensions)
+#import <XCTest/XCTest.h>
+#import "NSDictionary+MSIDExtensions.h"
 
-+ (NSDictionary *)msidURLFormDecode:(NSString *)string;
-- (NSString *)msidURLFormEncode;
+@interface MSIDDictionaryExtensionsTests : XCTestCase
+
+@end
+
+@implementation MSIDDictionaryExtensionsTests
+
+- (void)setUp
+{
+    [super setUp];
+}
+
+- (void)tearDown
+{
+    [super tearDown];
+}
+
+- (void)testMsidURLFormEncode_whenKeyAndValueAreStrings_shouldReturnUrlEncodedString
+{
+    NSDictionary *dictionary = @{@"key": @"value"};
+    
+    id result = [dictionary msidURLFormEncode];
+
+    XCTAssertEqualObjects(result, @"key=value");
+}
+
+- (void)testMsidURLFormEncode_whenKeyStringValueUUID_shouldReturnUrlEncodedString
+{
+    NSDictionary *dictionary = @{@"key": [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"]};
+    
+    id result = [dictionary msidURLFormEncode];
+    
+    XCTAssertEqualObjects(result, @"key=E621E1F8-C36C-495A-93FC-0C247A3E6E5F");
+}
 
 @end
