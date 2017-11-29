@@ -21,25 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
+#import <Foundation/Foundation.h>
 
-#import "MSIDDeviceId.h"
+/*!
+	This class varies based on whether we're included in ADAL or MSAL, so the included library
+	must implement this class.
+*/
 
-@implementation MSIDDeviceId
+@interface MSIDVersion : NSObject
 
-
-/*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
-+ (NSDictionary *)deviceId
-{
-    return @{ @"deviceId" : @"test-lib" };
-}
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key
-{
-    (void)value;
-    (void)key;
-}
++ (NSString *)platformName;
++ (NSString *)sdkName;
++ (NSString *)sdkVersion;
 
 @end

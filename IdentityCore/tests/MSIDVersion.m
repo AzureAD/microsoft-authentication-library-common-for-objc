@@ -21,21 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
+// Core test impolementation of MSIDDeviceId, not to be used in actual prod code
 
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+#import "MSIDVersion.h"
 
-#import <Foundation/Foundation.h>
+@implementation MSIDVersion
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-
++ (NSString *)platformName
+{
 #if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
+    return @"TEST.iOS";
+#else
+    return @"TEST.OSX";
 #endif
+}
 
-#endif /* IdentityCore_pch */
++ (NSString *)sdkName
+{
+    return @"TEST";
+}
+
++ (NSString *)sdkVersion
+{
+    return @"1.0.0";
+}
+
+@end

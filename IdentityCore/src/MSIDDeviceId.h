@@ -27,14 +27,13 @@
 #include <sys/sysctl.h>
 #include <mach/machine.h>
 
-/*!
-    This class varies based on whether we're included in ADAL or MSAL, so the included library
-    must implement this class.
- */
 @interface MSIDDeviceId : NSObject
 
-/*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
+/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
 + (NSDictionary *)deviceId;
+
+/*! Returns a short device identifier string containing device type and OS version. */
++ (NSString *)deviceOSId;
 
 /*! Used by Broker SDK */
 + (void)setIdValue:(NSString*)value

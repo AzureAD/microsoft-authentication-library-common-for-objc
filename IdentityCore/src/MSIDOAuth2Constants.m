@@ -21,21 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
+#import "MSIDOAuth2Constants.h"
 
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
-
-#import <Foundation/Foundation.h>
-
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
-
-#endif /* IdentityCore_pch */
+//Diagnostic traces sent to the Azure Active Directory servers:
+NSString *const MSID_PLATFORM_KEY          = @"x-client-SKU";
+NSString *const MSID_VERSION_KEY           = @"x-client-Ver";
+NSString *const MSID_CPU_KEY               = @"x-client-CPU";
+NSString *const MSID_OS_VER_KEY            = @"x-client-OS";
+NSString *const MSID_DEVICE_MODEL_KEY      = @"x-client-DM";

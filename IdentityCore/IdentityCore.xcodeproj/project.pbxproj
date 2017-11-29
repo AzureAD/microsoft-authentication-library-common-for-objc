@@ -10,6 +10,23 @@
 		23BDA6691FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA6671FC7774300FE14BE /* MSIDDictionaryExtensionsTests.m */; };
 		23BDA66A1FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA6671FC7774300FE14BE /* MSIDDictionaryExtensionsTests.m */; };
 		23BDA66E1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */; };
+		B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */; };
+		B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
+		B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
+		B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */; };
+		B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */; };
+		B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */; };
+		B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = B262B0781FC3BA8200FB111B /* MSIDLogger.h */; };
+		B2C17AEA1FC790420070A514 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2C17AE91FC790420070A514 /* UIKit.framework */; };
+		B2C17AEC1FC796E60070A514 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */; };
+		B2C17AED1FC796FE0070A514 /* MSIDOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */; };
+		B2C17AF01FC7A1BF0070A514 /* MSIDLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */; };
+		B2C17AF11FC7A1C00070A514 /* MSIDLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */; };
+		B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */; };
+		B2C17AF51FC7A6BD0070A514 /* MSIDTestLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */; };
+		B2D227AB1FC4BFEB0003579F /* MSIDLogger+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D227AA1FC4BFEB0003579F /* MSIDLogger+Internal.h */; };
+		B2D227AD1FC4C06C0003579F /* MSIDRequestContext.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D227AC1FC4C06C0003579F /* MSIDRequestContext.h */; };
+		B2D227B01FC4C5E50003579F /* MSIDVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D227AE1FC4C5E50003579F /* MSIDVersion.h */; };
 		D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */; };
@@ -43,8 +60,6 @@
 		D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */; };
 		D6D9A4C31FBE718C00EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */; };
 		D6D9A4C81FBE71A100EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */; };
-		D6D9A4D11FBF5BEF00EFA430 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */; };
-		D6D9A4D21FBF5BF000EFA430 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,6 +118,25 @@
 		23BDA6671FC7774300FE14BE /* MSIDDictionaryExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDDictionaryExtensionsTests.m; sourceTree = "<group>"; };
 		23BDA66C1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
 		23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
+		B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDeviceId.m; sourceTree = "<group>"; };
+		B20E3CAF1FC4F1540029C097 /* MSIDVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDVersion.h; sourceTree = "<group>"; };
+		B20E3CB11FC4FA550029C097 /* MSIDVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDVersion.m; sourceTree = "<group>"; };
+		B20E3CB41FC4FE3F0029C097 /* MSIDOAuth2Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDOAuth2Constants.h; sourceTree = "<group>"; };
+		B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuth2Constants.m; sourceTree = "<group>"; };
+		B25A35691FC4D6B600C7FD43 /* MSIDLogger+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDLogger+Internal.h"; sourceTree = "<group>"; };
+		B25A356A1FC4D6B600C7FD43 /* MSIDLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLogger.h; sourceTree = "<group>"; };
+		B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLogger.m; sourceTree = "<group>"; };
+		B25A35711FC4D71000C7FD43 /* MSIDRequestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRequestContext.h; sourceTree = "<group>"; };
+		B262B0781FC3BA8200FB111B /* MSIDLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLogger.h; sourceTree = "<group>"; };
+		B262B0791FC3BA8200FB111B /* MSIDLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLogger.m; sourceTree = "<group>"; };
+		B2C17AE91FC790420070A514 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLoggerTests.m; sourceTree = "<group>"; };
+		B2C17AF21FC7A56C0070A514 /* MSIDTestLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestLogger.h; sourceTree = "<group>"; };
+		B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestLogger.m; sourceTree = "<group>"; };
+		B2D227AA1FC4BFEB0003579F /* MSIDLogger+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDLogger+Internal.h"; sourceTree = "<group>"; };
+		B2D227AC1FC4C06C0003579F /* MSIDRequestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRequestContext.h; sourceTree = "<group>"; };
+		B2D227AE1FC4C5E50003579F /* MSIDVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDVersion.h; sourceTree = "<group>"; };
+		B2D227AF1FC4C5E50003579F /* MSIDVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDVersion.m; sourceTree = "<group>"; };
 		D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDExtensions.m"; sourceTree = "<group>"; };
 		D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
 		D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
@@ -146,7 +180,6 @@
 		D6D9A4B91FBE6D1C00EFA430 /* IdentityCore.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentityCore.pch; sourceTree = "<group>"; };
 		D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDURLExtensionsTests.m; sourceTree = "<group>"; };
 		D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDStringExtensionsTests.m; sourceTree = "<group>"; };
-		D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDeviceId.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +187,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2C17AEA1FC790420070A514 /* UIKit.framework in Frameworks */,
 				D6D9A4C31FBE718C00EFA430 /* libIdentityTest.a in Frameworks */,
 				D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */,
 			);
@@ -199,6 +233,29 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B25A35671FC4D69A00C7FD43 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				B2D227AF1FC4C5E50003579F /* MSIDVersion.m */,
+				B262B0791FC3BA8200FB111B /* MSIDLogger.m */,
+				B2D227AA1FC4BFEB0003579F /* MSIDLogger+Internal.h */,
+				B2D227AC1FC4C06C0003579F /* MSIDRequestContext.h */,
+				B2D227AE1FC4C5E50003579F /* MSIDVersion.h */,
+				B262B0781FC3BA8200FB111B /* MSIDLogger.h */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		B25A35681FC4D6B600C7FD43 /* logger */ = {
+			isa = PBXGroup;
+			children = (
+				B25A35691FC4D6B600C7FD43 /* MSIDLogger+Internal.h */,
+				B25A356A1FC4D6B600C7FD43 /* MSIDLogger.h */,
+				B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */,
+			);
+			path = logger;
+			sourceTree = "<group>";
+		};
 		D62600091FBD305800EE4487 /* util */ = {
 			isa = PBXGroup;
 			children = (
@@ -241,6 +298,8 @@
 		D626FFE91FBD200A00EE4487 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				B2C17AF21FC7A56C0070A514 /* MSIDTestLogger.h */,
+				B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */,
 				D6D9A44A1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.h */,
 				D6D9A44B1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m */,
 				D6D9A4541FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h */,
@@ -271,6 +330,7 @@
 				D626FF751FBA7A6600EE4487 /* xcconfig */,
 				D68FB4881FBA698A005308BB /* Products */,
 				D6D9A4C21FBE718C00EFA430 /* Frameworks */,
+				B25A35671FC4D69A00C7FD43 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -290,6 +350,7 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B2C17AE91FC790420070A514 /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -297,7 +358,13 @@
 		D6DA89721FBA6A4E004C56C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				B20E3CAF1FC4F1540029C097 /* MSIDVersion.h */,
 				D6D9A4591FBD420300EFA430 /* MSIDDeviceId.h */,
+				B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */,
+				B20E3CB41FC4FE3F0029C097 /* MSIDOAuth2Constants.h */,
+				B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */,
+				B25A35711FC4D71000C7FD43 /* MSIDRequestContext.h */,
+				B25A35681FC4D6B600C7FD43 /* logger */,
 				D62600091FBD305800EE4487 /* util */,
 				D6D9A4B91FBE6D1C00EFA430 /* IdentityCore.pch */,
 			);
@@ -307,11 +374,12 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
-				D6D9A4CD1FBF5AFB00EFA430 /* MSIDDeviceId.m */,
+				B20E3CB11FC4FA550029C097 /* MSIDVersion.m */,
 				D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */,
 				D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */,
 				23BDA6671FC7774300FE14BE /* MSIDDictionaryExtensionsTests.m */,
 				D626FFE91FBD200A00EE4487 /* util */,
+				B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -327,6 +395,10 @@
 				D62600181FBD380500EE4487 /* NSString+MSIDExtensions.h in Headers */,
 				D6D9A45B1FBD420300EFA430 /* MSIDDeviceId.h in Headers */,
 				D6D9A4531FBD3FB800EFA430 /* NSURL+MSIDExtensions.h in Headers */,
+				B2D227AB1FC4BFEB0003579F /* MSIDLogger+Internal.h in Headers */,
+				B2D227AD1FC4C06C0003579F /* MSIDRequestContext.h in Headers */,
+				B2D227B01FC4C5E50003579F /* MSIDVersion.h in Headers */,
+				B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -532,8 +604,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				23BDA6691FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */,
+				B2C17AF01FC7A1BF0070A514 /* MSIDLoggerTests.m in Sources */,
 				D6D9A4BC1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
-				D6D9A4D11FBF5BEF00EFA430 /* MSIDDeviceId.m in Sources */,
+				B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */,
+				B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				D6D9A4BE1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -542,7 +616,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
+				B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */,
+				B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */,
 				D6D9A4521FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
 				D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 			);
@@ -553,8 +630,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				23BDA66A1FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */,
+				B2C17AF11FC7A1C00070A514 /* MSIDLoggerTests.m in Sources */,
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
-				D6D9A4D21FBF5BF000EFA430 /* MSIDDeviceId.m in Sources */,
+				B2C17AF51FC7A6BD0070A514 /* MSIDTestLogger.m in Sources */,
+				B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -588,7 +667,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				23BDA66E1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m in Sources */,
+				B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
+				B2C17AEC1FC796E60070A514 /* MSIDDeviceId.m in Sources */,
+				B2C17AED1FC796FE0070A514 /* MSIDOAuth2Constants.m in Sources */,
 				D6D9A4511FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
 				D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 			);
