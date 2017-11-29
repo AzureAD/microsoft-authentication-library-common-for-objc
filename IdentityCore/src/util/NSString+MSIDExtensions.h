@@ -53,4 +53,8 @@
 /*! Converts string to url */
 - (NSURL *)msidUrl;
 
+/*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
+ the actual contents, but still want to log something that can be correlated. */
+- (NSString *)msidTokenHash;
+
 @end

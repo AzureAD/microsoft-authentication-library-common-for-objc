@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,27 +17,34 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
-
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
 
 #import <Foundation/Foundation.h>
+#import "MSIDLogger.h"
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
+/*!
+    This class provides a logging callback for the MSID logger and allows tests
+    to inspect the last log message sent to the logger. It is used in the logger tests.
+ */
+@interface MSIDTestLogger : NSObject
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+@property (readwrite) BOOL containsPII;
+@property (readwrite, retain) NSString *lastMessage;
+@property (readwrite) MSIDLogLevel lastLevel;
 
-#endif /* IdentityCore_pch */
++ (MSIDTestLogger *)sharedLogger;
+
+/*! Resets all of the test logger variables to default state and sets the MSID log level to MSIDLogLevelLast. */
+- (void)reset;
+
+/*! Resets all of the test logger variables to default state and sets the MSID log level to the provided log level. */
+- (void)reset:(MSIDLogLevel)level;
+
+@end
