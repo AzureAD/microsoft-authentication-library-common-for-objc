@@ -21,31 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTelemetryEventInterface.h"
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
+{
+    NSMutableDictionary *_propertyMap;
+}
 
-@interface MSIDDeviceId : NSObject
+- (instancetype)init NS_UNAVAILABLE;
 
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
+- (instancetype)initWithName:(NSString*)eventName
+                   requestId:(NSString*)requestId
+               correlationId:(NSUUID*)correlationId;
 
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
+- (instancetype)initWithName:(NSString*)eventName
+                     context:(id<MSIDRequestContext>)requestParams;
 
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
-
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
++ (NSDictionary *)defaultParameters;
 
 @end

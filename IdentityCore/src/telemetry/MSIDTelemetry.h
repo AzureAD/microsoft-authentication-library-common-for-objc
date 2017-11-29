@@ -21,31 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTelemetryDispatcher.h"
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+/*!
+    @class ADTelemetry
+ 
+    The central class for ADAL telemetry.
+ 
+    Usage: Get a singleton instance of ADTelemetry; register a dispatcher for receiving telemetry events.
+ */
+@interface MSIDTelemetry : NSObject
 
-@interface MSIDDeviceId : NSObject
+/*!
+    Get a singleton instance of ADTelemetry.
+ */
++ (nonnull MSIDTelemetry*)sharedInstance;
 
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
+/*!
+ Set to YES to allow events possibly containing Personally Identifiable Information (PII) to be
+ sent to dispatcher. By default it is NO.
+ */
+@property (nonatomic) BOOL piiEnabled;
 
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
+/*!
+    Register a telemetry dispatcher for receiving telemetry events.
+    @param dispatcher            An instance of MSIDTelemetryDispatcher implementation.
+ */
+- (void)addDispatcher:(nonnull id<MSIDTelemetryDispatcher>)dispatcher;
 
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
+/*!
+ Remove a telemetry dispatcher added for receiving telemetry events.
+ @param dispatcher            An instance of MSIDTelemetryDispatcher implementation added to the dispatches before.
+ */
+- (void)removeDispatcher:(nonnull id<MSIDTelemetryDispatcher>)dispatcher;
 
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
+/*!
+ Remove all telemetry dispatchers added to the dispatchers collection.
+ */
+- (void)removeAllDispatchers;
 
 @end

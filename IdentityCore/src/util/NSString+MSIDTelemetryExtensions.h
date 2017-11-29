@@ -23,29 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+@interface NSString (MSIDTelemetryExtensions)
 
-@interface MSIDDeviceId : NSObject
-
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
-
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
-
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
-
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
+- (NSDictionary *)parsedClientTelemetry;
 
 @end

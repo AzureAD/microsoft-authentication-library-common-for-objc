@@ -21,31 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "MSIDVersion.h"
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+@interface MSIDTelemetryUIEventTests : XCTestCase
 
-@interface MSIDDeviceId : NSObject
+@end
 
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
+@implementation MSIDTelemetryUIEventTests
 
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
-
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
-
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
+- (void)testSetLoginHint_whenLogingHintNotNil_shouldHashLoginHint
+{
+    MSIDTelemetryUIEvent *event = [[MSIDTelemetryUIEvent alloc] initWithName:@"testEvent"
+                                                                   requestId:@"requestId"
+                                                               correlationId:[NSUUID UUID]];
+    
+    [event setLoginHint:@"eric_cartman@contoso.com"];
+    
+    XCTAssertEqualObjects([event propertyWithName:MSID_TELEMETRY_KEY_LOGIN_HINT], [@"eric_cartman@contoso.com" msidComputeSHA256]);
+}
 
 @end

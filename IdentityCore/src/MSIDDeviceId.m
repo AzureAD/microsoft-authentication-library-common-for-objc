@@ -25,7 +25,41 @@
 #import "MSIDVersion.h"
 #import "MSIDOAuth2Constants.h"
 
+#if !TARGET_OS_IPHONE
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/IOKitLib.h>
+#endif
+
 @implementation MSIDDeviceId
+
+#if !TARGET_OS_IPHONE
+// Returns the serial number as a CFString.
+// It is the caller's responsibility to release the returned CFString when done with it.
+void CopySerialNumber(CFStringRef *serialNumber)
+{
+    if (serialNumber != NULL)
+    {
+        *serialNumber = NULL;
+        
+        io_service_t    platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
+                                                                     IOServiceMatching("IOPlatformExpertDevice"));
+        
+        if (platformExpert)
+        {
+            CFTypeRef serialNumberAsCFString =
+            IORegistryEntryCreateCFProperty(platformExpert,
+                                            CFSTR(kIOPlatformSerialNumberKey),
+                                            kCFAllocatorDefault, 0);
+            if (serialNumberAsCFString)
+            {
+                *serialNumber = serialNumberAsCFString;
+            }
+            
+            IOObjectRelease(platformExpert);
+        }
+    }
+}
+#endif
 
 //Extracts the CPU information according to the constants defined in
 //machine.h file. The method prints minimal information - only if 32 or
@@ -120,8 +154,35 @@
     return s_OSString;
 }
 
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key
++ (NSString *)deviceTelemetryId
+{
+#if TARGET_OS_IPHONE
+    return [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+#else
+    CFStringRef macSerialNumber = nil;
+    CopySerialNumber(&macSerialNumber);
+    NSString *deviceId = CFBridgingRelease(macSerialNumber);
+    return deviceId;
+#endif
+}
+
++ (NSString *)applicationName
+{
+#if TARGET_OS_IPHONE
+    return [[NSBundle mainBundle] bundleIdentifier];
+#else
+    return [[NSProcessInfo processInfo] processName];
+#endif
+}
+
+/*! Returns application version for telemetry purposes. */
++ (NSString *)applicationVersion
+{
+    return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
+}
+
++ (void)setIdValue:(NSString *)value
+            forKey:(NSString *)key
 {
     [(NSMutableDictionary *)[self deviceId] setObject:value forKey:key];
 }

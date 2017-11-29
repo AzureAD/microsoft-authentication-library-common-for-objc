@@ -22,30 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTelemetryEventInterface.h"
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+@protocol MSIDTelemetryDispatcher <NSObject>
 
-@interface MSIDDeviceId : NSObject
+- (BOOL)containsDispatcher:(id)dispatcher;
 
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
+- (void)receive:(NSString *)requestId
+          event:(id<MSIDTelemetryEventInterface>)event;
 
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
-
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
-
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
+- (void)flush:(NSString *)requestId;
 
 @end

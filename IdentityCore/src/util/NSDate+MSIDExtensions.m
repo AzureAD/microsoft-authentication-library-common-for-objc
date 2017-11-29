@@ -21,31 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "NSDate+MSIDExtensions.h"
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
+@implementation NSDate (MSIDExtensions)
 
-@interface MSIDDeviceId : NSObject
-
-/*! Returns diagnostic trace data to be sent to the Azure Active Directory servers. */
-+ (NSDictionary *)deviceId;
-
-/*! Returns a short device identifier string containing device type and OS version. */
-+ (NSString *)deviceOSId;
-
-/*! Returns a unique device identifier for telemetry purposes. */
-+ (NSString *)deviceTelemetryId;
-
-/*! Returns application name for telemetry purposes. */
-+ (NSString *)applicationName;
-
-/*! Returns application version for telemetry purposes. */
-+ (NSString *)applicationVersion;
-
-/*! Used by Broker SDK */
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
+- (NSString *)msidToString
+{
+    static NSDateFormatter* s_dateFormatter = nil;
+    static dispatch_once_t s_dateOnce;
+    
+    dispatch_once(&s_dateOnce, ^{
+        s_dateFormatter = [[NSDateFormatter alloc] init];
+        [s_dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+        [s_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSSS"];
+    });
+    
+    return [s_dateFormatter stringFromDate:self];
+}
 
 @end
