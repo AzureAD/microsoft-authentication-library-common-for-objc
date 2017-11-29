@@ -27,7 +27,7 @@
 
 @interface MSIDTelemetry (Internal)
 
-- (NSString *)registerNewRequest;
+- (NSString *)generateRequestId;
 
 - (void)startEvent:(NSString *)requestId
          eventName:(NSString *)eventName;

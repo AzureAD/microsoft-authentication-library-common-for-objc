@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
-
 @interface NSMutableDictionary (MSID)
 
 - (void)msidSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey;

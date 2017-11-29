@@ -101,7 +101,7 @@ static NSString* const s_delimiter = @"|";
 
 @implementation MSIDTelemetry (Internal)
 
-- (NSString *)registerNewRequest
+- (NSString *)generateRequestId
 {
     return [[NSUUID UUID] UUIDString];
 }
