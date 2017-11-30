@@ -26,12 +26,12 @@
 
 @implementation MSIDMSIDJsonSerializer
 
-+ (NSData *)serializeItem:(MSIDToken *)token
+- (NSData *)serialize:(MSIDToken *)token
 {
     return nil;
 }
 
-+ (MSIDToken *)deserializeData:(NSData *)data
+- (MSIDToken *)deserialize:(NSData *)data
 {
     return nil;
 }
