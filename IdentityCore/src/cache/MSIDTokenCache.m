@@ -64,8 +64,8 @@
     return nil;
 }
 
-- (NSArray<MSIDToken *> *)getRT:(NSString *)clientId
-                          error:(NSError **)error
+- (NSArray<MSIDToken *> *)getRTs:(NSString *)clientId
+                           error:(NSError **)error
 {
     return nil;
 }

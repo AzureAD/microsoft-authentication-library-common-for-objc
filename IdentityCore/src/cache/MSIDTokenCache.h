@@ -50,8 +50,8 @@
                        clientId:(NSString *)clientId
                           error:(NSError **)error;
 
-- (NSArray<MSIDToken *> *)getRT:(NSString *)clientId
-                          error:(NSError **)error;
+- (NSArray<MSIDToken *> *)getRTs:(NSString *)clientId
+                           error:(NSError **)error;
 
 
 @end

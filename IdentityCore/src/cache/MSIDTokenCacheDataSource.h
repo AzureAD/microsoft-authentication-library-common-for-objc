@@ -31,11 +31,11 @@
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
-- (BOOL)setItemWithKey:(MSIDTokenCacheKey *)key
-                  item:(MSIDToken *)item
-            serializer:(id<MSIDTokenSerializer>)serializer
-               context:(id<MSIDRequestContext>)context
-                 error:(NSError **)error;
+- (BOOL)setItem:(MSIDToken *)item
+        withKey:(MSIDTokenCacheKey *)key
+     serializer:(id<MSIDTokenSerializer>)serializer
+        context:(id<MSIDRequestContext>)context
+          error:(NSError **)error;
 
 - (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
                 serializer:(id<MSIDTokenSerializer>)serializer

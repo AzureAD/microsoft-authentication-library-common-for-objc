@@ -23,6 +23,12 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(uint32_t, MSIDTokenType)
+{
+    ACCESS_TOKEN    = 'acTk',
+    REFRESH_TOKEN   = 'rfTk'
+};
+
 @interface MSIDToken : NSObject
 
 @property (readonly) NSString *token;
@@ -33,6 +39,6 @@
 @property (readonly) NSDictionary *clientInfo;
 @property (readonly) NSDictionary *additionalServerInfo;
 
-@property (readonly) NSString *tokenType;
+@property (readonly) MSIDTokenType tokenType;
 
 @end
