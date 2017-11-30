@@ -22,11 +22,14 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenCache.h"
+#import "MSIDToken.h"
+#import "MSIDTokenCacheKey.h"
 
 @implementation MSIDTokenCache
 
-- (BOOL)saveTokenResponse:(id)response
-                  request:(id)request
+- (BOOL)saveToken:(MSIDToken *)token
+           forKey:(MSIDTokenCacheKey *)key
+            error:(NSError **)error
 {
     return NO;
 }

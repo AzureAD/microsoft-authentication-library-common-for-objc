@@ -24,11 +24,13 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDToken;
+@class MSIDTokenCacheKey;
 
 @interface MSIDTokenCache : NSObject
 
-- (BOOL)saveTokenResponse:(id)response
-                  request:(id)request;
+- (BOOL)saveToken:(MSIDToken *)token
+           forKey:(MSIDTokenCacheKey *)key
+            error:(NSError **)error;
 
 - (MSIDToken *)getAdalAT:(NSString *)userId
                 resource:(NSString *)resource
