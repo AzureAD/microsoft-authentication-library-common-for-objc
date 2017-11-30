@@ -22,8 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import <MSIDTokenCacheDataSource.h>
+#import "MSIDTokenCacheDataSource.h"
 
-@interface MSIDMacTokenCacheDataSource : NSObject<MSIDTokenCacheDataSource>
+@interface MSIDKeychainTokenCache : NSObject<MSIDTokenCacheDataSource>
 
 @end

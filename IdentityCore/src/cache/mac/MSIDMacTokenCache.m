@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDKeychainTokenCacheDataSource.h"
+#import "MSIDMacTokenCache.h"
 
-@implementation MSIDKeychainTokenCacheDataSource
+@implementation MSIDMacTokenCache
 
 - (BOOL)setItemWithKey:(MSIDTokenCacheKey *)key
                   item:(MSIDToken *)item

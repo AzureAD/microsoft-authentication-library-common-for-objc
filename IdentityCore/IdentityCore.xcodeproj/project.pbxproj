@@ -16,14 +16,13 @@
 		9641B5051FCF3E3500AFA0EC /* MSIDToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5031FCF3E3500AFA0EC /* MSIDToken.m */; };
 		9641B5061FCF3E3500AFA0EC /* MSIDToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5031FCF3E3500AFA0EC /* MSIDToken.m */; };
 		9641B5091FCF3E4400AFA0EC /* MSIDTokenCacheKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 9641B5071FCF3E4400AFA0EC /* MSIDTokenCacheKey.h */; };
-		9641B50A1FCF3E4400AFA0EC /* MSIDTokenCacheKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5081FCF3E4400AFA0EC /* MSIDTokenCacheKey.m */; };
 		9641B50B1FCF3E4400AFA0EC /* MSIDTokenCacheKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5081FCF3E4400AFA0EC /* MSIDTokenCacheKey.m */; };
 		9641B50E1FCF3E6400AFA0EC /* MSIDTokenCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 9641B50C1FCF3E6400AFA0EC /* MSIDTokenCache.h */; };
 		9641B50F1FCF3E6400AFA0EC /* MSIDTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B50D1FCF3E6400AFA0EC /* MSIDTokenCache.m */; };
 		9641B5101FCF3E6400AFA0EC /* MSIDTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B50D1FCF3E6400AFA0EC /* MSIDTokenCache.m */; };
-		9641B5201FCF3ECE00AFA0EC /* MSIDKeychainTokenCacheDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B51F1FCF3ECE00AFA0EC /* MSIDKeychainTokenCacheDataSource.m */; };
-		9641B5241FCF3EEF00AFA0EC /* MSIDMacTokenCacheDataSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 9641B5221FCF3EEF00AFA0EC /* MSIDMacTokenCacheDataSource.h */; };
-		9641B5251FCF3EEF00AFA0EC /* MSIDMacTokenCacheDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5231FCF3EEF00AFA0EC /* MSIDMacTokenCacheDataSource.m */; };
+		9641B5201FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B51F1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.m */; };
+		9641B5241FCF3EEF00AFA0EC /* MSIDMacTokenCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 9641B5221FCF3EEF00AFA0EC /* MSIDMacTokenCache.h */; };
+		9641B5251FCF3EEF00AFA0EC /* MSIDMacTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5231FCF3EEF00AFA0EC /* MSIDMacTokenCache.m */; };
 		9641B5291FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9641B5271FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.h */; };
 		9641B52A1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5281FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m */; };
 		9641B52B1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5281FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m */; };
@@ -187,10 +186,10 @@
 		9641B5081FCF3E4400AFA0EC /* MSIDTokenCacheKey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenCacheKey.m; sourceTree = "<group>"; };
 		9641B50C1FCF3E6400AFA0EC /* MSIDTokenCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTokenCache.h; sourceTree = "<group>"; };
 		9641B50D1FCF3E6400AFA0EC /* MSIDTokenCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenCache.m; sourceTree = "<group>"; };
-		9641B51E1FCF3ECE00AFA0EC /* MSIDKeychainTokenCacheDataSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDKeychainTokenCacheDataSource.h; sourceTree = "<group>"; };
-		9641B51F1FCF3ECE00AFA0EC /* MSIDKeychainTokenCacheDataSource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeychainTokenCacheDataSource.m; sourceTree = "<group>"; };
-		9641B5221FCF3EEF00AFA0EC /* MSIDMacTokenCacheDataSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDMacTokenCacheDataSource.h; sourceTree = "<group>"; };
-		9641B5231FCF3EEF00AFA0EC /* MSIDMacTokenCacheDataSource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacTokenCacheDataSource.m; sourceTree = "<group>"; };
+		9641B51E1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDKeychainTokenCache.h; sourceTree = "<group>"; };
+		9641B51F1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeychainTokenCache.m; sourceTree = "<group>"; };
+		9641B5221FCF3EEF00AFA0EC /* MSIDMacTokenCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDMacTokenCache.h; sourceTree = "<group>"; };
+		9641B5231FCF3EEF00AFA0EC /* MSIDMacTokenCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacTokenCache.m; sourceTree = "<group>"; };
 		9641B5271FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDKeyedArchiverSerializer.h; sourceTree = "<group>"; };
 		9641B5281FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyedArchiverSerializer.m; sourceTree = "<group>"; };
 		9641B52C1FCF3F4100AFA0EC /* MSIDMSIDJsonSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDMSIDJsonSerializer.h; sourceTree = "<group>"; };
@@ -358,37 +357,11 @@
 			path = cache;
 			sourceTree = "<group>";
 		};
-        B206578A1FC917D900412B7D /* telemetry */ = {
-            isa = PBXGroup;
-            children = (
-                B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */,
-                B20657A41FC91C1600412B7D /* MSIDTelemetryDispatcher.h */,
-                B20657A71FC91DA900412B7D /* MSIDTelemetry.h */,
-                B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */,
-                B20657A01FC91BE100412B7D /* MSIDTelemetry+Internal.h */,
-                B2908C051FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.h */,
-                B2908C061FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m */,
-                B20657921FC91BDF00412B7D /* MSIDTelemetryAPIEvent.h */,
-                B20657971FC91BE000412B7D /* MSIDTelemetryAPIEvent.m */,
-                B206578F1FC91BDF00412B7D /* MSIDTelemetryCacheEvent.h */,
-                B20657961FC91BE000412B7D /* MSIDTelemetryCacheEvent.m */,
-                B206578D1FC91BDF00412B7D /* MSIDTelemetryEventStrings.h */,
-                B206579E1FC91BE100412B7D /* MSIDTelemetryEventStrings.m */,
-                B206579C1FC91BE000412B7D /* MSIDTelemetryHttpEvent.h */,
-                B20657991FC91BE000412B7D /* MSIDTelemetryHttpEvent.m */,
-                B206579F1FC91BE100412B7D /* MSIDTelemetryPiiRules.h */,
-                B206579A1FC91BE000412B7D /* MSIDTelemetryPiiRules.m */,
-                B206579B1FC91BE000412B7D /* MSIDTelemetryUIEvent.h */,
-                B206578B1FC91BDF00412B7D /* MSIDTelemetryUIEvent.m */,
-            );
-            path = telemetry;
-            sourceTree = "<group>";
-        };
 		9641B51D1FCF3EB800AFA0EC /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				9641B51E1FCF3ECE00AFA0EC /* MSIDKeychainTokenCacheDataSource.h */,
-				9641B51F1FCF3ECE00AFA0EC /* MSIDKeychainTokenCacheDataSource.m */,
+				9641B51E1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.h */,
+				9641B51F1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -396,8 +369,8 @@
 		9641B5211FCF3EE200AFA0EC /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				9641B5221FCF3EEF00AFA0EC /* MSIDMacTokenCacheDataSource.h */,
-				9641B5231FCF3EEF00AFA0EC /* MSIDMacTokenCacheDataSource.m */,
+				9641B5221FCF3EEF00AFA0EC /* MSIDMacTokenCache.h */,
+				9641B5231FCF3EEF00AFA0EC /* MSIDMacTokenCache.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -412,6 +385,32 @@
 				9641B52D1FCF3F4100AFA0EC /* MSIDMSIDJsonSerializer.m */,
 			);
 			path = serializers;
+			sourceTree = "<group>";
+		};
+		B206578A1FC917D900412B7D /* telemetry */ = {
+			isa = PBXGroup;
+			children = (
+				B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */,
+				B20657A41FC91C1600412B7D /* MSIDTelemetryDispatcher.h */,
+				B20657A71FC91DA900412B7D /* MSIDTelemetry.h */,
+				B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */,
+				B20657A01FC91BE100412B7D /* MSIDTelemetry+Internal.h */,
+				B2908C051FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.h */,
+				B2908C061FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m */,
+				B20657921FC91BDF00412B7D /* MSIDTelemetryAPIEvent.h */,
+				B20657971FC91BE000412B7D /* MSIDTelemetryAPIEvent.m */,
+				B206578F1FC91BDF00412B7D /* MSIDTelemetryCacheEvent.h */,
+				B20657961FC91BE000412B7D /* MSIDTelemetryCacheEvent.m */,
+				B206578D1FC91BDF00412B7D /* MSIDTelemetryEventStrings.h */,
+				B206579E1FC91BE100412B7D /* MSIDTelemetryEventStrings.m */,
+				B206579C1FC91BE000412B7D /* MSIDTelemetryHttpEvent.h */,
+				B20657991FC91BE000412B7D /* MSIDTelemetryHttpEvent.m */,
+				B206579F1FC91BE100412B7D /* MSIDTelemetryPiiRules.h */,
+				B206579A1FC91BE000412B7D /* MSIDTelemetryPiiRules.m */,
+				B206579B1FC91BE000412B7D /* MSIDTelemetryUIEvent.h */,
+				B206578B1FC91BDF00412B7D /* MSIDTelemetryUIEvent.m */,
+			);
+			path = telemetry;
 			sourceTree = "<group>";
 		};
 		B25A35671FC4D69A00C7FD43 /* Recovered References */ = {
@@ -586,7 +585,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */,
-				9641B5241FCF3EEF00AFA0EC /* MSIDMacTokenCacheDataSource.h in Headers */,
+				9641B5241FCF3EEF00AFA0EC /* MSIDMacTokenCache.h in Headers */,
 				9641B52E1FCF3F4100AFA0EC /* MSIDMSIDJsonSerializer.h in Headers */,
 				9641B5041FCF3E3500AFA0EC /* MSIDToken.h in Headers */,
 				9641B5291FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.h in Headers */,
@@ -844,7 +843,7 @@
 				B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */,
 				B20657B11FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
 				D6D9A4521FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
-				9641B5251FCF3EEF00AFA0EC /* MSIDMacTokenCacheDataSource.m in Sources */,
+				9641B5251FCF3EEF00AFA0EC /* MSIDMacTokenCache.m in Sources */,
 				9641B52B1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */,
 				B20657E11FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
 				B20657BF1FC9254900412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
@@ -910,7 +909,7 @@
 				B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				B20657BA1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */,
 				D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
-				9641B5201FCF3ECE00AFA0EC /* MSIDKeychainTokenCacheDataSource.m in Sources */,
+				9641B5201FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.m in Sources */,
 				B2C17AEC1FC796E60070A514 /* MSIDDeviceId.m in Sources */,
 				23BDA67A1FCE693800FE14BE /* MSIDKeychainUtil.m in Sources */,
 				B2C17AED1FC796FE0070A514 /* MSIDOAuth2Constants.m in Sources */,
