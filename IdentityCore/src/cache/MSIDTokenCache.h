@@ -26,11 +26,20 @@
 @class MSIDToken;
 @class MSIDTokenCacheKey;
 
+@protocol MSIDTokenCacheDataSource;
+
 @interface MSIDTokenCache : NSObject
 
-- (BOOL)saveToken:(MSIDToken *)token
-           forKey:(MSIDTokenCacheKey *)key
-            error:(NSError **)error;
+- (id)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
+- (id<MSIDTokenCacheDataSource>)dataSource;
+
+- (BOOL)saveMsalAT:(MSIDToken *)token
+            forKey:(MSIDTokenCacheKey *)key
+             error:(NSError **)error;
+
+- (BOOL)saveAdalToken:(MSIDToken *)token
+             forKey:(MSIDTokenCacheKey *)key
+             error:(NSError **)error;
 
 - (MSIDToken *)getAdalAT:(NSString *)userId
                 resource:(NSString *)resource

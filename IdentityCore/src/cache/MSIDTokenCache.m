@@ -24,12 +24,40 @@
 #import "MSIDTokenCache.h"
 #import "MSIDToken.h"
 #import "MSIDTokenCacheKey.h"
+#import "MSIDTokenCacheDataSource.h"
 
 @implementation MSIDTokenCache
+{
+    id<MSIDTokenCacheDataSource> _dataSource;
+}
 
-- (BOOL)saveToken:(MSIDToken *)token
-           forKey:(MSIDTokenCacheKey *)key
-            error:(NSError **)error
+- (id)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _dataSource = dataSource;
+    return self;
+}
+
+- (id<MSIDTokenCacheDataSource>)dataSource
+{
+    return _dataSource;
+}
+
+
+- (BOOL)saveMsalAT:(MSIDToken *)token
+            forKey:(MSIDTokenCacheKey *)key
+             error:(NSError **)error
+{
+    return NO;
+}
+
+- (BOOL)saveAdalToken:(MSIDToken *)token
+               forKey:(MSIDTokenCacheKey *)key
+                error:(NSError **)error
 {
     return NO;
 }
