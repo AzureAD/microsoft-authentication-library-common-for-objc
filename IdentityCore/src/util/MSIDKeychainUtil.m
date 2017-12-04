@@ -29,51 +29,57 @@
 
 + (NSString *)teamId
 {
-    static dispatch_once_t s_once;
-    static NSString *s_keychainTeamId = nil;
+    static dispatch_once_t once;
+    static NSString *keychainTeamId = nil;
     
-    dispatch_once(&s_once, ^{
-        s_keychainTeamId = [self retrieveTeamIDFromKeychain];
+    dispatch_once(&once, ^{
+        NSString *accessGroup = [MSIDKeychainUtil appDefaultAccessGroup];
+        NSArray *components = [accessGroup componentsSeparatedByString:@"."];
+        NSString *bundleSeedID = [components firstObject];
+        keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;
         
-        MSID_LOG_INFO(nil, @"Using \"%@\" Team ID for Keychain.", _PII_NULLIFY(s_keychainTeamId));
-        MSID_LOG_INFO_PII(nil, @"Using \"%@\" Team ID for Keychain.", s_keychainTeamId);
+        MSID_LOG_INFO(nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
+        MSID_LOG_INFO_PII(nil, @"Using \"%@\" Team ID.", keychainTeamId);
     });
     
-    return s_keychainTeamId;
+    return keychainTeamId;
 }
 
-#pragma mark - Private
-
-+ (NSString *)retrieveTeamIDFromKeychain
++ (NSString *)appDefaultAccessGroup
 {
-    NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
-                             (id)kSecAttrAccount : @"teamIDHint",
-                             (id)kSecAttrService : @"",
-                             (id)kSecReturnAttributes : @YES };
-    CFDictionaryRef result = nil;
+    static dispatch_once_t once;
+    static NSString *appDefaultAccessGroup = nil;
     
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+    dispatch_once(&once, ^{
+        NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
+                                 (id)kSecAttrAccount : @"teamIDHint",
+                                 (id)kSecAttrService : @"",
+                                 (id)kSecReturnAttributes : @YES };
+        CFDictionaryRef result = nil;
+        
+        OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+        
+        if (status == errSecItemNotFound)
+        {
+            NSMutableDictionary* addQuery = [query mutableCopy];
+            [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
+            status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
+        }
+        
+        if (status == errSecSuccess)
+        {
+            appDefaultAccessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
+            MSID_LOG_INFO(nil, @"Defaul app's acces group: \"%@\".", _PII_NULLIFY(appDefaultAccessGroup));
+            MSID_LOG_INFO_PII(nil, @"Defaul app's acces group: \"%@\".", appDefaultAccessGroup);
+        }
+        else
+        {
+            MSID_LOG_ERROR(nil, @"fetching kSecAttrAccessGroup, status: %d", status);
+        }
+        
+        CFRelease(result);
+    });
     
-    if (status == errSecItemNotFound)
-    {
-        NSMutableDictionary* addQuery = [query mutableCopy];
-        [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
-        status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
-    }
-    
-    if (status != errSecSuccess)
-    {
-        MSID_LOG_ERROR(nil, @"fetching team ID, status: %d", status);
-        return nil;
-    }
-    
-    NSString *accessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
-    NSArray *components = [accessGroup componentsSeparatedByString:@"."];
-    NSString *bundleSeedID = [components firstObject];
-    
-    CFRelease(result);
-    
-    return [bundleSeedID length] ? bundleSeedID : nil;
+    return appDefaultAccessGroup;
 }
-
 @end

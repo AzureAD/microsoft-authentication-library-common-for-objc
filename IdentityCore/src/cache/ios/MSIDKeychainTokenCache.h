@@ -26,4 +26,31 @@
 
 @interface MSIDKeychainTokenCache : NSObject<MSIDTokenCacheDataSource>
 
+/*!
+ ADAL access group.
+ */
+@property (class, readonly, nonnull) NSString *adalAccessGroup;
+
+/*!
+ Application default access group.
+ */
+@property (class, readonly, nullable) NSString *appDefaultAccessGroup;
+
+/*!
+ Default cache initialized with adalAccessGroup.
+ */
+@property (class, readonly, nonnull) MSIDKeychainTokenCache *defaultKeychainCache;
+
+/*!
+ Access group that is used for keychain queries.
+ */
+@property (nonatomic, readonly, nonnull) NSString *accessGroup;
+
+/*!
+ Initialize with accessGroup.
+ */
+- (nullable instancetype)initWithGroup:(nonnull NSString *)accessGroup;
+
+- (nonnull instancetype)init NS_UNAVAILABLE;
+
 @end
