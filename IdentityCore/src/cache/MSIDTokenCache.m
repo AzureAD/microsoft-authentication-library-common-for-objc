@@ -48,15 +48,17 @@
 }
 
 
-- (BOOL)saveMsalAT:(MSIDToken *)token
-            forKey:(MSIDTokenCacheKey *)key
-             error:(NSError **)error
+- (BOOL)saveMsalToken:(MSIDToken *)token
+               forKey:(MSIDTokenCacheKey *)key
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error
 {
     return NO;
 }
 
 - (BOOL)saveAdalToken:(MSIDToken *)token
                forKey:(MSIDTokenCacheKey *)key
+              context:(id<MSIDRequestContext>)context
                 error:(NSError **)error
 {
     return NO;
@@ -65,6 +67,7 @@
 - (MSIDToken *)getAdalAT:(NSString *)userId
                 resource:(NSString *)resource
                 clientId:(NSString *)clientId
+                 context:(id<MSIDRequestContext>)context
                    error:(NSError **)error
 {
     return nil;
@@ -73,6 +76,7 @@
 - (MSIDToken *)getMsalAT:(NSString *)userId
                   scopes:(NSSet<NSString *> *)scopes
                 clientId:(NSString *)clientId
+                 context:(id<MSIDRequestContext>)context
                    error:(NSError **)error
 {
     return nil;
@@ -80,6 +84,7 @@
 
 - (MSIDToken *)getFRT:(NSString *)userId
              familyId:(NSString *)familyId
+              context:(id<MSIDRequestContext>)context
                 error:(NSError **)error
 {
     return nil;
@@ -87,12 +92,14 @@
 
 - (MSIDToken *)getAdfsUserToken:(NSString *)resource
                        clientId:(NSString *)clientId
+                        context:(id<MSIDRequestContext>)context
                           error:(NSError **)error
 {
     return nil;
 }
 
 - (NSArray<MSIDToken *> *)getRTs:(NSString *)clientId
+                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error
 {
     return nil;

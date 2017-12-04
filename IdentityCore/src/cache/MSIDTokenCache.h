@@ -33,34 +33,42 @@
 - (id)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
 - (id<MSIDTokenCacheDataSource>)dataSource;
 
-- (BOOL)saveMsalAT:(MSIDToken *)token
-            forKey:(MSIDTokenCacheKey *)key
-             error:(NSError **)error;
+- (BOOL)saveMsalToken:(MSIDToken *)token
+               forKey:(MSIDTokenCacheKey *)key
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error;
 
 - (BOOL)saveAdalToken:(MSIDToken *)token
-             forKey:(MSIDTokenCacheKey *)key
-             error:(NSError **)error;
+               forKey:(MSIDTokenCacheKey *)key
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error;
 
 - (MSIDToken *)getAdalAT:(NSString *)userId
                 resource:(NSString *)resource
                 clientId:(NSString *)clientId
+                 context:(id<MSIDRequestContext>)context
                    error:(NSError **)error;
 
 - (MSIDToken *)getMsalAT:(NSString *)userId
                   scopes:(NSSet<NSString *> *)scopes
                 clientId:(NSString *)clientId
+                 context:(id<MSIDRequestContext>)context
                    error:(NSError **)error;
 
 - (MSIDToken *)getFRT:(NSString *)userId
              familyId:(NSString *)familyId
+              context:(id<MSIDRequestContext>)context
                 error:(NSError **)error;
 
 - (MSIDToken *)getAdfsUserToken:(NSString *)resource
                        clientId:(NSString *)clientId
+                        context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
 
 - (NSArray<MSIDToken *> *)getRTs:(NSString *)clientId
+                         context:(id<MSIDRequestContext>)context
                            error:(NSError **)error;
 
 
 @end
+
