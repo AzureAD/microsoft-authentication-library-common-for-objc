@@ -29,6 +29,7 @@
 
 static NSString *const s_libraryString = @"MSOpenTech.ADAL.1";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
+static MSIDKeychainTokenCache *_defaultCache = nil;
 
 @implementation MSIDKeychainTokenCache
 
@@ -46,14 +47,22 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
 
 + (MSIDKeychainTokenCache *)defaultKeychainCache
 {
-    static MSIDKeychainTokenCache *defaultCache = nil;
-    static dispatch_once_t once;
+    if (!_defaultCache)
+    {
+        _defaultCache = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDKeychainTokenCache.adalAccessGroup];
+    }
     
-    dispatch_once(&once, ^{
-        defaultCache = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDKeychainTokenCache.adalAccessGroup];
-    });
+    return _defaultCache;
+}
+
++ (void)setDefaultKeychainCache:(MSIDKeychainTokenCache *)defaultKeychainCache
+{
+    if (!defaultKeychainCache)
+    {
+        return;
+    }
     
-    return defaultCache;
+    _defaultCache = defaultKeychainCache;
 }
 
 - (instancetype)initWithGroup:(NSString *)accessGroup
@@ -86,6 +95,7 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
           error:(NSError **)error
 {
     assert(key);
+    assert(serializer);
     
     MSID_LOG_INFO(context, @"Set keychain item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Set keychain item, key info (account: %@ service: %@)", key.account, key.service);
@@ -93,15 +103,22 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
     
     if (!key.service || !key.account)
     {
-        *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey:@"Key is not valid. Make sure service and account are not nil."}];
+        if (error)
+        {
+            // TODO: Use proper domain & error code.
+            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey:@"Key is not valid. Make sure service and account are not nil."}];
+        }
         MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
         return NO;
     }
 
     NSData *itemData = [serializer serialize:item];
     if (!itemData)
-    {   
-        *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey:@"Failed to serialize token item."}];
+    {
+        if (error)
+        {
+            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey:@"Failed to serialize token item."}];
+        }
         MSID_LOG_ERROR(context, @"Failed to serialize token item.");
         return NO;
     }
@@ -130,7 +147,10 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
     
     if (status != errSecSuccess)
     {
-        *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to set item into keychain."}];
+        if (error)
+        {
+            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to set item into keychain."}];
+        }
         MSID_LOG_ERROR(context, @"Failed to set item into keychain (status: %d)", status);
     }
     
@@ -157,7 +177,10 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
     
     if (!key.service || !key.account)
     {
-        *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey:@"Key is not valid. Make sure service and account are not nil."}];
+        if (error)
+        {
+            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey:@"Key is not valid. Make sure service and account are not nil."}];
+        }
         MSID_LOG_ERROR(context, @"Remove keychain item with invalid key.");
         return NO;
     }
@@ -172,7 +195,10 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
     
     if (status != errSecSuccess)
     {
-        *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to remove item from keychain."}];
+        if (error)
+        {
+            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to remove item from keychain."}];
+        }
         MSID_LOG_ERROR(context, @"Failed to delete keychain item (status: %d)", status);
     }
     
@@ -186,6 +212,7 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
 {
     
     assert(key);
+    assert(serializer);
     
     MSID_LOG_INFO(context, @"Get keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Get keychain items, key info (account: %@ service: %@)", key.account, key.service);
@@ -215,7 +242,10 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
     }
     else if (status != errSecSuccess)
     {
-        *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to get items from keychain."}];
+        if (error)
+        {
+            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to get items from keychain."}];
+        }
         MSID_LOG_ERROR(context, @"Failed to find keychain item (status: %d)", status);
         return nil;
     }
@@ -231,6 +261,10 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
         if (tokenItem)
         {
             [tokenItems addObject:tokenItem];
+        }
+        else
+        {
+            MSID_LOG_ERROR(context, @"Failed to deserialize token item.");
         }
     }
     
@@ -263,7 +297,10 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
     
     if (status != errSecSuccess)
     {
-       *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to save wipe token data into keychain."}];
+        if (error)
+        {
+            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to save wipe token data into keychain."}];
+        }
         MSID_LOG_ERROR(context, @"Failed to save wipe token data into keychain (status: %d)", status);
         return NO;
     }
@@ -285,7 +322,10 @@ static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
     
     if (status != errSecSuccess)
     {
-        *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to get a wipe data from keychain."}];
+        if (error)
+        {
+            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to get a wipe data from keychain."}];
+        }
         MSID_LOG_ERROR(context, @"Failed to get a wipe data from keychain (status: %d)", status);
         return nil;
     }

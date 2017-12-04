@@ -37,9 +37,9 @@
 @property (class, readonly, nullable) NSString *appDefaultAccessGroup;
 
 /*!
- Default cache initialized with adalAccessGroup.
+ Default cache. By default initialized with adalAccessGroup.
  */
-@property (class, readonly, nonnull) MSIDKeychainTokenCache *defaultKeychainCache;
+@property (class, nonnull) MSIDKeychainTokenCache *defaultKeychainCache;
 
 /*!
  Access group that is used for keychain queries.
@@ -51,6 +51,7 @@
  */
 - (nullable instancetype)initWithGroup:(nonnull NSString *)accessGroup;
 
-- (nonnull instancetype)init NS_UNAVAILABLE;
+- (nullable instancetype)init NS_UNAVAILABLE;
++ (nullable instancetype)new NS_UNAVAILABLE;
 
 @end
