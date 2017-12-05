@@ -23,22 +23,22 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(uint32_t, MSIDTokenType)
+typedef NS_ENUM(NSInteger, MSIDTokenType)
 {
-    MSIDTokenTypeAccessToken =  'acTk',
-    MSIDTokenTypeRefreshToken = 'rfTk'
+    MSIDTokenTypeAccessToken,
+    MSIDTokenTypeRefreshToken
 };
 
-@interface MSIDToken : NSObject
+@interface MSIDToken : NSObject <NSCoding>
 
 @property (readonly) NSString *token;
-
 @property (readonly) NSString *idToken;
 @property (readonly) NSDate *expiresOn;
 @property (readonly) NSString *familyId;
 @property (readonly) NSDictionary *clientInfo;
 @property (readonly) NSDictionary *additionalServerInfo;
-
 @property (readonly) MSIDTokenType tokenType;
+
+- (BOOL)isEqualToToken:(MSIDToken *)token;
 
 @end

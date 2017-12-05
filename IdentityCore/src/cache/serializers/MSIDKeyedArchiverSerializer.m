@@ -23,17 +23,29 @@
 
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDToken.h"
+#import "MSIDUserInformation.h"
+
+@interface MSIDKeyedArchiverSerializer ()
+
+@end
 
 @implementation MSIDKeyedArchiverSerializer
 
+#pragma mark - MSIDTokenSerializer
+
 - (NSData *)serialize:(MSIDToken *)token
 {
-    return nil;
+    return [NSKeyedArchiver archivedDataWithRootObject:token];
 }
 
 - (MSIDToken *)deserialize:(NSData *)data
 {
-    return nil;
+    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+    [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
+    MSIDToken *token = [unarchiver decodeObjectOfClass:MSIDToken.class forKey:NSKeyedArchiveRootObjectKey];
+    [unarchiver finishDecoding];
+    
+    return token;
 }
 
 @end
