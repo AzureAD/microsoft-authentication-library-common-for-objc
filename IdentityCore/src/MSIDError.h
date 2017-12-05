@@ -28,7 +28,7 @@ extern NSString *MSIDOAuthSubErrorKey;
 /*!
  ADAL and MSAL use different error domains and error codes.
  When extracting shared code to common core, we unify those error domains
- and error codes to be MSID error domains/codes and listed them below. Besides,
+ and error codes to be MSID error domains/codes and list them below. Besides,
  domain mapping and error code mapping should be added to ADALErrorConvertor
  and MSALErrorConvetor in corresponding project.
  */
