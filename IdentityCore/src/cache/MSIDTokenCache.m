@@ -25,10 +25,15 @@
 #import "MSIDToken.h"
 #import "MSIDTokenCacheKey.h"
 #import "MSIDTokenCacheDataSource.h"
+#import "MSIDKeyedArchiverSerializer.h"
+#import "MSIDJsonSerializer.h"
+#import "MSIDUser.h"
 
 @implementation MSIDTokenCache
 {
     id<MSIDTokenCacheDataSource> _dataSource;
+    MSIDJsonSerializer *_jsonSerializer;
+    MSIDKeyedArchiverSerializer *_keyedArchiverSerialize;
 }
 
 - (id)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
@@ -47,62 +52,254 @@
     return _dataSource;
 }
 
-
-- (BOOL)saveMsalToken:(MSIDToken *)token
-               forKey:(MSIDTokenCacheKey *)key
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error
+- (MSIDToken *)getAdalATRTforUser:(MSIDUser *)user
+                        authority:(NSString *)authority
+                         resource:(NSString *)resource
+                         clientId:(NSString *)clientId
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
 {
-    return NO;
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority
+                                                             upn:user.upn
+                                                        resource:resource
+                                                        clientId:clientId];
+    
+    return [_dataSource itemWithKey:key
+                         serializer:_keyedArchiverSerialize
+                            context:context error:error];
 }
 
-- (BOOL)saveAdalToken:(MSIDToken *)token
-               forKey:(MSIDTokenCacheKey *)key
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error
+
+- (MSIDToken *)getFRTforUser:(MSIDUser *)user
+                   authority:(NSString *)authority
+                    familyId:(NSString *)familyId
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error
 {
-    return NO;
+    
+    if (!familyId)
+    {
+        familyId = @"1";
+    }
+    NSString *fociClientId = [NSString stringWithFormat:@"foci-%@", familyId];
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority upn:user.upn resource:nil clientId:fociClientId];
+    
+    return [_dataSource itemWithKey:key
+                         serializer:_keyedArchiverSerialize
+                            context:context error:error];
 }
 
-- (MSIDToken *)getAdalAT:(NSString *)userId
-                resource:(NSString *)resource
-                clientId:(NSString *)clientId
-                 context:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
+- (MSIDToken *)getAdfsUserTokenForAuthority:(NSString *)authority
+                                   resource:(NSString *)resource
+                                   clientId:(NSString *)clientId
+                                    context:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error
 {
-    return nil;
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority
+                                                             upn:nil
+                                                        resource:resource
+                                                        clientId:clientId];
+    
+    return [_dataSource itemWithKey:key serializer:_keyedArchiverSerialize context:context error:error];
 }
 
-- (MSIDToken *)getMsalAT:(NSString *)userId
-                  scopes:(NSSet<NSString *> *)scopes
-                clientId:(NSString *)clientId
-                 context:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
+
+
+
+- (BOOL)getMsalATwithAuthority:(NSURL *)authority
+                      clientId:(NSString *)clientId
+                        scopes:(NSOrderedSet<NSString *> *)scopes
+                          user:(MSIDUser *)user
+                   environment:(NSString *)environment
+                   accessToken:(MSIDToken **)outAccessToken
+                authorityFound:(NSString **)outAuthorityFound
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
-    return nil;
+    // get all access token
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithUserId:[user userIdentifier] environment:environment clientId:clientId];
+    
+    NSArray<MSIDToken *> *allTokens = [_dataSource itemsWithKey:key serializer:_jsonSerializer context:context error:error];
+    if (!allTokens)
+    {
+        // This should be rare-to-never as having a MSALUser object requires having a RT in cache,
+        // which should imply that at some point we got an AT for that user with this client ID
+        // as well. Unless users start working cross client id of course.
+        MSID_LOG_WARN(context, @"No access token found for user & client id.");
+        MSID_LOG_WARN_PII(context, @"No access token found for user & client id.");
+        
+        return NO;
+    }
+    
+    NSString *absoluteAuthority = [authority absoluteString];
+    NSString *foundAuthority = allTokens.count > 0 ? allTokens[0].authority : nil;
+    
+    NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
+    
+    for (MSIDToken *token in allTokens)
+    {
+        if (absoluteAuthority)
+        {
+            if ([absoluteAuthority caseInsensitiveCompare:token.authority] != NSOrderedSame)
+            {
+                continue;
+            }
+        }
+        else if ([foundAuthority caseInsensitiveCompare:token.authority] != NSOrderedSame)
+        {
+            // Todo: add macro and handle error
+            return nil;
+        }
+        if (![scopes isSubsetOfOrderedSet:token.scopes])
+        {
+            continue;
+        }
+        
+        [matchedTokens addObject:token];
+    }
+    
+    *outAuthorityFound = foundAuthority;
+    
+    if (matchedTokens.count == 0)
+    {
+        MSID_LOG_INFO(context, @"No matching access token found.");
+        MSID_LOG_INFO_PII(context, @"No matching access token found.");
+        return YES;
+    }
+    
+    if ([matchedTokens[0] isExpired])
+    {
+        MSID_LOG_INFO(context, @"Access token found in cache is already expired.");
+        MSID_LOG_INFO_PII(context, @"Access token found in cache is already expired.");
+        return YES;
+    }
+    
+    *outAccessToken = matchedTokens[0];
+    return YES;
 }
 
-- (MSIDToken *)getFRT:(NSString *)userId
-             familyId:(NSString *)familyId
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error
+- (NSArray<MSIDToken *> *)getRTsForUser:(MSIDUser *)user
+                            environment:(NSString *)environment
+                               clientId:(NSString *)clientId
+                                context:(id<MSIDRequestContext>)context
+                                  error:(NSError **)error
 {
-    return nil;
+    
+    // Look for new cache, with utid and uid
+    if (user.userIdentifier)
+    {
+        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithUserId:user.userIdentifier
+                                                      environment:environment
+                                                         clientId:clientId];
+        
+        NSArray<MSIDToken *> *tokens = [_dataSource itemsWithKey:key
+                                                      serializer:_jsonSerializer
+                                                         context:context
+                                                           error:error];
+        if (tokens && tokens.count > 0)
+        {
+            return tokens;
+        }
+    }
+    
+    // Look for old cache
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithUpn:user.upn environment:environment clientId:clientId];
+    return [_dataSource itemsWithKey:key
+                          serializer:_jsonSerializer
+                             context:context
+                               error:error];
 }
 
-- (MSIDToken *)getAdfsUserToken:(NSString *)resource
-                       clientId:(NSString *)clientId
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)saveAdalAT:(MSIDToken *)adalAT
+          clientId:(NSString *)clientId
+              user:(MSIDUser *)user
+          resource:(NSString *)resource
+           context:(id<MSIDRequestContext>)context
+             error:(NSError **)error
 {
-    return nil;
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:adalAT.authority
+                                                             upn:user.upn
+                                                        resource:resource
+                                                        clientId:clientId];
+    return [_dataSource setItem:adalAT
+                            key:key
+                     serializer:_keyedArchiverSerialize
+                        context:context
+                          error:error];
 }
 
-- (NSArray<MSIDToken *> *)getRTs:(NSString *)clientId
-                         context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)saveMsalAT:(MSIDToken *)msalAT
+          clientId:(NSString *)clientId
+              user:(MSIDUser *)user
+       environment:(NSString *)environment
+           context:(id<MSIDRequestContext>)context
+             error:(NSError **)error
 {
-    return nil;
+    //delete all cache entries with intersecting scopes
+    //this should not happen but we have this as a safe guard against multiple matches
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithUserId:[user userIdentifier] environment:environment clientId:clientId];
+    
+    NSArray<MSIDToken *> *allTokens = [_dataSource itemsWithKey:key serializer:_jsonSerializer context:context error:nil];
+
+    for (MSIDToken *token in allTokens)
+    {
+        if (token.tokenType == ACCESS_TOKEN
+            && [token.authority isEqualToString:msalAT.authority]
+            && [token.scopes intersectsOrderedSet:msalAT.scopes])
+        {
+            MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyWithAuthority:token.authority
+                                                                        clientId:clientId
+                                                                          scopes:token.scopes
+                                                                          userId:user.userIdentifier
+                                                                     environment:environment];
+            
+            [_dataSource removeItemWithKey:keyToDelete context:context error:nil];
+        }
+    }
+    
+    MSIDTokenCacheKey *atKey = [MSIDTokenCacheKey keyWithAuthority:msalAT.authority
+                                                          clientId:clientId
+                                                            scopes:msalAT.scopes
+                                                            userId:user.userIdentifier
+                                                       environment:environment];
+                                
+    return [_dataSource setItem:msalAT key:atKey serializer:_jsonSerializer context:context error:error];
+}
+
+- (BOOL)saveRT:(MSIDToken *)rt
+          user:(MSIDUser *)user
+   environment:(NSString *)environment
+      clientId:(NSString *)clientId
+       context:(id<MSIDRequestContext>)context
+         error:(NSError **)error
+{
+    // save in new form
+    if (user.userIdentifier)
+    {
+        MSIDTokenCacheKey *newKey = [MSIDTokenCacheKey keyWithUserId:user.userIdentifier
+                                                         environment:environment
+                                                            clientId:clientId];
+        
+        if(![_dataSource setItem:rt key:newKey serializer:_jsonSerializer context:context error:error])
+        {
+            return NO;
+        }
+    }
+    
+    // save in old form
+    if (user.upn)
+    {
+        MSIDTokenCacheKey *oldKey = [MSIDTokenCacheKey keyWithUpn:user.upn
+                                                      environment:environment
+                                                         clientId:clientId];
+        
+        if(![_dataSource setItem:rt key:oldKey serializer:_keyedArchiverSerialize context:context error:error])
+        {
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 @end

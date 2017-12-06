@@ -20,20 +20,33 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+#import "MSIDUser.h"
 
-#import "MSIDMSIDJsonSerializer.h"
-#import "MSIDToken.h"
+@implementation MSIDUser
 
-@implementation MSIDMSIDJsonSerializer
-
-- (NSData *)serialize:(MSIDToken *)token
+- (id)initWithUpn:(NSString *)upn
+             utid:(NSString *)utid
+              uid:(NSString *)uid
 {
-    return nil;
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    self->_upn = upn;
+    self->_utid = utid;
+    self->_uid = uid;
+
+    return self;
 }
 
-- (MSIDToken *)deserialize:(NSData *)data
+- (NSString *)userIdentifier
 {
-    return nil;
+    if (self.uid && self.uid)
+    {
+        return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
+    }
+    return nil;    
 }
 
 @end

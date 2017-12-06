@@ -23,6 +23,15 @@
 
 #import "MSIDToken.h"
 
+//in seconds, ensures catching of clock differences between the server and the device
+static uint64_t s_expirationBuffer = 300;
+
 @implementation MSIDToken
+
+- (BOOL)isExpired;
+{
+    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:s_expirationBuffer];
+    return [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
+}
 
 @end

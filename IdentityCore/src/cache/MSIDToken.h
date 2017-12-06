@@ -32,13 +32,17 @@ typedef NS_ENUM(uint32_t, MSIDTokenType)
 @interface MSIDToken : NSObject
 
 @property (readonly) NSString *token;
-
 @property (readonly) NSString *idToken;
+
 @property (readonly) NSDate *expiresOn;
+
+@property (readonly) NSString *authority;
 @property (readonly) NSString *familyId;
 @property (readonly) NSDictionary *clientInfo;
 @property (readonly) NSDictionary *additionalServerInfo;
-
+@property (readonly) NSOrderedSet<NSString *> *scopes;
 @property (readonly) MSIDTokenType tokenType;
+
+- (BOOL)isExpired;
 
 @end

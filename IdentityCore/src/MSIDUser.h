@@ -22,8 +22,17 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenSerializer.h"
 
-@interface MSIDMSIDJsonSerializer : NSObject<MSIDTokenSerializer>
+@interface MSIDUser : NSObject
+
+@property (readonly) NSString *upn;
+@property (readonly) NSString *utid;
+@property (readonly) NSString *uid;
+
+- (id)initWithUpn:(NSString *)upn
+             utid:(NSString *)utid
+              uid:(NSString *)uid;
+
+- (NSString *)userIdentifier;
 
 @end

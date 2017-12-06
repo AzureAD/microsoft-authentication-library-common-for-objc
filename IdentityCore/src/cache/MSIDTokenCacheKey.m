@@ -39,4 +39,29 @@
     return self;
 }
 
+// adal atrt (single resource)
++ (MSIDTokenCacheKey *)keyWithAuthority:(NSString *)authority
+                                    upn:(NSString *)upn
+                               resource:(NSString *)resource
+                               clientId:(NSString *)clientId
+{
+    return nil;
+}
+
+// rt with upn
++ (MSIDTokenCacheKey *)keyWithUpn:(NSString *)upn
+                      environment:(NSString *)environment
+                         clientId:(NSString *)clientId
+{
+    return nil;
+}
+
+// rt with uid and utid
++ (MSIDTokenCacheKey *)keyWithUserId:(NSString *)userId
+                         environment:(NSString *)environment
+                            clientId:(NSString *)clientId
+{
+    return nil;
+}
+
 @end
