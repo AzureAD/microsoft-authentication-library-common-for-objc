@@ -29,59 +29,86 @@
 
 static NSString *const s_libraryString = @"MSOpenTech.ADAL.1";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
-static MSIDKeychainTokenCache *_defaultCache = nil;
+static MSIDKeychainTokenCache *s_defaultCache = nil;
+static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
+
+@interface MSIDKeychainTokenCache ()
+
+@property (nonnull) NSString *keychainGroup;
+
+@end
 
 @implementation MSIDKeychainTokenCache
 
 #pragma mark - Public
 
-+ (NSString *)adalAccessGroup
++ (NSString *)defaultKeychainGroup
 {
-    return @"com.microsoft.adalcache";
+    return s_defaultKeychainGroup;
 }
 
-+ (NSString *)appDefaultAccessGroup
++ (void)setDefaultKeychainGroup:(NSString *)defaultKeychainGroup
 {
-    return MSIDKeychainUtil.appDefaultAccessGroup;
-}
-
-+ (MSIDKeychainTokenCache *)defaultKeychainCache
-{
-    if (!_defaultCache)
+    if (s_defaultCache)
     {
-        _defaultCache = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDKeychainTokenCache.adalAccessGroup];
+        MSID_LOG_ERROR(nil, @"Failed to set default keychain group, default keychain cache has already been instantiated.");
+        
+        @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
     }
     
-    return _defaultCache;
-}
-
-+ (void)setDefaultKeychainCache:(MSIDKeychainTokenCache *)defaultKeychainCache
-{
-    if (!defaultKeychainCache)
+    MSID_LOG_INFO(nil, @"Setting default keychain group.");
+    MSID_LOG_INFO_PII(nil, @"Setting default keychain group to %@", defaultKeychainGroup);
+    
+    if (defaultKeychainGroup == s_defaultKeychainGroup)
     {
         return;
     }
     
-    _defaultCache = defaultKeychainCache;
+    if (!defaultKeychainGroup)
+    {
+        defaultKeychainGroup = [[NSBundle mainBundle] bundleIdentifier];
+    }
+    
+    s_defaultKeychainGroup = [defaultKeychainGroup copy];
 }
 
-- (instancetype)initWithGroup:(NSString *)accessGroup
++ (MSIDKeychainTokenCache *)defaultKeychainCache
+{
+    static dispatch_once_t s_once;
+    
+    dispatch_once(&s_once, ^{
+        s_defaultCache = [[MSIDKeychainTokenCache alloc] init];
+    });
+    
+    return s_defaultCache;
+}
+
+- (nonnull instancetype)init
+{
+    return [self initWithGroup:s_defaultKeychainGroup];
+}
+
+- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup
 {
     if (!(self = [super init]))
     {
         return nil;
     }
     
-    if (!accessGroup)
+    if (!keychainGroup)
     {
-        MSID_LOG_INFO(nil, @"Keychain initialization with nil accessGroup.");
+        keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
+    }
+    
+    if (!MSIDKeychainUtil.teamId)
+    {
         return nil;
     }
     
-    MSID_LOG_INFO(nil, @"Using keychain accessGroup: %@", _PII_NULLIFY(accessGroup));
-    MSID_LOG_INFO_PII(nil, @"Using keychain accessGroup: %@", accessGroup);
+    _keychainGroup = [[NSString alloc] initWithFormat:@"%@.%@", MSIDKeychainUtil.teamId, keychainGroup];
     
-    _accessGroup = accessGroup;
+    MSID_LOG_INFO(nil, @"Using keychainGroup: %@", _PII_NULLIFY(_keychainGroup));
+    MSID_LOG_INFO_PII(nil, @"Using keychainGroup: %@", _keychainGroup);
     
     return self;
 }
@@ -126,7 +153,7 @@ static MSIDKeychainTokenCache *_defaultCache = nil;
     NSMutableDictionary *query = [@{(id)kSecClass : (id)kSecClassGenericPassword} mutableCopy];
     [query setObject:key.service forKey:(id)kSecAttrService];
     [query setObject:key.account forKey:(id)kSecAttrAccount];
-    [query setObject:self.accessGroup forKey:(id)kSecAttrAccessGroup];
+    [query setObject:self.keychainGroup forKey:(id)kSecAttrAccessGroup];
     // Backward compatibility with ADAL.
     [query setObject:[s_libraryString dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrGeneric];
     // Backward compatibility with MSAL.
@@ -226,7 +253,7 @@ static MSIDKeychainTokenCache *_defaultCache = nil;
     {
         [query setObject:key.account forKey:(id)kSecAttrAccount];
     }
-    [query setObject:self.accessGroup forKey:(id)kSecAttrAccessGroup];
+    [query setObject:self.keychainGroup forKey:(id)kSecAttrAccessGroup];
     [query setObject:@YES forKey:(id)kSecReturnData];
     [query setObject:@YES forKey:(id)kSecReturnAttributes];
     [query setObject:(id)kSecMatchLimitAll forKey:(id)kSecMatchLimit];
@@ -345,7 +372,7 @@ static MSIDKeychainTokenCache *_defaultCache = nil;
     dispatch_once(&onceToken, ^{
         wipeQuery = @{(id)kSecClass : (id)kSecClassGenericPassword,
                        (id)kSecAttrGeneric : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
-                       (id)kSecAttrAccessGroup : self.accessGroup,
+                       (id)kSecAttrAccessGroup : self.keychainGroup,
                        (id)kSecAttrAccount : @"TokenWipe"};
     });
     return wipeQuery;

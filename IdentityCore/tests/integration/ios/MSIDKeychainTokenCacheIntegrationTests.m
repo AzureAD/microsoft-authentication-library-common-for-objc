@@ -34,35 +34,24 @@
     [MSIDKeychainTokenCache reset];
 }
 
-- (void)test_whenGetAdalAccessGroup_shouldReturnProperGroup
+- (void)test_whenGetDefaultKeychainGroup_shouldReturnAdalGroup
 {
-    XCTAssertEqualObjects(MSIDKeychainTokenCache.adalAccessGroup, @"com.microsoft.adalcache");
+    XCTAssertEqualObjects(MSIDKeychainTokenCache.defaultKeychainGroup, @"com.microsoft.adalcache");
 }
 
-- (void)test_whenGetAppDefaultAccessGroup_shouldReturnProperGroup
+- (void)test_whenSetDefaultKeychainGroup_shouldReturnProperGroup
 {
-    XCTAssertEqualObjects(MSIDKeychainTokenCache.appDefaultAccessGroup, MSIDKeychainUtil.appDefaultAccessGroup);
-}
-
-- (void)test_whenGetDefaultKeychainCache_shouldReturnCacheWithAdalAccessGroup
-{
-    XCTAssertEqualObjects(MSIDKeychainTokenCache.defaultKeychainCache.accessGroup, MSIDKeychainTokenCache.adalAccessGroup);
-}
-
-- (void)test_whenInitWithAccessGroup_shouldReturnProperAccessGroup
-{
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    MSIDKeychainTokenCache.defaultKeychainGroup = @"my.group";
     
-    XCTAssertEqualObjects(keychainTokenCache.accessGroup, @"my.group");
+    XCTAssertEqualObjects(MSIDKeychainTokenCache.defaultKeychainGroup, @"my.group");
 }
 
-- (void)test_whenSetDefaultKeychainCache_shouldReturnProperKeychainCache
+- (void)test_whenSetDefaultKeychainGroupAfterDefaultCacheInitialization_shouldThrow
 {
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    // Init default cache.
+    MSIDKeychainTokenCache * __unused tokenCache = MSIDKeychainTokenCache.defaultKeychainCache;
     
-    MSIDKeychainTokenCache.defaultKeychainCache = keychainTokenCache;
-    
-    XCTAssertEqualObjects(MSIDKeychainTokenCache.defaultKeychainCache, keychainTokenCache);
+    XCTAssertThrows(MSIDKeychainTokenCache.defaultKeychainGroup = @"my.group");
 }
 
 #pragma mark - MSIDTokenCacheDataSource
