@@ -150,10 +150,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         return NO;
     }
     
-    NSMutableDictionary *query = [@{(id)kSecClass : (id)kSecClassGenericPassword} mutableCopy];
+    NSMutableDictionary *query = [self defaultQuery];
     [query setObject:key.service forKey:(id)kSecAttrService];
     [query setObject:key.account forKey:(id)kSecAttrAccount];
-    [query setObject:self.keychainGroup forKey:(id)kSecAttrAccessGroup];
     // Backward compatibility with ADAL.
     [query setObject:[s_libraryString dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrGeneric];
     // Backward compatibility with MSAL.
@@ -212,7 +211,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         return NO;
     }
     
-    NSMutableDictionary *query = [@{(id)kSecClass : (id)kSecClassGenericPassword} mutableCopy];
+    NSMutableDictionary *query = [self defaultQuery];
     [query setObject:key.service forKey:(id)kSecAttrService];
     [query setObject:key.account forKey:(id)kSecAttrAccount];
     
@@ -244,7 +243,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO(context, @"Get keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Get keychain items, key info (account: %@ service: %@)", key.account, key.service);
     
-    NSMutableDictionary *query = [@{(id)kSecClass : (id)kSecClassGenericPassword} mutableCopy];
+    NSMutableDictionary *query = [self defaultQuery];
     if (key.service)
     {
         [query setObject:key.service forKey:(id)kSecAttrService];
@@ -253,7 +252,6 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         [query setObject:key.account forKey:(id)kSecAttrAccount];
     }
-    [query setObject:self.keychainGroup forKey:(id)kSecAttrAccessGroup];
     [query setObject:@YES forKey:(id)kSecReturnData];
     [query setObject:@YES forKey:(id)kSecReturnAttributes];
     [query setObject:(id)kSecMatchLimitAll forKey:(id)kSecMatchLimit];
@@ -376,6 +374,17 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                        (id)kSecAttrAccount : @"TokenWipe"};
     });
     return wipeQuery;
+}
+
+- (NSMutableDictionary *)defaultQuery
+{
+    static NSDictionary *query;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        query = @{(id)kSecClass : (id)kSecClassGenericPassword,
+                  (id)kSecAttrAccessGroup : self.keychainGroup};
+    });
+    return [query mutableCopy];
 }
 
 @end
