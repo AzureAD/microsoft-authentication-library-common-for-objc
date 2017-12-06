@@ -29,7 +29,6 @@
 + (void)reset
 {
     [self deleteAllKeysForSecClass:kSecClassGenericPassword];
-    [self deleteAllKeysForSecClass:kSecClassInternetPassword];
     [self deleteAllKeysForSecClass:kSecClassCertificate];
     [self deleteAllKeysForSecClass:kSecClassKey];
     [self deleteAllKeysForSecClass:kSecClassIdentity];
