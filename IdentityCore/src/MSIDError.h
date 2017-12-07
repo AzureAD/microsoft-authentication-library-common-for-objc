@@ -32,7 +32,7 @@ extern NSString *MSIDOAuthSubErrorKey;
  domain mapping and error code mapping should be added to ADAuthenticationErrorConverter
  and MSALErrorConveter in corresponding project.
  */
-extern NSString * MSIDErrorDomain;
+extern NSString *MSIDErrorDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
