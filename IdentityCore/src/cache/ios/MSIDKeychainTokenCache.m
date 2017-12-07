@@ -230,7 +230,6 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
-    
     assert(key);
     assert(serializer);
     
@@ -279,7 +278,18 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         
         if (tokenItem)
         {
-            [tokenItems addObject:tokenItem];
+            // Delete tombstones generated from previous versions of ADAL.
+            if (tokenItem.tokenType == REFRESH_TOKEN && [tokenItem.token isEqualToString:@"<tombstone>"])
+            {
+                // TODO: verify that it works and don't delete multiple items.
+                MSID_LOG_INFO(context, @"Trying to delete tombstone item...");
+                OSStatus status = SecItemDelete((CFDictionaryRef)attrs);
+                MSID_LOG_INFO(context, @"Keychain delete status: %d", status);
+            }
+            else
+            {
+                [tokenItems addObject:tokenItem];
+            }
         }
         else
         {
