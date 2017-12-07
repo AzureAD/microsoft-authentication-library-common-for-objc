@@ -189,7 +189,19 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                      error:(NSError **)error
 {
     MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
-    return [self itemsWithKey:key serializer:serializer context:context error:error].firstObject;
+    NSArray<MSIDToken *> *items = [self itemsWithKey:key serializer:serializer context:context error:error];
+    
+    if (items.count > 1)
+    {
+        if (error)
+        {
+            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey:@"The token cache store for this resource contains more than one user. Please set 'account' and 'service' properties of MSIDTokenCacheKey."}];
+        }
+        
+        return nil;
+    }
+    
+    return items.firstObject;
 }
 
 - (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
