@@ -23,6 +23,7 @@
 
 #import "MSIDDeviceId.h"
 #import "MSIDVersion.h"
+#import "MSIDContants.h"
 #import "MSIDOAuth2Constants.h"
 
 #if !TARGET_OS_IPHONE

@@ -23,11 +23,35 @@
 
 #import "MSIDOAuth2Constants.h"
 
-//Diagnostic traces sent to the Azure Active Directory servers:
-NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
-NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
-NSString *const MSID_CPU_KEY                    = @"x-client-CPU";
-NSString *const MSID_OS_VER_KEY                 = @"x-client-OS";
-NSString *const MSID_DEVICE_MODEL_KEY           = @"x-client-DM";
-
-NSString *const MSID_OAUTH2_ERROR               = @"error";
+NSString *const MSID_OAUTH2_ACCESS_TOKEN       = @"access_token";
+NSString *const MSID_OAUTH2_AUTHORIZATION      = @"authorization";
+NSString *const MSID_OAUTH2_AUTHORIZE_SUFFIX   = @"/oauth2/authorize";
+NSString *const MSID_OAUTH2_AUTHORITY           = @"authority";
+NSString *const MSID_OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
+NSString *const MSID_OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
+NSString *const MSID_OAUTH2_BEARER             = @"Bearer";
+NSString *const MSID_OAUTH2_CLIENT_ID          = @"client_id";
+NSString *const MSID_OAUTH2_CODE               = @"code";
+NSString *const MSID_OAUTH2_ERROR              = @"error";
+NSString *const MSID_OAUTH2_ERROR_DESCRIPTION  = @"error_description";
+NSString *const MSID_OAUTH2_EXPIRES_IN         = @"expires_in";
+NSString *const MSID_OAUTH2_GRANT_TYPE         = @"grant_type";
+NSString *const MSID_OAUTH2_REDIRECT_URI       = @"redirect_uri";
+NSString *const MSID_OAUTH2_REFRESH_TOKEN      = @"refresh_token";
+NSString *const MSID_OAUTH2_RESOURCE           = @"resource";
+NSString *const MSID_OAUTH2_RESPONSE_TYPE      = @"response_type";
+NSString *const MSID_OAUTH2_SCOPE              = @"scope";
+NSString *const MSID_OAUTH2_STATE              = @"state";
+NSString *const MSID_OAUTH2_TOKEN              = @"token";
+NSString *const MSID_OAUTH2_TOKEN_SUFFIX       = @"/oauth2/token";
+NSString *const MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX = @"common/discovery/instance";
+NSString *const MSID_OAUTH2_TOKEN_TYPE         = @"token_type";
+NSString *const MSID_OAUTH2_LOGIN_HINT         = @"login_hint";
+NSString *const MSID_OAUTH2_ID_TOKEN           = @"id_token";
+NSString *const MSID_OAUTH2_CORRELATION_ID_RESPONSE  = @"correlation_id";
+NSString *const MSID_OAUTH2_CORRELATION_ID_REQUEST   = @"return-client-request-id";
+NSString *const MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE = @"client-request-id";
+NSString *const MSID_OAUTH2_ASSERTION = @"assertion";
+NSString *const MSID_OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml1_1-bearer";
+NSString *const MSID_OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
+NSString *const MSID_OAUTH2_SCOPE_OPENID_VALUE = @"openid";
