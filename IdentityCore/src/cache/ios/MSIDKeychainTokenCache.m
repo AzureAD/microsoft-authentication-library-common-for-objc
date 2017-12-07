@@ -192,30 +192,24 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return [self itemsWithKey:key serializer:serializer context:context error:error].firstObject;
 }
 
-- (BOOL)removeItemWithKey:(MSIDTokenCacheKey *)key
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
+- (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
 {
-    assert(key);
-    
-    MSID_LOG_INFO(context, @"Remove keychain item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
-    MSID_LOG_INFO_PII(context, @"Remove keychain item, key info (account: %@ service: %@)", key.account, key.service);
-    
-    if (!key.service || !key.account)
-    {
-        if (error)
-        {
-            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey:@"Key is not valid. Make sure service and account are not nil."}];
-        }
-        MSID_LOG_ERROR(context, @"Remove keychain item with invalid key.");
-        return NO;
-    }
+    MSID_LOG_INFO(context, @"Remove keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
+    MSID_LOG_INFO_PII(context, @"Remove keychain items, key info (account: %@ service: %@)", key.account, key.service);
     
     NSMutableDictionary *query = [self defaultQuery];
-    [query setObject:key.service forKey:(id)kSecAttrService];
-    [query setObject:key.account forKey:(id)kSecAttrAccount];
+    if (key.service)
+    {
+        [query setObject:key.service forKey:(id)kSecAttrService];
+    }
+    if (key.account)
+    {
+        [query setObject:key.account forKey:(id)kSecAttrAccount];
+    }
     
-    MSID_LOG_INFO(context, @"Trying to delete keychain item...");
+    MSID_LOG_INFO(context, @"Trying to delete keychain items...");
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
     MSID_LOG_INFO(context, @"Keychain delete status: %d", status);
     
@@ -223,9 +217,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to remove item from keychain."}];
+            *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to remove items from keychain."}];
         }
-        MSID_LOG_ERROR(context, @"Failed to delete keychain item (status: %d)", status);
+        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", status);
     }
     
     return YES;
