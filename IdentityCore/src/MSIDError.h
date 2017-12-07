@@ -39,3 +39,5 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     removeMeWhenThingsAreAdded = -10000,
 };
 
+extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError);
+

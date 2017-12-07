@@ -27,14 +27,14 @@ NSString *MSIDOAuthSubErrorKey = @"MSIDOAuthSubErrorKey";
 
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 
-NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError* underlyingError)
+NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError)
 {
-    NSMutableDictionary* userInfo = [NSMutableDictionary new];
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
     userInfo[MSIDErrorDescriptionKey] = errorDescription;
     userInfo[MSIDOAuthErrorKey] = oauthError;
     userInfo[MSIDOAuthSubErrorKey] = subError;
     userInfo[NSUnderlyingErrorKey]  = underlyingError;
     
-    return [NSError errorWithDomain:domain code:code userInfo:[NSDictionary dictionaryWithDictionary:userInfo]];
+    return [NSError errorWithDomain:domain code:code userInfo:userInfo];
 }
 
