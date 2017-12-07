@@ -22,6 +22,14 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenCacheKey.h"
+#import "NSString+MSIDExtensions.h"
+#import "NSOrderedSet+MSIDExtensions.h"
+
+//A special attribute to write, instead of nil/empty one.
+static NSString *const s_nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
+static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
+
+static uint32_t const s_msalV1 = 'MSv1';
 
 @implementation MSIDTokenCacheKey
 
@@ -39,21 +47,56 @@
     return self;
 }
 
+//We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
++ (NSString *)getAttributeName:(NSString* )original
+{
+    return ([NSString msidIsStringNilOrBlank:original]) ? s_nilKey : [original msidBase64UrlEncode];
+}
+
+
 // adal atrt (single resource)
-+ (MSIDTokenCacheKey *)keyWithAuthority:(NSString *)authority
++ (MSIDTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                     upn:(NSString *)upn
                                resource:(NSString *)resource
                                clientId:(NSString *)clientId
 {
-    return nil;
+    NSString *account = upn;
+    NSString *service = [NSString stringWithFormat:@"%@|%@|%@|%@",
+                         s_adalLibraryString,
+                         authority.absoluteString.msidBase64UrlEncode,
+                         [self.class getAttributeName:resource.msidBase64UrlEncode],
+                         clientId.msidBase64UrlEncode];
+    
+    return [[MSIDTokenCacheKey alloc] initWithAccount:account service:service];
 }
 
-// rt with upn
-+ (MSIDTokenCacheKey *)keyWithUpn:(NSString *)upn
-                      environment:(NSString *)environment
-                         clientId:(NSString *)clientId
++ (MSIDTokenCacheKey *)keyWithAuthority:(NSURL *)authority
+                               clientId:(NSString *)clientId
+                                 scopes:(NSOrderedSet<NSString *> *)scopes
+                                 userId:(NSString *)userId
+                            environment:(NSString *)environment
 {
-    return nil;
+    NSString *service = nil;
+    NSString *account = nil;
+    
+    if (scopes.count==0)
+    {
+        service = nil;
+    }
+    else
+    {
+        service = [NSString stringWithFormat:@"%@$%@$%@",
+                   authority? authority.absoluteString.msidBase64UrlEncode : @"",
+                   clientId? clientId.msidBase64UrlEncode : @"",
+                   scopes? scopes.msidToString.msidBase64UrlEncode : @""];
+    }
+    
+    if (userId)
+    {
+        account = [NSString stringWithFormat:@"%u$%@@%@", s_msalV1, userId, environment];
+    }
+    
+    return [[MSIDTokenCacheKey alloc] initWithAccount:account service:service];
 }
 
 // rt with uid and utid
@@ -61,7 +104,10 @@
                          environment:(NSString *)environment
                             clientId:(NSString *)clientId
 {
-    return nil;
+    NSString *service = clientId.msidBase64UrlEncode;
+    NSString *account = userId? [NSString stringWithFormat:@"%u$%@@%@", s_msalV1, userId, environment]: nil;
+    
+    return [[MSIDTokenCacheKey alloc] initWithAccount:account service:service];
 }
 
 @end

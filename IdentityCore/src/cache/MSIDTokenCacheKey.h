@@ -32,22 +32,17 @@
               service:(NSString *)service;
 
 // adal tokens
-+ (MSIDTokenCacheKey *)keyWithAuthority:(NSString *)authority
++ (MSIDTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                     upn:(NSString *)upn
                                resource:(NSString *)resource
                                clientId:(NSString *)clientId;
 
 // msal at
-+ (MSIDTokenCacheKey *)keyWithAuthority:(NSString *)authority
++ (MSIDTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                clientId:(NSString *)clientId
                                  scopes:(NSOrderedSet<NSString *> *)scopes
                                  userId:(NSString *)userId
                             environment:(NSString *)environment;
-
-// rt with upn
-+ (MSIDTokenCacheKey *)keyWithUpn:(NSString *)upn
-                      environment:(NSString *)environment
-                         clientId:(NSString *)clientId;
 
 // rt with uid and utid
 + (MSIDTokenCacheKey *)keyWithUserId:(NSString *)userId

@@ -33,6 +33,10 @@
 		96474C0D1FD688EA00DC3CE9 /* MSIDJsonSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 96474C0B1FD688EA00DC3CE9 /* MSIDJsonSerializer.h */; };
 		96474C0E1FD688EA00DC3CE9 /* MSIDJsonSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 96474C0C1FD688EA00DC3CE9 /* MSIDJsonSerializer.m */; };
 		96474C0F1FD688EA00DC3CE9 /* MSIDJsonSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 96474C0C1FD688EA00DC3CE9 /* MSIDJsonSerializer.m */; };
+		9686C0DE1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9686C0DC1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.h */; };
+		9686C0DF1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9686C0DD1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m */; };
+		9686C0E01FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9686C0DD1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m */; };
+		9686C0E11FD8C88A00D5BD6B /* MSIDTokenCacheKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5081FCF3E4400AFA0EC /* MSIDTokenCacheKey.m */; };
 		B20657A51FC91C1600412B7D /* MSIDTelemetryDispatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657A41FC91C1600412B7D /* MSIDTelemetryDispatcher.h */; };
 		B20657A61FC91C9A00412B7D /* MSIDTelemetryEventInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */; };
 		B20657A81FC91EC900412B7D /* MSIDTelemetry.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657A71FC91DA900412B7D /* MSIDTelemetry.h */; };
@@ -200,6 +204,8 @@
 		9641B5311FCF3F4D00AFA0EC /* MSIDTokenSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTokenSerializer.h; sourceTree = "<group>"; };
 		96474C0B1FD688EA00DC3CE9 /* MSIDJsonSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJsonSerializer.h; sourceTree = "<group>"; };
 		96474C0C1FD688EA00DC3CE9 /* MSIDJsonSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializer.m; sourceTree = "<group>"; };
+		9686C0DC1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSOrderedSet+MSIDExtensions.h"; sourceTree = "<group>"; };
+		9686C0DD1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSOrderedSet+MSIDExtensions.m"; sourceTree = "<group>"; };
 		B206578B1FC91BDF00412B7D /* MSIDTelemetryUIEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryUIEvent.m; sourceTree = "<group>"; };
 		B206578D1FC91BDF00412B7D /* MSIDTelemetryEventStrings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryEventStrings.h; sourceTree = "<group>"; };
 		B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetry.m; sourceTree = "<group>"; };
@@ -458,6 +464,8 @@
 				D6D9A44F1FBD3FB700EFA430 /* NSURL+MSIDExtensions.m */,
 				B20657DD1FCA208C00412B7D /* NSDate+MSIDExtensions.h */,
 				B20657DE1FCA208C00412B7D /* NSDate+MSIDExtensions.m */,
+				9686C0DC1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.h */,
+				9686C0DD1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -614,6 +622,7 @@
 				B2D227AD1FC4C06C0003579F /* MSIDRequestContext.h in Headers */,
 				9641B50E1FCF3E6400AFA0EC /* MSIDTokenCache.h in Headers */,
 				B20657AF1FC91FC900412B7D /* MSIDTelemetryEventStrings.h in Headers */,
+				9686C0DE1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.h in Headers */,
 				B2D227B01FC4C5E50003579F /* MSIDVersion.h in Headers */,
 				9641B5011FCF3E2700AFA0EC /* MSIDTokenCacheDataSource.h in Headers */,
 				B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */,
@@ -847,6 +856,7 @@
 				9641B5101FCF3E6400AFA0EC /* MSIDTokenCache.m in Sources */,
 				9641B5061FCF3E3500AFA0EC /* MSIDToken.m in Sources */,
 				B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */,
+				9686C0E01FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m in Sources */,
 				B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */,
 				B20657B11FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
 				96474C0F1FD688EA00DC3CE9 /* MSIDJsonSerializer.m in Sources */,
@@ -914,9 +924,11 @@
 				9641B5051FCF3E3500AFA0EC /* MSIDToken.m in Sources */,
 				9641B50F1FCF3E6400AFA0EC /* MSIDTokenCache.m in Sources */,
 				B20657AA1FC91ECC00412B7D /* MSIDTelemetry.m in Sources */,
+				9686C0E11FD8C88A00D5BD6B /* MSIDTokenCacheKey.m in Sources */,
 				B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				B20657BA1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */,
 				D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
+				9686C0DF1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m in Sources */,
 				9641B5201FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.m in Sources */,
 				B2C17AEC1FC796E60070A514 /* MSIDDeviceId.m in Sources */,
 				96474C0E1FD688EA00DC3CE9 /* MSIDJsonSerializer.m in Sources */,

@@ -53,7 +53,7 @@
 }
 
 - (MSIDToken *)getAdalATRTforUser:(MSIDUser *)user
-                        authority:(NSString *)authority
+                        authority:(NSURL *)authority
                          resource:(NSString *)resource
                          clientId:(NSString *)clientId
                           context:(id<MSIDRequestContext>)context
@@ -71,7 +71,7 @@
 
 
 - (MSIDToken *)getFRTforUser:(MSIDUser *)user
-                   authority:(NSString *)authority
+                   authority:(NSURL *)authority
                     familyId:(NSString *)familyId
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error
@@ -82,14 +82,17 @@
         familyId = @"1";
     }
     NSString *fociClientId = [NSString stringWithFormat:@"foci-%@", familyId];
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority upn:user.upn resource:nil clientId:fociClientId];
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority
+                                                             upn:user.upn
+                                                        resource:nil
+                                                        clientId:fociClientId];
     
     return [_dataSource itemWithKey:key
                          serializer:_keyedArchiverSerialize
                             context:context error:error];
 }
 
-- (MSIDToken *)getAdfsUserTokenForAuthority:(NSString *)authority
+- (MSIDToken *)getAdfsUserTokenForAuthority:(NSURL *)authority
                                    resource:(NSString *)resource
                                    clientId:(NSString *)clientId
                                     context:(id<MSIDRequestContext>)context
@@ -112,7 +115,7 @@
                           user:(MSIDUser *)user
                    environment:(NSString *)environment
                    accessToken:(MSIDToken **)outAccessToken
-                authorityFound:(NSString **)outAuthorityFound
+                authorityFound:(NSURL **)outAuthorityFound
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
@@ -131,21 +134,20 @@
         return NO;
     }
     
-    NSString *absoluteAuthority = [authority absoluteString];
-    NSString *foundAuthority = allTokens.count > 0 ? allTokens[0].authority : nil;
+    NSURL *foundAuthority = allTokens.count > 0 ? allTokens[0].authority : nil;
     
     NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
     
     for (MSIDToken *token in allTokens)
     {
-        if (absoluteAuthority)
+        if (authority)
         {
-            if ([absoluteAuthority caseInsensitiveCompare:token.authority] != NSOrderedSame)
+            if (![authority msidIsEquivalentAuthority:token.authority])
             {
                 continue;
             }
         }
-        else if ([foundAuthority caseInsensitiveCompare:token.authority] != NSOrderedSame)
+        else if (![foundAuthority msidIsEquivalentAuthority:token.authority])
         {
             // Todo: add macro and handle error
             return nil;
@@ -179,17 +181,16 @@
 }
 
 - (NSArray<MSIDToken *> *)getRTsForUser:(MSIDUser *)user
-                            environment:(NSString *)environment
+                              authority:(NSURL *)authority
                                clientId:(NSString *)clientId
                                 context:(id<MSIDRequestContext>)context
                                   error:(NSError **)error
 {
-    
     // Look for new cache, with utid and uid
     if (user.userIdentifier)
     {
         MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithUserId:user.userIdentifier
-                                                      environment:environment
+                                                      environment:authority.msidHostWithPortIfNecessary
                                                          clientId:clientId];
         
         NSArray<MSIDToken *> *tokens = [_dataSource itemsWithKey:key
@@ -203,11 +204,26 @@
     }
     
     // Look for old cache
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithUpn:user.upn environment:environment clientId:clientId];
-    return [_dataSource itemsWithKey:key
-                          serializer:_jsonSerializer
-                             context:context
-                               error:error];
+    // if there is upn
+    if (user.upn)
+    {
+        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority upn:user.upn resource:nil clientId:clientId];
+        
+        NSArray<MSIDToken *> *tokens = [_dataSource itemsWithKey:key serializer:_keyedArchiverSerialize context:context error:error];
+        NSMutableArray<MSIDToken *> *tokensToReturn = [NSMutableArray<MSIDToken *> new];
+        
+        for (MSIDToken *token in tokens)
+        {
+            if (token.tokenType == REFRESH_TOKEN)
+            {
+                [tokensToReturn addObject:token];
+            }
+        }
+        return tokensToReturn;
+    }
+    
+    return @[];
+    
 }
 
 - (BOOL)saveAdalAT:(MSIDToken *)adalAT
@@ -244,7 +260,7 @@
     for (MSIDToken *token in allTokens)
     {
         if (token.tokenType == ACCESS_TOKEN
-            && [token.authority isEqualToString:msalAT.authority]
+            && [token.authority msidIsEquivalentAuthority:msalAT.authority]
             && [token.scopes intersectsOrderedSet:msalAT.scopes])
         {
             MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyWithAuthority:token.authority
@@ -268,7 +284,7 @@
 
 - (BOOL)saveRT:(MSIDToken *)rt
           user:(MSIDUser *)user
-   environment:(NSString *)environment
+     authority:(NSURL *)authority
       clientId:(NSString *)clientId
        context:(id<MSIDRequestContext>)context
          error:(NSError **)error
@@ -277,7 +293,7 @@
     if (user.userIdentifier)
     {
         MSIDTokenCacheKey *newKey = [MSIDTokenCacheKey keyWithUserId:user.userIdentifier
-                                                         environment:environment
+                                                         environment:authority.msidHostWithPortIfNecessary
                                                             clientId:clientId];
         
         if(![_dataSource setItem:rt key:newKey serializer:_jsonSerializer context:context error:error])
@@ -289,10 +305,7 @@
     // save in old form
     if (user.upn)
     {
-        MSIDTokenCacheKey *oldKey = [MSIDTokenCacheKey keyWithUpn:user.upn
-                                                      environment:environment
-                                                         clientId:clientId];
-        
+        MSIDTokenCacheKey *oldKey = [MSIDTokenCacheKey keyWithAuthority:authority upn:user.upn resource:nil clientId:clientId];
         if(![_dataSource setItem:rt key:oldKey serializer:_keyedArchiverSerialize context:context error:error])
         {
             return NO;
