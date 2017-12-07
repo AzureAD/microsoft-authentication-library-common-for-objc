@@ -25,8 +25,8 @@
 
 typedef NS_ENUM(uint32_t, MSIDTokenType)
 {
-    ACCESS_TOKEN    = 'acTk',
-    REFRESH_TOKEN   = 'rfTk'
+    MSIDTokenTypeAccessToken =  'acTk',
+    MSIDTokenTypeRefreshToken = 'rfTk'
 };
 
 @interface MSIDToken : NSObject
