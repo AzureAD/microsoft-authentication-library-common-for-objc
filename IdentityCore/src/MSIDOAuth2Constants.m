@@ -42,6 +42,7 @@ NSString *const MSID_OAUTH2_RESOURCE           = @"resource";
 NSString *const MSID_OAUTH2_RESPONSE_TYPE      = @"response_type";
 NSString *const MSID_OAUTH2_SCOPE              = @"scope";
 NSString *const MSID_OAUTH2_STATE              = @"state";
+NSString *const MSID_OAUTH2_SUB_ERROR          = @"sub_error";
 NSString *const MSID_OAUTH2_TOKEN              = @"token";
 NSString *const MSID_OAUTH2_TOKEN_SUFFIX       = @"/oauth2/token";
 NSString *const MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX = @"common/discovery/instance";
@@ -55,3 +56,14 @@ NSString *const MSID_OAUTH2_ASSERTION = @"assertion";
 NSString *const MSID_OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml1_1-bearer";
 NSString *const MSID_OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
 NSString *const MSID_OAUTH2_SCOPE_OPENID_VALUE = @"openid";
+
+NSString *const MSID_OAUTH2_CODE_CHALLENGE               = @"code_challenge";
+NSString *const MSID_OAUTH2_CODE_CHALLENGE_METHOD        = @"code_challenge_method";
+NSString *const MSID_OAUTH2_CODE_VERIFIER                = @"code_verifier";
+
+NSString *const MSID_OAUTH2_CLIENT_INFO                  = @"client_info";
+NSString *const MSID_OAUTH2_UNIQUE_IDENTIFIER            = @"uid";
+NSString *const MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER     = @"utid";
+
+NSString *const MSID_OAUTH2_DOMAIN_REQ                   = @"domain_req";
+NSString *const MSID_OAUTH2_LOGIN_REQ                    = @"login_req";

@@ -40,6 +40,7 @@ extern NSString *const MSID_OAUTH2_RESOURCE;
 extern NSString *const MSID_OAUTH2_RESPONSE_TYPE;
 extern NSString *const MSID_OAUTH2_SCOPE;
 extern NSString *const MSID_OAUTH2_STATE;
+extern NSString *const MSID_OAUTH2_SUB_ERROR;
 extern NSString *const MSID_OAUTH2_TOKEN;
 extern NSString *const MSID_OAUTH2_TOKEN_SUFFIX;
 extern NSString *const MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX;
@@ -53,3 +54,16 @@ extern NSString *const MSID_OAUTH2_SAML11_BEARER_VALUE;
 extern NSString *const MSID_OAUTH2_SAML2_BEARER_VALUE;
 extern NSString *const MSID_OAUTH2_SCOPE_OPENID_VALUE;
 extern NSString *const MSID_OAUTH2_ASSERTION;
+
+// Used for PKCE support
+extern NSString *const MSID_OAUTH2_CODE_CHALLENGE;
+extern NSString *const MSID_OAUTH2_CODE_CHALLENGE_METHOD;
+extern NSString *const MSID_OAUTH2_CODE_VERIFIER;
+
+// AAD user identifiers
+extern NSString *const MSID_OAUTH2_CLIENT_INFO;
+extern NSString *const MSID_OAUTH2_UNIQUE_IDENTIFIER;
+extern NSString *const MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER;
+
+extern NSString *const MSID_OAUTH2_DOMAIN_REQ;
+extern NSString *const MSID_OAUTH2_LOGIN_REQ;
