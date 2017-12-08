@@ -35,13 +35,27 @@
 
 - (NSData *)serialize:(MSIDToken *)token
 {
-    return [NSKeyedArchiver archivedDataWithRootObject:token];
+    NSMutableData *data = [NSMutableData data];
+    
+    // In order to customize the archiving process Apple recommends to create an instance of the archiver and
+    // customize it (instead of using share NSKeyedArchiver).
+    // See here: https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/Archiving/Articles/creating.html
+    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+    // Maintain backward compatibility with ADAL.
+    [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
+    [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDToken.class];
+    [archiver encodeObject:token forKey:NSKeyedArchiveRootObjectKey];
+    [archiver finishEncoding];
+    
+    return data;
 }
 
 - (MSIDToken *)deserialize:(NSData *)data
 {
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+    // Maintain backward compatibility with ADAL.
     [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
+    [unarchiver setClass:MSIDToken.class forClassName:@"ADTokenCacheStoreItem"];
     MSIDToken *token = [unarchiver decodeObjectOfClass:MSIDToken.class forKey:NSKeyedArchiveRootObjectKey];
     [unarchiver finishDecoding];
     

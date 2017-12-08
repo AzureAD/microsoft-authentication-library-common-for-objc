@@ -41,18 +41,15 @@
     result &= (!self.clientInfo && !token.clientInfo) || [self.clientInfo isEqualToDictionary:token.clientInfo];
     result &= (!self.additionalServerInfo && !token.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:token.additionalServerInfo];
     result &= self.tokenType == token.tokenType;
+    result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
+    result &= (!self.authority && !token.authority) || [self.authority isEqualToString:token.authority];
+    result &= (!self.clientId && !token.clientId) || [self.clientId isEqualToString:token.clientId];
+    result &= (!self.sessionKey && !token.sessionKey) || [self.sessionKey isEqualToData:token.sessionKey];
     
     return result;
 }
 
 #pragma mark - NSObject
-
-+ (void)load
-{
-    // Maintain backward compatibility with ADAL.
-    [NSKeyedArchiver setClassName:@"ADTokenCacheStoreItem" forClass:self];
-    [NSKeyedUnarchiver setClass:self forClassName:@"ADTokenCacheStoreItem"];
-}
 
 - (BOOL)isEqual:(id)object
 {
@@ -68,6 +65,7 @@
     
     return [self isEqualToToken:(MSIDToken *)object];
 }
+
 - (NSUInteger)hash
 {
     NSUInteger hash = self.token.hash;
@@ -77,6 +75,10 @@
     hash ^= self.clientInfo.hash;
     hash ^= self.additionalServerInfo.hash;
     hash ^= self.tokenType;
+    hash ^= self.resource.hash;
+    hash ^= self.authority.hash;
+    hash ^= self.clientId.hash;
+    hash ^= self.sessionKey.hash;
     
     return hash;
 }
@@ -110,12 +112,12 @@
     _additionalServerInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
     _clientInfo = [coder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"additionalClient"];
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
+    _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
+    _authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+    _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+    _sessionKey = [coder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
     
-//    _resource = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-//    _authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
-//    _clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-//    _accessTokenType = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessTokenType"];
-//    _sessionKey = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
+//    _accessTokenType = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessTokenType"]; // Bearer?
     
     return self;
 }
@@ -141,11 +143,12 @@
     userInformation.rawIdToken = self.idToken;
     [coder encodeObject:userInformation forKey:@"userInformation"];
     
-//    [aCoder encodeObject:_resource forKey:@"resource"];
-//    [aCoder encodeObject:_authority forKey:@"authority"];
-//    [aCoder encodeObject:_clientId forKey:@"clientId"];
+    [coder encodeObject:_resource forKey:@"resource"];
+    [coder encodeObject:_authority forKey:@"authority"];
+    [coder encodeObject:_clientId forKey:@"clientId"];
+    [coder encodeObject:_sessionKey forKey:@"sessionKey"];
+    
 //    [aCoder encodeObject:_accessTokenType forKey:@"accessTokenType"];
-//    [aCoder encodeObject:_sessionKey forKey:@"sessionKey"];
 }
 
 @end

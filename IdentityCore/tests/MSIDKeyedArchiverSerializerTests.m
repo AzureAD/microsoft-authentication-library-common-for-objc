@@ -29,7 +29,6 @@
 - (void)test_whenSerializeToken_shouldReturnSameTokenOnDeserialize
 {
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
-    
     MSIDToken *expectedToken = [MSIDToken new];
     [expectedToken setValue:@"access token value" forKey:@"token"];
     [expectedToken setValue:@"id token value" forKey:@"idToken"];
@@ -37,6 +36,7 @@
     [expectedToken setValue:@"familyId value" forKey:@"familyId"];
     [expectedToken setValue:@{@"key" : @"value"} forKey:@"clientInfo"];
     [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
+    [expectedToken setValue:[@"test" dataUsingEncoding:NSUTF8StringEncoding] forKey:@"sessionKey"];
     
     NSData *data = [serializer serialize:expectedToken];
     MSIDToken *resultToken = [serializer deserialize:data];
