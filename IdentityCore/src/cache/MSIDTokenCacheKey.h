@@ -50,4 +50,6 @@
                             clientId:(NSString *)clientId;
 
 
++ (MSIDTokenCacheKey *)keyWithClientId:(NSString *)clientId;
++ (MSIDTokenCacheKey *)keyForAllItems;
 @end

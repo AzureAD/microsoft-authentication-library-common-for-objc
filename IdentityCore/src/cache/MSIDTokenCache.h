@@ -68,11 +68,15 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error;
 
-- (NSArray<MSIDToken *> *)getRTsForUser:(MSIDUser *)user
-                              authority:(NSURL *)authority
-                               clientId:(NSString *)clientId
-                                context:(id<MSIDRequestContext>)context
-                                  error:(NSError **)error;
+- (MSIDToken *)getRTforUser:(MSIDUser *)user
+                  authority:(NSURL *)authority
+                   clientId:(NSString *)clientId
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
+
+- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error;
 
 - (BOOL)saveAdalAT:(MSIDToken *)adalAT
           clientId:(NSString *)clientId

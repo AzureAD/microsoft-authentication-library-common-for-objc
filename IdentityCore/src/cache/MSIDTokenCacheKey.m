@@ -79,7 +79,7 @@ static uint32_t const s_msalV1 = 'MSv1';
     NSString *service = nil;
     NSString *account = nil;
     
-    if (scopes.count==0)
+    if (scopes.count == 0)
     {
         service = nil;
     }
@@ -110,4 +110,14 @@ static uint32_t const s_msalV1 = 'MSv1';
     return [[MSIDTokenCacheKey alloc] initWithAccount:account service:service];
 }
 
++ (MSIDTokenCacheKey *)keyWithClientId:(NSString *)clientId
+{
+    NSString *service = clientId.msidBase64UrlEncode;
+    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:service];
+}
+
++ (MSIDTokenCacheKey *)keyForAllItems
+{
+    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil];
+}
 @end

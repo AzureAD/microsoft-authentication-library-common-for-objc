@@ -180,11 +180,12 @@
     return YES;
 }
 
-- (NSArray<MSIDToken *> *)getRTsForUser:(MSIDUser *)user
-                              authority:(NSURL *)authority
-                               clientId:(NSString *)clientId
-                                context:(id<MSIDRequestContext>)context
-                                  error:(NSError **)error
+
+- (MSIDToken *)getRTforUser:(MSIDUser *)user
+                             authority:(NSURL *)authority
+                              clientId:(NSString *)clientId
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError **)error
 {
     // Look for new cache, with utid and uid
     if (user.userIdentifier)
@@ -193,13 +194,10 @@
                                                       environment:authority.msidHostWithPortIfNecessary
                                                          clientId:clientId];
         
-        NSArray<MSIDToken *> *tokens = [_dataSource itemsWithKey:key
-                                                      serializer:_jsonSerializer
-                                                         context:context
-                                                           error:error];
-        if (tokens && tokens.count > 0)
+        MSIDToken *token = [_dataSource itemWithKey:key serializer:_jsonSerializer context:context error:error];
+        if (token)
         {
-            return tokens;
+            return token;
         }
     }
     
@@ -209,21 +207,66 @@
     {
         MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority upn:user.upn resource:nil clientId:clientId];
         
-        NSArray<MSIDToken *> *tokens = [_dataSource itemsWithKey:key serializer:_keyedArchiverSerialize context:context error:error];
-        NSMutableArray<MSIDToken *> *tokensToReturn = [NSMutableArray<MSIDToken *> new];
+        MSIDToken *token = [_dataSource itemWithKey:key serializer:_keyedArchiverSerialize context:context error:error];
         
-        for (MSIDToken *token in tokens)
+        if (token)
         {
-            if (token.tokenType == REFRESH_TOKEN)
-            {
-                [tokensToReturn addObject:token];
-            }
+            return token;
         }
-        return tokensToReturn;
     }
     
-    return @[];
+    return nil;
+}
+
+- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
+{
+    if (!clientId)
+    {
+        return nil;
+    }
     
+    NSMutableArray<MSIDToken *> *allRTs = [NSMutableArray<MSIDToken *> new];
+    
+    // Look at new cache
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithClientId:clientId];
+    
+    NSArray *newTokens = [_dataSource itemsWithKey:key serializer:_jsonSerializer context:context error:error];
+    if (!newTokens)
+    {
+        return nil;
+    }
+    
+    for (MSIDToken *token in newTokens)
+    {
+        if (token.tokenType == REFRESH_TOKEN)
+        {
+            [allRTs addObject:token];
+        }
+    }
+    
+    // Look at old cache
+    NSArray *legacyTokens = [_dataSource itemsWithKey:[MSIDTokenCacheKey keyForAllItems]
+                                           serializer:_keyedArchiverSerialize
+                                              context:context
+                                                error:error];
+    
+    if (!legacyTokens)
+    {
+        return nil;
+    }
+    
+    for (MSIDToken *token in legacyTokens)
+    {
+        if (token.tokenType == REFRESH_TOKEN
+            && token.clientId == clientId)
+        {
+            [allRTs addObject:token];
+        }
+    }
+    
+    return allRTs;
 }
 
 - (BOOL)saveAdalAT:(MSIDToken *)adalAT
