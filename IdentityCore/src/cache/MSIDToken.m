@@ -83,7 +83,12 @@
     return hash;
 }
 
-#pragma mark - NSCoding
+#pragma mark - NSSecureCoding
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
+}
 
 - (instancetype)initWithCoder:(NSCoder *)coder
 {

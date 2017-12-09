@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDUserInformation : NSObject <NSCoding>
+@interface MSIDUserInformation : NSObject <NSSecureCoding>
 
 @property (nonatomic) NSString *rawIdToken;
 

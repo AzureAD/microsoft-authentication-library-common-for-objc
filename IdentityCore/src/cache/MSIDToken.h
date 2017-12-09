@@ -29,7 +29,7 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
     MSIDTokenTypeRefreshToken
 };
 
-@interface MSIDToken : NSObject <NSCoding>
+@interface MSIDToken : NSObject <NSSecureCoding>
 
 @property (readonly) NSString *token;
 @property (readonly) NSString *idToken;
