@@ -35,6 +35,11 @@
 
 - (NSData *)serialize:(MSIDToken *)token
 {
+    if (!token)
+    {
+        return nil;
+    }
+    
     NSMutableData *data = [NSMutableData data];
     
     // In order to customize the archiving process Apple recommends to create an instance of the archiver and

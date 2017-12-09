@@ -45,4 +45,22 @@
     XCTAssertEqualObjects(resultToken, expectedToken);
 }
 
+- (void)testSerialize_whenTokenNil_shouldReturnNil
+{
+    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    
+    NSData *data = [serializer serialize:nil];
+    
+    XCTAssertNil(data);
+}
+
+- (void)testSerialize_whenTokenWithDefaultProperties_shouldReturnNotNilData
+{
+    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    
+    NSData *data = [serializer serialize:[MSIDToken new]];
+    
+    XCTAssertNotNil(data);
+}
+
 @end
