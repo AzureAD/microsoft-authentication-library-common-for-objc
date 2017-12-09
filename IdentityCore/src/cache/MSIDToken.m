@@ -117,8 +117,6 @@
     _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
     _sessionKey = [coder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
     
-//    _accessTokenType = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessTokenType"]; // Bearer?
-    
     return self;
 }
 
@@ -147,8 +145,6 @@
     [coder encodeObject:_authority forKey:@"authority"];
     [coder encodeObject:_clientId forKey:@"clientId"];
     [coder encodeObject:_sessionKey forKey:@"sessionKey"];
-    
-//    [aCoder encodeObject:_accessTokenType forKey:@"accessTokenType"];
 }
 
 @end

@@ -63,4 +63,23 @@
     XCTAssertNotNil(data);
 }
 
+- (void)testDeserialize_whenDataNilNil_shouldReturnNil
+{
+    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    
+    MSIDToken *token = [serializer deserialize:nil];
+    
+    XCTAssertNil(token);
+}
+
+- (void)testDeserialize_whenDataInvalid_shouldReturnNil
+{
+    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    MSIDToken *token = [serializer deserialize:data];
+    
+    XCTAssertNil(token);
+}
+
 @end

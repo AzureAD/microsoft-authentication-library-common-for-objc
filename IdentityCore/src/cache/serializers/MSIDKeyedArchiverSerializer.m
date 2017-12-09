@@ -57,6 +57,11 @@
 
 - (MSIDToken *)deserialize:(NSData *)data
 {
+    if (!data)
+    {
+        return nil;
+    }
+    
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     // Maintain backward compatibility with ADAL.
     [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
