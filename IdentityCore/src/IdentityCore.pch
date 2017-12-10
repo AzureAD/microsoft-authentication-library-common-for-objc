@@ -33,6 +33,7 @@
 #import "NSString+MSIDExtensions.h"
 #import "NSURL+MSIDExtensions.h"
 #import "MSIDLogger+Internal.h"
+#import "MSIDError.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
