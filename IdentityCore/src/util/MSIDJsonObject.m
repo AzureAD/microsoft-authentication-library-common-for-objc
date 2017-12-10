@@ -29,20 +29,13 @@
 
 @implementation MSIDJsonObject
 
-- (id)init
+- (instancetype)init
 {
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    _json = [NSMutableDictionary new];
-    
-    return self;
+    return [self initWithJSONDictionary:[NSDictionary dictionary] error:nil];
 }
 
-- (id)initWithJSONData:(NSData *)data
-                 error:(NSError * __autoreleasing *)error
+- (instancetype)initWithJSONData:(NSData *)data
+                           error:(NSError * __autoreleasing *)error
 {
     if (!data)
     {
@@ -55,25 +48,20 @@
         return nil;
     }
     
-    if (!(self = [super init]))
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:error];
+    
+    if (!json)
     {
         return nil;
     }
     
-    _json = [NSJSONSerialization JSONObjectWithData:data
-                                            options:NSJSONReadingMutableContainers
-                                              error:error];
-    
-    if (!_json)
-    {
-        return nil;
-    }
-    
-    return self;
+    return [self initWithJSONDictionary:json error:error];
 }
 
-- (id)initWithJSONDictionary:(NSDictionary *)json
-                       error:(NSError * __autoreleasing *)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                                 error:(NSError * __autoreleasing *)error
 {
     if (!json)
     {

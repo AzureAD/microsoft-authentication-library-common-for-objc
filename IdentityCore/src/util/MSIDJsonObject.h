@@ -46,11 +46,11 @@
     NSMutableDictionary * _json;
 }
 
-- (id)initWithJSONData:(NSData *)data
-                 error:(NSError * __autoreleasing *)error;
+- (instancetype)initWithJSONData:(NSData *)data
+                           error:(NSError * __autoreleasing *)error;
 
-- (id)initWithJSONDictionary:(NSDictionary *)json
-                       error:(NSError * __autoreleasing *)error;
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                                 error:(NSError * __autoreleasing *)error NS_DESIGNATED_INITIALIZER;
 
 - (NSDictionary *)jsonDictionary;
 - (NSData *)serialize:(NSError * __autoreleasing *)error;

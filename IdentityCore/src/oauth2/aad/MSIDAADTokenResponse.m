@@ -21,23 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
+#import "MSIDAADTokenResponse.h"
 
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+@implementation MSIDAADTokenResponse
 
-#import <Foundation/Foundation.h>
+// Default properties for an error response
+MSID_JSON_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId)
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
+// Default properties for a successful response
+MSID_JSON_ACCESSOR(MSID_OAUTH2_EXPIRES_ON, expiresOn);
+MSID_JSON_ACCESSOR(MSID_OAUTH2_EXT_EXPIRES_IN, extendedExpiresIn);
+MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_CLIENT_INFO, clientInfo)
+MSID_JSON_ACCESSOR(MSID_FAMILY_ID, familyId)
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+- (id)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
+{
+    if (!(self = [super initWithJSONDictionary:json error:error]))
+    {
+        return nil;
+    }
+    
+    if (self.expiresOn)
+    {
+        _expiresOnDate = [NSDate dateWithTimeIntervalSince1970:[self.expiresOn doubleValue]];
+    }
+    
+    return self;
+}
 
-#endif /* IdentityCore_pch */
+@end
