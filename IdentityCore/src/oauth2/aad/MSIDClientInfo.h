@@ -25,34 +25,16 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import "MSIDJsonObject.h"
 
-@interface NSDictionary (MSIDTestUtil)
+@interface MSIDClientInfo : MSIDJsonObject
 
-- (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary;
-- (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary
-      dictionaryDescription:(NSString *)description;
+@property (readonly) NSString *uid;
+@property (readonly) NSString *utid;
 
-- (NSString *)msidBase64UrlJson;
+@property (readonly) NSString *userIdentifier;
 
-@end
-
-/*!
- Sentinel class to use for values you want to make sure are present in a dictionary but don't
- care about the actual value.
- */
-@interface MSIDTestRequireValueSentinel : NSObject
-
-+ (instancetype)sentinel;
-
-@end
-
-
-/*!
- Sentinel class to use for values you don't care if it is present or not
- */
-@interface MSIDTestIgnoreSentinel : NSObject
-
-+ (instancetype)sentinel;
+- (id)initWithRawClientInfo:(NSString *)rawClientInfo
+                      error:(NSError *__autoreleasing *)error;
 
 @end

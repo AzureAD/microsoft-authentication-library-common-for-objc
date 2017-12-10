@@ -25,34 +25,29 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import "MSIDClientInfo.h"
+#import "MSIDOAuth2Constants.h"
 
-@interface NSDictionary (MSIDTestUtil)
+@implementation MSIDClientInfo
 
-- (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary;
-- (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary
-      dictionaryDescription:(NSString *)description;
+MSID_JSON_ACCESSOR(MSID_OAUTH2_UNIQUE_IDENTIFIER, uid)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER, utid)
 
-- (NSString *)msidBase64UrlJson;
+- (id)initWithRawClientInfo:(NSString *)rawClientInfo
+                      error:(NSError *__autoreleasing *)error
+{
+    NSData *decoded =  [[rawClientInfo msidBase64UrlDecode] dataUsingEncoding:NSUTF8StringEncoding];
+    if (!(self = [super initWithJSONData:decoded error:error]))
+    {
+        return nil;
+    }
+    
+    return self;
+}
 
-@end
-
-/*!
- Sentinel class to use for values you want to make sure are present in a dictionary but don't
- care about the actual value.
- */
-@interface MSIDTestRequireValueSentinel : NSObject
-
-+ (instancetype)sentinel;
-
-@end
-
-
-/*!
- Sentinel class to use for values you don't care if it is present or not
- */
-@interface MSIDTestIgnoreSentinel : NSObject
-
-+ (instancetype)sentinel;
+- (NSString *)userIdentifier
+{
+    return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
+}
 
 @end
