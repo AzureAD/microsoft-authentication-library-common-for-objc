@@ -54,7 +54,7 @@
 
 @implementation MSIDJsonObjectTests
 
-- (void)testInitDeserialize
+- (void)testInitWithJSONData_whenDataProvided_shouldReturnObjectNilError
 {
     NSString* testJson = @"{ \"testKey\" : \"testValue\" }";
     NSData* testJsonData = [testJson dataUsingEncoding:NSUTF8StringEncoding];
@@ -66,7 +66,7 @@
     XCTAssertEqualObjects(obj.json, @{ @"testKey" : @"testValue"} );
 }
 
-- (void)testSerialize
+- (void)testSerializeJsonData_whenDataProvided_shouldReturnDeserializableJSONData
 {
     NSError *error = nil;
     NSDictionary *testJson = @{ @"testKey" : @"testValue" };
@@ -82,7 +82,7 @@
     XCTAssertEqualObjects(obj2.json, testJson);
 }
 
-- (void)testInitNil
+- (void)testInitWithJSONData_whenNilData_shouldReturnNilObjectNonNilError
 {
     NSError *error = nil;
     MSIDJsonObject* obj = [[MSIDJsonObject alloc] initWithJSONData:nil error:&error];
@@ -90,7 +90,7 @@
     XCTAssertNotNil(error);
 }
 
-- (void)testInitNotJSON
+- (void)testInitWithJSONData_whenInvalidJSON_shouldReturnNilObjectNonNilError
 {
     NSString* testJson = @"{ sdgahsdujkiohasoldikasjdl;asjmdas }";
     NSData* testJsonData = [testJson dataUsingEncoding:NSUTF8StringEncoding];
