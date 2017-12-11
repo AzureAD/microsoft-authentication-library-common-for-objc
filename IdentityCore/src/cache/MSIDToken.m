@@ -113,7 +113,7 @@
     }
     
     _additionalServerInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
-    _clientInfo = [coder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"additionalClient"];
+    _clientInfo = [coder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"clientInfo"];
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
     _authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
@@ -136,7 +136,7 @@
         [coder encodeObject:_token forKey:@"accessToken"];
     }
     
-    [coder encodeObject:_clientInfo forKey:@"additionalClient"];
+    [coder encodeObject:_clientInfo forKey:@"clientInfo"];
     [coder encodeObject:_additionalServerInfo forKey:@"additionalServer"];
     
     MSIDUserInformation *userInformation = [MSIDUserInformation new];
