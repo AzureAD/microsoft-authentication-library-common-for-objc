@@ -27,25 +27,21 @@
 
 #import <Foundation/Foundation.h>
 
-#define MSID_JSON_ACCESSOR(KEY, GETTER) DICTIONARY_READ_PROPERTY_IMPL(_json, KEY, GETTER)
-#define MSID_JSON_MUTATOR(KEY, SETTER) DICTIONARY_WRITE_PROPERTY_IMPL(_json, KEY, SETTER)
+#define MSID_FORM_ACCESSOR(KEY, GETTER) DICTIONARY_READ_PROPERTY_IMPL(_urlForm, KEY, GETTER)
+#define MSID_FORM_MUTATOR(KEY, SETTER) DICTIONARY_WRITE_PROPERTY_IMPL(_urlForm, KEY, SETTER)
 
-#define MSID_JSON_RW(KEY, GETTER, SETTER) \
-    MSID_JSON_ACCESSOR(KEY, GETTER) \
-    MSID_JSON_MUTATOR(KEY, SETTER)
-
-@interface MSIDJsonObject : NSObject
+@interface MSIDURLFormObject : NSObject
 {
-    NSMutableDictionary *_json;
+    NSMutableDictionary *_urlForm;
 }
 
-- (instancetype)initWithJSONData:(NSData *)data
-                           error:(NSError * __autoreleasing *)error;
+- (instancetype)initWithEncodedString:(NSString *)encodedString
+                                error:(NSError * __autoreleasing *)error;
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(NSError * __autoreleasing *)error NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithDictionary:(NSDictionary *)form
+                             error:(NSError * __autoreleasing *)error NS_DESIGNATED_INITIALIZER;
 
-- (NSDictionary *)jsonDictionary;
-- (NSData *)serialize:(NSError * __autoreleasing *)error;
+- (NSDictionary *)formDictionary;
+- (NSString *)encode;
 
 @end

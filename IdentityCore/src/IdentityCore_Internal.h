@@ -25,27 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+// Utility macros for convience classes wrapped around dictionaries
+#define DICTIONARY_READ_PROPERTY_IMPL(DICT, KEY, GETTER) \
+- (NSString *)GETTER { return [DICT objectForKey:KEY]; }
 
-#define MSID_JSON_ACCESSOR(KEY, GETTER) DICTIONARY_READ_PROPERTY_IMPL(_json, KEY, GETTER)
-#define MSID_JSON_MUTATOR(KEY, SETTER) DICTIONARY_WRITE_PROPERTY_IMPL(_json, KEY, SETTER)
-
-#define MSID_JSON_RW(KEY, GETTER, SETTER) \
-    MSID_JSON_ACCESSOR(KEY, GETTER) \
-    MSID_JSON_MUTATOR(KEY, SETTER)
-
-@interface MSIDJsonObject : NSObject
-{
-    NSMutableDictionary *_json;
-}
-
-- (instancetype)initWithJSONData:(NSData *)data
-                           error:(NSError * __autoreleasing *)error;
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(NSError * __autoreleasing *)error NS_DESIGNATED_INITIALIZER;
-
-- (NSDictionary *)jsonDictionary;
-- (NSData *)serialize:(NSError * __autoreleasing *)error;
-
-@end
+#define DICTIONARY_WRITE_PROPERTY_IMPL(DICT, KEY, SETTER) \
+- (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }

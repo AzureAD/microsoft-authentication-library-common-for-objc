@@ -21,10 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonObject.h"
+#import "MSIDURLFormObject.h"
 
-@interface MSIDBrokerResponse : MSIDJsonObject
+@interface MSIDBrokerResponse : MSIDURLFormObject
 
-// TODO: fill in the properties
+@property (readonly) NSString *authority;
+@property (readonly) NSString *clientId;
+@property (readonly) NSString *resource;
+
+@property (readonly) NSString *accessToken;
+@property (readonly) NSString *refreshToken;
+@property (readonly) NSString *expiresOn;
+@property (readonly) NSString *idToken;
+@property (readonly) NSString *familyId;
+
+@property (readonly) NSString *brokerAppVer;
+@property (readonly) NSString *validAuthority;
+
+@property (readonly) NSString *correlationId;
+@property (readonly) NSString *errorCode;
+@property (readonly) NSString *oauthErrorCode;
+@property (readonly) NSString *errorDescription;
 
 @end

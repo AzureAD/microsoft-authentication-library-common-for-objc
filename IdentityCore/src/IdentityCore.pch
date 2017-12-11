@@ -35,6 +35,7 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDError.h"
 #import "MSIDOAuth2Constants.h"
+#import "IdentityCore_Internal.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>

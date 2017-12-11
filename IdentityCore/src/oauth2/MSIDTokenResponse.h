@@ -25,11 +25,11 @@
 
 @interface MSIDTokenResponse : MSIDJsonObject
 
-// Default properties for an error response
+// Default properties for an openid error response
 @property (readonly) NSString *error;
 @property (readonly) NSString *errorDescription;
 
-// Default properties for a successful response
+// Default properties for a successful openid response
 @property (readonly) NSString *expiresIn;
 @property (readonly) NSString *accessToken;
 @property (readonly) NSString *tokenType;

@@ -25,4 +25,31 @@
 
 @implementation MSIDBrokerResponse
 
+MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_RESOURCE, resource);
+
+MSID_FORM_ACCESSOR(MSID_OAUTH2_ACCESS_TOKEN, accessToken);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_REFRESH_TOKEN, refreshToken);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_EXPIRES_ON, expiresOn);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken);
+MSID_FORM_ACCESSOR(MSID_FAMILY_ID, familyId);
+
+MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
+MSID_FORM_ACCESSOR(@"vt", validAuthority);
+
+MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
+MSID_FORM_ACCESSOR(@"error_code", errorCode);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_ERROR_DESCRIPTION, errorDescription);
+
+- (NSString *)oauthErrorCode
+{
+    if (_urlForm[@"protocol_code"])
+    {
+        return _urlForm[@"protocol_code"];
+    }
+    
+    return _urlForm[@"code"];
+}
+
 @end
