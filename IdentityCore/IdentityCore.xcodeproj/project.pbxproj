@@ -72,7 +72,6 @@
 		B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */; };
 		B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */; };
 		B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */; };
-		B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = B262B0781FC3BA8200FB111B /* MSIDLogger.h */; };
 		B2893CAF1FCF68B200E348E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2893CAE1FCF68B200E348E9 /* Security.framework */; };
 		B2893CB11FCF6A8C00E348E9 /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */; };
 		B2908C071FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = B2908C051FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.h */; };
@@ -85,9 +84,9 @@
 		B2C17AF11FC7A1C00070A514 /* MSIDLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */; };
 		B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */; };
 		B2C17AF51FC7A6BD0070A514 /* MSIDTestLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */; };
-		B2D227AB1FC4BFEB0003579F /* MSIDLogger+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D227AA1FC4BFEB0003579F /* MSIDLogger+Internal.h */; };
-		B2D227AD1FC4C06C0003579F /* MSIDRequestContext.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D227AC1FC4C06C0003579F /* MSIDRequestContext.h */; };
-		B2D227B01FC4C5E50003579F /* MSIDVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D227AE1FC4C5E50003579F /* MSIDVersion.h */; };
+		D61AFAB41FD8B6C600DABBE5 /* MSIDContants.h in Headers */ = {isa = PBXBuildFile; fileRef = D61AFAB21FD8B6C600DABBE5 /* MSIDContants.h */; };
+		D61AFAB51FD8B6C600DABBE5 /* MSIDContants.m in Sources */ = {isa = PBXBuildFile; fileRef = D61AFAB31FD8B6C600DABBE5 /* MSIDContants.m */; };
+		D61AFAB61FD8B6C600DABBE5 /* MSIDContants.m in Sources */ = {isa = PBXBuildFile; fileRef = D61AFAB31FD8B6C600DABBE5 /* MSIDContants.m */; };
 		D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */; };
@@ -233,8 +232,6 @@
 		B25A356A1FC4D6B600C7FD43 /* MSIDLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLogger.h; sourceTree = "<group>"; };
 		B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLogger.m; sourceTree = "<group>"; };
 		B25A35711FC4D71000C7FD43 /* MSIDRequestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRequestContext.h; sourceTree = "<group>"; };
-		B262B0781FC3BA8200FB111B /* MSIDLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLogger.h; sourceTree = "<group>"; };
-		B262B0791FC3BA8200FB111B /* MSIDLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLogger.m; sourceTree = "<group>"; };
 		B2893CAE1FCF68B200E348E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		B2908C051FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryBaseEvent.h; sourceTree = "<group>"; };
 		B2908C061FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryBaseEvent.m; sourceTree = "<group>"; };
@@ -242,10 +239,8 @@
 		B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLoggerTests.m; sourceTree = "<group>"; };
 		B2C17AF21FC7A56C0070A514 /* MSIDTestLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestLogger.h; sourceTree = "<group>"; };
 		B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestLogger.m; sourceTree = "<group>"; };
-		B2D227AA1FC4BFEB0003579F /* MSIDLogger+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDLogger+Internal.h"; sourceTree = "<group>"; };
-		B2D227AC1FC4C06C0003579F /* MSIDRequestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRequestContext.h; sourceTree = "<group>"; };
-		B2D227AE1FC4C5E50003579F /* MSIDVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDVersion.h; sourceTree = "<group>"; };
-		B2D227AF1FC4C5E50003579F /* MSIDVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDVersion.m; sourceTree = "<group>"; };
+		D61AFAB21FD8B6C600DABBE5 /* MSIDContants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDContants.h; sourceTree = "<group>"; };
+		D61AFAB31FD8B6C600DABBE5 /* MSIDContants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDContants.m; sourceTree = "<group>"; };
 		D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDExtensions.m"; sourceTree = "<group>"; };
 		D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
 		D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
@@ -417,19 +412,6 @@
 			path = telemetry;
 			sourceTree = "<group>";
 		};
-		B25A35671FC4D69A00C7FD43 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				B2D227AF1FC4C5E50003579F /* MSIDVersion.m */,
-				B262B0791FC3BA8200FB111B /* MSIDLogger.m */,
-				B2D227AA1FC4BFEB0003579F /* MSIDLogger+Internal.h */,
-				B2D227AC1FC4C06C0003579F /* MSIDRequestContext.h */,
-				B2D227AE1FC4C5E50003579F /* MSIDVersion.h */,
-				B262B0781FC3BA8200FB111B /* MSIDLogger.h */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		B25A35681FC4D6B600C7FD43 /* logger */ = {
 			isa = PBXGroup;
 			children = (
@@ -520,7 +502,6 @@
 				D626FF751FBA7A6600EE4487 /* xcconfig */,
 				D68FB4881FBA698A005308BB /* Products */,
 				D6D9A4C21FBE718C00EFA430 /* Frameworks */,
-				B25A35671FC4D69A00C7FD43 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -551,12 +532,14 @@
 		D6DA89721FBA6A4E004C56C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				B20E3CAF1FC4F1540029C097 /* MSIDVersion.h */,
+				D61AFAB21FD8B6C600DABBE5 /* MSIDContants.h */,
+				D61AFAB31FD8B6C600DABBE5 /* MSIDContants.m */,
 				D6D9A4591FBD420300EFA430 /* MSIDDeviceId.h */,
 				B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */,
 				B20E3CB41FC4FE3F0029C097 /* MSIDOAuth2Constants.h */,
 				B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */,
 				B25A35711FC4D71000C7FD43 /* MSIDRequestContext.h */,
+				B20E3CAF1FC4F1540029C097 /* MSIDVersion.h */,
 				9641B4FF1FCF3E1400AFA0EC /* cache */,
 				B206578A1FC917D900412B7D /* telemetry */,
 				B25A35681FC4D6B600C7FD43 /* logger */,
@@ -606,16 +589,13 @@
 				B20657A61FC91C9A00412B7D /* MSIDTelemetryEventInterface.h in Headers */,
 				B20657AE1FC91FB700412B7D /* MSIDTelemetryPiiRules.h in Headers */,
 				B20657C81FC926AE00412B7D /* MSIDTelemetryHttpEvent.h in Headers */,
-				B2D227AB1FC4BFEB0003579F /* MSIDLogger+Internal.h in Headers */,
 				9641B5321FCF3F4D00AFA0EC /* MSIDTokenSerializer.h in Headers */,
 				9641B5091FCF3E4400AFA0EC /* MSIDTokenCacheKey.h in Headers */,
-				B2D227AD1FC4C06C0003579F /* MSIDRequestContext.h in Headers */,
 				9641B50E1FCF3E6400AFA0EC /* MSIDTokenCache.h in Headers */,
 				B20657AF1FC91FC900412B7D /* MSIDTelemetryEventStrings.h in Headers */,
-				B2D227B01FC4C5E50003579F /* MSIDVersion.h in Headers */,
 				9641B5011FCF3E2700AFA0EC /* MSIDTokenCacheDataSource.h in Headers */,
-				B262B07A1FC3BA8200FB111B /* MSIDLogger.h in Headers */,
 				B20657AB1FC91F6400412B7D /* MSIDTelemetry+Internal.h in Headers */,
+				D61AFAB41FD8B6C600DABBE5 /* MSIDContants.h in Headers */,
 				B20657A51FC91C1600412B7D /* MSIDTelemetryDispatcher.h in Headers */,
 				B20657DF1FCA208C00412B7D /* NSDate+MSIDExtensions.h in Headers */,
 			);
@@ -860,6 +840,7 @@
 				B20657CA1FC926B200412B7D /* MSIDTelemetryHttpEvent.m in Sources */,
 				B20657C31FC9262700412B7D /* NSString+MSIDTelemetryExtensions.m in Sources */,
 				B20657AC1FC91FB100412B7D /* MSIDTelemetryPiiRules.m in Sources */,
+				D61AFAB61FD8B6C600DABBE5 /* MSIDContants.m in Sources */,
 				B20657CD1FC9271000412B7D /* MSIDTelemetryUIEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -924,6 +905,7 @@
 				B20657B01FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
 				D6D9A4511FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
 				B20657E01FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
+				D61AFAB51FD8B6C600DABBE5 /* MSIDContants.m in Sources */,
 				B20657BE1FC9254800412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				B2908C081FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m in Sources */,
 				D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
