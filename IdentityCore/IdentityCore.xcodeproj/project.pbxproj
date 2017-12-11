@@ -81,12 +81,6 @@
 		B210F4371FDDEA23005A8F76 /* MSIDAADTokenResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B210F4351FDDEA23005A8F76 /* MSIDAADTokenResponse.h */; };
 		B210F4381FDDEA23005A8F76 /* MSIDAADTokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B210F4361FDDEA23005A8F76 /* MSIDAADTokenResponse.m */; };
 		B210F4391FDDEA23005A8F76 /* MSIDAADTokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B210F4361FDDEA23005A8F76 /* MSIDAADTokenResponse.m */; };
-		B210F43C1FDDF401005A8F76 /* MSIDAuthorizationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B210F43A1FDDF401005A8F76 /* MSIDAuthorizationRequest.h */; };
-		B210F43D1FDDF401005A8F76 /* MSIDAuthorizationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B210F43B1FDDF401005A8F76 /* MSIDAuthorizationRequest.m */; };
-		B210F43E1FDDF401005A8F76 /* MSIDAuthorizationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B210F43B1FDDF401005A8F76 /* MSIDAuthorizationRequest.m */; };
-		B210F4411FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B210F43F1FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.h */; };
-		B210F4421FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B210F4401FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.m */; };
-		B210F4431FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B210F4401FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.m */; };
 		B210F4461FDDF4AB005A8F76 /* MSIDTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B210F4441FDDF4AB005A8F76 /* MSIDTokenRequest.h */; };
 		B210F4471FDDF4AB005A8F76 /* MSIDTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B210F4451FDDF4AB005A8F76 /* MSIDTokenRequest.m */; };
 		B210F4481FDDF4AB005A8F76 /* MSIDTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B210F4451FDDF4AB005A8F76 /* MSIDTokenRequest.m */; };
@@ -270,10 +264,6 @@
 		B210F4301FDDE7EB005A8F76 /* MSIDTokenResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenResponse.m; sourceTree = "<group>"; };
 		B210F4351FDDEA23005A8F76 /* MSIDAADTokenResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADTokenResponse.h; sourceTree = "<group>"; };
 		B210F4361FDDEA23005A8F76 /* MSIDAADTokenResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADTokenResponse.m; sourceTree = "<group>"; };
-		B210F43A1FDDF401005A8F76 /* MSIDAuthorizationRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthorizationRequest.h; sourceTree = "<group>"; };
-		B210F43B1FDDF401005A8F76 /* MSIDAuthorizationRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthorizationRequest.m; sourceTree = "<group>"; };
-		B210F43F1FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADAuthorizationRequest.h; sourceTree = "<group>"; };
-		B210F4401FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADAuthorizationRequest.m; sourceTree = "<group>"; };
 		B210F4441FDDF4AB005A8F76 /* MSIDTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTokenRequest.h; sourceTree = "<group>"; };
 		B210F4451FDDF4AB005A8F76 /* MSIDTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenRequest.m; sourceTree = "<group>"; };
 		B210F4491FDDF587005A8F76 /* MSIDClientInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDClientInfo.h; sourceTree = "<group>"; };
@@ -476,8 +466,6 @@
 			children = (
 				B210F42F1FDDE7EB005A8F76 /* MSIDTokenResponse.h */,
 				B210F4301FDDE7EB005A8F76 /* MSIDTokenResponse.m */,
-				B210F43A1FDDF401005A8F76 /* MSIDAuthorizationRequest.h */,
-				B210F43B1FDDF401005A8F76 /* MSIDAuthorizationRequest.m */,
 				B210F4441FDDF4AB005A8F76 /* MSIDTokenRequest.h */,
 				B210F4451FDDF4AB005A8F76 /* MSIDTokenRequest.m */,
 				B210F4531FDDFA7B005A8F76 /* MSIDBrokerResponse.h */,
@@ -492,8 +480,6 @@
 			children = (
 				B210F4351FDDEA23005A8F76 /* MSIDAADTokenResponse.h */,
 				B210F4361FDDEA23005A8F76 /* MSIDAADTokenResponse.m */,
-				B210F43F1FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.h */,
-				B210F4401FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.m */,
 				B210F4491FDDF587005A8F76 /* MSIDClientInfo.h */,
 				B210F44A1FDDF587005A8F76 /* MSIDClientInfo.m */,
 			);
@@ -683,7 +669,6 @@
 				B210F4371FDDEA23005A8F76 /* MSIDAADTokenResponse.h in Headers */,
 				D6D9A45B1FBD420300EFA430 /* MSIDDeviceId.h in Headers */,
 				D6D9A4531FBD3FB800EFA430 /* NSURL+MSIDExtensions.h in Headers */,
-				B210F43C1FDDF401005A8F76 /* MSIDAuthorizationRequest.h in Headers */,
 				B20657C21FC9261C00412B7D /* NSString+MSIDTelemetryExtensions.h in Headers */,
 				B20657CB1FC926FF00412B7D /* MSIDTelemetryUIEvent.h in Headers */,
 				B20657BD1FC9253D00412B7D /* MSIDTelemetryCacheEvent.h in Headers */,
@@ -703,7 +688,6 @@
 				B20657AB1FC91F6400412B7D /* MSIDTelemetry+Internal.h in Headers */,
 				D61AFAB41FD8B6C600DABBE5 /* MSIDContants.h in Headers */,
 				B20657A51FC91C1600412B7D /* MSIDTelemetryDispatcher.h in Headers */,
-				B210F4411FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.h in Headers */,
 				B210F44D1FDDF5AA005A8F76 /* MSIDClientInfo.h in Headers */,
 				B20657DF1FCA208C00412B7D /* NSDate+MSIDExtensions.h in Headers */,
 			);
@@ -938,11 +922,9 @@
 				9641B5101FCF3E6400AFA0EC /* MSIDTokenCache.m in Sources */,
 				B210F4331FDDE7EB005A8F76 /* MSIDTokenResponse.m in Sources */,
 				B210F4391FDDEA23005A8F76 /* MSIDAADTokenResponse.m in Sources */,
-				B210F43E1FDDF401005A8F76 /* MSIDAuthorizationRequest.m in Sources */,
 				9641B5061FCF3E3500AFA0EC /* MSIDToken.m in Sources */,
 				B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */,
 				B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */,
-				B210F4431FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.m in Sources */,
 				B20657B11FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
 				D6D9A4521FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
 				B210F4481FDDF4AB005A8F76 /* MSIDTokenRequest.m in Sources */,
@@ -1021,11 +1003,9 @@
 				B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				B210F4321FDDE7EB005A8F76 /* MSIDTokenResponse.m in Sources */,
 				B210F4381FDDEA23005A8F76 /* MSIDAADTokenResponse.m in Sources */,
-				B210F43D1FDDF401005A8F76 /* MSIDAuthorizationRequest.m in Sources */,
 				B20657BA1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */,
 				D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
 				9641B5201FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.m in Sources */,
-				B210F4421FDDF45E005A8F76 /* MSIDAADAuthorizationRequest.m in Sources */,
 				B2C17AEC1FC796E60070A514 /* MSIDDeviceId.m in Sources */,
 				23BDA67A1FCE693800FE14BE /* MSIDKeychainUtil.m in Sources */,
 				B210F4471FDDF4AB005A8F76 /* MSIDTokenRequest.m in Sources */,
