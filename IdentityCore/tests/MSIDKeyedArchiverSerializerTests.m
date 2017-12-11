@@ -36,7 +36,6 @@
     [expectedToken setValue:@"familyId value" forKey:@"familyId"];
     [expectedToken setValue:@{@"key" : @"value"} forKey:@"clientInfo"];
     [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
-    [expectedToken setValue:[@"test" dataUsingEncoding:NSUTF8StringEncoding] forKey:@"sessionKey"];
     
     NSData *data = [serializer serialize:expectedToken];
     MSIDToken *resultToken = [serializer deserialize:data];

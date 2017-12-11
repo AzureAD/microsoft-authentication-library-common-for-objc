@@ -44,7 +44,6 @@
     result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
     result &= (!self.authority && !token.authority) || [self.authority isEqualToString:token.authority];
     result &= (!self.clientId && !token.clientId) || [self.clientId isEqualToString:token.clientId];
-    result &= (!self.sessionKey && !token.sessionKey) || [self.sessionKey isEqualToData:token.sessionKey];
     
     return result;
 }
@@ -78,7 +77,6 @@
     hash ^= self.resource.hash;
     hash ^= self.authority.hash;
     hash ^= self.clientId.hash;
-    hash ^= self.sessionKey.hash;
     
     return hash;
 }
@@ -120,7 +118,6 @@
     _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
     _authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
     _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-    _sessionKey = [coder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
     
     return self;
 }
@@ -149,7 +146,6 @@
     [coder encodeObject:_resource forKey:@"resource"];
     [coder encodeObject:_authority forKey:@"authority"];
     [coder encodeObject:_clientId forKey:@"clientId"];
-    [coder encodeObject:_sessionKey forKey:@"sessionKey"];
 }
 
 @end
