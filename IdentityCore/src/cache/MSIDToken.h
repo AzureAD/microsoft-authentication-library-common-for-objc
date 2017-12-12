@@ -41,6 +41,7 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
 @property (readonly) NSString *resource;
 @property (readonly) NSString *authority;
 @property (readonly) NSString *clientId;
+@property (readonly) NSOrderedSet<NSString *> *scopes;
 
 - (BOOL)isEqualToToken:(MSIDToken *)token;
 

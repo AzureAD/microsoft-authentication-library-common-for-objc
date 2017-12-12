@@ -54,6 +54,7 @@
     [expectedToken setValue:@"some resource" forKey:@"resource"];
     [expectedToken setValue:@"some authority" forKey:@"authority"];
     [expectedToken setValue:@"some clientId" forKey:@"clientId"];
+    [expectedToken setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
     
     NSData *data = [serializer serialize:expectedToken];
     MSIDToken *resultToken = [serializer deserialize:data];

@@ -250,6 +250,26 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
+- (void)testIsEqual_whenScopesIsNotEqual_shouldReturnFalse
+{
+    MSIDToken *lhs = [MSIDToken new];
+    [lhs setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+    MSIDToken *rhs = [MSIDToken new];
+    [rhs setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @3]] forKey:@"scopes"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenScopesIsEqual_shouldReturnTrue
+{
+    MSIDToken *lhs = [MSIDToken new];
+    [lhs setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+    MSIDToken *rhs = [MSIDToken new];
+    [rhs setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
 #pragma mark - Private
 
 - (MSIDToken *)createToken
@@ -264,6 +284,7 @@
     [token setValue:@"some resource" forKey:@"resource"];
     [token setValue:@"some authority" forKey:@"authority"];
     [token setValue:@"some clientId" forKey:@"clientId"];
+    [token setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
     
     return token;
 }
