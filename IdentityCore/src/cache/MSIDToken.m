@@ -115,7 +115,7 @@
     }
     
     _additionalServerInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
-    _clientInfo = [coder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"clientInfo"];
+    _clientInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"clientInfo"];
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
     _authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
