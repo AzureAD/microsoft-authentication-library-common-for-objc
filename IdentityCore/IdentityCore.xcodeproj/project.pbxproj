@@ -35,6 +35,9 @@
 		96474C0D1FD688EA00DC3CE9 /* MSIDJsonSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 96474C0B1FD688EA00DC3CE9 /* MSIDJsonSerializer.h */; };
 		96474C0E1FD688EA00DC3CE9 /* MSIDJsonSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 96474C0C1FD688EA00DC3CE9 /* MSIDJsonSerializer.m */; };
 		96474C0F1FD688EA00DC3CE9 /* MSIDJsonSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 96474C0C1FD688EA00DC3CE9 /* MSIDJsonSerializer.m */; };
+		9651659E1FDFFD3000BEFF1C /* MSIDTestTokenCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 9651659C1FDFFD3000BEFF1C /* MSIDTestTokenCache.h */; };
+		9651659F1FDFFD3000BEFF1C /* MSIDTestTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 9651659D1FDFFD3000BEFF1C /* MSIDTestTokenCache.m */; };
+		965165A01FDFFD3000BEFF1C /* MSIDTestTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 9651659D1FDFFD3000BEFF1C /* MSIDTestTokenCache.m */; };
 		9686C0DE1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9686C0DC1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.h */; };
 		9686C0DF1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9686C0DD1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m */; };
 		9686C0E01FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9686C0DD1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m */; };
@@ -207,6 +210,8 @@
 		9641B5311FCF3F4D00AFA0EC /* MSIDTokenSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTokenSerializer.h; sourceTree = "<group>"; };
 		96474C0B1FD688EA00DC3CE9 /* MSIDJsonSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJsonSerializer.h; sourceTree = "<group>"; };
 		96474C0C1FD688EA00DC3CE9 /* MSIDJsonSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializer.m; sourceTree = "<group>"; };
+		9651659C1FDFFD3000BEFF1C /* MSIDTestTokenCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestTokenCache.h; sourceTree = "<group>"; };
+		9651659D1FDFFD3000BEFF1C /* MSIDTestTokenCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestTokenCache.m; sourceTree = "<group>"; };
 		9686C0DC1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSOrderedSet+MSIDExtensions.h"; sourceTree = "<group>"; };
 		9686C0DD1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSOrderedSet+MSIDExtensions.m"; sourceTree = "<group>"; };
 		B206578B1FC91BDF00412B7D /* MSIDTelemetryUIEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryUIEvent.m; sourceTree = "<group>"; };
@@ -489,6 +494,8 @@
 				D6D9A44B1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m */,
 				D6D9A4541FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h */,
 				D6D9A4551FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m */,
+				9651659C1FDFFD3000BEFF1C /* MSIDTestTokenCache.h */,
+				9651659D1FDFFD3000BEFF1C /* MSIDTestTokenCache.m */,
 				D626FFEA1FBD200A00EE4487 /* network */,
 			);
 			path = util;
@@ -610,7 +617,6 @@
 				9641B50E1FCF3E6400AFA0EC /* MSIDTokenCache.h in Headers */,
 				B20657AF1FC91FC900412B7D /* MSIDTelemetryEventStrings.h in Headers */,
 				9686C0DE1FD8C81800D5BD6B /* NSOrderedSet+MSIDExtensions.h in Headers */,
-				B2D227B01FC4C5E50003579F /* MSIDVersion.h in Headers */,
 				9641B5011FCF3E2700AFA0EC /* MSIDTokenCacheDataSource.h in Headers */,
 				B20657AB1FC91F6400412B7D /* MSIDTelemetry+Internal.h in Headers */,
 				D61AFAB41FD8B6C600DABBE5 /* MSIDContants.h in Headers */,
@@ -625,6 +631,7 @@
 			files = (
 				D6D9A4561FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h in Headers */,
 				D626FFF61FBD200A00EE4487 /* MSIDTestURLResponse.h in Headers */,
+				9651659E1FDFFD3000BEFF1C /* MSIDTestTokenCache.h in Headers */,
 				D626FFF91FBD200A00EE4487 /* MSIDTestURLSession.h in Headers */,
 				D6D9A44C1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.h in Headers */,
 				D626FFF31FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h in Headers */,
@@ -887,6 +894,7 @@
 				D6D9A4571FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
 				D626FFF11FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
 				D626FFF71FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
+				9651659F1FDFFD3000BEFF1C /* MSIDTestTokenCache.m in Sources */,
 				D626FFF41FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
 				D6D9A44D1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
 			);
@@ -899,6 +907,7 @@
 				D6D9A4581FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
 				D626FFF21FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
 				D626FFF81FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
+				965165A01FDFFD3000BEFF1C /* MSIDTestTokenCache.m in Sources */,
 				D626FFF51FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
 				D6D9A44E1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
 			);
