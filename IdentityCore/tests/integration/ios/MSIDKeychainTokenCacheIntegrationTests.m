@@ -152,7 +152,7 @@
     [keychainTokenCache setItem:token withKey:key serializer:keyedArchiverSerializer context:nil error:nil];
     NSError *error;
     
-    [keychainTokenCache removeItemWithKey:key context:nil error:&error];
+    [keychainTokenCache removeItemsWithKey:key context:nil error:&error];
     
     NSArray<MSIDToken *> *items = [keychainTokenCache itemsWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);

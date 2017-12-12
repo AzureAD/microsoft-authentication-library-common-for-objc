@@ -291,7 +291,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         if (tokenItem)
         {
             // Delete tombstones generated from previous versions of ADAL.
-            if (tokenItem.tokenType == REFRESH_TOKEN && [tokenItem.token isEqualToString:@"<tombstone>"])
+            if (tokenItem.tokenType == MSIDTokenTypeRefreshToken && [tokenItem.token isEqualToString:@"<tombstone>"])
             {
                 // TODO: verify that it works and don't delete multiple items.
                 MSID_LOG_INFO(context, @"Trying to delete tombstone item...");
