@@ -99,5 +99,12 @@
        context:(id<MSIDRequestContext>)context
          error:(NSError **)error;
 
+- (BOOL)saveAdfsToken:(MSIDToken *)adfsToken
+            authority:(NSURL *)authority
+             resource:(NSString *)resource
+             clientId:(NSString *)clientId
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error;
+
 @end
 

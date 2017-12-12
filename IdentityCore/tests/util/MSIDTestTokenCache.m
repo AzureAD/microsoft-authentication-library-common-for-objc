@@ -23,6 +23,7 @@
 
 #import "MSIDTestTokenCache.h"
 #import "MSIDTokenSerializer.h"
+#import "MSIDTokenCacheKey.h"
 
 #include <pthread.h>
 
@@ -59,8 +60,23 @@
         context:(id<MSIDRequestContext>)context
           error:(NSError **)error
 {
+    NSMutableDictionary *account = _cache[key.account];
+    if (!account)
+    {
+        account = [NSMutableDictionary new];
+        _cache[key.account] = account;
+    }
     
-    return NO;
+    NSMutableArray *service = account[key.service];
+    if (!service)
+    {
+        service = [NSMutableArray new];
+        account[key.service] = service;
+    }
+    
+    [service addObject:item];
+    
+    return YES;
 }
 
 - (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
@@ -68,6 +84,7 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
+    
     return nil;
 }
 

@@ -387,4 +387,23 @@
     return YES;
 }
 
+- (BOOL)saveAdfsToken:(MSIDToken *)adfsToken
+            authority:(NSURL *)authority
+             resource:(NSString *)resource
+             clientId:(NSString *)clientId
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error
+{
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority
+                                                                        clientId:clientId
+                                                                        resource:resource];
+    
+    return [_dataSource setItem:adfsToken
+                            key:key
+                     serializer:_keyedArchiverSerialize
+                        context:context
+                          error:error];
+}
+
+
 @end
