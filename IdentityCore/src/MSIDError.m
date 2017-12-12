@@ -21,29 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+NSString *MSIDErrorDescriptionKey = @"MSIDErrorDescriptionKey";
+NSString *MSIDOAuthErrorKey = @"MSIDOAuthErrorKey";
+NSString *MSIDOAuthSubErrorKey = @"MSIDOAuthSubErrorKey";
 
-typedef NS_ENUM(uint32_t, MSIDTokenType)
+NSString *MSIDErrorDomain = @"MSIDErrorDomain";
+
+NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError)
 {
-    MSIDTokenTypeAccessToken =  'acTk',
-    MSIDTokenTypeRefreshToken = 'rfTk'
-};
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    userInfo[MSIDErrorDescriptionKey] = errorDescription;
+    userInfo[MSIDOAuthErrorKey] = oauthError;
+    userInfo[MSIDOAuthSubErrorKey] = subError;
+    userInfo[NSUnderlyingErrorKey]  = underlyingError;
+    
+    return [NSError errorWithDomain:domain code:code userInfo:userInfo];
+}
 
-@interface MSIDToken : NSObject
-
-@property (readonly) NSString *token;
-@property (readonly) NSString *idToken;
-
-@property (readonly) NSDate *expiresOn;
-
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *familyId;
-@property (readonly) NSDictionary *clientInfo;
-@property (readonly) NSDictionary *additionalServerInfo;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-@property (readonly) MSIDTokenType tokenType;
-
-- (BOOL)isExpired;
-
-@end

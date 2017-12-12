@@ -42,13 +42,20 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
-- (BOOL)removeItemWithKey:(MSIDTokenCacheKey *)key
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error;
+- (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
 
 - (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
                             serializer:(id<MSIDTokenSerializer>)serializer
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error;
+
+- (BOOL)saveWipeInfo:(NSDictionary *)wipeInfo
+             context:(id<MSIDRequestContext>)context
+               error:(NSError **)error;
+
+- (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
 
 @end

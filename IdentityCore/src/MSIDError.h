@@ -21,29 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+extern NSString *MSIDErrorDescriptionKey;
+extern NSString *MSIDOAuthErrorKey;
+extern NSString *MSIDOAuthSubErrorKey;
 
-typedef NS_ENUM(uint32_t, MSIDTokenType)
+/*!
+ ADAL and MSAL use different error domains and error codes.
+ When extracting shared code to common core, we unify those error domains
+ and error codes to be MSID error domains/codes and list them below. Besides,
+ domain mapping and error code mapping should be added to ADAuthenticationErrorConverter
+ and MSALErrorConveter in corresponding project.
+ */
+extern NSString *MSIDErrorDomain;
+
+typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
-    MSIDTokenTypeAccessToken =  'acTk',
-    MSIDTokenTypeRefreshToken = 'rfTk'
+    removeMeWhenThingsAreAdded = -10000,
 };
 
-@interface MSIDToken : NSObject
+extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError);
 
-@property (readonly) NSString *token;
-@property (readonly) NSString *idToken;
-
-@property (readonly) NSDate *expiresOn;
-
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *familyId;
-@property (readonly) NSDictionary *clientInfo;
-@property (readonly) NSDictionary *additionalServerInfo;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-@property (readonly) MSIDTokenType tokenType;
-
-- (BOOL)isExpired;
-
-@end

@@ -21,29 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDContants.h"
 
-typedef NS_ENUM(uint32_t, MSIDTokenType)
-{
-    MSIDTokenTypeAccessToken =  'acTk',
-    MSIDTokenTypeRefreshToken = 'rfTk'
-};
-
-@interface MSIDToken : NSObject
-
-@property (readonly) NSString *token;
-@property (readonly) NSString *idToken;
-
-@property (readonly) NSDate *expiresOn;
-
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *familyId;
-@property (readonly) NSDictionary *clientInfo;
-@property (readonly) NSDictionary *additionalServerInfo;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-@property (readonly) MSIDTokenType tokenType;
-
-- (BOOL)isExpired;
-
-@end
+NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
+NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
+NSString *const MSID_CPU_KEY                    = @"x-client-CPU";
+NSString *const MSID_OS_VER_KEY                 = @"x-client-OS";
+NSString *const MSID_DEVICE_MODEL_KEY           = @"x-client-DM";

@@ -21,29 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-
-typedef NS_ENUM(uint32_t, MSIDTokenType)
-{
-    MSIDTokenTypeAccessToken =  'acTk',
-    MSIDTokenTypeRefreshToken = 'rfTk'
-};
-
-@interface MSIDToken : NSObject
-
-@property (readonly) NSString *token;
-@property (readonly) NSString *idToken;
-
-@property (readonly) NSDate *expiresOn;
-
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *familyId;
-@property (readonly) NSDictionary *clientInfo;
-@property (readonly) NSDictionary *additionalServerInfo;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-@property (readonly) MSIDTokenType tokenType;
-
-- (BOOL)isExpired;
-
-@end
+extern NSString *const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
+extern NSString *const MSID_VERSION_KEY;
+extern NSString *const MSID_CPU_KEY;//E.g. ARM64
+extern NSString *const MSID_OS_VER_KEY;//iOS/OSX version
+extern NSString *const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S

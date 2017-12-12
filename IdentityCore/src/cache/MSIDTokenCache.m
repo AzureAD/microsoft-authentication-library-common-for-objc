@@ -138,7 +138,7 @@
     BOOL anyAccessToken = NO;
     for (MSIDToken *token in allTokens)
     {
-        if (token.tokenType == ACCESS_TOKEN)
+        if (token.tokenType == MSIDTokenTypeAccessToken)
         {
             anyAccessToken = YES;
         }
@@ -258,7 +258,7 @@
     
     for (MSIDToken *token in newTokens)
     {
-        if (token.tokenType == REFRESH_TOKEN)
+        if (token.tokenType == MSIDTokenTypeRefreshToken)
         {
             [allRTs addObject:token];
         }
@@ -277,7 +277,7 @@
     
     for (MSIDToken *token in legacyTokens)
     {
-        if (token.tokenType == REFRESH_TOKEN
+        if (token.tokenType == MSIDTokenTypeRefreshToken
             && token.clientId == clientId)
         {
             [allRTs addObject:token];
@@ -330,7 +330,7 @@
 
     for (MSIDToken *token in allTokens)
     {
-        if (token.tokenType == ACCESS_TOKEN
+        if (token.tokenType == MSIDTokenTypeAccessToken
             && [token.authority msidIsEquivalentAuthority:msalAT.authority]
             && [token.scopes intersectsOrderedSet:msalAT.scopes])
         {
@@ -339,7 +339,7 @@
                                                                                         scopes:token.scopes
                                                                                         userId:user.userIdentifier];
             
-            if(![_dataSource removeItemWithKey:keyToDelete context:context error:nil])
+            if(![_dataSource removeItemsWithKey:keyToDelete context:context error:nil])
             {
                 return NO;
             }
