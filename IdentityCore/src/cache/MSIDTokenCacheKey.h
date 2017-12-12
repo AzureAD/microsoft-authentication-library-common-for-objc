@@ -25,31 +25,51 @@
 
 @interface MSIDTokenCacheKey : NSObject
 
-@property NSString *account;
-@property NSString *service;
+NS_ASSUME_NONNULL_BEGIN
 
-- (id)initWithAccount:(NSString *)account
-              service:(NSString *)service;
+@property(nullable) NSString *account;
+@property(nullable) NSString *service;
+
+- (nullable id)initWithAccount:(nullable NSString *)account
+                       service:(nullable NSString *)service;
 
 // adal tokens
-+ (MSIDTokenCacheKey *)keyWithAuthority:(NSURL *)authority
-                                    upn:(NSString *)upn
-                               resource:(NSString *)resource
-                               clientId:(NSString *)clientId;
 
-// msal at
+// Key for ADFS User tokens
++ (MSIDTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSURL *)authority
+                                               clientId:(NSString *)clientId
+                                               resource:(NSString *)resource;
+
+// Key for ADAL tokens:
+//   Single resource,
+//   null resource for refresh tokens (FRT, MRRT)
 + (MSIDTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                clientId:(NSString *)clientId
-                                 scopes:(NSOrderedSet<NSString *> *)scopes
-                                 userId:(NSString *)userId
-                            environment:(NSString *)environment;
+                               resource:(nullable NSString *)resource
+                                    upn:(NSString *)upn;
+
+// msal at
+// Single MSAL access token
++ (MSIDTokenCacheKey *)keyForAccessTokenWithAuthority:(NSURL *)authority
+                                             clientId:(NSString *)clientId
+                                               scopes:(NSOrderedSet<NSString *> *)scopes
+                                               userId:(NSString *)userId;
+
+
++ (MSIDTokenCacheKey *)keyForAllAccessTokensWithUserId:(NSString *)userId
+                                           environment:(NSString *)environment;
+
 
 // rt with uid and utid
-+ (MSIDTokenCacheKey *)keyWithUserId:(NSString *)userId
-                         environment:(NSString *)environment
-                            clientId:(NSString *)clientId;
++ (MSIDTokenCacheKey *)keyForRefreshTokenWithUserId:(NSString *)userId
+                                           clientId:(NSString *)clientId
+                                        environment:(NSString *)environment;
 
++ (MSIDTokenCacheKey *)keyForRefreshTokenWithClientId:(NSString *)clientId;
 
-+ (MSIDTokenCacheKey *)keyWithClientId:(NSString *)clientId;
+// All items key
 + (MSIDTokenCacheKey *)keyForAllItems;
+
+NS_ASSUME_NONNULL_END
+
 @end

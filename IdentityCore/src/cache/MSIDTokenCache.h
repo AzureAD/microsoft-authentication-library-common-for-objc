@@ -62,7 +62,6 @@
                       clientId:(NSString *)clientId
                         scopes:(NSOrderedSet<NSString *> *)scopes
                           user:(MSIDUser *)user
-                   environment:(NSString *)environment
                    accessToken:(MSIDToken **)outAccessToken
                 authorityFound:(NSURL **)outAuthorityFound
                        context:(id<MSIDRequestContext>)context
@@ -86,9 +85,10 @@
              error:(NSError **)error;
 
 - (BOOL)saveMsalAT:(MSIDToken *)msalAT
+         authority:(NSURL *)authority
           clientId:(NSString *)clientId
               user:(MSIDUser *)user
-       environment:(NSString *)environment
+            scopes:(NSOrderedSet<NSString *> *)scopes
            context:(id<MSIDRequestContext>)context
              error:(NSError **)error;
 
