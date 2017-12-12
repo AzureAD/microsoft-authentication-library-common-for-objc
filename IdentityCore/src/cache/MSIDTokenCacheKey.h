@@ -33,41 +33,54 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable id)initWithAccount:(nullable NSString *)account
                        service:(nullable NSString *)service;
 
-// adal tokens
-
-// Key for ADFS User tokens
+/*!
+ Key for ADFS user tokens, account will be @""
+ */
 + (MSIDTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSURL *)authority
                                                clientId:(NSString *)clientId
                                                resource:(NSString *)resource;
 
-// Key for ADAL tokens:
-//   Single resource,
-//   null resource for refresh tokens (FRT, MRRT)
+/*!
+ Key for ADAL tokens
+ 1. access tokens - single resource, one authority, one clientId and one upn.
+ 2. FRT & MRRT - null authority, one authority, one clientId and one upn.
+ */
 + (MSIDTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                clientId:(NSString *)clientId
                                resource:(nullable NSString *)resource
                                     upn:(NSString *)upn;
 
-// msal at
-// Single MSAL access token
+/*!
+ Key for MSAL tokens - single authority, one clientId, multiple scopes, and userId.
+ Environment is derived from the authority
+ */
 + (MSIDTokenCacheKey *)keyForAccessTokenWithAuthority:(NSURL *)authority
                                              clientId:(NSString *)clientId
                                                scopes:(NSOrderedSet<NSString *> *)scopes
                                                userId:(NSString *)userId;
 
-
+/*!
+ Key for getting all MSAL access tokens for a user
+ */
 + (MSIDTokenCacheKey *)keyForAllAccessTokensWithUserId:(NSString *)userId
                                            environment:(NSString *)environment;
 
 
-// rt with uid and utid
+/*!
+ Key for MSAL refresh tokens - one user, one clientId, and one environment
+ */
 + (MSIDTokenCacheKey *)keyForRefreshTokenWithUserId:(NSString *)userId
                                            clientId:(NSString *)clientId
                                         environment:(NSString *)environment;
 
+/*!
+ Key for all MSAL refresh tokens for a client
+ */
 + (MSIDTokenCacheKey *)keyForRefreshTokenWithClientId:(NSString *)clientId;
 
-// All items key
+/*!
+ Key for all items in the keychain
+ */
 + (MSIDTokenCacheKey *)keyForAllItems;
 
 NS_ASSUME_NONNULL_END
