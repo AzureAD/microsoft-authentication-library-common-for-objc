@@ -100,12 +100,12 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    if (!MSIDKeychainUtil.teamId)
+    _keychainGroup = [MSIDKeychainUtil accessGroup:keychainGroup];
+    
+    if (!_keychainGroup)
     {
         return nil;
     }
-    
-    _keychainGroup = [[NSString alloc] initWithFormat:@"%@.%@", MSIDKeychainUtil.teamId, keychainGroup];
     
     MSID_LOG_INFO(nil, @"Using keychainGroup: %@", _PII_NULLIFY(_keychainGroup));
     MSID_LOG_INFO_PII(nil, @"Using keychainGroup: %@", _keychainGroup);
@@ -320,6 +320,12 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                error:(NSError **)error
 {
     MSID_LOG_INFO_PII(context, @"Full wipe info: %@", wipeInfo);
+    
+    if (!wipeInfo)
+    {
+        *error = [[NSError alloc] initWithDomain:@"MSIDErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey:@"wipeInfo is nil."}];
+        return NO;
+    }
     
     NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
     MSID_LOG_INFO(context, @"Trying to update wipe info...");

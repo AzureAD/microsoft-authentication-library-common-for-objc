@@ -82,4 +82,28 @@
     
     return appDefaultAccessGroup;
 }
+
++ (NSString *)accessGroup:(NSString *)group
+{
+    if (!group)
+    {
+        return nil;
+    }
+    
+    if (!MSIDKeychainUtil.teamId)
+    {
+        return nil;
+    }
+    
+#if TARGET_OS_SIMULATOR
+    // In simulator team id can be "FAKETEAMID" (for example in UT without host app).
+    if ([MSIDKeychainUtil.teamId isEqualToString:@"FAKETEAMID"])
+    {
+        return [MSIDKeychainUtil appDefaultAccessGroup];
+    }
+#endif
+    
+    return [[NSString alloc] initWithFormat:@"%@.%@", MSIDKeychainUtil.teamId, group];
+}
+
 @end

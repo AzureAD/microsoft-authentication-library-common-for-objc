@@ -57,10 +57,9 @@
 #pragma mark - MSIDTokenCacheDataSource
 
 - (void)test_whenSetItemWithValidParameters_shouldReturnTrue
-{
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+{    
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDToken *token = [MSIDToken new];
-    // TODO: fix.
     [token setValue:@"some token" forKey:@"token"];
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service"];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
@@ -72,9 +71,8 @@
 
 - (void)test_whenSetItem_shouldGetSameItem
 {
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDToken *token = [MSIDToken new];
-    // TODO: fix.
     [token setValue:@"some token" forKey:@"token"];
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service"];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
@@ -87,7 +85,7 @@
 
 - (void)test_whenSetItemWhenKeysAccountIsNil_shouldReturnFalseAndError
 {
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDToken *token = [MSIDToken new];
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:nil service:@"test_service"];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
@@ -101,7 +99,7 @@
 
 - (void)test_whenSetItemWhenKeysServiceIsNil_shouldReturnFalseAndError
 {
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDToken *token = [MSIDToken new];
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:nil];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
@@ -115,7 +113,7 @@
 
 - (void)test_whenItemsWithQueryKey_shouldReturnProperItems
 {
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     // Item 1.
     MSIDToken *token1 = [MSIDToken new];
@@ -135,17 +133,16 @@
     NSArray<MSIDToken *> *items = [keychainTokenCache itemsWithKey:queryKey serializer:keyedArchiverSerializer context:nil error:&error];
     
     XCTAssertEqual(items.count, 2);
-    // TODO: order of items might be different.
-    XCTAssertEqualObjects(items[0], token1);
-    XCTAssertEqualObjects(items[1], token2);
+    
+    XCTAssertTrue([items containsObject:token1]);
+    XCTAssertTrue([items containsObject:token2]);
     XCTAssertNil(error);
 }
 
 - (void)test_whenRemoveItemWithKey_shouldRemoveItem
 {
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDToken *token = [MSIDToken new];
-    // TODO: fix.
     [token setValue:@"some token" forKey:@"token"];
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service"];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
@@ -156,6 +153,42 @@
     
     NSArray<MSIDToken *> *items = [keychainTokenCache itemsWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
+    XCTAssertNil(error);
+}
+
+- (void)testSaveWipeInfo_whenNotNilInfo_shouldReturnTrueAndNilError
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    NSDictionary *wipeInfo = @{@"key": @"value"};
+    NSError *error;
+    
+    BOOL result = [keychainTokenCache saveWipeInfo:wipeInfo context:nil error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+}
+
+- (void)testSaveWipeInfo_whenNilInfo_shouldReturnFalseAndError
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    NSError *error;
+    
+    BOOL result = [keychainTokenCache saveWipeInfo:nil context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+}
+
+- (void)test_whenSaveWipeInfo_shouldReturnSameWipeInfoOnGet
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    NSDictionary *expectedWipeInfo = @{@"key2": @"value2"};
+    NSError *error;
+    
+    [keychainTokenCache saveWipeInfo:expectedWipeInfo context:nil error:nil];
+    NSDictionary *resultWipeInfo = [keychainTokenCache wipeInfo:nil error:&error];
+    
+    XCTAssertEqualObjects(resultWipeInfo, expectedWipeInfo);
     XCTAssertNil(error);
 }
 
