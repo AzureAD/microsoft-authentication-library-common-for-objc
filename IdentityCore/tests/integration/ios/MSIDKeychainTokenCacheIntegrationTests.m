@@ -111,6 +111,23 @@
     XCTAssertNotNil(error);
 }
 
+- (void)testSetItem_whenItemAlreadyExistInKeychain_shouldUpdateIt
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDToken *token = [MSIDToken new];
+    [token setValue:@"some token" forKey:@"token"];
+    MSIDToken *token2 = [MSIDToken new];
+    [token2 setValue:@"some token2" forKey:@"token"];
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service"];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
+    
+    [keychainTokenCache setItem:token withKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token2 withKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    MSIDToken *tokenResult = [keychainTokenCache itemWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    XCTAssertEqualObjects(tokenResult, token2);
+}
+
 - (void)testItemsWithyKey_whenKeyIsQuery_shouldReturnProperItems
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
