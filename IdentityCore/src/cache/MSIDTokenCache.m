@@ -70,6 +70,21 @@
 }
 
 
+- (MSIDToken *)getAdfsUserTokenForAuthority:(NSURL *)authority
+                                   resource:(NSString *)resource
+                                   clientId:(NSString *)clientId
+                                    context:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error
+{
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority
+                                                                        clientId:clientId
+                                                                        resource:resource];
+    
+    return [_dataSource itemWithKey:key serializer:_keyedArchiverSerialize context:context error:error];
+}
+
+
+
 - (MSIDToken *)getFRTforUser:(MSIDUser *)user
                    authority:(NSURL *)authority
                     familyId:(NSString *)familyId
@@ -92,37 +107,17 @@
                             context:context error:error];
 }
 
-- (MSIDToken *)getAdfsUserTokenForAuthority:(NSURL *)authority
-                                   resource:(NSString *)resource
-                                   clientId:(NSString *)clientId
-                                    context:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error
-{
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority
-                                                                        clientId:clientId
-                                                                        resource:resource];
-    
-    return [_dataSource itemWithKey:key serializer:_keyedArchiverSerialize context:context error:error];
-}
-
-
-
-
-- (BOOL)getMsalATwithAuthority:(NSURL *)authority
-                      clientId:(NSString *)clientId
-                        scopes:(NSOrderedSet<NSString *> *)scopes
-                          user:(MSIDUser *)user
-                   accessToken:(MSIDToken **)outAccessToken
-                authorityFound:(NSURL **)outAuthorityFound
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (MSIDToken *)getMsalATwithAuthority:(NSURL *)authority
+                             clientId:(NSString *)clientId
+                               scopes:(NSOrderedSet<NSString *> *)scopes
+                                 user:(MSIDUser *)user
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
 {
     // Error check
-    if (!user
-        || !outAccessToken
-        || !outAuthorityFound)
+    if (!user)
     {
-        return NO;
+        return nil;
     }
     
     // get all access token
@@ -152,7 +147,7 @@
         MSID_LOG_WARN(context, @"No access token found for user & client id.");
         MSID_LOG_WARN_PII(context, @"No access token found for user & client id.");
         
-        return NO;
+        return nil;
     }
     
     NSURL *foundAuthority = allTokens[0].authority;
@@ -178,24 +173,21 @@
         [matchedTokens addObject:token];
     }
     
-    *outAuthorityFound = foundAuthority;
-    
     if (matchedTokens.count == 0)
     {
         MSID_LOG_INFO(context, @"No matching access token found.");
         MSID_LOG_INFO_PII(context, @"No matching access token found.");
-        return YES;
+        return nil;
     }
     
     if ([matchedTokens[0] isExpired])
     {
         MSID_LOG_INFO(context, @"Access token found in cache is already expired.");
         MSID_LOG_INFO_PII(context, @"Access token found in cache is already expired.");
-        return YES;
+        return nil;
     }
     
-    *outAccessToken = matchedTokens[0];
-    return YES;
+    return matchedTokens[0];
 }
 
 

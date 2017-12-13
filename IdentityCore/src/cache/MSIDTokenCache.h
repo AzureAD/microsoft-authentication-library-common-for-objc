@@ -32,7 +32,8 @@
 @interface MSIDTokenCache : NSObject
 
 - (id)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
-- (id<MSIDTokenCacheDataSource>)dataSource;
+@property (readonly) id<MSIDTokenCacheDataSource> dataSource;
+
 
 /*!
  Returns a AT/RT Token Cache Item for the given parameters. The RT in this item will only be good
@@ -58,12 +59,10 @@
                                     context:(id<MSIDRequestContext>)context
                                       error:(NSError **)error;
 
-- (BOOL)getMsalATwithAuthority:(NSURL *)authority
+- (MSIDToken *)getMsalATwithAuthority:(NSURL *)authority
                       clientId:(NSString *)clientId
                         scopes:(NSOrderedSet<NSString *> *)scopes
                           user:(MSIDUser *)user
-                   accessToken:(MSIDToken **)outAccessToken
-                authorityFound:(NSURL **)outAuthorityFound
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error;
 
