@@ -97,14 +97,13 @@
         familyId = @"1";
     }
     NSString *fociClientId = [NSString stringWithFormat:@"foci-%@", familyId];
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority
-                                                        clientId:fociClientId
-                                                        resource:nil
-                                                             upn:user.upn];
     
-    return [_dataSource itemWithKey:key
-                         serializer:_keyedArchiverSerialize
-                            context:context error:error];
+    return [self getAdalATRTforUser:user
+                          authority:authority
+                           resource:nil
+                           clientId:fociClientId
+                            context:context
+                              error:error];
 }
 
 - (MSIDToken *)getMsalATwithAuthority:(NSURL *)authority

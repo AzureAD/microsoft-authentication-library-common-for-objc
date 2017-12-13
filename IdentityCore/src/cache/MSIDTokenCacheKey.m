@@ -122,8 +122,8 @@ static uint32_t const s_msalV1 = 'MSv1';
 + (MSIDTokenCacheKey *)keyForAllAccessTokensWithUserId:(NSString *)userId
                                            environment:(NSString *)environment
 {
-    return nil;
-    
+    NSString *account = [self.class accountWithUserIdentifier:userId environment:authority.msidHostWithPortIfNecessary];
+    return [[MSIDTokenCacheKey alloc] initWithAccount:account service:nil];
 }
 
 
