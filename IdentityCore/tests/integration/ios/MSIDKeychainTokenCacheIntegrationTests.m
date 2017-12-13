@@ -139,7 +139,7 @@
     XCTAssertNil(error);
 }
 
-- (void)test_whenRemoveItemWithKey_shouldRemoveItem
+- (void)testRemoveItemWithKey_whenKeyIsValid_shouldRemoveItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDToken *token = [MSIDToken new];
@@ -152,6 +152,32 @@
     [keychainTokenCache removeItemsWithKey:key context:nil error:&error];
     
     NSArray<MSIDToken *> *items = [keychainTokenCache itemsWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
+    XCTAssertEqual(items.count, 0);
+    XCTAssertNil(error);
+}
+
+- (void)testRemoveItemWithKey_whenKeyIsNil_shouldRemoveAllItems
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
+    // Item 1.
+    MSIDToken *token1 = [MSIDToken new];
+    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1"];
+    [keychainTokenCache setItem:token1 withKey:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+    // Item 2.
+    MSIDToken *token2 = [MSIDToken new];
+    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2"];
+    [keychainTokenCache setItem:token2 withKey:key2 serializer:keyedArchiverSerializer context:nil error:nil];
+    // Item 3.
+    MSIDToken *token3 = [MSIDToken new];
+    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3"];
+    [keychainTokenCache setItem:token3 withKey:key3 serializer:keyedArchiverSerializer context:nil error:nil];
+    NSError *error;
+    
+    BOOL result = [keychainTokenCache removeItemsWithKey:nil context:nil error:&error];
+    NSArray<MSIDToken *> *items = [keychainTokenCache itemsWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    XCTAssertTrue(result);
     XCTAssertEqual(items.count, 0);
     XCTAssertNil(error);
 }

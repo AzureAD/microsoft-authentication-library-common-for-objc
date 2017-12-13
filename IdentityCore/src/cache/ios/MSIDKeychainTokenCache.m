@@ -242,7 +242,6 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
-    assert(key);
     assert(serializer);
     
     MSID_LOG_INFO(context, @"Get keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
