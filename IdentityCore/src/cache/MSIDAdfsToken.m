@@ -21,37 +21,68 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAdfsToken.h"
 
-typedef NS_ENUM(NSInteger, MSIDTokenType)
-{
-    MSIDTokenTypeAccessToken,
-    MSIDTokenTypeRefreshToken,
-    MSIDTokenTypeAdfsUserToken
-};
+@implementation MSIDAdfsToken
 
-@interface MSIDToken : NSObject <NSSecureCoding>
+- (BOOL)isEqualToToken:(MSIDAdfsToken *)token
 {
-    MSIDTokenType _tokenType;
+    if (!token)
+    {
+        return NO;
+    }
+    
+    BOOL result = YES;
+    result &= [super isEqualToToken:token];
+    result &= (!self.additionalToken && !token.additionalToken);
+    
+    return result;
 }
 
-@property (readonly) NSString *token;
-@property (readonly) NSString *idToken;
+#pragma mark - NSObject
 
-@property (readonly) NSDate *expiresOn;
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:MSIDAdfsToken.class])
+    {
+        return NO;
+    }
+    
+    return [self isEqualToToken:(MSIDAdfsToken *)object];
+}
 
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *familyId;
-@property (readonly) NSDictionary *clientInfo;
-@property (readonly) NSDictionary *additionalServerInfo;
+- (NSUInteger)hash
+{
+    NSUInteger hash = [super hash];
+    hash ^= self.additionalToken.hash;
+    
+    return hash;
+}
 
-@property (readonly) MSIDTokenType tokenType;
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
+#pragma mark - NSSecureCoding
 
-- (BOOL)isEqualToToken:(MSIDToken *)token;
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    if (!(self = [super initWithCoder:coder]))
+    {
+        return nil;
+    }
+   
+    _additionalToken = [coder decodeObjectOfClass:[NSString class] forKey:@"additionalToken"];
+    _tokenType = MSIDTokenTypeAdfsUserToken;
+    
+    return self;
+}
 
-- (BOOL)isExpired;
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+    [coder encodeObject:_additionalToken forKey:@"additionalToken"];
+}
 
 @end

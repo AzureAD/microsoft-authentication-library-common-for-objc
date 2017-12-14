@@ -70,17 +70,20 @@
 }
 
 
-- (MSIDToken *)getAdfsUserTokenForAuthority:(NSURL *)authority
-                                   resource:(NSString *)resource
-                                   clientId:(NSString *)clientId
-                                    context:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error
+- (MSIDAdfsToken *)getAdfsUserTokenForAuthority:(NSURL *)authority
+                                       resource:(NSString *)resource
+                                       clientId:(NSString *)clientId
+                                        context:(id<MSIDRequestContext>)context
+                                          error:(NSError **)error
 {
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority
                                                                         clientId:clientId
                                                                         resource:resource];
     
-    return [_dataSource itemWithKey:key serializer:_keyedArchiverSerialize context:context error:error];
+    return (MSIDAdfsToken *)[_dataSource itemWithKey:key
+                                          serializer:_keyedArchiverSerialize
+                                             context:context
+                                               error:error];
 }
 
 
@@ -378,7 +381,7 @@
     return YES;
 }
 
-- (BOOL)saveAdfsToken:(MSIDToken *)adfsToken
+- (BOOL)saveAdfsToken:(MSIDAdfsToken *)adfsToken
             authority:(NSURL *)authority
              resource:(NSString *)resource
              clientId:(NSString *)clientId

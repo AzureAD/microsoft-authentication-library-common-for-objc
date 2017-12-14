@@ -26,6 +26,7 @@
 @class MSIDToken;
 @class MSIDTokenCacheKey;
 @class MSIDUser;
+@class MSIDAdfsToken;
 
 @protocol MSIDTokenCacheDataSource;
 
@@ -53,11 +54,11 @@
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error;
 
-- (MSIDToken *)getAdfsUserTokenForAuthority:(NSURL *)authority
-                                   resource:(NSString *)resource
-                                   clientId:(NSString *)clientId
-                                    context:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error;
+- (MSIDAdfsToken *)getAdfsUserTokenForAuthority:(NSURL *)authority
+                                       resource:(NSString *)resource
+                                       clientId:(NSString *)clientId
+                                        context:(id<MSIDRequestContext>)context
+                                          error:(NSError **)error;
 
 - (MSIDToken *)getMsalATwithAuthority:(NSURL *)authority
                       clientId:(NSString *)clientId
@@ -98,7 +99,7 @@
        context:(id<MSIDRequestContext>)context
          error:(NSError **)error;
 
-- (BOOL)saveAdfsToken:(MSIDToken *)adfsToken
+- (BOOL)saveAdfsToken:(MSIDAdfsToken *)adfsToken
             authority:(NSURL *)authority
              resource:(NSString *)resource
              clientId:(NSString *)clientId

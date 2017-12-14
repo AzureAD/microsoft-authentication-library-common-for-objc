@@ -21,37 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDToken.h"
 
-typedef NS_ENUM(NSInteger, MSIDTokenType)
-{
-    MSIDTokenTypeAccessToken,
-    MSIDTokenTypeRefreshToken,
-    MSIDTokenTypeAdfsUserToken
-};
+@interface MSIDAdfsToken : MSIDToken
 
-@interface MSIDToken : NSObject <NSSecureCoding>
-{
-    MSIDTokenType _tokenType;
-}
+// For ADFS user token, consider @token to be an access token and
+// @additionToken to be a refresh token
 
-@property (readonly) NSString *token;
-@property (readonly) NSString *idToken;
-
-@property (readonly) NSDate *expiresOn;
-
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *familyId;
-@property (readonly) NSDictionary *clientInfo;
-@property (readonly) NSDictionary *additionalServerInfo;
-
-@property (readonly) MSIDTokenType tokenType;
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-- (BOOL)isEqualToToken:(MSIDToken *)token;
-
-- (BOOL)isExpired;
+@property (readonly) NSString *additionalToken;
 
 @end
