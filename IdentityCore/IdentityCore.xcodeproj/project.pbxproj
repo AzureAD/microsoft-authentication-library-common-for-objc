@@ -14,6 +14,7 @@
 		2321531E1FDA1AF100C6960D /* MSIDKeyedArchiverSerializerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2321531D1FDA1AF100C6960D /* MSIDKeyedArchiverSerializerTests.m */; };
 		2321532D1FDF4FD800C6960D /* MSIDTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2321532C1FDF4FD800C6960D /* MSIDTokenTests.m */; };
 		2321532E1FDF4FF200C6960D /* MSIDTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2321532C1FDF4FD800C6960D /* MSIDTokenTests.m */; };
+		232153421FE20D3700C6960D /* MSIDKeychainTokenCache+MSIDTestsUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 235BD9441FD60D5D0088CD9D /* MSIDKeychainTokenCache+MSIDTestsUtil.m */; };
 		235BD93F1FD5E53A0088CD9D /* MSIDKeychainTokenCacheIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 235BD93D1FD5E5340088CD9D /* MSIDKeychainTokenCacheIntegrationTests.m */; };
 		235BD9401FD600B00088CD9D /* MSIDTokenCacheKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5081FCF3E4400AFA0EC /* MSIDTokenCacheKey.m */; };
 		235BD9451FD60D5D0088CD9D /* MSIDKeychainTokenCache+MSIDTestsUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 235BD9441FD60D5D0088CD9D /* MSIDKeychainTokenCache+MSIDTestsUtil.m */; };
@@ -906,6 +907,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				232153421FE20D3700C6960D /* MSIDKeychainTokenCache+MSIDTestsUtil.m in Sources */,
 				D6D9A4571FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
 				D626FFF11FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
 				D626FFF71FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
