@@ -52,9 +52,9 @@
                              (id)kSecAttrAccount : @"teamIDHint",
                              (id)kSecAttrService : @"",
                              (id)kSecReturnAttributes : @YES };
-//    CFDictionaryRef result = nil;
+    CFDictionaryRef result = nil;
     
-//    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
     
 //    if (status == errSecItemNotFound)
 //    {
@@ -74,7 +74,7 @@
 //        MSID_LOG_ERROR(nil, @"fetching kSecAttrAccessGroup, status: %d", status);
 //    }
     
-//    CFRelease(result);
+    CFRelease(result);
 }
 
 #pragma mark - MSIDTokenCacheDataSource
