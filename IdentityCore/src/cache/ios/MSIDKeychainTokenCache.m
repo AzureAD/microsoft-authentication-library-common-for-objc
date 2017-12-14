@@ -101,7 +101,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    _keychainGroup = [MSIDKeychainUtil accessGroup:keychainGroup];
+//    _keychainGroup = [MSIDKeychainUtil accessGroup:keychainGroup];
     
     if (!_keychainGroup)
     {
