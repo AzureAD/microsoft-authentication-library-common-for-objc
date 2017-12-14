@@ -57,6 +57,10 @@ NSString *const MSID_OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-
 NSString *const MSID_OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
 NSString *const MSID_OAUTH2_SCOPE_OPENID_VALUE = @"openid";
 
+NSString *const MSID_OAUTH2_EXPIRES_ON          = @"expires_on";
+NSString *const MSID_OAUTH2_EXT_EXPIRES_IN      = @"ext_expires_in";
+NSString *const MSID_FAMILY_ID                  = @"foci";
+
 NSString *const MSID_OAUTH2_CODE_CHALLENGE               = @"code_challenge";
 NSString *const MSID_OAUTH2_CODE_CHALLENGE_METHOD        = @"code_challenge_method";
 NSString *const MSID_OAUTH2_CODE_VERIFIER                = @"code_verifier";

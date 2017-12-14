@@ -21,24 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
+#import "MSIDTokenResponse.h"
 
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+@implementation MSIDTokenResponse
 
-#import <Foundation/Foundation.h>
+// Default properties for an error response
+MSID_JSON_ACCESSOR(MSID_OAUTH2_ERROR, error)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_ERROR_DESCRIPTION, errorDescription)
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
-#import "IdentityCore_Internal.h"
+// Default properties for a successful response
+MSID_JSON_ACCESSOR(MSID_OAUTH2_EXPIRES_IN, expiresIn)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_ACCESS_TOKEN, accessToken)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_TOKEN_TYPE, tokenType)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_REFRESH_TOKEN, refreshToken)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_SCOPE, scope)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_STATE, state)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
-
-#endif /* IdentityCore_pch */
+@end

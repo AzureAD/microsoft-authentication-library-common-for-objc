@@ -21,24 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
+#import "MSIDBrokerResponse.h"
 
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+@implementation MSIDBrokerResponse
 
-#import <Foundation/Foundation.h>
+MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_RESOURCE, resource);
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
-#import "IdentityCore_Internal.h"
+MSID_FORM_ACCESSOR(MSID_OAUTH2_ACCESS_TOKEN, accessToken);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_REFRESH_TOKEN, refreshToken);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_EXPIRES_ON, expiresOn);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken);
+MSID_FORM_ACCESSOR(MSID_FAMILY_ID, familyId);
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
+MSID_FORM_ACCESSOR(@"vt", validAuthority);
 
-#endif /* IdentityCore_pch */
+MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
+MSID_FORM_ACCESSOR(@"error_code", errorCode);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_ERROR_DESCRIPTION, errorDescription);
+
+- (NSString *)oauthErrorCode
+{
+    if (_urlForm[@"protocol_code"])
+    {
+        return _urlForm[@"protocol_code"];
+    }
+    
+    return _urlForm[@"code"];
+}
+
+@end

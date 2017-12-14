@@ -21,24 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
+#import "MSIDTokenResponse.h"
 
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+@interface MSIDAADTokenResponse : MSIDTokenResponse
 
-#import <Foundation/Foundation.h>
+// Default properties for an AAD error response
+@property (readonly) NSString *correlationId;
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
-#import "IdentityCore_Internal.h"
+// Default properties for an AAD successful response
+@property (readonly) NSString *expiresOn;
+@property (readonly) NSString *resource;
+@property (readonly) NSString *extendedExpiresIn;
+@property (readonly) NSString *clientInfo;
+@property (readonly) NSString *familyId;
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+// Derived properties
+@property (readonly) NSDate *expiresOnDate;
 
-#endif /* IdentityCore_pch */
+@end
