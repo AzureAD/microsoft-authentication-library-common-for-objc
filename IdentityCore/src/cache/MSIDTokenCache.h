@@ -37,7 +37,7 @@
 
 
 /*!
- Returns a AT/RT Token Cache Item for the given parameters. The RT in this item will only be good
+ Returns an AT or RT Token Cache Item for given parameters. The RT in this item will only be good
  for the given resource. If no RT is returned in the item then a MRRT or FRT should be used (if
  available).
  */
@@ -48,18 +48,29 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error;
 
+/*!
+ Returns a Family Refresh Token for the given authority, user and family ID, if available. A FRT can
+ be used for many resources within a given family of client IDs.
+ */
 - (MSIDToken *)getFRTforUser:(MSIDUser *)user
                    authority:(NSURL *)authority
                     familyId:(NSString *)familyId
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error;
 
+/*!
+ ADFS is not capable of giving us an idtoken when we authenticate users, so we don't know who got logged
+ in or who to cache the tokens for, and instead put the token in a special entry.
+ */
 - (MSIDAdfsToken *)getAdfsUserTokenForAuthority:(NSURL *)authority
                                        resource:(NSString *)resource
                                        clientId:(NSString *)clientId
                                         context:(id<MSIDRequestContext>)context
                                           error:(NSError **)error;
 
+/*!
+ Returns an AT for MSAL for given parameters
+ */
 - (MSIDToken *)getMsalATwithAuthority:(NSURL *)authority
                       clientId:(NSString *)clientId
                         scopes:(NSOrderedSet<NSString *> *)scopes
@@ -67,15 +78,26 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error;
 
+/*!
+ Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
+ potentially be used for many resources for that given user, client ID and authority.
+ */
 - (MSIDToken *)getRTforUser:(MSIDUser *)user
                   authority:(NSURL *)authority
                    clientId:(NSString *)clientId
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error;
 
+/*!
+ Returns all refresh tokens for a given client.
+ */
 - (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
                                        context:(id<MSIDRequestContext>)context
                                          error:(NSError **)error;
+
+/*!
+ Following set of methods store tokens in appropriate form.
+ */
 
 - (BOOL)saveAdalAT:(MSIDToken *)adalAT
           clientId:(NSString *)clientId
