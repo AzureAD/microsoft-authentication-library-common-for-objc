@@ -51,6 +51,8 @@
     // Init default cache.
     MSIDKeychainTokenCache * __unused tokenCache = MSIDKeychainTokenCache.defaultKeychainCache;
     
+    [MSIDKeychainUtil accessGroup:@"com.microsoft.adalcache"];
+    
 //    XCTAssertThrows(MSIDKeychainTokenCache.defaultKeychainGroup = @"my.group");
 }
 
