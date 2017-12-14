@@ -48,14 +48,33 @@
 
 - (void)test_whenSetDefaultKeychainGroupAfterDefaultCacheInitialization_shouldThrow
 {
-    // Init default cache.
-    MSIDKeychainTokenCache * __unused tokenCache = MSIDKeychainTokenCache.defaultKeychainCache;
+    NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
+                             (id)kSecAttrAccount : @"teamIDHint",
+                             (id)kSecAttrService : @"",
+                             (id)kSecReturnAttributes : @YES };
+    CFDictionaryRef result = nil;
     
-//    [MSIDKeychainUtil accessGroup:@"com.microsoft.adalcache"];
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
     
-    MSIDKeychainUtil.teamId;
+    if (status == errSecItemNotFound)
+    {
+        NSMutableDictionary* addQuery = [query mutableCopy];
+        [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
+        status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
+    }
     
-//    XCTAssertThrows(MSIDKeychainTokenCache.defaultKeychainGroup = @"my.group");
+    if (status == errSecSuccess)
+    {
+        NSDictionary *appDefaultAccessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
+        MSID_LOG_INFO(nil, @"Defaul app's acces group: \"%@\".", _PII_NULLIFY(appDefaultAccessGroup));
+        MSID_LOG_INFO_PII(nil, @"Defaul app's acces group: \"%@\".", appDefaultAccessGroup);
+    }
+    else
+    {
+        MSID_LOG_ERROR(nil, @"fetching kSecAttrAccessGroup, status: %d", status);
+    }
+    
+    CFRelease(result);
 }
 
 #pragma mark - MSIDTokenCacheDataSource
