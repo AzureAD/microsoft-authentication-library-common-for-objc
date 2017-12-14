@@ -138,6 +138,8 @@
     {
         [coder encodeObject:_token forKey:@"accessToken"];
     }
+    // Backward compatibility with ADAL.
+    [coder encodeObject:@"Bearer" forKey:@"accessTokenType"];
     
     [coder encodeObject:_clientInfo forKey:@"clientInfo"];
     [coder encodeObject:_additionalServerInfo forKey:@"additionalServer"];
