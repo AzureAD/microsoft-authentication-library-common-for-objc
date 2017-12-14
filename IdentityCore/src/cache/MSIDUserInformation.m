@@ -21,35 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDUserInformation.h"
 
-typedef NS_ENUM(NSInteger, MSIDTokenType)
+@implementation MSIDUserInformation
+
+#pragma mark - NSSecureCoding
+
++ (BOOL)supportsSecureCoding
 {
-    MSIDTokenTypeAccessToken,
-    MSIDTokenTypeRefreshToken
-};
+    return YES;
+}
 
-@interface MSIDToken : NSObject <NSSecureCoding>
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _rawIdToken = [coder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
+    
+    return self;
+}
 
-@property (readonly) NSString *token;
-@property (readonly) NSString *idToken;
-
-@property (readonly) NSDate *expiresOn;
-
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *familyId;
-@property (readonly) NSDictionary *clientInfo;
-@property (readonly) NSDictionary *additionalServerInfo;
-
-@property (readonly) MSIDTokenType tokenType;
-@property (readonly) NSString *resource;
-@property (readonly) NSString *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-- (BOOL)isEqualToToken:(MSIDToken *)token;
-
-- (BOOL)isExpired;
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeObject:_rawIdToken forKey:@"rawIdToken"];
+}
 
 @end
