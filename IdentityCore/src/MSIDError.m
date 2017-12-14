@@ -24,16 +24,23 @@
 NSString *MSIDErrorDescriptionKey = @"MSIDErrorDescriptionKey";
 NSString *MSIDOAuthErrorKey = @"MSIDOAuthErrorKey";
 NSString *MSIDOAuthSubErrorKey = @"MSIDOAuthSubErrorKey";
+NSString *MSIDCorrelationIdKey = @"MSIDCorrelationIdKey";
+NSString *MSIDHTTPHeadersKey = @"MSIDHTTPHeadersKey";
 
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 
-NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError)
+NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo)
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     userInfo[MSIDErrorDescriptionKey] = errorDescription;
     userInfo[MSIDOAuthErrorKey] = oauthError;
     userInfo[MSIDOAuthSubErrorKey] = subError;
     userInfo[NSUnderlyingErrorKey]  = underlyingError;
+    userInfo[MSIDCorrelationIdKey] = correlationId;
+    if (additionalUserInfo)
+    {
+        [userInfo addEntriesFromDictionary:additionalUserInfo];
+    }
     
     return [NSError errorWithDomain:domain code:code userInfo:userInfo];
 }
