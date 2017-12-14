@@ -46,13 +46,13 @@
     XCTAssertEqualObjects(MSIDKeychainTokenCache.defaultKeychainGroup, @"my.group");
 }
 
-//- (void)test_whenSetDefaultKeychainGroupAfterDefaultCacheInitialization_shouldThrow
-//{
-//    // Init default cache.
-//    MSIDKeychainTokenCache * __unused tokenCache = MSIDKeychainTokenCache.defaultKeychainCache;
-//    
-//    XCTAssertThrows(MSIDKeychainTokenCache.defaultKeychainGroup = @"my.group");
-//}
+- (void)test_whenSetDefaultKeychainGroupAfterDefaultCacheInitialization_shouldThrow
+{
+    // Init default cache.
+    MSIDKeychainTokenCache * __unused tokenCache = MSIDKeychainTokenCache.defaultKeychainCache;
+    
+    XCTAssertThrows(MSIDKeychainTokenCache.defaultKeychainGroup = @"my.group");
+}
 
 #pragma mark - MSIDTokenCacheDataSource
 
