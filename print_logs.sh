@@ -1,6 +1,8 @@
 #!/bin/bash
 
-for f in ~/Library/Developer/Xcode/DerivedData/*/Logs/Test/*/*; do
+ls -la ~/Library/Developer/Xcode/DerivedData/IdentityCore-*/Logs/Test
+
+for f in ~/Library/Developer/Xcode/DerivedData/IdentityCore-*/Logs/Test/*/*; do
 	bname=$(basename $f)
 	echo "travis_fold:start:$bname"
 	cat $f
