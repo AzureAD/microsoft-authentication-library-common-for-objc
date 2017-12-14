@@ -21,37 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializer.h"
 
-typedef NS_ENUM(NSInteger, MSIDTokenType)
-{
-    MSIDTokenTypeAccessToken,
-    MSIDTokenTypeRefreshToken,
-    MSIDTokenTypeAdfsUserToken
-};
+@implementation MSIDJsonSerializer
 
-@interface MSIDToken : NSObject <NSSecureCoding>
+- (NSData *)serialize:(MSIDToken *)token
 {
-    MSIDTokenType _tokenType;
+    return nil;
 }
 
-@property (readonly) NSString *token;
-@property (readonly) NSString *idToken;
-
-@property (readonly) NSDate *expiresOn;
-
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *familyId;
-@property (readonly) NSDictionary *clientInfo;
-@property (readonly) NSDictionary *additionalServerInfo;
-
-@property (readonly) MSIDTokenType tokenType;
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-- (BOOL)isEqualToToken:(MSIDToken *)token;
-
-- (BOOL)isExpired;
+- (MSIDToken *)deserialize:(NSData *)data
+{
+    return nil;
+}
 
 @end

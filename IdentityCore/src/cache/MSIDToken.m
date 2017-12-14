@@ -24,7 +24,16 @@
 #import "MSIDToken.h"
 #import "MSIDUserInformation.h"
 
+//in seconds, ensures catching of clock differences between the server and the device
+static uint64_t s_expirationBuffer = 300;
+
 @implementation MSIDToken
+
+- (BOOL)isExpired;
+{
+    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:s_expirationBuffer];
+    return [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
+}
 
 - (BOOL)isEqualToToken:(MSIDToken *)token
 {
@@ -42,7 +51,7 @@
     result &= (!self.additionalServerInfo && !token.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:token.additionalServerInfo];
     result &= self.tokenType == token.tokenType;
     result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
-    result &= (!self.authority && !token.authority) || [self.authority isEqualToString:token.authority];
+    result &= (!self.authority && !token.authority) || [self.authority msidIsEquivalentAuthority:token.authority];
     result &= (!self.clientId && !token.clientId) || [self.clientId isEqualToString:token.clientId];
     result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
     
@@ -118,7 +127,7 @@
     _clientInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"clientInfo"];
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-    _authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+    _authority = [coder decodeObjectOfClass:[NSURL class] forKey:@"authority"];
     _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
     _scopes = [coder decodeObjectOfClass:[NSOrderedSet class] forKey:@"scopes"];
     

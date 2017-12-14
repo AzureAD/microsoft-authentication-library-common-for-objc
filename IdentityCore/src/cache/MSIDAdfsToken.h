@@ -21,19 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDMSIDJsonSerializer.h"
 #import "MSIDToken.h"
 
-@implementation MSIDMSIDJsonSerializer
+@interface MSIDAdfsToken : MSIDToken
 
-- (NSData *)serialize:(MSIDToken *)token
-{
-    return nil;
-}
+// For ADFS user token, consider @token to be an access token and
+// @additionToken to be a refresh token
 
-- (MSIDToken *)deserialize:(NSData *)data
-{
-    return nil;
-}
+@property (readonly) NSString *additionalToken;
 
 @end

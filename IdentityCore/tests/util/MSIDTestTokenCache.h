@@ -22,36 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTokenCacheDataSource.h"
 
-typedef NS_ENUM(NSInteger, MSIDTokenType)
-{
-    MSIDTokenTypeAccessToken,
-    MSIDTokenTypeRefreshToken,
-    MSIDTokenTypeAdfsUserToken
-};
-
-@interface MSIDToken : NSObject <NSSecureCoding>
-{
-    MSIDTokenType _tokenType;
-}
-
-@property (readonly) NSString *token;
-@property (readonly) NSString *idToken;
-
-@property (readonly) NSDate *expiresOn;
-
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *familyId;
-@property (readonly) NSDictionary *clientInfo;
-@property (readonly) NSDictionary *additionalServerInfo;
-
-@property (readonly) MSIDTokenType tokenType;
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-- (BOOL)isEqualToToken:(MSIDToken *)token;
-
-- (BOOL)isExpired;
+@interface MSIDTestTokenCache : NSObject<MSIDTokenCacheDataSource>
 
 @end
