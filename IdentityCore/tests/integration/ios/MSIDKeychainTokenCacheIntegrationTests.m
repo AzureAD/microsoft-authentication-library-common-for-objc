@@ -54,7 +54,7 @@
                              (id)kSecReturnAttributes : @YES };
     CFDictionaryRef result = nil;
     
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+//    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
     
 //    if (status == errSecItemNotFound)
 //    {
