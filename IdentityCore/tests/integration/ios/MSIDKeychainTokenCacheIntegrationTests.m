@@ -56,23 +56,23 @@
     
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
     
-//    if (status == errSecItemNotFound)
-//    {
-//        NSMutableDictionary* addQuery = [query mutableCopy];
-//        [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
-//        status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
-//    }
-//    
-//    if (status == errSecSuccess)
-//    {
-//        NSDictionary *appDefaultAccessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
-//        MSID_LOG_INFO(nil, @"Defaul app's acces group: \"%@\".", _PII_NULLIFY(appDefaultAccessGroup));
-//        MSID_LOG_INFO_PII(nil, @"Defaul app's acces group: \"%@\".", appDefaultAccessGroup);
-//    }
-//    else
-//    {
-//        MSID_LOG_ERROR(nil, @"fetching kSecAttrAccessGroup, status: %d", status);
-//    }
+    if (status == errSecItemNotFound)
+    {
+        NSMutableDictionary* addQuery = [query mutableCopy];
+        [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
+        status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
+    }
+    
+    if (status == errSecSuccess)
+    {
+        NSDictionary *appDefaultAccessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
+        MSID_LOG_INFO(nil, @"Defaul app's acces group: \"%@\".", _PII_NULLIFY(appDefaultAccessGroup));
+        MSID_LOG_INFO_PII(nil, @"Defaul app's acces group: \"%@\".", appDefaultAccessGroup);
+    }
+    else
+    {
+        MSID_LOG_ERROR(nil, @"fetching kSecAttrAccessGroup, status: %d", status);
+    }
     
     CFRelease(result);
 }
