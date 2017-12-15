@@ -1,0 +1,103 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+#import <XCTest/XCTest.h>
+#import "MSIDMSIDJsonSerializer.h"
+#import "MSIDToken.h"
+
+@interface MSIDJsonSerializerTests : XCTestCase
+
+@end
+
+@implementation MSIDJsonSerializerTests
+
+- (void)setUp
+{
+    [super setUp];
+}
+
+- (void)tearDown
+{
+    [super tearDown];
+}
+
+- (void)test_whenSerializeToken_shouldReturnSameTokenOnDeserialize
+{
+    MSIDMSIDJsonSerializer *serializer = [MSIDMSIDJsonSerializer new];
+    MSIDToken *expectedToken = [MSIDToken new];
+    [expectedToken setValue:@"access token value" forKey:@"token"];
+    [expectedToken setValue:@"id token value" forKey:@"idToken"];
+    [expectedToken setValue:[NSDate new] forKey:@"expiresOn"];
+    [expectedToken setValue:@"familyId value" forKey:@"familyId"];
+    [expectedToken setValue:@{@"key" : @"value"} forKey:@"clientInfo"];
+    [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
+    [expectedToken setValue:@"some resource" forKey:@"resource"];
+    [expectedToken setValue:@"some authority" forKey:@"authority"];
+    [expectedToken setValue:@"some clientId" forKey:@"clientId"];
+    [expectedToken setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+    
+    NSData *data = [serializer serialize:expectedToken];
+    MSIDToken *resultToken = [serializer deserialize:data];
+    
+    XCTAssertNotNil(data);
+    XCTAssertEqualObjects(resultToken, expectedToken);
+}
+
+- (void)testSerialize_whenTokenNil_shouldReturnNil
+{
+    MSIDMSIDJsonSerializer *serializer = [MSIDMSIDJsonSerializer new];
+    
+    NSData *data = [serializer serialize:nil];
+    
+    XCTAssertNil(data);
+}
+
+- (void)testSerialize_whenTokenWithDefaultProperties_shouldReturnNotNilData
+{
+    MSIDMSIDJsonSerializer *serializer = [MSIDMSIDJsonSerializer new];
+    
+    NSData *data = [serializer serialize:[MSIDToken new]];
+    
+    XCTAssertNotNil(data);
+}
+
+- (void)testDeserialize_whenDataNilNil_shouldReturnNil
+{
+    MSIDMSIDJsonSerializer *serializer = [MSIDMSIDJsonSerializer new];
+    
+    MSIDToken *token = [serializer deserialize:nil];
+    
+    XCTAssertNil(token);
+}
+
+- (void)testDeserialize_whenDataInvalid_shouldReturnNil
+{
+    MSIDMSIDJsonSerializer *serializer = [MSIDMSIDJsonSerializer new];
+    NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    MSIDToken *token = [serializer deserialize:data];
+    
+    XCTAssertNil(token);
+}
+
+@end

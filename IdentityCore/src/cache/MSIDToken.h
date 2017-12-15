@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDJsonObject.h"
 
 typedef NS_ENUM(NSInteger, MSIDTokenType)
 {
@@ -29,7 +30,7 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
     MSIDTokenTypeRefreshToken
 };
 
-@interface MSIDToken : NSObject <NSSecureCoding>
+@interface MSIDToken : MSIDJsonObject <NSSecureCoding>
 
 @property (readonly) NSString *token;
 @property (readonly) NSString *idToken;
