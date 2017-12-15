@@ -33,6 +33,8 @@
 - (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary
       dictionaryDescription:(NSString *)description;
 
+- (NSString *)msidBase64UrlJson;
+
 @end
 
 /*!

@@ -21,24 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
-
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
-
 #import <Foundation/Foundation.h>
+#import "MSIDTokenRequest.h"
+#import "MSIDTokenResponse.h"
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
-#import "IdentityCore_Internal.h"
+@protocol MSIDOauth2TokenCache <NSObject>
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+- (void)saveTokensWithRequest:(MSIDTokenRequest *)request
+                     response:(MSIDTokenResponse *)response;
 
-#endif /* IdentityCore_pch */
+- (void)saveTokensWithBrokerResponse:(MSIDTokenResponse *)response;
+
+@end

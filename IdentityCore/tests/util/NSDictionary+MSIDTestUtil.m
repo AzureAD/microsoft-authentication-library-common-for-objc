@@ -77,6 +77,12 @@
     return fSame;
 }
 
+- (NSString *)msidBase64UrlJson
+{
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self options:0 error:nil];
+    return [NSString msidBase64UrlEncodeData:jsonData];
+}
+
 @end
 
 @implementation MSIDTestRequireValueSentinel

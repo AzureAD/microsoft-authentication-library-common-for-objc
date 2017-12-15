@@ -133,7 +133,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSID_ERROR_UNEXPECTED userInfo:@{NSLocalizedDescriptionKey:@"Key is not valid. Make sure service and account are not nil."}];
+            *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSIDErrorInternal userInfo:@{NSLocalizedDescriptionKey:@"Key is not valid. Make sure service and account are not nil."}];
         }
         MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
         return NO;
@@ -144,7 +144,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSID_ERROR_UNEXPECTED userInfo:@{NSLocalizedDescriptionKey:@"Failed to serialize token item."}];
+            *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSIDErrorInternal userInfo:@{NSLocalizedDescriptionKey:@"Failed to serialize token item."}];
         }
         MSID_LOG_ERROR(context, @"Failed to serialize token item.");
         return NO;
@@ -195,7 +195,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSID_ERROR_CACHE_MULTIPLE_USERS userInfo:@{NSLocalizedDescriptionKey:@"The token cache store for this resource contains more than one user. Please set 'account' and 'service' properties of MSIDTokenCacheKey."}];
+            *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSIDErrorCacheMultipleUsers userInfo:@{NSLocalizedDescriptionKey:@"The token cache store for this resource contains more than one user. Please set 'account' and 'service' properties of MSIDTokenCacheKey."}];
         }
         
         return nil;
@@ -333,7 +333,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     if (!wipeInfo)
     {
-        *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSID_ERROR_UNEXPECTED userInfo:@{NSLocalizedDescriptionKey:@"wipeInfo is nil."}];
+        *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSIDErrorInternal userInfo:@{NSLocalizedDescriptionKey:@"wipeInfo is nil."}];
         return NO;
     }
     

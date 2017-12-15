@@ -25,6 +25,8 @@
     [super setUp];
     
     [MSIDKeychainTokenCache reset];
+    
+    MSIDKeychainTokenCache.defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
 - (void)tearDown
@@ -34,24 +36,11 @@
     [MSIDKeychainTokenCache reset];
 }
 
-- (void)test_whenGetDefaultKeychainGroup_shouldReturnAdalGroup
-{
-    XCTAssertEqualObjects(MSIDKeychainTokenCache.defaultKeychainGroup, @"com.microsoft.adalcache");
-}
-
 - (void)test_whenSetDefaultKeychainGroup_shouldReturnProperGroup
 {
     MSIDKeychainTokenCache.defaultKeychainGroup = @"my.group";
     
     XCTAssertEqualObjects(MSIDKeychainTokenCache.defaultKeychainGroup, @"my.group");
-}
-
-- (void)test_whenSetDefaultKeychainGroupAfterDefaultCacheInitialization_shouldThrow
-{
-    // Init default cache.
-    MSIDKeychainTokenCache * __unused tokenCache = MSIDKeychainTokenCache.defaultKeychainCache;
-    
-    XCTAssertThrows(MSIDKeychainTokenCache.defaultKeychainGroup = @"my.group");
 }
 
 #pragma mark - MSIDTokenCacheDataSource
