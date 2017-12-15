@@ -22,12 +22,22 @@
 // THE SOFTWARE.
 
 #import "MSIDUser.h"
+#import "MSIDClientInfo.h"
+#import "MSIDAADTokenResponse.h"
+#import "MSIDIdToken.h"
 
 @implementation MSIDUser
 
-- (id)initWithUpn:(NSString *)upn
-             utid:(NSString *)utid
-              uid:(NSString *)uid
+- (instancetype)init
+{
+    return [self initWithUpn:nil
+                        utid:nil
+                         uid:nil];
+}
+
+- (instancetype)initWithUpn:(NSString *)upn
+                       utid:(NSString *)utid
+                        uid:(NSString *)uid
 {
     if (!(self = [super init]))
     {
@@ -39,6 +49,22 @@
     self->_uid = uid;
 
     return self;
+}
+
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+{
+    NSString *uid = nil;
+    NSString *utid = nil;
+    
+    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
+    {
+        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
+        uid = aadTokenResponse.clientInfo.uid;
+        utid = aadTokenResponse.clientInfo.utid;
+    }
+    
+    NSString *userId = response.idTokenObj.userId;
+    return [self initWithUpn:userId utid:utid uid:uid];
 }
 
 - (NSString *)userIdentifier

@@ -23,6 +23,9 @@
 
 #import "MSIDToken.h"
 #import "MSIDUserInformation.h"
+#import "MSIDAADTokenResponse.h"
+#import "MSIDClientInfo.h"
+#import "MSIDTelemetryEventStrings.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
@@ -47,7 +50,7 @@ static uint64_t s_expirationBuffer = 300;
     result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
     result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
     result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
-    result &= (!self.clientInfo && !token.clientInfo) || [self.clientInfo isEqualToDictionary:token.clientInfo];
+    result &= (!self.clientInfo && !token.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:token.clientInfo.rawClientInfo];
     result &= (!self.additionalServerInfo && !token.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:token.additionalServerInfo];
     result &= self.tokenType == token.tokenType;
     result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
@@ -124,7 +127,12 @@ static uint64_t s_expirationBuffer = 300;
     }
     
     _additionalServerInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
-    _clientInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"clientInfo"];
+    
+    NSString *rawClientInfo = [coder decodeObjectOfClass:[NSString class] forKey:@"clientInfo"];
+    
+    // TODO: set error
+    _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
+    
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
     _authority = [coder decodeObjectOfClass:[NSURL class] forKey:@"authority"];
@@ -148,7 +156,7 @@ static uint64_t s_expirationBuffer = 300;
         [coder encodeObject:_token forKey:@"accessToken"];
     }
     
-    [coder encodeObject:_clientInfo forKey:@"clientInfo"];
+    [coder encodeObject:_clientInfo.rawClientInfo forKey:@"clientInfo"];
     [coder encodeObject:_additionalServerInfo forKey:@"additionalServer"];
     
     MSIDUserInformation *userInformation = [MSIDUserInformation new];
@@ -159,6 +167,113 @@ static uint64_t s_expirationBuffer = 300;
     [coder encodeObject:_authority forKey:@"authority"];
     [coder encodeObject:_clientId forKey:@"clientId"];
     [coder encodeObject:_scopes forKey:@"scopes"];
+}
+
+#pragma mark - Init
+
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+                              request:(MSIDTokenRequest *)request
+                            tokenType:(MSIDTokenType)tokenType
+{
+    if (!response
+        || !request)
+    {
+        return nil;
+    }
+    
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    [self fillFromRequest:request];
+    [self fillFromResponse:response tokenType:tokenType];
+    [self fillExpiryFromResponse:response];
+    [self fillAdditionalServerInfoFromResponse:response];
+    
+    return self;
+}
+
+#pragma mark - Fill item
+
+- (void)fillFromRequest:(MSIDTokenRequest *)tokenRequest
+{
+    _authority = tokenRequest.authority;
+    _clientId = tokenRequest.clientId;
+}
+
+- (void)fillFromResponse:(MSIDTokenResponse *)tokenResponse
+               tokenType:(MSIDTokenType)tokenType
+{
+    _tokenType = tokenType;
+    _idToken = tokenResponse.idToken;
+    
+    NSString *resource = nil;
+    NSString *familyId = nil;
+    
+    if ([tokenResponse isKindOfClass:[MSIDAADTokenResponse class]])
+    {
+        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)tokenResponse;
+        resource = aadTokenResponse.resource;
+        familyId = aadTokenResponse.familyId;
+        _clientInfo = aadTokenResponse.clientInfo;
+    }
+    
+    switch (tokenType)
+    {
+        case MSIDTokenTypeAccessToken:
+        {
+            _resource = resource;
+            _token = tokenResponse.accessToken;
+            
+            // Set scopes
+            
+            break;
+        }
+        case MSIDTokenTypeRefreshToken:
+        {
+            _token = tokenResponse.refreshToken;
+            _familyId = familyId;
+            break;
+        }
+        case MSIDTokenTypeAdfsUserToken:
+        {
+            _resource = resource;
+            _token = tokenResponse.refreshToken;
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+- (void)fillExpiryFromResponse:(MSIDTokenResponse *)tokenResponse
+{
+    NSDate *expiryDate = tokenResponse.expiryDate;
+    
+    if (!expiryDate)
+    {
+        MSID_LOG_WARN(nil, @"The server did not return the expiration time for the access token.");
+        expiryDate = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
+    }
+    else
+    {
+        _expiresOn = expiryDate;
+    }
+}
+
+- (void)fillAdditionalServerInfoFromResponse:(MSIDTokenResponse *)tokenResponse
+{
+    NSMutableDictionary *serverInfo = [NSMutableDictionary dictionary];
+    
+    if ([tokenResponse isKindOfClass:[MSIDAADTokenResponse class]])
+    {
+        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)tokenResponse;
+        [serverInfo setObject:aadTokenResponse.extendedExpiresIn forKey:@"ext_expires_on"];
+        [serverInfo setObject:aadTokenResponse.speInfo forKey:MSID_TELEMETRY_KEY_SPE_INFO];
+    }
+    
+    _additionalServerInfo = serverInfo;
 }
 
 @end

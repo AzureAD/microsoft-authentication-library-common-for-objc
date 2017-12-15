@@ -22,6 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTokenResponse.h"
+#import "MSIDTokenRequest.h"
+#import "MSIDClientInfo.h"
 
 typedef NS_ENUM(NSInteger, MSIDTokenType)
 {
@@ -43,7 +46,7 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
 @property (readonly) NSURL *authority;
 @property (readonly) NSString *clientId;
 @property (readonly) NSString *familyId;
-@property (readonly) NSDictionary *clientInfo;
+@property (readonly) MSIDClientInfo *clientInfo;
 @property (readonly) NSDictionary *additionalServerInfo;
 
 @property (readonly) MSIDTokenType tokenType;
@@ -51,7 +54,10 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
 @property (readonly) NSOrderedSet<NSString *> *scopes;
 
 - (BOOL)isEqualToToken:(MSIDToken *)token;
-
 - (BOOL)isExpired;
+
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+                              request:(MSIDTokenRequest *)request
+                            tokenType:(MSIDTokenType)tokenType;
 
 @end

@@ -348,6 +348,27 @@
     return [_dataSource setItem:msalAT key:atKey serializer:_jsonSerializer context:context error:error];
 }
 
+- (BOOL)saveFRT:(MSIDToken *)rt
+           user:(MSIDUser *)user
+       familyId:(NSString *)familyId
+      authority:(NSURL *)authority
+        context:(id<MSIDRequestContext>)context
+          error:(NSError **)error
+{
+    if (!familyId)
+    {
+        familyId = @"1";
+    }
+    NSString *fociClientId = [NSString stringWithFormat:@"foci-%@", familyId];
+    
+    return [self saveRT:rt
+                   user:user
+              authority:authority
+               clientId:fociClientId
+                context:context
+                  error:error];
+}
+
 - (BOOL)saveRT:(MSIDToken *)rt
           user:(MSIDUser *)user
      authority:(NSURL *)authority

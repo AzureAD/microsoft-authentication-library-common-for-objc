@@ -32,6 +32,7 @@
 
 MSID_JSON_ACCESSOR(MSID_OAUTH2_UNIQUE_IDENTIFIER, uid)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER, utid)
+MSID_JSON_RW(@"client_info", rawClientInfo, setRawClientInfo)
 
 - (id)initWithRawClientInfo:(NSString *)rawClientInfo
                       error:(NSError *__autoreleasing *)error
@@ -41,6 +42,8 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER, utid)
     {
         return nil;
     }
+    
+    self.rawClientInfo = rawClientInfo;
     
     return self;
 }
