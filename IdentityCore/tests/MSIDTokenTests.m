@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDToken.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDTokenTests : XCTestCase
 
@@ -133,9 +134,9 @@
 - (void)testIsEqual_whenClientInfoIsNotEqual_shouldReturnFalse
 {
     MSIDToken *lhs = [MSIDToken new];
-    [lhs setValue:@{@"key1" : @"value1"} forKey:@"clientInfo"];
+    [lhs setValue:[self createClientInfo:@{@"key1" : @"value1"}] forKey:@"clientInfo"];
     MSIDToken *rhs = [MSIDToken new];
-    [rhs setValue:@{@"key2" : @"value2"} forKey:@"clientInfo"];
+    [rhs setValue:[self createClientInfo:@{@"key2" : @"value2"}] forKey:@"clientInfo"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
@@ -143,9 +144,9 @@
 - (void)testIsEqual_whenClientInfoIsEqual_shouldReturnTrue
 {
     MSIDToken *lhs = [MSIDToken new];
-    [lhs setValue:@{@"key" : @"value"} forKey:@"clientInfo"];
+    [lhs setValue:[self createClientInfo:@{@"key1" : @"value1"}] forKey:@"clientInfo"];
     MSIDToken *rhs = [MSIDToken new];
-    [rhs setValue:@{@"key" : @"value"} forKey:@"clientInfo"];
+    [rhs setValue:[self createClientInfo:@{@"key1" : @"value1"}] forKey:@"clientInfo"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
@@ -279,7 +280,7 @@
     [token setValue:@"id token value" forKey:@"idToken"];
     [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
     [token setValue:@"familyId value" forKey:@"familyId"];
-    [token setValue:@{@"key" : @"value"} forKey:@"clientInfo"];
+    [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [token setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
     [token setValue:@"some resource" forKey:@"resource"];
     [token setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
@@ -287,6 +288,12 @@
     [token setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
     
     return token;
+}
+
+- (MSIDClientInfo *)createClientInfo:(NSDictionary *)clientInfoDict
+{
+    NSString *base64String = [clientInfoDict msidBase64UrlJson];
+    return [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
 }
 
 @end
