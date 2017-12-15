@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDToken.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDKeyedArchiverSerializerTests : XCTestCase
 
