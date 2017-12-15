@@ -59,7 +59,7 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority.absoluteString
                                                         clientId:clientId
                                                         resource:resource
                                                              upn:user.upn];
@@ -76,7 +76,7 @@
                                         context:(id<MSIDRequestContext>)context
                                           error:(NSError **)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority.absoluteString
                                                                         clientId:clientId
                                                                         resource:resource];
     
@@ -152,17 +152,18 @@
         return nil;
     }
     
-    NSURL *foundAuthority = allTokens[0].authority;
+    NSString *foundAuthority = allTokens[0].authority;
+    NSString *absoluteAuthority = authority.absoluteString;
     
     NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
     
     for (MSIDToken *token in allTokens)
     {
-        if (authority && ![authority msidIsEquivalentAuthority:token.authority])
+        if (authority && ![absoluteAuthority isEqualToString:token.authority])
         {
             continue;
         }
-        if (![foundAuthority msidIsEquivalentAuthority:token.authority])
+        if (![foundAuthority isEqualToString:token.authority])
         {
             // Todo: add macro and handle error
             return nil;
@@ -217,7 +218,10 @@
     // if there is upn
     if (user.upn)
     {
-        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority clientId:clientId resource:nil upn:user.upn];
+        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority.absoluteString
+                                                            clientId:clientId
+                                                            resource:nil
+                                                                 upn:user.upn];
         
         MSIDToken *token = [_dataSource itemWithKey:key serializer:_keyedArchiverSerialize context:context error:error];
         
@@ -310,7 +314,7 @@
 {
     //delete all cache entries with intersecting scopes
     //this should not happen but we have this as a safe guard against multiple matches
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:authority
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:authority.absoluteString
                                                                       clientId:clientId
                                                                         scopes:scopes
                                                                         userId:user.userIdentifier];
@@ -325,7 +329,7 @@
     for (MSIDToken *token in allTokens)
     {
         if (token.tokenType == MSIDTokenTypeAccessToken
-            && [token.authority msidIsEquivalentAuthority:msalAT.authority]
+            && [token.authority isEqualToString:msalAT.authority]
             && [token.scopes intersectsOrderedSet:msalAT.scopes])
         {
             MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:token.authority
@@ -371,7 +375,10 @@
     // save in old form
     if (user.upn)
     {
-        MSIDTokenCacheKey *oldKey = [MSIDTokenCacheKey keyWithAuthority:authority clientId:clientId  resource:nil upn:user.upn];
+        MSIDTokenCacheKey *oldKey = [MSIDTokenCacheKey keyWithAuthority:authority.absoluteString
+                                                               clientId:clientId
+                                                               resource:nil
+                                                                    upn:user.upn];
         if(![_dataSource setItem:rt key:oldKey serializer:_keyedArchiverSerialize context:context error:error])
         {
             return NO;
@@ -388,11 +395,11 @@
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority.absoluteString
                                                                         clientId:clientId
                                                                         resource:resource];
     
-    return [_dataSource setItem:adfsToken
+    return [_dataSource setItem:(MSIDToken *)adfsToken
                             key:key
                      serializer:_keyedArchiverSerialize
                         context:context

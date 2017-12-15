@@ -52,7 +52,7 @@
     [expectedToken setValue:@{@"key" : @"value"} forKey:@"clientInfo"];
     [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
     [expectedToken setValue:@"some resource" forKey:@"resource"];
-    [expectedToken setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
+    [expectedToken setValue:@"https://contoso.com" forKey:@"authority"];
     [expectedToken setValue:@"some clientId" forKey:@"clientId"];
     [expectedToken setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
     
