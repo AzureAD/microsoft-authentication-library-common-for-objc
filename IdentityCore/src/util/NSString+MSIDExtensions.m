@@ -353,4 +353,18 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return [returnStr substringToIndex:7];
 }
 
+- (NSOrderedSet<NSString *> *)scopeSet
+{
+    NSMutableOrderedSet<NSString *> *scope = [NSMutableOrderedSet<NSString *> new];
+    NSArray* parts = [self componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" "]];
+    for (NSString *part in parts)
+    {
+        if (![NSString msidIsStringNilOrBlank:part])
+        {
+            [scope addObject:part.msidTrimmedString.lowercaseString];
+        }
+    }
+    return scope;
+}
+
 @end

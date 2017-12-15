@@ -135,7 +135,10 @@ static uint64_t s_expirationBuffer = 300;
     
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-    _authority = [coder decodeObjectOfClass:[NSURL class] forKey:@"authority"];
+    
+    NSString *authorityString = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+    _authority = [NSURL URLWithString:authorityString];
+    
     _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
     _scopes = [coder decodeObjectOfClass:[NSOrderedSet class] forKey:@"scopes"];
     
@@ -164,7 +167,7 @@ static uint64_t s_expirationBuffer = 300;
     [coder encodeObject:userInformation forKey:@"userInformation"];
     
     [coder encodeObject:_resource forKey:@"resource"];
-    [coder encodeObject:_authority forKey:@"authority"];
+    [coder encodeObject:_authority.absoluteString forKey:@"authority"];
     [coder encodeObject:_clientId forKey:@"clientId"];
     [coder encodeObject:_scopes forKey:@"scopes"];
 }
@@ -225,8 +228,7 @@ static uint64_t s_expirationBuffer = 300;
         {
             _resource = resource;
             _token = tokenResponse.accessToken;
-            
-            // Set scopes
+            _scopes = [tokenResponse.scope scopeSet];
             
             break;
         }
