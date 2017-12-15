@@ -130,8 +130,13 @@ static uint64_t s_expirationBuffer = 300;
     
     NSString *rawClientInfo = [coder decodeObjectOfClass:[NSString class] forKey:@"clientInfo"];
     
-    // TODO: set error
-    _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
+    NSError *error = nil;
+    _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:&error];
+    
+    if (error)
+    {
+        MSID_LOG_WARN(nil, @"Couln't initialize client info when deserializing token");
+    }
     
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
