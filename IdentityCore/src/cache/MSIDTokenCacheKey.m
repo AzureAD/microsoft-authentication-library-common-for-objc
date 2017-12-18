@@ -53,14 +53,14 @@ static uint32_t const s_msalV1 = 'MSv1';
     return ([NSString msidIsStringNilOrBlank:original]) ? s_nilKey : [original msidBase64UrlEncode];
 }
 
-+ (NSString *)serviceWithAuthority:(NSString *)authority
++ (NSString *)serviceWithAuthority:(NSURL *)authority
                           resource:(NSString *)resource
                           clientId:(NSString *)clientId
 {
     
     return [NSString stringWithFormat:@"%@|%@|%@|%@",
             s_adalLibraryString,
-            authority.msidBase64UrlEncode,
+            authority.absoluteString.msidBase64UrlEncode,
             [self.class getAttributeName:resource.msidBase64UrlEncode],
             clientId.msidBase64UrlEncode];
 }
@@ -71,7 +71,7 @@ static uint32_t const s_msalV1 = 'MSv1';
     return userId? [NSString stringWithFormat:@"%u$%@@%@", s_msalV1, userId, environment]: nil;
 }
 
-+ (NSString *)serviceWithAuthority:(NSString *)authority
++ (NSString *)serviceWithAuthority:(NSURL *)authority
                             scopes:(NSOrderedSet<NSString *> *)scopes
                           clientId:(NSString *)clientId
 {
@@ -81,12 +81,12 @@ static uint32_t const s_msalV1 = 'MSv1';
     }
         
     return [NSString stringWithFormat:@"%@$%@$%@",
-            authority? authority.msidBase64UrlEncode : @"",
+            authority? authority.absoluteString.msidBase64UrlEncode : @"",
             clientId? clientId.msidBase64UrlEncode : @"",
             scopes? scopes.msidToString.msidBase64UrlEncode : @""];
 }
 
-+ (MSIDTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSString *)authority
++ (MSIDTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSURL *)authority
                                                clientId:(NSString *)clientId
                                                resource:(NSString *)resource
 {
@@ -97,7 +97,7 @@ static uint32_t const s_msalV1 = 'MSv1';
 }
 
 
-+ (MSIDTokenCacheKey *)keyWithAuthority:(NSString *)authority
++ (MSIDTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                clientId:(NSString *)clientId
                                resource:(NSString *)resource
                                     upn:(NSString *)upn
@@ -108,14 +108,14 @@ static uint32_t const s_msalV1 = 'MSv1';
                                                                               clientId:clientId]];
 }
 
-+ (MSIDTokenCacheKey *)keyForAccessTokenWithAuthority:(NSString *)authority
++ (MSIDTokenCacheKey *)keyForAccessTokenWithAuthority:(NSURL *)authority
                                              clientId:(NSString *)clientId
                                                scopes:(NSOrderedSet<NSString *> *)scopes
                                                userId:(NSString *)userId
 {
     NSString *service = [self.class serviceWithAuthority:authority scopes:scopes clientId:clientId];
     NSString *account = [self.class accountWithUserIdentifier:userId
-                                                  environment:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
+                                                  environment:authority.msidHostWithPortIfNecessary];
     
     return [[MSIDTokenCacheKey alloc] initWithAccount:account service:service];
 }
