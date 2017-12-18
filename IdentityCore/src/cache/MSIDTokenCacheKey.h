@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  Key for ADFS user tokens, account will be @""
  */
-+ (MSIDTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSString *)authority
++ (MSIDTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSURL *)authority
                                                clientId:(NSString *)clientId
                                                resource:(NSString *)resource;
 
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  1. access tokens - single resource, one authority, one clientId and one upn.
  2. FRT & MRRT - null authority, one authority, one clientId and one upn.
  */
-+ (MSIDTokenCacheKey *)keyWithAuthority:(NSString *)authority
++ (MSIDTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                clientId:(NSString *)clientId
                                resource:(nullable NSString *)resource
                                     upn:(NSString *)upn;
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
  Key for MSAL tokens - single authority, one clientId, multiple scopes, and userId.
  Environment is derived from the authority
  */
-+ (MSIDTokenCacheKey *)keyForAccessTokenWithAuthority:(NSString *)authority
++ (MSIDTokenCacheKey *)keyForAccessTokenWithAuthority:(NSURL *)authority
                                              clientId:(NSString *)clientId
                                                scopes:(NSOrderedSet<NSString *> *)scopes
                                                userId:(NSString *)userId;

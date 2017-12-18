@@ -114,6 +114,13 @@
            context:(id<MSIDRequestContext>)context
              error:(NSError **)error;
 
+- (BOOL)saveFRT:(MSIDToken *)rt
+           user:(MSIDUser *)user
+       familyId:(NSString *)familyId
+      authority:(NSURL *)authority
+        context:(id<MSIDRequestContext>)context
+          error:(NSError **)error;
+
 - (BOOL)saveRT:(MSIDToken *)rt
           user:(MSIDUser *)user
      authority:(NSURL *)authority

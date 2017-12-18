@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,33 +17,38 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import "MSIDJsonObject.h"
-#import "MSIDIdToken.h"
 
-@interface MSIDTokenResponse : MSIDJsonObject
+@interface MSIDIdToken : MSIDJsonObject
+{
+    NSString *_uniqueId;
+    NSString *_userId;
+    BOOL _userIdDisplayable;
+}
 
-// Default properties for an openid error response
-@property (readonly) NSString *error;
-@property (readonly) NSString *errorDescription;
-
-// Default properties for a successful openid response
-@property (readonly) NSString *expiresIn;
-@property (readonly) NSString *accessToken;
-@property (readonly) NSString *tokenType;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *scope;
-@property (readonly) NSString *state;
-@property (readonly) NSString *idToken;
+// Default properties
+@property (readonly) NSString *subject;
+@property (readonly) NSString *preferredUsername;
+@property (readonly) NSString *name;
+@property (readonly) NSString *givenName;
+@property (readonly) NSString *middleName;
+@property (readonly) NSString *familyName;
+@property (readonly) NSString *email;
 
 // Derived properties
-@property (readonly) NSDate *expiryDate;
-@property (readonly) BOOL isMultiResource;
-@property (readonly) MSIDIdToken *idTokenObj;
+@property (readonly) NSString *uniqueId;
+@property (readonly) NSString *userId;
+@property (readonly) BOOL userIdDisplayable;
+
+- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
++ (NSString *)normalizeUserId:(NSString *)userId;
 
 @end

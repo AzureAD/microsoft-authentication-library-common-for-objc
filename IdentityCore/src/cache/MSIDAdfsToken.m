@@ -85,4 +85,22 @@
     [coder encodeObject:_additionalToken forKey:@"additionalToken"];
 }
 
+#pragma mark - Init
+
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+                              request:(MSIDTokenRequest *)request
+                            tokenType:(MSIDTokenType)tokenType
+{
+    self = [super initWithTokenResponse:response
+                                request:request
+                              tokenType:tokenType];
+    
+    if (self)
+    {
+        _additionalToken = response.accessToken;
+    }
+    
+    return self;
+}
+
 @end

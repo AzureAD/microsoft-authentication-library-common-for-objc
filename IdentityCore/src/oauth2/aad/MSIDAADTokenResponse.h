@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenResponse.h"
+#import "MSIDClientInfo.h"
 
 @interface MSIDAADTokenResponse : MSIDTokenResponse
 
@@ -32,10 +33,13 @@
 @property (readonly) NSString *expiresOn;
 @property (readonly) NSString *resource;
 @property (readonly) NSString *extendedExpiresIn;
-@property (readonly) NSString *clientInfo;
+@property (readonly) MSIDClientInfo *clientInfo;
 @property (readonly) NSString *familyId;
 
+// Custom properties that ADAL handles
+@property (readonly) NSString *speInfo;
+
 // Derived properties
-@property (readonly) NSDate *expiresOnDate;
+@property (readonly) NSDate *extendedExpiresOnDate;
 
 @end

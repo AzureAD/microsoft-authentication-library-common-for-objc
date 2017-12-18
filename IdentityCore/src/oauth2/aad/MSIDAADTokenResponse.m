@@ -22,6 +22,14 @@
 // THE SOFTWARE.
 
 #import "MSIDAADTokenResponse.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "MSIDAADIdToken.h"
+
+@interface MSIDAADTokenResponse ()
+
+@property (readonly) NSString *rawClientInfo;
+
+@end
 
 @implementation MSIDAADTokenResponse
 
@@ -30,10 +38,11 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId)
 
 // Default properties for a successful response
 MSID_JSON_ACCESSOR(MSID_OAUTH2_EXPIRES_ON, expiresOn);
-MSID_JSON_ACCESSOR(MSID_OAUTH2_EXT_EXPIRES_IN, extendedExpiresIn);
+MSID_JSON_ACCESSOR(MSID_OAUTH2_EXT_EXPIRES_IN, extendedExpiresIn)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
-MSID_JSON_ACCESSOR(MSID_OAUTH2_CLIENT_INFO, clientInfo)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_CLIENT_INFO, rawClientInfo)
 MSID_JSON_ACCESSOR(MSID_FAMILY_ID, familyId)
+MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
 
 - (id)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
 {
@@ -42,12 +51,53 @@ MSID_JSON_ACCESSOR(MSID_FAMILY_ID, familyId)
         return nil;
     }
     
-    if (self.expiresOn)
+    if (self.extendedExpiresIn)
     {
-        _expiresOnDate = [NSDate dateWithTimeIntervalSince1970:[self.expiresOn doubleValue]];
+        _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSinceNow:[self.extendedExpiresIn doubleValue]];
+    }
+    
+    if (self.rawClientInfo)
+    {
+        // TODO: set error
+        _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:self.rawClientInfo error:nil];
     }
     
     return self;
+}
+
+- (NSDate *)expiryDate
+{
+    NSDate *date = [super expiryDate];
+    
+    if (date)
+    {
+        return date;
+    }
+    
+    NSString *expiresOn = self.expiresOn;
+    
+    if (!expiresOn)
+    {
+        if (_json[MSID_OAUTH2_EXPIRES_ON])
+        {
+            MSID_LOG_WARN(nil, @"Unparsable time - The response value for the access token expiration cannot be parsed: %@", _json[MSID_OAUTH2_EXPIRES_ON]);
+        }
+        
+        return nil;
+    }
+    
+    return [NSDate dateWithTimeIntervalSince1970:[expiresOn doubleValue]];
+}
+
+- (BOOL)isMultiResource
+{
+    return ![NSString msidIsStringNilOrBlank:self.resource]
+            && ![NSString msidIsStringNilOrBlank:self.refreshToken];
+}
+
+- (MSIDIdToken *)idTokenObj
+{
+    return [[MSIDAADIdToken alloc] initWithRawIdToken:self.idToken];
 }
 
 @end

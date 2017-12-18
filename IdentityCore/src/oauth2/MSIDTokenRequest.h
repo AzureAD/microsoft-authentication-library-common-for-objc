@@ -25,8 +25,10 @@
 
 @interface MSIDTokenRequest : NSObject
 
+@property (readonly) NSURL *authority;
 @property (readonly) NSString *grantType;
 @property (readonly) NSString *code;
+@property (readonly) NSString *refreshToken;
 @property (readonly) NSString *redirectUri;
 @property (readonly) NSString *clientId;
 

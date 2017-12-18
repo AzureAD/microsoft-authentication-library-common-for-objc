@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTokenResponse.h"
 
 @interface MSIDUser : NSObject
 
@@ -29,9 +30,11 @@
 @property (readonly) NSString *utid;
 @property (readonly) NSString *uid;
 
-- (id)initWithUpn:(NSString *)upn
-             utid:(NSString *)utid
-              uid:(NSString *)uid;
+- (instancetype)initWithUpn:(NSString *)upn
+                       utid:(NSString *)utid
+                        uid:(NSString *)uid NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response;
 
 - (NSString *)userIdentifier;
 

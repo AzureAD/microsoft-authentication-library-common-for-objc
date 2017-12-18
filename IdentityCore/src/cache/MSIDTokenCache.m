@@ -59,7 +59,7 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority.absoluteString
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority
                                                         clientId:clientId
                                                         resource:resource
                                                              upn:user.upn];
@@ -76,7 +76,7 @@
                                         context:(id<MSIDRequestContext>)context
                                           error:(NSError **)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority.absoluteString
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority
                                                                         clientId:clientId
                                                                         resource:resource];
     
@@ -151,18 +151,17 @@
         return nil;
     }
     
-    NSString *foundAuthority = allTokens[0].authority;
-    NSString *absoluteAuthority = authority.absoluteString;
+    NSURL *foundAuthority = allTokens[0].authority;
     
     NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
     
     for (MSIDToken *token in allTokens)
     {
-        if (authority && ![absoluteAuthority isEqualToString:token.authority])
+        if (authority && ![authority msidIsEquivalentAuthority:token.authority])
         {
             continue;
         }
-        if (![foundAuthority isEqualToString:token.authority])
+        if (![foundAuthority msidIsEquivalentAuthority:token.authority])
         {
             // Todo: add macro and handle error
             return nil;
@@ -217,7 +216,7 @@
     // if there is upn
     if (user.upn)
     {
-        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority.absoluteString
+        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority
                                                             clientId:clientId
                                                             resource:nil
                                                                  upn:user.upn];
@@ -313,7 +312,7 @@
 {
     //delete all cache entries with intersecting scopes
     //this should not happen but we have this as a safe guard against multiple matches
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:authority.absoluteString
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:authority
                                                                       clientId:clientId
                                                                         scopes:scopes
                                                                         userId:user.userIdentifier];
@@ -328,7 +327,7 @@
     for (MSIDToken *token in allTokens)
     {
         if (token.tokenType == MSIDTokenTypeAccessToken
-            && [token.authority isEqualToString:msalAT.authority]
+            && [token.authority msidIsEquivalentAuthority:msalAT.authority]
             && [token.scopes intersectsOrderedSet:msalAT.scopes])
         {
             MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:token.authority
@@ -349,6 +348,27 @@
                                                                           userId:user.userIdentifier];
                                 
     return [_dataSource setItem:msalAT key:atKey serializer:_jsonSerializer context:context error:error];
+}
+
+- (BOOL)saveFRT:(MSIDToken *)rt
+           user:(MSIDUser *)user
+       familyId:(NSString *)familyId
+      authority:(NSURL *)authority
+        context:(id<MSIDRequestContext>)context
+          error:(NSError **)error
+{
+    if (!familyId)
+    {
+        familyId = @"1";
+    }
+    NSString *fociClientId = [NSString stringWithFormat:@"foci-%@", familyId];
+    
+    return [self saveRT:rt
+                   user:user
+              authority:authority
+               clientId:fociClientId
+                context:context
+                  error:error];
 }
 
 - (BOOL)saveRT:(MSIDToken *)rt
@@ -374,7 +394,7 @@
     // save in old form
     if (user.upn)
     {
-        MSIDTokenCacheKey *oldKey = [MSIDTokenCacheKey keyWithAuthority:authority.absoluteString
+        MSIDTokenCacheKey *oldKey = [MSIDTokenCacheKey keyWithAuthority:authority
                                                                clientId:clientId
                                                                resource:nil
                                                                     upn:user.upn];
@@ -394,7 +414,7 @@
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority.absoluteString
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority
                                                                         clientId:clientId
                                                                         resource:resource];
     

@@ -31,6 +31,7 @@
 
 @property (readonly) NSString *uid;
 @property (readonly) NSString *utid;
+@property (readonly) NSString *rawClientInfo;
 
 @property (readonly) NSString *userIdentifier;
 
