@@ -23,7 +23,7 @@
 
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDUser.h"
+#import "MSIDAccount.h"
 #import "MSIDAdfsToken.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
@@ -64,7 +64,7 @@
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error
 {
-    MSIDUser *user = [[MSIDUser alloc] initWithTokenResponse:response];
+    MSIDAccount *account = [[MSIDAccount alloc] initWithTokenResponse:response];
     
     if (response.isMultiResource)
     {
@@ -122,7 +122,7 @@
 
 #pragma mark - MSIDSharedTokenCacheAccessor
 
-- (BOOL)saveRTForUser:(MSIDUser *)user
+- (BOOL)saveRTForUser:(MSIDAccount *)user
          refreshToken:(MSIDToken *)refreshToken
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error
@@ -130,7 +130,7 @@
     return NO;
 }
 
-- (MSIDToken *)getClientRTForUser:(MSIDUser *)user
+- (MSIDToken *)getClientRTForUser:(MSIDAccount *)user
                          clientId:(NSString *)clientId
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
@@ -138,7 +138,7 @@
     return nil;
 }
 
-- (MSIDToken *)getFRTForUser:(MSIDUser *)user
+- (MSIDToken *)getFRTForUser:(MSIDAccount *)user
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error
 {
