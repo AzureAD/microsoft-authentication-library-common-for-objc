@@ -24,6 +24,9 @@
 extern NSString *MSIDErrorDescriptionKey;
 extern NSString *MSIDOAuthErrorKey;
 extern NSString *MSIDOAuthSubErrorKey;
+extern NSString *MSIDCorrelationIdKey;
+extern NSString *MSIDHTTPHeadersKey;
+extern NSString *MSIDHTTPResponseCodeKey;
 
 /*!
  ADAL and MSAL use different error domains and error codes.
@@ -39,5 +42,5 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorInternal = -51000,
 };
 
-extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError);
+extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
 

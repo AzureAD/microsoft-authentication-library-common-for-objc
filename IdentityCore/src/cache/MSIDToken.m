@@ -54,7 +54,7 @@ static uint64_t s_expirationBuffer = 300;
     result &= (!self.additionalServerInfo && !token.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:token.additionalServerInfo];
     result &= self.tokenType == token.tokenType;
     result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
-    result &= (!self.authority && !token.authority) || [self.authority msidIsEquivalentAuthority:token.authority];
+    result &= (!self.authority && !token.authority) || [self.authority isEqualToString:token.authority];
     result &= (!self.clientId && !token.clientId) || [self.clientId isEqualToString:token.clientId];
     result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
     
@@ -140,7 +140,7 @@ static uint64_t s_expirationBuffer = 300;
     
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-    
+
     NSString *authorityString = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
     _authority = [NSURL URLWithString:authorityString];
     
