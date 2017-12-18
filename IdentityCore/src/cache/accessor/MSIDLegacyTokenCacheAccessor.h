@@ -22,7 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDOauth2TokenCache.h"
+#import "MSIDSharedTokenCacheAccessor.h"
 
-@interface MSIDLegacyTokenCacheAccessor : NSObject
+@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDOauth2TokenCache, MSIDSharedTokenCacheAccessor>
 
 @end
