@@ -54,7 +54,7 @@ static uint64_t s_expirationBuffer = 300;
     result &= (!self.additionalServerInfo && !token.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:token.additionalServerInfo];
     result &= self.tokenType == token.tokenType;
     result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
-    result &= (!self.authority && !token.authority) || [self.authority isEqualToString:token.authority];
+    result &= (!self.authority && !token.authority) || [self.authority.absoluteString isEqualToString:token.authority.absoluteString];
     result &= (!self.clientId && !token.clientId) || [self.clientId isEqualToString:token.clientId];
     result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
     

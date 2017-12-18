@@ -43,7 +43,7 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
 
 @property (readonly) NSDate *expiresOn;
 
-@property (readonly) NSString *authority;
+@property (readonly) NSURL *authority;
 @property (readonly) NSString *clientId;
 @property (readonly) NSString *familyId;
 @property (readonly) MSIDClientInfo *clientInfo;
