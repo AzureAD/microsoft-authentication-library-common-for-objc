@@ -133,7 +133,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSIDErrorInternal userInfo:@{NSLocalizedDescriptionKey:@"Key is not valid. Make sure service and account are not nil."}];
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service and account are not nil.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
         return NO;
@@ -144,7 +144,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSIDErrorInternal userInfo:@{NSLocalizedDescriptionKey:@"Failed to serialize token item."}];
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize token item.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to serialize token item.");
         return NO;
@@ -175,7 +175,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {   
-            *error = [[NSError alloc] initWithDomain:NSOSStatusErrorDomain code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to set item into keychain."}];
+            *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to set item into keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to set item into keychain (status: %d)", status);
     }
@@ -195,7 +195,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSIDErrorCacheMultipleUsers userInfo:@{NSLocalizedDescriptionKey:@"The token cache store for this resource contains more than one user. Please set 'account' and 'service' properties of MSIDTokenCacheKey."}];
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user. Please set 'account' and 'service' properties of MSIDTokenCacheKey.", nil, nil, nil, context.correlationId, nil);
         }
         
         return nil;
@@ -229,7 +229,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:NSOSStatusErrorDomain code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to remove items from keychain."}];
+            *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", status);
     }
@@ -273,7 +273,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:NSOSStatusErrorDomain code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to get items from keychain."}];
+            *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to find keychain item (status: %d)", status);
         return nil;
@@ -333,7 +333,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     if (!wipeInfo)
     {
-        *error = [[NSError alloc] initWithDomain:MSIDErrorDomain code:MSIDErrorInternal userInfo:@{NSLocalizedDescriptionKey:@"wipeInfo is nil."}];
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"wipeInfo is nil.", nil, nil, nil, context.correlationId, nil);
         return NO;
     }
     
@@ -356,7 +356,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:NSOSStatusErrorDomain code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to save wipe token data into keychain."}];
+            *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to save wipe token data into keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to save wipe token data into keychain (status: %d)", status);
         return NO;
@@ -381,7 +381,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = [[NSError alloc] initWithDomain:NSOSStatusErrorDomain code:status userInfo:@{NSLocalizedDescriptionKey:@"Failed to get a wipe data from keychain."}];
+            *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to get a wipe data from keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to get a wipe data from keychain (status: %d)", status);
         return nil;
