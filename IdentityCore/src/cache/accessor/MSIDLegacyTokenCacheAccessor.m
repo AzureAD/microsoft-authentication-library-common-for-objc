@@ -102,6 +102,20 @@
             return NO;
         }
         
+        // Save RTs in other formats
+        for (id<MSIDSharedTokenCacheAccessor> cache in _cacheFormats)
+        {
+            result = [cache saveRTForUser:account
+                             refreshToken:refreshToken
+                                  context:context
+                                    error:error];
+            
+            if (!result)
+            {
+                return NO;
+            }
+        }
+        
         return NO;
     }
     else
