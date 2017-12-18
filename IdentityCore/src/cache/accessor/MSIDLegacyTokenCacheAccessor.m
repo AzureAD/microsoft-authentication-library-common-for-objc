@@ -32,7 +32,9 @@
     NSURL * _authority;
     NSArray<id<MSIDSharedTokenCacheAccessor>> *_cacheFormats;
     id<MSIDTokenCacheDataSource> _dataSource;
+    
     MSIDKeyedArchiverSerializer *_serializer;
+    MSIDKeyedArchiverSerializer *_adfsSerializer;
 }
 
 @end
@@ -53,6 +55,7 @@
         _authority = authority;
         _cacheFormats = cacheFormats;
         _serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+        _adfsSerializer = [[MSIDKeyedArchiverSerializer alloc] initWithClassName:MSIDAdfsToken.class];
     }
     
     return self;
@@ -81,6 +84,7 @@
         
         BOOL result = [self saveToken:accessToken
                               withKey:key
+                           serializer:_serializer
                               context:context
                                 error:error];
         
@@ -135,6 +139,7 @@
         // Save token for ADFS
         return [self saveToken:adfsToken
                        withKey:key
+                    serializer:_adfsSerializer
                        context:context
                          error:error];
     }
@@ -163,6 +168,7 @@
     
     BOOL result = [self saveToken:refreshToken
                           withKey:key
+                       serializer:_serializer
                           context:context
                             error:error];
     
@@ -183,6 +189,7 @@
                                                                 upn:account.upn];
     return [self saveToken:refreshToken
                    withKey:frtKey
+                serializer:_serializer
                    context:context
                      error:error];
 }
@@ -218,6 +225,7 @@
 
 - (BOOL)saveToken:(MSIDToken *)token
           withKey:(MSIDTokenCacheKey *)key
+       serializer:(id<MSIDTokenSerializer>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
@@ -229,7 +237,7 @@
     // it with we switch it out before saving it to cache.
     token.authority = newAthority;
     // TODO: serializer should be different for ADFS
-    BOOL result = [_dataSource setItem:token key:key serializer:_serializer context:context error:error];
+    BOOL result = [_dataSource setItem:token key:key serializer:serializer context:context error:error];
     token.authority = oldAuthority;
     
     return result;
@@ -366,9 +374,8 @@
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:_authority
                                                                         clientId:clientId
                                                                         resource:resource];
-    // TODO: ADFS serializer
     return [_dataSource itemWithKey:key
-                         serializer:_serializer
+                         serializer:_adfsSerializer
                             context:context
                               error:error];
 }
