@@ -22,41 +22,20 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTokenResponse.h"
 
-@interface NSString (MSIDExtensions)
+@interface MSIDAccount : NSObject
 
-/*! Encodes string to the Base64 encoding. */
-- (NSString *)msidBase64UrlEncode;
-/*! Decodes string from the Base64 encoding. */
-- (NSString *)msidBase64UrlDecode;
+@property (readonly) NSString *upn;
+@property (readonly) NSString *utid;
+@property (readonly) NSString *uid;
 
-/*! Returns YES if the string is nil, or contains only white space */
-+ (BOOL)msidIsStringNilOrBlank:(NSString *)string;
+- (instancetype)initWithUpn:(NSString *)upn
+                       utid:(NSString *)utid
+                        uid:(NSString *)uid NS_DESIGNATED_INITIALIZER;
 
-/*! Returns the same string, but without the leading and trailing whitespace */
-- (NSString *)msidTrimmedString;
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response;
 
-/*! Decodes a previously URL encoded string. */
-- (NSString *)msidUrlFormDecode;
-
-/*! Encodes the string to pass it as a URL agrument. */
-- (NSString *)msidUrlFormEncode;
-
-/*! Converts base64 String to NSData */
-+ (NSData *)msidBase64UrlDecodeData:(NSString *)encodedString;
-
-/*! Converts NSData to base64 String */
-+ (NSString *)msidBase64UrlEncodeData:(NSData *)data;
-
-- (NSString*)msidComputeSHA256;
-
-/*! Converts string to url */
-- (NSURL *)msidUrl;
-
-/*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
- the actual contents, but still want to log something that can be correlated. */
-- (NSString *)msidTokenHash;
-
-- (NSOrderedSet<NSString *> *)scopeSet;
+- (NSString *)userIdentifier;
 
 @end

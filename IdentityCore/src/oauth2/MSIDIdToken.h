@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,33 +17,38 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequest.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDRequestContext.h"
-#import "MSIDBrokerResponse.h"
-#import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedTokenCacheAccessor.h"
+#import "MSIDJsonObject.h"
 
-@protocol MSIDOauth2TokenCache <NSObject>
+@interface MSIDIdToken : MSIDJsonObject
+{
+    NSString *_uniqueId;
+    NSString *_userId;
+    BOOL _userIdDisplayable;
+}
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-                         authority:(NSURL *)authority
-                      cacheFormats:(NSArray<id<MSIDSharedTokenCacheAccessor>> *)cacheFormats;
+// Default properties
+@property (readonly) NSString *subject;
+@property (readonly) NSString *preferredUsername;
+@property (readonly) NSString *name;
+@property (readonly) NSString *givenName;
+@property (readonly) NSString *middleName;
+@property (readonly) NSString *familyName;
+@property (readonly) NSString *email;
 
-- (BOOL)saveTokensWithRequest:(MSIDTokenRequest *)request
-                     response:(MSIDTokenResponse *)response
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
+// Derived properties
+@property (readonly) NSString *uniqueId;
+@property (readonly) NSString *userId;
+@property (readonly) BOOL userIdDisplayable;
 
-- (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error;
+- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
++ (NSString *)normalizeUserId:(NSString *)userId;
 
 @end

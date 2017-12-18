@@ -117,7 +117,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 #pragma mark - MSIDTokenCacheDataSource
 
 - (BOOL)setItem:(MSIDToken *)item
-        withKey:(MSIDTokenCacheKey *)key
+            key:(MSIDTokenCacheKey *)key
      serializer:(id<MSIDTokenSerializer>)serializer
         context:(id<MSIDRequestContext>)context
           error:(NSError **)error

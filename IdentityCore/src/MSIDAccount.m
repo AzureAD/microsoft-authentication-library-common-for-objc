@@ -21,27 +21,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonObject.h"
+#import "MSIDAccount.h"
+#import "MSIDClientInfo.h"
+#import "MSIDAADTokenResponse.h"
 #import "MSIDIdToken.h"
 
-@interface MSIDTokenResponse : MSIDJsonObject
+@implementation MSIDAccount
 
-// Default properties for an openid error response
-@property (readonly) NSString *error;
-@property (readonly) NSString *errorDescription;
+- (instancetype)init
+{
+    return [self initWithUpn:nil
+                        utid:nil
+                         uid:nil];
+}
 
-// Default properties for a successful openid response
-@property (readonly) NSString *expiresIn;
-@property (readonly) NSString *accessToken;
-@property (readonly) NSString *tokenType;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *scope;
-@property (readonly) NSString *state;
-@property (readonly) NSString *idToken;
+- (instancetype)initWithUpn:(NSString *)upn
+                       utid:(NSString *)utid
+                        uid:(NSString *)uid
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    self->_upn = upn;
+    self->_utid = utid;
+    self->_uid = uid;
 
-// Derived properties
-@property (readonly) NSDate *expiryDate;
-@property (readonly) BOOL isMultiResource;
-@property (readonly) MSIDIdToken *idTokenObj;
+    return self;
+}
+
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+{
+    NSString *uid = nil;
+    NSString *utid = nil;
+    
+    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
+    {
+        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
+        uid = aadTokenResponse.clientInfo.uid;
+        utid = aadTokenResponse.clientInfo.utid;
+    }
+    
+    NSString *userId = response.idTokenObj.userId;
+    return [self initWithUpn:userId utid:utid uid:uid];
+}
+
+- (NSString *)userIdentifier
+{
+    if (self.uid && self.uid)
+    {
+        return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
+    }
+    return nil;    
+}
 
 @end

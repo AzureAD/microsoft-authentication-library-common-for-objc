@@ -53,7 +53,7 @@
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service"];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     
-    BOOL result = [keychainTokenCache setItem:token withKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    BOOL result = [keychainTokenCache setItem:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     
     XCTAssertTrue(result);
 }
@@ -66,7 +66,7 @@
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service"];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     
-    [keychainTokenCache setItem:token withKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     MSIDToken *token2 = [keychainTokenCache itemWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
     
     XCTAssertEqualObjects(token, token2);
@@ -80,7 +80,7 @@
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     NSError *error;
     
-    BOOL result = [keychainTokenCache setItem:token withKey:key serializer:keyedArchiverSerializer context:nil error:&error];
+    BOOL result = [keychainTokenCache setItem:token key:key serializer:keyedArchiverSerializer context:nil error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -94,7 +94,7 @@
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     NSError *error;
     
-    BOOL result = [keychainTokenCache setItem:token withKey:key serializer:keyedArchiverSerializer context:nil error:&error];
+    BOOL result = [keychainTokenCache setItem:token key:key serializer:keyedArchiverSerializer context:nil error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -110,8 +110,8 @@
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service"];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     
-    [keychainTokenCache setItem:token withKey:key serializer:keyedArchiverSerializer context:nil error:nil];
-    [keychainTokenCache setItem:token2 withKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token2 key:key serializer:keyedArchiverSerializer context:nil error:nil];
     MSIDToken *tokenResult = [keychainTokenCache itemWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
     
     XCTAssertEqualObjects(tokenResult, token2);
@@ -124,15 +124,15 @@
     // Item 1.
     MSIDToken *token1 = [MSIDToken new];
     MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1"];
-    [keychainTokenCache setItem:token1 withKey:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 2.
     MSIDToken *token2 = [MSIDToken new];
     MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2"];
-    [keychainTokenCache setItem:token2 withKey:key2 serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 3.
     MSIDToken *token3 = [MSIDToken new];
     MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3"];
-    [keychainTokenCache setItem:token3 withKey:key3 serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token3 key:key3 serializer:keyedArchiverSerializer context:nil error:nil];
     MSIDTokenCacheKey *queryKey = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:nil];
     NSError *error;
     
@@ -152,7 +152,7 @@
     [token setValue:@"some token" forKey:@"token"];
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service"];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
-    [keychainTokenCache setItem:token withKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     NSError *error;
     
     [keychainTokenCache removeItemsWithKey:key context:nil error:&error];
@@ -169,15 +169,15 @@
     // Item 1.
     MSIDToken *token1 = [MSIDToken new];
     MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1"];
-    [keychainTokenCache setItem:token1 withKey:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 2.
     MSIDToken *token2 = [MSIDToken new];
     MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2"];
-    [keychainTokenCache setItem:token2 withKey:key2 serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 3.
     MSIDToken *token3 = [MSIDToken new];
     MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3"];
-    [keychainTokenCache setItem:token3 withKey:key3 serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token3 key:key3 serializer:keyedArchiverSerializer context:nil error:nil];
     NSError *error;
     
     BOOL result = [keychainTokenCache removeItemsWithKey:nil context:nil error:&error];
@@ -233,15 +233,15 @@
     [token1 setValue:@"<tombstone>" forKey:@"token"];
     [token1 setValue:[[NSNumber alloc] initWithInt:MSIDTokenTypeRefreshToken] forKey:@"tokenType"];
     MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1"];
-    [keychainTokenCache setItem:token1 withKey:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 2.
     MSIDToken *token2 = [MSIDToken new];
     MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2"];
-    [keychainTokenCache setItem:token2 withKey:key2 serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 3.
     MSIDToken *token3 = [MSIDToken new];
     MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item3"];
-    [keychainTokenCache setItem:token3 withKey:key3 serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token3 key:key3 serializer:keyedArchiverSerializer context:nil error:nil];
     NSError *error;
     
     NSArray<MSIDToken *> *items = [keychainTokenCache itemsWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];
@@ -258,7 +258,7 @@
     [token1 setValue:@"<tombstone>" forKey:@"token"];
     [token1 setValue:[[NSNumber alloc] initWithInt:MSIDTokenTypeRefreshToken] forKey:@"tokenType"];
     MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1"];
-    [keychainTokenCache setItem:token1 withKey:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+    [keychainTokenCache setItem:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
     
     [keychainTokenCache itemsWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];
     
