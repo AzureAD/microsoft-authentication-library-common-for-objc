@@ -22,7 +22,79 @@
 // THE SOFTWARE.
 
 #import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDKeyedArchiverSerializer.h"
+
+@interface MSIDLegacyTokenCacheAccessor()
+{
+    NSURL * _authority;
+    NSArray<id<MSIDSharedTokenCacheAccessor>> *_cacheFormats;
+    id<MSIDTokenCacheDataSource> _dataSource;
+    MSIDKeyedArchiverSerializer *_serializer;
+}
+
+@end
 
 @implementation MSIDLegacyTokenCacheAccessor
+
+#pragma mark - Init
+
+- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
+                         authority:(NSURL *)authority
+                      cacheFormats:(NSArray<id<MSIDSharedTokenCacheAccessor>> *)cacheFormats
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _dataSource = dataSource;
+        _authority = authority;
+        _cacheFormats = cacheFormats;
+        _serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+    }
+    
+    return self;
+}
+
+#pragma mark - MSIDOauth2TokenCache
+
+- (BOOL)saveTokensWithRequest:(MSIDTokenRequest *)request
+                     response:(MSIDTokenResponse *)response
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
+{
+    return NO;
+}
+
+- (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
+{
+    return NO;
+}
+
+#pragma mark - MSIDSharedTokenCacheAccessor
+
+- (BOOL)saveRTForUser:(MSIDUser *)user
+         refreshToken:(MSIDToken *)refreshToken
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error
+{
+    return NO;
+}
+
+- (MSIDToken *)getClientRTForUser:(MSIDUser *)user
+                         clientId:(NSString *)clientId
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    return nil;
+}
+
+- (MSIDToken *)getFRTForUser:(MSIDUser *)user
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error
+{
+    return nil;
+}
 
 @end
