@@ -21,40 +21,68 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDKeychainTokenCache.h"
+#import "MSIDAdfsToken.h"
 
-@implementation MSIDKeychainTokenCache
+@implementation MSIDAdfsToken
 
-
-- (BOOL)setItem:(MSIDToken *)item
-            key:(MSIDTokenCacheKey *)key
-     serializer:(id<MSIDTokenSerializer>)serializer
-        context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    return NO;
-}
-
-- (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                serializer:(id<MSIDTokenSerializer>)serializer
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (BOOL)isEqualToToken:(MSIDAdfsToken *)token
 {
-    return nil;
+    if (!token)
+    {
+        return NO;
+    }
+    
+    BOOL result = YES;
+    result &= [super isEqualToToken:token];
+    result &= (!self.additionalToken && !token.additionalToken);
+    
+    return result;
 }
 
-- (BOOL)removeItemWithKey:(MSIDTokenCacheKey *)key
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
 {
-    return YES;
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:MSIDAdfsToken.class])
+    {
+        return NO;
+    }
+    
+    return [self isEqualToToken:(MSIDAdfsToken *)object];
 }
 
-- (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                            serializer:(id<MSIDTokenSerializer>)serializer
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error
+- (NSUInteger)hash
 {
-    return nil;
+    NSUInteger hash = [super hash];
+    hash ^= self.additionalToken.hash;
+    
+    return hash;
 }
 
+#pragma mark - NSSecureCoding
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    if (!(self = [super initWithCoder:coder]))
+    {
+        return nil;
+    }
+   
+    _additionalToken = [coder decodeObjectOfClass:[NSString class] forKey:@"additionalToken"];
+    _tokenType = MSIDTokenTypeAdfsUserToken;
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+    [coder encodeObject:_additionalToken forKey:@"additionalToken"];
+}
 
 @end

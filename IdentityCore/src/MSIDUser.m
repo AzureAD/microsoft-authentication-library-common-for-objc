@@ -21,40 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDKeychainTokenCache.h"
+#import "MSIDUser.h"
 
-@implementation MSIDKeychainTokenCache
+@implementation MSIDUser
 
-
-- (BOOL)setItem:(MSIDToken *)item
-            key:(MSIDTokenCacheKey *)key
-     serializer:(id<MSIDTokenSerializer>)serializer
-        context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    return NO;
-}
-
-- (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                serializer:(id<MSIDTokenSerializer>)serializer
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (id)initWithUpn:(NSString *)upn
+             utid:(NSString *)utid
+              uid:(NSString *)uid
 {
-    return nil;
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    self->_upn = upn;
+    self->_utid = utid;
+    self->_uid = uid;
+
+    return self;
 }
 
-- (BOOL)removeItemWithKey:(MSIDTokenCacheKey *)key
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
+- (NSString *)userIdentifier
 {
-    return YES;
+    if (self.uid && self.uid)
+    {
+        return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
+    }
+    return nil;    
 }
-
-- (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                            serializer:(id<MSIDTokenSerializer>)serializer
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error
-{
-    return nil;
-}
-
 
 @end

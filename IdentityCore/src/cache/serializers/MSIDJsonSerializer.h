@@ -21,40 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDKeychainTokenCache.h"
+#import <Foundation/Foundation.h>
+#import "MSIDTokenSerializer.h"
 
-@implementation MSIDKeychainTokenCache
-
-
-- (BOOL)setItem:(MSIDToken *)item
-            key:(MSIDTokenCacheKey *)key
-     serializer:(id<MSIDTokenSerializer>)serializer
-        context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    return NO;
-}
-
-- (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                serializer:(id<MSIDTokenSerializer>)serializer
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
-{
-    return nil;
-}
-
-- (BOOL)removeItemWithKey:(MSIDTokenCacheKey *)key
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
-{
-    return YES;
-}
-
-- (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                            serializer:(id<MSIDTokenSerializer>)serializer
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error
-{
-    return nil;
-}
-
+@interface MSIDJsonSerializer : NSObject<MSIDTokenSerializer>
 
 @end

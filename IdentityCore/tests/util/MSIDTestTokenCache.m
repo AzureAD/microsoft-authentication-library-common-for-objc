@@ -21,16 +21,62 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDKeychainTokenCache.h"
+#import "MSIDTestTokenCache.h"
+#import "MSIDTokenSerializer.h"
+#import "MSIDTokenCacheKey.h"
 
-@implementation MSIDKeychainTokenCache
+#include <pthread.h>
+
+@implementation MSIDTestTokenCache
+{
+    NSMutableDictionary *_cache;
+    pthread_rwlock_t _lock;
+}
+
+- (id)init
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _cache = [NSMutableDictionary new];
+    
+    pthread_rwlock_init(&_lock, NULL);
+    
+    return self;
+}
+
+- (void)dealloc
+{
+    _cache = nil;
+    pthread_rwlock_destroy(&_lock);
+}
 
 
 - (BOOL)setItem:(MSIDToken *)item
             key:(MSIDTokenCacheKey *)key
      serializer:(id<MSIDTokenSerializer>)serializer
-        context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    return NO;
+        context:(id<MSIDRequestContext>)context
+          error:(NSError **)error
+{
+    NSMutableDictionary *account = _cache[key.account];
+    if (!account)
+    {
+        account = [NSMutableDictionary new];
+        _cache[key.account] = account;
+    }
+    
+    NSMutableArray *service = account[key.service];
+    if (!service)
+    {
+        service = [NSMutableArray new];
+        account[key.service] = service;
+    }
+    
+    [service addObject:item];
+    
+    return YES;
 }
 
 - (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
@@ -38,14 +84,15 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
+    
     return nil;
 }
 
-- (BOOL)removeItemWithKey:(MSIDTokenCacheKey *)key
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
+- (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
 {
-    return YES;
+    return NO;
 }
 
 - (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
@@ -56,5 +103,17 @@
     return nil;
 }
 
+- (BOOL)saveWipeInfo:(NSDictionary *)wipeInfo
+             context:(id<MSIDRequestContext>)context
+               error:(NSError **)error
+{
+    return NO;
+}
+
+- (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    return nil;
+}
 
 @end

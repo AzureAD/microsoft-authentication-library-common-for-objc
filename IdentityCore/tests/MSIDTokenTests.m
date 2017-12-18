@@ -213,9 +213,9 @@
 - (void)testIsEqual_whenAuthorityIsNotEqual_shouldReturnFalse
 {
     MSIDToken *lhs = [MSIDToken new];
-    [lhs setValue:@"value 1" forKey:@"authority"];
+    [lhs setValue:@"https://contoso.com" forKey:@"authority"];
     MSIDToken *rhs = [MSIDToken new];
-    [rhs setValue:@"value 2" forKey:@"authority"];
+    [rhs setValue:@"https://contoso2.com" forKey:@"authority"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
@@ -223,9 +223,9 @@
 - (void)testIsEqual_whenAuthorityIsEqual_shouldReturnTrue
 {
     MSIDToken *lhs = [MSIDToken new];
-    [lhs setValue:@"value 1" forKey:@"authority"];
+    [lhs setValue:@"https://contoso.com" forKey:@"authority"];
     MSIDToken *rhs = [MSIDToken new];
-    [rhs setValue:@"value 1" forKey:@"authority"];
+    [rhs setValue:@"https://contoso.com" forKey:@"authority"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
@@ -282,7 +282,7 @@
     [token setValue:@{@"key" : @"value"} forKey:@"clientInfo"];
     [token setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
     [token setValue:@"some resource" forKey:@"resource"];
-    [token setValue:@"some authority" forKey:@"authority"];
+    [token setValue:@"https://contoso.com" forKey:@"authority"];
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
     
