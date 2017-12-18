@@ -72,11 +72,11 @@
  Returns an AT for MSAL for given parameters
  */
 - (MSIDToken *)getMsalATwithAuthority:(NSURL *)authority
-                      clientId:(NSString *)clientId
-                        scopes:(NSOrderedSet<NSString *> *)scopes
-                          user:(MSIDUser *)user
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error;
+                             clientId:(NSString *)clientId
+                               scopes:(NSOrderedSet<NSString *> *)scopes
+                                 user:(MSIDUser *)user
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
 
 /*!
  Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can

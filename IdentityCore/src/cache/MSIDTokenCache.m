@@ -101,12 +101,11 @@
     }
     NSString *fociClientId = [NSString stringWithFormat:@"foci-%@", familyId];
     
-    return [self getAdalATRTforUser:user
-                          authority:authority
-                           resource:nil
-                           clientId:fociClientId
-                            context:context
-                              error:error];
+    return [self getRTforUser:user
+                    authority:authority
+                     clientId:fociClientId
+                      context:context
+                        error:error];
 }
 
 - (MSIDToken *)getMsalATwithAuthority:(NSURL *)authority
