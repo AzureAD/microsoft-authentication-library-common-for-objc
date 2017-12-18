@@ -23,22 +23,22 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDUser;
+@class MSIDAccount;
 @class MSIDToken;
 
 @protocol MSIDSharedTokenCacheAccessor <NSObject>
 
-- (BOOL)saveRTForUser:(MSIDUser *)user
+- (BOOL)saveRTForUser:(MSIDAccount *)user
          refreshToken:(MSIDToken *)refreshToken
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error;
 
-- (MSIDToken *)getClientRTForUser:(MSIDUser *)user
+- (MSIDToken *)getClientRTForUser:(MSIDAccount *)user
                          clientId:(NSString *)clientId
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error;
 
-- (MSIDToken *)getFRTForUser:(MSIDUser *)user
+- (MSIDToken *)getFRTForUser:(MSIDAccount *)user
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error;
 

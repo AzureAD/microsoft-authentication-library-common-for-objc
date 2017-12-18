@@ -25,7 +25,7 @@
 
 @class MSIDToken;
 @class MSIDTokenCacheKey;
-@class MSIDUser;
+@class MSIDAccount;
 @class MSIDAdfsToken;
 
 @protocol MSIDTokenCacheDataSource;
@@ -41,7 +41,7 @@
  for the given resource. If no RT is returned in the item then a MRRT or FRT should be used (if
  available).
  */
-- (MSIDToken *)getAdalATRTforUser:(MSIDUser *)user
+- (MSIDToken *)getAdalATRTforUser:(MSIDAccount *)user
                         authority:(NSURL *)authority
                          resource:(NSString *)resource
                          clientId:(NSString *)clientId
@@ -52,7 +52,7 @@
  Returns a Family Refresh Token for the given authority, user and family ID, if available. A FRT can
  be used for many resources within a given family of client IDs.
  */
-- (MSIDToken *)getFRTforUser:(MSIDUser *)user
+- (MSIDToken *)getFRTforUser:(MSIDAccount *)user
                    authority:(NSURL *)authority
                     familyId:(NSString *)familyId
                      context:(id<MSIDRequestContext>)context
@@ -74,7 +74,7 @@
 - (MSIDToken *)getMsalATwithAuthority:(NSURL *)authority
                              clientId:(NSString *)clientId
                                scopes:(NSOrderedSet<NSString *> *)scopes
-                                 user:(MSIDUser *)user
+                                 user:(MSIDAccount *)user
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
 
@@ -82,7 +82,7 @@
  Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
  potentially be used for many resources for that given user, client ID and authority.
  */
-- (MSIDToken *)getRTforUser:(MSIDUser *)user
+- (MSIDToken *)getRTforUser:(MSIDAccount *)user
                   authority:(NSURL *)authority
                    clientId:(NSString *)clientId
                     context:(id<MSIDRequestContext>)context
@@ -101,7 +101,7 @@
 
 - (BOOL)saveAdalAT:(MSIDToken *)adalAT
           clientId:(NSString *)clientId
-              user:(MSIDUser *)user
+              user:(MSIDAccount *)user
           resource:(NSString *)resource
            context:(id<MSIDRequestContext>)context
              error:(NSError **)error;
@@ -109,20 +109,20 @@
 - (BOOL)saveMsalAT:(MSIDToken *)msalAT
          authority:(NSURL *)authority
           clientId:(NSString *)clientId
-              user:(MSIDUser *)user
+              user:(MSIDAccount *)user
             scopes:(NSOrderedSet<NSString *> *)scopes
            context:(id<MSIDRequestContext>)context
              error:(NSError **)error;
 
 - (BOOL)saveFRT:(MSIDToken *)rt
-           user:(MSIDUser *)user
+           user:(MSIDAccount *)user
        familyId:(NSString *)familyId
       authority:(NSURL *)authority
         context:(id<MSIDRequestContext>)context
           error:(NSError **)error;
 
 - (BOOL)saveRT:(MSIDToken *)rt
-          user:(MSIDUser *)user
+          user:(MSIDAccount *)user
      authority:(NSURL *)authority
       clientId:(NSString *)clientId
        context:(id<MSIDRequestContext>)context
