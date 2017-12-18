@@ -285,4 +285,92 @@
     return nil;
 }
 
+#pragma mark - ADAL methods
+
+- (MSIDToken *)getATRTItemForAccount:(MSIDAccount *)account
+                            resource:(NSString *)resource
+                            clientId:(NSString *)clientId
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError * __autoreleasing *)error
+{
+    return [self getItemForAccount:account
+                          clientId:clientId
+                         authority:_authority
+                          resource:resource
+                           context:context
+                             error:error];
+}
+
+- (MSIDToken *)getMRRTItemForAccount:(MSIDAccount *)account
+                            clientId:(NSString *)clientId
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError * __autoreleasing *)error
+{
+    MSIDToken *token = [self getClientRTForAccount:account
+                                         authority:_authority
+                                          clientId:clientId
+                                           context:context
+                                             error:error];
+    
+    if (token) // Found token from the current cache, return immediately
+    {
+        return token;
+    }
+    else if (error) // No token was found from the current cache
+    {
+        // If call errored out, return immediately
+        return nil;
+    }
+
+    // Try other caches
+    for (id<MSIDSharedTokenCacheAccessor> cache in _cacheFormats)
+    {
+        MSIDToken *token = [cache getClientRTForAccount:account
+                                              authority:_authority
+                                               clientId:clientId
+                                                context:context
+                                                  error:error];
+        
+        if (token)
+        {
+            return token;
+        }
+        
+        if (error)
+        {
+            return nil;
+        }
+    }
+    
+    return nil;
+}
+
+
+- (MSIDToken *)getFRTItemForAccount:(MSIDAccount *)account
+                           familyId:(NSString *)familyId
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError * __autoreleasing *)error
+{
+    return [self getMRRTItemForAccount:account
+                              clientId:[MSIDTokenCacheKey familyClientId:familyId]
+                               context:context
+                                 error:error];
+}
+
+
+- (MSIDToken *)getADFSUserTokenForResource:(NSString *)resource
+                                  clientId:(NSString *)clientId
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError * __autoreleasing *)error
+{
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:_authority
+                                                                        clientId:clientId
+                                                                        resource:resource];
+    // TODO: ADFS serializer
+    return [_dataSource itemWithKey:key
+                         serializer:_serializer
+                            context:context
+                              error:error];
+}
+
 @end
