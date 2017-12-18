@@ -69,6 +69,39 @@
     
     if (response.isMultiResource)
     {
+        MSIDToken *accessToken = [[MSIDToken alloc] initWithTokenResponse:response
+                                                                  request:request
+                                                                tokenType:MSIDTokenTypeAccessToken];
+        
+        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:request.authority
+                                                            clientId:request.clientId
+                                                            resource:accessToken.resource
+                                                                 upn:account.upn];
+        
+        BOOL result = [self saveToken:accessToken
+                              withKey:key
+                              context:context
+                                error:error];
+        
+        if (!result)
+        {
+            return NO;
+        }
+        
+        MSIDToken *refreshToken = [[MSIDToken alloc] initWithTokenResponse:response
+                                                                   request:request
+                                                                 tokenType:MSIDTokenTypeRefreshToken];
+        
+        result = [self saveRTForUser:account
+                        refreshToken:refreshToken
+                             context:context
+                               error:error];
+        
+        if (!result)
+        {
+            return NO;
+        }
+        
         return NO;
     }
     else
