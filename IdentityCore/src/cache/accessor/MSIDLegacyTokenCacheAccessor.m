@@ -202,7 +202,6 @@
 {
     return [self getItemForAccount:account
                           clientId:clientId
-                         authority:authority
                           resource:nil
                            context:context
                              error:error];
@@ -236,7 +235,6 @@
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store
     // it with we switch it out before saving it to cache.
     token.authority = newAthority;
-    // TODO: serializer should be different for ADFS
     BOOL result = [_dataSource setItem:token key:key serializer:serializer context:context error:error];
     token.authority = oldAuthority;
     
@@ -245,7 +243,6 @@
 
 - (MSIDToken *)getItemForAccount:(MSIDAccount *)account
                         clientId:(NSString *)clientId
-                       authority:(NSURL *)authority
                         resource:(NSString *)resource
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
@@ -272,7 +269,7 @@
                                               error:&cacheError];
         
         // TODO: storage authority
-        token.authority = authority;
+        token.authority = _authority;
         
         if (token)
         {
@@ -303,7 +300,6 @@
 {
     return [self getItemForAccount:account
                           clientId:clientId
-                         authority:_authority
                           resource:resource
                            context:context
                              error:error];
