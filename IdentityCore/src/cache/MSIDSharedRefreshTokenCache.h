@@ -22,20 +22,24 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenRequest.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDRequestContext.h"
-#import "MSIDBrokerResponse.h"
 
-@protocol MSIDOauth2TokenCache <NSObject>
+@class MSIDUser;
+@class MSIDToken;
 
-- (BOOL)saveTokensWithRequest:(MSIDTokenRequest *)request
-                     response:(MSIDTokenResponse *)response
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
+@protocol MSIDSharedRefreshTokenCache <NSObject>
 
-- (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error;
+- (BOOL)saveRTForUser:(MSIDUser *)user
+         refreshToken:(MSIDToken *)refreshToken
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error;
+
+- (MSIDToken *)getClientRTForUser:(MSIDUser *)user
+                         clientId:(NSString *)clientId
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error;
+
+- (MSIDToken *)getFRTForUser:(MSIDUser *)user
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error;
 
 @end
