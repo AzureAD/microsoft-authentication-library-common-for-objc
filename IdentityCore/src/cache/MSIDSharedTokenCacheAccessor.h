@@ -26,7 +26,7 @@
 @class MSIDUser;
 @class MSIDToken;
 
-@protocol MSIDSharedRefreshTokenCache <NSObject>
+@protocol MSIDSharedTokenCacheAccessor <NSObject>
 
 - (BOOL)saveRTForUser:(MSIDUser *)user
          refreshToken:(MSIDToken *)refreshToken
