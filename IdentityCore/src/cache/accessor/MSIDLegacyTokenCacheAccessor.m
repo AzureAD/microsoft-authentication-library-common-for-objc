@@ -69,6 +69,7 @@
     
     if (response.isMultiResource)
     {
+        // Save ADAL access token item
         MSIDToken *accessToken = [[MSIDToken alloc] initWithTokenResponse:response
                                                                   request:request
                                                                 tokenType:MSIDTokenTypeAccessToken];
@@ -88,27 +89,30 @@
             return NO;
         }
         
+        // Create ADAL refresh token item
         MSIDToken *refreshToken = [[MSIDToken alloc] initWithTokenResponse:response
                                                                    request:request
                                                                  tokenType:MSIDTokenTypeRefreshToken];
         
-        result = [self saveRTForUser:account
-                        refreshToken:refreshToken
-                             context:context
-                               error:error];
+        result = [self saveRTForAccount:account
+                           refreshToken:refreshToken
+                              authority:request.authority
+                                context:context
+                                  error:error];
         
         if (!result)
         {
             return NO;
         }
         
-        // Save RTs in other formats
+        // Save RTs in other formats if any
         for (id<MSIDSharedTokenCacheAccessor> cache in _cacheFormats)
         {
-            result = [cache saveRTForUser:account
-                             refreshToken:refreshToken
-                                  context:context
-                                    error:error];
+            result = [cache saveRTForAccount:account
+                                refreshToken:refreshToken
+                                   authority:request.authority
+                                     context:context
+                                       error:error];
             
             if (!result)
             {
@@ -128,6 +132,7 @@
                                                                             clientId:request.clientId
                                                                             resource:adfsToken.resource];
         
+        // Save token for ADFS
         return [self saveToken:adfsToken
                        withKey:key
                        context:context
@@ -140,6 +145,73 @@
                                error:(NSError **)error
 {
     return NO;
+}
+
+#pragma mark - MSIDSharedTokenCacheAccessor
+
+- (BOOL)saveRTForAccount:(MSIDAccount *)account
+            refreshToken:(MSIDToken *)refreshToken
+               authority:(NSURL *)authority
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
+{
+    // Save refresh token entry
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority
+                                                        clientId:refreshToken.clientId
+                                                        resource:nil 
+                                                             upn:account.upn];
+    
+    BOOL result = [self saveToken:refreshToken
+                          withKey:key
+                          context:context
+                            error:error];
+    
+    if (!result)
+    {
+        return NO;
+    }
+    
+    if ([NSString msidIsStringNilOrBlank:refreshToken.familyId])
+    {
+        return YES;
+    }
+    
+    // Save an additional entry if it's a family refresh token
+    MSIDTokenCacheKey *frtKey = [MSIDTokenCacheKey keyWithAuthority:authority
+                                                           clientId:[MSIDTokenCacheKey familyClientId:refreshToken.familyId]
+                                                           resource:nil
+                                                                upn:account.upn];
+    return [self saveToken:refreshToken
+                   withKey:frtKey
+                   context:context
+                     error:error];
+}
+
+- (MSIDToken *)getClientRTForAccount:(MSIDAccount *)account
+                           authority:(NSURL *)authority
+                            clientId:(NSString *)clientId
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
+{
+    return [self getItemForAccount:account
+                          clientId:clientId
+                         authority:authority
+                          resource:nil
+                           context:context
+                             error:error];
+}
+
+- (MSIDToken *)getFRTForAccount:(MSIDAccount *)account
+                       familyId:(NSString *)familyId
+                      authority:(NSURL *)authority
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    return [self getClientRTForAccount:account
+                             authority:authority
+                              clientId:[MSIDTokenCacheKey familyClientId:familyId]
+                               context:context
+                                 error:error];
 }
 
 #pragma mark - Helper methods
@@ -156,34 +228,60 @@
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store
     // it with we switch it out before saving it to cache.
     token.authority = newAthority;
+    // TODO: serializer should be different for ADFS
     BOOL result = [_dataSource setItem:token key:key serializer:_serializer context:context error:error];
     token.authority = oldAuthority;
     
     return result;
 }
 
-#pragma mark - MSIDSharedTokenCacheAccessor
-
-- (BOOL)saveRTForUser:(MSIDAccount *)user
-         refreshToken:(MSIDToken *)refreshToken
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error
+- (MSIDToken *)getItemForAccount:(MSIDAccount *)account
+                        clientId:(NSString *)clientId
+                       authority:(NSURL *)authority
+                        resource:(NSString *)resource
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
 {
-    return NO;
-}
-
-- (MSIDToken *)getClientRTForUser:(MSIDAccount *)user
-                         clientId:(NSString *)clientId
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
-{
-    return nil;
-}
-
-- (MSIDToken *)getFRTForUser:(MSIDAccount *)user
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error
-{
+    //NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
+    NSArray<NSURL *> *aliases = [NSArray array]; // TODO: replace with a real data
+    
+    for (NSURL *alias in aliases)
+    {
+        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:alias
+                                                            clientId:clientId
+                                                            resource:resource
+                                                                 upn:account.upn];
+        if (!key)
+        {
+            return nil;
+        }
+        
+        NSError *cacheError = nil;
+        
+        MSIDToken *token = [_dataSource itemWithKey:key
+                                         serializer:_serializer
+                                            context:context
+                                              error:&cacheError];
+        
+        // TODO: storage authority
+        token.authority = authority;
+        
+        if (token)
+        {
+            return token;
+        }
+        
+        if (cacheError)
+        {
+            if (error)
+            {
+                *error = cacheError;
+            }
+            
+            return nil;
+        }
+    }
+    
     return nil;
 }
 

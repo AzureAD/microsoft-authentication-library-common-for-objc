@@ -150,4 +150,14 @@ static uint32_t const s_msalV1 = 'MSv1';
     return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil];
 }
 
++ (NSString *)familyClientId:(NSString *)familyId
+{
+    if (!familyId)
+    {
+        familyId = @"1";
+    }
+    
+    return [NSString stringWithFormat:@"foci-%@", familyId];
+}
+
 @end
