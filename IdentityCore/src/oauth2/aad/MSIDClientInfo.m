@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,30 +17,37 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
-
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
-
-#import <Foundation/Foundation.h>
-
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
+#import "MSIDClientInfo.h"
 #import "MSIDOAuth2Constants.h"
-#import "IdentityCore_Internal.h"
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+@implementation MSIDClientInfo
 
-#endif /* IdentityCore_pch */
+MSID_JSON_ACCESSOR(MSID_OAUTH2_UNIQUE_IDENTIFIER, uid)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER, utid)
+
+- (id)initWithRawClientInfo:(NSString *)rawClientInfo
+                      error:(NSError *__autoreleasing *)error
+{
+    NSData *decoded =  [[rawClientInfo msidBase64UrlDecode] dataUsingEncoding:NSUTF8StringEncoding];
+    if (!(self = [super initWithJSONData:decoded error:error]))
+    {
+        return nil;
+    }
+    
+    return self;
+}
+
+- (NSString *)userIdentifier
+{
+    return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
+}
+
+@end

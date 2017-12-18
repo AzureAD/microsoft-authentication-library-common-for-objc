@@ -21,24 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
+#import "MSIDJsonObject.h"
 
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+@interface MSIDTokenResponse : MSIDJsonObject
 
-#import <Foundation/Foundation.h>
+// Default properties for an openid error response
+@property (readonly) NSString *error;
+@property (readonly) NSString *errorDescription;
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
-#import "IdentityCore_Internal.h"
+// Default properties for a successful openid response
+@property (readonly) NSString *expiresIn;
+@property (readonly) NSString *accessToken;
+@property (readonly) NSString *tokenType;
+@property (readonly) NSString *refreshToken;
+@property (readonly) NSString *scope;
+@property (readonly) NSString *state;
+@property (readonly) NSString *idToken;
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
-
-#endif /* IdentityCore_pch */
+@end

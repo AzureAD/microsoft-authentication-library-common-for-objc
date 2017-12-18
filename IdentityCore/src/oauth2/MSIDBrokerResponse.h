@@ -21,24 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
+#import "MSIDURLFormObject.h"
 
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+@interface MSIDBrokerResponse : MSIDURLFormObject
 
-#import <Foundation/Foundation.h>
+@property (readonly) NSString *authority;
+@property (readonly) NSString *clientId;
+@property (readonly) NSString *resource;
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
-#import "IdentityCore_Internal.h"
+@property (readonly) NSString *accessToken;
+@property (readonly) NSString *refreshToken;
+@property (readonly) NSString *expiresOn;
+@property (readonly) NSString *idToken;
+@property (readonly) NSString *familyId;
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+@property (readonly) NSString *brokerAppVer;
+@property (readonly) NSString *validAuthority;
 
-#endif /* IdentityCore_pch */
+@property (readonly) NSString *correlationId;
+@property (readonly) NSString *errorCode;
+@property (readonly) NSString *oauthErrorCode;
+@property (readonly) NSString *errorDescription;
+
+@end

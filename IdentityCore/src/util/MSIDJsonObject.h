@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,30 +17,35 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
-#ifndef IdentityCore_pch
-#define IdentityCore_pch
-
-// Include any system framework and library headers here that should be included in all compilation units.
-// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
-#import "IdentityCore_Internal.h"
+#define MSID_JSON_ACCESSOR(KEY, GETTER) DICTIONARY_READ_PROPERTY_IMPL(_json, KEY, GETTER)
+#define MSID_JSON_MUTATOR(KEY, SETTER) DICTIONARY_WRITE_PROPERTY_IMPL(_json, KEY, SETTER)
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+#define MSID_JSON_RW(KEY, GETTER, SETTER) \
+    MSID_JSON_ACCESSOR(KEY, GETTER) \
+    MSID_JSON_MUTATOR(KEY, SETTER)
 
-#endif /* IdentityCore_pch */
+@interface MSIDJsonObject : NSObject
+{
+    NSMutableDictionary *_json;
+}
+
+- (instancetype)initWithJSONData:(NSData *)data
+                           error:(NSError * __autoreleasing *)error;
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                                 error:(NSError * __autoreleasing *)error NS_DESIGNATED_INITIALIZER;
+
+- (NSDictionary *)jsonDictionary;
+- (NSData *)serialize:(NSError * __autoreleasing *)error;
+
+@end
