@@ -21,21 +21,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenResponse.h"
+#import "MSIDAccount.h"
+#import "MSIDClientInfo.h"
+#import "MSIDAADTokenResponse.h"
+#import "MSIDIdToken.h"
 
-@interface MSIDUser : NSObject
+@implementation MSIDAccount
 
-@property (readonly) NSString *upn;
-@property (readonly) NSString *utid;
-@property (readonly) NSString *uid;
+- (instancetype)init
+{
+    return [self initWithUpn:nil
+                        utid:nil
+                         uid:nil];
+}
 
 - (instancetype)initWithUpn:(NSString *)upn
                        utid:(NSString *)utid
-                        uid:(NSString *)uid NS_DESIGNATED_INITIALIZER;
+                        uid:(NSString *)uid
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    self->_upn = upn;
+    self->_utid = utid;
+    self->_uid = uid;
 
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response;
+    return self;
+}
 
-- (NSString *)userIdentifier;
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+{
+    NSString *uid = nil;
+    NSString *utid = nil;
+    
+    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
+    {
+        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
+        uid = aadTokenResponse.clientInfo.uid;
+        utid = aadTokenResponse.clientInfo.utid;
+    }
+    
+    NSString *userId = response.idTokenObj.userId;
+    return [self initWithUpn:userId utid:utid uid:uid];
+}
+
+- (NSString *)userIdentifier
+{
+    if (self.uid && self.uid)
+    {
+        return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
+    }
+    return nil;    
+}
 
 @end

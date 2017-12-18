@@ -27,7 +27,7 @@
 #import "MSIDTokenCacheDataSource.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDJsonSerializer.h"
-#import "MSIDUser.h"
+#import "MSIDAccount.h"
 
 @implementation MSIDTokenCache
 {
@@ -52,7 +52,7 @@
     return _dataSource;
 }
 
-- (MSIDToken *)getAdalATRTforUser:(MSIDUser *)user
+- (MSIDToken *)getAdalATRTforUser:(MSIDAccount *)user
                         authority:(NSURL *)authority
                          resource:(NSString *)resource
                          clientId:(NSString *)clientId
@@ -88,7 +88,7 @@
 
 
 
-- (MSIDToken *)getFRTforUser:(MSIDUser *)user
+- (MSIDToken *)getFRTforUser:(MSIDAccount *)user
                    authority:(NSURL *)authority
                     familyId:(NSString *)familyId
                      context:(id<MSIDRequestContext>)context
@@ -111,7 +111,7 @@
 - (MSIDToken *)getMsalATwithAuthority:(NSURL *)authority
                              clientId:(NSString *)clientId
                                scopes:(NSOrderedSet<NSString *> *)scopes
-                                 user:(MSIDUser *)user
+                                 user:(MSIDAccount *)user
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
@@ -192,7 +192,7 @@
 }
 
 
-- (MSIDToken *)getRTforUser:(MSIDUser *)user
+- (MSIDToken *)getRTforUser:(MSIDAccount *)user
                              authority:(NSURL *)authority
                               clientId:(NSString *)clientId
                                context:(id<MSIDRequestContext>)context
@@ -285,7 +285,7 @@
 
 - (BOOL)saveAdalAT:(MSIDToken *)adalAT
           clientId:(NSString *)clientId
-              user:(MSIDUser *)user
+              user:(MSIDAccount *)user
           resource:(NSString *)resource
            context:(id<MSIDRequestContext>)context
              error:(NSError **)error
@@ -305,7 +305,7 @@
 - (BOOL)saveMsalAT:(MSIDToken *)msalAT
          authority:(NSURL *)authority
           clientId:(NSString *)clientId
-              user:(MSIDUser *)user
+              user:(MSIDAccount *)user
             scopes:(NSOrderedSet<NSString *> *)scopes
            context:(id<MSIDRequestContext>)context
              error:(NSError **)error
@@ -351,7 +351,7 @@
 }
 
 - (BOOL)saveFRT:(MSIDToken *)rt
-           user:(MSIDUser *)user
+           user:(MSIDAccount *)user
        familyId:(NSString *)familyId
       authority:(NSURL *)authority
         context:(id<MSIDRequestContext>)context
@@ -372,7 +372,7 @@
 }
 
 - (BOOL)saveRT:(MSIDToken *)rt
-          user:(MSIDUser *)user
+          user:(MSIDAccount *)user
      authority:(NSURL *)authority
       clientId:(NSString *)clientId
        context:(id<MSIDRequestContext>)context
