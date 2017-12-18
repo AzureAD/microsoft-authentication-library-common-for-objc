@@ -25,6 +25,7 @@
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDAccount.h"
 #import "MSIDAdfsToken.h"
+#import "MSIDTokenCacheKey.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -68,7 +69,7 @@
     
     if (response.isMultiResource)
     {
-        
+        return NO;
     }
     else
     {
@@ -76,20 +77,15 @@
                                                                         request:request
                                                                       tokenType:MSIDTokenTypeAdfsUserToken];
         
-        /*
-        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:authority
-                                                                            clientId:clientId
-                                                                            resource:resource];
+        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:request.authority
+                                                                            clientId:request.clientId
+                                                                            resource:adfsToken.resource];
         
-        return [_dataSource setItem:(MSIDToken *)adfsToken
-                                key:key
-                         serializer:_keyedArchiverSerialize
-                            context:context
-                              error:error];*/
-        
+        return [self saveToken:adfsToken
+                       withKey:key
+                       context:context
+                         error:error];
     }
-    
-    return NO;
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
@@ -106,18 +102,17 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
-    /*
-    NSURL *oldAuthority = [NSURL URLWithString:item.authority];
-    NSURL *newAuthority = [[ADAuthorityValidation sharedInstance] cacheUrlForAuthority:oldAuthority context:context];
+    NSURL *oldAuthority = token.authority;
+    NSURL *newAthority = token.authority; // TODO: replace with an actual authority
     
     // The authority used to retrieve the item over the network can differ from the preferred authority used to
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store
     // it with we switch it out before saving it to cache.
-    item.authority = [newAuthority absoluteString];
-    BOOL ret = [_dataSource addOrUpdateItem:item correlationId:context.correlationId error:error];
-    item.authority = [oldAuthority absoluteString];
+    token.authority = newAthority;
+    BOOL result = [_dataSource setItem:token key:key serializer:_serializer context:context error:error];
+    token.authority = oldAuthority;
     
-    return ret;*/
+    return result;
 }
 
 #pragma mark - MSIDSharedTokenCacheAccessor
