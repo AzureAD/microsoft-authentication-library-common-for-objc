@@ -77,13 +77,9 @@
                                                                   request:request
                                                                 tokenType:MSIDTokenTypeAccessToken];
         
-        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:request.authority
-                                                            clientId:request.clientId
-                                                            resource:accessToken.resource
-                                                                 upn:account.upn];
-        
         BOOL result = [self saveToken:accessToken
-                              withKey:key
+                              account:account
+                             clientId:request.clientId
                            serializer:_serializer
                               context:context
                                 error:error];
@@ -132,13 +128,14 @@
                                                                         request:request
                                                                       tokenType:MSIDTokenTypeAdfsUserToken];
         
-        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAdfsUserTokenWithAuthority:request.authority
-                                                                            clientId:request.clientId
-                                                                            resource:adfsToken.resource];
+        MSIDAccount *adfsAccount = [[MSIDAccount alloc] initWithUpn:@""
+                                                               utid:nil
+                                                                uid:nil];
         
         // Save token for ADFS
         return [self saveToken:adfsToken
-                       withKey:key
+                       account:adfsAccount
+                      clientId:request.clientId
                     serializer:_adfsSerializer
                        context:context
                          error:error];
@@ -149,6 +146,7 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
+    // TODO
     return NO;
 }
 
@@ -161,13 +159,9 @@
                    error:(NSError **)error
 {
     // Save refresh token entry
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:authority
-                                                        clientId:refreshToken.clientId
-                                                        resource:nil 
-                                                             upn:account.upn];
-    
     BOOL result = [self saveToken:refreshToken
-                          withKey:key
+                          account:account
+                         clientId:refreshToken.clientId
                        serializer:_serializer
                           context:context
                             error:error];
@@ -183,12 +177,9 @@
     }
     
     // Save an additional entry if it's a family refresh token
-    MSIDTokenCacheKey *frtKey = [MSIDTokenCacheKey keyWithAuthority:authority
-                                                           clientId:[MSIDTokenCacheKey familyClientId:refreshToken.familyId]
-                                                           resource:nil
-                                                                upn:account.upn];
     return [self saveToken:refreshToken
-                   withKey:frtKey
+                   account:account
+                  clientId:[MSIDTokenCacheKey familyClientId:refreshToken.familyId]
                 serializer:_serializer
                    context:context
                      error:error];
@@ -223,7 +214,8 @@
 #pragma mark - Helper methods
 
 - (BOOL)saveToken:(MSIDToken *)token
-          withKey:(MSIDTokenCacheKey *)key
+          account:(MSIDAccount *)account
+         clientId:(NSString *)clientId
        serializer:(id<MSIDTokenSerializer>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
@@ -235,7 +227,15 @@
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store
     // it with we switch it out before saving it to cache.
     token.authority = newAthority;
+    
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:newAthority
+                                                        clientId:clientId
+                                                        resource:token.resource
+                                                             upn:account.upn];
+    
     BOOL result = [_dataSource setItem:token key:key serializer:serializer context:context error:error];
+    
+    // Swap the authority back to the original one
     token.authority = oldAuthority;
     
     return result;
@@ -316,13 +316,14 @@
                                            context:context
                                              error:error];
     
-    if (token) // Found token from the current cache, return immediately
+    // Found token from the current cache, return immediately
+    if (token)
     {
         return token;
     }
-    else if (error) // No token was found from the current cache
+    // No token was found from the current cache and we got an error, don't try other caches
+    else if (error)
     {
-        // If call errored out, return immediately
         return nil;
     }
 
