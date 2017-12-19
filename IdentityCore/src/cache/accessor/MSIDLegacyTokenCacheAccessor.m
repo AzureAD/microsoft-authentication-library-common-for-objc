@@ -149,8 +149,14 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
-    // TODO
-    return NO;
+    MSIDTokenRequest *request = [[MSIDTokenRequest alloc] initWithAuthority:[NSURL URLWithString:response.authority]
+                                                                redirectUri:nil
+                                                                   clientId:response.clientId];
+    
+    return [self saveTokensWithRequest:request
+                              response:response.tokenResponse
+                               context:context
+                                 error:error];
 }
 
 - (BOOL)removeTokenForAccount:(MSIDAccount *)account

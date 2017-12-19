@@ -25,4 +25,52 @@
 
 @implementation MSIDTokenRequest
 
+- (instancetype)initWithCode:(NSString *)code
+                   authority:(NSURL *)authority
+                 redirectUri:(NSString *)redirectUri
+                    clientId:(NSString *)clientId
+{
+    self = [self initWithAuthority:authority redirectUri:redirectUri clientId:clientId];
+    
+    if (self)
+    {
+        _code = code;
+        _grantType = MSID_OAUTH2_AUTHORIZATION_CODE;
+    }
+    
+    return self;
+}
+
+- (instancetype)initWithRefreshToken:(NSString *)refreshToken
+                           authority:(NSURL *)authority
+                         redirectUri:(NSString *)redirectUri
+                            clientId:(NSString *)clientId
+{
+    self = [self initWithAuthority:authority redirectUri:redirectUri clientId:clientId];
+    
+    if (self)
+    {
+        _refreshToken = refreshToken;
+        _grantType = MSID_OAUTH2_REFRESH_TOKEN;
+    }
+    
+    return self;
+}
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                     redirectUri:(NSString *)redirectUri
+                        clientId:(NSString *)clientId
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _authority = authority;
+        _redirectUri = redirectUri;
+        _clientId = clientId;
+    }
+    
+    return self;
+}
+
 @end

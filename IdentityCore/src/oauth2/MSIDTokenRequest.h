@@ -32,4 +32,20 @@
 @property (readonly) NSString *redirectUri;
 @property (readonly) NSString *clientId;
 
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithCode:(NSString *)code
+                   authority:(NSURL *)authority
+                 redirectUri:(NSString *)redirectUri
+                    clientId:(NSString *)clientId;
+
+- (instancetype)initWithRefreshToken:(NSString *)refreshToken
+                           authority:(NSURL *)authority
+                         redirectUri:(NSString *)redirectUri
+                            clientId:(NSString *)clientId;
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId;
+
 @end

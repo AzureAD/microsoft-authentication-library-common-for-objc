@@ -22,18 +22,12 @@
 // THE SOFTWARE.
 
 #import "MSIDURLFormObject.h"
+#import "MSIDAADTokenResponse.h"
 
 @interface MSIDBrokerResponse : MSIDURLFormObject
 
 @property (readonly) NSString *authority;
 @property (readonly) NSString *clientId;
-@property (readonly) NSString *resource;
-
-@property (readonly) NSString *accessToken;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *expiresOn;
-@property (readonly) NSString *idToken;
-@property (readonly) NSString *familyId;
 
 @property (readonly) NSString *brokerAppVer;
 @property (readonly) NSString *validAuthority;
@@ -42,5 +36,8 @@
 @property (readonly) NSString *errorCode;
 @property (readonly) NSString *oauthErrorCode;
 @property (readonly) NSString *errorDescription;
+
+// Derived properties
+@property (readonly) MSIDTokenResponse *tokenResponse;
 
 @end

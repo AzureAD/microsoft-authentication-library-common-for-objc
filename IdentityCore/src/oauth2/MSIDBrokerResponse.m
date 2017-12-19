@@ -42,6 +42,21 @@ MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
 MSID_FORM_ACCESSOR(@"error_code", errorCode);
 MSID_FORM_ACCESSOR(MSID_OAUTH2_ERROR_DESCRIPTION, errorDescription);
 
+- (instancetype)initWithDictionary:(NSDictionary *)form
+                             error:(NSError **)error
+{
+    self = [super initWithDictionary:form error:error];
+    
+    if (self)
+    {
+        // Broker only works for AAD
+        _tokenResponse = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:form
+                                                                        error:error];
+    }
+    
+    return self;
+}
+
 - (NSString *)oauthErrorCode
 {
     if (_urlForm[@"protocol_code"])
