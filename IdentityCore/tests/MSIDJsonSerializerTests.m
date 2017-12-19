@@ -22,8 +22,9 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDMSIDJsonSerializer.h"
+#import "MSIDJsonSerializer.h"
 #import "MSIDToken.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDJsonSerializerTests : XCTestCase
 
@@ -43,16 +44,17 @@
 
 - (void)test_whenSerializeToken_shouldReturnSameTokenOnDeserialize
 {
-    MSIDMSIDJsonSerializer *serializer = [MSIDMSIDJsonSerializer new];
+    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     MSIDToken *expectedToken = [MSIDToken new];
-    [expectedToken setValue:@"access token value" forKey:@"token"];
+    [expectedToken setValue:@"refresh token value" forKey:@"token"];
+    [expectedToken setValue:[[NSNumber alloc] initWithInt:MSIDTokenTypeRefreshToken] forKey:@"tokenType"];
     [expectedToken setValue:@"id token value" forKey:@"idToken"];
     [expectedToken setValue:[NSDate new] forKey:@"expiresOn"];
     [expectedToken setValue:@"familyId value" forKey:@"familyId"];
-    [expectedToken setValue:@{@"key" : @"value"} forKey:@"clientInfo"];
+    [expectedToken setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
     [expectedToken setValue:@"some resource" forKey:@"resource"];
-    [expectedToken setValue:@"some authority" forKey:@"authority"];
+    [expectedToken setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
     [expectedToken setValue:@"some clientId" forKey:@"clientId"];
     [expectedToken setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
     
@@ -65,7 +67,7 @@
 
 - (void)testSerialize_whenTokenNil_shouldReturnNil
 {
-    MSIDMSIDJsonSerializer *serializer = [MSIDMSIDJsonSerializer new];
+    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
     NSData *data = [serializer serialize:nil];
     
@@ -74,7 +76,7 @@
 
 - (void)testSerialize_whenTokenWithDefaultProperties_shouldReturnNotNilData
 {
-    MSIDMSIDJsonSerializer *serializer = [MSIDMSIDJsonSerializer new];
+    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
     NSData *data = [serializer serialize:[MSIDToken new]];
     
@@ -83,7 +85,7 @@
 
 - (void)testDeserialize_whenDataNilNil_shouldReturnNil
 {
-    MSIDMSIDJsonSerializer *serializer = [MSIDMSIDJsonSerializer new];
+    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
     MSIDToken *token = [serializer deserialize:nil];
     
@@ -92,12 +94,21 @@
 
 - (void)testDeserialize_whenDataInvalid_shouldReturnNil
 {
-    MSIDMSIDJsonSerializer *serializer = [MSIDMSIDJsonSerializer new];
+    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
     MSIDToken *token = [serializer deserialize:data];
     
     XCTAssertNil(token);
+}
+
+#pragma mark - Private
+
+// TODO: move to helper method.
+- (MSIDClientInfo *)createClientInfo:(NSDictionary *)clientInfoDict
+{
+    NSString *base64String = [clientInfoDict msidBase64UrlJson];
+    return [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
 }
 
 @end
