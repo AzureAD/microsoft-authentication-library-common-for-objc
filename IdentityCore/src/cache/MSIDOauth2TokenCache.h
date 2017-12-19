@@ -44,8 +44,9 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (BOOL)removeTokensWithRequest:(MSIDTokenRequest *)request
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error;
+- (BOOL)removeTokenForAccount:(MSIDAccount *)account
+                        token:(MSIDToken *)token
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error;
 
 @end
