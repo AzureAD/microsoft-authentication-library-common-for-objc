@@ -26,6 +26,9 @@
 #import "MSIDAccount.h"
 #import "MSIDAdfsToken.h"
 #import "MSIDTokenCacheKey.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "MSIDTelemetryCacheEvent.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -254,6 +257,12 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
+    
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
+                                                                           context:context];
+    
     NSURL *oldAuthority = token.authority;
     NSURL *newAthority = token.authority; // TODO: replace with an actual authority
     
@@ -272,6 +281,10 @@
     // Swap the authority back to the original one
     token.authority = oldAuthority;
     
+    [self stopTelemetryEvent:event
+                   withToken:token
+                     context:context];
+    
     return result;
 }
 
@@ -281,6 +294,12 @@
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
+    
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
+                                                                           context:context];
+    
     //NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
     NSArray<NSURL *> *aliases = [NSArray array]; // TODO: replace with a real data
     
@@ -306,6 +325,10 @@
         
         if (token)
         {
+            [self stopTelemetryEvent:event
+                           withToken:token
+                             context:context];
+            
             return token;
         }
         
@@ -316,9 +339,17 @@
                 *error = cacheError;
             }
             
+            [self stopTelemetryEvent:event
+                           withToken:nil
+                             context:context];
+            
             return nil;
         }
     }
+    
+    [self stopTelemetryEvent:event
+                   withToken:nil
+                     context:context];
     
     return nil;
 }
@@ -408,6 +439,32 @@
                          serializer:_adfsSerializer
                             context:context
                               error:error];
+}
+
+#pragma mark - Telemetry helpers
+
+- (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
+                 withToken:(MSIDToken *)token
+                   context:(id<MSIDRequestContext>)context
+{
+    if (token)
+    {
+        [event setTokenType:token.tokenType];
+        [event setStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
+        [event setSpeInfo:token.additionalServerInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
+        
+        if (![NSString msidIsStringNilOrBlank:token.familyId])
+        {
+            [event setIsFRT:MSID_TELEMETRY_VALUE_YES];
+        }
+    }
+    else
+    {
+        [event setStatus:MSID_TELEMETRY_VALUE_FAILED];
+    }
+    
+    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
+                                        event:event];
 }
 
 @end
