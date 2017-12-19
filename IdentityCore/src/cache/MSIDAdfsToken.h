@@ -21,40 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDMSIDJsonSerializer.h"
 #import "MSIDToken.h"
 
-@implementation MSIDMSIDJsonSerializer
+@interface MSIDAdfsToken : MSIDToken
 
-- (NSData *)serialize:(MSIDToken *)token
-{
-    NSError *error;
-    NSData *data = [token serialize:&error];
-    
-    if (error)
-    {
-        return nil;
-        MSID_LOG_ERROR(nil, @"Failed to serialize token.");
-        MSID_LOG_ERROR_PII(nil, @"Failed to serialize token, error: %@", error);
-    }
+// For ADFS user token, consider @token to be an access token and
+// @additionToken to be a refresh token
 
-    
-    return data;
-}
-
-- (MSIDToken *)deserialize:(NSData *)data
-{
-    NSError *error;
-    MSIDToken *token = [[MSIDToken alloc] initWithJSONData:data error:&error];
-    
-    if (error)
-    {
-        return nil;
-        MSID_LOG_ERROR(nil, @"Failed to deserialize json object.");
-        MSID_LOG_ERROR_PII(nil, @"Failed to deserialize json object, error: %@", error);
-    }
-    
-    return token;
-}
+@property (readonly) NSString *additionalToken;
 
 @end

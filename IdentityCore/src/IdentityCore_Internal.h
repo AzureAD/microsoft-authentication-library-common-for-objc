@@ -27,7 +27,14 @@
 
 // Utility macros for convience classes wrapped around dictionaries
 #define DICTIONARY_READ_PROPERTY_IMPL(DICT, KEY, GETTER) \
-- (NSString *)GETTER { return [DICT objectForKey:KEY]; }
+- (NSString *)GETTER \
+{ \
+    if ([[DICT objectForKey:KEY] isKindOfClass:[NSString class]]) \
+    { \
+        return [DICT objectForKey:KEY]; \
+    } \
+    return nil; \
+}
 
 #define DICTIONARY_WRITE_PROPERTY_IMPL(DICT, KEY, SETTER) \
 - (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }

@@ -57,4 +57,6 @@
  the actual contents, but still want to log something that can be correlated. */
 - (NSString *)msidTokenHash;
 
+- (NSOrderedSet<NSString *> *)scopeSet;
+
 @end

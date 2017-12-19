@@ -25,33 +25,115 @@
 
 @class MSIDToken;
 @class MSIDTokenCacheKey;
+@class MSIDAccount;
+@class MSIDAdfsToken;
+
+@protocol MSIDTokenCacheDataSource;
 
 @interface MSIDTokenCache : NSObject
 
-- (BOOL)saveToken:(MSIDToken *)token
-           forKey:(MSIDTokenCacheKey *)key
-            error:(NSError **)error;
+- (id)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
+@property (readonly) id<MSIDTokenCacheDataSource> dataSource;
 
-- (MSIDToken *)getAdalAT:(NSString *)userId
-                resource:(NSString *)resource
-                clientId:(NSString *)clientId
-                   error:(NSError **)error;
 
-- (MSIDToken *)getMsalAT:(NSString *)userId
-                  scopes:(NSSet<NSString *> *)scopes
-                clientId:(NSString *)clientId
-                   error:(NSError **)error;
+/*!
+ Returns an AT or RT Token Cache Item for given parameters. The RT in this item will only be good
+ for the given resource. If no RT is returned in the item then a MRRT or FRT should be used (if
+ available).
+ */
+- (MSIDToken *)getAdalATRTforUser:(MSIDAccount *)user
+                        authority:(NSURL *)authority
+                         resource:(NSString *)resource
+                         clientId:(NSString *)clientId
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error;
 
-- (MSIDToken *)getFRT:(NSString *)userId
-             familyId:(NSString *)familyId
+/*!
+ Returns a Family Refresh Token for the given authority, user and family ID, if available. A FRT can
+ be used for many resources within a given family of client IDs.
+ */
+- (MSIDToken *)getFRTforUser:(MSIDAccount *)user
+                   authority:(NSURL *)authority
+                    familyId:(NSString *)familyId
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error;
+
+/*!
+ ADFS is not capable of giving us an idtoken when we authenticate users, so we don't know who got logged
+ in or who to cache the tokens for, and instead put the token in a special entry.
+ */
+- (MSIDAdfsToken *)getAdfsUserTokenForAuthority:(NSURL *)authority
+                                       resource:(NSString *)resource
+                                       clientId:(NSString *)clientId
+                                        context:(id<MSIDRequestContext>)context
+                                          error:(NSError **)error;
+
+/*!
+ Returns an AT for MSAL for given parameters
+ */
+- (MSIDToken *)getMsalATwithAuthority:(NSURL *)authority
+                             clientId:(NSString *)clientId
+                               scopes:(NSOrderedSet<NSString *> *)scopes
+                                 user:(MSIDAccount *)user
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
+
+/*!
+ Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
+ potentially be used for many resources for that given user, client ID and authority.
+ */
+- (MSIDToken *)getRTforUser:(MSIDAccount *)user
+                  authority:(NSURL *)authority
+                   clientId:(NSString *)clientId
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
+
+/*!
+ Returns all refresh tokens for a given client.
+ */
+- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error;
+
+/*!
+ Following set of methods store tokens in appropriate form.
+ */
+
+- (BOOL)saveAdalAT:(MSIDToken *)adalAT
+          clientId:(NSString *)clientId
+              user:(MSIDAccount *)user
+          resource:(NSString *)resource
+           context:(id<MSIDRequestContext>)context
+             error:(NSError **)error;
+
+- (BOOL)saveMsalAT:(MSIDToken *)msalAT
+         authority:(NSURL *)authority
+          clientId:(NSString *)clientId
+              user:(MSIDAccount *)user
+            scopes:(NSOrderedSet<NSString *> *)scopes
+           context:(id<MSIDRequestContext>)context
+             error:(NSError **)error;
+
+- (BOOL)saveFRT:(MSIDToken *)rt
+           user:(MSIDAccount *)user
+       familyId:(NSString *)familyId
+      authority:(NSURL *)authority
+        context:(id<MSIDRequestContext>)context
+          error:(NSError **)error;
+
+- (BOOL)saveRT:(MSIDToken *)rt
+          user:(MSIDAccount *)user
+     authority:(NSURL *)authority
+      clientId:(NSString *)clientId
+       context:(id<MSIDRequestContext>)context
+         error:(NSError **)error;
+
+- (BOOL)saveAdfsToken:(MSIDAdfsToken *)adfsToken
+            authority:(NSURL *)authority
+             resource:(NSString *)resource
+             clientId:(NSString *)clientId
+              context:(id<MSIDRequestContext>)context
                 error:(NSError **)error;
 
-- (MSIDToken *)getAdfsUserToken:(NSString *)resource
-                       clientId:(NSString *)clientId
-                          error:(NSError **)error;
-
-- (NSArray<MSIDToken *> *)getRTs:(NSString *)clientId
-                           error:(NSError **)error;
-
-
 @end
+

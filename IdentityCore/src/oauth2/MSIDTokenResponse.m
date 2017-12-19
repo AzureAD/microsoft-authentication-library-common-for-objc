@@ -38,4 +38,31 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_SCOPE, scope)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_STATE, state)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
 
+- (NSDate *)expiryDate
+{
+    NSString *expiresIn = self.expiresIn;
+    
+    if (!expiresIn)
+    {
+        if (_json[MSID_OAUTH2_EXPIRES_IN])
+        {
+            MSID_LOG_WARN(nil, @"Unparsable time - The response value for the access token expiration cannot be parsed: %@", _json[MSID_OAUTH2_EXPIRES_IN]);
+        }
+        
+        return nil;
+    }
+    
+    return [NSDate dateWithTimeIntervalSinceNow:[expiresIn doubleValue]];
+}
+
+- (BOOL)isMultiResource
+{
+    return YES;
+}
+
+- (MSIDIdToken *)idTokenObj
+{
+    return [[MSIDIdToken alloc] initWithRawIdToken:self.idToken];
+}
+
 @end
