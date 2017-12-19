@@ -195,7 +195,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user. Please set 'account' and 'service' properties of MSIDTokenCacheKey.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user.", nil, nil, nil, context.correlationId, nil);
         }
         
         return nil;
