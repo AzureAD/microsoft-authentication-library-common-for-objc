@@ -150,6 +150,40 @@
     return NO;
 }
 
+- (BOOL)removeTokenForAccount:(MSIDAccount *)account
+                        token:(MSIDToken *)token
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
+{
+    if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", nil, nil, nil, context.correlationId, nil);
+        return NO;
+    }
+    
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:token.authority
+                                                        clientId:token.clientId
+                                                        resource:token.resource
+                                                             upn:account.upn];
+    
+    MSIDToken *tokenInCache = [_dataSource itemWithKey:key
+                                            serializer:_serializer
+                                               context:context
+                                                 error:nil];
+    
+    if (tokenInCache
+        && tokenInCache.tokenType == MSIDTokenTypeRefreshToken
+        && [tokenInCache.token isEqualToString:token.token])
+    {
+        return [_dataSource removeItemsWithKey:key
+                                       context:context
+                                         error:error];
+    }
+    
+    return YES;
+    
+}
+
 #pragma mark - MSIDSharedTokenCacheAccessor
 
 - (BOOL)saveRTForAccount:(MSIDAccount *)account
@@ -268,7 +302,6 @@
                                             context:context
                                               error:&cacheError];
         
-        // TODO: storage authority
         token.authority = _authority;
         
         if (token)
