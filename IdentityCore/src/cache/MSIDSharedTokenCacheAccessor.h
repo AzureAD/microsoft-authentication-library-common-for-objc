@@ -28,18 +28,23 @@
 
 @protocol MSIDSharedTokenCacheAccessor <NSObject>
 
-- (BOOL)saveRTForUser:(MSIDAccount *)user
-         refreshToken:(MSIDToken *)refreshToken
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error;
+- (BOOL)saveRTForAccount:(MSIDAccount *)account
+            refreshToken:(MSIDToken *)refreshToken
+               authority:(NSURL *)authority
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error;
 
-- (MSIDToken *)getClientRTForUser:(MSIDAccount *)user
-                         clientId:(NSString *)clientId
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error;
+- (MSIDToken *)getClientRTForAccount:(MSIDAccount *)account
+                           authority:(NSURL *)authority
+                            clientId:(NSString *)clientId
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error;
 
-- (MSIDToken *)getFRTForUser:(MSIDAccount *)user
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error;
+- (MSIDToken *)getFRTForAccount:(MSIDAccount *)account
+                       familyId:(NSString *)familyId
+                      authority:(NSURL *)authority
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error;
 
 @end
+

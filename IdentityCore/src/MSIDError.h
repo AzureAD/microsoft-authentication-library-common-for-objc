@@ -39,9 +39,17 @@ extern NSString *MSIDErrorDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
-    MSIDErrorInternal = -51000,
-    MSIDErrorCacheMultipleUsers = 300
+    MSIDErrorInternal               = -51000,
+    MSIDErrorCacheMultipleUsers     = 300,
+    
+    MSIDErrorInvalidParameter       = -42000,
+    MSIDErrorInvalidRequest         = -42002,
+    MSIDErrorInvalidClient          = -42003,
+    
+    MSIDErrorInteractionRequired    = -42100,
+    
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
 
+extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode);
