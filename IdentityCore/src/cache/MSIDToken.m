@@ -163,6 +163,8 @@ static uint64_t s_expirationBuffer = 300;
     {
         [coder encodeObject:_token forKey:@"accessToken"];
     }
+    // Backward compatibility with ADAL.
+    [coder encodeObject:@"Bearer" forKey:@"accessTokenType"];
     
     [coder encodeObject:_clientInfo.rawClientInfo forKey:@"clientInfo"];
     [coder encodeObject:_additionalServerInfo forKey:@"additionalServer"];

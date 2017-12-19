@@ -21,27 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-extern NSString *MSIDErrorDescriptionKey;
-extern NSString *MSIDOAuthErrorKey;
-extern NSString *MSIDOAuthSubErrorKey;
-extern NSString *MSIDCorrelationIdKey;
-extern NSString *MSIDHTTPHeadersKey;
-extern NSString *MSIDHTTPResponseCodeKey;
+#import <Foundation/Foundation.h>
+#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 
-/*!
- ADAL and MSAL use different error domains and error codes.
- When extracting shared code to common core, we unify those error domains
- and error codes to be MSID error domains/codes and list them below. Besides,
- domain mapping and error code mapping should be added to ADAuthenticationErrorConverter
- and MSALErrorConveter in corresponding project.
- */
-extern NSString *MSIDErrorDomain;
+@implementation MSIDKeychainTokenCache (MSIDTestUtil)
 
-typedef NS_ENUM(NSInteger, MSIDErrorCode)
++ (void)reset
 {
-    MSIDErrorInternal = -51000,
-    MSIDErrorCacheMultipleUsers = 300
-};
+    [self deleteAllKeysForSecClass:kSecClassGenericPassword];
+    [self deleteAllKeysForSecClass:kSecClassCertificate];
+    [self deleteAllKeysForSecClass:kSecClassKey];
+    [self deleteAllKeysForSecClass:kSecClassIdentity];
+}
 
-extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
+#pragma mark - Private
 
++ (void)deleteAllKeysForSecClass:(CFTypeRef)secClass
+{
+    NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+    [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
+    OSStatus result = SecItemDelete((__bridge CFDictionaryRef) dict);
+    
+    assert(result == noErr || result == errSecItemNotFound);
+}
+
+@end

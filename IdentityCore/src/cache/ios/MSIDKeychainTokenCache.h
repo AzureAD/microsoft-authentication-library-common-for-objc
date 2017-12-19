@@ -26,4 +26,45 @@
 
 @interface MSIDKeychainTokenCache : NSObject<MSIDTokenCacheDataSource>
 
+/*!
+ The name of the group to be used by default when creating an instance of MSIDKeychainTokenCache,
+ the default value is com.microsoft.adalcache.
+ 
+ If set to 'nil' the main bundle's identifier will be used instead. Any keychain sharing group other 
+ then the main bundle's identifier will require a keychain sharing group entitlement.
+ 
+ See apple's documentation for keychain groups: such groups require certain
+ entitlements to be set by the applications. Additionally, access to the items in this group
+ is only given to the applications from the same vendor. If this property is not set, the behavior
+ will depend on the values in the entitlements file (if such exists) and may not result in token
+ sharing. The property has no effect if other cache mechanisms are used (non-keychain).
+ 
+ NOTE: Once an authentication context has been created with the default keychain
+ group, or +[ADKeychainTokenCache defaultKeychainCache] has been called then
+ this value cannot be changed. Doing so will throw an exception.
+ */
+@property (class, nullable) NSString *defaultKeychainGroup;
+
+/*!
+ Default cache. Will be initialized with defaultKeychainGroup.
+ */
+@property (class, readonly, nonnull) MSIDKeychainTokenCache *defaultKeychainCache;
+
+/*! 
+ Initializes with defaultKeychainGroup.
+ */
+- (nonnull instancetype)init;
+
+/*!
+ Initialize with keychainGroup.
+ @param keychainGroup Optional. If the application needs to share the cached tokens
+ with other applications from the same vendor, the app will need to specify the
+ shared group here and add the necessary entitlements to the application.
+ 
+ If set to 'nil' the main bundle's identifier will be used instead.
+ 
+ See Apple's keychain services documentation for details.
+ */
+- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup;
+
 @end

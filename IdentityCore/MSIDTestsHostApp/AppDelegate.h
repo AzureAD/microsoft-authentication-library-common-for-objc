@@ -21,27 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-extern NSString *MSIDErrorDescriptionKey;
-extern NSString *MSIDOAuthErrorKey;
-extern NSString *MSIDOAuthSubErrorKey;
-extern NSString *MSIDCorrelationIdKey;
-extern NSString *MSIDHTTPHeadersKey;
-extern NSString *MSIDHTTPResponseCodeKey;
+#import <UIKit/UIKit.h>
 
-/*!
- ADAL and MSAL use different error domains and error codes.
- When extracting shared code to common core, we unify those error domains
- and error codes to be MSID error domains/codes and list them below. Besides,
- domain mapping and error code mapping should be added to ADAuthenticationErrorConverter
- and MSALErrorConveter in corresponding project.
- */
-extern NSString *MSIDErrorDomain;
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
 
-typedef NS_ENUM(NSInteger, MSIDErrorCode)
-{
-    MSIDErrorInternal = -51000,
-    MSIDErrorCacheMultipleUsers = 300
-};
+@property (strong, nonatomic) UIWindow *window;
 
-extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
-
+@end
