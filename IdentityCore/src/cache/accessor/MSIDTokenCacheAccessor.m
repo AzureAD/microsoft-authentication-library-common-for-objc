@@ -64,11 +64,6 @@
        context:(id<MSIDRequestContext>)context
          error:(NSError **)error
 {
-    if (!account || !account.userIdentifier)
-    {
-        return NO;
-    }
-    
     // delete all cache entries with intersecting scopes
     // this should not happen but we have this as a safe guard against multiple matches
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokensWithUserId:account.userIdentifier
@@ -78,7 +73,6 @@
     
     if (!allTokens)
     {
-        
         return NO;
     }
     
@@ -119,11 +113,6 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError *__autoreleasing *)error
 {
-    if (!account || !account.userIdentifier)
-    {
-        return nil;
-    }
-    
     // delete all cache entries with intersecting scopes
     // this should not happen but we have this as a safe guard against multiple matches
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokensWithUserId:account.userIdentifier
@@ -163,7 +152,10 @@
         }
         if (![foundAuthority msidIsEquivalentAuthority:token.authority])
         {
-            // Todo: add macro and handle error
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAmbiguousAuthority, @"Found multiple access tokens, which token to return is ambiguous! Please pass in authority if not provided.", nil, nil, nil, context.correlationId, nil);
+            }
             return nil;
         }
         if (![scopes isSubsetOfOrderedSet:token.scopes])
@@ -213,16 +205,20 @@
                                                                request:request
                                                              tokenType:MSIDTokenTypeRefreshToken];
     
-    result = [self saveRTForAccount:account refreshToken:refreshToken
-                          authority:request.authority
-                            context:context
-                              error:error];
-    
-    return result;
+    return [self saveRTForAccount:account
+                     refreshToken:refreshToken
+                        authority:request.authority
+                          context:context
+                            error:error];
+
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker is not supported in MSIDTokenCacheAccessor", nil, nil, nil, context.correlationId, nil);
+    }
     return NO;
 }
 
@@ -233,11 +229,6 @@
                  context:(id<MSIDRequestContext>)context
                    error:(NSError **)error
 {
-    if (!account || !account.userIdentifier)
-    {
-        return NO;
-    }
-    
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithUserId:account.userIdentifier
                                                                     clientId:refreshToken.clientId
                                                                  environment:refreshToken.authority.msidHostWithPortIfNecessary];
@@ -254,11 +245,6 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
-    if (!account || !account.userIdentifier)
-    {
-        return nil;
-    }
-    
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithUserId:account.userIdentifier
                                                                     clientId:clientId
                                                                  environment:authority.msidHostWithPortIfNecessary];
@@ -273,6 +259,32 @@
 {
     return nil;
 }
+
+- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
+{
+    NSMutableArray<MSIDToken *> *allRTs = [NSMutableArray<MSIDToken *> new];
+    
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithClientId:clientId];
+    
+    NSArray *tokens = [_dataSource itemsWithKey:key serializer:_serializer context:context error:error];
+    if (!tokens)
+    {
+        return nil;
+    }
+    
+    for (MSIDToken *token in tokens)
+    {
+        if (token.tokenType == MSIDTokenTypeRefreshToken)
+        {
+            [allRTs addObject:token];
+        }
+    }
+    
+    return allRTs;
+}
+
 
 #pragma mark - Helper methods
 + (NSOrderedSet<NSString *> *)scopeFromString:(NSString *)scopeString

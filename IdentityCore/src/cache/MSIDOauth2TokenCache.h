@@ -31,6 +31,8 @@
 
 @protocol MSIDOauth2TokenCache <NSObject>
 
+NS_ASSUME_NONNULL_BEGIN
+
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
                          authority:(NSURL *)authority
                       cacheFormats:(NSArray<id<MSIDSharedTokenCacheAccessor>> *)cacheFormats;
@@ -43,5 +45,7 @@
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
+
+NS_ASSUME_NONNULL_END
 
 @end

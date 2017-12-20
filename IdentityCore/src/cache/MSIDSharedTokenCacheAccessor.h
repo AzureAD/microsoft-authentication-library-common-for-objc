@@ -28,6 +28,8 @@
 
 @protocol MSIDSharedTokenCacheAccessor <NSObject>
 
+NS_ASSUME_NONNULL_BEGIN
+
 - (BOOL)saveRTForAccount:(MSIDAccount *)account
             refreshToken:(MSIDToken *)refreshToken
                authority:(NSURL *)authority
@@ -45,6 +47,15 @@
                       authority:(NSURL *)authority
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
+
+/*!
+ Returns all refresh tokens for a given client.
+ */
+- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error;
+
+NS_ASSUME_NONNULL_END
 
 @end
 
