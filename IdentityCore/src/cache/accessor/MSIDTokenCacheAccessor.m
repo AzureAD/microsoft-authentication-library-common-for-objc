@@ -60,12 +60,9 @@
 
 #pragma mark - MSAL AT
 - (BOOL)saveAT:(MSIDToken *)msalAT
-     authority:(NSURL *)authority
-      clientId:(NSString *)clientId
        account:(MSIDAccount *)account
-        scopes:(NSOrderedSet<NSString *> *)scopes
        context:(id<MSIDRequestContext>)context
-         error:(NSError *__autoreleasing *)error
+         error:(NSError **)error
 {
     if (!account || !account.userIdentifier)
     {
@@ -75,7 +72,7 @@
     // delete all cache entries with intersecting scopes
     // this should not happen but we have this as a safe guard against multiple matches
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokensWithUserId:account.userIdentifier
-                                                                    environment:authority.msidHostWithPortIfNecessary];
+                                                                    environment:msalAT.authority.msidHostWithPortIfNecessary];
     
     NSArray<MSIDToken *> *allTokens = [_dataSource itemsWithKey:key serializer:_serializer context:context error:error];
     
@@ -103,9 +100,9 @@
         }
     }
     
-    MSIDTokenCacheKey *atKey = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:authority
-                                                                        clientId:clientId
-                                                                          scopes:scopes
+    MSIDTokenCacheKey *atKey = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:msalAT.authority
+                                                                        clientId:msalAT.clientId
+                                                                          scopes:msalAT.scopes
                                                                           userId:account.userIdentifier];
     
     return [_dataSource setItem:msalAT
@@ -195,20 +192,33 @@
 }
 
 #pragma mark - MSIDOauth2TokenCache
-- (BOOL)saveTokensWithRequest:(MSIDTokenRequest *)request response:(MSIDTokenResponse *)response context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (BOOL)saveTokensWithRequest:(MSIDTokenRequest *)request
+                     response:(MSIDTokenResponse *)response
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError *__autoreleasing *)error
 {
-    if (response.error)
+    MSIDAccount *account = [[MSIDAccount alloc] initWithTokenResponse:response];
+
+    MSIDToken *accessToken = [[MSIDToken alloc] initWithTokenResponse:response
+                                                              request:request
+                                                            tokenType:MSIDTokenTypeAccessToken];
+
+    BOOL result = [self saveAT:accessToken account:account context:context error:error];
+    if (result == NO)
     {
-        if (error)
-        {
-            MSIDErrorCode code = MSIDErrorCodeForOAuthError(response.error, MSIDErrorInteractionRequired);
-            *error = MSIDCreateError(MSIDErrorDomain, code, response.errorDescription, response.error, nil, nil, nil, nil);
-        }
         return NO;
     }
+
+    MSIDToken *refreshToken = [[MSIDToken alloc] initWithTokenResponse:response
+                                                               request:request
+                                                             tokenType:MSIDTokenTypeRefreshToken];
     
+    result = [self saveRTForAccount:account refreshToken:refreshToken
+                          authority:request.authority
+                            context:context
+                              error:error];
     
-    return NO;
+    return result;
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
@@ -263,5 +273,21 @@
 {
     return nil;
 }
+
+#pragma mark - Helper methods
++ (NSOrderedSet<NSString *> *)scopeFromString:(NSString *)scopeString
+{
+    NSMutableOrderedSet<NSString *> *scope = [NSMutableOrderedSet<NSString *> new];
+    NSArray *parts = [scopeString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" "]];
+    for (NSString *part in parts)
+    {
+        if (![NSString msidIsStringNilOrBlank:part])
+        {
+            [scope addObject:part.msidTrimmedString.lowercaseString];
+        }
+    }
+    return scope;
+}
+
 
 @end

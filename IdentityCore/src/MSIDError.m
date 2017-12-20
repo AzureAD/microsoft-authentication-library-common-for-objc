@@ -46,20 +46,4 @@ NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescri
     return [NSError errorWithDomain:domain code:code userInfo:userInfo];
 }
 
-MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode)
-{
-    if ([oauthError isEqualToString:@"invalid_request"])
-    {
-        return MSIDErrorInvalidRequest;
-    }
-    if ([oauthError isEqualToString:@"invalid_client"])
-    {
-        return MSIDErrorInvalidClient;
-    }
-    if ([oauthError isEqualToString:@"invalid_scope"])
-    {
-        return MSIDErrorInvalidParameter;
-    }
-    
-    return defaultCode;
-}
+

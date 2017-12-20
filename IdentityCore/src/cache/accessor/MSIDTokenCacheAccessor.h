@@ -41,10 +41,7 @@
  Saves an AT for MSAL 
  */
 - (BOOL)saveAT:(MSIDToken *)msalAT
-     authority:(NSURL *)authority
-      clientId:(NSString *)clientId
-       account:(MSIDAccount *)account
-        scopes:(NSOrderedSet<NSString *> *)scopes
+        account:(MSIDAccount *)account
        context:(id<MSIDRequestContext>)context
          error:(NSError **)error;
 
