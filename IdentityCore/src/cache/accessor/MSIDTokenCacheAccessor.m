@@ -26,10 +26,13 @@
 #import "MSIDAccount.h"
 #import "MSIDTokenCacheKey.h"
 #import "MSIDToken.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "MSIDTelemetryCacheEvent.h"
 
 @interface MSIDTokenCacheAccessor()
 {
-    NSURL * _authority;
+    NSURL *_authority;
     
     NSArray<id<MSIDSharedTokenCacheAccessor>> *_cacheFormats;
     id<MSIDTokenCacheDataSource> _dataSource;
@@ -319,6 +322,5 @@
     }
     return scope;
 }
-
 
 @end

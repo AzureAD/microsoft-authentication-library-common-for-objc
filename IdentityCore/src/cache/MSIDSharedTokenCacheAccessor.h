@@ -30,30 +30,24 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-- (BOOL)saveRTForAccount:(MSIDAccount *)account
-            refreshToken:(MSIDToken *)refreshToken
-               authority:(NSURL *)authority
-                 context:(id<MSIDRequestContext>)context
-                   error:(NSError **)error;
+- (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
+                  refreshToken:(MSIDToken *)refreshToken
+                     authority:(NSURL *)authority
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error;
 
-- (MSIDToken *)getClientRTForAccount:(MSIDAccount *)account
+- (MSIDToken *)getSharedRTForAccount:(MSIDAccount *)account
                            authority:(NSURL *)authority
                             clientId:(NSString *)clientId
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (MSIDToken *)getFRTForAccount:(MSIDAccount *)account
-                       familyId:(NSString *)familyId
-                      authority:(NSURL *)authority
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error;
-
 /*!
  Returns all refresh tokens for a given client.
  */
-- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
-                                       context:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error;
+- (NSArray<MSIDToken *> *)getAllSharedRTsForClientId:(NSString *)clientId
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError **)error;
 
 NS_ASSUME_NONNULL_END
 

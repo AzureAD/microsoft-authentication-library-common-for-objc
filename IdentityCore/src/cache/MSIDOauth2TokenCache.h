@@ -46,6 +46,23 @@ NS_ASSUME_NONNULL_BEGIN
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
+- (MSIDToken *)getRTForAccount:(MSIDAccount *)account
+                      clientId:(NSString *)clientId
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error;
+
+- (MSIDToken *)getFRTforUser:(MSIDAccount *)user
+                    familyId:(NSString *)familyId
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error;
+
+/*!
+ Returns all refresh tokens for a given client.
+ */
+- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error;
+
 NS_ASSUME_NONNULL_END
 
 @end
