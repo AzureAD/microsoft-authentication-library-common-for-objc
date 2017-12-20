@@ -205,12 +205,31 @@
                                                                request:request
                                                              tokenType:MSIDTokenTypeRefreshToken];
     
-    return [self saveRTForAccount:account
-                     refreshToken:refreshToken
-                        authority:request.authority
-                          context:context
-                            error:error];
+    result = [self saveRTForAccount:account
+                       refreshToken:refreshToken
+                          authority:request.authority
+                            context:context
+                              error:error];
 
+    if (result == NO)
+    {
+        return NO;
+    }
+    
+    for (id<MSIDSharedTokenCacheAccessor> cacheAccessor in _cacheFormats)
+    {
+        result = [cacheAccessor saveRTForAccount:account
+                                    refreshToken:refreshToken
+                                       authority:request.authority
+                                         context:context
+                                           error:error];
+        
+        if (result == NO)
+        {
+            return NO;
+        }
+    }
+    return YES;
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
