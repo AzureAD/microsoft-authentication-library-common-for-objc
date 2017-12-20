@@ -73,3 +73,4 @@ extern NSString *const MSID_OAUTH2_DOMAIN_REQ;
 extern NSString *const MSID_OAUTH2_LOGIN_REQ;
 
 extern NSString *const MSID_OAUTH2_ADDITIONAL_SERVER_INFO;
+extern NSString *const MSID_OAUTH2_ENVIRONMENT;

@@ -49,14 +49,14 @@
     [expectedToken setValue:@"refresh token value" forKey:@"token"];
     [expectedToken setValue:[[NSNumber alloc] initWithInt:MSIDTokenTypeRefreshToken] forKey:@"tokenType"];
     [expectedToken setValue:@"id token value" forKey:@"idToken"];
-    [expectedToken setValue:[NSDate new] forKey:@"expiresOn"];
+    [expectedToken setValue:[[NSDate alloc] initWithTimeIntervalSince1970:1513800870] forKey:@"expiresOn"];
     [expectedToken setValue:@"familyId value" forKey:@"familyId"];
     [expectedToken setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
     [expectedToken setValue:@"some resource" forKey:@"resource"];
     [expectedToken setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
     [expectedToken setValue:@"some clientId" forKey:@"clientId"];
-    [expectedToken setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+    [expectedToken setValue:[[NSOrderedSet alloc] initWithArray:@[@"1", @"2"]] forKey:@"scopes"];
     
     NSData *data = [serializer serialize:expectedToken];
     MSIDToken *resultToken = [serializer deserialize:data];
