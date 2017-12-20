@@ -221,11 +221,13 @@
     
     for (id<MSIDSharedTokenCacheAccessor> cacheAccessor in _cacheFormats)
     {
-        result = [cacheAccessor saveRTForAccount:account
-                                    refreshToken:refreshToken
-                                       authority:request.authority
-                                         context:context
-                                           error:error];
+        result = NO;
+        // TODO:
+//        [cacheAccessor saveRTForAccount:account
+//                                    refreshToken:refreshToken
+//                                       authority:request.authority
+//                                         context:context
+//                                           error:error];
         
         if (result == NO)
         {
