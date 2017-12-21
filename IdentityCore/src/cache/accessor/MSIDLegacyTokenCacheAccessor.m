@@ -160,11 +160,13 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
+    NSError *cacheError = nil;
+    
     MSIDToken *token = [self getSharedRTForAccount:account
                                          authority:authority
                                           clientId:clientId
                                            context:context
-                                             error:error];
+                                             error:&cacheError];
     
     // Found token from the current cache, return immediately
     if (token)
@@ -172,8 +174,13 @@
         return token;
     }
     // No token was found from the current cache and we got an error, don't try other caches
-    else if (error)
+    else if (cacheError)
     {
+        if (error)
+        {
+            *error = cacheError;
+        }
+        
         return nil;
     }
     
@@ -184,15 +191,19 @@
                                               authority:authority
                                                clientId:clientId
                                                 context:context
-                                                  error:error];
+                                                  error:&cacheError];
         
         if (token)
         {
             return token;
         }
-        
-        if (error)
+        else if (cacheError)
         {
+            if (error)
+            {
+                *error = cacheError;
+            }
+            
             return nil;
         }
     }
@@ -218,8 +229,29 @@
                                        context:(id<MSIDRequestContext>)context
                                          error:(NSError **)error
 {
-    // TODO: implement me
-    return nil;
+    NSArray *legacyRTs = [self getAllSharedRTsForClientId:clientId context:context error:error];
+    
+    if (!legacyRTs)
+    {
+        return nil;
+    }
+    
+    NSMutableArray *resultRTs = [legacyRTs mutableCopy];
+    
+    // Try other caches
+    for (id<MSIDSharedCacheFormat> cache in _cacheFormats)
+    {
+        NSArray *otherRTs = [cache getAllSharedRTsForClientId:clientId
+                                                      context:context
+                                                        error:error];
+        
+        if (otherRTs)
+        {
+            [resultRTs addObjectsFromArray:otherRTs];
+        }
+    }
+    
+    return resultRTs;
 }
 
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
@@ -308,8 +340,28 @@
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error
 {
-    // TODO: implement me
-    return nil;
+    NSArray *legacyTokens = [_dataSource itemsWithKey:[MSIDTokenCacheKey keyForAllItems]
+                                           serializer:_serializer
+                                              context:context
+                                                error:error];
+    
+    if (!legacyTokens)
+    {
+        return nil;
+    }
+    
+    NSMutableArray *resultRTs = [NSMutableArray array];
+    
+    for (MSIDToken *token in legacyTokens)
+    {
+        if (token.tokenType == MSIDTokenTypeRefreshToken
+            && token.clientId == clientId)
+        {
+            [resultRTs addObject:token];
+        }
+    }
+    
+    return resultRTs;
 }
 
 #pragma mark - Helper methods
