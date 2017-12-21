@@ -327,7 +327,6 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
     
-    NSURL *oldAuthority = token.authority;
     NSURL *newAthority = token.authority; // TODO: replace with an actual authority
     
     // The authority used to retrieve the item over the network can differ from the preferred authority used to
