@@ -97,16 +97,14 @@
         }
     }
     
-    MSIDTokenCacheKey *atKey = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:msalAT.authority
-                                                                        clientId:msalAT.clientId
-                                                                          scopes:msalAT.scopes
-                                                                          userId:account.userIdentifier];
-    
-    return [_dataSource setItem:msalAT
-                            key:atKey
-                     serializer:_serializer
-                        context:context
-                          error:error];
+    return [self saveToken:msalAT
+                   account:account
+                  clientId:msalAT.clientId
+                    scopes:msalAT.scopes
+                 authority:msalAT.authority
+                serializer:_serializer
+                   context:context
+                     error:error];
 }
 
 - (MSIDToken *)getATwithAuthority:(NSURL *)authority
@@ -208,11 +206,11 @@
                                                                request:request
                                                              tokenType:MSIDTokenTypeRefreshToken];
     
-    result = [self saveRTForAccount:account
-                       refreshToken:refreshToken
-                          authority:request.authority
-                            context:context
-                              error:error];
+    result = [self saveSharedRTForAccount:account
+                             refreshToken:refreshToken
+                                authority:request.authority
+                                  context:context
+                                    error:error];
 
     if (result == NO)
     {
@@ -221,13 +219,11 @@
     
     for (id<MSIDSharedTokenCacheAccessor> cacheAccessor in _cacheFormats)
     {
-        result = NO;
-        // TODO:
-//        [cacheAccessor saveRTForAccount:account
-//                                    refreshToken:refreshToken
-//                                       authority:request.authority
-//                                         context:context
-//                                           error:error];
+        [cacheAccessor saveSharedRTForAccount:account
+                                 refreshToken:refreshToken
+                                    authority:request.authority
+                                      context:context
+                                        error:error];
         
         if (result == NO)
         {
@@ -246,24 +242,99 @@
     return NO;
 }
 
-#pragma mark - MSIDSharedTokenCacheAccessor
-- (BOOL)saveRTForAccount:(MSIDAccount *)account
-            refreshToken:(MSIDToken *)refreshToken
-               authority:(NSURL *)authority
-                 context:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
+- (MSIDToken *)getRTForAccount:(MSIDAccount *)account
+                      clientId:(NSString *)clientId
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithUserId:account.userIdentifier
-                                                                    clientId:refreshToken.clientId
-                                                                 environment:refreshToken.authority.msidHostWithPortIfNecessary];
-    return [_dataSource setItem:refreshToken
-                            key:key
-                     serializer:_serializer
-                        context:context
-                          error:error];
+    if (account.userIdentifier)
+    {
+        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithUserId:account.userIdentifier
+                                                                        clientId:clientId
+                                                                     environment:_authority.msidHostWithPortIfNecessary];
+        
+        MSIDToken *token = [_dataSource itemWithKey:key serializer:_serializer context:context error:error];
+        if (token)
+        {
+            return token;
+        }
+    }
+    
+    for (id<MSIDSharedTokenCacheAccessor> cacheAccessor in _cacheFormats)
+    {
+        MSIDToken *token = [cacheAccessor getSharedRTForAccount:account
+                                                      authority:_authority
+                                                       clientId:clientId
+                                                        context:context
+                                                          error:error];
+        if (token)
+        {
+            return token;
+        }
+    }
+    
+    return nil;
 }
 
-- (MSIDToken *)getClientRTForAccount:(MSIDAccount *)account
+- (MSIDToken *)getFRTforAccount:(MSIDAccount *)account
+                       familyId:(NSString *)familyId
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    if (!familyId)
+    {
+        familyId = @"1";
+    }
+    NSString *fociClientId = [NSString stringWithFormat:@"foci-%@", familyId];
+    
+    return [self getRTForAccount:account clientId:fociClientId context:context error:error];
+}
+
+
+- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
+{
+    NSMutableArray *result = [[self getAllSharedRTsForClientId:clientId
+                                                       context:context
+                                                         error:error] mutableCopy];
+    if (!result)
+    {
+        return nil;
+    }
+    
+    for (id<MSIDSharedTokenCacheAccessor> cacheAccessor in _cacheFormats)
+    {
+        NSArray *tokens = [cacheAccessor getAllSharedRTsForClientId:clientId context:context error:error];
+        if (!tokens)
+        {
+            return nil;
+        }
+        
+        [result addObjectsFromArray:tokens];
+    }
+    return result;
+}
+
+
+#pragma mark - MSIDSharedTokenCacheAccessor
+- (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
+                  refreshToken:(MSIDToken *)refreshToken
+                     authority:(NSURL *)authority
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
+{
+    return [self saveToken:refreshToken
+                   account:account
+                  clientId:refreshToken.clientId
+                    scopes:nil
+                 authority:refreshToken.authority
+                serializer:_serializer
+                   context:context
+                     error:error];
+}
+
+- (MSIDToken *)getSharedRTForAccount:(MSIDAccount *)account
                            authority:(NSURL *)authority
                             clientId:(NSString *)clientId
                              context:(id<MSIDRequestContext>)context
@@ -275,18 +346,9 @@
     return [_dataSource itemWithKey:key serializer:_serializer context:context error:error];
 }
 
-- (MSIDToken *)getFRTForAccount:(MSIDAccount *)account
-                       familyId:(NSString *)familyId
-                      authority:(NSURL *)authority
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error;
-{
-    return nil;
-}
-
-- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
-                                       context:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error
+- (NSArray<MSIDToken *> *)getAllSharedRTsForClientId:(NSString *)clientId
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError **)error
 {
     NSMutableArray<MSIDToken *> *allRTs = [NSMutableArray<MSIDToken *> new];
     
@@ -310,7 +372,47 @@
 }
 
 
+
 #pragma mark - Helper methods
+
+- (BOOL)saveToken:(MSIDToken *)token
+          account:(MSIDAccount *)account
+         clientId:(NSString *)clientId
+           scopes:(NSOrderedSet<NSString *> *)scopes
+        authority:(NSURL *)authority
+       serializer:(id<MSIDTokenSerializer>)serializer
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error
+{
+    MSIDTokenCacheKey *key = nil;
+    
+    switch (token.tokenType) {
+        case MSIDTokenTypeAccessToken:
+            key = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:authority
+                                                           clientId:clientId
+                                                             scopes:scopes
+                                                             userId:account.userIdentifier];
+            break;
+            
+        case MSIDTokenTypeRefreshToken:
+            key = [MSIDTokenCacheKey keyForRefreshTokenWithUserId:account.userIdentifier
+                                                         clientId:clientId
+                                                      environment:authority.msidHostWithPortIfNecessary];
+            break;
+            
+        default:
+            break;
+    }
+    
+    if (!key)
+    {
+        return NO;
+    }
+    
+    return [_dataSource setItem:token key:key serializer:serializer context:context error:error];
+}
+
+
 + (NSOrderedSet<NSString *> *)scopeFromString:(NSString *)scopeString
 {
     NSMutableOrderedSet<NSString *> *scope = [NSMutableOrderedSet<NSString *> new];
