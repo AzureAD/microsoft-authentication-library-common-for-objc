@@ -32,7 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
                   refreshToken:(MSIDToken *)refreshToken
-                     authority:(NSURL *)authority
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error;
 

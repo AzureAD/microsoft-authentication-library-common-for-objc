@@ -34,7 +34,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-                         authority:(NSURL *)authority
                       cacheFormats:(NSArray<id<MSIDSharedTokenCacheAccessor>> *)cacheFormats;
 
 - (BOOL)saveTokensWithRequest:(MSIDTokenRequest *)request
@@ -47,11 +46,13 @@ NS_ASSUME_NONNULL_BEGIN
                                error:(NSError **)error;
 
 - (MSIDToken *)getRTForAccount:(MSIDAccount *)account
+                     authority:(NSURL *)authority
                       clientId:(NSString *)clientId
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error;
 
 - (MSIDToken *)getFRTforAccount:(MSIDAccount *)account
+                      authority:(NSURL *)authority
                        familyId:(NSString *)familyId
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
