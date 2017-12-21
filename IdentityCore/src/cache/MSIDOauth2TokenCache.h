@@ -27,14 +27,15 @@
 #import "MSIDRequestContext.h"
 #import "MSIDBrokerResponse.h"
 #import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedTokenCacheAccessor.h"
+#import "MSIDSharedCacheFormat.h"
 
 @protocol MSIDOauth2TokenCache <NSObject>
 
+// Init
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-                         authority:(NSURL *)authority
-                      cacheFormats:(NSArray<id<MSIDSharedTokenCacheAccessor>> *)cacheFormats;
+                      cacheFormats:(NSArray<id<MSIDSharedCacheFormat>> *)cacheFormats;
 
+// Save operations
 - (BOOL)saveTokensWithRequest:(MSIDTokenRequest *)request
                      response:(MSIDTokenResponse *)response
                       context:(id<MSIDRequestContext>)context
@@ -44,9 +45,37 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (BOOL)removeTokenForAccount:(MSIDAccount *)account
-                        token:(MSIDToken *)token
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
+/*!
+ Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
+ potentially be used for many resources for that given user, client ID and authority.
+ */
+- (MSIDToken *)getRTForAccount:(MSIDAccount *)account
+                     authority:(NSURL *)authority
+                      clientId:(NSString *)clientId
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error;
+
+/*!
+ Returns a Family Refresh Token for the given authority, user and family ID, if available. A FRT can
+ be used for many resources within a given family of client IDs.
+ */
+- (MSIDToken *)getFRTforAccount:(MSIDAccount *)account
+                      authority:(NSURL *)authority
+                       familyId:(NSString *)familyId
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error;
+
+/*!
+  + Returns all refresh tokens for a given client.
+  + */
+- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error;
+
+// Removal operations
+- (BOOL)removeRTForAccount:(MSIDAccount *)account
+                    token:(MSIDToken *)token
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error;
 
 @end

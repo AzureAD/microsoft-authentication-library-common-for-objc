@@ -23,9 +23,9 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDOauth2TokenCache.h"
-#import "MSIDSharedTokenCacheAccessor.h"
+#import "MSIDSharedCacheFormat.h"
 
-@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDOauth2TokenCache, MSIDSharedTokenCacheAccessor>
+@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDOauth2TokenCache, MSIDSharedCacheFormat>
 
 /*!
  Returns a AT/RT Token Cache Item for the given parameters. The RT in this item will only be good
@@ -33,34 +33,18 @@
  available).
  */
 - (MSIDToken *)getATRTItemForAccount:(MSIDAccount *)account
+                           authority:(NSURL *)authority
                             resource:(NSString *)resource
                             clientId:(NSString *)clientId
                              context:(id<MSIDRequestContext>)context
                                error:(NSError * __autoreleasing *)error;
 
 /*!
- Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
- potentially be used for many resources for that given user, client ID and authority.
- */
-- (MSIDToken *)getMRRTItemForAccount:(MSIDAccount *)account
-                            clientId:(NSString *)clientId
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError * __autoreleasing *)error;
-
-/*!
- Returns a Family Refresh Token for the given authority, user and family ID, if available. A FRT can
- be used for many resources within a given family of client IDs.
- */
-- (MSIDToken *)getFRTItemForAccount:(MSIDAccount *)account
-                           familyId:(NSString *)familyId
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError * __autoreleasing *)error;
-
-/*!
  ADFS is not capable of giving us an idtoken when we authenticate users, so we don't know who got logged
  in or who to cache the tokens for, and instead put the token in a special entry.
  */
 - (MSIDToken *)getADFSUserTokenForResource:(NSString *)resource
+                                 authority:(NSURL *)authority
                                   clientId:(NSString *)clientId
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError * __autoreleasing *)error;
