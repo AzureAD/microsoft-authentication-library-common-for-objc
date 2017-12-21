@@ -203,7 +203,7 @@
     XCTAssertNil(error);
 }
 
-- (void)testSaveWipeInfo_shouldReturnTrueAndNilError
+- (void)testSaveWipeInfoWithContext_shouldReturnTrueAndNilError
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     NSError *error;
@@ -214,16 +214,19 @@
     XCTAssertNil(error);
 }
 
-- (void)test_whenSaveWipeInfo_shouldReturnSameWipeInfoOnGet
+- (void)test_whenSaveWipeInfo_shouldReturnBundleIdAndWipeTime
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    NSDictionary *expectedWipeInfo = @{@"key2": @"value2"};
     NSError *error;
     
-    [keychainTokenCache saveWipeInfo:expectedWipeInfo context:nil error:nil];
+    [keychainTokenCache saveWipeInfoWithContext:nil error:nil];
     NSDictionary *resultWipeInfo = [keychainTokenCache wipeInfo:nil error:&error];
     
-    XCTAssertEqualObjects(resultWipeInfo, expectedWipeInfo);
+    XCTAssertNotNil(resultWipeInfo[@"bundleId"]);
+    
+    NSDate *date = (NSDate *)resultWipeInfo[@"wipeTime"];
+    XCTAssertTrue([date timeIntervalSinceDate:[NSDate date]] < 10);
+        
     XCTAssertNil(error);
 }
 
