@@ -60,7 +60,7 @@ static uint64_t s_expirationBuffer = 300;
     _scopes = [self scopesFromString:json[MSID_OAUTH2_SCOPE]];
     
     NSError *err;
-    _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:_json[MSID_OAUTH2_CLIENT_INFO] error:&err];
+    _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:json[MSID_OAUTH2_CLIENT_INFO] error:&err];
     if (err)
     {
         MSID_LOG_ERROR(nil, @"Client info is corrupted.");
