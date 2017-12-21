@@ -49,8 +49,6 @@ NS_ASSUME_NONNULL_BEGIN
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error;
 
-
-
 - (BOOL)removeAllTokensForAccount:(MSIDAccount *)account
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error;

@@ -203,27 +203,15 @@
     XCTAssertNil(error);
 }
 
-- (void)testSaveWipeInfo_whenNotNilInfo_shouldReturnTrueAndNilError
+- (void)testSaveWipeInfo_shouldReturnTrueAndNilError
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    NSDictionary *wipeInfo = @{@"key": @"value"};
     NSError *error;
     
-    BOOL result = [keychainTokenCache saveWipeInfo:wipeInfo context:nil error:&error];
+    BOOL result = [keychainTokenCache saveWipeInfoWithContext:nil error:&error];
     
     XCTAssertTrue(result);
     XCTAssertNil(error);
-}
-
-- (void)testSaveWipeInfo_whenNilInfo_shouldReturnFalseAndError
-{
-    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    NSError *error;
-    
-    BOOL result = [keychainTokenCache saveWipeInfo:nil context:nil error:&error];
-    
-    XCTAssertFalse(result);
-    XCTAssertNotNil(error);
 }
 
 - (void)test_whenSaveWipeInfo_shouldReturnSameWipeInfoOnGet

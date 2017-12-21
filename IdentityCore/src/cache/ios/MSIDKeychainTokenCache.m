@@ -313,17 +313,14 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return tokenItems;
 }
 
-- (BOOL)saveWipeInfo:(NSDictionary *)wipeInfo
-                  context:(id<MSIDRequestContext>)context
-               error:(NSError **)error
+- (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
 {
+    NSDictionary *wipeInfo = @{ @"bundleId" : [[NSBundle mainBundle] bundleIdentifier],
+                                @"wipeTime" : [NSDate date]
+                                };
+
     MSID_LOG_INFO_PII(context, @"Full wipe info: %@", wipeInfo);
-    
-    if (!wipeInfo)
-    {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"wipeInfo is nil.", nil, nil, nil, context.correlationId, nil);
-        return NO;
-    }
     
     NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
     MSID_LOG_INFO(context, @"Trying to update wipe info...");

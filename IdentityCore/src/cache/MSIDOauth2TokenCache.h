@@ -63,11 +63,14 @@ NS_ASSUME_NONNULL_BEGIN
                                        context:(id<MSIDRequestContext>)context
                                          error:(NSError **)error;
 
-- (BOOL)removeTokenForAccount:(MSIDAccount *)account
-                        token:(MSIDToken *)token
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
+- (BOOL)removeRTForAccount:(MSIDAccount *)account
+                     token:(MSIDToken *)token
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
 
+- (BOOL)wipeAccount:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error;
 
 NS_ASSUME_NONNULL_END
 
