@@ -348,30 +348,6 @@
     return YES;
 }
 
-
-- (BOOL)wipeAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError * _Nullable __autoreleasing *)error
-{
-    if (![self removeAllTokensForAccount:account context:context error:error])
-    {
-        return NO;
-    }
-    for (id<MSIDSharedTokenCacheAccessor> cacheAccessor in _cacheFormats)
-    {
-        if (![cacheAccessor removeAllTokensForAccount:account context:context error:error])
-        {
-            return NO;
-        }
-    }
-    
-    if(![_dataSource saveWipeInfoWithContext:context error:error])
-    {
-        return NO;
-    }
-    
-    return YES;
-}
-
-
 #pragma mark - MSIDSharedTokenCacheAccessor
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
                   refreshToken:(MSIDToken *)refreshToken
@@ -424,18 +400,6 @@
     }
     
     return allRTs;
-}
-
-- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
-{
-    // remove all ATs associated with this account
-    
-    // remove all RTs associated with this account
-    
-    return NO;
-    
 }
 
 #pragma mark - Helper methods
