@@ -342,9 +342,6 @@
     
     BOOL result = [_dataSource setItem:token key:key serializer:serializer context:context error:error];
     
-    // Swap the authority back to the original one
-    token.authority = oldAuthority;
-    
     [self stopTelemetryEvent:event
                    withToken:token
                      context:context];
