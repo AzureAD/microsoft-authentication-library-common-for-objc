@@ -42,8 +42,6 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorInternal               = -51000,
     MSIDErrorCacheMultipleUsers     = 300,
     
-    MSIDErrorInvalidParameter       = -42000,
-    
     /*!
      MSID encounted an error when trying to store or retrieve items from
      keychain. Inspect NSUnderlyingError from the userInfo dictionary for
