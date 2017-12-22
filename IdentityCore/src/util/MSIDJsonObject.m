@@ -90,7 +90,7 @@
 
 - (NSData *)serialize:(NSError * __autoreleasing *)error
 {
-    return [NSJSONSerialization dataWithJSONObject:_json
+    return [NSJSONSerialization dataWithJSONObject:self.jsonDictionary
                                            options:0
                                              error:error];
 }

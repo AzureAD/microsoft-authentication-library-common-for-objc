@@ -155,7 +155,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     [query setObject:key.account forKey:(id)kSecAttrAccount];
     // Backward compatibility with ADAL.
     [query setObject:[s_libraryString dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrGeneric];
-    // Backward compatibility with MSAL.
+    // Set token type.
     [query setObject:[NSNumber numberWithUnsignedInt:item.tokenType] forKey:(id)kSecAttrType];
     
     MSID_LOG_INFO(context, @"Trying to update keychain item...");

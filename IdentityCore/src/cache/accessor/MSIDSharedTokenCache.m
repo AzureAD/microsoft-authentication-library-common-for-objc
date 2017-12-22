@@ -30,8 +30,11 @@
 
 @interface MSIDSharedTokenCache()
 {
+    // Primary cache format
     id<MSIDSharedCacheFormat> _primaryFormat;
-    NSArray<id<MSIDSharedCacheFormat>> *_otherFormats;
+    
+    // All shared formats starting with the primary
+    NSArray<id<MSIDSharedCacheFormat>> *_allFormats;
 }
 
 @end
@@ -48,7 +51,10 @@
     if (self)
     {
         _primaryFormat = primaryFormat;
-        _otherFormats = cacheFormats;
+        
+        NSMutableArray *allFormatsArray = [@[primaryFormat] mutableCopy];
+        [allFormatsArray addObjectsFromArray:cacheFormats];
+        _allFormats = allFormatsArray;
     }
     
     return self;
@@ -65,7 +71,7 @@
     
     if (response.isMultiResource)
     {
-        // Save ADAL access token item
+        // Save access token item in the primary format
         MSIDToken *accessToken = [[MSIDToken alloc] initWithTokenResponse:response
                                                                   request:requestParams
                                                                 tokenType:MSIDTokenTypeAccessToken];
@@ -81,23 +87,13 @@
             return NO;
         }
         
-        // Create ADAL refresh token item
+        // Create a refresh token item
         MSIDToken *refreshToken = [[MSIDToken alloc] initWithTokenResponse:response
                                                                    request:requestParams
                                                                  tokenType:MSIDTokenTypeRefreshToken];
         
-        result = [_primaryFormat saveSharedRTForAccount:account
-                                           refreshToken:refreshToken
-                                                context:context
-                                                  error:error];
-        
-        if (!result)
-        {
-            return NO;
-        }
-        
-        // Save RTs in other formats if any
-        for (id<MSIDSharedCacheFormat> cache in _otherFormats)
+        // Save RTs in all formats including primary
+        for (id<MSIDSharedCacheFormat> cache in _allFormats)
         {
             result = [cache saveSharedRTForAccount:account
                                       refreshToken:refreshToken
@@ -165,29 +161,8 @@
 {
     NSError *cacheError = nil;
     
-    MSIDToken *token = [_primaryFormat getSharedRTForAccount:account
-                                               requestParams:parameters
-                                                     context:context
-                                                       error:&cacheError];
-    
-    // Found token from the current cache, return immediately
-    if (token)
-    {
-        return token;
-    }
-    // No token was found from the current cache and we got an error, don't try other caches
-    else if (cacheError)
-    {
-        if (error)
-        {
-            *error = cacheError;
-        }
-        
-        return nil;
-    }
-    
-    // Try other caches
-    for (id<MSIDSharedCacheFormat> cache in _otherFormats)
+    // try all caches in order starting with the primary
+    for (id<MSIDSharedCacheFormat> cache in _allFormats)
     {
         MSIDToken *token = [cache getSharedRTForAccount:account
                                           requestParams:parameters
@@ -231,19 +206,10 @@
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
-    NSArray *primaryRTs = [_primaryFormat getAllSharedRTsWithParams:parameters
-                                                                  context:context
-                                                                    error:error];
+    NSMutableArray *resultRTs = [NSMutableArray array];
     
-    if (!primaryRTs)
-    {
-        return nil;
-    }
-    
-    NSMutableArray *resultRTs = [primaryRTs mutableCopy];
-    
-    // Try other caches
-    for (id<MSIDSharedCacheFormat> cache in _otherFormats)
+    // Get RTs from all caches
+    for (id<MSIDSharedCacheFormat> cache in _allFormats)
     {
         NSArray *otherRTs = [cache getAllSharedRTsWithParams:parameters
                                                            context:context

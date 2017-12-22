@@ -19,6 +19,8 @@
 		231CE9C21FE871F200E95D3E /* MSIDTestTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 231CE9B81FE870B500E95D3E /* MSIDTestTokenCache.m */; };
 		231CE9C31FE871FA00E95D3E /* MSIDKeychainTokenCache+MSIDTestsUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 231CE9BA1FE870B500E95D3E /* MSIDKeychainTokenCache+MSIDTestsUtil.m */; };
 		231CE9C41FE872A900E95D3E /* MSIDKeychainTokenCacheIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 231CE9BF1FE8710A00E95D3E /* MSIDKeychainTokenCacheIntegrationTests.m */; };
+		231CE9CD1FE8D7CC00E95D3E /* MSIDJsonSerializerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 231CE9C91FE8D79A00E95D3E /* MSIDJsonSerializerTests.m */; };
+		231CE9CE1FE8D7CC00E95D3E /* MSIDJsonSerializerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 231CE9C91FE8D79A00E95D3E /* MSIDJsonSerializerTests.m */; };
 		2321531B1FDA101900C6960D /* MSIDUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 232153191FDA101900C6960D /* MSIDUserInformation.m */; };
 		2321531C1FDA101900C6960D /* MSIDUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 232153191FDA101900C6960D /* MSIDUserInformation.m */; };
 		2321531E1FDA1AF100C6960D /* MSIDKeyedArchiverSerializerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2321531D1FDA1AF100C6960D /* MSIDKeyedArchiverSerializerTests.m */; };
@@ -288,6 +290,7 @@
 		231CE9B91FE870B500E95D3E /* MSIDKeychainTokenCache+MSIDTestsUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDKeychainTokenCache+MSIDTestsUtil.h"; sourceTree = "<group>"; };
 		231CE9BA1FE870B500E95D3E /* MSIDKeychainTokenCache+MSIDTestsUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MSIDKeychainTokenCache+MSIDTestsUtil.m"; sourceTree = "<group>"; };
 		231CE9BF1FE8710A00E95D3E /* MSIDKeychainTokenCacheIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDKeychainTokenCacheIntegrationTests.m; sourceTree = "<group>"; };
+		231CE9C91FE8D79A00E95D3E /* MSIDJsonSerializerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializerTests.m; sourceTree = "<group>"; };
 		232153181FDA101900C6960D /* MSIDUserInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDUserInformation.h; sourceTree = "<group>"; };
 		232153191FDA101900C6960D /* MSIDUserInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDUserInformation.m; sourceTree = "<group>"; };
 		2321531D1FDA1AF100C6960D /* MSIDKeyedArchiverSerializerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyedArchiverSerializerTests.m; sourceTree = "<group>"; };
@@ -886,6 +889,7 @@
 			children = (
 				231CE9BD1FE8710A00E95D3E /* integration */,
 				B210F44E1FDDF5D2005A8F76 /* MSIDClientInfoTests.m */,
+				231CE9C91FE8D79A00E95D3E /* MSIDJsonSerializerTests.m */,
 				B210F42C1FDDE6A4005A8F76 /* MSIDJsonObjectTests.m */,
 				B210F4641FDF1CB8005A8F76 /* MSIDURLFormObjectTests.m */,
 				B20657CE1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m */,
@@ -1225,6 +1229,7 @@
 				B20657C61FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */,
 				2321531E1FDA1AF100C6960D /* MSIDKeyedArchiverSerializerTests.m in Sources */,
 				D6D9A4BC1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
+				231CE9CD1FE8D7CC00E95D3E /* MSIDJsonSerializerTests.m in Sources */,
 				B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */,
 				231CE9C41FE872A900E95D3E /* MSIDKeychainTokenCacheIntegrationTests.m in Sources */,
 				B2CDB5811FE33F7B003A4B5C /* MSIDTestIdTokenUtil.m in Sources */,
@@ -1297,6 +1302,7 @@
 				B2C17AF11FC7A1C00070A514 /* MSIDLoggerTests.m in Sources */,
 				B20657C71FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */,
 				B2CDB5821FE33F7C003A4B5C /* MSIDTestIdTokenUtil.m in Sources */,
+				231CE9CE1FE8D7CC00E95D3E /* MSIDJsonSerializerTests.m in Sources */,
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
 				B2C17AF51FC7A6BD0070A514 /* MSIDTestLogger.m in Sources */,
 				B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */,
