@@ -199,8 +199,11 @@
                                context:context
                                  error:error];
     }
+    else if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDAADRequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
+    }
     
-    // TODO: fill in the error
     return nil;
 }
 
