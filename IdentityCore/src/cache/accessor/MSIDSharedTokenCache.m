@@ -231,7 +231,7 @@
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
-    NSArray *primaryRTs = [_primaryFormat getAllSharedClientRTsWithParams:parameters
+    NSArray *primaryRTs = [_primaryFormat getAllSharedRTsWithParams:parameters
                                                                   context:context
                                                                     error:error];
     
@@ -245,7 +245,7 @@
     // Try other caches
     for (id<MSIDSharedCacheFormat> cache in _otherFormats)
     {
-        NSArray *otherRTs = [cache getAllSharedClientRTsWithParams:parameters
+        NSArray *otherRTs = [cache getAllSharedRTsWithParams:parameters
                                                            context:context
                                                              error:error];
         
@@ -263,7 +263,7 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    return [_primaryFormat removeRTForAccount:account
+    return [_primaryFormat removeSharedRTForAccount:account
                                         token:token
                                       context:context
                                         error:error];

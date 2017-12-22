@@ -29,9 +29,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nullable) NSString *account;
 @property(nullable) NSString *service;
+@property(nullable) NSNumber *type;
 
 - (nullable id)initWithAccount:(nullable NSString *)account
-                       service:(nullable NSString *)service;
+                       service:(nullable NSString *)service
+                          type:(nullable NSNumber *)type;
 
 /*!
  Key for ADFS user tokens, account will be @""

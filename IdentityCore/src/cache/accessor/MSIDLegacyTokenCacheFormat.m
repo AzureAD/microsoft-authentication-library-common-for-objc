@@ -107,9 +107,9 @@
                              error:error];
 }
 
-- (NSArray<MSIDToken *> *)getAllSharedClientRTsWithParams:(MSIDRequestParameters *)parameters
-                                                  context:(id<MSIDRequestContext>)context
-                                                    error:(NSError **)error
+- (NSArray<MSIDToken *> *)getAllSharedRTsWithParams:(MSIDRequestParameters *)parameters
+                                            context:(id<MSIDRequestContext>)context
+                                              error:(NSError **)error
 {
     NSArray *legacyTokens = [_dataSource itemsWithKey:[MSIDTokenCacheKey keyForAllItems]
                                            serializer:_serializer
@@ -149,10 +149,10 @@
                      error:error];
 }
 
-- (BOOL)removeRTForAccount:(MSIDAccount *)account
-                     token:(MSIDToken *)token
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
+                           token:(MSIDToken *)token
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
 {
     if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
     {
