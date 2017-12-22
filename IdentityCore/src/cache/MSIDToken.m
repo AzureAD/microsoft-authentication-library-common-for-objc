@@ -26,6 +26,7 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDClientInfo.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
@@ -57,7 +58,9 @@ static uint64_t s_expirationBuffer = 300;
         _authority = json[MSID_OAUTH2_AUTHORITY] ? [[NSURL alloc] initWithString:json[MSID_OAUTH2_AUTHORITY]] : nil;
     }
     
-    _scopes = [self scopesFromString:json[MSID_OAUTH2_SCOPE]];
+    
+    
+    _scopes = [json[MSID_OAUTH2_SCOPE] scopeSet];
     
     NSError *err;
     _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:json[MSID_OAUTH2_CLIENT_INFO] error:&err];
@@ -93,7 +96,7 @@ static uint64_t s_expirationBuffer = 300;
     [dictionary setValue:self.clientId forKey:MSID_OAUTH2_CLIENT_ID];
     [dictionary setValue:self.authority.absoluteString forKey:MSID_OAUTH2_AUTHORITY];
     [dictionary setValue:self.authority.msidHostWithPortIfNecessary forKey:MSID_OAUTH2_ENVIRONMENT];
-    [dictionary setValue:[self scopesToString:self.scopes] forKey:MSID_OAUTH2_SCOPE];
+    [dictionary setValue:[self.scopes msidToString] forKey:MSID_OAUTH2_SCOPE];
     [dictionary setValue:_clientInfo.rawClientInfo forKey:MSID_OAUTH2_CLIENT_INFO];
     if (self.expiresOn)
     {
@@ -284,34 +287,6 @@ static uint64_t s_expirationBuffer = 300;
     
     return self;
 }
-
-#pragma mark - Private
-
-- (NSMutableOrderedSet<NSString *> *)scopesFromString:(NSString *)scopesString
-{
-    if (!scopesString)
-    {
-        return nil;
-    }
-    
-    NSMutableOrderedSet<NSString *> *scope = [NSMutableOrderedSet<NSString *> new];
-    NSArray *parts = [scopesString componentsSeparatedByString:@" "];
-    for (NSString *part in parts)
-    {
-        if (![NSString msidIsStringNilOrBlank:part])
-        {
-            [scope addObject:part.msidTrimmedString.lowercaseString];
-        }
-    }
-    
-    return scope;
-}
-
-- (NSString *)scopesToString:(NSOrderedSet<NSString *> *)scopes
-{
-    return [scopes.array componentsJoinedByString:@" "];
-}
-
 
 #pragma mark - Fill item
 
