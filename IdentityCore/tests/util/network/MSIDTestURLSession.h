@@ -46,6 +46,8 @@
 // Helper method to retrieve a response for a request
 + (MSIDTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request;
 
++ (NSURLSession *)createMockSession;
+
 // Helper dispatch method that URLSessionTask can utilize
 - (void)dispatchIfNeed:(void (^)(void))block;
 

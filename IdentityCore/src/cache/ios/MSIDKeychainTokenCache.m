@@ -156,7 +156,15 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     // Backward compatibility with ADAL.
     [query setObject:[s_libraryString dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrGeneric];
     // Backward compatibility with MSAL.
-    [query setObject:[NSNumber numberWithUnsignedInt:item.tokenType] forKey:(id)kSecAttrType];
+    if (item.tokenType == MSIDTokenTypeAccessToken)
+    {
+        [query setObject:[NSNumber numberWithUnsignedInt:'acTk'] forKey:(id)kSecAttrType];
+    }
+    else if (item.tokenType == MSIDTokenTypeRefreshToken)
+    {
+        [query setObject:[NSNumber numberWithUnsignedInt:'rfTk'] forKey:(id)kSecAttrType];
+    }
+    
     
     MSID_LOG_INFO(context, @"Trying to update keychain item...");
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)@{(id)kSecValueData : itemData});
