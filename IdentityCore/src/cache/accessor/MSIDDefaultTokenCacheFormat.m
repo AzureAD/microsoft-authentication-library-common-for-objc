@@ -22,31 +22,62 @@
 // THE SOFTWARE.
 
 #import "MSIDDefaultTokenCacheFormat.h"
+#import "MSIDJsonSerializer.h"
+#import "MSIDAccount.h"
+#import "MSIDTokenCacheKey.h"
+#import "MSIDToken.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "MSIDTelemetryCacheEvent.h"
+
+
+@interface MSIDDefaultTokenCacheFormat()
+{
+    id<MSIDTokenCacheDataSource> _dataSource;
+    MSIDJsonSerializer *_serializer;
+}
+@end
 
 @implementation MSIDDefaultTokenCacheFormat
 
+#pragma mark - Init
+- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _dataSource = dataSource;
+        
+        _serializer = [[MSIDJsonSerializer alloc] init];
+    }
+    
+    return self;
+}
+
+
+- (MSIDToken *)getATForAccount:(MSIDAccount *)account requestParams:(MSIDRequestParameters *)parameters context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    return nil;
+}
+
+- (NSArray<MSIDToken *> *)getAllSharedClientRTsWithParams:(MSIDRequestParameters *)parameters context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    return nil;
+}
+
+- (MSIDToken *)getSharedRTForAccount:(MSIDAccount *)account requestParams:(MSIDRequestParameters *)parameters context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    return nil;
+}
+
+- (BOOL)removeRTForAccount:(MSIDAccount *)account token:(MSIDToken *)token context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    return nil;
+}
+
+- (BOOL)saveAccessToken:(MSIDToken *)token account:(MSIDAccount *)account requestParams:(MSIDRequestParameters *)parameters context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    return NO;
+}
+
+- (BOOL)saveSharedRTForAccount:(MSIDAccount *)account refreshToken:(MSIDToken *)refreshToken context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    return NO;
+}
+
 @end
-
-/*
- #import "MSIDTokenCacheAccessor.h"
- #import "MSIDJsonSerializer.h"
- #import "MSIDAccount.h"
- #import "MSIDTokenCacheKey.h"
- #import "MSIDToken.h"
- #import "MSIDTelemetry+Internal.h"
- #import "MSIDTelemetryEventStrings.h"
- #import "MSIDTelemetryCacheEvent.h"
- 
- @interface MSIDTokenCacheAccessor()
- {
- NSArray<id<MSIDSharedTokenCacheAccessor>> *_cacheFormats;
- id<MSIDTokenCacheDataSource> _dataSource;
- 
- MSIDJsonSerializer *_serializer;
- }
- 
- @end
- 
- 
- */
-

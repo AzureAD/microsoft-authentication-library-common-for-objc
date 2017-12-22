@@ -101,9 +101,17 @@
 
 - (void)setSpeInfo:(NSString *)speInfo
 {
-    if (![NSString msidIsStringNilOrBlank:speInfo])
+    [self setProperty:MSID_TELEMETRY_KEY_SPE_INFO value:speInfo];
+}
+
+- (void)setToken:(MSIDToken *)token
+{
+    [self setTokenType:token.tokenType];
+    [self setSpeInfo:token.additionalServerInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
+    
+    if (![NSString msidIsStringNilOrBlank:token.familyId])
     {
-        [self setProperty:MSID_TELEMETRY_KEY_SPE_INFO value:speInfo];
+        [self setIsFRT:MSID_TELEMETRY_VALUE_YES];
     }
 }
 

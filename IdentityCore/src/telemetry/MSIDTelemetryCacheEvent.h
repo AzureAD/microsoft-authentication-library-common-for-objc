@@ -36,4 +36,6 @@
 - (void)setFRTStatus:(NSString *)status;
 - (void)setSpeInfo:(NSString  *)speInfo;
 
+- (void)setToken:(MSIDToken *)token;
+
 @end
