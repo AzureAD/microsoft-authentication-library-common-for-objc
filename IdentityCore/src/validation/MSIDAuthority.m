@@ -35,7 +35,7 @@
         return NO;
     }
     
-    return[[self class] isADFSInstanceURL: [NSURL URLWithString:endpoint.lowercaseString]];
+    return[[self class] isADFSInstanceURL:[NSURL URLWithString:endpoint.lowercaseString]];
 }
 
 + (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl
