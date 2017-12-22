@@ -111,6 +111,12 @@
                                                   context:(id<MSIDRequestContext>)context
                                                     error:(NSError **)error
 {
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
+    
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
+                                                                           context:context];
+    
     NSArray *legacyTokens = [_dataSource itemsWithKey:[MSIDTokenCacheKey keyForAllItems]
                                            serializer:_serializer
                                               context:context
@@ -118,6 +124,8 @@
     
     if (!legacyTokens)
     {
+        [self stopTelemetryEvent:event withToken:nil success:NO context:context];
+        
         return nil;
     }
     
@@ -131,6 +139,8 @@
             [resultRTs addObject:token];
         }
     }
+    
+    [self stopTelemetryEvent:event withToken:nil success:YES context:context];
     
     return resultRTs;
 }
@@ -207,34 +217,6 @@
     return nil;
 }
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsForClientId:(NSString *)clientId
-                                             context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error
-{
-    NSArray *legacyTokens = [_dataSource itemsWithKey:[MSIDTokenCacheKey keyForAllItems]
-                                           serializer:_serializer
-                                              context:context
-                                                error:error];
-    
-    if (!legacyTokens)
-    {
-        return nil;
-    }
-    
-    NSMutableArray *resultRTs = [NSMutableArray array];
-    
-    for (MSIDToken *token in legacyTokens)
-    {
-        if (token.tokenType == MSIDTokenTypeRefreshToken
-            && token.clientId == clientId)
-        {
-            [resultRTs addObject:token];
-        }
-    }
-    
-    return resultRTs;
-}
-
 #pragma mark - Helper methods
 
 - (BOOL)saveToken:(MSIDToken *)token
@@ -250,23 +232,21 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
     
-    NSURL *newAthority = token.authority; // TODO: replace with an actual authority
+    NSURL *newAuthority = token.authority; // TODO: replace with an actual authority
     
     // The authority used to retrieve the item over the network can differ from the preferred authority used to
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store
     // it with we switch it out before saving it to cache.
-    token.authority = newAthority;
+    token.authority = newAuthority;
     
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:newAthority
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:newAuthority
                                                         clientId:clientId
                                                         resource:token.resource
                                                              upn:account.upn];
     
     BOOL result = [_dataSource setItem:token key:key serializer:serializer context:context error:error];
     
-    [self stopTelemetryEvent:event
-                   withToken:token
-                     context:context];
+    [self stopTelemetryEvent:event withToken:token success:result context:context];
     
     return result;
 }
@@ -311,8 +291,9 @@
         {
             [self stopTelemetryEvent:event
                            withToken:token
+                             success:YES
                              context:context];
-            
+
             return token;
         }
         
@@ -325,6 +306,7 @@
             
             [self stopTelemetryEvent:event
                            withToken:nil
+                             success:NO
                              context:context];
             
             return nil;
@@ -333,6 +315,7 @@
     
     [self stopTelemetryEvent:event
                    withToken:nil
+                     success:NO
                      context:context];
     
     return nil;
@@ -342,24 +325,16 @@
 
 - (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
                  withToken:(MSIDToken *)token
+                   success:(BOOL)success
                    context:(id<MSIDRequestContext>)context
 {
+	[event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
+	
     if (token)
-    {
-        [event setTokenType:token.tokenType];
-        [event setStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
-        [event setSpeInfo:token.additionalServerInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
-        
-        if (![NSString msidIsStringNilOrBlank:token.familyId])
-        {
-            [event setIsFRT:MSID_TELEMETRY_VALUE_YES];
-        }
-    }
-    else
-    {
-        [event setStatus:MSID_TELEMETRY_VALUE_FAILED];
-    }
-    
+	{
+        [event setToken:token];
+	}
+
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
                                         event:event];
 }

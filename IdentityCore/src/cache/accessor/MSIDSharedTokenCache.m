@@ -71,7 +71,7 @@
     
     if (response.isMultiResource)
     {
-        // Save ADAL access token item
+        // Save access token item in the primary format
         MSIDToken *accessToken = [[MSIDToken alloc] initWithTokenResponse:response
                                                                   request:requestParams
                                                                 tokenType:MSIDTokenTypeAccessToken];
@@ -87,12 +87,12 @@
             return NO;
         }
         
-        // Create ADAL refresh token item
+        // Create a refresh token item
         MSIDToken *refreshToken = [[MSIDToken alloc] initWithTokenResponse:response
                                                                    request:requestParams
                                                                  tokenType:MSIDTokenTypeRefreshToken];
         
-        // Save RTs in other formats if any
+        // Save RTs in all formats including primary
         for (id<MSIDSharedCacheFormat> cache in _allFormats)
         {
             result = [cache saveSharedRTForAccount:account
