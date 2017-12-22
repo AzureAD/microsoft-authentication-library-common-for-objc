@@ -43,9 +43,25 @@
     return self;
 }
 
-- (void)setTokenType:(NSString *)tokenType
+- (void)setTokenType:(MSIDTokenType)tokenType
 {
-    [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:tokenType];
+    switch (tokenType)
+    {
+        case MSIDTokenTypeAccessToken:
+            [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_ACCESS_TOKEN];
+            break;
+            
+        case MSIDTokenTypeRefreshToken:
+            [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_REFRESH_TOKEN];
+            break;
+            
+        case MSIDTokenTypeAdfsUserToken:
+            [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_ADFS_TOKEN];
+            break;
+            
+        default:
+            break;
+    }
 }
 
 - (void)setStatus:(NSString *)status
