@@ -21,8 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDLegacyTokenCacheAccessor.h"
+#import <Foundation/Foundation.h>
+#import "MSIDSharedCacheFormat.h"
 
-@implementation MSIDLegacyTokenCacheAccessor
+@interface MSIDDefaultTokenCacheFormat : NSObject <MSIDSharedCacheFormat>
 
 @end

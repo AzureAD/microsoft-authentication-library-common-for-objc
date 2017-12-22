@@ -21,23 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDURLFormObject.h"
-#import "MSIDAADTokenResponse.h"
+#import "MSIDDefaultTokenCacheFormat.h"
 
-@interface MSIDBrokerResponse : MSIDURLFormObject
-
-@property (readonly) NSString *authority;
-@property (readonly) NSString *clientId;
-
-@property (readonly) NSString *brokerAppVer;
-@property (readonly) NSString *validAuthority;
-
-@property (readonly) NSString *correlationId;
-@property (readonly) NSString *errorCode;
-@property (readonly) NSString *oauthErrorCode;
-@property (readonly) NSString *errorDescription;
-
-// Derived properties
-@property (readonly) MSIDTokenResponse *tokenResponse;
+@implementation MSIDDefaultTokenCacheFormat
 
 @end
+
+/*
+ #import "MSIDTokenCacheAccessor.h"
+ #import "MSIDJsonSerializer.h"
+ #import "MSIDAccount.h"
+ #import "MSIDTokenCacheKey.h"
+ #import "MSIDToken.h"
+ #import "MSIDTelemetry+Internal.h"
+ #import "MSIDTelemetryEventStrings.h"
+ #import "MSIDTelemetryCacheEvent.h"
+ 
+ @interface MSIDTokenCacheAccessor()
+ {
+ NSArray<id<MSIDSharedTokenCacheAccessor>> *_cacheFormats;
+ id<MSIDTokenCacheDataSource> _dataSource;
+ 
+ MSIDJsonSerializer *_serializer;
+ }
+ 
+ @end
+ 
+ 
+ */
+

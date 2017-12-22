@@ -22,19 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDOauth2TokenCache.h"
-#import "MSIDSharedTokenCacheAccessor.h"
 
-@interface MSIDTokenCacheAccessor : NSObject <MSIDOauth2TokenCache, MSIDSharedTokenCacheAccessor>
+@interface MSIDRequestParameters : NSObject
 
-/*!
- Returns an AT for MSAL for given parameters
- */
-- (MSIDToken *)getATwithAuthority:(NSURL *)authority
-                         clientId:(NSString *)clientId
-                           scopes:(NSOrderedSet<NSString *> *)scopes
-                          account:(MSIDAccount *)account
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error;
+@property NSURL *authority;
+@property NSString *redirectUri;
+@property NSString *clientId;
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId;
 
 @end

@@ -21,23 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDURLFormObject.h"
-#import "MSIDAADTokenResponse.h"
+#import <Foundation/Foundation.h>
+#import "MSIDTokenCacheDataSource.h"
+#import "MSIDSharedCacheFormat.h"
 
-@interface MSIDBrokerResponse : MSIDURLFormObject
+@interface MSIDLegacyTokenCacheFormat : NSObject <MSIDSharedCacheFormat>
 
-@property (readonly) NSString *authority;
-@property (readonly) NSString *clientId;
-
-@property (readonly) NSString *brokerAppVer;
-@property (readonly) NSString *validAuthority;
-
-@property (readonly) NSString *correlationId;
-@property (readonly) NSString *errorCode;
-@property (readonly) NSString *oauthErrorCode;
-@property (readonly) NSString *errorDescription;
-
-// Derived properties
-@property (readonly) MSIDTokenResponse *tokenResponse;
+- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
 
 @end

@@ -88,11 +88,11 @@
 #pragma mark - Init
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDTokenRequest *)request
+                              request:(MSIDRequestParameters *)requestParams
                             tokenType:(MSIDTokenType)tokenType
 {
     self = [super initWithTokenResponse:response
-                                request:request
+                                request:requestParams
                               tokenType:tokenType];
     
     if (self)

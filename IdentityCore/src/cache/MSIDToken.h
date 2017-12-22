@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDTokenResponse.h"
-#import "MSIDTokenRequest.h"
+#import "MSIDRequestParameters.h"
 #import "MSIDClientInfo.h"
 
 typedef NS_ENUM(NSInteger, MSIDTokenType)
@@ -57,7 +57,7 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
 - (BOOL)isExpired;
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDTokenRequest *)request
+                              request:(MSIDRequestParameters *)requestParams
                             tokenType:(MSIDTokenType)tokenType;
 
 @end

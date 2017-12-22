@@ -1,3 +1,4 @@
+
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,23 +22,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDURLFormObject.h"
-#import "MSIDAADTokenResponse.h"
+#import "MSIDRequestParameters.h"
 
-@interface MSIDBrokerResponse : MSIDURLFormObject
+@interface MSIDAADRequestParameters : MSIDRequestParameters
 
-@property (readonly) NSString *authority;
-@property (readonly) NSString *clientId;
+@property NSString *resource;
 
-@property (readonly) NSString *brokerAppVer;
-@property (readonly) NSString *validAuthority;
-
-@property (readonly) NSString *correlationId;
-@property (readonly) NSString *errorCode;
-@property (readonly) NSString *oauthErrorCode;
-@property (readonly) NSString *errorDescription;
-
-// Derived properties
-@property (readonly) MSIDTokenResponse *tokenResponse;
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource;
 
 @end

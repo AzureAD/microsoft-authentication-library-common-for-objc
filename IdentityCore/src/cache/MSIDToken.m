@@ -182,11 +182,11 @@ static uint64_t s_expirationBuffer = 300;
 #pragma mark - Init
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDTokenRequest *)request
+                              request:(MSIDRequestParameters *)requestParams
                             tokenType:(MSIDTokenType)tokenType
 {
     if (!response
-        || !request)
+        || !requestParams)
     {
         return nil;
     }
@@ -196,7 +196,7 @@ static uint64_t s_expirationBuffer = 300;
         return nil;
     }
     
-    [self fillFromRequest:request];
+    [self fillFromRequest:requestParams];
     [self fillFromResponse:response tokenType:tokenType];
     [self fillExpiryFromResponse:response];
     [self fillAdditionalServerInfoFromResponse:response];
@@ -206,10 +206,10 @@ static uint64_t s_expirationBuffer = 300;
 
 #pragma mark - Fill item
 
-- (void)fillFromRequest:(MSIDTokenRequest *)tokenRequest
+- (void)fillFromRequest:(MSIDRequestParameters *)requestParams
 {
-    _authority = tokenRequest.authority;
-    _clientId = tokenRequest.clientId;
+    _authority = requestParams.authority;
+    _clientId = requestParams.clientId;
 }
 
 - (void)fillFromResponse:(MSIDTokenResponse *)tokenResponse

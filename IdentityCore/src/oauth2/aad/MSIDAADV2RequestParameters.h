@@ -21,8 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenRequest.h"
+#import "MSIDRequestParameters.h"
 
-@implementation MSIDTokenRequest
+@interface MSIDAADV2RequestParameters : MSIDRequestParameters
+
+@property NSOrderedSet<NSString *> *scopes;
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           scopes:(NSOrderedSet<NSString *> *)scopes;
 
 @end
