@@ -65,20 +65,25 @@
     __block NSMutableString *parameters = nil;
     
     [self enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL __unused *stop)
-    {
-        NSString* encodedKey = [[[key description] msidTrimmedString] msidUrlFormEncode];
-        NSString* encodedValue = [[[value description] msidTrimmedString] msidUrlFormEncode];
-        
-        if ( parameters == nil )
-        {
-            parameters = [NSMutableString new];
-            [parameters appendFormat:@"%@=%@", encodedKey, encodedValue];
-        }
-        else
-        {
-            [parameters appendFormat:@"&%@=%@", encodedKey, encodedValue];
-        }
-    }];
+     {
+         NSString *encodedKey = [[[key description] msidTrimmedString] msidUrlFormEncode];
+         NSString *v = [value description];
+         if ([value isKindOfClass:NSUUID.class])
+         {
+             v = ((NSUUID *)value).UUIDString;
+         }
+         NSString* encodedValue = [[v msidTrimmedString] msidUrlFormEncode];
+         
+         if ( parameters == nil )
+         {
+             parameters = [NSMutableString new];
+             [parameters appendFormat:@"%@=%@", encodedKey, encodedValue];
+         }
+         else
+         {
+             [parameters appendFormat:@"&%@=%@", encodedKey, encodedValue];
+         }
+     }];
     return parameters;
 }
 
