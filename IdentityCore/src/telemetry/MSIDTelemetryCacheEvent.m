@@ -110,9 +110,9 @@
 	[self setSpeInfo:token.additionalServerInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
 
 	if (![NSString msidIsStringNilOrBlank:token.familyId])
-    {
+	{
         [self setIsFRT:MSID_TELEMETRY_VALUE_YES];
-    }
+	}
 }
 
 @end
