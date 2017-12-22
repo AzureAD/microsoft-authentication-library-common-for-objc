@@ -48,7 +48,6 @@
     if (self)
     {
         _dataSource = dataSource;
-        
         _serializer = [[MSIDJsonSerializer alloc] init];
     }
     
@@ -78,6 +77,22 @@
 
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account refreshToken:(MSIDToken *)refreshToken context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
     return NO;
+}
+
+#pragma mark - Telemetry helpers
+
+- (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
+                 withToken:(MSIDToken *)token
+                   success:(BOOL)success
+                   context:(id<MSIDRequestContext>)context
+{
+    [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
+    if (token)
+    {
+        [event setToken:token];
+    }
+    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
+                                        event:event];
 }
 
 @end
