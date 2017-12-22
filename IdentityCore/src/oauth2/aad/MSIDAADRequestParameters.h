@@ -21,27 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequest.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDRequestContext.h"
-#import "MSIDBrokerResponse.h"
-#import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedTokenCacheAccessor.h"
+#import "MSIDRequestParameters.h"
 
-@protocol MSIDOauth2TokenCache <NSObject>
+@interface MSIDAADRequestParameters : MSIDRequestParameters
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-                         authority:(NSURL *)authority
-                      cacheFormats:(NSArray<id<MSIDSharedTokenCacheAccessor>> *)cacheFormats;
+@property NSString *resource;
 
-- (BOOL)saveTokensWithRequest:(MSIDTokenRequest *)request
-                     response:(MSIDTokenResponse *)response
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
-
-- (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error;
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource;
 
 @end

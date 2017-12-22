@@ -21,25 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAADV2RequestParameters.h"
 
-@class MSIDAccount;
-@class MSIDToken;
+@implementation MSIDAADV2RequestParameters
 
-@protocol MSIDSharedTokenCacheAccessor <NSObject>
-
-- (BOOL)saveRTForUser:(MSIDAccount *)user
-         refreshToken:(MSIDToken *)refreshToken
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error;
-
-- (MSIDToken *)getClientRTForUser:(MSIDAccount *)user
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error;
+                           scopes:(NSOrderedSet<NSString *> *)scopes
+{
+    self = [super initWithAuthority:authority redirectUri:redirectUri clientId:clientId];
+    
+    if (self)
+    {
+        _scopes = scopes;
+    }
+    
+    return self;
+}
 
-- (MSIDToken *)getFRTForUser:(MSIDAccount *)user
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error;
 
 @end

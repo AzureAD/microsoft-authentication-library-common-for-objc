@@ -21,15 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAADRequestParameters.h"
 
-@interface MSIDTokenRequest : NSObject
+@implementation MSIDAADRequestParameters
 
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *grantType;
-@property (readonly) NSString *code;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *redirectUri;
-@property (readonly) NSString *clientId;
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource
+{
+    self = [super initWithAuthority:authority redirectUri:redirectUri clientId:clientId];
+    
+    if (self)
+    {
+        _resource = resource;
+    }
+    
+    return self;
+}
+
 
 @end

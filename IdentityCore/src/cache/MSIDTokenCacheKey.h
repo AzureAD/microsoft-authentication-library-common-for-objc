@@ -83,6 +83,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (MSIDTokenCacheKey *)keyForAllItems;
 
+/*!
+ Helper method to get the clientId from the provided familyId
+ */
++ (NSString *)familyClientId:(NSString *)familyId;
+
 NS_ASSUME_NONNULL_END
 
 @end

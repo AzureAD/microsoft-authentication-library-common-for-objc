@@ -43,9 +43,25 @@
     return self;
 }
 
-- (void)setTokenType:(NSString *)tokenType
+- (void)setTokenType:(MSIDTokenType)tokenType
 {
-    [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:tokenType];
+    switch (tokenType)
+    {
+        case MSIDTokenTypeAccessToken:
+            [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_ACCESS_TOKEN];
+            break;
+            
+        case MSIDTokenTypeRefreshToken:
+            [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_REFRESH_TOKEN];
+            break;
+            
+        case MSIDTokenTypeAdfsUserToken:
+            [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_ADFS_TOKEN];
+            break;
+            
+        default:
+            break;
+    }
 }
 
 - (void)setStatus:(NSString *)status
@@ -85,10 +101,18 @@
 
 - (void)setSpeInfo:(NSString *)speInfo
 {
-    if (![NSString msidIsStringNilOrBlank:speInfo])
-    {
-        [self setProperty:MSID_TELEMETRY_KEY_SPE_INFO value:speInfo];
-    }
+    [self setProperty:MSID_TELEMETRY_KEY_SPE_INFO value:speInfo];
+}
+
+- (void)setToken:(MSIDToken *)token
+{
+	[self setTokenType:token.tokenType];
+	[self setSpeInfo:token.additionalServerInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
+
+	if (![NSString msidIsStringNilOrBlank:token.familyId])
+	{
+        [self setIsFRT:MSID_TELEMETRY_VALUE_YES];
+	}
 }
 
 @end
