@@ -239,6 +239,11 @@ static NSMutableArray* s_responses = nil;
     return nil;
 }
 
++ (NSURLSession *)createMockSession
+{
+    return (NSURLSession *)[[MSIDTestURLSession alloc] initWithDelegate:nil delegateQueue:nil];;
+}
+
 - (void)dispatchIfNeed:(void (^)(void))block
 {
     if (_delegateQueue) {
@@ -251,6 +256,12 @@ static NSMutableArray* s_responses = nil;
 }
 
 #pragma mark - NSURLSession
+
+- (void)invalidateAndCancel
+{
+    // No need to invalidate anything here.
+}
+
 // Runtime methods for NSURLSession, needs to declare since this is a NSObject, not :NSURLSession
 // For now though, of no real usage
 - (void)set_isSharedSession:(BOOL)shared

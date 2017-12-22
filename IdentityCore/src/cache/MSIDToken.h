@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDJsonObject.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDTokenRequest.h"
 #import "MSIDClientInfo.h"
@@ -33,7 +34,7 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
     MSIDTokenTypeAdfsUserToken
 };
 
-@interface MSIDToken : NSObject <NSSecureCoding>
+@interface MSIDToken : MSIDJsonObject <NSSecureCoding>
 {
     MSIDTokenType _tokenType;
 }
