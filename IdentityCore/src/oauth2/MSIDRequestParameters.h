@@ -23,26 +23,11 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDTokenRequest : NSObject
+@interface MSIDRequestParameters : NSObject
 
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *grantType;
-@property (readonly) NSString *code;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *redirectUri;
-@property (readonly) NSString *clientId;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-- (instancetype)initWithCode:(NSString *)code
-                   authority:(NSURL *)authority
-                 redirectUri:(NSString *)redirectUri
-                    clientId:(NSString *)clientId;
-
-- (instancetype)initWithRefreshToken:(NSString *)refreshToken
-                           authority:(NSURL *)authority
-                         redirectUri:(NSString *)redirectUri
-                            clientId:(NSString *)clientId;
+@property NSURL *authority;
+@property NSString *redirectUri;
+@property NSString *clientId;
 
 - (instancetype)initWithAuthority:(NSURL *)authority
                       redirectUri:(NSString *)redirectUri

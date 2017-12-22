@@ -21,56 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenRequest.h"
+#import "MSIDRequestParameters.h"
 
-@implementation MSIDTokenRequest
+@interface MSIDAADV2RequestParameters : MSIDRequestParameters
 
-- (instancetype)initWithCode:(NSString *)code
-                   authority:(NSURL *)authority
-                 redirectUri:(NSString *)redirectUri
-                    clientId:(NSString *)clientId
-{
-    self = [self initWithAuthority:authority redirectUri:redirectUri clientId:clientId];
-    
-    if (self)
-    {
-        _code = code;
-        _grantType = MSID_OAUTH2_AUTHORIZATION_CODE;
-    }
-    
-    return self;
-}
-
-- (instancetype)initWithRefreshToken:(NSString *)refreshToken
-                           authority:(NSURL *)authority
-                         redirectUri:(NSString *)redirectUri
-                            clientId:(NSString *)clientId
-{
-    self = [self initWithAuthority:authority redirectUri:redirectUri clientId:clientId];
-    
-    if (self)
-    {
-        _refreshToken = refreshToken;
-        _grantType = MSID_OAUTH2_REFRESH_TOKEN;
-    }
-    
-    return self;
-}
+@property NSOrderedSet<NSString *> *scopes;
 
 - (instancetype)initWithAuthority:(NSURL *)authority
-                     redirectUri:(NSString *)redirectUri
-                        clientId:(NSString *)clientId
-{
-    self = [super init];
-    
-    if (self)
-    {
-        _authority = authority;
-        _redirectUri = redirectUri;
-        _clientId = clientId;
-    }
-    
-    return self;
-}
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           scopes:(NSOrderedSet<NSString *> *)scopes;
 
 @end

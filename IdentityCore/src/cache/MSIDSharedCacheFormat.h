@@ -25,6 +25,7 @@
 
 @class MSIDAccount;
 @class MSIDToken;
+@class MSIDRequestParameters;
 
 @protocol MSIDSharedCacheFormat <NSObject>
 
@@ -33,14 +34,29 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error;
 
+- (BOOL)saveAccessToken:(MSIDToken *)token
+                account:(MSIDAccount *)account
+          requestParams:(MSIDRequestParameters *)parameters
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error;
+
 - (MSIDToken *)getSharedRTForAccount:(MSIDAccount *)account
-                           authority:(NSURL *)authority
-                            clientId:(NSString *)clientId
+                       requestParams:(MSIDRequestParameters *)parameters
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsForClientId:(NSString *)clientId
-                                             context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error;
+- (MSIDToken *)getATForAccount:(MSIDAccount *)account
+                 requestParams:(MSIDRequestParameters *)parameters
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError * __autoreleasing *)error;
+
+- (NSArray<MSIDToken *> *)getAllSharedClientRTsWithParams:(MSIDRequestParameters *)parameters
+                                                  context:(id<MSIDRequestContext>)context
+                                                    error:(NSError **)error;
+
+- (BOOL)removeRTForAccount:(MSIDAccount *)account
+                     token:(MSIDToken *)token
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
 
 @end

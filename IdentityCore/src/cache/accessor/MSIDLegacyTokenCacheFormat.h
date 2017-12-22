@@ -22,31 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDOauth2TokenCache.h"
+#import "MSIDTokenCacheDataSource.h"
 #import "MSIDSharedCacheFormat.h"
 
-@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDOauth2TokenCache, MSIDSharedCacheFormat>
+@interface MSIDLegacyTokenCacheFormat : NSObject <MSIDSharedCacheFormat>
 
-/*!
- Returns a AT/RT Token Cache Item for the given parameters. The RT in this item will only be good
- for the given resource. If no RT is returned in the item then a MRRT or FRT should be used (if
- available).
- */
-- (MSIDToken *)getATRTItemForAccount:(MSIDAccount *)account
-                           authority:(NSURL *)authority
-                            resource:(NSString *)resource
-                            clientId:(NSString *)clientId
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError * __autoreleasing *)error;
-
-/*!
- ADFS is not capable of giving us an idtoken when we authenticate users, so we don't know who got logged
- in or who to cache the tokens for, and instead put the token in a special entry.
- */
-- (MSIDToken *)getADFSUserTokenForResource:(NSString *)resource
-                                 authority:(NSURL *)authority
-                                  clientId:(NSString *)clientId
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError * __autoreleasing *)error;
+- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
 
 @end
