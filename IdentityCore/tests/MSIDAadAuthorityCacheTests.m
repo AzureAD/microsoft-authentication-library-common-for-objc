@@ -126,7 +126,7 @@
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
     
     XCTAssertNil(cachedAuthority);
 }
@@ -137,7 +137,7 @@
     cache.recordMap = @{ @"fakeauthority.com" : [MSIDAadAuthorityCacheRecord new] };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
@@ -149,7 +149,7 @@
     cache.recordMap = @{ @"fakeauthority.com:444" : [MSIDAadAuthorityCacheRecord new] };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
@@ -163,7 +163,7 @@
     cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
@@ -171,13 +171,13 @@
 
 - (void)testNetworkUrlForAuthority_whenCacheMismatchOnPort_shouldReturnNil
 {
-    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
     
     XCTAssertNil(cachedAuthority);
 }
@@ -191,7 +191,7 @@
     cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
@@ -207,7 +207,7 @@
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
@@ -223,7 +223,7 @@
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com:444/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
@@ -239,7 +239,7 @@
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
@@ -253,7 +253,7 @@
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
     
     XCTAssertNil(cachedAuthority);
 }
@@ -264,7 +264,7 @@
     cache.recordMap = @{ @"fakeauthority.com" : [MSIDAadAuthorityCacheRecord new] };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
@@ -276,7 +276,7 @@
     cache.recordMap = @{ @"fakeauthority.com:444" : [MSIDAadAuthorityCacheRecord new] };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
@@ -284,11 +284,11 @@
 
 - (void)testCacheUrlForAuthority_whenCacheMismatchOnPort_shouldReturnNil
 {
-    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
     cache.recordMap = @{ @"fakeauthority.com" : [MSIDAadAuthorityCacheRecord new] };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
     
     XCTAssertNil(cachedAuthority);
 }
@@ -302,7 +302,7 @@
     cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
@@ -317,7 +317,7 @@
     cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
@@ -333,7 +333,7 @@
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
@@ -349,7 +349,7 @@
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(expectedAuthority, cachedAuthority);

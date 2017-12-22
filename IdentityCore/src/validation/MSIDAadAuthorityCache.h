@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,11 +17,13 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
 
@@ -40,6 +44,20 @@
     pthread_rwlock_t _rwLock;
 }
 
++ (MSIDAadAuthorityCache *)sharedInstance;
+
+- (NSURL *)networkUrlForAuthority:(NSURL *)authority
+                          context:(id<MSIDRequestContext>)context;
+- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
+                        context:(id<MSIDRequestContext>)context;
+/*!
+ Returns an array of authority URLs for the provided URL, in the order that cache lookups
+ should be attempted.
+ 
+ @param  authority   The authority URL the developer provided for the authority context
+ */
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
+
 - (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
               authority:(NSURL *)authority
                 context:(id<MSIDRequestContext>)context
@@ -47,17 +65,6 @@
 - (void)addInvalidRecord:(NSURL *)authority
               oauthError:(NSError *)oauthError
                  context:(id<MSIDRequestContext>)context;
-
-- (NSURL *)networkUrlForAuthority:(NSURL *)authority;
-- (NSURL *)cacheUrlForAuthority:(NSURL *)authority;
-
-/*!
-    Returns an array of authority URLs for the provided URL, in the order that cache lookups
-    should be attempted.
- 
-    @param  authority   The authority URL the developer provided for the authority context
- */
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
 
 - (MSIDAadAuthorityCacheRecord *)tryCheckCache:(NSURL *)authority;
 - (MSIDAadAuthorityCacheRecord *)checkCache:(NSURL *)authority;

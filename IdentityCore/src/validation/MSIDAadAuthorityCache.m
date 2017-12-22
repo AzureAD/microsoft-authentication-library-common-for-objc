@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,15 +17,18 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import "MSIDAadAuthorityCache.h"
 #include <pthread.h>
 #import "MSIDError.h"
+#import "MSIDAuthority.h"
 
 #define CHECK_CLASS_TYPE(_CHK, _CLS, _ERROR) \
     if (![_CHK isKindOfClass:[_CLS class]]) { \
@@ -55,6 +60,18 @@
 - (void)dealloc
 {
     pthread_rwlock_destroy(&_rwLock);
+}
+
++ (MSIDAadAuthorityCache *)sharedInstance
+{
+    static MSIDAadAuthorityCache *singleton = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        singleton = [[MSIDAadAuthorityCache alloc] init];
+    });
+    
+    return singleton;
 }
 
 - (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
@@ -286,6 +303,53 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 }
 
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
+                          context:(id<MSIDRequestContext>)context
+{
+    if ([MSIDAuthority isADFSInstanceURL:authority])
+    {
+        return authority;
+    }
+    
+    NSURL *url = [self networkUrlForAuthorityImpl:authority];
+    if (!url)
+    {
+        MSID_LOG_WARN(context, @"No cached preferred_network for authority");
+        return authority;
+    }
+    
+    return url;
+}
+
+- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
+                        context:(id<MSIDRequestContext>)context
+{
+    if ([MSIDAuthority isADFSInstanceURL:authority])
+    {
+        return authority;
+    }
+    
+    NSURL *url = [self cacheUrlForAuthorityImpl:authority];
+    if (!url)
+    {
+        MSID_LOG_WARN(context, @"No cached preferred_cache for authority");
+        return authority;
+    }
+    
+    
+    return url;
+}
+
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
+{
+    if ([MSIDAuthority isADFSInstanceURL:authority])
+    {
+        return @[ authority ];
+    }
+    
+    return [self cacheAliasesForAuthorityImpl:authority];
+}
+
+- (NSURL *)networkUrlForAuthorityImpl:(NSURL *)authority
 {
     __auto_type record = [self checkCache:authority];
     if (!record)
@@ -296,7 +360,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     return urlForPreferredHost(authority, record.networkHost);
 }
 
-- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
+- (NSURL *)cacheUrlForAuthorityImpl:(NSURL *)authority
 {
     __auto_type record = [self checkCache:authority];
     if (!record)
@@ -307,7 +371,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     return urlForPreferredHost(authority, record.cacheHost);
 }
 
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
+- (NSArray<NSURL *> *)cacheAliasesForAuthorityImpl:(NSURL *)authority
 {
     NSMutableArray<NSURL *> *authorities = [NSMutableArray new];
     
