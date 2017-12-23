@@ -103,9 +103,8 @@
     return nil;
 }
 
-- (BOOL)saveWipeInfo:(NSDictionary *)wipeInfo
-             context:(id<MSIDRequestContext>)context
-               error:(NSError **)error
+- (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
 {
     return NO;
 }

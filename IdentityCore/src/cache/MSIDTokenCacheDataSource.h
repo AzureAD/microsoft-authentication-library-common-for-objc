@@ -51,9 +51,8 @@
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error;
 
-- (BOOL)saveWipeInfo:(NSDictionary *)wipeInfo
-             context:(id<MSIDRequestContext>)context
-               error:(NSError **)error;
+- (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
+                          error:(NSError **)error;
 
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
                      error:(NSError **)error;

@@ -107,9 +107,9 @@
                              error:error];
 }
 
-- (NSArray<MSIDToken *> *)getAllSharedClientRTsWithParams:(MSIDRequestParameters *)parameters
-                                                  context:(id<MSIDRequestContext>)context
-                                                    error:(NSError **)error
+- (NSArray<MSIDToken *> *)getAllSharedRTsWithParams:(MSIDRequestParameters *)parameters
+                                            context:(id<MSIDRequestContext>)context
+                                              error:(NSError **)error
 {
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
@@ -159,10 +159,10 @@
                      error:error];
 }
 
-- (BOOL)removeRTForAccount:(MSIDAccount *)account
-                     token:(MSIDToken *)token
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
+                           token:(MSIDToken *)token
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
 {
     if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
     {

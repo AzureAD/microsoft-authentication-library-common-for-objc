@@ -155,16 +155,8 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     [query setObject:key.account forKey:(id)kSecAttrAccount];
     // Backward compatibility with ADAL.
     [query setObject:[s_libraryString dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrGeneric];
-    // Backward compatibility with MSAL.
-    if (item.tokenType == MSIDTokenTypeAccessToken)
-    {
-        [query setObject:[NSNumber numberWithUnsignedInt:'acTk'] forKey:(id)kSecAttrType];
-    }
-    else if (item.tokenType == MSIDTokenTypeRefreshToken)
-    {
-        [query setObject:[NSNumber numberWithUnsignedInt:'rfTk'] forKey:(id)kSecAttrType];
-    }
-    
+    // Set token type.
+    [query setObject:[NSNumber numberWithInteger:item.tokenType] forKey:(id)kSecAttrType];
     
     MSID_LOG_INFO(context, @"Trying to update keychain item...");
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)@{(id)kSecValueData : itemData});
@@ -228,6 +220,10 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         [query setObject:key.account forKey:(id)kSecAttrAccount];
     }
+    if (key.type)
+    {
+        [query setObject:key.type forKey:(id)kSecAttrType];
+    }
     
     MSID_LOG_INFO(context, @"Trying to delete keychain items...");
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
@@ -264,6 +260,11 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         [query setObject:key.account forKey:(id)kSecAttrAccount];
     }
+    if (key.type)
+    {
+        [query setObject:key.type forKey:(id)kSecAttrType];
+    }
+    
     [query setObject:@YES forKey:(id)kSecReturnData];
     [query setObject:@YES forKey:(id)kSecReturnAttributes];
     [query setObject:(id)kSecMatchLimitAll forKey:(id)kSecMatchLimit];
@@ -321,17 +322,14 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return tokenItems;
 }
 
-- (BOOL)saveWipeInfo:(NSDictionary *)wipeInfo
-                  context:(id<MSIDRequestContext>)context
-               error:(NSError **)error
+- (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
 {
+    NSDictionary *wipeInfo = @{ @"bundleId" : [[NSBundle mainBundle] bundleIdentifier],
+                                @"wipeTime" : [NSDate date]
+                                };
+
     MSID_LOG_INFO_PII(context, @"Full wipe info: %@", wipeInfo);
-    
-    if (!wipeInfo)
-    {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"wipeInfo is nil.", nil, nil, nil, context.correlationId, nil);
-        return NO;
-    }
     
     NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
     MSID_LOG_INFO(context, @"Trying to update wipe info...");

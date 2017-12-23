@@ -24,6 +24,7 @@
 #import "MSIDTokenCacheKey.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDTokenType.h"
 
 //A special attribute to write, instead of nil/empty one.
 static NSString *const s_nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
@@ -35,6 +36,7 @@ static uint32_t const s_msalV1 = 'MSv1';
 
 - (id)initWithAccount:(NSString *)account
               service:(NSString *)service
+                 type:(NSNumber *)type
 {
     if (!(self = [super init]))
     {
@@ -43,6 +45,7 @@ static uint32_t const s_msalV1 = 'MSv1';
     
     self.account = account;
     self.service = service;
+    self.type = type;
     
     return self;
 }
@@ -93,7 +96,8 @@ static uint32_t const s_msalV1 = 'MSv1';
     return [[MSIDTokenCacheKey alloc] initWithAccount:@""
                                               service:[self.class serviceWithAuthority:authority
                                                                               resource:resource
-                                                                              clientId:clientId]];
+                                                                              clientId:clientId]
+                                                 type:nil];
 }
 
 
@@ -105,7 +109,8 @@ static uint32_t const s_msalV1 = 'MSv1';
     return [[MSIDTokenCacheKey alloc] initWithAccount:upn
                                               service:[self.class serviceWithAuthority:authority
                                                                               resource:resource
-                                                                              clientId:clientId]];
+                                                                              clientId:clientId]
+                                                 type:nil];
 }
 
 + (MSIDTokenCacheKey *)keyForAccessTokenWithAuthority:(NSURL *)authority
@@ -117,14 +122,14 @@ static uint32_t const s_msalV1 = 'MSv1';
     NSString *account = [self.class accountWithUserIdentifier:userId
                                                   environment:authority.msidHostWithPortIfNecessary];
     
-    return [[MSIDTokenCacheKey alloc] initWithAccount:account service:service];
+    return [[MSIDTokenCacheKey alloc] initWithAccount:account service:service type:[NSNumber numberWithInteger:MSIDTokenTypeAccessToken]];
 }
 
 + (MSIDTokenCacheKey *)keyForAllAccessTokensWithUserId:(NSString *)userId
                                            environment:(NSString *)environment
 {
     NSString *account = [self.class accountWithUserIdentifier:userId environment:environment];
-    return [[MSIDTokenCacheKey alloc] initWithAccount:account service:nil];
+    return [[MSIDTokenCacheKey alloc] initWithAccount:account service:nil type:[NSNumber numberWithInteger:MSIDTokenTypeAccessToken]];
 }
 
 
@@ -136,18 +141,18 @@ static uint32_t const s_msalV1 = 'MSv1';
     NSString *service = clientId.msidBase64UrlEncode;
     NSString *account = [self.class accountWithUserIdentifier:userId environment:environment];
     
-    return [[MSIDTokenCacheKey alloc] initWithAccount:account service:service];
+    return [[MSIDTokenCacheKey alloc] initWithAccount:account service:service type:[NSNumber numberWithInteger:MSIDTokenTypeRefreshToken]];
 }
 
 + (MSIDTokenCacheKey *)keyForRefreshTokenWithClientId:(NSString *)clientId
 {
     NSString *service = clientId.msidBase64UrlEncode;
-    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:service];
+    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:service type:[NSNumber numberWithInteger:MSIDTokenTypeRefreshToken]];
 }
 
 + (MSIDTokenCacheKey *)keyForAllItems
 {
-    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil];
+    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil type:nil];
 }
 
 + (NSString *)familyClientId:(NSString *)familyId

@@ -211,7 +211,7 @@
     // Get RTs from all caches
     for (id<MSIDSharedCacheFormat> cache in _allFormats)
     {
-        NSArray *otherRTs = [cache getAllSharedClientRTsWithParams:parameters
+        NSArray *otherRTs = [cache getAllSharedRTsWithParams:parameters
                                                            context:context
                                                              error:error];
         
@@ -229,7 +229,7 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    return [_primaryFormat removeRTForAccount:account
+    return [_primaryFormat removeSharedRTForAccount:account
                                         token:token
                                       context:context
                                         error:error];

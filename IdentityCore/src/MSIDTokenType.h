@@ -21,12 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedCacheFormat.h"
+#ifndef MSIDTokenType_h
+#define MSIDTokenType_h
 
-@interface MSIDDefaultTokenCacheFormat : NSObject <MSIDSharedCacheFormat>
+typedef NS_ENUM(NSInteger, MSIDTokenType)
+{
+    MSIDTokenTypeAccessToken,
+    MSIDTokenTypeRefreshToken,
+    MSIDTokenTypeAdfsUserToken
+};
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
-
-@end
+#endif /* MSIDTokenType_h */

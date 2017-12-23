@@ -29,18 +29,33 @@ extern NSString *MSIDHTTPHeadersKey;
 extern NSString *MSIDHTTPResponseCodeKey;
 
 /*!
- ADAL and MSAL use different error domains and error codes.
+ ADAL and MSID use different error domains and error codes.
  When extracting shared code to common core, we unify those error domains
  and error codes to be MSID error domains/codes and list them below. Besides,
  domain mapping and error code mapping should be added to ADAuthenticationErrorConverter
- and MSALErrorConveter in corresponding project.
+ and MSIDErrorConveter in corresponding project.
  */
 extern NSString *MSIDErrorDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
-    MSIDErrorInternal = -51000,
-    MSIDErrorCacheMultipleUsers = 300
+    MSIDErrorInternal               = -51000,
+    MSIDErrorCacheMultipleUsers     = 300,
+    
+    /*!
+     MSID encounted an error when trying to store or retrieve items from
+     keychain. Inspect NSUnderlyingError from the userInfo dictionary for
+     more information about the specific error. Keychain error codes are
+     documented in Apple's <Security/SecBase.h> header file
+     */
+    MSIDErrorTokenCacheItemFailure  = -42200,
+    MSIDErrorAmbiguousAuthority     = -42201,
+    MSIDErrorUserNotFound           = -42202,
+    MSIDErrorNoAccessTokensFound    = -42203,
+    MSIDErrorWrapperCacheFailure    = -42270,
+    
+    MSIDErrorInteractionRequired    = -42100,
+    
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

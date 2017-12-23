@@ -26,13 +26,7 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDClientInfo.h"
-
-typedef NS_ENUM(NSInteger, MSIDTokenType)
-{
-    MSIDTokenTypeAccessToken,
-    MSIDTokenTypeRefreshToken,
-    MSIDTokenTypeAdfsUserToken
-};
+#import "MSIDTokenType.h"
 
 @interface MSIDToken : MSIDJsonObject <NSSecureCoding>
 {
