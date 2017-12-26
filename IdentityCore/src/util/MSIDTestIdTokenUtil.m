@@ -27,32 +27,38 @@
 
 #import "MSIDTestIdTokenUtil.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDTestCacheIdentifiers.h"
 
 @implementation MSIDTestIdTokenUtil
 
 + (NSString *)defaultName
 {
-    return @"User";
+    return DEFAULT_TEST_ID_TOKEN_NAME;
 }
 
 + (NSString *)defaultUsername
 {
-    return @"user@contoso.com";
+    return DEFAULT_TEST_ID_USERNAME;
 }
 
 + (NSString *)defaultTenantId
 {
-    return @"1234-5678-90abcdefg";
+    return DEFAULT_TEST_UTID;
 }
 
 + (NSString *)defaultUniqueId
 {
-    return @"29f3807a-4fb0-42f2-a44a-236aa0cb3f97";
+    return DEFAULT_TEST_ID_UNIQUE_ID;
 }
 
-+ (NSString *)defaultIdToken
++ (NSString *)defaultV2IdToken
 {
     return [self idTokenWithName:[self defaultName] preferredUsername:[self defaultUsername]];
+}
+
++ (NSString *)defaultV1IdToken
+{
+    return [self idTokenWithName:[self defaultName] upn:[self defaultUsername] tenantId:nil];
 }
 
 + (NSString *)idTokenWithName:(NSString *)name
@@ -69,6 +75,19 @@
     NSString *idTokenp2 = [@{ @"iss" : @"issuer",
                               @"name" : name,
                               @"preferred_username" : preferredUsername,
+                              @"tid" : tid ? tid : [self defaultTenantId],
+                              @"oid" : [self defaultUniqueId]} msidBase64UrlJson];
+    return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
+}
+
++ (NSString *)idTokenWithName:(NSString *)name
+                          upn:(NSString *)upn
+                     tenantId:(NSString *)tid
+{
+    NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_UgqXG_tMLduSJ1T8caHxU7cOtc"} msidBase64UrlJson];
+    NSString *idTokenp2 = [@{ @"iss" : @"issuer",
+                              @"name" : name,
+                              @"UPN" : upn,
                               @"tid" : tid ? tid : [self defaultTenantId],
                               @"oid" : [self defaultUniqueId]} msidBase64UrlJson];
     return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
