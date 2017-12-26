@@ -1,4 +1,3 @@
-
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -22,15 +21,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRequestParameters.h"
+#import "MSIDAADV2IdToken.h"
 
-@interface MSIDAADRequestParameters : MSIDRequestParameters
+#define ID_TOKEN_ISSUER              @"iss"
+#define ID_TOKEN_OBJECT_ID           @"oid"
+#define ID_TOKEN_TENANT_ID           @"tid"
+#define ID_TOKEN_VERSION             @"ver"
+#define ID_TOKEN_HOME_OBJECT_ID      @"home_oid"
 
-@property NSString *resource;
+@implementation MSIDAADV2IdToken
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                         resource:(NSString *)resource;
+MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
+MSID_JSON_ACCESSOR(ID_TOKEN_OBJECT_ID, objectId)
+MSID_JSON_ACCESSOR(ID_TOKEN_TENANT_ID, tenantId)
+MSID_JSON_ACCESSOR(ID_TOKEN_VERSION, version)
+MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
+
+- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString
+{
+    self = [super initWithRawIdToken:rawIdTokenString];
+    
+    if (self)
+    {
+        // Set uniqueId
+        NSString *uniqueId = self.objectId;
+        
+        if ([NSString msidIsStringNilOrBlank:uniqueId])
+        {
+            uniqueId = self.subject;
+        }
+        
+        _uniqueId = [MSIDIdToken normalizeUserId:uniqueId];
+        _userId = [MSIDIdToken normalizeUserId:self.preferredUsername];
+        _userIdDisplayable = YES;
+    }
+    
+    return self;
+}
 
 @end

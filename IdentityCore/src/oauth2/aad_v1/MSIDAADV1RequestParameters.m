@@ -21,25 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenResponse.h"
-#import "MSIDClientInfo.h"
+#import "MSIDAADV1RequestParameters.h"
 
-@interface MSIDAADTokenResponse : MSIDTokenResponse
+@implementation MSIDAADV1RequestParameters
 
-// Default properties for an AAD error response
-@property (readonly) NSString *correlationId;
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource
+{
+    self = [super initWithAuthority:authority redirectUri:redirectUri clientId:clientId];
+    
+    if (self)
+    {
+        _resource = resource;
+    }
+    
+    return self;
+}
 
-// Default properties for an AAD successful response
-@property (readonly) NSString *expiresOn;
-@property (readonly) NSString *resource;
-@property (readonly) NSString *extendedExpiresIn;
-@property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSString *familyId;
-
-// Custom properties that ADAL handles
-@property (readonly) NSString *speInfo;
-
-// Derived properties
-@property (readonly) NSDate *extendedExpiresOnDate;
 
 @end

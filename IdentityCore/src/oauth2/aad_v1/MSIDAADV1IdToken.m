@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDAADIdToken.h"
+#import "MSIDAADV1IdToken.h"
 
 #define ID_TOKEN_UPN                @"upn"
 #define ID_TOKEN_IDP                @"idp"
@@ -34,7 +34,7 @@
 #define ID_TOKEN_GUEST_ID           @"altsecid"
 #define ID_TOKEN_UNIQUE_NAME        @"unique_name"
 
-@implementation MSIDAADIdToken
+@implementation MSIDAADV1IdToken
 
 MSID_JSON_ACCESSOR(ID_TOKEN_UPN, upn)
 MSID_JSON_ACCESSOR(ID_TOKEN_IDP, identityProvider)
@@ -93,7 +93,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
             _userIdDisplayable = NO;
         }
         
-        _userId = [[MSIDIdToken class] normalizeUserId:userId];
+        _userId = [MSIDIdToken normalizeUserId:userId];
     }
     
     return self;
