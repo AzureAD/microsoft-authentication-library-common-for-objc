@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,18 +17,38 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedCacheFormat.h"
+#import "MSIDAuthority.h"
 
-@interface MSIDDefaultTokenCacheFormat : NSObject <MSIDSharedCacheFormat>
+@implementation MSIDAuthority
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
++ (BOOL)isADFSInstance:(NSString *)endpoint
+{
+    if ([NSString msidIsStringNilOrBlank:endpoint])
+    {
+        return NO;
+    }
+    
+    return[[self class] isADFSInstanceURL:[NSURL URLWithString:endpoint.lowercaseString]];
+}
+
++ (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl
+{
+    
+    NSArray *paths = endpointUrl.pathComponents;
+    if (paths.count >= 2)
+    {
+        NSString *tenant = [paths objectAtIndex:1];
+        return [@"adfs" isEqualToString:tenant];
+    }
+    return false;
+}
 
 @end

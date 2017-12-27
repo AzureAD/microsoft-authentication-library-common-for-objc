@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDSharedCacheFormat.h"
+#import "MSIDSharedCacheAccessor.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestContext.h"
 #import "MSIDBrokerResponse.h"
@@ -30,8 +30,8 @@
 
 @interface MSIDSharedTokenCache : NSObject
 
-- (instancetype)initWithPrimaryCacheFormat:(id<MSIDSharedCacheFormat>)primaryFormat
-                         otherCacheFormats:(NSArray<id<MSIDSharedCacheFormat>> *)cacheFormats;
+- (instancetype)initWithPrimaryCacheAccessor:(id<MSIDSharedCacheAccessor>)primaryAccessor
+                         otherCacheAccessors:(NSArray<id<MSIDSharedCacheAccessor>> *)otherAccessors;
 
 // Save operations
 - (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)requestParams

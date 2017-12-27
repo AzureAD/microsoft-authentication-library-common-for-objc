@@ -23,9 +23,9 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedCacheFormat.h"
+#import "MSIDSharedCacheAccessor.h"
 
-@interface MSIDLegacyTokenCacheFormat : NSObject <MSIDSharedCacheFormat>
+@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDSharedCacheAccessor>
 
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
 

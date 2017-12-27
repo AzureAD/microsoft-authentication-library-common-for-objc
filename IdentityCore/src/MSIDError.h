@@ -39,8 +39,10 @@ extern NSString *MSIDErrorDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
-    MSIDErrorInternal               = -51000,
-    MSIDErrorCacheMultipleUsers     = 300,
+    MSIDErrorInternal = -51000,
+    MSIDErrorCacheMultipleUsers = 300,
+    MSIDErrorServerInvalidResponse = -51001,
+    MSIDErrorDeveloperAuthorityValidation = -51002,
     
     /*!
      MSID encounted an error when trying to store or retrieve items from
@@ -55,7 +57,6 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorWrapperCacheFailure    = -42270,
     
     MSIDErrorInteractionRequired    = -42100,
-    
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
