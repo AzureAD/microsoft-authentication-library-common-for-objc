@@ -31,7 +31,8 @@
 
 + (BOOL)isADFSInstance:(NSString *)endpoint
 {
-    if([NSString msidIsStringNilOrBlank:endpoint]){
+    if ([NSString msidIsStringNilOrBlank:endpoint])
+    {
         return NO;
     }
     
