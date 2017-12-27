@@ -22,10 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDSharedCacheFormat.h"
+#import "MSIDSharedCacheAccessor.h"
 #import "MSIDToken.h"
 
-@interface MSIDTestCacheFormat : NSObject <MSIDSharedCacheFormat>
+@interface MSIDTestCacheAccessor : NSObject <MSIDSharedCacheAccessor>
 
 - (void)addToken:(MSIDToken *)token forAccount:(MSIDAccount *)account;
 - (void)reset;

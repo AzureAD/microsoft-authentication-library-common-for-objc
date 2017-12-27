@@ -21,18 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTestCacheFormat.h"
+#import "MSIDTestCacheAccessor.h"
 #import "MSIDError.h"
 #import "MSIDAccount.h"
 
-@interface MSIDTestCacheFormat()
+@interface MSIDTestCacheAccessor()
 {
     NSMutableDictionary *_cacheContents;
 }
 
 @end
 
-@implementation MSIDTestCacheFormat
+@implementation MSIDTestCacheAccessor
 
 - (instancetype)init
 {
