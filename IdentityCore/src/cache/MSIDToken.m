@@ -24,6 +24,7 @@
 #import "MSIDToken.h"
 #import "MSIDUserInformation.h"
 #import "MSIDAADTokenResponse.h"
+#import "MSIDAADV1TokenResponse.h"
 #import "MSIDClientInfo.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "NSOrderedSet+MSIDExtensions.h"
@@ -308,9 +309,14 @@ static uint64_t s_expirationBuffer = 300;
     if ([tokenResponse isKindOfClass:[MSIDAADTokenResponse class]])
     {
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)tokenResponse;
-        resource = aadTokenResponse.resource;
         familyId = aadTokenResponse.familyId;
         _clientInfo = aadTokenResponse.clientInfo;
+    }
+    
+    if ([tokenResponse isKindOfClass:[MSIDAADV1TokenResponse class]])
+    {
+        MSIDAADV1TokenResponse *aadV1TokenResponse = (MSIDAADV1TokenResponse *)tokenResponse;
+        resource = aadV1TokenResponse.resource;
     }
     
     switch (tokenType)

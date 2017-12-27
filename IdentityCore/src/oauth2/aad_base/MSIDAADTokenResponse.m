@@ -23,7 +23,7 @@
 
 #import "MSIDAADTokenResponse.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDAADIdToken.h"
+#import "MSIDAADV1IdToken.h"
 
 @interface MSIDAADTokenResponse ()
 
@@ -58,7 +58,6 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
     
     if (self.rawClientInfo)
     {
-        // TODO: set error
         _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:self.rawClientInfo error:nil];
     }
     
@@ -87,17 +86,6 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
     }
     
     return [NSDate dateWithTimeIntervalSince1970:[expiresOn doubleValue]];
-}
-
-- (BOOL)isMultiResource
-{
-    return ![NSString msidIsStringNilOrBlank:self.resource]
-            && ![NSString msidIsStringNilOrBlank:self.refreshToken];
-}
-
-- (MSIDIdToken *)idTokenObj
-{
-    return [[MSIDAADIdToken alloc] initWithRawIdToken:self.idToken];
 }
 
 @end
