@@ -26,11 +26,95 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDClientInfo.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
 
 @implementation MSIDToken
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{    
+    if (!(self = [super initWithJSONDictionary:json error:error]))
+    {
+        return nil;
+    }
+    
+    // We don't use _json variable.
+    _json = nil;
+    
+    _idToken = json[MSID_OAUTH2_ID_TOKEN];
+    _familyId = json[MSID_FAMILY_ID];
+    _resource = json[MSID_OAUTH2_RESOURCE];
+    _clientId = json[MSID_OAUTH2_CLIENT_ID];
+    
+    if (!json[MSID_OAUTH2_AUTHORITY] && json[MSID_OAUTH2_ENVIRONMENT])
+    {
+        NSString *authority = [NSString stringWithFormat:@"https://%@/common", json[MSID_OAUTH2_ENVIRONMENT]];
+        _authority = [[NSURL alloc] initWithString:authority];
+    }
+    else
+    {
+        _authority = json[MSID_OAUTH2_AUTHORITY] ? [[NSURL alloc] initWithString:json[MSID_OAUTH2_AUTHORITY]] : nil;
+    }
+    
+    
+    
+    _scopes = [json[MSID_OAUTH2_SCOPE] scopeSet];
+    
+    NSError *err;
+    _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:json[MSID_OAUTH2_CLIENT_INFO] error:&err];
+    if (err)
+    {
+        MSID_LOG_ERROR(nil, @"Client info is corrupted.");
+        MSID_LOG_ERROR_PII(nil, @"Client info is corrupted, error: %@", err);
+    }
+    
+    _expiresOn = json[MSID_OAUTH2_EXPIRES_ON] ? [NSDate dateWithTimeIntervalSince1970:[json[MSID_OAUTH2_EXPIRES_ON] doubleValue]] : nil;
+    _additionalServerInfo = json[MSID_OAUTH2_ADDITIONAL_SERVER_INFO];
+    
+    if (json[MSID_OAUTH2_REFRESH_TOKEN])
+    {
+        _token = json[MSID_OAUTH2_REFRESH_TOKEN];
+        _tokenType = MSIDTokenTypeRefreshToken;
+    }
+    else
+    {
+        _token = json[MSID_OAUTH2_ACCESS_TOKEN];
+        _tokenType = MSIDTokenTypeAccessToken;
+    }
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *dictionary = [NSMutableDictionary new];
+    [dictionary setValue:self.idToken forKey:MSID_OAUTH2_ID_TOKEN];
+    [dictionary setValue:self.familyId forKey:MSID_FAMILY_ID];
+    [dictionary setValue:self.resource forKey:MSID_OAUTH2_RESOURCE];
+    [dictionary setValue:self.clientId forKey:MSID_OAUTH2_CLIENT_ID];
+    [dictionary setValue:self.authority.absoluteString forKey:MSID_OAUTH2_AUTHORITY];
+    [dictionary setValue:self.authority.msidHostWithPortIfNecessary forKey:MSID_OAUTH2_ENVIRONMENT];
+    [dictionary setValue:[self.scopes msidToString] forKey:MSID_OAUTH2_SCOPE];
+    [dictionary setValue:_clientInfo.rawClientInfo forKey:MSID_OAUTH2_CLIENT_INFO];
+    if (self.expiresOn)
+    {
+        dictionary[MSID_OAUTH2_EXPIRES_ON] = [NSString stringWithFormat:@"%qu", (uint64_t)[self.expiresOn timeIntervalSince1970]];
+    }
+    [dictionary setValue:self.additionalServerInfo forKey:MSID_OAUTH2_ADDITIONAL_SERVER_INFO];
+    
+    if (self.tokenType == MSIDTokenTypeRefreshToken)
+    {
+        [dictionary setValue:self.token forKey:MSID_OAUTH2_REFRESH_TOKEN];
+    }
+    else
+    {
+        [dictionary setValue:self.token forKey:MSID_OAUTH2_ACCESS_TOKEN];
+    }
+    
+    return dictionary;
+}
 
 - (BOOL)isExpired;
 {
@@ -152,41 +236,41 @@ static uint64_t s_expirationBuffer = 300;
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    [coder encodeObject:_familyId forKey:@"familyId"];
-    [coder encodeObject:_expiresOn forKey:@"expiresOn"];
+    [coder encodeObject:self.familyId forKey:@"familyId"];
+    [coder encodeObject:self.expiresOn forKey:@"expiresOn"];
     
     if (self.tokenType == MSIDTokenTypeRefreshToken)
     {
-        [coder encodeObject:_token forKey:@"refreshToken"];
+        [coder encodeObject:self.token forKey:@"refreshToken"];
     }
     else
     {
-        [coder encodeObject:_token forKey:@"accessToken"];
+        [coder encodeObject:self.token forKey:@"accessToken"];
     }
     // Backward compatibility with ADAL.
     [coder encodeObject:@"Bearer" forKey:@"accessTokenType"];
     
-    [coder encodeObject:_clientInfo.rawClientInfo forKey:@"clientInfo"];
-    [coder encodeObject:_additionalServerInfo forKey:@"additionalServer"];
+    [coder encodeObject:self.clientInfo.rawClientInfo forKey:@"clientInfo"];
+    [coder encodeObject:self.additionalServerInfo forKey:@"additionalServer"];
     
     MSIDUserInformation *userInformation = [MSIDUserInformation new];
     userInformation.rawIdToken = self.idToken;
     [coder encodeObject:userInformation forKey:@"userInformation"];
     
-    [coder encodeObject:_resource forKey:@"resource"];
-    [coder encodeObject:_authority.absoluteString forKey:@"authority"];
-    [coder encodeObject:_clientId forKey:@"clientId"];
-    [coder encodeObject:_scopes forKey:@"scopes"];
+    [coder encodeObject:self.resource forKey:@"resource"];
+    [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
+    [coder encodeObject:self.clientId forKey:@"clientId"];
+    [coder encodeObject:self.scopes forKey:@"scopes"];
 }
 
 #pragma mark - Init
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDTokenRequest *)request
+                              request:(MSIDRequestParameters *)requestParams
                             tokenType:(MSIDTokenType)tokenType
 {
     if (!response
-        || !request)
+        || !requestParams)
     {
         return nil;
     }
@@ -196,7 +280,7 @@ static uint64_t s_expirationBuffer = 300;
         return nil;
     }
     
-    [self fillFromRequest:request];
+    [self fillFromRequest:requestParams];
     [self fillFromResponse:response tokenType:tokenType];
     [self fillExpiryFromResponse:response];
     [self fillAdditionalServerInfoFromResponse:response];
@@ -206,10 +290,10 @@ static uint64_t s_expirationBuffer = 300;
 
 #pragma mark - Fill item
 
-- (void)fillFromRequest:(MSIDTokenRequest *)tokenRequest
+- (void)fillFromRequest:(MSIDRequestParameters *)requestParams
 {
-    _authority = tokenRequest.authority;
-    _clientId = tokenRequest.clientId;
+    _authority = requestParams.authority;
+    _clientId = requestParams.clientId;
 }
 
 - (void)fillFromResponse:(MSIDTokenResponse *)tokenResponse

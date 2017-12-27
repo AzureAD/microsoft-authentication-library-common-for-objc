@@ -22,17 +22,39 @@
 // THE SOFTWARE.
 
 #import "MSIDJsonSerializer.h"
+#import "MSIDToken.h"
 
 @implementation MSIDJsonSerializer
 
 - (NSData *)serialize:(MSIDToken *)token
 {
-    return nil;
+    NSError *error;
+    NSData *data = [token serialize:&error];
+    
+    if (error)
+    {
+        return nil;
+        MSID_LOG_ERROR(nil, @"Failed to serialize token.");
+        MSID_LOG_ERROR_PII(nil, @"Failed to serialize token, error: %@", error);
+    }
+
+    
+    return data;
 }
 
 - (MSIDToken *)deserialize:(NSData *)data
 {
-    return nil;
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONData:data error:&error];
+    
+    if (error)
+    {
+        return nil;
+        MSID_LOG_ERROR(nil, @"Failed to deserialize json object.");
+        MSID_LOG_ERROR_PII(nil, @"Failed to deserialize json object, error: %@", error);
+    }
+    
+    return token;
 }
 
 @end

@@ -22,26 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenRequest.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDRequestContext.h"
-#import "MSIDBrokerResponse.h"
 #import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedTokenCacheAccessor.h"
+#import "MSIDSharedCacheFormat.h"
 
-@protocol MSIDOauth2TokenCache <NSObject>
+@interface MSIDDefaultTokenCacheFormat : NSObject <MSIDSharedCacheFormat>
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-                         authority:(NSURL *)authority
-                      cacheFormats:(NSArray<id<MSIDSharedTokenCacheAccessor>> *)cacheFormats;
-
-- (BOOL)saveTokensWithRequest:(MSIDTokenRequest *)request
-                     response:(MSIDTokenResponse *)response
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
-
-- (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error;
+- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
 
 @end

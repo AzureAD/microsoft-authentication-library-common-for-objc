@@ -22,24 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTokenCacheDataSource.h"
+#import "MSIDSharedCacheFormat.h"
 
-@class MSIDAccount;
-@class MSIDToken;
+@interface MSIDLegacyTokenCacheFormat : NSObject <MSIDSharedCacheFormat>
 
-@protocol MSIDSharedTokenCacheAccessor <NSObject>
-
-- (BOOL)saveRTForUser:(MSIDAccount *)user
-         refreshToken:(MSIDToken *)refreshToken
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error;
-
-- (MSIDToken *)getClientRTForUser:(MSIDAccount *)user
-                         clientId:(NSString *)clientId
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error;
-
-- (MSIDToken *)getFRTForUser:(MSIDAccount *)user
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error;
+- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
 
 @end

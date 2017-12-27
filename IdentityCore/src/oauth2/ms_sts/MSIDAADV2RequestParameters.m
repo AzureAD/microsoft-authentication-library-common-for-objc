@@ -21,23 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDURLFormObject.h"
-#import "MSIDAADTokenResponse.h"
+#import "MSIDAADV2RequestParameters.h"
 
-@interface MSIDBrokerResponse : MSIDURLFormObject
+@implementation MSIDAADV2RequestParameters
 
-@property (readonly) NSString *authority;
-@property (readonly) NSString *clientId;
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           scopes:(NSOrderedSet<NSString *> *)scopes
+{
+    self = [super initWithAuthority:authority redirectUri:redirectUri clientId:clientId];
+    
+    if (self)
+    {
+        _scopes = scopes;
+    }
+    
+    return self;
+}
 
-@property (readonly) NSString *brokerAppVer;
-@property (readonly) NSString *validAuthority;
-
-@property (readonly) NSString *correlationId;
-@property (readonly) NSString *errorCode;
-@property (readonly) NSString *oauthErrorCode;
-@property (readonly) NSString *errorDescription;
-
-// Derived properties
-@property (readonly) MSIDTokenResponse *tokenResponse;
 
 @end

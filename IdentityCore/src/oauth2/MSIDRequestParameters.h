@@ -21,8 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDLegacyTokenCacheAccessor.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDLegacyTokenCacheAccessor
+@interface MSIDRequestParameters : NSObject
+
+@property NSURL *authority;
+@property NSString *redirectUri;
+@property NSString *clientId;
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId;
 
 @end

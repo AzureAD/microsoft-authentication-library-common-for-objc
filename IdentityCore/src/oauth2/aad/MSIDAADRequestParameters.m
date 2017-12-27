@@ -21,10 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDOauth2TokenCache.h"
-#import "MSIDSharedTokenCacheAccessor.h"
+#import "MSIDAADRequestParameters.h"
 
-@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDOauth2TokenCache, MSIDSharedTokenCacheAccessor>
+@implementation MSIDAADRequestParameters
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource
+{
+    self = [super initWithAuthority:authority redirectUri:redirectUri clientId:clientId];
+    
+    if (self)
+    {
+        _resource = resource;
+    }
+    
+    return self;
+}
+
 
 @end

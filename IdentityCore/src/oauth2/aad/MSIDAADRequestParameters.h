@@ -1,3 +1,4 @@
+
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,8 +22,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheAccessor.h"
+#import "MSIDRequestParameters.h"
 
-@implementation MSIDTokenCacheAccessor
+@interface MSIDAADRequestParameters : MSIDRequestParameters
+
+@property NSString *resource;
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource;
 
 @end

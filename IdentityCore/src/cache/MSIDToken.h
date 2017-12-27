@@ -22,18 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDJsonObject.h"
 #import "MSIDTokenResponse.h"
-#import "MSIDTokenRequest.h"
+#import "MSIDRequestParameters.h"
 #import "MSIDClientInfo.h"
+#import "MSIDTokenType.h"
 
-typedef NS_ENUM(NSInteger, MSIDTokenType)
-{
-    MSIDTokenTypeAccessToken,
-    MSIDTokenTypeRefreshToken,
-    MSIDTokenTypeAdfsUserToken
-};
-
-@interface MSIDToken : NSObject <NSSecureCoding>
+@interface MSIDToken : MSIDJsonObject <NSSecureCoding>
 {
     MSIDTokenType _tokenType;
 }
@@ -43,7 +38,7 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
 
 @property (readonly) NSDate *expiresOn;
 
-@property (readonly) NSURL *authority;
+@property (readwrite) NSURL *authority;
 @property (readonly) NSString *clientId;
 @property (readonly) NSString *familyId;
 @property (readonly) MSIDClientInfo *clientInfo;
@@ -57,7 +52,7 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
 - (BOOL)isExpired;
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDTokenRequest *)request
+                              request:(MSIDRequestParameters *)requestParams
                             tokenType:(MSIDTokenType)tokenType;
 
 @end

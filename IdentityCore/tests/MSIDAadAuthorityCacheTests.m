@@ -572,7 +572,7 @@
     
     // Verify the correct error code is returned and no records were added to the cache
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSID_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 
@@ -594,7 +594,7 @@
     
     // Verify the correct error code is returned and no records were added to the cache
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSID_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 
@@ -614,7 +614,7 @@
     
     // Verify the correct error code is returned and no records were added to the cache
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSID_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 
@@ -636,7 +636,7 @@
     
     // Verify the correct error code is returned and no records were added to the cache
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSID_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 
@@ -658,7 +658,7 @@
     
     // Verify the correct error code is returned and no records were added to the cache
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSID_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 
@@ -680,7 +680,7 @@
     
     // Verify the correct error code is returned and no records were added to the cache
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSID_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 
@@ -702,7 +702,7 @@
     
     // Verify the correct error code is returned and no records were added to the cache
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSID_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 
@@ -724,7 +724,7 @@
     
     // Verify the correct error code is returned and no records were added to the cache
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSID_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 
@@ -746,7 +746,7 @@
     
     // Verify the correct error code is returned and no records were added to the cache
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSID_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 
@@ -768,7 +768,7 @@
     
     // Verify the correct error code is returned and no records were added to the cache
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSID_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 

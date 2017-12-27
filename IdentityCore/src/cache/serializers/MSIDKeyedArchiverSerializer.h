@@ -26,4 +26,6 @@
 
 @interface MSIDKeyedArchiverSerializer : NSObject<MSIDTokenSerializer>
 
+- (instancetype)initWithClassName:(Class)serializedClass NS_DESIGNATED_INITIALIZER;
+
 @end

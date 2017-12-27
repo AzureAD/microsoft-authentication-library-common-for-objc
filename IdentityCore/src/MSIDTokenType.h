@@ -21,15 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#ifndef MSIDTokenType_h
+#define MSIDTokenType_h
 
-@interface MSIDTokenRequest : NSObject
+typedef NS_ENUM(NSInteger, MSIDTokenType)
+{
+    MSIDTokenTypeAccessToken,
+    MSIDTokenTypeRefreshToken,
+    MSIDTokenTypeAdfsUserToken
+};
 
-@property (readonly) NSURL *authority;
-@property (readonly) NSString *grantType;
-@property (readonly) NSString *code;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *redirectUri;
-@property (readonly) NSString *clientId;
-
-@end
+#endif /* MSIDTokenType_h */

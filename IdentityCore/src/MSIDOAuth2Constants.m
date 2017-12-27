@@ -71,3 +71,6 @@ NSString *const MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER     = @"utid";
 
 NSString *const MSID_OAUTH2_DOMAIN_REQ                   = @"domain_req";
 NSString *const MSID_OAUTH2_LOGIN_REQ                    = @"login_req";
+
+NSString *const MSID_OAUTH2_ADDITIONAL_SERVER_INFO       = @"additional_server_info";
+NSString *const MSID_OAUTH2_ENVIRONMENT                  = @"environment";

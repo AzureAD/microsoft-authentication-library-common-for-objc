@@ -33,7 +33,7 @@
 #define CHECK_CLASS_TYPE(_CHK, _CLS, _ERROR) \
     if (![_CHK isKindOfClass:[_CLS class]]) { \
         NSError *msidError = \
-        MSIDCreateError(MSIDErrorDomain, MSID_ERROR_SERVER_INVALID_RESPONSE, _ERROR, nil, nil, nil, context.correlationId, nil); \
+        MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, _ERROR, nil, nil, nil, context.correlationId, nil); \
         if (error) { *error = msidError; } \
         return NO; \
     }
@@ -113,7 +113,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
         {
             details = [NSString stringWithFormat:@"\"%@\" must have a valid percent encoded host", label];
         }
-        NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSID_ERROR_SERVER_INVALID_RESPONSE, details, nil, nil, nil, context.correlationId, nil);
+        NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, details, nil, nil, nil, context.correlationId, nil);
         if (error)
         {
             *error = msidError;
