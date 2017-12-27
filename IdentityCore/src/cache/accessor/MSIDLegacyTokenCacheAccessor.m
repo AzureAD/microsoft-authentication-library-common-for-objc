@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDLegacyTokenCacheFormat.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDAccount.h"
 #import "MSIDAdfsToken.h"
@@ -31,7 +31,7 @@
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDAADV1RequestParameters.h"
 
-@interface MSIDLegacyTokenCacheFormat()
+@interface MSIDLegacyTokenCacheAccessor()
 {
     id<MSIDTokenCacheDataSource> _dataSource;
     
@@ -41,7 +41,7 @@
 
 @end
 
-@implementation MSIDLegacyTokenCacheFormat
+@implementation MSIDLegacyTokenCacheAccessor
 
 #pragma mark - Init
 
@@ -60,7 +60,7 @@
     return self;
 }
 
-#pragma mark - MSIDSharedCacheFormat
+#pragma mark - MSIDSharedCacheAccessor
 
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
                   refreshToken:(MSIDToken *)refreshToken

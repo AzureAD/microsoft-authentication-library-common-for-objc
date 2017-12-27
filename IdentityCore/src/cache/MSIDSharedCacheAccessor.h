@@ -27,7 +27,7 @@
 @class MSIDToken;
 @class MSIDRequestParameters;
 
-@protocol MSIDSharedCacheFormat <NSObject>
+@protocol MSIDSharedCacheAccessor <NSObject>
 
 - (BOOL)saveAccessToken:(MSIDToken *)token
                 account:(MSIDAccount *)account

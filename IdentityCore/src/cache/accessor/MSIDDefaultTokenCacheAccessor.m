@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDDefaultTokenCacheFormat.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDAccount.h"
 #import "MSIDTokenCacheKey.h"
@@ -32,14 +32,14 @@
 #import "MSIDAADV2RequestParameters.h"
 #import "NSString+MSIDExtensions.h"
 
-@interface MSIDDefaultTokenCacheFormat()
+@interface MSIDDefaultTokenCacheAccessor()
 {
     id<MSIDTokenCacheDataSource> _dataSource;
     MSIDJsonSerializer *_serializer;
 }
 @end
 
-@implementation MSIDDefaultTokenCacheFormat
+@implementation MSIDDefaultTokenCacheAccessor
 
 #pragma mark - Init
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
