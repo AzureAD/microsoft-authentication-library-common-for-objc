@@ -25,6 +25,13 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAadAuthorityCache+TestUtil.h"
 
+@interface MSIDAadAuthorityCache ()
+
+- (NSURL *)networkUrlForAuthorityImpl:(NSURL *)authority;
+- (NSURL *)cacheUrlForAuthorityImpl:(NSURL *)authority;
+
+@end
+
 @interface MSIDAadAuthorityCacheTests : XCTestCase
 
 @end
