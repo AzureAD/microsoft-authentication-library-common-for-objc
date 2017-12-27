@@ -26,4 +26,6 @@
 
 @interface MSIDTestCacheDataSource : NSObject <MSIDTokenCacheDataSource>
 
+- (void)reset;
+
 @end

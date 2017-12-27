@@ -132,6 +132,9 @@
 		B214C3A31FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.h in Headers */ = {isa = PBXBuildFile; fileRef = B214C3A11FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.h */; };
 		B214C3A41FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = B214C3A21FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m */; };
 		B214C3A51FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = B214C3A21FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m */; };
+		B22A2BB71FF449040055C66A /* MSIDTestCacheDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECF0C1FF33BD20015FC1D /* MSIDTestCacheDataSource.m */; };
+		B22A2BB81FF449050055C66A /* MSIDTestCacheDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECF0C1FF33BD20015FC1D /* MSIDTestCacheDataSource.m */; };
+		B22A2BB91FF4490A0055C66A /* MSIDTestCacheDataSource.h in Headers */ = {isa = PBXBuildFile; fileRef = B23ECF0D1FF33BD20015FC1D /* MSIDTestCacheDataSource.h */; };
 		B23ECEEA1FF2F56A0015FC1D /* MSIDAADTokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEE81FF2F40C0015FC1D /* MSIDAADTokenResponse.m */; };
 		B23ECEEB1FF2F56A0015FC1D /* MSIDAADTokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEE81FF2F40C0015FC1D /* MSIDAADTokenResponse.m */; };
 		B23ECEEF1FF2F6270015FC1D /* MSIDAADV2IdToken.h in Headers */ = {isa = PBXBuildFile; fileRef = B23ECEED1FF2F6270015FC1D /* MSIDAADV2IdToken.h */; };
@@ -1072,6 +1075,7 @@
 				D626FFF61FBD200A00EE4487 /* MSIDTestURLResponse.h in Headers */,
 				D626FFF91FBD200A00EE4487 /* MSIDTestURLSession.h in Headers */,
 				D6D9A44C1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.h in Headers */,
+				B22A2BB91FF4490A0055C66A /* MSIDTestCacheDataSource.h in Headers */,
 				D626FFF31FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1315,6 +1319,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B22A2BB81FF449050055C66A /* MSIDTestCacheDataSource.m in Sources */,
 				B210F4651FDF1CB8005A8F76 /* MSIDURLFormObjectTests.m in Sources */,
 				B23ECF051FF33AE70015FC1D /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */,
 				23BDA6691FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */,
@@ -1419,6 +1424,7 @@
 				B210F44F1FDDF5D2005A8F76 /* MSIDClientInfoTests.m in Sources */,
 				B20657D01FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
 				2321532E1FDF4FF200C6960D /* MSIDTokenTests.m in Sources */,
+				B22A2BB71FF449040055C66A /* MSIDTestCacheDataSource.m in Sources */,
 				B23ECEFD1FF304250015FC1D /* MSIDTestTokenResponse.m in Sources */,
 				B23ECEF41FF2FA300015FC1D /* MSIDSharedTokenCacheIntegrationTests.m in Sources */,
 				D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,

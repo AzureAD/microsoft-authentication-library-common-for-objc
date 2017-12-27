@@ -22,8 +22,20 @@
 // THE SOFTWARE.
 
 #import "MSIDTestCacheDataSource.h"
+#import "MSIDTokenCacheKey.h"
+#import "MSIDTokenSerializer.h"
+
+@interface MSIDTestCacheDataSource()
+{
+    NSMutableDictionary<NSString *, NSData *> *_cacheContents;
+    NSDictionary *_wipeInfo;
+}
+
+@end
 
 @implementation MSIDTestCacheDataSource
+
+#pragma mark - MSIDTokenCacheDataSource
 
 - (BOOL)setItem:(MSIDToken *)item
             key:(MSIDTokenCacheKey *)key
@@ -31,7 +43,37 @@
         context:(id<MSIDRequestContext>)context
           error:(NSError **)error
 {
-    return NO;
+    if (!item
+        || !key
+        || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Invalid or missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    NSData *serializedItem = [serializer serialize:item];
+    
+    if (!serializedItem)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Couldn't serialize the MSIDToken item", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    NSString *keyString = [self stringFromKey:key];
+    
+    @synchronized (self) {
+        _cacheContents[keyString] = serializedItem;
+    }
+    
+    return YES;
 }
 
 - (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
@@ -39,14 +81,49 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    return nil;
+    if (!key
+        || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Invalid or missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSString *keyString = [self stringFromKey:key];
+    NSData *itemData = nil;
+    
+    @synchronized (self) {
+        itemData = _cacheContents[keyString];
+    }
+    
+    MSIDToken *token = [serializer deserialize:itemData];
+    return token;
 }
 
 - (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    return NO;
+    if (!key)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Invalid or missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    NSString *keyString = [self stringFromKey:key];
+    
+    @synchronized (self) {
+        [_cacheContents removeObjectForKey:keyString];
+    }
+    
+    return YES;
 }
 
 - (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
@@ -54,19 +131,84 @@
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
-    return nil;
+    if (!key
+        || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Invalid or missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSMutableArray *resultItems = [NSMutableArray array];
+    
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:[self regexFromKey:key]
+                                                                           options:NSRegularExpressionCaseInsensitive
+                                                                             error:nil];
+    
+    @synchronized (self) {
+        
+        for (NSString *dictKey in [_cacheContents allKeys])
+        {
+            NSUInteger numberOfMatches = [regex numberOfMatchesInString:dictKey
+                                                                options:0
+                                                                  range:NSMakeRange(0, [dictKey length])];
+            
+            if (numberOfMatches > 0)
+            {
+                NSData *object = _cacheContents[dictKey];
+                MSIDToken *token = [serializer deserialize:object];
+                
+                if (token)
+                {
+                    [resultItems addObject:token];
+                }
+            }
+        }
+        
+    }
+    
+    return resultItems;
 }
 
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    return NO;
+    _wipeInfo = @{@"wiped": [NSDate date]};
+    return YES;
 }
 
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    return nil;
+    return _wipeInfo;
+}
+
+#pragma mark - Helpers
+
+- (NSString *)stringFromKey:(MSIDTokenCacheKey *)key
+{
+    return [NSString stringWithFormat:@"%@_%@_%@", key.account, key.service, key.type];
+}
+
+- (NSString *)regexFromKey:(MSIDTokenCacheKey *)key
+{
+    NSString *accountStr = key.account ? key.account : @".*";
+    NSString *serviceStr = key.service ? key.service : @".*";
+    NSString *typeStr = key.type ? key.type.stringValue : @".*";
+    
+    NSString *regexString = [NSString stringWithFormat:@"(%@)_(%@)_(%@)", accountStr, serviceStr, typeStr];
+    return regexString;
+}
+
+- (void)reset
+{
+    @synchronized (self)  {
+        _cacheContents = [NSMutableDictionary dictionary];
+        _wipeInfo = nil;
+    }
 }
 
 @end
