@@ -31,10 +31,10 @@
 @interface MSIDSharedTokenCache()
 {
     // Primary cache format
-    id<MSIDSharedCacheFormat> _primaryFormat;
+    id<MSIDSharedCacheAccessor> _primaryAccessor;
     
     // All shared formats starting with the primary
-    NSArray<id<MSIDSharedCacheFormat>> *_allFormats;
+    NSArray<id<MSIDSharedCacheAccessor>> *_allAccessors;
 }
 
 @end
@@ -43,18 +43,18 @@
 
 #pragma mark - Init
 
-- (instancetype)initWithPrimaryCacheFormat:(id<MSIDSharedCacheFormat>)primaryFormat
-                         otherCacheFormats:(NSArray<id<MSIDSharedCacheFormat>> *)cacheFormats
+- (instancetype)initWithPrimaryCacheAccessor:(id<MSIDSharedCacheAccessor>)primaryAccessor
+                         otherCacheAccessors:(NSArray<id<MSIDSharedCacheAccessor>> *)otherAccessors
 {
     self = [super init];
     
     if (self)
     {
-        _primaryFormat = primaryFormat;
+        _primaryAccessor = primaryAccessor;
         
-        NSMutableArray *allFormatsArray = [@[primaryFormat] mutableCopy];
-        [allFormatsArray addObjectsFromArray:cacheFormats];
-        _allFormats = allFormatsArray;
+        NSMutableArray *allFormatsArray = [@[primaryAccessor] mutableCopy];
+        [allFormatsArray addObjectsFromArray:otherAccessors];
+        _allAccessors = allFormatsArray;
     }
     
     return self;
@@ -76,7 +76,7 @@
                                                                   request:requestParams
                                                                 tokenType:MSIDTokenTypeAccessToken];
         
-        BOOL result = [_primaryFormat saveAccessToken:accessToken
+        BOOL result = [_primaryAccessor saveAccessToken:accessToken
                                               account:account
                                         requestParams:requestParams
                                               context:context
@@ -93,7 +93,7 @@
                                                                  tokenType:MSIDTokenTypeRefreshToken];
         
         // Save RTs in all formats including primary
-        for (id<MSIDSharedCacheFormat> cache in _allFormats)
+        for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
         {
             result = [cache saveSharedRTForAccount:account
                                       refreshToken:refreshToken
@@ -119,7 +119,7 @@
                                                                 uid:nil];
         
         // Save token for ADFS
-        return [_primaryFormat saveAccessToken:adfsToken
+        return [_primaryAccessor saveAccessToken:adfsToken
                                        account:adfsAccount
                                  requestParams:requestParams
                                        context:context
@@ -148,7 +148,7 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    return [_primaryFormat getATForAccount:account
+    return [_primaryAccessor getATForAccount:account
                              requestParams:parameters
                                    context:context
                                      error:error];
@@ -162,7 +162,7 @@
     NSError *cacheError = nil;
     
     // try all caches in order starting with the primary
-    for (id<MSIDSharedCacheFormat> cache in _allFormats)
+    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
         MSIDToken *token = [cache getSharedRTForAccount:account
                                           requestParams:parameters
@@ -209,7 +209,7 @@
     NSMutableArray *resultRTs = [NSMutableArray array];
     
     // Get RTs from all caches
-    for (id<MSIDSharedCacheFormat> cache in _allFormats)
+    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
         NSArray *otherRTs = [cache getAllSharedRTsWithParams:parameters
                                                            context:context
@@ -229,7 +229,7 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    return [_primaryFormat removeSharedRTForAccount:account
+    return [_primaryAccessor removeSharedRTForAccount:account
                                         token:token
                                       context:context
                                         error:error];
