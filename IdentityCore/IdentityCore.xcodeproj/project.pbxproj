@@ -610,6 +610,8 @@
 		231CE9BD1FE8710A00E95D3E /* integration */ = {
 			isa = PBXGroup;
 			children = (
+				B23ECEF21FF2FA300015FC1D /* MSIDSharedTokenCacheIntegrationTests.m */,
+				B23ECF041FF33AE70015FC1D /* MSIDLegacyTokenCacheIntegrationTests.m */,
 				231CE9BE1FE8710A00E95D3E /* ios */,
 			);
 			path = integration;
@@ -619,8 +621,6 @@
 			isa = PBXGroup;
 			children = (
 				231CE9BF1FE8710A00E95D3E /* MSIDKeychainTokenCacheIntegrationTests.m */,
-				B23ECEF21FF2FA300015FC1D /* MSIDSharedTokenCacheIntegrationTests.m */,
-				B23ECF041FF33AE70015FC1D /* MSIDLegacyTokenCacheIntegrationTests.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
