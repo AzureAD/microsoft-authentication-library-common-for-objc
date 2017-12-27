@@ -236,6 +236,11 @@
         userIdentifier = account.upn;
     }
     
+    return [NSString stringWithFormat:@"%@_%@", userIdentifier, [self tokenTypeAsString:tokenType]];
+}
+
+- (NSString *)tokenTypeAsString:(MSIDTokenType)tokenType
+{
     NSString *typeIdentifier = @"at";
     
     if (tokenType == MSIDTokenTypeRefreshToken)
@@ -243,7 +248,7 @@
         typeIdentifier = @"rt";
     }
     
-    return [NSString stringWithFormat:@"%@_%@", userIdentifier, typeIdentifier];
+    return typeIdentifier;
 }
 
 #pragma mark - Test Utils
@@ -258,6 +263,33 @@
     @synchronized (self) {
         _cacheContents = [NSMutableDictionary dictionary];
     }
+}
+
+- (NSArray *)allAccessTokens
+{
+    return [self allTokensWithType:MSIDTokenTypeAccessToken];
+}
+
+- (NSArray *)allRefreshTokens
+{
+    return [self allTokensWithType:MSIDTokenTypeRefreshToken];
+}
+
+- (NSArray *)allTokensWithType:(MSIDTokenType)type
+{
+    NSMutableArray *resultTokens = [NSMutableArray array];
+    
+    // Filter out tokens based on the token type
+    for (NSString *key in [_cacheContents allKeys])
+    {
+        if ([key hasSuffix:[self tokenTypeAsString:type]]
+            && _cacheContents[key])
+        {
+            [resultTokens addObjectsFromArray:_cacheContents[key]];
+        }
+    }
+    
+    return resultTokens;
 }
 
 @end

@@ -41,6 +41,16 @@
     return [self v2TokenResponseFromJSON:jsonString];
 }
 
++ (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithFamilyId:(NSString *)familyId
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
+    
+    NSString *jsonString = [NSString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\", \"foci\":\"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_SCOPE, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString, familyId];
+    
+    return [self v2TokenResponseFromJSON:jsonString];
+}
+
 + (MSIDAADV2TokenResponse *)v2TokenResponseFromJSON:(NSString *)jsonString
 {
     return [[MSIDAADV2TokenResponse alloc] initWithJSONData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] error:nil];
@@ -52,6 +62,16 @@
     NSString *idToken = [MSIDTestIdTokenUtil defaultV1IdToken];
     
     NSString *jsonString = [NSString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"resource\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString];
+    
+    return [self v1TokenResponseFromJSON:jsonString];
+}
+
++ (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithFamilyId:(NSString *)familyId
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    NSString *idToken = [MSIDTestIdTokenUtil defaultV1IdToken];
+    
+    NSString *jsonString = [NSString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"resource\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\", \"foci\":\"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString, familyId];
     
     return [self v1TokenResponseFromJSON:jsonString];
 }

@@ -29,5 +29,8 @@
 
 - (void)addToken:(MSIDToken *)token forAccount:(MSIDAccount *)account;
 - (void)reset;
+- (NSArray *)allAccessTokens;
+- (NSArray *)allRefreshTokens;
+- (NSArray *)allTokensWithType:(MSIDTokenType)type;
 
 @end

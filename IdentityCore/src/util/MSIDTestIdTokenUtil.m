@@ -38,7 +38,7 @@
 
 + (NSString *)defaultUsername
 {
-    return DEFAULT_TEST_ID_USERNAME;
+    return DEFAULT_TEST_ID_TOKEN_USERNAME;
 }
 
 + (NSString *)defaultTenantId
@@ -48,7 +48,7 @@
 
 + (NSString *)defaultUniqueId
 {
-    return DEFAULT_TEST_ID_UNIQUE_ID;
+    return DEFAULT_TEST_ID_TOKEN_UNIQUE_ID;
 }
 
 + (NSString *)defaultV2IdToken

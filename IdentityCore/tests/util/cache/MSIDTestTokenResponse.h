@@ -29,8 +29,10 @@
 @interface MSIDTestTokenResponse : NSObject
 
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponse;
++ (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithFamilyId:(NSString *)familyId;
 + (MSIDAADV2TokenResponse *)v2TokenResponseFromJSON:(NSString *)jsonString;
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponse;
++ (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithFamilyId:(NSString *)familyId;
 + (MSIDAADV1TokenResponse *)v1SingleResourceTokenResponse;
 + (MSIDAADV1TokenResponse *)v1TokenResponseFromJSON:(NSString *)jsonString;
 
