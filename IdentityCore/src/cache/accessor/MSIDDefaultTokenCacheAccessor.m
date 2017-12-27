@@ -66,7 +66,7 @@
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDAADV2RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
         }
-        return nil;
+        return NO;
     }
     
     if (!account.userIdentifier)
@@ -75,7 +75,7 @@
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"user identifier is needed to save access token for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
         }
-        return nil;
+        return NO;
     }
     
     MSIDAADV2RequestParameters *v2Params = (MSIDAADV2RequestParameters *)parameters;

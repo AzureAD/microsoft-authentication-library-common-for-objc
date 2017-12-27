@@ -22,23 +22,87 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "MSIDTestCacheDataSource.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDTestRequestParams.h"
+#import "MSIDTestTokenResponse.h"
+#import "MSIDToken.h"
+#import "MSIDAccount.h"
+#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDAADV1TokenResponse.h"
+#import "MSIDAADV2TokenResponse.h"
+#import "MSIDAADV1RequestParameters.h"
+#import "MSIDAADV2RequestParameters.h"
 
 @interface MSIDLegacyTokenCacheTests : XCTestCase
+{
+    MSIDLegacyTokenCacheAccessor *_legacyAccessor;
+    MSIDTestCacheDataSource *_dataSource;
+}
 
 @end
 
 @implementation MSIDLegacyTokenCacheTests
 
+#pragma mark - Setup
+
+- (void)setUp
+{
+    _dataSource = [[MSIDTestCacheDataSource alloc] init];
+    _legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource];
+    
+    [super setUp];
+}
+
 #pragma mark - Saving
 
 - (void)testSaveAccessToken_withWrongParameters_shouldReturnError
 {
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
     
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeRefreshToken];
+    
+    NSError *error = nil;
+    
+    BOOL result = [_legacyAccessor saveAccessToken:token
+                                           account:account
+                                     requestParams:[MSIDTestRequestParams v2DefaultParams]
+                                           context:nil
+                                             error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
 }
 
 - (void)testSaveAccessToken_withTokenAndAccount_shouldSaveToken
 {
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
     
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeAccessToken];
+    
+    NSError *error = nil;
+    
+    BOOL result = [_legacyAccessor saveAccessToken:token
+                                           account:account
+                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                           context:nil
+                                             error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    NSArray *accessTokensInCache = [_dataSource allLegacyAccessTokens];
+    XCTAssertEqual([accessTokensInCache count], 1);
+    XCTAssertEqualObjects(accessTokensInCache[0], token);
 }
 
 - (void)testSaveSharedRTForAccount_withMRRT_shouldSaveOneEntry

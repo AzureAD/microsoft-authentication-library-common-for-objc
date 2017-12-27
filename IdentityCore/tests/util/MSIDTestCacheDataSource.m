@@ -24,6 +24,7 @@
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDTokenCacheKey.h"
 #import "MSIDTokenSerializer.h"
+#import "MSIDKeyedArchiverSerializer.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -34,6 +35,20 @@
 @end
 
 @implementation MSIDTestCacheDataSource
+
+#pragma mark - Init
+
+- (instancetype)init
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _cacheContents = [NSMutableDictionary dictionary];
+    }
+    
+    return self;
+}
 
 #pragma mark - MSIDTokenCacheDataSource
 
@@ -203,12 +218,45 @@
     return regexString;
 }
 
+#pragma mark - Test methods
+
 - (void)reset
 {
     @synchronized (self)  {
         _cacheContents = [NSMutableDictionary dictionary];
         _wipeInfo = nil;
     }
+}
+
+- (NSArray *)allLegacyAccessTokens
+{
+    return [self allTokensWithType:MSIDTokenTypeAccessToken serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
+}
+
+- (NSArray *)allLegacyRefreshTokens
+{
+    return [self allTokensWithType:MSIDTokenTypeRefreshToken serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
+}
+
+- (NSArray *)allTokensWithType:(MSIDTokenType)type
+                    serializer:(id<MSIDTokenSerializer>)serializer
+{
+    NSMutableArray *results = [NSMutableArray array];
+    
+    @synchronized (self) {
+        
+        for (NSData *tokenData in [_cacheContents allValues])
+        {
+            MSIDToken *token = [serializer deserialize:tokenData];
+            
+            if (token && token.tokenType == type)
+            {
+                [results addObject:token];
+            }
+        }
+    }
+    
+    return results;
 }
 
 @end

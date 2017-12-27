@@ -151,6 +151,15 @@
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error
 {
+    if (![parameters isKindOfClass:MSIDAADV1RequestParameters.class])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDAADV1RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
+    
     return [self saveToken:token
                    account:account
                   clientId:parameters.clientId
@@ -198,23 +207,23 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError * __autoreleasing *)error
 {
-    if ([parameters isKindOfClass:[MSIDAADV1RequestParameters class]])
+    if (![parameters isKindOfClass:MSIDAADV1RequestParameters.class])
     {
-        MSIDAADV1RequestParameters *aadRequestParams = (MSIDAADV1RequestParameters *)parameters;
-        
-        return [self getItemForAccount:account
-                             authority:aadRequestParams.authority
-                              clientId:aadRequestParams.clientId
-                              resource:aadRequestParams.resource
-                               context:context
-                                 error:error];
-    }
-    else if (error)
-    {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDAADRequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDAADV1RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
     }
     
-    return nil;
+    MSIDAADV1RequestParameters *aadRequestParams = (MSIDAADV1RequestParameters *)parameters;
+    
+    return [self getItemForAccount:account
+                         authority:aadRequestParams.authority
+                          clientId:aadRequestParams.clientId
+                          resource:aadRequestParams.resource
+                           context:context
+                             error:error];
 }
 
 #pragma mark - Helper methods

@@ -114,17 +114,20 @@
     
     NSMutableArray *resultTokens = [NSMutableArray array];
     
-    // Filter out tokens based on the clientId
-    for (NSString *key in [_cacheContents allKeys])
-    {
-        NSArray *contents = _cacheContents[key];
+    @synchronized (self) {
         
-        for (MSIDToken *token in contents)
+        // Filter out tokens based on the clientId
+        for (NSString *key in [_cacheContents allKeys])
         {
-            if (token.tokenType == MSIDTokenTypeRefreshToken
-                && [token.clientId isEqualToString:parameters.clientId])
+            NSArray *contents = _cacheContents[key];
+            
+            for (MSIDToken *token in contents)
             {
-                [resultTokens addObject:token];
+                if (token.tokenType == MSIDTokenTypeRefreshToken
+                    && [token.clientId isEqualToString:parameters.clientId])
+                {
+                    [resultTokens addObject:token];
+                }
             }
         }
     }
@@ -150,7 +153,11 @@
     
     NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.tokenType];
     
-    NSMutableArray *accountTokens = _cacheContents[tokenIdentifier];
+    NSMutableArray *accountTokens = nil;
+    
+    @synchronized (self) {
+        accountTokens = _cacheContents[tokenIdentifier];
+    }
     
     if (accountTokens)
     {
@@ -180,18 +187,21 @@
     
     NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.tokenType];
     
+    NSMutableArray *accountTokens = nil;
+    
     @synchronized (self) {
-        
-        NSMutableArray *accountTokens = _cacheContents[tokenIdentifier];
-        
-        if (!accountTokens)
-        {
-            accountTokens = [NSMutableArray array];
-        }
-        
-        [accountTokens addObject:token];
+        accountTokens = _cacheContents[tokenIdentifier];
+    }
+    
+    if (!accountTokens)
+    {
+        accountTokens = [NSMutableArray array];
+    }
+    
+    [accountTokens addObject:token];
+    
+    @synchronized (self) {
         _cacheContents[tokenIdentifier] = accountTokens;
-        
     }
     
     return YES;
@@ -216,7 +226,11 @@
     
     NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:tokenType];
     
-    NSMutableArray *accountTokens = _cacheContents[tokenIdentifier];
+    NSMutableArray *accountTokens = nil;
+    
+    @synchronized (self) {
+        accountTokens = _cacheContents[tokenIdentifier];
+    }
     
     if (!accountTokens || ![accountTokens count])
     {
@@ -279,14 +293,18 @@
 {
     NSMutableArray *resultTokens = [NSMutableArray array];
     
-    // Filter out tokens based on the token type
-    for (NSString *key in [_cacheContents allKeys])
-    {
-        if ([key hasSuffix:[self tokenTypeAsString:type]]
-            && _cacheContents[key])
+    @synchronized (self) {
+       
+        // Filter out tokens based on the token type
+        for (NSString *key in [_cacheContents allKeys])
         {
-            [resultTokens addObjectsFromArray:_cacheContents[key]];
+            if ([key hasSuffix:[self tokenTypeAsString:type]]
+                && _cacheContents[key])
+            {
+                [resultTokens addObjectsFromArray:_cacheContents[key]];
+            }
         }
+        
     }
     
     return resultTokens;

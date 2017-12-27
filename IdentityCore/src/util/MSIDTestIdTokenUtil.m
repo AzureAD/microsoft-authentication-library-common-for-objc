@@ -71,7 +71,7 @@
             preferredUsername:(NSString *)preferredUsername
                      tenantId:(NSString *)tid
 {
-    NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_UgqXG_tMLduSJ1T8caHxU7cOtc"} msidBase64UrlJson];
+    NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
     NSString *idTokenp2 = [@{ @"iss" : @"issuer",
                               @"name" : name,
                               @"preferred_username" : preferredUsername,
@@ -84,7 +84,7 @@
                           upn:(NSString *)upn
                      tenantId:(NSString *)tid
 {
-    NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_UgqXG_tMLduSJ1T8caHxU7cOtc"} msidBase64UrlJson];
+    NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
     NSString *idTokenp2 = [@{ @"iss" : @"issuer",
                               @"name" : name,
                               @"UPN" : upn,

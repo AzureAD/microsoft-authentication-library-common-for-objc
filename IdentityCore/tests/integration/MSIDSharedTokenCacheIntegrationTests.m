@@ -50,6 +50,8 @@
 {
     _primaryAccessor = [[MSIDTestCacheAccessor alloc] init];
     _secondaryAccessor = [[MSIDTestCacheAccessor alloc] init];
+    
+    [super setUp];
 }
 
 #pragma mark - Save
