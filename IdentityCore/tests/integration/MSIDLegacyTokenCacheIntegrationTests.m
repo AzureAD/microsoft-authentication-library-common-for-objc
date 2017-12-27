@@ -76,7 +76,7 @@
     
     XCTAssertNotNil(error);
     XCTAssertFalse(result);
-    XCTAssertEqual(error.code, MSIDErrorInternal);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
 - (void)testSaveAccessToken_withTokenAndAccount_shouldSaveToken
