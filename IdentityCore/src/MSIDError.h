@@ -40,9 +40,13 @@ extern NSString *MSIDErrorDomain;
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
     MSIDErrorInternal = -51000,
-    MSIDErrorCacheMultipleUsers = 300,
-    MSIDErrorServerInvalidResponse = -51001,
-    MSIDErrorDeveloperAuthorityValidation = -51002,
+    MSIDErrorInvalidInternalParameter = -51001,
+    
+    MSIDErrorInvalidDeveloperParameter = -51100,
+    MSIDErrorAmbiguousAuthority     = -51101,
+    MSIDErrorInteractionRequired    = -51102,
+    
+    MSIDErrorCacheMultipleUsers     = -51200,
     
     /*!
      MSID encounted an error when trying to store or retrieve items from
@@ -50,13 +54,13 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      more information about the specific error. Keychain error codes are
      documented in Apple's <Security/SecBase.h> header file
      */
-    MSIDErrorTokenCacheItemFailure  = -42200,
-    MSIDErrorAmbiguousAuthority     = -42201,
-    MSIDErrorUserNotFound           = -42202,
-    MSIDErrorNoAccessTokensFound    = -42203,
-    MSIDErrorWrapperCacheFailure    = -42270,
+    MSIDErrorTokenCacheItemFailure  = -51201,
+    MSIDErrorUserNotFound           = -51202,
+    MSIDErrorNoAccessTokensFound    = -51203,
+    MSIDErrorWrapperCacheFailure    = -51204,
     
-    MSIDErrorInteractionRequired    = -42100,
+    MSIDErrorServerInvalidResponse = -51300,
+    MSIDErrorDeveloperAuthorityValidation = -51301,
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
