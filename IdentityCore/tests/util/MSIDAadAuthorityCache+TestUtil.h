@@ -35,7 +35,4 @@
 
 - (void)clear;
 
-- (NSURL *)networkUrlForAuthorityImpl:(NSURL *)authority;
-- (NSURL *)cacheUrlForAuthorityImpl:(NSURL *)authority;
-
 @end
