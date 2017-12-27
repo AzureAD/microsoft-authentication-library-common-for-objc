@@ -29,7 +29,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
-#import "MSIDAADRequestParameters.h"
+#import "MSIDAADV1RequestParameters.h"
 
 @interface MSIDLegacyTokenCacheFormat()
 {
@@ -198,9 +198,9 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError * __autoreleasing *)error
 {
-    if ([parameters isKindOfClass:[MSIDAADRequestParameters class]])
+    if ([parameters isKindOfClass:[MSIDAADV1RequestParameters class]])
     {
-        MSIDAADRequestParameters *aadRequestParams = (MSIDAADRequestParameters *)parameters;
+        MSIDAADV1RequestParameters *aadRequestParams = (MSIDAADV1RequestParameters *)parameters;
         
         return [self getItemForAccount:account
                              authority:aadRequestParams.authority
