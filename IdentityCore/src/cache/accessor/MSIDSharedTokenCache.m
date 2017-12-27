@@ -50,10 +50,10 @@
     
     if (self)
     {
-        _primaryAccessor = primaryFormat;
+        _primaryAccessor = primaryAccessor;
         
-        NSMutableArray *allFormatsArray = [@[primaryFormat] mutableCopy];
-        [allFormatsArray addObjectsFromArray:cacheFormats];
+        NSMutableArray *allFormatsArray = [@[primaryAccessor] mutableCopy];
+        [allFormatsArray addObjectsFromArray:otherAccessors];
         _allAccessors = allFormatsArray;
     }
     
