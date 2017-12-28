@@ -59,8 +59,6 @@ static uint64_t s_expirationBuffer = 300;
         _authority = json[MSID_OAUTH2_AUTHORITY] ? [[NSURL alloc] initWithString:json[MSID_OAUTH2_AUTHORITY]] : nil;
     }
     
-    
-    
     _scopes = [json[MSID_OAUTH2_SCOPE] scopeSet];
     
     NSError *err;

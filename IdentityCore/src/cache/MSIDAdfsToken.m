@@ -34,7 +34,7 @@
     
     BOOL result = YES;
     result &= [super isEqualToToken:token];
-    result &= (!self.additionalToken && !token.additionalToken);
+    result &= (!self.additionalToken && !token.additionalToken) || [self.additionalToken isEqualToString:token.additionalToken];
     
     return result;
 }
@@ -73,7 +73,7 @@
         return nil;
     }
    
-    _additionalToken = [coder decodeObjectOfClass:[NSString class] forKey:@"additionalToken"];
+    _additionalToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
     _tokenType = MSIDTokenTypeAdfsUserToken;
     
     return self;
@@ -82,7 +82,8 @@
 - (void)encodeWithCoder:(NSCoder *)coder
 {
     [super encodeWithCoder:coder];
-    [coder encodeObject:_additionalToken forKey:@"additionalToken"];
+    [coder encodeObject:_additionalToken forKey:@"accessToken"];
+    [coder encodeObject:self.token forKey:@"refreshToken"];
 }
 
 #pragma mark - Init

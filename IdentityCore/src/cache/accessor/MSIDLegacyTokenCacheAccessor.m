@@ -85,10 +85,15 @@
         return YES;
     }
     
+    NSString *fociClientId = [MSIDTokenCacheKey familyClientId:refreshToken.familyId];
+    
+    // Update clientId for backward compatibility
+    refreshToken.clientId = fociClientId;
+    
     // Save an additional entry if it's a family refresh token
     return [self saveToken:refreshToken
                    account:account
-                  clientId:[MSIDTokenCacheKey familyClientId:refreshToken.familyId]
+                  clientId:fociClientId
                 serializer:_serializer
                    context:context
                      error:error];
@@ -163,7 +168,7 @@
     return [self saveToken:token
                    account:account
                   clientId:parameters.clientId
-                serializer:_serializer
+                serializer:token.tokenType == MSIDTokenTypeAdfsUserToken ? _adfsSerializer : _serializer
                    context:context
                      error:error];
 }
