@@ -66,6 +66,15 @@
     return [self v1TokenResponseFromJSON:jsonString];
 }
 
++ (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithoutClientInfo
+{
+    NSString *idToken = [MSIDTestIdTokenUtil defaultV1IdToken];
+    
+    NSString *jsonString = [NSString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"resource\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_REFRESH_TOKEN, idToken];
+    
+    return [self v1TokenResponseFromJSON:jsonString];
+}
+
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithFamilyId:(NSString *)familyId
 {
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];

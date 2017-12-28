@@ -30,6 +30,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDAADV1RequestParameters.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -117,7 +118,7 @@
     for (MSIDToken *token in legacyTokens)
     {
         if (token.tokenType == MSIDTokenTypeRefreshToken
-            && token.clientId == parameters.clientId)
+            && [token.clientId isEqualToString:parameters.clientId])
         {
             [resultRTs addObject:token];
         }
@@ -250,7 +251,7 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
     
-    NSURL *newAuthority = token.authority; // TODO: replace with an actual authority
+    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
     
     // The authority used to retrieve the item over the network can differ from the preferred authority used to
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store
@@ -283,8 +284,7 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                            context:context];
     
-    //NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
-    NSArray<NSURL *> *aliases = [NSArray array]; // TODO: replace with a real data
+    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
     
     for (NSURL *alias in aliases)
     {

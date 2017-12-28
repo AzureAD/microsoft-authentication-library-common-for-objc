@@ -28,6 +28,7 @@
 #import "MSIDClientInfo.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDAADV1RequestParameters.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
@@ -318,6 +319,12 @@ static uint64_t s_expirationBuffer = 300;
 {
     _authority = requestParams.authority;
     _clientId = requestParams.clientId;
+    
+    if ([requestParams isKindOfClass:[MSIDAADV1RequestParameters class]])
+    {
+        MSIDAADV1RequestParameters *v1RequestParams = (MSIDAADV1RequestParameters *)requestParams;
+        _resource = v1RequestParams.resource;
+    }
 }
 
 - (void)fillFromResponse:(MSIDTokenResponse *)tokenResponse
@@ -347,7 +354,7 @@ static uint64_t s_expirationBuffer = 300;
         case MSIDTokenTypeAccessToken:
         case MSIDTokenTypeAdfsUserToken:
         {
-            _resource = resource;
+            _resource = resource ? resource : _resource;
             _token = tokenResponse.accessToken;
             _scopes = [tokenResponse.scope scopeSet];
             
@@ -359,6 +366,7 @@ static uint64_t s_expirationBuffer = 300;
         {
             _token = tokenResponse.refreshToken;
             _familyId = familyId;
+            _resource = nil;
             break;
         }
         default:

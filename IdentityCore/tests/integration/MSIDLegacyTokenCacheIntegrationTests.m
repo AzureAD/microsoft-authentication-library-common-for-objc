@@ -161,84 +161,426 @@
 
 - (void)testGetAccessToken_whenNoItemsInCache_shouldReturnNil
 {
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
     
+    NSError *error = nil;
+    MSIDToken *token = [_legacyAccessor getATForAccount:account
+                                          requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                context:nil
+                                                  error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNil(token);
 }
 
 - (void)testGetAccessToken_withWrongParameters_shouldReturnError
 {
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
     
+    NSError *error = nil;
+    MSIDToken *token = [_legacyAccessor getATForAccount:account
+                                          requestParams:[MSIDTestRequestParams v2DefaultParams]
+                                                context:nil
+                                                  error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertNil(token);
 }
 
-- (void)testGetAccessToken_withCorrectAccountAndParameters_shouldReturnToken
+- (void)testGetAccessTokenAfterSaving_withCorrectAccountAndParameters_shouldReturnToken
 {
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeAccessToken];
     
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    // Save token
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveAccessToken:token
+                                           account:account
+                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                           context:nil
+                                             error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    MSIDToken *returnedToken = [_legacyAccessor getATForAccount:account
+                                                  requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                        context:nil
+                                                          error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(returnedToken);
+    XCTAssertEqualObjects(token, returnedToken);
 }
 
 - (void)testGetADFSToken_withCorrectAccountAndParameters_shouldReturnToken
 {
-    // TODO
+    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse]
+                                                                request:[MSIDTestRequestParams v1DefaultParams]
+                                                              tokenType:MSIDTokenTypeAdfsUserToken];
+    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@""
+                                                       utid:nil
+                                                        uid:nil];
+    
+    // Save token
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveAccessToken:token
+                                           account:account
+                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                           context:nil
+                                             error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    MSIDAdfsToken *returnedToken = [_legacyAccessor getADFSTokenWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                          context:nil
+                                                                            error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(returnedToken);
+    XCTAssertEqualObjects(token, returnedToken);
 }
 
 - (void)testGetSharedRTForAccount_whenNoItemsInCache_shouldReturnNil
 {
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
     
+    NSError *error = nil;
+    MSIDToken *token = [_legacyAccessor getSharedRTForAccount:account
+                                                requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                      context:nil
+                                                        error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNil(token);
 }
 
-- (void)testGetSharedRTForAccount_whenAccountWithUPNProvided_shouldReturnToken
+- (void)testGetSharedRTForAccountAfterSaving_whenAccountWithUPNProvided_shouldReturnToken
 {
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeRefreshToken];
     
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:nil
+                                                        uid:nil];
+    
+    // Save token
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
+                                             refreshToken:token
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    MSIDToken *returnedToken = [_legacyAccessor getSharedRTForAccount:account
+                                                        requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                              context:nil
+                                                                error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(returnedToken);
+    XCTAssertEqualObjects(token, returnedToken);
 }
 
-- (void)testGetSharedRTForAccount_whenAccountWithUidUtidProvided_shouldReturnToken
+- (void)testGetSharedRTForAccountAfterSaving_whenAccountWithUidUtidProvided_shouldReturnToken
 {
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeRefreshToken];
     
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    // Save token
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
+                                             refreshToken:token
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    account = [[MSIDAccount alloc] initWithUpn:nil
+                                          utid:DEFAULT_TEST_UTID
+                                           uid:DEFAULT_TEST_UID];
+    
+    MSIDToken *returnedToken = [_legacyAccessor getSharedRTForAccount:account
+                                                        requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                              context:nil
+                                                                error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(returnedToken);
+    XCTAssertEqualObjects(token, returnedToken);
 }
 
-- (void)testGetSharedRTForAccount_whenLegacyItemsInCache_andAccountWithUidUtidProvided_shouldReturnNil
+- (void)testGetSharedRTForAccountAfterSaving_whenLegacyItemsInCache_andAccountWithUidUtidProvided_shouldReturnNil
 {
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponseWithoutClientInfo]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeRefreshToken];
     
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:nil
+                                                        uid:nil];
+    
+    // Save token
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
+                                             refreshToken:token
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    account = [[MSIDAccount alloc] initWithUpn:nil
+                                          utid:DEFAULT_TEST_UTID
+                                           uid:DEFAULT_TEST_UID];
+    
+    MSIDToken *returnedToken = [_legacyAccessor getSharedRTForAccount:account
+                                                        requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                              context:nil
+                                                                error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNil(returnedToken);
 }
 
 - (void)testGetAllSharedRTs_whenNoItemsInCache_shouldReturnEmptyResult
 {
+    NSError *error = nil;
+    NSArray *results = [_legacyAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
+                                                              context:nil
+                                                                error:&error];
     
+    XCTAssertNil(error);
+    XCTAssertEqual([results count], 0);
+
 }
 
-- (void)testGetAllSharedRTs_whenItemsInCacheAccountWithUPNProvided_shouldReturnItems
+- (void)testGetAllSharedRTsAfterSaving_whenItemsInCacheAccountWithUPNProvided_shouldReturnItems
 {
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeRefreshToken];
     
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:nil
+                                                        uid:nil];
+    
+    // Save token
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
+                                             refreshToken:token
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *results = [_legacyAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
+                                                          context:nil
+                                                            error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual([results count], 1);
+    XCTAssertEqualObjects(results[0], token);
 }
 
-- (void)testGetAllSharedRTs_whenItemsInCacheAccountWithUidUtidProvided_shouldReturnItems
+- (void)testGetAllSharedRTsAfterSaving_whenBothATandRTinCache_andAccountWithUPNProvided_shouldReturnItems
 {
+    MSIDToken *accessToken = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                              request:[MSIDTestRequestParams v1DefaultParams]
+                                                            tokenType:MSIDTokenTypeAccessToken];
     
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    // Save an access token
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveAccessToken:accessToken account:account
+                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                           context:nil
+                                             error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    MSIDToken *refreshToken = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                               request:[MSIDTestRequestParams v1DefaultParams]
+                                                             tokenType:MSIDTokenTypeRefreshToken];
+    
+    // Save token
+    result = [_legacyAccessor saveSharedRTForAccount:account
+                                        refreshToken:refreshToken
+                                             context:nil
+                                               error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *results = [_legacyAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
+                                                          context:nil
+                                                            error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual([results count], 1);
+    XCTAssertEqualObjects(results[0], refreshToken);
 }
 
-- (void)testGetAllSharedRTs_whenLegacyItemsInCache_andAccountWithUidUtidProvided_shouldReturnItems
+- (void)testGetAllSharedRTs_whenLegacyItemsInCache_shouldReturnItems
 {
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponseWithoutClientInfo]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeRefreshToken];
     
-}
-
-- (void)testRemovedSharedRTForAccount_whenNoItemsInCache_shouldReturnYes
-{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:nil
+                                                        uid:nil];
     
+    // Save token
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
+                                             refreshToken:token
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *results = [_legacyAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
+                                                          context:nil
+                                                            error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual([results count], 1);
+    XCTAssertEqualObjects(results[0], token);
 }
 
 #pragma mark - Remove
 
-- (void)testRemoveSharedRTForAccount_whenItemInCache_andAccountWithUPNProvided_shouldRemoveItem
+- (void)testRemovedSharedRTForAccount_whenNoItemsInCacheTokenProvided_shouldReturnYes
 {
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponseWithoutClientInfo]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeRefreshToken];
     
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    NSError *error = nil;
+    
+    BOOL result = [_legacyAccessor removeSharedRTForAccount:account
+                                                      token:token
+                                                    context:nil
+                                                      error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
 }
 
-- (void)testRemoveSharedRTForAccount_whenItemInCache_andAccountWithUidUtidProvided_shouldRemoveItem
+- (void)testRemovedSharedRTForAccount_whenNoItemsInCacheNilTokenProvided_shouldReturnFalseAndFillError
 {
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
     
+    NSError *error = nil;
+    
+    BOOL result = [_legacyAccessor removeSharedRTForAccount:account
+                                                      token:nil
+                                                    context:nil
+                                                      error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
 }
 
-- (void)testRemoveSharedRTForAccount_whenLegacyItemInCache_andAccountWithUidUtidProvided_shouldNotRemoveItems
+- (void)testRemovedSharedRTForAccount_whenItemsInCacheNilTokenProvided_shouldReturnFalseAndFillError
 {
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponseWithoutClientInfo]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeRefreshToken];
     
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    NSError *error = nil;
+    
+    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
+                                             refreshToken:token
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    result = [_legacyAccessor removeSharedRTForAccount:account
+                                                 token:nil
+                                               context:nil
+                                                 error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+    
+    NSArray *allRTs = [_dataSource allLegacyRefreshTokens];
+    XCTAssertEqual([allRTs count], 1);
+    XCTAssertEqualObjects(allRTs[0], token);
+}
+
+- (void)testRemoveSharedRTForAccount_whenItemInCache_andAccountAndTokenProvided_shouldRemoveItem
+{
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponseWithoutClientInfo]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeRefreshToken];
+    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    NSError *error = nil;
+    
+    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
+                                             refreshToken:token
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    result = [_legacyAccessor removeSharedRTForAccount:account
+                                                 token:token
+                                               context:nil
+                                                 error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *allRTs = [_dataSource allLegacyRefreshTokens];
+    XCTAssertEqual([allRTs count], 0);
 }
 
 @end
