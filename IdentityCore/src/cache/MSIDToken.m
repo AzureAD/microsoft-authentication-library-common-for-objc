@@ -368,8 +368,8 @@ static uint64_t s_expirationBuffer = 300;
     if ([tokenResponse isKindOfClass:[MSIDAADTokenResponse class]])
     {
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)tokenResponse;
-        [serverInfo setObject:aadTokenResponse.extendedExpiresIn forKey:@"ext_expires_on"];
-        [serverInfo setObject:aadTokenResponse.speInfo forKey:MSID_TELEMETRY_KEY_SPE_INFO];
+        [serverInfo setValue:aadTokenResponse.extendedExpiresIn forKey:@"ext_expires_on"];
+        [serverInfo setValue:aadTokenResponse.speInfo forKey:MSID_TELEMETRY_KEY_SPE_INFO];
     }
     
     _additionalServerInfo = serverInfo;

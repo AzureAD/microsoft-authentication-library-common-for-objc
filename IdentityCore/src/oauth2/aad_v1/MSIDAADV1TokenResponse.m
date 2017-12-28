@@ -30,6 +30,7 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 
 - (BOOL)isMultiResource
 {
+    // TODO: this was brought over from ADAL, find and add a link to documentation describing this behavior
     return ![NSString msidIsStringNilOrBlank:self.resource]
             && ![NSString msidIsStringNilOrBlank:self.refreshToken];
 }

@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,34 +15,25 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDTestIdTokenUtil : NSObject
+@class MSIDAADV2TokenResponse;
+@class MSIDAADV1TokenResponse;
 
-+ (NSString *)defaultV2IdToken;
-+ (NSString *)defaultV1IdToken;
-+ (NSString *)defaultName;
-+ (NSString *)defaultUsername;
-+ (NSString *)defaultTenantId;
-+ (NSString *)defaultUniqueId;
+@interface MSIDTestTokenResponse : NSObject
 
-+ (NSString *)idTokenWithName:(NSString *)name
-            preferredUsername:(NSString *)preferredUsername;
-
-+ (NSString *)idTokenWithName:(NSString *)name
-            preferredUsername:(NSString *)preferredUsername
-                     tenantId:(NSString *)tid;
-
-+ (NSString *)idTokenWithName:(NSString *)name
-                          upn:(NSString *)upn
-                     tenantId:(NSString *)tid;
++ (MSIDAADV2TokenResponse *)v2DefaultTokenResponse;
++ (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithFamilyId:(NSString *)familyId;
++ (MSIDAADV2TokenResponse *)v2TokenResponseFromJSON:(NSString *)jsonString;
++ (MSIDAADV1TokenResponse *)v1DefaultTokenResponse;
++ (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithFamilyId:(NSString *)familyId;
++ (MSIDAADV1TokenResponse *)v1SingleResourceTokenResponse;
++ (MSIDAADV1TokenResponse *)v1TokenResponseFromJSON:(NSString *)jsonString;
 
 @end

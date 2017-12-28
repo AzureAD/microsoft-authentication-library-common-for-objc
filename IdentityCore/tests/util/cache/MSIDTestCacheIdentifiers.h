@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,34 +15,21 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-
-@interface MSIDTestIdTokenUtil : NSObject
-
-+ (NSString *)defaultV2IdToken;
-+ (NSString *)defaultV1IdToken;
-+ (NSString *)defaultName;
-+ (NSString *)defaultUsername;
-+ (NSString *)defaultTenantId;
-+ (NSString *)defaultUniqueId;
-
-+ (NSString *)idTokenWithName:(NSString *)name
-            preferredUsername:(NSString *)preferredUsername;
-
-+ (NSString *)idTokenWithName:(NSString *)name
-            preferredUsername:(NSString *)preferredUsername
-                     tenantId:(NSString *)tid;
-
-+ (NSString *)idTokenWithName:(NSString *)name
-                          upn:(NSString *)upn
-                     tenantId:(NSString *)tid;
-
-@end
+#define DEFAULT_TEST_UID @"1"
+#define DEFAULT_TEST_UTID @"1234-5678-90abcdefg"
+#define DEFAULT_TEST_RESOURCE @"https://graph.microsoft.com/"
+#define DEFAULT_TEST_AUTHORITY @"https://login.microsoftonline.com/common"
+#define DEFAULT_TEST_CLIENT_ID @"test_client_id"
+#define DEFAULT_TEST_SCOPE @"mail.read"
+#define DEFAULT_TEST_ID_TOKEN_NAME @"User"
+#define DEFAULT_TEST_ID_TOKEN_USERNAME @"user@contoso.com"
+#define DEFAULT_TEST_ID_TOKEN_UNIQUE_ID @"29f3807a-4fb0-42f2-a44a-236aa0cb3f97"
+#define DEFAULT_TEST_ACCESS_TOKEN @"access_token"
+#define DEFAULT_TEST_REFRESH_TOKEN @"refresh_token"
+#define DEFAULT_TEST_FAMILY_ID @"family"

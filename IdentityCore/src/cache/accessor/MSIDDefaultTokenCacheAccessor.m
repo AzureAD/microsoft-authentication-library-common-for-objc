@@ -64,18 +64,18 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDAADV2RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"MSIDAADV2RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
         }
-        return nil;
+        return NO;
     }
     
     if (!account.userIdentifier)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"user identifier is needed to save access token for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"user identifier is needed to save access token for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
         }
-        return nil;
+        return NO;
     }
     
     MSIDAADV2RequestParameters *v2Params = (MSIDAADV2RequestParameters *)parameters;
@@ -126,7 +126,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDAADV2RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"MSIDAADV2RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
         }
         return nil;
     }
@@ -135,7 +135,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"user identifier is needed to save access token for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"user identifier is needed to save access token for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
         }
         return nil;
     }
@@ -215,7 +215,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"user identifier is needed to save access token for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"user identifier is needed to save access token for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
         }
         return nil;
     }
@@ -234,7 +234,7 @@
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account token:(MSIDToken *)token context:(id<MSIDRequestContext>)context error:(NSError **)error {
     if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", nil, nil, nil, context.correlationId, nil);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", nil, nil, nil, context.correlationId, nil);
         return NO;
     }
     
