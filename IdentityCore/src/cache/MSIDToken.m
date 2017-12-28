@@ -267,6 +267,27 @@ static uint64_t s_expirationBuffer = 300;
     [coder encodeObject:self.scopes forKey:@"scopes"];
 }
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDToken *item = [[MSIDToken allocWithZone:zone] init];
+    
+    item->_token = [_token copyWithZone:zone];
+    item->_idToken = [_idToken copyWithZone:zone];
+    item->_expiresOn = [_expiresOn copyWithZone:zone];
+    item->_authority = [_authority copyWithZone:zone];
+    item->_clientId = [_clientId copyWithZone:zone];
+    item->_familyId = [_familyId copyWithZone:zone];
+    item->_clientInfo = [_clientInfo copyWithZone:zone];
+    item->_additionalServerInfo = [_additionalServerInfo copyWithZone:zone];
+    item->_tokenType = _tokenType;
+    item->_resource = [_resource copyWithZone:zone];
+    item->_scopes = [_scopes mutableCopyWithZone:zone];
+    
+    return item;
+}
+
 #pragma mark - Init
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response

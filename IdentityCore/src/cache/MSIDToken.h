@@ -28,7 +28,7 @@
 #import "MSIDClientInfo.h"
 #import "MSIDTokenType.h"
 
-@interface MSIDToken : MSIDJsonObject <NSSecureCoding>
+@interface MSIDToken : MSIDJsonObject <NSCopying, NSSecureCoding>
 {
     MSIDTokenType _tokenType;
 }

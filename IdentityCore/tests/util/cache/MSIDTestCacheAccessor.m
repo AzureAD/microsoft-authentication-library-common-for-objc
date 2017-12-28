@@ -281,15 +281,25 @@
 
 - (NSArray *)allAccessTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAccessToken];
+    return [self allTokensWithType:MSIDTokenTypeAccessToken clientId:nil];
 }
 
 - (NSArray *)allRefreshTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeRefreshToken];
+    return [self allTokensWithType:MSIDTokenTypeRefreshToken clientId:nil];
 }
 
-- (NSArray *)allTokensWithType:(MSIDTokenType)type
+- (NSArray *)allMRRTTokensWithClientId:(NSString *)clientId
+{
+    return [self allTokensWithType:MSIDTokenTypeRefreshToken clientId:clientId];
+}
+
+- (NSArray *)allFRTTokensWithFamilyId:(NSString *)familyId
+{
+    return [self allMRRTTokensWithClientId:[NSString stringWithFormat:@"foci-%@", familyId]];
+}
+
+- (NSArray *)allTokensWithType:(MSIDTokenType)type clientId:(NSString *)clientId
 {
     NSMutableArray *resultTokens = [NSMutableArray array];
     
@@ -301,7 +311,20 @@
             if ([key hasSuffix:[self tokenTypeAsString:type]]
                 && _cacheContents[key])
             {
-                [resultTokens addObjectsFromArray:_cacheContents[key]];
+                if (clientId)
+                {
+                    for (MSIDToken *token in _cacheContents[key])
+                    {
+                        if ([token.clientId isEqualToString:clientId])
+                        {
+                            [resultTokens addObject:token];
+                        }
+                    }
+                }
+                else
+                {
+                    [resultTokens addObjectsFromArray:_cacheContents[key]];
+                }
             }
         }
         

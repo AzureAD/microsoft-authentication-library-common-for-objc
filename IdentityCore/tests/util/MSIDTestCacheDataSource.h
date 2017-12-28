@@ -32,7 +32,6 @@
 - (NSArray *)allLegacyADFSTokens;
 - (NSArray *)allLegacyAccessTokens;
 - (NSArray *)allLegacyRefreshTokens;
-- (NSArray *)allLegacyRefreshTokensForClientId:(NSString *)clientId;
 - (NSArray *)allTokensWithType:(MSIDTokenType)type
                     serializer:(id<MSIDTokenSerializer>)serializer;
 

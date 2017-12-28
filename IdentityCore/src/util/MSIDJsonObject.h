@@ -34,7 +34,7 @@
     MSID_JSON_ACCESSOR(KEY, GETTER) \
     MSID_JSON_MUTATOR(KEY, SETTER)
 
-@interface MSIDJsonObject : NSObject
+@interface MSIDJsonObject : NSObject <NSCopying>
 {
     NSMutableDictionary *_json;
 }

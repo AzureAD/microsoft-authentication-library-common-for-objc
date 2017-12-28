@@ -85,6 +85,16 @@
     [coder encodeObject:_singleResourceRefreshToken forKey:@"refreshToken"];
 }
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAdfsToken *item = [super copyWithZone:zone];
+    item->_singleResourceRefreshToken = [_singleResourceRefreshToken copyWithZone:zone];
+    
+    return item;
+}
+
 #pragma mark - Init
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response

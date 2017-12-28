@@ -232,33 +232,22 @@
 - (NSArray *)allLegacyADFSTokens
 {
     return [self allTokensWithType:MSIDTokenTypeAdfsUserToken
-                          clientId:nil
                         serializer:[[MSIDKeyedArchiverSerializer alloc] initWithClassName:[MSIDAdfsToken class]]];
 }
 
 - (NSArray *)allLegacyAccessTokens
 {
     return [self allTokensWithType:MSIDTokenTypeAccessToken
-                          clientId:nil
                         serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allLegacyRefreshTokens
 {
     return [self allTokensWithType:MSIDTokenTypeRefreshToken
-                          clientId:nil
-                        serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
-}
-
-- (NSArray *)allLegacyRefreshTokensForClientId:(NSString *)clientId
-{
-    return [self allTokensWithType:MSIDTokenTypeRefreshToken
-                          clientId:clientId
                         serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allTokensWithType:(MSIDTokenType)type
-                      clientId:(NSString *)clientId
                     serializer:(id<MSIDTokenSerializer>)serializer
 {
     NSMutableArray *results = [NSMutableArray array];
@@ -269,8 +258,7 @@
         {
             MSIDToken *token = [serializer deserialize:tokenData];
             
-            if (token && token.tokenType == type
-                && (!clientId || [token.clientId isEqualToString:clientId]))
+            if (token && token.tokenType == type)
             {
                 [results addObject:token];
             }

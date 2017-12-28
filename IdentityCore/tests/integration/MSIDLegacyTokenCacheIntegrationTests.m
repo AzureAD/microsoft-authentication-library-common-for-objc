@@ -157,50 +157,6 @@
     XCTAssertEqualObjects(refreshTokensInCache[0], token);
 }
 
-- (void)testSaveSharedRTForAccount_withFRT_shouldSaveTwoEntriesUpdateClientId
-{
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                       utid:DEFAULT_TEST_UTID
-                                                        uid:DEFAULT_TEST_UID];
-    
-    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
-    
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:tokenResponse
-                                                        request:[MSIDTestRequestParams v1DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
-    
-    NSError *error = nil;
-    
-    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
-                                             refreshToken:token
-                                                  context:nil
-                                                    error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-    
-    // Check that correct MRRT item was saved
-    NSArray *mrrtsInCache = [_dataSource allLegacyRefreshTokensForClientId:DEFAULT_TEST_CLIENT_ID];
-    XCTAssertEqual([mrrtsInCache count], 1);
-    MSIDToken *mrrtItem = mrrtsInCache[0];
-    XCTAssertEqualObjects(mrrtItem.clientId, DEFAULT_TEST_CLIENT_ID);
-    XCTAssertEqualObjects(mrrtItem.familyId, DEFAULT_TEST_FAMILY_ID);
-    XCTAssertEqualObjects(mrrtItem.token, token.token);
-    XCTAssertEqualObjects(mrrtItem.idToken, token.idToken);
-    XCTAssertEqualObjects(mrrtItem.resource, token.resource);
-    
-    // Check that correct FRRT item was saved
-    NSString *fociClientId = [NSString stringWithFormat:@"foci-%@", DEFAULT_TEST_FAMILY_ID];
-    NSArray *frtsInCache = [_dataSource allLegacyRefreshTokensForClientId:fociClientId];
-    XCTAssertEqual([frtsInCache count], 1);
-    MSIDToken *frtItem = frtsInCache[0];
-    XCTAssertEqualObjects(frtItem.clientId, fociClientId);
-    XCTAssertEqualObjects(frtItem.familyId, DEFAULT_TEST_FAMILY_ID);
-    XCTAssertEqualObjects(frtItem.token, token.token);
-    XCTAssertEqualObjects(frtItem.idToken, token.idToken);
-    XCTAssertEqualObjects(frtItem.resource, token.resource);
-}
-
 #pragma mark - Retrieve
 
 - (void)testGetAccessToken_whenNoItemsInCache_shouldReturnNil

@@ -68,32 +68,9 @@
                          error:(NSError **)error
 {
     // Save refresh token entry
-    BOOL result = [self saveToken:refreshToken
-                          account:account
-                         clientId:refreshToken.clientId
-                       serializer:_serializer
-                          context:context
-                            error:error];
-    
-    if (!result)
-    {
-        return NO;
-    }
-    
-    if ([NSString msidIsStringNilOrBlank:refreshToken.familyId])
-    {
-        return YES;
-    }
-    
-    NSString *fociClientId = [MSIDTokenCacheKey familyClientId:refreshToken.familyId];
-    
-    // Update clientId for backward compatibility
-    refreshToken.clientId = fociClientId;
-    
-    // Save an additional entry if it's a family refresh token
     return [self saveToken:refreshToken
                    account:account
-                  clientId:fociClientId
+                  clientId:refreshToken.clientId
                 serializer:_serializer
                    context:context
                      error:error];
