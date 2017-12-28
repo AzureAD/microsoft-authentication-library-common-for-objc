@@ -109,7 +109,7 @@
     return [self saveToken:token
                     userId:account.userIdentifier
                   clientId:token.clientId
-                    scopes:nil
+                    scopes:token.scopes
                  authority:token.authority
                 serializer:_serializer
                    context:context

@@ -25,6 +25,7 @@
 #import "MSIDTokenCacheKey.h"
 #import "MSIDTokenSerializer.h"
 #import "MSIDKeyedArchiverSerializer.h"
+#import "MSIDJsonSerializer.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -237,6 +238,17 @@
 {
     return [self allTokensWithType:MSIDTokenTypeRefreshToken serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
+
+- (NSArray *)allDefaultAccessTokens
+{
+    return [self allTokensWithType:MSIDTokenTypeAccessToken serializer:[[MSIDJsonSerializer alloc] init]];
+}
+
+- (NSArray *)allDefaultRefreshTokens
+{
+    return [self allTokensWithType:MSIDTokenTypeRefreshToken serializer:[[MSIDJsonSerializer alloc] init]];
+}
+
 
 - (NSArray *)allTokensWithType:(MSIDTokenType)type
                     serializer:(id<MSIDTokenSerializer>)serializer

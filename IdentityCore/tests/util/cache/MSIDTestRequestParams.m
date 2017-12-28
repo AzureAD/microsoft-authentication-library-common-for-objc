@@ -42,8 +42,7 @@
 + (MSIDAADV2RequestParameters *)v2DefaultParams
 {
     NSURL *authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    NSString *scope = [NSString stringWithFormat:@"%@%@", DEFAULT_TEST_RESOURCE, DEFAULT_TEST_SCOPE];
-    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:scope, nil];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
     MSIDAADV2RequestParameters *requestParams = [[MSIDAADV2RequestParameters alloc] initWithAuthority:authority
                                                                                           redirectUri:nil
                                                                                              clientId:DEFAULT_TEST_CLIENT_ID

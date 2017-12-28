@@ -28,6 +28,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDTestIdTokenUtil.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDTestTokenResponse
 
@@ -36,7 +37,7 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
     
-    NSString *jsonString = [NSString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_SCOPE, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString];
+    NSString *jsonString = [NSString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_SCOPE, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString];
     
     return [self v2TokenResponseFromJSON:jsonString];
 }
@@ -47,6 +48,16 @@
     NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
     
     NSString *jsonString = [NSString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\", \"foci\":\"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_SCOPE, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString, familyId];
+    
+    return [self v2TokenResponseFromJSON:jsonString];
+}
+
++ (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithScopes:(NSOrderedSet<NSString *> *)scopes
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
+    
+    NSString *jsonString = [NSString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, scopes.msidToString, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString];
     
     return [self v2TokenResponseFromJSON:jsonString];
 }
