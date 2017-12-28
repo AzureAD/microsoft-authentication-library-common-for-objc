@@ -161,8 +161,8 @@
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     XCTAssertEqual(token.tokenType, MSIDTokenTypeAdfsUserToken);
-    XCTAssertEqualObjects(token.token, DEFAULT_TEST_REFRESH_TOKEN);
-    XCTAssertEqualObjects(token.additionalToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.token, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.singleResourceRefreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     
     // Check that no refresh token is returned back
     MSIDToken *refreshToken = [tokenCache getRTForAccount:account

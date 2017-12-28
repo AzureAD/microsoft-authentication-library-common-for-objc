@@ -198,7 +198,12 @@ static uint64_t s_expirationBuffer = 300;
     NSString *accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
     NSString *refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     
-    if (refreshToken)
+    if (refreshToken && accessToken)
+    {
+        _token = accessToken;
+        _tokenType = MSIDTokenTypeAdfsUserToken;
+    }
+    else if (refreshToken)
     {
         _token = refreshToken;
         _tokenType = MSIDTokenTypeRefreshToken;
@@ -281,7 +286,6 @@ static uint64_t s_expirationBuffer = 300;
     
     [self fillFromRequest:requestParams];
     [self fillFromResponse:response tokenType:tokenType];
-    [self fillExpiryFromResponse:response];
     [self fillAdditionalServerInfoFromResponse:response];
     
     return self;
@@ -320,10 +324,13 @@ static uint64_t s_expirationBuffer = 300;
     switch (tokenType)
     {
         case MSIDTokenTypeAccessToken:
+        case MSIDTokenTypeAdfsUserToken:
         {
             _resource = resource;
             _token = tokenResponse.accessToken;
             _scopes = [tokenResponse.scope scopeSet];
+            
+            [self fillExpiryFromResponse:tokenResponse];
             
             break;
         }
@@ -331,12 +338,6 @@ static uint64_t s_expirationBuffer = 300;
         {
             _token = tokenResponse.refreshToken;
             _familyId = familyId;
-            break;
-        }
-        case MSIDTokenTypeAdfsUserToken:
-        {
-            _resource = resource;
-            _token = tokenResponse.refreshToken;
             break;
         }
         default:

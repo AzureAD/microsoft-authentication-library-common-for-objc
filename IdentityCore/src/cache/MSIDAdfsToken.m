@@ -34,7 +34,7 @@
     
     BOOL result = YES;
     result &= [super isEqualToToken:token];
-    result &= (!self.additionalToken && !token.additionalToken) || [self.additionalToken isEqualToString:token.additionalToken];
+    result &= (!self.singleResourceRefreshToken && !token.singleResourceRefreshToken) || [self.singleResourceRefreshToken isEqualToString:token.singleResourceRefreshToken];
     
     return result;
 }
@@ -59,7 +59,7 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
-    hash ^= self.additionalToken.hash;
+    hash ^= self.singleResourceRefreshToken.hash;
     
     return hash;
 }
@@ -73,7 +73,7 @@
         return nil;
     }
    
-    _additionalToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
+    _singleResourceRefreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     _tokenType = MSIDTokenTypeAdfsUserToken;
     
     return self;
@@ -82,8 +82,7 @@
 - (void)encodeWithCoder:(NSCoder *)coder
 {
     [super encodeWithCoder:coder];
-    [coder encodeObject:_additionalToken forKey:@"accessToken"];
-    [coder encodeObject:self.token forKey:@"refreshToken"];
+    [coder encodeObject:_singleResourceRefreshToken forKey:@"refreshToken"];
 }
 
 #pragma mark - Init
@@ -98,7 +97,7 @@
     
     if (self)
     {
-        _additionalToken = response.accessToken;
+        _singleResourceRefreshToken = response.refreshToken;
     }
     
     return self;
