@@ -25,6 +25,7 @@
 
 @class MSIDAccount;
 @class MSIDToken;
+@class MSIDAdfsToken;
 @class MSIDRequestParameters;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
@@ -39,6 +40,10 @@
                  requestParams:(MSIDRequestParameters *)parameters
                        context:(id<MSIDRequestContext>)context
                          error:(NSError * __autoreleasing *)error;
+
+- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError * __autoreleasing *)error;
 
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
                   refreshToken:(MSIDToken *)refreshToken

@@ -414,6 +414,32 @@
     XCTAssertNil(returnedToken);
 }
 
+- (void)testGetADFSTokenForAccount_whenATPresentInPrimaryCache_returnsToken
+{
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse]
+                                                                request:[MSIDTestRequestParams v1DefaultParams]
+                                                              tokenType:MSIDTokenTypeAccessToken];
+    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@""
+                                                       utid:nil
+                                                        uid:nil];
+    
+    [_primaryAccessor addToken:token forAccount:account];
+    
+    // Check that AT is returned
+    NSError *error = nil;
+    MSIDAdfsToken *returnedToken = [tokenCache getADFSTokenWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                     context:nil
+                                                                       error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token, returnedToken);
+}
+
 - (void)testGetRTForAccount_whenRTPresentInPrimaryCacheOnly_returnsToken
 {
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor

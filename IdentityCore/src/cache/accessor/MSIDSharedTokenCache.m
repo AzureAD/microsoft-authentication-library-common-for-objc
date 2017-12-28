@@ -181,6 +181,15 @@
                                      error:error];
 }
 
+- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
+{
+    return [_primaryAccessor getADFSTokenWithRequestParams:parameters
+                                                   context:context
+                                                     error:error];
+}
+
 - (MSIDToken *)getRTForAccount:(MSIDAccount *)account
                  requestParams:(MSIDRequestParameters *)parameters
                        context:(id<MSIDRequestContext>)context

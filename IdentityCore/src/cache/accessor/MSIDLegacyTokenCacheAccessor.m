@@ -85,6 +85,7 @@
                          authority:parameters.authority
                           clientId:parameters.clientId
                           resource:nil
+                        serializer:_serializer
                            context:context
                              error:error];
 }
@@ -189,6 +190,31 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError * __autoreleasing *)error
 {
+    return [self getATForAccount:account
+                   requestParams:parameters
+                      serializer:_serializer
+                         context:context
+                           error:error];
+}
+
+- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@"" utid:nil uid:nil];
+    return (MSIDAdfsToken *)[self getATForAccount:account
+                                    requestParams:parameters
+                                       serializer:_adfsSerializer
+                                          context:context
+                                            error:error];
+}
+
+- (MSIDToken *)getATForAccount:(MSIDAccount *)account
+                 requestParams:(MSIDRequestParameters *)parameters
+                    serializer:(id<MSIDTokenSerializer>)serializer
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
+{
     if (![parameters isKindOfClass:MSIDAADV1RequestParameters.class])
     {
         if (error)
@@ -204,6 +230,7 @@
                          authority:aadRequestParams.authority
                           clientId:aadRequestParams.clientId
                           resource:aadRequestParams.resource
+                        serializer:serializer
                            context:context
                              error:error];
 }
@@ -246,6 +273,7 @@
                        authority:(NSURL *)authority
                         clientId:(NSString *)clientId
                         resource:(NSString *)resource
+                      serializer:(id<MSIDTokenSerializer>)serializer
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
@@ -272,7 +300,7 @@
         NSError *cacheError = nil;
         
         MSIDToken *token = [_dataSource itemWithKey:key
-                                         serializer:_serializer
+                                         serializer:serializer
                                             context:context
                                               error:&cacheError];
         

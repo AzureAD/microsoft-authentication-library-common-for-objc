@@ -77,6 +77,19 @@
                               error:error];
 }
 
+- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@"" utid:nil uid:nil];
+    
+    return (MSIDAdfsToken *)[self getTokenForAccount:account
+                                           tokenType:MSIDTokenTypeAdfsUserToken
+                                              params:parameters
+                                             context:context
+                                               error:error];
+}
+
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
                   refreshToken:(MSIDToken *)refreshToken
                        context:(id<MSIDRequestContext>)context
