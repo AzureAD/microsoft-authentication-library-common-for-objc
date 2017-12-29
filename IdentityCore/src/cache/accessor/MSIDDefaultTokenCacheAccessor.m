@@ -449,7 +449,7 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
     
-    NSMutableArray<MSIDToken *> *result = nil;
+    NSMutableArray<MSIDToken *> *result = [NSMutableArray new];
 
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokens];
     NSArray<MSIDToken *> *allAccessTokensForAlias = [_dataSource itemsWithKey:key serializer:_serializer context:context error:error];
