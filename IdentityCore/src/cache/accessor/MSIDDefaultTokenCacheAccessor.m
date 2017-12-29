@@ -215,7 +215,7 @@
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error {
 
-    return [self getAllRTsForClientId:parameters.clientId context:context error:error];
+    return [self getAllRTsForClientId:clientId context:context error:error];
 }
 
 - (MSIDToken *)getSharedRTForAccount:(MSIDAccount *)account
