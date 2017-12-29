@@ -83,7 +83,7 @@
     
     // delete all cache entries with intersecting scopes
     // this should not happen but we have this as a safe guard against multiple matches
-    NSArray<MSIDToken *> *allTokens = [self getATsForUserId:account.userIdentifier authority:token.authority context:context error:error];
+    NSArray<MSIDToken *> *allTokens = [self getATsForUserId:account.userIdentifier authority:token.authority clientId:token.clientId context:context error:error];
     
     if (!allTokens)
     {
@@ -143,6 +143,7 @@
     
     NSArray<MSIDToken *> *allTokens = [self getATsForUserId:account.userIdentifier
                                                   authority:parameters.authority
+                                                   clientId:parameters.clientId
                                                     context:context
                                                       error:error];
     
@@ -440,6 +441,7 @@
 
 - (NSArray<MSIDToken *> *)getATsForUserId:(NSString *)userId
                                 authority:(NSURL *)authority
+                                 clientId:(NSString *)clientId
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError *__autoreleasing *)error
 {
@@ -466,7 +468,8 @@
     
     for (MSIDToken *token in allAccessTokensForAlias)
     {
-        if ([token.clientInfo.userIdentifier isEqualToString:userId])
+        if ([token.clientInfo.userIdentifier isEqualToString:userId]
+            && [token.clientId isEqualToString:clientId])
         {
             if (!authority
                 || (authority && [authority msidIsEquivalentAuthority:token.authority]))
