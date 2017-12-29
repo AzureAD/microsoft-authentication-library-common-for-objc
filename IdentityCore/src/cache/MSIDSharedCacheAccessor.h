@@ -51,9 +51,9 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsWithParams:(MSIDRequestParameters *)parameters
-                                                  context:(id<MSIDRequestContext>)context
-                                                    error:(NSError **)error;
+- (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error;
 
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
                            token:(MSIDToken *)token

@@ -611,9 +611,9 @@
     
     // Check that 1 RT is returned
     NSError *error = nil;
-    NSArray *tokens = [tokenCache getAllClientRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
-                                                    context:nil
-                                                      error:&error];
+    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestRequestParams v1DefaultParams].clientId
+                                          context:nil
+                                            error:&error];
     
     XCTAssertNil(error);
     XCTAssertEqual([tokens count], 1);
@@ -637,9 +637,9 @@
     
     // Check that 1 RT is returned
     NSError *error = nil;
-    NSArray *tokens = [tokenCache getAllClientRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
-                                                    context:nil
-                                                      error:&error];
+    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestRequestParams v1DefaultParams].clientId
+                                          context:nil
+                                            error:&error];
     
     XCTAssertNil(error);
     XCTAssertEqual([tokens count], 1);
@@ -669,9 +669,9 @@
     
     // Check that 2 RTs are returned
     NSError *error = nil;
-    NSArray *tokens = [tokenCache getAllClientRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
-                                                     context:nil
-                                                       error:&error];
+    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestRequestParams v1DefaultParams].clientId
+                                          context:nil
+                                            error:&error];
     
     XCTAssertNil(error);
     XCTAssertEqual([tokens count], 2);
@@ -686,9 +686,9 @@
     
     // Check that no RT is returned
     NSError *error = nil;
-    NSArray *tokens = [tokenCache getAllClientRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
-                                                    context:nil
-                                                      error:&error];
+    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestRequestParams v1DefaultParams].clientId
+                                          context:nil
+                                            error:&error];
     
     XCTAssertNil(error);
     XCTAssertEqual([tokens count], 0);
