@@ -70,9 +70,9 @@
 /*!
  + Returns all refresh tokens for a given client.
  + */
-- (NSArray<MSIDToken *> *)getAllClientRTsWithParams:(MSIDRequestParameters *)parameters
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error;
+- (NSArray<MSIDToken *> *)getAllClientRTs:(NSString *)clientId
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error;
 
 // Removal operations
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
