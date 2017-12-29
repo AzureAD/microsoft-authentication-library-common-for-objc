@@ -231,14 +231,12 @@
         return nil;
     }
     
-    return [self getTokenForUserId:account.userIdentifier
-                         tokenType:MSIDTokenTypeRefreshToken
-                          clientId:parameters.clientId
-                            scopes:nil
-                         authority:parameters.authority
-                        serializer:_serializer
-                           context:context
-                             error:error];
+    return [self getRefreshTokenForUserId:account.userIdentifier
+                                 clientId:parameters.clientId
+                                authority:parameters.authority
+                               serializer:_serializer
+                                  context:context
+                                    error:error];
 }
 
 
@@ -254,14 +252,12 @@
     }
     
     NSError *cacheError = nil;
-    MSIDToken *tokenInCache  = [self getTokenForUserId:account.userIdentifier
-                                             tokenType:MSIDTokenTypeRefreshToken
-                                              clientId:token.clientId
-                                                scopes:nil
-                                             authority:token.authority
-                                            serializer:_serializer
-                                               context:context
-                                                 error:&cacheError];
+    MSIDToken *tokenInCache  = [self getRefreshTokenForUserId:account.userIdentifier
+                                                     clientId:token.clientId
+                                                    authority:token.authority
+                                                   serializer:_serializer
+                                                      context:context
+                                                        error:error];
     
     if (cacheError)
     {
@@ -370,14 +366,12 @@
     return result;
 }
 
-- (MSIDToken *)getTokenForUserId:(NSString *)userId
-                       tokenType:(MSIDTokenType)tokenType
-                        clientId:(NSString *)clientId
-                          scopes:(NSOrderedSet<NSString *> *)scopes
-                       authority:(NSURL *)authority
-                      serializer:(id<MSIDTokenSerializer>)serializer
-                         context:(id<MSIDRequestContext>)context
-                           error:(NSError **)error
+- (MSIDToken *)getRefreshTokenForUserId:(NSString *)userId
+                               clientId:(NSString *)clientId
+                              authority:(NSURL *)authority
+                             serializer:(id<MSIDTokenSerializer>)serializer
+                                context:(id<MSIDRequestContext>)context
+                                  error:(NSError **)error
 {
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
@@ -389,8 +383,8 @@
     
     for (NSURL *alias in aliases)
     {
-        MSIDTokenCacheKey *key = [self keyForTokenType:tokenType
-                                                userId:userId clientId:clientId scopes:scopes authority:alias];
+        MSIDTokenCacheKey *key = [self keyForTokenType:MSIDTokenTypeRefreshToken
+                                                userId:userId clientId:clientId scopes:nil authority:alias];
         if (!key)
         {
             [self stopTelemetryEvent:event
