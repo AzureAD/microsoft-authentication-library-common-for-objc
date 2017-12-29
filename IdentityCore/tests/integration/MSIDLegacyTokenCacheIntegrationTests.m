@@ -272,14 +272,11 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveAccessToken:token
-                                           account:account
-                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                           context:nil
-                                             error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
+    [_legacyAccessor saveAccessToken:token
+                             account:account
+                       requestParams:[MSIDTestRequestParams v1DefaultParams]
+                             context:nil
+                               error:&error];
     
     MSIDToken *returnedToken = [_legacyAccessor getATForAccount:account
                                                   requestParams:[MSIDTestRequestParams v1DefaultParams]
@@ -303,14 +300,11 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveAccessToken:token
-                                           account:account
-                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                           context:nil
-                                             error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
+    [_legacyAccessor saveAccessToken:token
+                             account:account
+                       requestParams:[MSIDTestRequestParams v1DefaultParams]
+                             context:nil
+                               error:&error];
     
     MSIDAdfsToken *returnedToken = [_legacyAccessor getADFSTokenWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
                                                                           context:nil
@@ -349,13 +343,10 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
-                                             refreshToken:token
-                                                  context:nil
-                                                    error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
+    [_legacyAccessor saveSharedRTForAccount:account
+                               refreshToken:token
+                                    context:nil
+                                      error:&error];
     
     MSIDToken *returnedToken = [_legacyAccessor getSharedRTForAccount:account
                                                         requestParams:[MSIDTestRequestParams v1DefaultParams]
@@ -379,13 +370,10 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
-                                             refreshToken:token
-                                                  context:nil
-                                                    error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
+    [_legacyAccessor saveSharedRTForAccount:account
+                               refreshToken:token
+                                    context:nil
+                                      error:&error];
     
     account = [[MSIDAccount alloc] initWithUpn:nil
                                           utid:DEFAULT_TEST_UTID
@@ -413,13 +401,10 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
-                                             refreshToken:token
-                                                  context:nil
-                                                    error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
+    [_legacyAccessor saveSharedRTForAccount:account
+                               refreshToken:token
+                                    context:nil
+                                      error:&error];
     
     account = [[MSIDAccount alloc] initWithUpn:nil
                                           utid:DEFAULT_TEST_UTID
@@ -458,13 +443,10 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
-                                             refreshToken:token
-                                                  context:nil
-                                                    error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
+    [_legacyAccessor saveSharedRTForAccount:account
+                               refreshToken:token
+                                    context:nil
+                                      error:&error];
     
     NSArray *results = [_legacyAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
                                                           context:nil
@@ -487,26 +469,20 @@
     
     // Save an access token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveAccessToken:accessToken account:account
-                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                           context:nil
-                                             error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
+    [_legacyAccessor saveAccessToken:accessToken account:account
+                       requestParams:[MSIDTestRequestParams v1DefaultParams]
+                             context:nil
+                               error:&error];
     
     MSIDToken *refreshToken = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
                                                                request:[MSIDTestRequestParams v1DefaultParams]
                                                              tokenType:MSIDTokenTypeRefreshToken];
     
     // Save token
-    result = [_legacyAccessor saveSharedRTForAccount:account
-                                        refreshToken:refreshToken
-                                             context:nil
-                                               error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
+    [_legacyAccessor saveSharedRTForAccount:account
+                               refreshToken:refreshToken
+                                    context:nil
+                                      error:&error];
     
     NSArray *results = [_legacyAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
                                                           context:nil
@@ -529,13 +505,10 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
-                                             refreshToken:token
-                                                  context:nil
-                                                    error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
+    [_legacyAccessor saveSharedRTForAccount:account
+                               refreshToken:token
+                                    context:nil
+                                      error:&error];
     
     NSArray *results = [_legacyAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
                                                           context:nil
@@ -625,9 +598,6 @@
                                                   context:nil
                                                     error:&error];
     
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-    
     result = [_legacyAccessor removeSharedRTForAccount:account
                                                  token:nil
                                                context:nil
@@ -657,9 +627,6 @@
                                              refreshToken:token
                                                   context:nil
                                                     error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
     
     result = [_legacyAccessor removeSharedRTForAccount:account
                                                  token:token
