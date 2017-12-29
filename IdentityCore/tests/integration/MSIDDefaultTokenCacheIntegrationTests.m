@@ -456,9 +456,9 @@
 - (void)testGetAllSharedRTs_whenNoItemsInCache_shouldReturnEmptyResult
 {
     NSError *error = nil;
-    NSArray *results = [_cacheAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v2DefaultParams]
-                                                         context:nil
-                                                           error:&error];
+    NSArray *results = [_cacheAccessor getAllSharedRTsWithClientId:[MSIDTestRequestParams v2DefaultParams].clientId
+                                                           context:nil
+                                                             error:&error];
     
     XCTAssertNil(error);
     XCTAssertEqual([results count], 0);
@@ -481,9 +481,9 @@
     // Save token
     NSError *error = nil;
     
-    NSArray *results = [_cacheAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v2DefaultParams]
-                                                         context:nil
-                                                           error:&error];
+    NSArray *results = [_cacheAccessor getAllSharedRTsWithClientId:[MSIDTestRequestParams v2DefaultParams].clientId
+                                                           context:nil
+                                                             error:&error];
     
     XCTAssertNil(error);
     XCTAssertEqual([results count], 0);
@@ -506,9 +506,9 @@
                                      error:nil];
     
     NSError *error = nil;
-    NSArray *results = [_cacheAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
-                                                         context:nil
-                                                           error:&error];
+    NSArray *results = [_cacheAccessor getAllSharedRTsWithClientId:[MSIDTestRequestParams v2DefaultParams].clientId
+                                                           context:nil
+                                                             error:&error];
     
     XCTAssertNil(error);
     XCTAssertEqual([results count], 1);
@@ -544,9 +544,9 @@
     // retrieve all RTs
     NSError *error = nil;
     
-    NSArray *results = [_cacheAccessor getAllSharedRTsWithParams:[MSIDTestRequestParams v1DefaultParams]
-                                                         context:nil
-                                                           error:&error];
+    NSArray *results = [_cacheAccessor getAllSharedRTsWithClientId:[MSIDTestRequestParams v2DefaultParams].clientId
+                                                           context:nil
+                                                             error:&error];
     
     XCTAssertNil(error);
     XCTAssertEqual([results count], 1);
