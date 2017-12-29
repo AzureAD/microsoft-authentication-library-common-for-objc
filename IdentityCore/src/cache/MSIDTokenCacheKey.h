@@ -67,6 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (MSIDTokenCacheKey *)keyForAllAccessTokensWithUserId:(NSString *)userId
                                            environment:(NSString *)environment;
 
++ (MSIDTokenCacheKey *)keyForAllAccessTokens;
 
 /*!
  Key for MSAL refresh tokens - one user, one clientId, and one environment
@@ -90,6 +91,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSString *)familyClientId:(NSString *)familyId;
 
+/*!
+ Helper method to get a regex for an access token for a specific user identifier.
+ This is needed to get all access tokens for a user as account property holds
+ environment.
+ */
++ (NSRegularExpression *)regexForAccessTokenKeyForUserId:(NSString *)userId;
 NS_ASSUME_NONNULL_END
 
 @end

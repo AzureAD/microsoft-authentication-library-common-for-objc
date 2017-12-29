@@ -31,4 +31,5 @@
 + (MSIDAADV1RequestParameters *)v1DefaultParams;
 + (MSIDAADV2RequestParameters *)v2DefaultParams;
 
++ (MSIDAADV2RequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes;
 @end

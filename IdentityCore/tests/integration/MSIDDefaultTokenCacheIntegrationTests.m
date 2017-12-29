@@ -114,7 +114,43 @@
 
 - (void)testSaveAccessToken_sameEverythingWithScopesIntersect_shouldOverwriteToken
 {
-   
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    MSIDToken *token1 = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                         request:[MSIDTestRequestParams v2DefaultParams]
+                                                       tokenType:MSIDTokenTypeAccessToken];
+    
+    // save 1st token with default test scope
+    [_cacheAccessor saveAccessToken:token1
+                            account:account
+                      requestParams:[MSIDTestRequestParams v2DefaultParams]
+                            context:nil
+                              error:nil];
+    XCTAssertEqual([[_dataSource allDefaultAccessTokens] count], 1);
+    
+    // save 2nd token with intersecting scope
+    NSOrderedSet<NSString *> *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, @"profile.read", nil];
+    
+    MSIDToken *token2 = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponseWithScopes:scopes]
+                                                         request:[MSIDTestRequestParams v2DefaultParams]
+                                                       tokenType:MSIDTokenTypeAccessToken];
+    
+    NSError *error = nil;
+    
+    BOOL result = [_cacheAccessor saveAccessToken:token2
+                                          account:account
+                                    requestParams:[MSIDTestRequestParams v2DefaultParamsWithScopes:scopes]
+                                          context:nil
+                                            error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
+    XCTAssertEqual([accessTokensInCache count], 1);
+    XCTAssertEqualObjects(accessTokensInCache[0], token2);
 }
 
 
@@ -136,9 +172,10 @@
                               error:nil];
     XCTAssertEqual([[_dataSource allDefaultAccessTokens] count], 1);
     
-    // save 2nd token with intersecting scope
+    // save 2nd token with non-intersecting scope
+    NSOrderedSet<NSString *> *scopes = [NSOrderedSet orderedSetWithObjects:@"profile.read", nil];
     
-    MSIDToken *token2 = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponseWithScopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, @"profile.read", nil]]
+    MSIDToken *token2 = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponseWithScopes:scopes]
                                                          request:[MSIDTestRequestParams v2DefaultParams]
                                                        tokenType:MSIDTokenTypeAccessToken];
     
@@ -146,7 +183,7 @@
     
     BOOL result = [_cacheAccessor saveAccessToken:token2
                                           account:account
-                                    requestParams:[MSIDTestRequestParams v2DefaultParams]
+                                    requestParams:[MSIDTestRequestParams v2DefaultParamsWithScopes:scopes]
                                           context:nil
                                             error:&error];
     
@@ -185,13 +222,6 @@
     NSArray *accessTokensInCache = [_dataSource allDefaultRefreshTokens];
     XCTAssertEqual([accessTokensInCache count], 1);
     XCTAssertEqualObjects(accessTokensInCache[0], token);
-}
-
-
-
-- (void)testSaveSharedRTForAccount_withFRT_shouldSaveTwoEntries
-{
-
 }
 
 #pragma mark - Retrieve

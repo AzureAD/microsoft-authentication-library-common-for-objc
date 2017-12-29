@@ -41,14 +41,18 @@
 
 + (MSIDAADV2RequestParameters *)v2DefaultParams
 {
-    NSURL *authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
+    return [self.class v2DefaultParamsWithScopes:scopes];
+}
+
++ (MSIDAADV2RequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes
+{
+    NSURL *authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     MSIDAADV2RequestParameters *requestParams = [[MSIDAADV2RequestParameters alloc] initWithAuthority:authority
                                                                                           redirectUri:nil
                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                             scopes:scopes];
+                                                                                               scopes:scopes];
     
     return requestParams;
 }
-
 @end

@@ -211,12 +211,22 @@
 
 - (NSString *)regexFromKey:(MSIDTokenCacheKey *)key
 {
-    NSString *accountStr = key.account ? key.account : @".*";
-    NSString *serviceStr = key.service ? key.service : @".*";
+    NSString *accountStr = key.account ?
+        [self absoluteRegexFromString:key.account] : @".*";
+    NSString *serviceStr = key.service ?
+        [self absoluteRegexFromString:key.service] : @".*";
     NSString *typeStr = key.type ? key.type.stringValue : @".*";
     
-    NSString *regexString = [NSString stringWithFormat:@"(%@)_(%@)_(%@)", accountStr, serviceStr, typeStr];
+    NSString *regexString = [NSString stringWithFormat:@"%@_%@_%@", accountStr, serviceStr, typeStr];
     return regexString;
+}
+
+- (NSString *)absoluteRegexFromString:(NSString *)string
+{
+    string = [string stringByReplacingOccurrencesOfString:@"." withString:@"\\."];
+    string = [string stringByReplacingOccurrencesOfString:@"$" withString:@"\\$"];
+    string = [string stringByReplacingOccurrencesOfString:@"/" withString:@"\\/"];
+    return string;
 }
 
 #pragma mark - Test methods
