@@ -22,37 +22,23 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonObject.h"
+#import "MSIDTokenType.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDClientInfo.h"
-#import "MSIDTokenType.h"
 
-@interface MSIDToken : MSIDJsonObject <NSCopying, NSSecureCoding>
-{
-    MSIDTokenType _tokenType;
-}
+@interface MSIDBaseToken : NSObject
 
-@property (readonly) NSString *token; //
-@property (readonly) NSString *idToken; //
+@property (readwrite) NSURL *authority;
+@property (readwrite) NSString *clientId;
 
-@property (readonly) NSDate *expiresOn; //
+@property (readonly) MSIDClientInfo *clientInfo;
+@property (readonly) NSString *idToken;
 
-@property (readwrite) NSURL *authority;//
-@property (readwrite) NSString *clientId;//
-@property (readonly) NSString *familyId; //
-@property (readonly) MSIDClientInfo *clientInfo; //
-@property (readonly) NSDictionary *additionalServerInfo; //
-
-@property (readonly) MSIDTokenType tokenType; //
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-- (BOOL)isEqualToToken:(MSIDToken *)token;
-- (BOOL)isExpired;
+@property (readonly) NSDictionary *additionalServerInfo;
+@property (readonly) MSIDTokenType tokenType; // Is this necessary?
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams
-                            tokenType:(MSIDTokenType)tokenType;
+                              request:(MSIDRequestParameters *)requestParams;
 
 @end

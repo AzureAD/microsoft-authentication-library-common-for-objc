@@ -21,38 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonObject.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDClientInfo.h"
-#import "MSIDTokenType.h"
+#import "MSIDBaseToken.h"
 
-@interface MSIDToken : MSIDJsonObject <NSCopying, NSSecureCoding>
-{
-    MSIDTokenType _tokenType;
-}
+@implementation MSIDBaseToken
 
-@property (readonly) NSString *token; //
-@property (readonly) NSString *idToken; //
-
-@property (readonly) NSDate *expiresOn; //
-
-@property (readwrite) NSURL *authority;//
-@property (readwrite) NSString *clientId;//
-@property (readonly) NSString *familyId; //
-@property (readonly) MSIDClientInfo *clientInfo; //
-@property (readonly) NSDictionary *additionalServerInfo; //
-
-@property (readonly) MSIDTokenType tokenType; //
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-- (BOOL)isEqualToToken:(MSIDToken *)token;
-- (BOOL)isExpired;
+#pragma mark - Init
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
                               request:(MSIDRequestParameters *)requestParams
-                            tokenType:(MSIDTokenType)tokenType;
+{
+    self = [super init];
+    
+    if (self)
+    {
+        // TODO
+    }
+    
+    return self;
+}
 
 @end
