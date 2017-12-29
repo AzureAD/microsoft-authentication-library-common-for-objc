@@ -31,6 +31,7 @@
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponse;
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithFamilyId:(NSString *)familyId;
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithScopes:(NSOrderedSet<NSString *> *)scopes;
++ (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithRefreshToken:(NSString *)token;
 
 + (MSIDAADV2TokenResponse *)v2TokenResponseFromJSON:(NSString *)jsonString;
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponse;

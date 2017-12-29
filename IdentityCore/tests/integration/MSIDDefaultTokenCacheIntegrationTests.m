@@ -210,11 +210,9 @@
     
     NSError *error = nil;
     
-    BOOL result = [_cacheAccessor saveAccessToken:token
-                                          account:account
-                                    requestParams:[MSIDTestRequestParams v2DefaultParams]
-                                          context:nil
-                                            error:&error];
+    BOOL result = [_cacheAccessor saveSharedRTForAccount:account
+                                            refreshToken:token
+                                                 context:nil error:nil];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -239,6 +237,7 @@
                                                  error:&error];
     
     XCTAssertNil(error);
+    
     XCTAssertNil(token);
 }
 
@@ -255,6 +254,7 @@
                                                  error:&error];
     
     XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
     XCTAssertNil(token);
 }
 
@@ -318,7 +318,7 @@
     XCTAssertEqualObjects(token, returnedToken);
 }
 
-- (void)testGetAccessToken_withCorrectAccountAndParametersWithNoAuthorityMultipleAuthoritiesFound_shouldReturnError
+- (void)testGetAccessToken_withNoAuthority_andMultipleAuthoritiesFound_shouldReturnError
 {
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
@@ -419,10 +419,10 @@
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
-    [_cacheAccessor saveSharedRTForAccount:account
-                              refreshToken:token
-                                   context:nil
-                                     error:nil];
+    [_cacheAccessor saveAccessToken:token
+                            account:account
+                      requestParams:[MSIDTestRequestParams v2DefaultParams]
+                            context:nil error:nil];
     
     NSError *error = nil;
 
@@ -464,7 +464,7 @@
     XCTAssertEqual([results count], 0);
 }
 
-- (void)testGetAllSharedRTs_whenOnlyAccessTokenItemsInCache_shouldReturnToken
+- (void)testGetAllSharedRTs_whenOnlyAccessTokenItemsInCache_shouldNotReturnToken
 {
     MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
                                                         request:[MSIDTestRequestParams v2DefaultParams]
@@ -596,9 +596,38 @@
     XCTAssertEqual([allATs count], 1);
 }
 
+- (void)testRemoveSharedRTForAccount_whenItemInCache_butWithDifferentRT_shouldNotRemoveItem
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    // Save a refresh token
+    MSIDToken *refreshToken = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                               request:[MSIDTestRequestParams v2DefaultParams]
+                                                             tokenType:MSIDTokenTypeRefreshToken];
+    
+    [_cacheAccessor saveSharedRTForAccount:account
+                              refreshToken:refreshToken
+                                   context:nil
+                                     error:nil];
+    
+    NSError *error = nil;
 
-
-
-
+    // Delete a token with different refresh token value
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponseWithRefreshToken:@"DIFFTOKEN"];
+    MSIDToken *refreshTokenToDelete = [[MSIDToken alloc] initWithTokenResponse:response
+                                                               request:[MSIDTestRequestParams v2DefaultParams]
+                                                             tokenType:MSIDTokenTypeRefreshToken];
+    BOOL result = [_cacheAccessor removeSharedRTForAccount:account
+                                                     token:refreshTokenToDelete
+                                                   context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *allRTs = [_dataSource allDefaultRefreshTokens];
+    XCTAssertEqual([allRTs count], 1);
+}
 
 @end

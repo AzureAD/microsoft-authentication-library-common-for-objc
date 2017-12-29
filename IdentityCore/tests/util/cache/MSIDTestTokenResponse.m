@@ -62,6 +62,17 @@
     return [self v2TokenResponseFromJSON:jsonString];
 }
 
++ (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithRefreshToken:(NSString *)refreshToken
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
+    
+    NSString *jsonString = [NSString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_SCOPE, refreshToken, idToken, clientInfoString];
+    
+    return [self v2TokenResponseFromJSON:jsonString];
+}
+
+
 + (MSIDAADV2TokenResponse *)v2TokenResponseFromJSON:(NSString *)jsonString
 {
     return [[MSIDAADV2TokenResponse alloc] initWithJSONData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] error:nil];

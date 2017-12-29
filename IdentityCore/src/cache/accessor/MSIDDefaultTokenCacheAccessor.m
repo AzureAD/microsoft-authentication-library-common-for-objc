@@ -131,6 +131,7 @@
         }
         return nil;
     }
+    MSIDAADV2RequestParameters *v2params = (MSIDAADV2RequestParameters *)parameters;
     
     if (!account.userIdentifier)
     {
@@ -142,8 +143,8 @@
     }
     
     NSArray<MSIDToken *> *allTokens = [self getATsForUserId:account.userIdentifier
-                                                  authority:parameters.authority
-                                                   clientId:parameters.clientId
+                                                  authority:v2params.authority
+                                                   clientId:v2params.clientId
                                                     context:context
                                                       error:error];
     
@@ -159,8 +160,8 @@
     }
     
     NSURL *foundAuthority = allTokens[0].authority;
-    NSURL *passedInAuthority = parameters.authority ?
-        [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:parameters.authority context:context] : nil;
+    NSURL *passedInAuthority = v2params.authority ?
+        [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:v2params.authority context:context] : nil;
     
     NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
     
@@ -184,7 +185,7 @@
             return nil;
         }
         
-        if (![((MSIDAADV2RequestParameters *)parameters).scopes isSubsetOfOrderedSet:token.scopes])
+        if (![v2params.scopes isSubsetOfOrderedSet:token.scopes])
         {
             continue;
         }
