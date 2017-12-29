@@ -33,6 +33,8 @@
 #import "MSIDAccount.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDAdfsToken.h"
+#import "MSIDTestBrokerResponse.h"
+#import "MSIDTestBrokerResponse.h"
 
 @interface MSIDSharedTokenCacheIntegrationTests : XCTestCase
 {
@@ -845,7 +847,31 @@
 
 - (void)testSaveBrokerResponse_withMRRTToken_savesToMultipleFormats
 {
-    // TODO
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDBrokerResponse *brokerResponse = [MSIDTestBrokerResponse testBrokerResponse];
+    
+    NSError *error = nil;
+    // Save tokens
+    BOOL result = [tokenCache saveTokensWithBrokerResponse:brokerResponse context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    // Check that access token is only stored to the primary cache
+    NSArray *atsInPrimaryFormat = [_primaryAccessor allAccessTokens];
+    XCTAssertEqual([atsInPrimaryFormat count], 1);
+    
+    NSArray *atsInSecondaryFormat = [_secondaryAccessor allAccessTokens];
+    XCTAssertEqual([atsInSecondaryFormat count], 0);
+    
+    // Check that refresh tokens are stored in both caches
+    NSArray *rtsInPrimaryFormat = [_primaryAccessor allRefreshTokens];
+    NSArray *rtsInSecondaryFormat = [_secondaryAccessor allRefreshTokens];
+    XCTAssertEqual([rtsInPrimaryFormat count], 1);
+    XCTAssertEqual([rtsInSecondaryFormat count], 1);
+    XCTAssertEqualObjects(rtsInPrimaryFormat[0], rtsInSecondaryFormat[0]);
 }
 
 @end
