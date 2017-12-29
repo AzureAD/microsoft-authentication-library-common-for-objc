@@ -211,9 +211,10 @@
     return nil;
 }
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsWithParams:(MSIDRequestParameters *)parameters
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error {
+- (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
+{
 
     return [self getAllRTsForClientId:clientId context:context error:error];
 }

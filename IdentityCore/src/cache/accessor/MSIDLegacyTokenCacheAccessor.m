@@ -127,7 +127,7 @@
     for (MSIDToken *token in legacyTokens)
     {
         if (token.tokenType == MSIDTokenTypeRefreshToken
-            && [token.clientId isEqualToString:parameters.clientId])
+            && [token.clientId isEqualToString:clientId])
         {
             [resultRTs addObject:token];
         }
@@ -393,12 +393,12 @@
                    success:(BOOL)success
                    context:(id<MSIDRequestContext>)context
 {
-	[event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
-	
+    [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
+    
     if (token)
-	{
+    {
         [event setToken:token];
-	}
+    }
 
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
                                         event:event];
