@@ -68,6 +68,15 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
+    if (!account.upn)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to save refresh token for legacy accessor", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
+    
     // Save refresh token entry
     return [self saveToken:refreshToken
                    account:account
@@ -143,6 +152,14 @@
         }
         return NO;
     }
+    else if (!account.upn)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to save access token for legacy accessor", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
     
     return [self saveToken:token
                    account:account
@@ -160,6 +177,14 @@
     if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
     {
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", nil, nil, nil, context.correlationId, nil);
+        return NO;
+    }
+    else if (!account.upn)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to remove refresh token for legacy accessor", nil, nil, nil, context.correlationId, nil);
+        }
         return NO;
     }
     
@@ -191,6 +216,15 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError * __autoreleasing *)error
 {
+    if (!account.upn)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to get an access token for legacy accessor", nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
     return [self getATForAccount:account
                    requestParams:parameters
                       serializer:_serializer
@@ -288,6 +322,8 @@
     
     for (NSURL *alias in aliases)
     {
+        BOOL matchByUPN = account.upn != nil;
+        
         MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:alias
                                                             clientId:clientId
                                                             resource:resource
@@ -299,22 +335,10 @@
         
         NSError *cacheError = nil;
         
-        MSIDToken *token = [_dataSource itemWithKey:key
-                                         serializer:serializer
-                                            context:context
-                                              error:&cacheError];
-        
-        token.authority = authority;
-        
-        if (token)
-        {
-            [self stopTelemetryEvent:event
-                           withToken:token
-                             success:YES
-                             context:context];
-
-            return token;
-        }
+        NSArray *tokens = [_dataSource itemsWithKey:key
+                                        serializer:serializer
+                                           context:context
+                                             error:&cacheError];
         
         if (cacheError)
         {
@@ -329,6 +353,28 @@
                              context:context];
             
             return nil;
+        }
+        
+        for (MSIDToken *token in tokens)
+        {
+            token.authority = authority;
+            
+            /*
+             This is an additional fallback for cases, when UPN is not known, but uid and utid are available
+             In that case, token is matched by uid and utid instead.
+             */
+            if (!matchByUPN
+                && ![token.clientInfo.userIdentifier isEqualToString:account.userIdentifier])
+            {
+                continue;
+            }
+            
+            [self stopTelemetryEvent:event
+                           withToken:token
+                             success:YES
+                             context:context];
+            
+            return token;
         }
     }
     

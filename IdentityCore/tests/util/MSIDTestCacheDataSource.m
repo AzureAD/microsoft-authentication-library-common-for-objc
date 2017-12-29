@@ -215,7 +215,7 @@
     NSString *serviceStr = key.service ? key.service : @".*";
     NSString *typeStr = key.type ? key.type.stringValue : @".*";
     
-    NSString *regexString = [NSString stringWithFormat:@"(%@)_(%@)_(%@)", accountStr, serviceStr, typeStr];
+    NSString *regexString = [NSString stringWithFormat:@"%@_%@_%@", accountStr, serviceStr, typeStr];
     return regexString;
 }
 
