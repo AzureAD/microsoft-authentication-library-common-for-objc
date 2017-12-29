@@ -214,7 +214,7 @@
 - (MSIDToken *)getATForAccount:(MSIDAccount *)account
                  requestParams:(MSIDRequestParameters *)parameters
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError * __autoreleasing *)error
+                         error:(NSError **)error
 {
     if (!account.upn)
     {
@@ -336,9 +336,9 @@
         NSError *cacheError = nil;
         
         NSArray *tokens = [_dataSource itemsWithKey:key
-                                        serializer:serializer
-                                           context:context
-                                             error:&cacheError];
+                                         serializer:serializer
+                                            context:context
+                                              error:&cacheError];
         
         if (cacheError)
         {

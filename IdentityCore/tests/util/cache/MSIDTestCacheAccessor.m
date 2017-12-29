@@ -68,7 +68,7 @@
 - (MSIDToken *)getATForAccount:(MSIDAccount *)account
                  requestParams:(MSIDRequestParameters *)parameters
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError * __autoreleasing *)error
+                         error:(NSError **)error
 {
     return [self getTokenForAccount:account
                           tokenType:MSIDTokenTypeAccessToken
@@ -224,7 +224,7 @@
                         tokenType:(MSIDTokenType)tokenType
                            params:(MSIDRequestParameters *)parameters
                           context:(id<MSIDRequestContext>)context
-                            error:(NSError * __autoreleasing *)error
+                            error:(NSError **)error
 {
     if (!account
         || !parameters)
