@@ -41,6 +41,16 @@
     [super tearDown];
 }
 
+#pragma mark - Copy tests
+
+- (void)testCopy_whenAllPropertiesAreSet_shouldReturnEqualCopy
+{
+    MSIDToken *token = [self createToken];
+    MSIDToken *tokenCopy = [token copy];
+    
+    XCTAssertEqualObjects(tokenCopy, token);
+}
+
 #pragma mark - isEqual tests
 
 - (void)testIsEqual_whenAllPropertiesAreEqual_shouldReturnTrue
@@ -285,7 +295,7 @@
     [token setValue:@"some resource" forKey:@"resource"];
     [token setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
     [token setValue:@"some clientId" forKey:@"clientId"];
-    [token setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+    [token setValue:[[NSOrderedSet alloc] initWithArray:@[@"1", @"2"]] forKey:@"scopes"];
     
     return token;
 }

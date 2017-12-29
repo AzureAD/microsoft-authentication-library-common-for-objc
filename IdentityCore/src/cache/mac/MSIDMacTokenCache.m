@@ -22,16 +22,139 @@
 // THE SOFTWARE.
 
 #import "MSIDMacTokenCache.h"
+#import "MSIDToken.h"
+#import "MSIDTokenCacheKey.h"
+#import "MSIDTokenSerializer.h"
+
+#define CURRENT_WRAPPER_CACHE_VERSION 1.0
+
+#define RETURN_ERROR_IF_CONDITION_FALSE(_cond, _code, _details) { \
+    if (!(_cond)) { \
+        NSError* _MSID_ERROR = MSIDCreateError(MSIDErrorDomain, _code, _details, nil, nil, nil, nil, nil); \
+        if (error) { *error = _MSID_ERROR; } \
+        return NO; \
+    } \
+}
+
+@interface MSIDMacTokenCache ()
+
+@property NSMutableDictionary *cache;
+
+@end
 
 @implementation MSIDMacTokenCache
 
-- (BOOL)setItemWithKey:(MSIDTokenCacheKey *)key
-                  item:(MSIDToken *)item
-            serializer:(id<MSIDTokenSerializer>)serializer
-               context:(id<MSIDRequestContext>)context
-                 error:(NSError **)error
++ (MSIDMacTokenCache *)defaultCache
 {
-    return NO;
+    static dispatch_once_t once;
+    static MSIDMacTokenCache *cache = nil;
+    
+    dispatch_once(&once, ^{
+        cache = [MSIDMacTokenCache new];
+    });
+    
+    return cache;
+}
+
+- (nullable NSData *)serialize
+{
+    if (!self.cache)
+    {
+        return nil;
+    }
+    
+    NSDictionary *cacheCopy = [self.cache mutableCopy];
+
+    // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
+    NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",
+                             @CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
+    
+    @try
+    {
+        return [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    }
+    @catch (id exception)
+    {
+        // This should be exceedingly rare as all of the objects in the cache we placed there.
+        MSID_LOG_ERROR(nil, @"Failed to serialize the cache!");
+        return nil;
+    }
+}
+
+- (BOOL)deserialize:(nullable NSData*)data
+              error:(NSError **)error
+{
+    // TODO: ???
+    // If they pass in nil on deserialize that means to drop the cache
+    if (!data)
+    {
+        self.cache = nil;
+        return YES;
+    }
+    
+    id cache = nil;
+    
+    @try
+    {
+        cache = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    }
+    @catch (id expection)
+    {
+//        ADAuthenticationError* adError =
+//        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT
+//                                               protocolCode:nil
+//                                               errorDetails:@"Failed to unarchive data blob from -deserialize!"
+//                                              correlationId:nil];
+        
+//        if (error)
+//        {
+//            *error = adError;
+//        }
+    }
+    
+    if (!cache)
+    {
+        return NO;
+    }
+    
+    if (![self validateCache:cache error:error])
+    {
+        return NO;
+    }
+    
+    _cache = [cache objectForKey:@"tokenCache"];
+    return YES;
+}
+
+- (NSMutableDictionary *)cache
+{
+    if (!_cache)
+    {
+        _cache = [NSMutableDictionary new];
+    }
+    
+    if (!_cache[@"tokens"])
+    {
+        NSMutableDictionary *tokens = [NSMutableDictionary new];
+        _cache[@"tokens"] = tokens;
+    }
+    
+    return _cache;
+}
+
+#pragma mark - MSIDTokenCacheDataSource
+
+- (BOOL)setItem:(MSIDToken *)item
+            key:(MSIDTokenCacheKey *)key
+     serializer:(id<MSIDTokenSerializer>)serializer
+        context:(id<MSIDRequestContext>)context
+          error:(NSError **)error
+{
+    [self.delegate willWriteCache:self];
+    BOOL result = [self setItemImpl:item key:key serializer:serializer context:context error:error];
+    [self.delegate didWriteCache:self];
+    
+    return result;
 }
 
 - (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
@@ -39,14 +162,32 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    return nil;
+    // TOOD: move this logic to higher level.
+    MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
+    NSArray<MSIDToken *> *items = [self itemsWithKey:key serializer:serializer context:context error:error];
+    
+    if (items.count > 1)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user.", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        return nil;
+    }
+    
+    return items.firstObject;
 }
 
-- (BOOL)removeItemWithKey:(MSIDTokenCacheKey *)key
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
+- (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
 {
-    return YES;
+    [self.delegate willWriteCache:self];
+    BOOL result = [self removeItemsWithKeyImpl:key context:context error:error];
+    [self.delegate didWriteCache:self];
+    
+    return result;
 }
 
 - (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
@@ -54,7 +195,239 @@
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
+    [self.delegate willAccessCache:self];
+    id result = [self itemsWithKeyImpl:key serializer:serializer context:nil error:error];
+    [self.delegate didAccessCache:self];
+    
+    return result;
+}
+
+- (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    return NO;
+}
+
+- (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
     return nil;
+}
+
+#pragma mark - Private
+
+- (void)addToItems:(nonnull NSMutableArray *)items
+    fromDictionary:(nonnull NSDictionary *)dictionary
+               key:(nonnull MSIDTokenCacheKey *)key
+{
+    MSIDToken *item = [dictionary objectForKey:key];
+    if (item)
+    {
+        item = [item copy];
+        [items addObject:item];
+    }
+}
+
+- (void)addToItems:(nonnull NSMutableArray *)items
+         forUserId:(nonnull NSString *)userId
+            tokens:(nonnull NSDictionary *)tokens
+               key:(MSIDTokenCacheKey *)key
+{
+    NSDictionary *userTokens = [tokens objectForKey:userId];
+    if (!userTokens)
+    {
+        return;
+    }
+    
+    // Add items matching the key for this user
+    if (key.service)
+    {
+        [self addToItems:items fromDictionary:userTokens key:key];
+    }
+    else
+    {
+        for (id adkey in userTokens)
+        {
+            [self addToItems:items fromDictionary:userTokens key:adkey];
+        }
+    }
+}
+
+- (BOOL)validateCache:(NSDictionary *)dict
+                error:(NSError **)error
+{
+    RETURN_ERROR_IF_CONDITION_FALSE([dict isKindOfClass:[NSDictionary class]], MSIDErrorCacheBadFormat, @"Root level object of cache is not a NSDictionary!");
+    RETURN_ERROR_IF_CONDITION_FALSE(dict[@"version"], MSIDErrorCacheBadFormat, @"Missing version number from cache.");
+    RETURN_ERROR_IF_CONDITION_FALSE([dict[@"version"] floatValue] <= CURRENT_WRAPPER_CACHE_VERSION, MSIDErrorCacheBadFormat, @"Cache is a future unsupported version.");
+    
+    NSDictionary *cache = dict[@"tokenCache"];
+    RETURN_ERROR_IF_CONDITION_FALSE(cache, MSIDErrorCacheBadFormat, @"Missing token cache from data.");
+    RETURN_ERROR_IF_CONDITION_FALSE([cache isKindOfClass:[NSMutableDictionary class]], MSIDErrorCacheBadFormat, @"Cache is not a mutable dictionary!");
+    
+    NSDictionary *tokens = cache[@"tokens"];
+    
+    if (tokens)
+    {
+        RETURN_ERROR_IF_CONDITION_FALSE([tokens isKindOfClass:[NSMutableDictionary class]], MSIDErrorCacheBadFormat, @"tokens must be a mutable dictionary.");
+        for (id userId in tokens)
+        {
+            // On the second level we're expecting NSDictionaries keyed off of the user ids (an NSString*)
+            RETURN_ERROR_IF_CONDITION_FALSE([userId isKindOfClass:[NSString class]], MSIDErrorCacheBadFormat, @"User ID key is not of the expected class type.");
+            id userDict = [tokens objectForKey:userId];
+            RETURN_ERROR_IF_CONDITION_FALSE([userDict isKindOfClass:[NSMutableDictionary class]], MSIDErrorCacheBadFormat, @"User ID should have mutable dictionaries in the cache.");
+            
+            for (id adkey in userDict)
+            {
+                // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
+                RETURN_ERROR_IF_CONDITION_FALSE([adkey isKindOfClass:[MSIDTokenCacheKey class]], MSIDErrorCacheBadFormat, @"Key is not of the expected class type.");
+                id token = [userDict objectForKey:adkey];
+                RETURN_ERROR_IF_CONDITION_FALSE([token isKindOfClass:[MSIDToken class]], MSIDErrorCacheBadFormat, @"Token is not of the expected class type!");
+            }
+        }
+    }
+    
+    return YES;
+}
+
+
+- (BOOL)removeItemsWithKeyImpl:(MSIDTokenCacheKey *)key
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
+{
+    if (!key)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Key is nil.", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        return NO;
+    }
+    
+    NSString *userId = key.account;
+    if (!userId)
+    {
+        userId = @"";
+    }
+    
+    NSMutableDictionary *userTokens = [self.cache[@"tokens"] objectForKey:userId];
+    if (!userTokens)
+    {
+        return YES;
+    }
+    
+    if (![userTokens objectForKey:key])
+    {
+        return YES;
+    }
+    
+    [userTokens removeObjectForKey:key];
+    
+    // Check to see if we need to remove the overall dict
+    if (!userTokens.count)
+    {
+        [self.cache[@"tokens"] removeObjectForKey:userId];
+    }
+    
+    return YES;
+}
+
+- (BOOL)setItemImpl:(MSIDToken *)item
+                key:(MSIDTokenCacheKey *)key
+         serializer:(id<MSIDTokenSerializer>)serializer
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    assert(key);
+    
+    MSID_LOG_INFO(context, @"Set item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
+    MSID_LOG_INFO_PII(context, @"Set item, key info (account: %@ service: %@)", key.account, key.service);
+    MSID_LOG_INFO_PII(context, @"Item info %@", item);
+    
+    if (!key)
+    {
+        return NO;
+    }
+    
+    if (!item)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Item is nil.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Set nil item.");
+        
+        return NO;
+    }
+    
+    // TODO:
+    // Copy the item to make sure it doesn't change under us.
+    item = [item copy];
+    
+    
+    if (!key.service || !key.account)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service and account are not nil.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
+        return NO;
+    }
+    
+    // TODO: move this logic to high level class.
+    //    // Grab the userId first
+    //    id userId = key.account;
+    //    if (!userId)
+    //    {
+    //        // If we don't have one (ADFS case) then use an empty string
+    //        userId = @"";
+    //    }
+    
+    // Grab the token dictionary for this user id.
+    NSMutableDictionary *userDict = self.cache[@"tokens"][key.account];
+    if (!userDict)
+    {
+        userDict = [NSMutableDictionary new];
+        self.cache[@"tokens"][key.account] = userDict;
+    }
+    
+    userDict[key] = item;
+    
+    return YES;
+}
+
+- (NSArray<MSIDToken *> *)itemsWithKeyImpl:(MSIDTokenCacheKey *)key
+                                serializer:(id<MSIDTokenSerializer>)serializer
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
+{
+    MSID_LOG_INFO(context, @"Get items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
+    MSID_LOG_INFO_PII(context, @"Get items, key info (account: %@ service: %@)", key.account, key.service);
+    
+    NSDictionary *tokens = [self.cache objectForKey:@"tokens"];
+    if (!tokens)
+    {
+        return nil;
+    }
+    
+    NSMutableArray *items = [NSMutableArray new];
+    
+    if (key.account)
+    {
+        // If we have a specified userId then we only look for that one
+        [self addToItems:items forUserId:key.account tokens:tokens key:key];
+    }
+    else
+    {
+        // Otherwise we have to traverse all of the users in the cache
+        for (NSString* userId in tokens)
+        {
+            [self addToItems:items forUserId:userId tokens:tokens key:key];
+        }
+    }
+    
+    return items;
 }
 
 @end

@@ -32,6 +32,21 @@
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
 
+@interface MSIDToken ()
+
+@property (readwrite) NSString *token;
+@property (readwrite) NSString *idToken;
+@property (readwrite) NSDate *expiresOn;
+@property (readwrite) NSString *clientId;
+@property (readwrite) NSString *familyId;
+@property (readwrite) MSIDClientInfo *clientInfo;
+@property (readwrite) NSDictionary *additionalServerInfo;
+@property (readwrite) MSIDTokenType tokenType;
+@property (readwrite) NSString *resource;
+@property (readwrite) NSOrderedSet<NSString *> *scopes;
+
+@end
+
 @implementation MSIDToken
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
@@ -262,6 +277,28 @@ static uint64_t s_expirationBuffer = 300;
     [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
     [coder encodeObject:self.clientId forKey:@"clientId"];
     [coder encodeObject:self.scopes forKey:@"scopes"];
+}
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDToken *token = [[MSIDToken allocWithZone:zone] init];
+    token.token = [self.token copyWithZone:zone];
+    token.idToken = [self.idToken copyWithZone:zone];
+    token.expiresOn = [self.expiresOn copyWithZone:zone];
+    token.authority = [self.authority copyWithZone:zone];
+    token.clientId = [self.clientId copyWithZone:zone];
+    token.familyId = [self.familyId copyWithZone:zone];
+    NSString *rawClientInfo = [self.clientInfo.rawClientInfo copyWithZone:zone];
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
+    token.clientInfo = clientInfo;
+    token.additionalServerInfo = [self.additionalServerInfo copyWithZone:zone];
+    token.tokenType = self.tokenType;
+    token.resource = [self.resource copyWithZone:zone];
+    token.scopes = [self.scopes copyWithZone:zone];
+    
+    return token;
 }
 
 #pragma mark - Init

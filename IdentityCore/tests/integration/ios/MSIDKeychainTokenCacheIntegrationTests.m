@@ -213,7 +213,7 @@
     XCTAssertNil(error);
 }
 
-- (void)testRemoveItemWithKey_whenKeyIsNil_shouldRemoveAllItems
+- (void)testRemoveItemWithKey_whenKeyIsNil_shouldReuturnFalseAndDontDeleteItems
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
@@ -243,9 +243,9 @@
     BOOL result = [keychainTokenCache removeItemsWithKey:nil context:nil error:&error];
     items = [keychainTokenCache itemsWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];
     
-    XCTAssertTrue(result);
-    XCTAssertEqual(items.count, 0);
-    XCTAssertNil(error);
+    XCTAssertFalse(result);
+    XCTAssertEqual(items.count, 4);
+    XCTAssertNotNil(error);
 }
 
 - (void)testSaveWipeInfoWithContext_shouldReturnTrueAndNilError

@@ -211,6 +211,16 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO(context, @"Remove keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Remove keychain items, key info (account: %@ service: %@)", key.account, key.service);
     
+    if (!key)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Key is nil.", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        return NO;
+    }
+    
     NSMutableDictionary *query = [self defaultQuery];
     if (key.service)
     {
