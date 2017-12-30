@@ -80,11 +80,12 @@
     }
     
     token.authority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
+    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:token.authority];
     
     // delete all cache entries with intersecting scopes
     // this should not happen but we have this as a safe guard against multiple matches
-    NSArray<MSIDToken *> *allTokens = [self getATsForUserId:account.userIdentifier authority:token.authority clientId:token.clientId context:context error:error];
-    
+    NSArray<MSIDToken *> *allTokens = [self getAllATsForContext:context error:error];
+
     if (!allTokens)
     {
         return NO;
@@ -92,8 +93,9 @@
     
     for (MSIDToken *tokenInCache in allTokens)
     {
-        NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:tokenInCache.authority];
-        if ([tokenInCache.authority msidIsEquivalentWithAnyAlias:aliases]
+        if ([tokenInCache.clientInfo.userIdentifier isEqualToString:account.userIdentifier]
+            && [tokenInCache.clientId isEqualToString:token.clientId]
+            && [tokenInCache.authority msidIsEquivalentWithAnyAlias:aliases]
             && [tokenInCache.scopes intersectsOrderedSet:token.scopes])
         {
             MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:tokenInCache.authority
@@ -143,11 +145,8 @@
         return nil;
     }
     
-    NSArray<MSIDToken *> *allTokens = [self getATsForUserId:account.userIdentifier
-                                                  authority:v2params.authority
-                                                   clientId:v2params.clientId
-                                                    context:context
-                                                      error:error];
+    NSArray<MSIDToken *> *allTokens = [self getAllATsForContext:context
+                                                          error:error];
     
     if (!allTokens || allTokens.count == 0)
     {
@@ -160,40 +159,33 @@
         return nil;
     }
     
-    NSURL *foundAuthority = allTokens[0].authority;
-    NSURL *passedInAuthority = v2params.authority ?
-        [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:v2params.authority context:context] : nil;
+    NSURL *authorityToCheck = v2params.authority? v2params.authority : allTokens[0].authority;
+    NSArray<NSURL *> *tokenAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authorityToCheck];
     
     NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
     
     for (MSIDToken *token in allTokens)
     {
-        NSArray<NSURL *> *tokenAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:token.authority];
-        
-        if (passedInAuthority)
+        if ([token.clientInfo.userIdentifier isEqualToString:account.userIdentifier]
+            && [token.clientId isEqualToString:v2params.clientId]
+            && [token.scopes isSubsetOfOrderedSet:v2params.scopes])
         {
-            if (![passedInAuthority msidIsEquivalentWithAnyAlias:tokenAliases])
+            if ([token.authority msidIsEquivalentWithAnyAlias:tokenAliases])
             {
-                continue;
+                [matchedTokens addObject:token];
             }
-                
-        }
-        
-        if (![foundAuthority msidIsEquivalentWithAnyAlias:tokenAliases])
-        {
-            if (error)
+            else
             {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAmbiguousAuthority, @"Found multiple access tokens, which token to return is ambiguous! Please pass in authority if not provided.", nil, nil, nil, context.correlationId, nil);
+                if (!v2params.authority)
+                {
+                    if (error)
+                    {
+                        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAmbiguousAuthority, @"Found multiple access tokens, which token to return is ambiguous! Please pass in authority if not provided.", nil, nil, nil, context.correlationId, nil);
+                    }
+                    return nil;
+                }
             }
-            return nil;
         }
-        
-        if (![v2params.scopes isSubsetOfOrderedSet:token.scopes])
-        {
-            continue;
-        }
-        
-        [matchedTokens addObject:token];
     }
     
     if (matchedTokens.count == 0)
@@ -453,10 +445,7 @@
 }
 
 
-- (NSArray<MSIDToken *> *)getATsForUserId:(NSString *)userId
-                                authority:(NSURL *)authority
-                                 clientId:(NSString *)clientId
-                                  context:(id<MSIDRequestContext>)context
+- (NSArray<MSIDToken *> *)getAllATsForContext:(id<MSIDRequestContext>)context
                                     error:(NSError *__autoreleasing *)error
 {
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
@@ -464,41 +453,16 @@
     
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
-    
-    NSMutableArray<MSIDToken *> *result = [NSMutableArray new];
 
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokens];
     NSArray<MSIDToken *> *allAccessTokensForAlias = [_dataSource itemsWithKey:key serializer:_serializer context:context error:error];
     
-    if (!allAccessTokensForAlias)
-    {
-        [self stopTelemetryEvent:event
-                       withToken:nil
-                         success:NO
-                         context:context];
-        
-        return nil;
-    }
-    
-    for (MSIDToken *token in allAccessTokensForAlias)
-    {
-        if ([token.clientInfo.userIdentifier isEqualToString:userId]
-            && [token.clientId isEqualToString:clientId])
-        {
-            if (!authority
-                || (authority && [authority msidIsEquivalentAuthority:token.authority]))
-            {
-                [result addObject:token];
-            }
-        }
-    }
-   
     [self stopTelemetryEvent:event
                    withToken:nil
-                     success:YES
+                     success:(allAccessTokensForAlias != nil)
                      context:context];
     
-    return result;
+    return allAccessTokensForAlias;
 }
 
 - (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error

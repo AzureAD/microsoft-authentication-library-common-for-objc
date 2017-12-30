@@ -417,6 +417,9 @@
                             context:nil
                               error:nil];
     
+    NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
+    XCTAssertEqual([accessTokensInCache count], 4);
+    
     // retrieve first at
     NSError *error = nil;
     MSIDToken *returnedToken = [_cacheAccessor getATForAccount:account
