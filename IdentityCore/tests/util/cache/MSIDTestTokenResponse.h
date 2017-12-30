@@ -32,6 +32,14 @@
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithFamilyId:(NSString *)familyId;
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithScopes:(NSOrderedSet<NSString *> *)scopes;
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithRefreshToken:(NSString *)token;
++ (MSIDAADV2TokenResponse *)v2TokenResponseWithAT:(NSString *)accessToken
+                                               RT:(NSString *)refreshToken
+                                           scopes:(NSOrderedSet<NSString *> *)scopes
+                                          idToken:(NSString *)idToken
+                                              uid:(NSString *)uid
+                                             utid:(NSString *)utid
+                                         familyId:(NSString *)familyId;
+
 
 + (MSIDAADV2TokenResponse *)v2TokenResponseFromJSON:(NSString *)jsonString;
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponse;

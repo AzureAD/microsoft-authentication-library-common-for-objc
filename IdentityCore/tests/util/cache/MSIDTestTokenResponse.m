@@ -34,44 +34,71 @@
 
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponse
 {
-    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
-    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
-    
-    NSString *jsonString = [NSString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_SCOPE, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString];
-    
-    return [self v2TokenResponseFromJSON:jsonString];
+    return [self.class v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                          RT:DEFAULT_TEST_REFRESH_TOKEN
+                                      scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                     idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                         uid:DEFAULT_TEST_UID
+                                        utid:DEFAULT_TEST_UTID
+                                    familyId:nil];
 }
 
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithFamilyId:(NSString *)familyId
 {
-    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
-    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
-    
-    NSString *jsonString = [NSString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\", \"foci\":\"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_SCOPE, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString, familyId];
-    
-    return [self v2TokenResponseFromJSON:jsonString];
+    return [self.class v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                          RT:DEFAULT_TEST_REFRESH_TOKEN
+                                      scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                     idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                         uid:DEFAULT_TEST_UID
+                                        utid:DEFAULT_TEST_UTID
+                                    familyId:familyId];
 }
 
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithScopes:(NSOrderedSet<NSString *> *)scopes
 {
-    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
-    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
-    
-    NSString *jsonString = [NSString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, scopes.msidToString, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString];
-    
-    return [self v2TokenResponseFromJSON:jsonString];
+    return [self.class v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                          RT:DEFAULT_TEST_REFRESH_TOKEN
+                                      scopes:scopes
+                                     idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                         uid:DEFAULT_TEST_UID
+                                        utid:DEFAULT_TEST_UTID
+                                    familyId:nil];
 }
 
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithRefreshToken:(NSString *)refreshToken
 {
-    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
-    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
-    
-    NSString *jsonString = [NSString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_SCOPE, refreshToken, idToken, clientInfoString];
-    
-    return [self v2TokenResponseFromJSON:jsonString];
+    return [self.class v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                          RT:refreshToken
+                                      scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                     idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                         uid:DEFAULT_TEST_UID
+                                        utid:DEFAULT_TEST_UTID
+                                    familyId:nil];
 }
 
++ (MSIDAADV2TokenResponse *)v2TokenResponseWithAT:(NSString *)accessToken
+                                               RT:(NSString *)refreshToken
+                                           scopes:(NSOrderedSet<NSString *> *)scopes
+                                          idToken:(NSString *)idToken
+                                              uid:(NSString *)uid
+                                             utid:(NSString *)utid
+                                         familyId:(NSString *)familyId
+{
+    NSString *clientInfoString = [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson];
+    NSString *scopesString = scopes.msidToString;
+    
+    NSMutableString *jsonString = [NSMutableString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"", accessToken, scopesString, refreshToken, idToken, clientInfoString];
+    
+    if (familyId)
+    {
+        [jsonString appendString:[NSString stringWithFormat:@", \"foci\":\"%@\"}", familyId]];
+    }
+    else
+    {
+        [jsonString appendString:@"}"];
+    }
+    return [self v2TokenResponseFromJSON:jsonString];
+}
 
 + (MSIDAADV2TokenResponse *)v2TokenResponseFromJSON:(NSString *)jsonString
 {

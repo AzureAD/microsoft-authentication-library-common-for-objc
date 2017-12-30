@@ -32,4 +32,8 @@
 + (MSIDAADV2RequestParameters *)v2DefaultParams;
 
 + (MSIDAADV2RequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes;
++ (MSIDAADV2RequestParameters *)v2ParamsWithAuthority:(NSURL *)authority
+                                          redirectUri:(NSString *)redirectUri
+                                             clientId:(NSString *)clientId
+                                               scopes:(NSOrderedSet<NSString *> *)scopes;
 @end
