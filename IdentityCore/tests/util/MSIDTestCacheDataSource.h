@@ -29,6 +29,7 @@
 
 - (void)reset;
 
+- (NSArray *)allLegacyADFSTokens;
 - (NSArray *)allLegacyAccessTokens;
 - (NSArray *)allLegacyRefreshTokens;
 - (NSArray *)allTokensWithType:(MSIDTokenType)type

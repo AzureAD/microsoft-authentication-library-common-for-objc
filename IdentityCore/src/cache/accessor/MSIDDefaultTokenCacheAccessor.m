@@ -199,6 +199,18 @@
     return matchedTokens[0];
 }
 
+- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
+{
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"ADFS tokens are not currently supported for MSAL", nil, nil, nil, context.correlationId, nil);
+    }
+    
+    return nil;
+}
+
 - (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error

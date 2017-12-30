@@ -29,6 +29,11 @@
 @interface MSIDTestRequestParams : NSObject
 
 + (MSIDAADV1RequestParameters *)v1DefaultParams;
+
++ (MSIDAADV1RequestParameters *)v1ParamsWithAuthority:(NSString *)authority
+                                             clientId:(NSString *)clientId
+                                             resource:(NSString *)resource;
+
 + (MSIDAADV2RequestParameters *)v2DefaultParams;
 
 @end

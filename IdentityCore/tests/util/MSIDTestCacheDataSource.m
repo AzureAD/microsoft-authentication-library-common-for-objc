@@ -25,6 +25,7 @@
 #import "MSIDTokenCacheKey.h"
 #import "MSIDTokenSerializer.h"
 #import "MSIDKeyedArchiverSerializer.h"
+#import "MSIDAdfsToken.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -214,7 +215,7 @@
     NSString *serviceStr = key.service ? key.service : @".*";
     NSString *typeStr = key.type ? key.type.stringValue : @".*";
     
-    NSString *regexString = [NSString stringWithFormat:@"(%@)_(%@)_(%@)", accountStr, serviceStr, typeStr];
+    NSString *regexString = [NSString stringWithFormat:@"%@_%@_%@", accountStr, serviceStr, typeStr];
     return regexString;
 }
 
@@ -228,14 +229,22 @@
     }
 }
 
+- (NSArray *)allLegacyADFSTokens
+{
+    return [self allTokensWithType:MSIDTokenTypeAdfsUserToken
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] initWithClassName:[MSIDAdfsToken class]]];
+}
+
 - (NSArray *)allLegacyAccessTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAccessToken serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
+    return [self allTokensWithType:MSIDTokenTypeAccessToken
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allLegacyRefreshTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeRefreshToken serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
+    return [self allTokensWithType:MSIDTokenTypeRefreshToken
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allTokensWithType:(MSIDTokenType)type
