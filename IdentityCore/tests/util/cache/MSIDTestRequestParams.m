@@ -51,14 +51,27 @@
 + (MSIDAADV2RequestParameters *)v2DefaultParams
 {
     NSURL *authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    NSString *scope = [NSString stringWithFormat:@"%@%@", DEFAULT_TEST_RESOURCE, DEFAULT_TEST_SCOPE];
-    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:scope, nil];
-    MSIDAADV2RequestParameters *requestParams = [[MSIDAADV2RequestParameters alloc] initWithAuthority:authority
-                                                                                          redirectUri:nil
-                                                                                             clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                             scopes:scopes];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
+    return [self.class v2ParamsWithAuthority:authority redirectUri:nil clientId:DEFAULT_TEST_CLIENT_ID scopes:scopes];
+}
+
++ (MSIDAADV2RequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes
+{
+    NSURL *authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
+    MSIDAADV2RequestParameters *requestParams = [self.class v2ParamsWithAuthority:authority redirectUri:nil clientId:DEFAULT_TEST_CLIENT_ID scopes:scopes];
     
     return requestParams;
+}
+
++ (MSIDAADV2RequestParameters *)v2ParamsWithAuthority:(NSURL *)authority
+                                          redirectUri:(NSString *)redirectUri
+                                             clientId:(NSString *)clientId
+                                               scopes:(NSOrderedSet<NSString *> *)scopes
+{
+    return [[MSIDAADV2RequestParameters alloc] initWithAuthority:authority
+                                                     redirectUri:redirectUri
+                                                        clientId:clientId
+                                                          scopes:scopes];
 }
 
 @end
