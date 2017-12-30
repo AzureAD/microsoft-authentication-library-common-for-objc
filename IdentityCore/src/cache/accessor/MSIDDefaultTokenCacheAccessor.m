@@ -92,7 +92,8 @@
     
     for (MSIDToken *tokenInCache in allTokens)
     {
-        if ([tokenInCache.authority msidIsEquivalentAuthority:token.authority]
+        NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:tokenInCache.authority];
+        if ([tokenInCache.authority msidIsEquivalentWithAnyAlias:aliases]
             && [tokenInCache.scopes intersectsOrderedSet:token.scopes])
         {
             MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:tokenInCache.authority
@@ -167,16 +168,18 @@
     
     for (MSIDToken *token in allTokens)
     {
+        NSArray<NSURL *> *tokenAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:token.authority];
+        
         if (passedInAuthority)
         {
-            if (![passedInAuthority msidIsEquivalentAuthority:token.authority])
+            if (![passedInAuthority msidIsEquivalentWithAnyAlias:tokenAliases])
             {
                 continue;
             }
                 
         }
         
-        if (![foundAuthority msidIsEquivalentAuthority:token.authority])
+        if (![foundAuthority msidIsEquivalentWithAnyAlias:tokenAliases])
         {
             if (error)
             {
@@ -207,7 +210,10 @@
         return nil;
     }
     
-    return matchedTokens[0];
+    MSIDToken *tokenToReturn = matchedTokens[0];
+    tokenToReturn.authority = parameters.authority;
+    
+    return tokenToReturn;
 }
 
 - (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
