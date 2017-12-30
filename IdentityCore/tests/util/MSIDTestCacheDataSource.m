@@ -26,6 +26,7 @@
 #import "MSIDTokenSerializer.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDJsonSerializer.h"
+#import "MSIDAdfsToken.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -239,14 +240,22 @@
     }
 }
 
+- (NSArray *)allLegacyADFSTokens
+{
+    return [self allTokensWithType:MSIDTokenTypeAdfsUserToken
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] initWithClassName:[MSIDAdfsToken class]]];
+}
+
 - (NSArray *)allLegacyAccessTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAccessToken serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
+    return [self allTokensWithType:MSIDTokenTypeAccessToken
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allLegacyRefreshTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeRefreshToken serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
+    return [self allTokensWithType:MSIDTokenTypeRefreshToken
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultAccessTokens

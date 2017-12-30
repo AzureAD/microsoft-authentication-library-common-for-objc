@@ -107,10 +107,36 @@
 
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponse
 {
-    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    return [self v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                    rt:DEFAULT_TEST_REFRESH_TOKEN
+                              resource:DEFAULT_TEST_RESOURCE
+                                   uid:DEFAULT_TEST_UID
+                                  utid:DEFAULT_TEST_UTID
+                                   upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                              tenantId:DEFAULT_TEST_UTID];
+}
+
++ (MSIDAADV1TokenResponse *)v1TokenResponseWithAT:(NSString *)accessToken
+                                               rt:(NSString *)refreshToken
+                                         resource:(NSString *)resource
+                                              uid:(NSString *)uid
+                                             utid:(NSString *)utid
+                                              upn:(NSString *)upn
+                                         tenantId:(NSString *)tenantId
+{
+    NSString *clientInfoString = [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:upn tenantId:tenantId];
+    
+    NSString *jsonString = [NSString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"resource\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", accessToken, resource, refreshToken, idToken, clientInfoString];
+    
+    return [self v1TokenResponseFromJSON:jsonString];
+}
+
++ (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithoutClientInfo
+{
     NSString *idToken = [MSIDTestIdTokenUtil defaultV1IdToken];
     
-    NSString *jsonString = [NSString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"resource\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString];
+    NSString *jsonString = [NSString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": 3599, \"resource\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_REFRESH_TOKEN, idToken];
     
     return [self v1TokenResponseFromJSON:jsonString];
 }

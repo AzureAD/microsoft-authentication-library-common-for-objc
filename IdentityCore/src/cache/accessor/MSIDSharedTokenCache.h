@@ -28,6 +28,8 @@
 #import "MSIDBrokerResponse.h"
 #import "MSIDRequestParameters.h"
 
+@class MSIDAdfsToken;
+
 @interface MSIDSharedTokenCache : NSObject
 
 - (instancetype)initWithPrimaryCacheAccessor:(id<MSIDSharedCacheAccessor>)primaryAccessor
@@ -46,7 +48,11 @@
 - (MSIDToken *)getATForAccount:(MSIDAccount *)account
                  requestParams:(MSIDRequestParameters *)parameters
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError * __autoreleasing *)error;
+                         error:(NSError **)error;
+
+- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error;
 
 /*!
  Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can

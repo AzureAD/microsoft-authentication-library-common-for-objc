@@ -30,11 +30,20 @@
 
 + (MSIDAADV1RequestParameters *)v1DefaultParams
 {
-    NSURL *authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    MSIDAADV1RequestParameters *requestParams = [[MSIDAADV1RequestParameters alloc] initWithAuthority:authority
+    return [self v1ParamsWithAuthority:DEFAULT_TEST_AUTHORITY
+                              clientId:DEFAULT_TEST_CLIENT_ID
+                              resource:DEFAULT_TEST_RESOURCE];
+}
+
++ (MSIDAADV1RequestParameters *)v1ParamsWithAuthority:(NSString *)authority
+                                             clientId:(NSString *)clientId
+                                             resource:(NSString *)resource
+{
+    NSURL *authorityURL = [NSURL URLWithString:authority];
+    MSIDAADV1RequestParameters *requestParams = [[MSIDAADV1RequestParameters alloc] initWithAuthority:authorityURL
                                                                                           redirectUri:nil
-                                                                                             clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                             resource:DEFAULT_TEST_RESOURCE];
+                                                                                             clientId:clientId
+                                                                                             resource:resource];
     
     return requestParams;
 }

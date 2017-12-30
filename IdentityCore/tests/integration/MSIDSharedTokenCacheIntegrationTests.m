@@ -33,6 +33,8 @@
 #import "MSIDAccount.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDAdfsToken.h"
+#import "MSIDTestBrokerResponse.h"
+#import "MSIDTestBrokerResponse.h"
 
 @interface MSIDSharedTokenCacheIntegrationTests : XCTestCase
 {
@@ -161,8 +163,8 @@
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     XCTAssertEqual(token.tokenType, MSIDTokenTypeAdfsUserToken);
-    XCTAssertEqualObjects(token.token, DEFAULT_TEST_REFRESH_TOKEN);
-    XCTAssertEqualObjects(token.additionalToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.token, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.singleResourceRefreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     
     // Check that no refresh token is returned back
     MSIDToken *refreshToken = [tokenCache getRTForAccount:account
@@ -285,6 +287,58 @@
     XCTAssertEqualObjects(rtsInPrimaryFormat[0], rtsInSecondaryFormat[0]);
 }
 
+- (void)testSaveTokens_withFRTToken_savesFRTsToMultipleFormats
+{
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDAADV1RequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
+    
+    NSError *error = nil;
+    // Save tokens
+    BOOL result = [tokenCache saveTokensWithRequestParams:requestParams
+                                                 response:tokenResponse
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    // Check that access token is only stored to the primary cache
+    NSArray *atsInPrimaryFormat = [_primaryAccessor allAccessTokens];
+    XCTAssertEqual([atsInPrimaryFormat count], 1);
+    
+    NSArray *atsInSecondaryFormat = [_secondaryAccessor allAccessTokens];
+    XCTAssertEqual([atsInSecondaryFormat count], 0);
+    
+    // Check that refresh tokens are stored in both caches
+    NSArray *rtsInPrimaryFormat = [_primaryAccessor allRefreshTokens];
+    NSArray *rtsInSecondaryFormat = [_secondaryAccessor allRefreshTokens];
+    XCTAssertEqual([rtsInPrimaryFormat count], 2);
+    XCTAssertEqual([rtsInSecondaryFormat count], 2);
+    
+    // Check MRRTs entries were added
+    NSArray *mrrtsInPrimaryFormat = [_primaryAccessor allMRRTTokensWithClientId:DEFAULT_TEST_CLIENT_ID];
+    NSArray *mrrtsInSecondaryFormat = [_secondaryAccessor allMRRTTokensWithClientId:DEFAULT_TEST_CLIENT_ID];
+    XCTAssertEqual([mrrtsInPrimaryFormat count], 1);
+    XCTAssertEqual([mrrtsInSecondaryFormat count], 1);
+    XCTAssertEqualObjects(mrrtsInPrimaryFormat[0], mrrtsInSecondaryFormat[0]);
+    XCTAssertEqualObjects([mrrtsInPrimaryFormat[0] clientId], DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects([mrrtsInPrimaryFormat[0] familyId], DEFAULT_TEST_FAMILY_ID);
+    
+    // Check FRT entries were added
+    NSArray *frtsInPrimaryFormat = [_primaryAccessor allFRTTokensWithFamilyId:DEFAULT_TEST_FAMILY_ID];
+    NSArray *frtsInSecondaryFormat = [_secondaryAccessor allFRTTokensWithFamilyId:DEFAULT_TEST_FAMILY_ID];
+    XCTAssertEqual([frtsInPrimaryFormat count], 1);
+    XCTAssertEqual([frtsInSecondaryFormat count], 1);
+    XCTAssertEqualObjects(frtsInPrimaryFormat[0], frtsInSecondaryFormat[0]);
+    
+    NSString *fociClientId = [NSString stringWithFormat:@"foci-%@", DEFAULT_TEST_FAMILY_ID];
+    XCTAssertEqualObjects([frtsInPrimaryFormat[0] clientId], fociClientId);
+    XCTAssertEqualObjects([frtsInPrimaryFormat[0] familyId], DEFAULT_TEST_FAMILY_ID);
+}
+
 #pragma mark - Retrieve
 
 - (void)testGetATForAccount_whenNoATInPrimaryCache_returnsNil
@@ -360,6 +414,32 @@
     
     XCTAssertNil(error);
     XCTAssertNil(returnedToken);
+}
+
+- (void)testGetADFSTokenForAccount_whenATPresentInPrimaryCache_returnsToken
+{
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse]
+                                                                request:[MSIDTestRequestParams v1DefaultParams]
+                                                              tokenType:MSIDTokenTypeAccessToken];
+    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@""
+                                                       utid:nil
+                                                        uid:nil];
+    
+    [_primaryAccessor addToken:token forAccount:account];
+    
+    // Check that AT is returned
+    NSError *error = nil;
+    MSIDAdfsToken *returnedToken = [tokenCache getADFSTokenWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                     context:nil
+                                                                       error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token, returnedToken);
 }
 
 - (void)testGetRTForAccount_whenRTPresentInPrimaryCacheOnly_returnsToken
@@ -767,7 +847,31 @@
 
 - (void)testSaveBrokerResponse_withMRRTToken_savesToMultipleFormats
 {
-    // TODO
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDBrokerResponse *brokerResponse = [MSIDTestBrokerResponse testBrokerResponse];
+    
+    NSError *error = nil;
+    // Save tokens
+    BOOL result = [tokenCache saveTokensWithBrokerResponse:brokerResponse context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    // Check that access token is only stored to the primary cache
+    NSArray *atsInPrimaryFormat = [_primaryAccessor allAccessTokens];
+    XCTAssertEqual([atsInPrimaryFormat count], 1);
+    
+    NSArray *atsInSecondaryFormat = [_secondaryAccessor allAccessTokens];
+    XCTAssertEqual([atsInSecondaryFormat count], 0);
+    
+    // Check that refresh tokens are stored in both caches
+    NSArray *rtsInPrimaryFormat = [_primaryAccessor allRefreshTokens];
+    NSArray *rtsInSecondaryFormat = [_secondaryAccessor allRefreshTokens];
+    XCTAssertEqual([rtsInPrimaryFormat count], 1);
+    XCTAssertEqual([rtsInSecondaryFormat count], 1);
+    XCTAssertEqualObjects(rtsInPrimaryFormat[0], rtsInSecondaryFormat[0]);
 }
 
 @end

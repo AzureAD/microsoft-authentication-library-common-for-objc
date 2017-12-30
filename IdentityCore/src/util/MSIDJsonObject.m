@@ -83,6 +83,13 @@
     return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDJsonObject *item = [[MSIDJsonObject allocWithZone:zone] init];
+    item->_json = [_json copyWithZone:zone];
+    return item;
+}
+
 - (NSDictionary *)jsonDictionary
 {
     return _json;

@@ -30,6 +30,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDAADV1RequestParameters.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -67,28 +68,19 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    // Save refresh token entry
-    BOOL result = [self saveToken:refreshToken
-                          account:account
-                         clientId:refreshToken.clientId
-                       serializer:_serializer
-                          context:context
-                            error:error];
-    
-    if (!result)
+    if (!account.upn)
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to save refresh token for legacy accessor", nil, nil, nil, context.correlationId, nil);
+        }
         return NO;
     }
     
-    if ([NSString msidIsStringNilOrBlank:refreshToken.familyId])
-    {
-        return YES;
-    }
-    
-    // Save an additional entry if it's a family refresh token
+    // Save refresh token entry
     return [self saveToken:refreshToken
                    account:account
-                  clientId:[MSIDTokenCacheKey familyClientId:refreshToken.familyId]
+                  clientId:refreshToken.clientId
                 serializer:_serializer
                    context:context
                      error:error];
@@ -103,6 +95,7 @@
                          authority:parameters.authority
                           clientId:parameters.clientId
                           resource:nil
+                        serializer:_serializer
                            context:context
                              error:error];
 }
@@ -134,7 +127,7 @@
     for (MSIDToken *token in legacyTokens)
     {
         if (token.tokenType == MSIDTokenTypeRefreshToken
-            && token.clientId == clientId)
+            && [token.clientId isEqualToString:clientId])
         {
             [resultRTs addObject:token];
         }
@@ -159,11 +152,19 @@
         }
         return NO;
     }
+    else if (!account.upn)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to save access token for legacy accessor", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
     
     return [self saveToken:token
                    account:account
                   clientId:parameters.clientId
-                serializer:_serializer
+                serializer:token.tokenType == MSIDTokenTypeAdfsUserToken ? _adfsSerializer : _serializer
                    context:context
                      error:error];
 }
@@ -176,6 +177,14 @@
     if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
     {
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", nil, nil, nil, context.correlationId, nil);
+        return NO;
+    }
+    else if (!account.upn)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to remove refresh token for legacy accessor", nil, nil, nil, context.correlationId, nil);
+        }
         return NO;
     }
     
@@ -205,7 +214,41 @@
 - (MSIDToken *)getATForAccount:(MSIDAccount *)account
                  requestParams:(MSIDRequestParameters *)parameters
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError * __autoreleasing *)error
+                         error:(NSError **)error
+{
+    if (!account.upn)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to get an access token for legacy accessor", nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
+    return [self getATForAccount:account
+                   requestParams:parameters
+                      serializer:_serializer
+                         context:context
+                           error:error];
+}
+
+- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@"" utid:nil uid:nil];
+    return (MSIDAdfsToken *)[self getATForAccount:account
+                                    requestParams:parameters
+                                       serializer:_adfsSerializer
+                                          context:context
+                                            error:error];
+}
+
+- (MSIDToken *)getATForAccount:(MSIDAccount *)account
+                 requestParams:(MSIDRequestParameters *)parameters
+                    serializer:(id<MSIDTokenSerializer>)serializer
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
     if (![parameters isKindOfClass:MSIDAADV1RequestParameters.class])
     {
@@ -222,6 +265,7 @@
                          authority:aadRequestParams.authority
                           clientId:aadRequestParams.clientId
                           resource:aadRequestParams.resource
+                        serializer:serializer
                            context:context
                              error:error];
 }
@@ -241,7 +285,7 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
     
-    NSURL *newAuthority = token.authority; // TODO: replace with an actual authority
+    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
     
     // The authority used to retrieve the item over the network can differ from the preferred authority used to
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store
@@ -264,6 +308,7 @@
                        authority:(NSURL *)authority
                         clientId:(NSString *)clientId
                         resource:(NSString *)resource
+                      serializer:(id<MSIDTokenSerializer>)serializer
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
@@ -273,11 +318,12 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                            context:context];
     
-    //NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
-    NSArray<NSURL *> *aliases = [NSArray array]; // TODO: replace with a real data
+    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
     
     for (NSURL *alias in aliases)
     {
+        BOOL matchByUPN = account.upn != nil;
+        
         MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:alias
                                                             clientId:clientId
                                                             resource:resource
@@ -289,22 +335,10 @@
         
         NSError *cacheError = nil;
         
-        MSIDToken *token = [_dataSource itemWithKey:key
-                                         serializer:_serializer
+        NSArray *tokens = [_dataSource itemsWithKey:key
+                                         serializer:serializer
                                             context:context
                                               error:&cacheError];
-        
-        token.authority = authority;
-        
-        if (token)
-        {
-            [self stopTelemetryEvent:event
-                           withToken:token
-                             success:YES
-                             context:context];
-
-            return token;
-        }
         
         if (cacheError)
         {
@@ -319,6 +353,28 @@
                              context:context];
             
             return nil;
+        }
+        
+        for (MSIDToken *token in tokens)
+        {
+            token.authority = authority;
+            
+            /*
+             This is an additional fallback for cases, when UPN is not known, but uid and utid are available
+             In that case, token is matched by uid and utid instead.
+             */
+            if (!matchByUPN
+                && ![token.clientInfo.userIdentifier isEqualToString:account.userIdentifier])
+            {
+                continue;
+            }
+            
+            [self stopTelemetryEvent:event
+                           withToken:token
+                             success:YES
+                             context:context];
+            
+            return token;
         }
     }
     
@@ -337,12 +393,12 @@
                    success:(BOOL)success
                    context:(id<MSIDRequestContext>)context
 {
-	[event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
-	
+    [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
+    
     if (token)
-	{
+    {
         [event setToken:token];
-	}
+    }
 
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
                                         event:event];

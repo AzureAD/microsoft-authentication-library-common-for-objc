@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerResponse.h"
+#import "MSIDAADV1TokenResponse.h"
 
 @implementation MSIDBrokerResponse
 
@@ -50,7 +51,7 @@ MSID_FORM_ACCESSOR(MSID_OAUTH2_ERROR_DESCRIPTION, errorDescription);
     if (self)
     {
         // Broker only works for AAD
-        _tokenResponse = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:form
+        _tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:form
                                                                         error:error];
     }
     
