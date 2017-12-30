@@ -198,6 +198,95 @@
 }
 
 
+- (void)testSaveAccessToken_withDifferentAuthorities_shouldSave2Tokens
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    MSIDToken *token1 = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                         request:[MSIDTestRequestParams v2DefaultParams]
+                                                       tokenType:MSIDTokenTypeAccessToken];
+    
+    // save 1st token with default test scope
+    [_cacheAccessor saveAccessToken:token1
+                            account:account
+                      requestParams:[MSIDTestRequestParams v2DefaultParams]
+                            context:nil
+                              error:nil];
+    
+    // save 2nd token with different authority
+    MSIDToken *token3 = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                                           RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                                       scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                                                      idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                                          uid:DEFAULT_TEST_UID
+                                                                                                         utid:DEFAULT_TEST_UTID
+                                                                                                     familyId:nil]
+                                                         request:[MSIDTestRequestParams v2ParamsWithAuthority:[NSURL URLWithString:@"https://contoso2.com"]
+                                                                                                  redirectUri:nil
+                                                                                                     clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                                       scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]]
+                                                       tokenType:MSIDTokenTypeAccessToken];
+    NSError *error = nil;
+    BOOL result = [_cacheAccessor saveAccessToken:token3
+                                          account:account
+                                    requestParams:[MSIDTestRequestParams v2DefaultParams]
+                                          context:nil
+                                            error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
+    XCTAssertEqual([accessTokensInCache count], 2);
+    
+}
+
+- (void)testSaveAccessToken_withDifferentUsers_shouldSave2Tokens
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    MSIDToken *token1 = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                         request:[MSIDTestRequestParams v2DefaultParams]
+                                                       tokenType:MSIDTokenTypeAccessToken];
+    
+    // save 1st token with default test scope
+    [_cacheAccessor saveAccessToken:token1
+                            account:account
+                      requestParams:[MSIDTestRequestParams v2DefaultParams]
+                            context:nil
+                              error:nil];
+    
+    // save 2nd token with different user
+    MSIDAccount *account2 = [[MSIDAccount alloc] initWithUpn:nil utid:@"UTID2" uid:@"UID2"];
+    
+    MSIDToken *token4 = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                                           RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                                       scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                                                      idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                                          uid:account2.uid
+                                                                                                         utid:account2.utid
+                                                                                                     familyId:nil]
+                                                         request:[MSIDTestRequestParams v2DefaultParams]
+                                                       tokenType:MSIDTokenTypeAccessToken];
+    
+    NSError *error = nil;
+    
+    BOOL result = [_cacheAccessor saveAccessToken:token4
+                                          account:account2
+                                    requestParams:[MSIDTestRequestParams v2DefaultParams]
+                                          context:nil
+                                            error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
+    XCTAssertEqual([accessTokensInCache count], 2);
+}
 
 - (void)testSaveSharedRTForAccount_withRT_shouldSaveOneEntry
 {
@@ -327,9 +416,6 @@
                       requestParams:[MSIDTestRequestParams v2DefaultParamsWithScopes:scopes]
                             context:nil
                               error:nil];
-    
-    NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
-    XCTAssertEqual([accessTokensInCache count], 4);
     
     // retrieve first at
     NSError *error = nil;
