@@ -39,11 +39,11 @@
 - (MSIDToken *)getATForAccount:(MSIDAccount *)account
                  requestParams:(MSIDRequestParameters *)parameters
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError * __autoreleasing *)error;
+                         error:(NSError **)error;
 
 - (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
                                          context:(id<MSIDRequestContext>)context
-                                           error:(NSError * __autoreleasing *)error;
+                                           error:(NSError **)error;
 
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
                   refreshToken:(MSIDToken *)refreshToken
@@ -56,9 +56,9 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsWithParams:(MSIDRequestParameters *)parameters
-                                                  context:(id<MSIDRequestContext>)context
-                                                    error:(NSError **)error;
+- (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error;
 
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
                            token:(MSIDToken *)token

@@ -30,8 +30,28 @@
 
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponse;
 + (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithFamilyId:(NSString *)familyId;
++ (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithScopes:(NSOrderedSet<NSString *> *)scopes;
++ (MSIDAADV2TokenResponse *)v2DefaultTokenResponseWithRefreshToken:(NSString *)token;
++ (MSIDAADV2TokenResponse *)v2TokenResponseWithAT:(NSString *)accessToken
+                                               RT:(NSString *)refreshToken
+                                           scopes:(NSOrderedSet<NSString *> *)scopes
+                                          idToken:(NSString *)idToken
+                                              uid:(NSString *)uid
+                                             utid:(NSString *)utid
+                                         familyId:(NSString *)familyId;
+
+
 + (MSIDAADV2TokenResponse *)v2TokenResponseFromJSON:(NSString *)jsonString;
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponse;
+
++ (MSIDAADV1TokenResponse *)v1TokenResponseWithAT:(NSString *)accessToken
+                                               rt:(NSString *)refreshToken
+                                         resource:(NSString *)resource
+                                              uid:(NSString *)uid
+                                             utid:(NSString *)utid
+                                              upn:(NSString *)upn
+                                         tenantId:(NSString *)tenantId;
+
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithoutClientInfo;
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithFamilyId:(NSString *)familyId;
 + (MSIDAADV1TokenResponse *)v1SingleResourceTokenResponse;

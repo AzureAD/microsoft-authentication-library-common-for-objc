@@ -68,7 +68,7 @@
 - (MSIDToken *)getATForAccount:(MSIDAccount *)account
                  requestParams:(MSIDRequestParameters *)parameters
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError * __autoreleasing *)error
+                         error:(NSError **)error
 {
     return [self getTokenForAccount:account
                           tokenType:MSIDTokenTypeAccessToken
@@ -111,15 +111,15 @@
                               error:error];
 }
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsWithParams:(MSIDRequestParameters *)parameters
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error
+- (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
-    if (!parameters)
+    if (!clientId)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing clientId", nil, nil, nil, nil, nil);
         }
         
         return nil;
@@ -137,7 +137,7 @@
             for (MSIDToken *token in contents)
             {
                 if (token.tokenType == MSIDTokenTypeRefreshToken
-                    && [token.clientId isEqualToString:parameters.clientId])
+                    && [token.clientId isEqualToString:clientId])
                 {
                     [resultTokens addObject:token];
                 }
@@ -224,7 +224,7 @@
                         tokenType:(MSIDTokenType)tokenType
                            params:(MSIDRequestParameters *)parameters
                           context:(id<MSIDRequestContext>)context
-                            error:(NSError * __autoreleasing *)error
+                            error:(NSError **)error
 {
     if (!account
         || !parameters)

@@ -48,11 +48,11 @@
 - (MSIDToken *)getATForAccount:(MSIDAccount *)account
                  requestParams:(MSIDRequestParameters *)parameters
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError * __autoreleasing *)error;
+                         error:(NSError **)error;
 
 - (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
                                          context:(id<MSIDRequestContext>)context
-                                           error:(NSError * __autoreleasing *)error;
+                                           error:(NSError **)error;
 
 /*!
  Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
@@ -76,9 +76,9 @@
 /*!
  + Returns all refresh tokens for a given client.
  + */
-- (NSArray<MSIDToken *> *)getAllClientRTsWithParams:(MSIDRequestParameters *)parameters
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error;
+- (NSArray<MSIDToken *> *)getAllClientRTs:(NSString *)clientId
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error;
 
 // Removal operations
 - (BOOL)removeRTForAccount:(MSIDAccount *)account

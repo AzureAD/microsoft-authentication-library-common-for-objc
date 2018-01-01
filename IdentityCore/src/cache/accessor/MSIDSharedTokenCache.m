@@ -238,18 +238,18 @@
                            error:error];
 }
 
-- (NSArray<MSIDToken *> *)getAllClientRTsWithParams:(MSIDRequestParameters *)parameters
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error
+- (NSArray<MSIDToken *> *)getAllClientRTs:(NSString *)clientId
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
 {
     NSMutableArray *resultRTs = [NSMutableArray array];
     
     // Get RTs from all caches
     for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
-        NSArray *otherRTs = [cache getAllSharedRTsWithParams:parameters
-                                                           context:context
-                                                             error:error];
+        NSArray *otherRTs = [cache getAllSharedRTsWithClientId:clientId
+                                                       context:context
+                                                         error:error];
         
         if (otherRTs)
         {

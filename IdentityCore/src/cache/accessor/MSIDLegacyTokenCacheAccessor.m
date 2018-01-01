@@ -100,9 +100,9 @@
                              error:error];
 }
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsWithParams:(MSIDRequestParameters *)parameters
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error
+- (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
@@ -127,7 +127,7 @@
     for (MSIDToken *token in legacyTokens)
     {
         if (token.tokenType == MSIDTokenTypeRefreshToken
-            && [token.clientId isEqualToString:parameters.clientId])
+            && [token.clientId isEqualToString:clientId])
         {
             [resultRTs addObject:token];
         }
@@ -214,7 +214,7 @@
 - (MSIDToken *)getATForAccount:(MSIDAccount *)account
                  requestParams:(MSIDRequestParameters *)parameters
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError * __autoreleasing *)error
+                         error:(NSError **)error
 {
     if (!account.upn)
     {
@@ -336,9 +336,9 @@
         NSError *cacheError = nil;
         
         NSArray *tokens = [_dataSource itemsWithKey:key
-                                        serializer:serializer
-                                           context:context
-                                             error:&cacheError];
+                                         serializer:serializer
+                                            context:context
+                                              error:&cacheError];
         
         if (cacheError)
         {
@@ -393,12 +393,12 @@
                    success:(BOOL)success
                    context:(id<MSIDRequestContext>)context
 {
-	[event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
-	
+    [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
+    
     if (token)
-	{
+    {
         [event setToken:token];
-	}
+    }
 
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
                                         event:event];

@@ -29,6 +29,16 @@
 @interface MSIDTestRequestParams : NSObject
 
 + (MSIDAADV1RequestParameters *)v1DefaultParams;
+
++ (MSIDAADV1RequestParameters *)v1ParamsWithAuthority:(NSString *)authority
+                                             clientId:(NSString *)clientId
+                                             resource:(NSString *)resource;
+
 + (MSIDAADV2RequestParameters *)v2DefaultParams;
 
++ (MSIDAADV2RequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes;
++ (MSIDAADV2RequestParameters *)v2ParamsWithAuthority:(NSURL *)authority
+                                          redirectUri:(NSString *)redirectUri
+                                             clientId:(NSString *)clientId
+                                               scopes:(NSOrderedSet<NSString *> *)scopes;
 @end

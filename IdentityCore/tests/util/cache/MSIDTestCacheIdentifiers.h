@@ -26,7 +26,7 @@
 #define DEFAULT_TEST_RESOURCE @"https://graph.microsoft.com/"
 #define DEFAULT_TEST_AUTHORITY @"https://login.microsoftonline.com/common"
 #define DEFAULT_TEST_CLIENT_ID @"test_client_id"
-#define DEFAULT_TEST_SCOPE @"mail.read"
+#define DEFAULT_TEST_SCOPE @"https://graph.microsoft.com/mail.read"
 #define DEFAULT_TEST_ID_TOKEN_NAME @"User"
 #define DEFAULT_TEST_ID_TOKEN_USERNAME @"user@contoso.com"
 #define DEFAULT_TEST_ID_TOKEN_UNIQUE_ID @"29f3807a-4fb0-42f2-a44a-236aa0cb3f97"
