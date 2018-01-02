@@ -31,4 +31,6 @@
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;
 
+- (BOOL)isExpired;
+
 @end

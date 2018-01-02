@@ -24,6 +24,8 @@
 #import "MSIDTestCacheAccessor.h"
 #import "MSIDError.h"
 #import "MSIDAccount.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
 
 @interface MSIDTestCacheAccessor()
 {
@@ -46,7 +48,7 @@
     return self;
 }
 
-- (BOOL)saveAccessToken:(MSIDToken *)token
+- (BOOL)saveAccessToken:(MSIDAccessToken *)token
                 account:(MSIDAccount *)account
           requestParams:(MSIDRequestParameters *)parameters
                 context:(id<MSIDRequestContext>)context
@@ -65,16 +67,16 @@
     return [self saveTokenForAccount:account token:token context:context error:error];
 }
 
-- (MSIDToken *)getATForAccount:(MSIDAccount *)account
-                 requestParams:(MSIDRequestParameters *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
+                       requestParams:(MSIDRequestParameters *)parameters
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
 {
-    return [self getTokenForAccount:account
-                          tokenType:MSIDTokenTypeAccessToken
-                             params:parameters
-                            context:context
-                              error:error];
+    return (MSIDAccessToken *)[self getTokenForAccount:account
+                                             tokenType:MSIDTokenTypeAccessToken
+                                                params:parameters
+                                               context:context
+                                                 error:error];
 }
 
 - (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
@@ -91,7 +93,7 @@
 }
 
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
-                  refreshToken:(MSIDToken *)refreshToken
+                  refreshToken:(MSIDRefreshToken *)refreshToken
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
@@ -99,21 +101,21 @@
 }
 
 
-- (MSIDToken *)getSharedRTForAccount:(MSIDAccount *)account
-                       requestParams:(MSIDRequestParameters *)parameters
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
+- (MSIDRefreshToken *)getSharedRTForAccount:(MSIDAccount *)account
+                              requestParams:(MSIDRequestParameters *)parameters
+                                    context:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error
 {
-    return [self getTokenForAccount:account
-                          tokenType:MSIDTokenTypeRefreshToken
-                             params:parameters
-                            context:context
-                              error:error];
+    return (MSIDRefreshToken *)[self getTokenForAccount:account
+                                              tokenType:MSIDTokenTypeRefreshToken
+                                                 params:parameters
+                                                context:context
+                                                  error:error];
 }
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
-                                              context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+- (NSArray<MSIDRefreshToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
+                                                     context:(id<MSIDRequestContext>)context
+                                                       error:(NSError **)error
 {
     if (!clientId)
     {
@@ -134,7 +136,7 @@
         {
             NSArray *contents = _cacheContents[key];
             
-            for (MSIDToken *token in contents)
+            for (MSIDBaseToken *token in contents)
             {
                 if (token.tokenType == MSIDTokenTypeRefreshToken
                     && [token.clientId isEqualToString:clientId])
@@ -149,7 +151,7 @@
 }
 
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
-                           token:(MSIDToken *)token
+                           token:(MSIDRefreshToken *)token
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
@@ -183,7 +185,7 @@
 #pragma mark - Helpers
 
 - (BOOL)saveTokenForAccount:(MSIDAccount *)account
-                      token:(MSIDToken *)token
+                      token:(MSIDBaseToken *)token
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
@@ -220,11 +222,11 @@
     return YES;
 }
 
-- (MSIDToken *)getTokenForAccount:(MSIDAccount *)account
-                        tokenType:(MSIDTokenType)tokenType
-                           params:(MSIDRequestParameters *)parameters
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+- (MSIDBaseToken *)getTokenForAccount:(MSIDAccount *)account
+                            tokenType:(MSIDTokenType)tokenType
+                               params:(MSIDRequestParameters *)parameters
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
 {
     if (!account
         || !parameters)
@@ -280,7 +282,7 @@
 
 #pragma mark - Test Utils
 
-- (void)addToken:(MSIDToken *)token forAccount:(MSIDAccount *)account
+- (void)addToken:(MSIDBaseToken *)token forAccount:(MSIDAccount *)account
 {
     [self saveTokenForAccount:account token:token context:nil error:nil];
 }
@@ -326,7 +328,7 @@
             {
                 if (clientId)
                 {
-                    for (MSIDToken *token in _cacheContents[key])
+                    for (MSIDBaseToken *token in _cacheContents[key])
                     {
                         if ([token.clientId isEqualToString:clientId])
                         {

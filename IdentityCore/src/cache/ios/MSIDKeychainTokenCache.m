@@ -25,7 +25,7 @@
 #import "MSIDTokenCacheKey.h"
 #import "MSIDTokenSerializer.h"
 #import "MSIDKeychainUtil.h"
-#import "MSIDToken.h"
+#import "MSIDBaseToken.h"
 #import "MSIDError.h"
 
 static NSString *const s_libraryString = @"MSOpenTech.ADAL.1";
@@ -116,7 +116,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 
 #pragma mark - MSIDTokenCacheDataSource
 
-- (BOOL)setItem:(MSIDToken *)item
+- (BOOL)setItem:(MSIDBaseToken *)item
             key:(MSIDTokenCacheKey *)key
      serializer:(id<MSIDTokenSerializer>)serializer
         context:(id<MSIDRequestContext>)context
@@ -183,13 +183,13 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return status == errSecSuccess;
 }
 
-- (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                serializer:(id<MSIDTokenSerializer>)serializer
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (MSIDBaseToken *)itemWithKey:(MSIDTokenCacheKey *)key
+                    serializer:(id<MSIDTokenSerializer>)serializer
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
     MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
-    NSArray<MSIDToken *> *items = [self itemsWithKey:key serializer:serializer context:context error:error];
+    NSArray<MSIDBaseToken *> *items = [self itemsWithKey:key serializer:serializer context:context error:error];
     
     if (items.count > 1)
     {
@@ -241,10 +241,10 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return YES;
 }
 
-- (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                            serializer:(id<MSIDTokenSerializer>)serializer
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error
+- (NSArray<MSIDBaseToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+                                serializer:(id<MSIDTokenSerializer>)serializer
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
 {
     assert(serializer);
     
@@ -290,11 +290,11 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     NSArray *items = CFBridgingRelease(cfItems);
     
-    NSMutableArray *tokenItems = [[NSMutableArray<MSIDToken *> alloc] initWithCapacity:items.count];
+    NSMutableArray *tokenItems = [[NSMutableArray<MSIDBaseToken *> alloc] initWithCapacity:items.count];
     for (NSDictionary *attrs in items)
     {
         NSData *itemData = [attrs objectForKey:(id)kSecValueData];
-        MSIDToken *tokenItem = [serializer deserialize:itemData];
+        MSIDBaseToken *tokenItem = [serializer deserialize:itemData];
         
         if (tokenItem)
         {

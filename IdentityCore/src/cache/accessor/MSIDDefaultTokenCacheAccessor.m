@@ -25,24 +25,28 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDAccount.h"
 #import "MSIDTokenCacheKey.h"
-#import "MSIDToken.h"
+#import "MSIDBaseToken.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDAADV2RequestParameters.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
     id<MSIDTokenCacheDataSource> _dataSource;
-    MSIDJsonSerializer *_serializer;
+    MSIDJsonSerializer *_atSerializer;
+    MSIDJsonSerializer *_rtSerializer;
 }
 @end
 
 @implementation MSIDDefaultTokenCacheAccessor
 
 #pragma mark - Init
+
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
 {
     self = [super init];
@@ -50,13 +54,14 @@
     if (self)
     {
         _dataSource = dataSource;
-        _serializer = [[MSIDJsonSerializer alloc] init];
+        _atSerializer = [[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
+        _rtSerializer = [[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
     }
     
     return self;
 }
 
-- (BOOL)saveAccessToken:(MSIDToken *)token
+- (BOOL)saveAccessToken:(MSIDAccessToken *)token
                 account:(MSIDAccount *)account
           requestParams:(MSIDRequestParameters *)parameters
                 context:(id<MSIDRequestContext>)context
@@ -84,14 +89,14 @@
     
     // delete all cache entries with intersecting scopes
     // this should not happen but we have this as a safe guard against multiple matches
-    NSArray<MSIDToken *> *allTokens = [self getAllATsForContext:context error:error];
+    NSArray<MSIDAccessToken *> *allTokens = [self getAllATsForContext:context error:error];
 
     if (!allTokens)
     {
         return NO;
     }
     
-    for (MSIDToken *tokenInCache in allTokens)
+    for (MSIDAccessToken *tokenInCache in allTokens)
     {
         if ([tokenInCache.clientInfo.userIdentifier isEqualToString:account.userIdentifier]
             && [tokenInCache.clientId isEqualToString:token.clientId]
@@ -115,16 +120,16 @@
                   clientId:token.clientId
                     scopes:token.scopes
                  authority:token.authority
-                serializer:_serializer
+                serializer:_atSerializer
                    context:context
                      error:error];
 }
 
 
-- (MSIDToken *)getATForAccount:(MSIDAccount *)account
-                 requestParams:(MSIDRequestParameters *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
+                       requestParams:(MSIDRequestParameters *)parameters
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
 {
     if (![parameters isKindOfClass:MSIDAADV2RequestParameters.class])
     {
@@ -145,8 +150,8 @@
         return nil;
     }
     
-    NSArray<MSIDToken *> *allTokens = [self getAllATsForContext:context
-                                                          error:error];
+    NSArray<MSIDAccessToken *> *allTokens = [self getAllATsForContext:context
+                                                                error:error];
     
     if (!allTokens || allTokens.count == 0)
     {
@@ -162,9 +167,9 @@
     NSURL *authorityToCheck = v2params.authority? v2params.authority : allTokens[0].authority;
     NSArray<NSURL *> *tokenAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authorityToCheck];
     
-    NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
+    NSMutableArray<MSIDAccessToken *> *matchedTokens = [NSMutableArray<MSIDAccessToken *> new];
     
-    for (MSIDToken *token in allTokens)
+    for (MSIDAccessToken *token in allTokens)
     {
         if ([token.clientInfo.userIdentifier isEqualToString:account.userIdentifier]
             && [token.clientId isEqualToString:v2params.clientId]
@@ -202,7 +207,7 @@
         return nil;
     }
     
-    MSIDToken *tokenToReturn = matchedTokens[0];
+    MSIDAccessToken *tokenToReturn = matchedTokens[0];
     tokenToReturn.authority = parameters.authority;
     
     return tokenToReturn;
@@ -220,18 +225,18 @@
     return nil;
 }
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
-                                              context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+- (NSArray<MSIDRefreshToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
+                                                     context:(id<MSIDRequestContext>)context
+                                                       error:(NSError **)error
 {
 
     return [self getAllRTsForClientId:clientId context:context error:error];
 }
 
-- (MSIDToken *)getSharedRTForAccount:(MSIDAccount *)account
-                       requestParams:(MSIDRequestParameters *)parameters
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error {
+- (MSIDRefreshToken *)getSharedRTForAccount:(MSIDAccount *)account
+                              requestParams:(MSIDRequestParameters *)parameters
+                                    context:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error {
     
     if (!account.userIdentifier)
     {
@@ -245,30 +250,30 @@
     return [self getRefreshTokenForUserId:account.userIdentifier
                                  clientId:parameters.clientId
                                 authority:parameters.authority
-                               serializer:_serializer
+                               serializer:_rtSerializer
                                   context:context
                                     error:error];
 }
 
 
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
-                           token:(MSIDToken *)token
+                           token:(MSIDRefreshToken *)token
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
-    if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
+    if (!token || [NSString msidIsStringNilOrBlank:token.refreshToken])
     {
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", nil, nil, nil, context.correlationId, nil);
         return NO;
     }
     
     NSError *cacheError = nil;
-    MSIDToken *tokenInCache  = [self getRefreshTokenForUserId:account.userIdentifier
-                                                     clientId:token.clientId
-                                                    authority:token.authority
-                                                   serializer:_serializer
-                                                      context:context
-                                                        error:error];
+    MSIDRefreshToken *tokenInCache  = [self getRefreshTokenForUserId:account.userIdentifier
+                                                            clientId:token.clientId
+                                                           authority:token.authority
+                                                          serializer:_rtSerializer
+                                                             context:context
+                                                               error:error];
     
     if (cacheError)
     {
@@ -280,8 +285,8 @@
     }
 
     if (tokenInCache
-        && tokenInCache.tokenType == MSIDTokenTypeRefreshToken
-        && [tokenInCache.token isEqualToString:token.token])
+        && ![NSString msidIsStringNilOrBlank:tokenInCache.refreshToken]
+        && [tokenInCache.refreshToken isEqualToString:token.refreshToken])
     {
         MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithUserId:account.userIdentifier
                                                                         clientId:token.clientId
@@ -294,7 +299,7 @@
 }
 
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
-                  refreshToken:(MSIDToken *)refreshToken
+                  refreshToken:(MSIDRefreshToken *)refreshToken
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error {
     return [self saveToken:refreshToken
@@ -302,7 +307,7 @@
                   clientId:refreshToken.clientId
                     scopes:nil
                  authority:refreshToken.authority
-                serializer:_serializer
+                serializer:_rtSerializer
                    context:context
                      error:error];
 }
@@ -334,7 +339,7 @@
 }
 
 
-- (BOOL)saveToken:(MSIDToken *)token
+- (BOOL)saveToken:(MSIDBaseToken *)token
            userId:(NSString *)userId
          clientId:(NSString *)clientId
            scopes:(NSOrderedSet<NSString *> *)scopes
@@ -377,12 +382,12 @@
     return result;
 }
 
-- (MSIDToken *)getRefreshTokenForUserId:(NSString *)userId
-                               clientId:(NSString *)clientId
-                              authority:(NSURL *)authority
-                             serializer:(id<MSIDTokenSerializer>)serializer
-                                context:(id<MSIDRequestContext>)context
-                                  error:(NSError **)error
+- (MSIDRefreshToken *)getRefreshTokenForUserId:(NSString *)userId
+                                      clientId:(NSString *)clientId
+                                     authority:(NSURL *)authority
+                                    serializer:(id<MSIDTokenSerializer>)serializer
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
 {
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
@@ -408,10 +413,10 @@
         
         NSError *cacheError = nil;
 
-        MSIDToken *token = [_dataSource itemWithKey:key
-                                         serializer:serializer
-                                            context:context
-                                              error:&cacheError];
+        MSIDRefreshToken *token = (MSIDRefreshToken *)[_dataSource itemWithKey:key
+                                                                    serializer:serializer
+                                                                       context:context
+                                                                         error:&cacheError];
         
         if (token)
         {
@@ -445,8 +450,8 @@
 }
 
 
-- (NSArray<MSIDToken *> *)getAllATsForContext:(id<MSIDRequestContext>)context
-                                    error:(NSError *__autoreleasing *)error
+- (NSArray<MSIDAccessToken *> *)getAllATsForContext:(id<MSIDRequestContext>)context
+                                              error:(NSError *__autoreleasing *)error
 {
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
@@ -455,7 +460,7 @@
                                                                            context:context];
 
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokens];
-    NSArray<MSIDToken *> *allAccessTokensForAlias = [_dataSource itemsWithKey:key serializer:_serializer context:context error:error];
+    NSArray *allAccessTokensForAlias = [_dataSource itemsWithKey:key serializer:_atSerializer context:context error:error];
     
     [self stopTelemetryEvent:event
                    withToken:nil
@@ -465,7 +470,7 @@
     return allAccessTokensForAlias;
 }
 
-- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (NSArray<MSIDRefreshToken *> *)getAllRTsForClientId:(NSString *)clientId context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
@@ -475,7 +480,7 @@
     
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithClientId:clientId];
     
-    NSArray *tokens = [_dataSource itemsWithKey:key serializer:_serializer context:context error:error];
+    NSArray *tokens = [_dataSource itemsWithKey:key serializer:_rtSerializer context:context error:error];
     
     [self stopTelemetryEvent:event withToken:nil success:(tokens != nil) context:context];
     return tokens;
@@ -501,7 +506,7 @@
 #pragma mark - Telemetry helpers
 
 - (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
-                 withToken:(MSIDToken *)token
+                 withToken:(MSIDBaseToken *)token
                    success:(BOOL)success
                    context:(id<MSIDRequestContext>)context
 {

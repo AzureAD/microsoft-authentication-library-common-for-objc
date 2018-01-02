@@ -23,7 +23,7 @@
 
 #import "MSIDBaseToken.h"
 
-@interface MSIDRefreshToken : MSIDBaseToken
+@interface MSIDRefreshToken : MSIDBaseToken <NSCopying>
 
 @property (readonly) NSString *refreshToken;
 @property (readonly) NSString *familyId;

@@ -22,11 +22,52 @@
 // THE SOFTWARE.
 
 #import "MSIDJsonSerializer.h"
-#import "MSIDToken.h"
+#import "MSIDBaseToken.h"
+#import "MSIDJsonObject.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDAdfsToken.h"
+
+@interface MSIDJsonSerializer()
+{
+    Class _classToSerialize;
+}
+
+@end
 
 @implementation MSIDJsonSerializer
 
-- (NSData *)serialize:(MSIDToken *)token
+#pragma mark - Init
+
+- (instancetype)initForTokenType:(MSIDTokenType)type
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _classToSerialize = MSIDBaseToken.class;
+        
+        switch (type) {
+            case MSIDTokenTypeAccessToken:
+                _classToSerialize = MSIDAccessToken.class;
+                break;
+                
+            case MSIDTokenTypeRefreshToken:
+                _classToSerialize = MSIDRefreshToken.class;
+                break;
+                
+            case MSIDTokenTypeAdfsUserToken:
+                _classToSerialize = MSIDAdfsToken.class;
+                break;
+                
+            default:
+                break;
+        }
+    }
+    return self;
+}
+
+- (NSData *)serialize:(MSIDBaseToken *)token
 {
     NSError *error;
     NSData *data = [token serialize:&error];
@@ -38,14 +79,13 @@
         MSID_LOG_ERROR_PII(nil, @"Failed to serialize token, error: %@", error);
     }
 
-    
     return data;
 }
 
-- (MSIDToken *)deserialize:(NSData *)data
+- (MSIDBaseToken *)deserialize:(NSData *)data
 {
     NSError *error;
-    MSIDToken *token = [[MSIDToken alloc] initWithJSONData:data error:&error];
+    MSIDBaseToken *token = [[_classToSerialize alloc] initWithJSONData:data error:&error];
     
     if (error)
     {

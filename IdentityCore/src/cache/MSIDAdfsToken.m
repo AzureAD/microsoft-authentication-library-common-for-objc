@@ -25,18 +25,35 @@
 
 @implementation MSIDAdfsToken
 
-- (BOOL)isEqualToToken:(MSIDAdfsToken *)token
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
 {
-    if (!token)
+    MSIDAdfsToken *item = [super copyWithZone:zone];
+    item->_singleResourceRefreshToken = [_singleResourceRefreshToken copyWithZone:zone];
+    
+    return item;
+}
+
+#pragma mark - NSSecureCoding
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    if (!(self = [super initWithCoder:coder]))
     {
-        return NO;
+        return nil;
     }
     
-    BOOL result = YES;
-    result &= [super isEqualToToken:token];
-    result &= (!self.singleResourceRefreshToken && !token.singleResourceRefreshToken) || [self.singleResourceRefreshToken isEqualToString:token.singleResourceRefreshToken];
+    _singleResourceRefreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     
-    return result;
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+    
+    [coder encodeObject:_singleResourceRefreshToken forKey:@"refreshToken"];
 }
 
 #pragma mark - NSObject
@@ -64,53 +81,62 @@
     return hash;
 }
 
-#pragma mark - NSSecureCoding
-
-- (instancetype)initWithCoder:(NSCoder *)coder
+- (BOOL)isEqualToToken:(MSIDAdfsToken *)token
 {
-    if (!(self = [super initWithCoder:coder]))
+    if (!token)
+    {
+        return NO;
+    }
+    
+    BOOL result = [super isEqualToToken:token];
+    result &= (!self.singleResourceRefreshToken && !token.singleResourceRefreshToken) || [self.singleResourceRefreshToken isEqualToString:token.singleResourceRefreshToken];
+    
+    return result;
+}
+
+#pragma mark - JSON
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    if (!(self = [super initWithJSONDictionary:json error:error]))
     {
         return nil;
     }
-   
-    _singleResourceRefreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
-    _tokenType = MSIDTokenTypeAdfsUserToken;
+    
+    _singleResourceRefreshToken = json[MSID_OAUTH2_REFRESH_TOKEN];
     
     return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)coder
+- (NSDictionary *)jsonDictionary
 {
-    [super encodeWithCoder:coder];
-    [coder encodeObject:_singleResourceRefreshToken forKey:@"refreshToken"];
-}
-
-#pragma mark - NSCopying
-
-- (id)copyWithZone:(NSZone *)zone
-{
-    MSIDAdfsToken *item = [super copyWithZone:zone];
-    item->_singleResourceRefreshToken = [_singleResourceRefreshToken copyWithZone:zone];
+    NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
+    [dictionary setValue:_singleResourceRefreshToken forKey:MSID_OAUTH2_REFRESH_TOKEN];
     
-    return item;
+    return dictionary;
 }
 
 #pragma mark - Init
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
                               request:(MSIDRequestParameters *)requestParams
-                            tokenType:(MSIDTokenType)tokenType
 {
-    self = [super initWithTokenResponse:response
-                                request:requestParams
-                              tokenType:tokenType];
-    
-    if (self)
+    if (!(self = [super initWithTokenResponse:response request:requestParams]))
     {
-        _singleResourceRefreshToken = response.refreshToken;
+        return nil;
     }
     
+    _singleResourceRefreshToken = response.refreshToken;
+    _tokenType = MSIDTokenTypeAdfsUserToken;
+    
     return self;
+}
+
+#pragma mark - Token type
+
+- (MSIDTokenType)tokenType
+{
+    return MSIDTokenTypeAdfsUserToken;
 }
 
 @end

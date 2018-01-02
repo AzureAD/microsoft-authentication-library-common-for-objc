@@ -21,13 +21,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBaseToken.h"
+#import <Foundation/Foundation.h>
+#import "MSIDJsonObject.h"
+#import "MSIDTokenResponse.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDClientInfo.h"
+#import "MSIDTokenType.h"
 
-@interface MSIDAdfsUserToken : MSIDBaseToken
+@interface MSIDBaseToken : MSIDJsonObject <NSCopying, NSSecureCoding>
+{
+    NSURL *_authority;
+    NSString *_clientId;
+    
+    MSIDClientInfo *_clientInfo;
+    NSString *_idToken;
+    
+    NSDictionary *_additionalServerInfo;
+    MSIDTokenType _tokenType;
+}
 
-@property (readonly) NSString *resource;
+@property (readwrite) NSURL *authority;
+@property (readwrite) NSString *clientId;
 
-@property (readonly) NSString *accessToken;
-@property (readonly) NSString *refreshToken;
+@property (readonly) MSIDClientInfo *clientInfo;
+@property (readonly) NSString *idToken;
+
+@property (readonly) NSDictionary *additionalServerInfo;
+@property (readonly) MSIDTokenType tokenType;
+
+- (BOOL)isEqualToToken:(MSIDBaseToken *)token;
+
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+                              request:(MSIDRequestParameters *)requestParams;
 
 @end

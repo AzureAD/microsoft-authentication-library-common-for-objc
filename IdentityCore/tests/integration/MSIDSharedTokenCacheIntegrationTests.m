@@ -33,6 +33,8 @@
 #import "MSIDAccount.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDAdfsToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDAccessToken.h"
 #import "MSIDTestBrokerResponse.h"
 #import "MSIDTestBrokerResponse.h"
 
@@ -81,26 +83,26 @@
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
-    MSIDToken *token = [tokenCache getATForAccount:account
-                                     requestParams:requestParams
-                                           context:nil
-                                             error:&error];
+    MSIDAccessToken *token = [tokenCache getATForAccount:account
+                                           requestParams:requestParams
+                                                 context:nil
+                                                   error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     XCTAssertEqual(token.tokenType, MSIDTokenTypeAccessToken);
-    XCTAssertEqualObjects(token.token, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     
     // Check that a refresh token is returned back
-    MSIDToken *refreshToken = [tokenCache getRTForAccount:account
-                                            requestParams:requestParams
-                                                  context:nil
-                                                    error:&error];
+    MSIDRefreshToken *refreshToken = [tokenCache getRTForAccount:account
+                                                   requestParams:requestParams
+                                                         context:nil
+                                                           error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(refreshToken);
     XCTAssertEqual(refreshToken.tokenType, MSIDTokenTypeRefreshToken);
-    XCTAssertEqualObjects(refreshToken.token, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
 
 - (void)testSaveTokens_withMRRTTokenAndOnlyPrimaryFormat_savesOnlyToPrimaryFormat
@@ -163,11 +165,11 @@
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     XCTAssertEqual(token.tokenType, MSIDTokenTypeAdfsUserToken);
-    XCTAssertEqualObjects(token.token, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(token.singleResourceRefreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     
     // Check that no refresh token is returned back
-    MSIDToken *refreshToken = [tokenCache getRTForAccount:account
+    MSIDRefreshToken *refreshToken = [tokenCache getRTForAccount:account
                                             requestParams:requestParams
                                                   context:nil
                                                     error:&error];
@@ -232,7 +234,7 @@
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
-    MSIDToken *token = [tokenCache getATForAccount:account
+    MSIDAccessToken *token = [tokenCache getATForAccount:account
                                      requestParams:requestParams
                                            context:nil
                                              error:&error];
@@ -240,18 +242,18 @@
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     XCTAssertEqual(token.tokenType, MSIDTokenTypeAccessToken);
-    XCTAssertEqualObjects(token.token, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     
     // Check that a refresh token is returned back
-    MSIDToken *refreshToken = [tokenCache getRTForAccount:account
-                                            requestParams:requestParams
-                                                  context:nil
-                                                    error:&error];
+    MSIDRefreshToken *refreshToken = [tokenCache getRTForAccount:account
+                                                   requestParams:requestParams
+                                                         context:nil
+                                                           error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(refreshToken);
     XCTAssertEqual(refreshToken.tokenType, MSIDTokenTypeRefreshToken);
-    XCTAssertEqualObjects(refreshToken.token, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
 
 - (void)testSaveTokens_withMRRTToken_savesRTsToMultipleFormats
@@ -354,10 +356,10 @@
     MSIDAADV1RequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
     
     NSError *error = nil;
-    MSIDToken *token = [tokenCache getATForAccount:account
-                                     requestParams:requestParams
-                                           context:nil
-                                             error:&error];
+    MSIDAccessToken *token = [tokenCache getATForAccount:account
+                                           requestParams:requestParams
+                                                 context:nil
+                                                   error:&error];
     
     XCTAssertNil(error);
     XCTAssertNil(token);
@@ -368,9 +370,8 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                        request:[MSIDTestRequestParams v1DefaultParams]
-                                                      tokenType:MSIDTokenTypeAccessToken];
+    MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                    request:[MSIDTestRequestParams v1DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
@@ -380,10 +381,10 @@
     
     // Check that AT is returned
     NSError *error = nil;
-    MSIDToken *returnedToken = [tokenCache getATForAccount:account
-                                             requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                   context:nil
-                                                     error:&error];
+    MSIDAccessToken *returnedToken = [tokenCache getATForAccount:account
+                                                   requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                         context:nil
+                                                           error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
@@ -400,17 +401,16 @@
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
-                                                        request:[MSIDTestRequestParams v2DefaultParams]
-                                                      tokenType:MSIDTokenTypeAccessToken];
+    MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                                    request:[MSIDTestRequestParams v2DefaultParams]];
     
     [_secondaryAccessor addToken:token forAccount:account];
     
     NSError *error = nil;
-    MSIDToken *returnedToken = [tokenCache getATForAccount:account
-                                             requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                   context:nil
-                                              error:&error];
+    MSIDAccessToken *returnedToken = [tokenCache getATForAccount:account
+                                                   requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                         context:nil
+                                                           error:&error];
     
     XCTAssertNil(error);
     XCTAssertNil(returnedToken);
@@ -422,8 +422,7 @@
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
     MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse]
-                                                                request:[MSIDTestRequestParams v1DefaultParams]
-                                                              tokenType:MSIDTokenTypeAccessToken];
+                                                                request:[MSIDTestRequestParams v1DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@""
                                                        utid:nil
@@ -447,9 +446,8 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                        request:[MSIDTestRequestParams v1DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
@@ -459,10 +457,10 @@
     
     // Check that RT is returned
     NSError *error = nil;
-    MSIDToken *returnedToken = [tokenCache getRTForAccount:account
-                                             requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                   context:nil
-                                                     error:&error];
+    MSIDRefreshToken *returnedToken = [tokenCache getRTForAccount:account
+                                                    requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                          context:nil
+                                                            error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
@@ -474,9 +472,8 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
-                                                        request:[MSIDTestRequestParams v2DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v2DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
@@ -486,10 +483,10 @@
     
     // Check that RT is returned
     NSError *error = nil;
-    MSIDToken *returnedToken = [tokenCache getRTForAccount:account
-                                             requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                   context:nil
-                                                     error:&error];
+    MSIDRefreshToken *returnedToken = [tokenCache getRTForAccount:account
+                                                    requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                          context:nil
+                                                            error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
@@ -501,9 +498,8 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                        request:[MSIDTestRequestParams v1DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
@@ -511,23 +507,22 @@
     
     [_primaryAccessor addToken:token forAccount:account];
     
-    MSIDToken *secondToken = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
-                                                              request:[MSIDTestRequestParams v2DefaultParams]
-                                                            tokenType:MSIDTokenTypeRefreshToken];
-    [secondToken setValue:@"rt-2" forKey:@"token"];
+    MSIDRefreshToken *secondToken = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                                            request:[MSIDTestRequestParams v2DefaultParams]];
+    [secondToken setValue:@"rt-2" forKey:@"refreshToken"];
     [_secondaryAccessor addToken:secondToken forAccount:account];
     
     // Check that RT is returned
     NSError *error = nil;
-    MSIDToken *returnedToken = [tokenCache getRTForAccount:account
-                                             requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                   context:nil
-                                                     error:&error];
+    MSIDRefreshToken *returnedToken = [tokenCache getRTForAccount:account
+                                                    requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                          context:nil
+                                                            error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token, returnedToken);
-    XCTAssertEqualObjects(returnedToken.token, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(returnedToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
 
 - (void)testGetRTForAccount_whenNoRTPresent_returnsNil
@@ -541,10 +536,10 @@
                                                         uid:DEFAULT_TEST_UID];
     
     NSError *error = nil;
-    MSIDToken *token = [tokenCache getRTForAccount:account
-                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                           context:nil
-                                             error:&error];
+    MSIDRefreshToken *token = [tokenCache getRTForAccount:account
+                                            requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                  context:nil
+                                                    error:&error];
     
     XCTAssertNil(error);
     XCTAssertNil(token);
@@ -557,9 +552,8 @@
     
     MSIDAADV1TokenResponse *v1TokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:v1TokenResponse
-                                                        request:[MSIDTestRequestParams v1DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:v1TokenResponse
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
@@ -569,11 +563,11 @@
     
     // Check that FRT is returned
     NSError *error = nil;
-    MSIDToken *returnedToken = [tokenCache getFRTforAccount:account
-                                              requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                   familyId:DEFAULT_TEST_FAMILY_ID
-                                                    context:nil
-                                                      error:&error];
+    MSIDRefreshToken *returnedToken = [tokenCache getFRTforAccount:account
+                                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                          familyId:DEFAULT_TEST_FAMILY_ID
+                                                           context:nil
+                                                             error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
@@ -588,9 +582,8 @@
     
     MSIDAADV2TokenResponse *v2TokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:v2TokenResponse
-                                                        request:[MSIDTestRequestParams v2DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:v2TokenResponse
+                                                                      request:[MSIDTestRequestParams v2DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
@@ -600,11 +593,11 @@
     
     // Check that FRT is returned
     NSError *error = nil;
-    MSIDToken *returnedToken = [tokenCache getFRTforAccount:account
-                                              requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                   familyId:DEFAULT_TEST_FAMILY_ID
-                                                    context:nil
-                                                      error:&error];
+    MSIDRefreshToken *returnedToken = [tokenCache getFRTforAccount:account
+                                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                          familyId:DEFAULT_TEST_FAMILY_ID
+                                                           context:nil
+                                                             error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
@@ -619,9 +612,8 @@
     
     MSIDAADV1TokenResponse *v1TokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:v1TokenResponse
-                                                        request:[MSIDTestRequestParams v1DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:v1TokenResponse
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
@@ -631,24 +623,23 @@
     
     MSIDAADV2TokenResponse *v2TokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
     
-    MSIDToken *secondToken = [[MSIDToken alloc] initWithTokenResponse:v2TokenResponse
-                                                              request:[MSIDTestRequestParams v2DefaultParams]
-                                                            tokenType:MSIDTokenTypeRefreshToken];
-    [secondToken setValue:@"rt-2" forKey:@"token"];
+    MSIDRefreshToken *secondToken = [[MSIDRefreshToken alloc] initWithTokenResponse:v2TokenResponse
+                                                                            request:[MSIDTestRequestParams v2DefaultParams]];
+    [secondToken setValue:@"rt-2" forKey:@"refreshToken"];
     [_secondaryAccessor addToken:secondToken forAccount:account];
     
     // Check that FRT is returned
     NSError *error = nil;
-    MSIDToken *returnedToken = [tokenCache getFRTforAccount:account
-                                              requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                   familyId:DEFAULT_TEST_FAMILY_ID
-                                                    context:nil
-                                                      error:&error];
+    MSIDRefreshToken *returnedToken = [tokenCache getFRTforAccount:account
+                                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                          familyId:DEFAULT_TEST_FAMILY_ID
+                                                           context:nil
+                                                             error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token, returnedToken);
-    XCTAssertEqualObjects(returnedToken.token, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(returnedToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(returnedToken.familyId, DEFAULT_TEST_FAMILY_ID);
 }
 
@@ -663,11 +654,11 @@
                                                         uid:DEFAULT_TEST_UID];
     
     NSError *error = nil;
-    MSIDToken *returnedToken = [tokenCache getFRTforAccount:account
-                                              requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                   familyId:DEFAULT_TEST_FAMILY_ID
-                                                    context:nil
-                                                      error:&error];
+    MSIDRefreshToken *returnedToken = [tokenCache getFRTforAccount:account
+                                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                          familyId:DEFAULT_TEST_FAMILY_ID
+                                                           context:nil
+                                                             error:&error];
     
     
     XCTAssertNil(error);
@@ -679,9 +670,8 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDToken *firstToken = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                             request:[MSIDTestRequestParams v1DefaultParams]
-                                                           tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *firstToken = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                           request:[MSIDTestRequestParams v1DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
@@ -709,9 +699,8 @@
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
-                                                        request:[MSIDTestRequestParams v2DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v2DefaultParams]];
     
     [_secondaryAccessor addToken:token forAccount:account];
     
@@ -731,9 +720,8 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDToken *firstToken = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                             request:[MSIDTestRequestParams v1DefaultParams]
-                                                           tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *firstToken = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                           request:[MSIDTestRequestParams v1DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
@@ -741,9 +729,8 @@
     
     [_primaryAccessor addToken:firstToken forAccount:account];
     
-    MSIDToken *secondToken = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
-                                                              request:[MSIDTestRequestParams v2DefaultParams]
-                                                            tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *secondToken = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                                            request:[MSIDTestRequestParams v2DefaultParams]];
     
     [_secondaryAccessor addToken:secondToken forAccount:account];
     
@@ -783,9 +770,8 @@
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                        request:[MSIDTestRequestParams v1DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
     
     NSError *error = nil;
     BOOL result = [tokenCache removeRTForAccount:account token:token context:nil error:&error];
@@ -804,9 +790,8 @@
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                        request:[MSIDTestRequestParams v1DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
     
     [_primaryAccessor addToken:token forAccount:account];
     XCTAssertEqual([[_primaryAccessor allRefreshTokens] count], 1);
@@ -829,9 +814,8 @@
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
-                                                        request:[MSIDTestRequestParams v2DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v2DefaultParams]];
     
     [_secondaryAccessor addToken:token forAccount:account];
     XCTAssertEqual([[_secondaryAccessor allRefreshTokens] count], 1);

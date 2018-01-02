@@ -22,7 +22,142 @@
 // THE SOFTWARE.
 
 #import "MSIDRefreshToken.h"
+#import "MSIDAADTokenResponse.h"
 
 @implementation MSIDRefreshToken
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDRefreshToken *item = [super copyWithZone:zone];
+    item->_refreshToken = [_refreshToken copyWithZone:zone];
+    item->_familyId = [_familyId copyWithZone:zone];
+    
+    return item;
+}
+
+#pragma mark - NSSecureCoding
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    if (!(self = [super initWithCoder:coder]))
+    {
+        return nil;
+    }
+    
+    _refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
+    _familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+    
+    [coder encodeObject:self.familyId forKey:@"familyId"];
+    [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:MSIDRefreshToken.class])
+    {
+        return NO;
+    }
+    
+    return [self isEqualToToken:(MSIDRefreshToken *)object];
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = [super hash];
+    hash ^= self.refreshToken.hash;
+    hash ^= self.familyId.hash;
+    
+    return hash;
+}
+
+- (BOOL)isEqualToToken:(MSIDRefreshToken *)token
+{
+    if (!token)
+    {
+        return NO;
+    }
+    
+    BOOL result = [super isEqualToToken:token];
+    result &= (!self.refreshToken && !token.refreshToken) || [self.refreshToken isEqualToString:token.refreshToken];
+    result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
+    
+    return result;
+}
+
+#pragma mark - JSON
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    if (!(self = [super initWithJSONDictionary:json error:error]))
+    {
+        return nil;
+    }
+    
+    _refreshToken = json[MSID_OAUTH2_REFRESH_TOKEN];
+    _familyId = json[MSID_FAMILY_ID];
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
+    
+    [dictionary setValue:_refreshToken forKey:MSID_OAUTH2_REFRESH_TOKEN];
+    [dictionary setValue:_familyId forKey:MSID_FAMILY_ID];
+    
+    return dictionary;
+}
+
+#pragma mark - Init
+
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+                              request:(MSIDRequestParameters *)requestParams
+{
+    if (!(self = [super initWithTokenResponse:response request:requestParams]))
+    {
+        return nil;
+    }
+    
+    [self fillToken:response];
+    
+    return self;
+}
+
+#pragma mark - Fill item
+
+- (void)fillToken:(MSIDTokenResponse *)response
+{
+    _refreshToken = response.refreshToken;
+    
+    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
+    {
+        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
+        _familyId = aadTokenResponse.familyId;
+    }
+}
+
+#pragma mark - Token type
+
+- (MSIDTokenType)tokenType
+{
+    return MSIDTokenTypeRefreshToken;
+}
 
 @end
