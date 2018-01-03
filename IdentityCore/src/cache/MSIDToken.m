@@ -28,6 +28,7 @@
 #import "MSIDClientInfo.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDAADV1RequestParameters.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
@@ -37,7 +38,6 @@ static uint64_t s_expirationBuffer = 300;
 @property (readwrite) NSString *token;
 @property (readwrite) NSString *idToken;
 @property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSString *clientId;
 @property (readwrite) NSString *familyId;
 @property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSDictionary *additionalServerInfo;
@@ -73,8 +73,6 @@ static uint64_t s_expirationBuffer = 300;
     {
         _authority = json[MSID_OAUTH2_AUTHORITY] ? [[NSURL alloc] initWithString:json[MSID_OAUTH2_AUTHORITY]] : nil;
     }
-    
-    
     
     _scopes = [json[MSID_OAUTH2_SCOPE] scopeSet];
     
@@ -215,7 +213,12 @@ static uint64_t s_expirationBuffer = 300;
     NSString *accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
     NSString *refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     
-    if (refreshToken)
+    if (refreshToken && accessToken)
+    {
+        _token = accessToken;
+        _tokenType = MSIDTokenTypeAdfsUserToken;
+    }
+    else if (refreshToken)
     {
         _token = refreshToken;
         _tokenType = MSIDTokenTypeRefreshToken;
@@ -283,22 +286,24 @@ static uint64_t s_expirationBuffer = 300;
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    MSIDToken *token = [[MSIDToken allocWithZone:zone] init];
-    token.token = [self.token copyWithZone:zone];
-    token.idToken = [self.idToken copyWithZone:zone];
-    token.expiresOn = [self.expiresOn copyWithZone:zone];
-    token.authority = [self.authority copyWithZone:zone];
-    token.clientId = [self.clientId copyWithZone:zone];
-    token.familyId = [self.familyId copyWithZone:zone];
-    NSString *rawClientInfo = [self.clientInfo.rawClientInfo copyWithZone:zone];
-    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
-    token.clientInfo = clientInfo;
-    token.additionalServerInfo = [self.additionalServerInfo copyWithZone:zone];
-    token.tokenType = self.tokenType;
-    token.resource = [self.resource copyWithZone:zone];
-    token.scopes = [self.scopes copyWithZone:zone];
+    MSIDToken *item = [[MSIDToken allocWithZone:zone] init];
     
-    return token;
+    item->_token = [_token copyWithZone:zone];
+    item->_idToken = [_idToken copyWithZone:zone];
+    item->_expiresOn = [_expiresOn copyWithZone:zone];
+    item->_authority = [_authority copyWithZone:zone];
+    item->_clientId = [_clientId copyWithZone:zone];
+    item->_familyId = [_familyId copyWithZone:zone];
+    item->_clientInfo = [_clientInfo copyWithZone:zone];
+    NSString *rawClientInfo = [_clientInfo.rawClientInfo copyWithZone:zone];
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
+    item->_clientInfo = clientInfo;
+    item->_additionalServerInfo = [_additionalServerInfo copyWithZone:zone];
+    item->_tokenType = _tokenType;
+    item->_resource = [_resource copyWithZone:zone];
+    item->_scopes = [_scopes mutableCopyWithZone:zone];
+    
+    return item;
 }
 
 #pragma mark - Init
@@ -320,7 +325,6 @@ static uint64_t s_expirationBuffer = 300;
     
     [self fillFromRequest:requestParams];
     [self fillFromResponse:response tokenType:tokenType];
-    [self fillExpiryFromResponse:response];
     [self fillAdditionalServerInfoFromResponse:response];
     
     return self;
@@ -332,6 +336,12 @@ static uint64_t s_expirationBuffer = 300;
 {
     _authority = requestParams.authority;
     _clientId = requestParams.clientId;
+    
+    if ([requestParams isKindOfClass:[MSIDAADV1RequestParameters class]])
+    {
+        MSIDAADV1RequestParameters *v1RequestParams = (MSIDAADV1RequestParameters *)requestParams;
+        _resource = v1RequestParams.resource;
+    }
 }
 
 - (void)fillFromResponse:(MSIDTokenResponse *)tokenResponse
@@ -359,10 +369,13 @@ static uint64_t s_expirationBuffer = 300;
     switch (tokenType)
     {
         case MSIDTokenTypeAccessToken:
+        case MSIDTokenTypeAdfsUserToken:
         {
-            _resource = resource;
+            _resource = resource ? resource : _resource;
             _token = tokenResponse.accessToken;
             _scopes = [tokenResponse.scope scopeSet];
+            
+            [self fillExpiryFromResponse:tokenResponse];
             
             break;
         }
@@ -370,12 +383,7 @@ static uint64_t s_expirationBuffer = 300;
         {
             _token = tokenResponse.refreshToken;
             _familyId = familyId;
-            break;
-        }
-        case MSIDTokenTypeAdfsUserToken:
-        {
-            _resource = resource;
-            _token = tokenResponse.refreshToken;
+            _resource = nil;
             break;
         }
         default:

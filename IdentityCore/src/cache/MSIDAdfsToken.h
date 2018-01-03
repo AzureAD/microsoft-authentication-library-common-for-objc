@@ -26,8 +26,7 @@
 @interface MSIDAdfsToken : MSIDToken
 
 // For ADFS user token, consider @token to be an access token and
-// @additionToken to be a refresh token
-
-@property (readonly) NSString *additionalToken;
+// @singleResourceRefreshToken to be a refresh token
+@property (readonly) NSString *singleResourceRefreshToken;
 
 @end

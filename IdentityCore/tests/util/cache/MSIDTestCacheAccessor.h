@@ -31,6 +31,8 @@
 - (void)reset;
 - (NSArray *)allAccessTokens;
 - (NSArray *)allRefreshTokens;
-- (NSArray *)allTokensWithType:(MSIDTokenType)type;
+- (NSArray *)allMRRTTokensWithClientId:(NSString *)clientId;
+- (NSArray *)allFRTTokensWithFamilyId:(NSString *)familyId;
+- (NSArray *)allTokensWithType:(MSIDTokenType)type clientId:(NSString *)clientId;
 
 @end

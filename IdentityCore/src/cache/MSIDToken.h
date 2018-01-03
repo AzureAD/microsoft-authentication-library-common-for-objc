@@ -28,7 +28,7 @@
 #import "MSIDClientInfo.h"
 #import "MSIDTokenType.h"
 
-@interface MSIDToken : MSIDJsonObject <NSSecureCoding, NSCopying>
+@interface MSIDToken : MSIDJsonObject <NSCopying, NSSecureCoding>
 {
     MSIDTokenType _tokenType;
 }
@@ -39,7 +39,7 @@
 @property (readonly) NSDate *expiresOn;
 
 @property (readwrite) NSURL *authority;
-@property (readonly) NSString *clientId;
+@property (readwrite) NSString *clientId;
 @property (readonly) NSString *familyId;
 @property (readonly) MSIDClientInfo *clientInfo;
 @property (readonly) NSDictionary *additionalServerInfo;

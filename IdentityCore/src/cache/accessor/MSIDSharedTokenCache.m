@@ -30,10 +30,10 @@
 
 @interface MSIDSharedTokenCache()
 {
-    // Primary cache format
+    // Primary cache accessor
     id<MSIDSharedCacheAccessor> _primaryAccessor;
     
-    // All shared formats starting with the primary
+    // All shared accessors starting with the primary
     NSArray<id<MSIDSharedCacheAccessor>> *_allAccessors;
 }
 
@@ -92,21 +92,26 @@
                                                                    request:requestParams
                                                                  tokenType:MSIDTokenTypeRefreshToken];
         
-        // Save RTs in all formats including primary
-        for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
-        {
-            result = [cache saveSharedRTForAccount:account
-                                      refreshToken:refreshToken
+        // Save RTs in all formats
+        result = [self saveRefreshTokenInAllCaches:refreshToken
+                                       withAccount:account
                                            context:context
                                              error:error];
-            
-            if (!result)
-            {
-                return NO;
-            }
+        
+        if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
+        {
+            // If saving failed or it's not an FRT, we're done
+            return result;
         }
         
-        return YES;
+        // If it's an FRT, save it separately and update the clientId of the token item
+        MSIDToken *familyRefreshToken = [refreshToken copy];
+        familyRefreshToken.clientId = [MSIDTokenCacheKey familyClientId:refreshToken.familyId];
+        
+        return [self saveRefreshTokenInAllCaches:familyRefreshToken
+                                     withAccount:account
+                                         context:context
+                                           error:error];
     }
     else
     {
@@ -125,6 +130,28 @@
                                        context:context
                                          error:error];
     }
+}
+
+- (BOOL)saveRefreshTokenInAllCaches:(MSIDToken *)refreshToken
+                        withAccount:(MSIDAccount *)account
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    // Save RTs in all formats including primary
+    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
+    {
+        BOOL result = [cache saveSharedRTForAccount:account
+                                       refreshToken:refreshToken
+                                            context:context
+                                              error:error];
+        
+        if (!result)
+        {
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
@@ -152,6 +179,15 @@
                              requestParams:parameters
                                    context:context
                                      error:error];
+}
+
+- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
+{
+    return [_primaryAccessor getADFSTokenWithRequestParams:parameters
+                                                   context:context
+                                                     error:error];
 }
 
 - (MSIDToken *)getRTForAccount:(MSIDAccount *)account
@@ -202,18 +238,18 @@
                            error:error];
 }
 
-- (NSArray<MSIDToken *> *)getAllClientRTsWithParams:(MSIDRequestParameters *)parameters
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error
+- (NSArray<MSIDToken *> *)getAllClientRTs:(NSString *)clientId
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
 {
     NSMutableArray *resultRTs = [NSMutableArray array];
     
     // Get RTs from all caches
     for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
-        NSArray *otherRTs = [cache getAllSharedRTsWithParams:parameters
-                                                           context:context
-                                                             error:error];
+        NSArray *otherRTs = [cache getAllSharedRTsWithClientId:clientId
+                                                       context:context
+                                                         error:error];
         
         if (otherRTs)
         {

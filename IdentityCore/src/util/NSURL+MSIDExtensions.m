@@ -24,6 +24,7 @@
 #import "NSURL+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDAadAuthorityCache.h"
 
 const unichar fragmentSeparator = '#';
 const unichar queryStringSeparator = '?';
@@ -78,6 +79,23 @@ const unichar queryStringSeparator = '?';
     }
     
     return YES;
+}
+
+- (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSURL *> *)aliases
+{
+    if (!aliases)
+    {
+        return NO;
+    }
+        
+    for (NSURL *alias in aliases)
+    {
+        if ([self msidIsEquivalentAuthority:alias])
+        {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - (NSString *)msidHostWithPortIfNecessary

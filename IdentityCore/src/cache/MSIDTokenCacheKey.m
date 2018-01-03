@@ -119,6 +119,10 @@ static uint32_t const s_msalV1 = 'MSv1';
     return [[MSIDTokenCacheKey alloc] initWithAccount:account service:nil type:[NSNumber numberWithInteger:MSIDTokenTypeAccessToken]];
 }
 
++ (MSIDTokenCacheKey *)keyForAllAccessTokens
+{
+    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil type:[NSNumber numberWithInteger:MSIDTokenTypeAccessToken]];
+}
 
 // rt with uid and utid
 + (MSIDTokenCacheKey *)keyForRefreshTokenWithUserId:(NSString *)userId
