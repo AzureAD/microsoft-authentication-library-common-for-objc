@@ -98,14 +98,6 @@
 - (BOOL)deserialize:(nullable NSData*)data
               error:(NSError **)error
 {
-    // TODO: ???
-    // If they pass in nil on deserialize that means to drop the cache
-    if (!data)
-    {
-        self.cache = nil;
-        return YES;
-    }
-    
     __block BOOL result = NO;
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         id cache = nil;
@@ -154,6 +146,11 @@
     return _cache;
 }
 
+- (void)clear
+{
+    self.cache = nil;
+}
+
 #pragma mark - MSIDTokenCacheDataSource
 
 - (BOOL)setItem:(MSIDToken *)item
@@ -177,7 +174,6 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    // TODO: move this logic to higher level.
     MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
     NSArray<MSIDToken *> *items = [self itemsWithKey:key serializer:serializer context:context error:error];
     

@@ -245,7 +245,6 @@
     MSIDToken *token2 = [MSIDToken new];
     MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2" type:nil];
     [cache1 setItem:token2 key:key2 serializer:nil context:nil error:nil];
-    MSIDMacTokenCache *cache2 = [MSIDMacTokenCache new];
     // Item 3.
     MSIDToken *token3 = [MSIDToken new];
     MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" type:nil];
@@ -254,7 +253,8 @@
     MSIDToken *token4 = [MSIDToken new];
     MSIDTokenCacheKey *key4 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item4" type:nil];
     [cache1 setItem:token4 key:key4 serializer:nil context:nil error:nil];
-    NSError *error =  nil;
+    NSError *error = nil;
+    MSIDMacTokenCache *cache2 = [MSIDMacTokenCache new];
     
     id data = [cache1 serialize];
     BOOL result = [cache2 deserialize:data error:&error];
@@ -264,6 +264,33 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     XCTAssertEqualObjects(rawCache1, rawCache2);
+}
+
+- (void)testClear_whenCacheHasItems_shouldClearCache
+{
+    MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
+    // Item 1.
+    MSIDToken *token1 = [MSIDToken new];
+    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" type:nil];
+    [cache setItem:token1 key:key1 serializer:nil context:nil error:nil];
+    // Item 2.
+    MSIDToken *token2 = [MSIDToken new];
+    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2" type:nil];
+    [cache setItem:token2 key:key2 serializer:nil context:nil error:nil];
+    // Item 3.
+    MSIDToken *token3 = [MSIDToken new];
+    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" type:nil];
+    [cache setItem:token3 key:key3 serializer:nil context:nil error:nil];
+    // Item 4.
+    MSIDToken *token4 = [MSIDToken new];
+    MSIDTokenCacheKey *key4 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item4" type:nil];
+    [cache setItem:token4 key:key4 serializer:nil context:nil error:nil];
+
+    [cache clear];
+    
+    NSArray<MSIDToken *> *items = [cache itemsWithKey:nil serializer:nil context:nil error:nil];
+    XCTAssertNotNil(items);
+    XCTAssertEqual(items.count, 0);
 }
 
 @end
