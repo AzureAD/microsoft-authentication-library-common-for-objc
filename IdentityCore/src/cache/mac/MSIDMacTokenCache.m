@@ -38,11 +38,22 @@
 
 @interface MSIDMacTokenCache ()
 
-@property NSMutableDictionary *cache;
+@property (nonatomic) NSMutableDictionary *cache;
+@property (nonatomic) dispatch_queue_t synchronizationQueue;
 
 @end
 
 @implementation MSIDMacTokenCache
+
+- (dispatch_queue_t)synchronizationQueue
+{
+    if (!_synchronizationQueue) {
+        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidmactokencache-%@", [NSUUID UUID].UUIDString];
+        _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+    }
+    
+    return _synchronizationQueue;
+}
 
 + (MSIDMacTokenCache *)defaultCache
 {
@@ -63,22 +74,25 @@
         return nil;
     }
     
-    NSDictionary *cacheCopy = [self.cache mutableCopy];
-
-    // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
-    NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",
-                             @CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
+    __block NSData *result = nil;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        NSDictionary *cacheCopy = [self.cache mutableCopy];
+        
+        // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
+        NSDictionary *wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",@CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
+        
+        @try
+        {
+            result = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+        }
+        @catch (id exception)
+        {
+            // This should be exceedingly rare as all of the objects in the cache we placed there.
+            MSID_LOG_ERROR(nil, @"Failed to serialize the cache!");
+        }
+    });
     
-    @try
-    {
-        return [NSKeyedArchiver archivedDataWithRootObject:wrapper];
-    }
-    @catch (id exception)
-    {
-        // This should be exceedingly rare as all of the objects in the cache we placed there.
-        MSID_LOG_ERROR(nil, @"Failed to serialize the cache!");
-        return nil;
-    }
+    return result;
 }
 
 - (BOOL)deserialize:(nullable NSData*)data
@@ -92,38 +106,36 @@
         return YES;
     }
     
-    id cache = nil;
-    
-    @try
-    {
-        cache = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    }
-    @catch (id expection)
-    {
-//        ADAuthenticationError* adError =
-//        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT
-//                                               protocolCode:nil
-//                                               errorDetails:@"Failed to unarchive data blob from -deserialize!"
-//                                              correlationId:nil];
+    __block BOOL result = NO;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        id cache = nil;
         
-//        if (error)
-//        {
-//            *error = adError;
-//        }
-    }
+        @try
+        {
+            cache = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        }
+        @catch (id expection)
+        {
+            if (error) {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheBadFormat, @"Failed to unarchive data blob from -deserialize!", nil, nil, nil, nil, nil);
+            }
+        }
+        
+        if (!cache)
+        {
+            result = NO;
+        }
+        
+        if (![self validateCache:cache error:error])
+        {
+            result = NO;
+        }
+        
+        self.cache = [cache objectForKey:@"tokenCache"];
+        result = YES;
+    });
     
-    if (!cache)
-    {
-        return NO;
-    }
-    
-    if (![self validateCache:cache error:error])
-    {
-        return NO;
-    }
-    
-    _cache = [cache objectForKey:@"tokenCache"];
-    return YES;
+    return result;
 }
 
 - (NSMutableDictionary *)cache
@@ -151,7 +163,10 @@
           error:(NSError **)error
 {
     [self.delegate willWriteCache:self];
-    BOOL result = [self setItemImpl:item key:key serializer:serializer context:context error:error];
+    __block BOOL result = NO;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+       result = [self setItemImpl:item key:key serializer:serializer context:context error:error];
+    });
     [self.delegate didWriteCache:self];
     
     return result;
@@ -162,7 +177,7 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    // TOOD: move this logic to higher level.
+    // TODO: move this logic to higher level.
     MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
     NSArray<MSIDToken *> *items = [self itemsWithKey:key serializer:serializer context:context error:error];
     
@@ -184,7 +199,10 @@
                      error:(NSError **)error
 {
     [self.delegate willWriteCache:self];
-    BOOL result = [self removeItemsWithKeyImpl:key context:context error:error];
+    __block BOOL result = NO;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        result = [self removeItemsWithKeyImpl:key context:context error:error];
+    });
     [self.delegate didWriteCache:self];
     
     return result;
@@ -196,7 +214,10 @@
                                  error:(NSError **)error
 {
     [self.delegate willAccessCache:self];
-    id result = [self itemsWithKeyImpl:key serializer:serializer context:nil error:error];
+    __block NSArray *result = nil;
+    dispatch_sync(self.synchronizationQueue, ^{
+        result = [self itemsWithKeyImpl:key serializer:serializer context:nil error:error];
+    });
     [self.delegate didAccessCache:self];
     
     return result;
@@ -360,10 +381,8 @@
         return NO;
     }
     
-    // TODO:
     // Copy the item to make sure it doesn't change under us.
     item = [item copy];
-    
     
     if (!key.service || !key.account)
     {
@@ -374,15 +393,6 @@
         MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
         return NO;
     }
-    
-    // TODO: move this logic to high level class.
-    //    // Grab the userId first
-    //    id userId = key.account;
-    //    if (!userId)
-    //    {
-    //        // If we don't have one (ADFS case) then use an empty string
-    //        userId = @"";
-    //    }
     
     // Grab the token dictionary for this user id.
     NSMutableDictionary *userDict = self.cache[@"tokens"][key.account];

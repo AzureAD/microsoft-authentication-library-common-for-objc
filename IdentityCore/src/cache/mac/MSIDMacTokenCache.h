@@ -37,7 +37,7 @@
 
 @interface MSIDMacTokenCache : NSObject<MSIDTokenCacheDataSource>
 
-@property (nullable, weak) id <MSIDMacTokenCacheDelegate> delegate;
+@property (nonatomic, weak, nullable) id <MSIDMacTokenCacheDelegate> delegate;
 
 + (nonnull MSIDMacTokenCache *)defaultCache;
 
