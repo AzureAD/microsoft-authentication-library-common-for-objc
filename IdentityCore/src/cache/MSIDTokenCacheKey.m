@@ -234,6 +234,9 @@ static uint32_t const s_msalV1 = 'MSv1';
     key.account = [self.account copyWithZone:zone];
     key.service = [self.service copyWithZone:zone];
     key.type = [self.type copyWithZone:zone];
+    key.authority = [self.authority copyWithZone:zone];
+    key.resource = [self.resource copyWithZone:zone];
+    key.clientId = [self.clientId copyWithZone:zone];
     
     return key;
 }
@@ -269,8 +272,6 @@ static uint32_t const s_msalV1 = 'MSv1';
     {
         _service = [self.class serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
     }
-    
-    // TODO: account?
     
     return self;
 }

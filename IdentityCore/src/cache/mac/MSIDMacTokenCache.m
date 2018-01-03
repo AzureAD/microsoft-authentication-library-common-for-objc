@@ -25,6 +25,7 @@
 #import "MSIDToken.h"
 #import "MSIDTokenCacheKey.h"
 #import "MSIDTokenSerializer.h"
+#import "MSIDUserInformation.h"
 
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
@@ -83,7 +84,17 @@
         
         @try
         {
-            result = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+            NSMutableData *data = [NSMutableData data];
+            
+            NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+            // Maintain backward compatibility with ADAL.
+            [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDTokenCacheKey.class];
+            [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDToken.class];
+            [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
+            [archiver encodeObject:wrapper forKey:NSKeyedArchiveRootObjectKey];
+            [archiver finishEncoding];
+            
+            result = data;
         }
         @catch (id exception)
         {
@@ -100,11 +111,17 @@
 {
     __block BOOL result = NO;
     dispatch_barrier_sync(self.synchronizationQueue, ^{
-        id cache = nil;
+        NSDictionary *cache = nil;
         
         @try
         {
-            cache = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+            NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+            // Maintain backward compatibility with ADAL.
+            [unarchiver setClass:MSIDTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
+            [unarchiver setClass:MSIDToken.class forClassName:@"ADTokenCacheStoreItem"];
+            [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
+            cache = [unarchiver decodeObjectOfClass:NSDictionary.class forKey:NSKeyedArchiveRootObjectKey];
+            [unarchiver finishDecoding];
         }
         @catch (id expection)
         {
@@ -237,7 +254,7 @@
     fromDictionary:(nonnull NSDictionary *)dictionary
                key:(nonnull MSIDTokenCacheKey *)key
 {
-    MSIDToken *item = [dictionary objectForKey:key];
+    MSIDToken *item = [dictionary objectForKey:[self keyWithoutAccount:key]];
     if (item)
     {
         item = [item copy];
@@ -293,11 +310,11 @@
             id userDict = [tokens objectForKey:userId];
             RETURN_ERROR_IF_CONDITION_FALSE([userDict isKindOfClass:[NSMutableDictionary class]], MSIDErrorCacheBadFormat, @"User ID should have mutable dictionaries in the cache.");
             
-            for (id adkey in userDict)
+            for (id key in userDict)
             {
                 // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
-                RETURN_ERROR_IF_CONDITION_FALSE([adkey isKindOfClass:[MSIDTokenCacheKey class]], MSIDErrorCacheBadFormat, @"Key is not of the expected class type.");
-                id token = [userDict objectForKey:adkey];
+                RETURN_ERROR_IF_CONDITION_FALSE([key isKindOfClass:[MSIDTokenCacheKey class]], MSIDErrorCacheBadFormat, @"Key is not of the expected class type.");
+                id token = [userDict objectForKey:key];
                 RETURN_ERROR_IF_CONDITION_FALSE([token isKindOfClass:[MSIDToken class]], MSIDErrorCacheBadFormat, @"Token is not of the expected class type!");
             }
         }
@@ -305,7 +322,6 @@
     
     return YES;
 }
-
 
 - (BOOL)removeItemsWithKeyImpl:(MSIDTokenCacheKey *)key
                        context:(id<MSIDRequestContext>)context
@@ -333,12 +349,12 @@
         return YES;
     }
     
-    if (![userTokens objectForKey:key])
+    if (![userTokens objectForKey:[self keyWithoutAccount:key]])
     {
         return YES;
     }
     
-    [userTokens removeObjectForKey:key];
+    [userTokens removeObjectForKey:[self keyWithoutAccount:key]];
     
     // Check to see if we need to remove the overall dict
     if (!userTokens.count)
@@ -398,7 +414,7 @@
         self.cache[@"tokens"][key.account] = userDict;
     }
     
-    userDict[key] = item;
+    userDict[[self keyWithoutAccount:key]] = item;
     
     return YES;
 }
@@ -434,6 +450,16 @@
     }
     
     return items;
+}
+
+- (MSIDTokenCacheKey *)keyWithoutAccount:(MSIDTokenCacheKey *)key
+{
+    // In order to be backward compatible with ADAL,
+    // we need to store keys into dictionary without 'account'.
+    MSIDTokenCacheKey *newKey = [key copy];
+    newKey.account = nil;
+    
+    return newKey;
 }
 
 @end
