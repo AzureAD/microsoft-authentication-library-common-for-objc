@@ -101,6 +101,8 @@ extern NSString *const MSID_TELEMETRY_KEY_GRANT_TYPE;
 extern NSString *const MSID_TELEMETRY_KEY_API_STATUS;
 extern NSString *const MSID_TELEMETRY_KEY_EVENT_NAME;
 extern NSString *const MSID_TELEMETRY_KEY_REQUEST_ID;
+extern NSString *const MSID_TELEMETRY_KEY_WIPE_APP;
+extern NSString *const MSID_TELEMETRY_KEY_WIPE_TIME;
 
 extern NSString *const MSID_TELEMETRY_VALUE_YES;
 extern NSString *const MSID_TELEMETRY_VALUE_NO;

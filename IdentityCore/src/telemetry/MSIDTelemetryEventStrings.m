@@ -99,6 +99,8 @@ NSString *const MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE         = @"server_sub_e
 NSString *const MSID_TELEMETRY_KEY_RT_AGE                       = @"rt_age";
 NSString *const MSID_TELEMETRY_KEY_SPE_INFO                     = @"spe_info";
 NSString *const MSID_TELEMETRY_KEY_IS_SUCCESSFUL                = @"is_successfull";
+NSString *const MSID_TELEMETRY_KEY_WIPE_APP                     = @"wipe_app";
+NSString *const MSID_TELEMETRY_KEY_WIPE_TIME                    = @"wipe_time";
 
 // Telemetry property value
 NSString *const MSID_TELEMETRY_VALUE_YES                             = @"yes";
