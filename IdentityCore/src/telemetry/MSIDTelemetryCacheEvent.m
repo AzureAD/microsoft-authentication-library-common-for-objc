@@ -115,4 +115,14 @@
     }
 }
 
+- (void)setCacheWipeApp:(NSString *)wipeApp
+{
+    [self setProperty:MSID_TELEMETRY_KEY_WIPE_APP value:wipeApp];
+}
+
+- (void)setCacheWipeTime:(NSString *)wipeTime
+{
+    [self setProperty:MSID_TELEMETRY_KEY_WIPE_TIME value:wipeTime];
+}
+
 @end
