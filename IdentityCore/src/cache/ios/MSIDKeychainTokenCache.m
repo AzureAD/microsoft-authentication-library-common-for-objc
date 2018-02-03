@@ -160,7 +160,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     MSID_LOG_INFO(context, @"Trying to update keychain item...");
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)@{(id)kSecValueData : itemData});
-    MSID_LOG_INFO(context, @"Keychain update status: %d", status);
+    MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
     if (status == errSecItemNotFound)
     {
         [query setObject:itemData forKey:(id)kSecValueData];
@@ -168,16 +168,16 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         
         MSID_LOG_INFO(context, @"Trying to add keychain item...");
         status = SecItemAdd((CFDictionaryRef)query, NULL);
-        MSID_LOG_INFO(context, @"Keychain add status: %d", status);
+        MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
     }
     
     if (status != errSecSuccess)
     {
         if (error)
-        {   
+        {
             *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to set item into keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to set item into keychain (status: %d)", status);
+        MSID_LOG_ERROR(context, @"Failed to set item into keychain (status: %d)", (int)status);
     }
     
     return status == errSecSuccess;
@@ -227,7 +227,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     MSID_LOG_INFO(context, @"Trying to delete keychain items...");
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    MSID_LOG_INFO(context, @"Keychain delete status: %d", status);
+    MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
     
     if (status != errSecSuccess)
     {
@@ -235,7 +235,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         {
             *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", status);
+        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
     }
     
     return YES;
@@ -272,7 +272,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     CFTypeRef cfItems = nil;
     MSID_LOG_INFO(context, @"Trying to find keychain items...");
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
-    MSID_LOG_INFO(context, @"Keychain find status: %d", status);
+    MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
     
     if (status == errSecItemNotFound)
     {
@@ -284,7 +284,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         {
             *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to find keychain item (status: %d)", status);
+        MSID_LOG_ERROR(context, @"Failed to find keychain item (status: %d)", (int)status);
         return nil;
     }
     
@@ -335,7 +335,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO(context, @"Trying to update wipe info...");
     MSID_LOG_INFO_PII(context, @"Wipe query: %@", [self wipeQuery]);
     OSStatus status = SecItemUpdate((CFDictionaryRef)[self wipeQuery], (CFDictionaryRef)@{ (id)kSecValueData:wipeData});
-    MSID_LOG_INFO(context, @"Update wipe info status: %d", status);
+    MSID_LOG_INFO(context, @"Update wipe info status: %d", (int)status);
     if (status == errSecItemNotFound)
     {
         NSMutableDictionary *mutableQuery = [[self wipeQuery] mutableCopy];
@@ -343,7 +343,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                                                   (id)kSecValueData : wipeData}];
         MSID_LOG_INFO(context, @"Trying to add wipe info...");
         status = SecItemAdd((CFDictionaryRef)mutableQuery, NULL);
-        MSID_LOG_INFO(context, @"Add wipe info status: %d", status);
+        MSID_LOG_INFO(context, @"Add wipe info status: %d", (int)status);
     }
     
     if (status != errSecSuccess)
@@ -352,7 +352,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         {
             *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to save wipe token data into keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to save wipe token data into keychain (status: %d)", status);
+        MSID_LOG_ERROR(context, @"Failed to save wipe token data into keychain (status: %d)", (int)status);
         return NO;
     }
     
@@ -369,7 +369,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO(context, @"Trying to get wipe info...");
     MSID_LOG_INFO_PII(context, @"Wipe query: %@", [self wipeQuery]);
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &data);
-    MSID_LOG_INFO(context, @"Get wipe info status: %d", status);
+    MSID_LOG_INFO(context, @"Get wipe info status: %d", (int)status);
     
     if (status != errSecSuccess)
     {
@@ -377,7 +377,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         {
             *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to get a wipe data from keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to get a wipe data from keychain (status: %d)", status);
+        MSID_LOG_ERROR(context, @"Failed to get a wipe data from keychain (status: %d)", (int)status);
         return nil;
     }
     
@@ -402,7 +402,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     MSID_LOG_INFO(context, @"Trying to delete tombstone item...");
     OSStatus status = SecItemDelete((CFDictionaryRef)deleteQuery);
-    MSID_LOG_INFO(context, @"Keychain delete status: %d", status);
+    MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
 }
 
 - (NSDictionary *)wipeQuery
@@ -430,3 +430,4 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
 @end
+
