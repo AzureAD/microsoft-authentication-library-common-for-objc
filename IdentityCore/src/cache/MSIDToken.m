@@ -178,17 +178,18 @@ static uint64_t s_expirationBuffer = 300;
 
 - (NSUInteger)hash
 {
-    NSUInteger hash = self.token.hash;
-    hash ^= self.idToken.hash;
-    hash ^= self.expiresOn.hash;
-    hash ^= self.familyId.hash;
-    hash ^= self.clientInfo.hash;
-    hash ^= self.additionalServerInfo.hash;
-    hash ^= self.tokenType;
-    hash ^= self.resource.hash;
-    hash ^= self.authority.hash;
-    hash ^= self.clientId.hash;
-    hash ^= self.scopes.hash;
+    NSUInteger hash = 17;
+    hash = hash * 31 + self.token.hash;
+    hash = hash * 31 + self.idToken.hash;
+    hash = hash * 31 + self.expiresOn.hash;
+    hash = hash * 31 + self.familyId.hash;
+    hash = hash * 31 + self.clientInfo.hash;
+    hash = hash * 31 + self.additionalServerInfo.hash;
+    hash = hash * 31 + self.tokenType;
+    hash = hash * 31 + self.resource.hash;
+    hash = hash * 31 + self.authority.hash;
+    hash = hash * 31 + self.clientId.hash;
+    hash = hash * 31 + self.scopes.hash;
     
     return hash;
 }
