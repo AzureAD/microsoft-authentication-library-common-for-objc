@@ -190,9 +190,10 @@ static uint32_t const s_msalV1 = 'MSv1';
 
 - (NSUInteger)hash
 {
-    NSUInteger hash = self.account.hash;
-    hash ^= self.service.hash;
-    hash ^= self.type.hash;
+    NSUInteger hash = 17;
+    hash = hash * 31 + self.account.hash;
+    hash = hash * 31 + self.service.hash;
+    hash = hash * 31 + self.type.hash;
     
     return hash;
 }
