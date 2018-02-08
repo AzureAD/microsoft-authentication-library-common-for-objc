@@ -186,6 +186,8 @@
 		B2C17AF11FC7A1C00070A514 /* MSIDLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */; };
 		B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */; };
 		B2C17AF51FC7A6BD0070A514 /* MSIDTestLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */; };
+		B2CB21942024139A009A4716 /* MSIDTestBrokerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D81BBD1FF5C7460093859A /* MSIDTestBrokerResponse.m */; };
+		B2CB21952024139B009A4716 /* MSIDTestBrokerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D81BBD1FF5C7460093859A /* MSIDTestBrokerResponse.m */; };
 		B2CDB56D1FE2F42B003A4B5C /* MSIDJsonSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB56C1FE2F427003A4B5C /* MSIDJsonSerializer.m */; };
 		B2CDB56E1FE2F42B003A4B5C /* MSIDJsonSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB56C1FE2F427003A4B5C /* MSIDJsonSerializer.m */; };
 		B2CDB5741FE2F4DF003A4B5C /* NSOrderedSet+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5731FE2F4DB003A4B5C /* NSOrderedSet+MSIDExtensions.m */; };
@@ -205,8 +207,6 @@
 		B2CDB58A1FE35119003A4B5C /* MSIDAdfsToken.h in Headers */ = {isa = PBXBuildFile; fileRef = B2CDB5881FE35115003A4B5C /* MSIDAdfsToken.h */; };
 		B2CDB58B1FE3511B003A4B5C /* MSIDAdfsToken.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5891FE35115003A4B5C /* MSIDAdfsToken.m */; };
 		B2CDB58C1FE3511B003A4B5C /* MSIDAdfsToken.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5891FE35115003A4B5C /* MSIDAdfsToken.m */; };
-		B2D81BBE1FF5C74F0093859A /* MSIDTestBrokerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D81BBD1FF5C7460093859A /* MSIDTestBrokerResponse.m */; };
-		B2D81BBF1FF5C74F0093859A /* MSIDTestBrokerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D81BBD1FF5C7460093859A /* MSIDTestBrokerResponse.m */; };
 		B2D81BC01FF5C7520093859A /* MSIDTestBrokerResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D81BBC1FF5C7460093859A /* MSIDTestBrokerResponse.h */; };
 		B2EF143A1FF2F225005DC1C0 /* MSIDAADV2TokenResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B2EF14391FF2F21E005DC1C0 /* MSIDAADV2TokenResponse.h */; };
 		B2EF143B1FF2F228005DC1C0 /* MSIDAADV2TokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EF14381FF2F21D005DC1C0 /* MSIDAADV2TokenResponse.m */; };
@@ -1369,6 +1369,7 @@
 				23BDA6691FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */,
 				B210F42E1FDDE6A5005A8F76 /* MSIDJsonObjectTests.m in Sources */,
 				B2C17AF01FC7A1BF0070A514 /* MSIDLoggerTests.m in Sources */,
+				B2CB21942024139A009A4716 /* MSIDTestBrokerResponse.m in Sources */,
 				B23ECF001FF306110015FC1D /* MSIDTestRequestParams.m in Sources */,
 				2321532D1FDF4FD800C6960D /* MSIDTokenTests.m in Sources */,
 				B20657C61FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */,
@@ -1427,7 +1428,6 @@
 				B20657BF1FC9254900412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				B2115827202BD5F3005CE586 /* MSIDTokenCacheKey.m in Sources */,
 				B2908C091FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m in Sources */,
-				B2D81BBE1FF5C74F0093859A /* MSIDTestBrokerResponse.m in Sources */,
 				B29CB6B81FEC6F4700F880ED /* MSIDSharedTokenCache.m in Sources */,
 				D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 				04930F8B1FEC8EB900FC4DCD /* MSIDAadAuthorityCache.m in Sources */,
@@ -1466,6 +1466,7 @@
 				B2CDB5821FE33F7C003A4B5C /* MSIDTestIdTokenUtil.m in Sources */,
 				231CE9CE1FE8D7CC00E95D3E /* MSIDJsonSerializerTests.m in Sources */,
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
+				B2CB21952024139B009A4716 /* MSIDTestBrokerResponse.m in Sources */,
 				B2C17AF51FC7A6BD0070A514 /* MSIDTestLogger.m in Sources */,
 				B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				04930F911FEC8EE300FC4DCD /* MSIDAadAuthorityCacheTests.m in Sources */,
