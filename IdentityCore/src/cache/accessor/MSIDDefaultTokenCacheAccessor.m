@@ -32,6 +32,8 @@
 #import "MSIDAADV2RequestParameters.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDTokenCacheKey+Default.h"
+#import "NSURL+MSIDExtensions.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -43,6 +45,7 @@
 @implementation MSIDDefaultTokenCacheAccessor
 
 #pragma mark - Init
+
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
 {
     self = [super init];
@@ -98,10 +101,10 @@
             && [tokenInCache.authority msidIsEquivalentWithAnyAlias:aliases]
             && [tokenInCache.scopes intersectsOrderedSet:token.scopes])
         {
-            MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyForAccessTokenWithAuthority:tokenInCache.authority
-                                                                                      clientId:tokenInCache.clientId
-                                                                                        scopes:tokenInCache.scopes
-                                                                                        userId:account.userIdentifier];
+            MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyForAccessTokenWithUniqueUserId:account.userIdentifier
+                                                                                        authority:tokenInCache.authority
+                                                                                         clientId:tokenInCache.clientId
+                                                                                           scopes:tokenInCache.scopes];
             
             if (![self removeTokenWithKey:keyToDelete context:context error:error])
             {
@@ -118,6 +121,7 @@
                 serializer:_serializer
                    context:context
                      error:error];
+    return NO;
 }
 
 
@@ -283,9 +287,9 @@
         && tokenInCache.tokenType == MSIDTokenTypeRefreshToken
         && [tokenInCache.token isEqualToString:token.token])
     {
-        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithUserId:account.userIdentifier
-                                                                        clientId:token.clientId
-                                                                     environment:token.authority.msidHostWithPortIfNecessary];
+        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithUniqueUserId:account.userIdentifier
+                                                                           environment:token.authority.msidHostWithPortIfNecessary
+                                                                              clientId:token.clientId];
         
         return [self removeTokenWithKey:key context:context error:error];
     }
@@ -296,7 +300,8 @@
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
                   refreshToken:(MSIDToken *)refreshToken
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error {
+                         error:(NSError **)error
+{
     return [self saveToken:refreshToken
                     userId:account.userIdentifier
                   clientId:refreshToken.clientId
@@ -317,16 +322,16 @@
 {
     if (tokenType == MSIDTokenTypeAccessToken)
     {
-        return [MSIDTokenCacheKey keyForAccessTokenWithAuthority:authority
-                                                        clientId:clientId
-                                                          scopes:scopes
-                                                          userId:userId];
+        return [MSIDTokenCacheKey keyForAccessTokenWithUniqueUserId:userId
+                                                          authority:authority
+                                                           clientId:clientId
+                                                             scopes:scopes];
     }
     else if (tokenType == MSIDTokenTypeRefreshToken)
     {
-        return [MSIDTokenCacheKey keyForRefreshTokenWithUserId:userId
-                                                      clientId:clientId
-                                                   environment:authority.msidHostWithPortIfNecessary];
+        return [MSIDTokenCacheKey keyForRefreshTokenWithUniqueUserId:userId
+                                                         environment:authority.msidHostWithPortIfNecessary
+                                                            clientId:clientId];
     }
     
     // ADFS token type is not supported
@@ -356,7 +361,10 @@
     // it with we switch it out before saving it to cache.
     token.authority = newAuthority;
     
-    MSIDTokenCacheKey *key = [self keyForTokenType:token.tokenType userId:userId clientId:clientId scopes:scopes authority:authority];
+    MSIDTokenCacheKey *key = [self keyForTokenType:token.tokenType
+                                            userId:userId clientId:clientId
+                                            scopes:scopes
+                                         authority:authority];
     if (!key)
     {
         [self stopTelemetryEvent:event
@@ -367,7 +375,11 @@
         return NO;
     }
     
-    BOOL result = [_dataSource setItem:token key:key serializer:serializer context:context error:error];
+    BOOL result = [_dataSource setItem:token
+                                   key:key
+                            serializer:serializer
+                               context:context
+                                 error:error];
     
     [self stopTelemetryEvent:event
                    withToken:token
@@ -395,7 +407,10 @@
     for (NSURL *alias in aliases)
     {
         MSIDTokenCacheKey *key = [self keyForTokenType:MSIDTokenTypeRefreshToken
-                                                userId:userId clientId:clientId scopes:nil authority:alias];
+                                                userId:userId
+                                              clientId:clientId
+                                                scopes:nil
+                                             authority:alias];
         if (!key)
         {
             [self stopTelemetryEvent:event

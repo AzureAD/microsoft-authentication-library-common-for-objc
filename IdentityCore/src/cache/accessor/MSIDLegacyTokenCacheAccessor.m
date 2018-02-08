@@ -31,6 +31,7 @@
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDAADV1RequestParameters.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDTokenCacheKey+Legacy.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {

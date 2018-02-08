@@ -21,19 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTokenCacheKey.h"
 
-@interface MSIDTokenCacheKey : NSObject
+@interface MSIDTokenCacheKey (Legacy)
 
 NS_ASSUME_NONNULL_BEGIN
-
-@property(nullable) NSString *account;
-@property(nullable) NSString *service;
-@property(nullable) NSNumber *type;
-
-- (nullable id)initWithAccount:(nullable NSString *)account
-                       service:(nullable NSString *)service
-                          type:(nullable NSNumber *)type;
 
 /*!
  Key for ADFS user tokens, account will be @""
@@ -51,45 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
                                clientId:(NSString *)clientId
                                resource:(nullable NSString *)resource
                                     upn:(NSString *)upn;
-
-/*!
- Key for MSAL tokens - single authority, one clientId, multiple scopes, and userId.
- Environment is derived from the authority
- */
-+ (MSIDTokenCacheKey *)keyForAccessTokenWithAuthority:(NSURL *)authority
-                                             clientId:(NSString *)clientId
-                                               scopes:(NSOrderedSet<NSString *> *)scopes
-                                               userId:(NSString *)userId;
-
-/*!
- Key for getting all MSAL access tokens for a user
- */
-+ (MSIDTokenCacheKey *)keyForAllAccessTokensWithUserId:(NSString *)userId
-                                           environment:(NSString *)environment;
-
-+ (MSIDTokenCacheKey *)keyForAllAccessTokens;
-
-/*!
- Key for MSAL refresh tokens - one user, one clientId, and one environment
- */
-+ (MSIDTokenCacheKey *)keyForRefreshTokenWithUserId:(NSString *)userId
-                                           clientId:(NSString *)clientId
-                                        environment:(NSString *)environment;
-
-/*!
- Key for all MSAL refresh tokens for a client
- */
-+ (MSIDTokenCacheKey *)keyForRefreshTokenWithClientId:(NSString *)clientId;
-
-/*!
- Key for all items in the keychain
- */
-+ (MSIDTokenCacheKey *)keyForAllItems;
-
-/*!
- Helper method to get the clientId from the provided familyId
- */
-+ (NSString *)familyClientId:(NSString *)familyId;
 
 NS_ASSUME_NONNULL_END
 

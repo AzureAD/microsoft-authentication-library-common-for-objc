@@ -21,16 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@interface NSURL (MSIDExtensions)
+#import <Foundation/Foundation.h>
 
-@property (readonly, nonatomic) NSDictionary *msidFragmentParameters;
+@interface MSIDTokenCacheKey : NSObject
 
-- (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL;
-- (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSURL *> *)aliases;
+NS_ASSUME_NONNULL_BEGIN
 
-- (NSString *)msidHostWithPortIfNecessary;
-- (NSString *)msidTenant;
+/* Corresponds to kSecAttrAccount */
+@property (nullable) NSString *account;
 
-- (NSDictionary *)msidQueryParameters;
+/* Corresponds to kSecAttrService */
+@property (nullable) NSString *service;
+
+/* Corresponds to kSecAttrType */
+@property (nullable) NSNumber *type;
+
+/* Corresponds to kSecAttrGeneric */
+@property (nullable) NSData *generic;
+
+- (nullable id)initWithAccount:(nullable NSString *)account
+                       service:(nullable NSString *)service
+                       generic:(nullable NSString *)generic
+                          type:(nullable NSNumber *)type;
+
+/*!
+ Key for all items in the keychain
+ */
++ (MSIDTokenCacheKey *)keyForAllItems;
+
+/*!
+ Helper method to get the clientId from the provided familyId
+ */
++ (NSString *)familyClientId:(NSString *)familyId;
+
+NS_ASSUME_NONNULL_END
 
 @end

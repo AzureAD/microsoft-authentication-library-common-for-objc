@@ -21,16 +21,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@interface NSURL (MSIDExtensions)
+#import "MSIDTokenCacheKey.h"
+#import "MSIDTokenType.h"
 
-@property (readonly, nonatomic) NSDictionary *msidFragmentParameters;
+@implementation MSIDTokenCacheKey
 
-- (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL;
-- (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSURL *> *)aliases;
+- (id)initWithAccount:(NSString *)account
+              service:(NSString *)service
+              generic:(NSString *)generic
+                 type:(NSNumber *)type
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    self.account = account;
+    self.service = service;
+    self.type = type;
+    self.generic = [generic dataUsingEncoding:NSUTF8StringEncoding];
+    
+    return self;
+}
 
-- (NSString *)msidHostWithPortIfNecessary;
-- (NSString *)msidTenant;
++ (MSIDTokenCacheKey *)keyForAllItems
+{
+    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil generic:nil type:nil];
+}
 
-- (NSDictionary *)msidQueryParameters;
++ (NSString *)familyClientId:(NSString *)familyId
+{
+    if (!familyId)
+    {
+        familyId = @"1";
+    }
+    
+    return [NSString stringWithFormat:@"foci-%@", familyId];
+}
 
 @end

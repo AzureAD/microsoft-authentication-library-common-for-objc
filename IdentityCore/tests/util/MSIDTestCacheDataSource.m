@@ -207,7 +207,8 @@
 
 - (NSString *)stringFromKey:(MSIDTokenCacheKey *)key
 {
-    return [NSString stringWithFormat:@"%@_%@_%@", key.account, key.service, key.type];
+    NSString *generic = key.generic ? [[NSString alloc] initWithData:key.generic encoding:NSUTF8StringEncoding] : nil;
+    return [NSString stringWithFormat:@"%@_%@_%@_%@", key.account, key.service, key.type, generic];
 }
 
 - (NSString *)regexFromKey:(MSIDTokenCacheKey *)key
@@ -217,8 +218,10 @@
     NSString *serviceStr = key.service ?
         [self absoluteRegexFromString:key.service] : @".*";
     NSString *typeStr = key.type ? key.type.stringValue : @".*";
+    NSString *generic = key.generic ? [[NSString alloc] initWithData:key.generic encoding:NSUTF8StringEncoding] : nil;
+    NSString *genericStr = generic ? [self absoluteRegexFromString:generic] : @".*";
     
-    NSString *regexString = [NSString stringWithFormat:@"%@_%@_%@", accountStr, serviceStr, typeStr];
+    NSString *regexString = [NSString stringWithFormat:@"%@_%@_%@_%@", accountStr, serviceStr, typeStr, genericStr];
     return regexString;
 }
 

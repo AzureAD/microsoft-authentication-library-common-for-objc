@@ -28,7 +28,6 @@
 #import "MSIDToken.h"
 #import "MSIDError.h"
 
-static NSString *const s_libraryString = @"MSOpenTech.ADAL.1";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
 static MSIDKeychainTokenCache *s_defaultCache = nil;
 static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
@@ -129,11 +128,11 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO_PII(context, @"Set keychain item, key info (account: %@ service: %@)", key.account, key.service);
     MSID_LOG_INFO_PII(context, @"Item info %@", item);
     
-    if (!key.service || !key.account)
+    if (!key.service || !key.account || !key.generic)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service and account are not nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service, account and generic fields are not nil.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
         return NO;
@@ -153,10 +152,12 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     NSMutableDictionary *query = [self defaultQuery];
     [query setObject:key.service forKey:(id)kSecAttrService];
     [query setObject:key.account forKey:(id)kSecAttrAccount];
-    // Backward compatibility with ADAL.
-    [query setObject:[s_libraryString dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrGeneric];
-    // Set token type.
-    [query setObject:[NSNumber numberWithInteger:item.tokenType] forKey:(id)kSecAttrType];
+    [query setObject:key.generic forKey:(id)kSecAttrGeneric];
+    
+    if (key.type)
+    {
+        [query setObject:key.type forKey:(id)kSecAttrType];
+    }
     
     MSID_LOG_INFO(context, @"Trying to update keychain item...");
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)@{(id)kSecValueData : itemData});
@@ -220,6 +221,10 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         [query setObject:key.account forKey:(id)kSecAttrAccount];
     }
+    if (key.generic)
+    {
+        [query setObject:key.generic forKey:(id)kSecAttrGeneric];
+    }
     if (key.type)
     {
         [query setObject:key.type forKey:(id)kSecAttrType];
@@ -259,6 +264,10 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     if (key.account)
     {
         [query setObject:key.account forKey:(id)kSecAttrAccount];
+    }
+    if (key.generic)
+    {
+        [query setObject:key.generic forKey:(id)kSecAttrGeneric];
     }
     if (key.type)
     {
