@@ -59,11 +59,14 @@
     return self;
 }
 
+#pragma mark - Access tokens
+
 - (BOOL)saveAccessToken:(MSIDToken *)token
                 account:(MSIDAccount *)account
           requestParams:(MSIDRequestParameters *)parameters
                 context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error {
+                  error:(NSError **)error
+{
     if (![parameters isKindOfClass:MSIDAADV2RequestParameters.class])
     {
         if (error)
@@ -149,8 +152,22 @@
         return nil;
     }
     
-    NSArray<MSIDToken *> *allTokens = [self getAllATsForContext:context
-                                                          error:error];
+    NSArray<MSIDToken *> *allTokens = nil;
+    
+    if (v2params.authority)
+    {
+        // This is an optimization for cases, when developer provides us an authority
+        // We can then do exact match except for scopes
+        // We query less items and cycle through less items too
+        allTokens = [self getAllATsForAccount:account requestParams:parameters context:context error:error];
+    }
+    else
+    {
+        // This is the case, when developer doesn't provide us any authority
+        // This flow is pretty unpredictable and basically only works for apps working with single tenants
+        // If we can eliminate this flow in future, we can get rid of this logic and logic under
+        allTokens = [self getAllATsForContext:context error:error];
+    }
     
     if (!allTokens || allTokens.count == 0)
     {
@@ -199,13 +216,6 @@
         return nil;
     }
     
-    if ([matchedTokens[0] isExpired])
-    {
-        MSID_LOG_INFO(context, @"Access token found in cache is already expired.");
-        MSID_LOG_INFO_PII(context, @"Access token found in cache is already expired.");
-        return nil;
-    }
-    
     MSIDToken *tokenToReturn = matchedTokens[0];
     tokenToReturn.authority = parameters.authority;
     
@@ -223,6 +233,8 @@
     
     return nil;
 }
+
+#pragma mark - Refresh tokens
 
 - (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
                                               context:(id<MSIDRequestContext>)context
@@ -463,36 +475,40 @@
     return nil;
 }
 
+- (NSArray<MSIDToken *> *)getAllATsForAccount:(MSIDAccount *)account
+                                requestParams:(MSIDRequestParameters *)parameters
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError **)error
+{
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
+                                                                            authority:parameters.authority
+                                                                             clientId:parameters.clientId];
+    return [self getAllTokensWithKey:key context:context error:error];
+}
+
 
 - (NSArray<MSIDToken *> *)getAllATsForContext:(id<MSIDRequestContext>)context
                                     error:(NSError *__autoreleasing *)error
 {
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
-    
-    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
-                                                                           context:context];
-
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokens];
-    NSArray<MSIDToken *> *allAccessTokensForAlias = [_dataSource itemsWithKey:key serializer:_serializer context:context error:error];
-    
-    [self stopTelemetryEvent:event
-                   withToken:nil
-                     success:(allAccessTokensForAlias != nil)
-                     context:context];
-    
-    return allAccessTokensForAlias;
+    return [self getAllTokensWithKey:key context:context error:error];
 }
 
 - (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithClientId:clientId];
+    return [self getAllTokensWithKey:key context:context error:error];
+}
+
+- (NSArray<MSIDToken *> *)getAllTokensWithKey:(MSIDTokenCacheKey *)key
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError *__autoreleasing *)error
 {
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
     
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                            context:context];
-    
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithClientId:clientId];
     
     NSArray *tokens = [_dataSource itemsWithKey:key serializer:_serializer context:context error:error];
     
