@@ -85,12 +85,9 @@
         return NO;
     }
     
-    token.authority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
-    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:token.authority];
-    
     // delete all cache entries with intersecting scopes
     // this should not happen but we have this as a safe guard against multiple matches
-    NSArray<MSIDToken *> *allTokens = [self getAllATsForContext:context error:error];
+    NSArray<MSIDToken *> *allTokens = [self getAllATsForAccount:account requestParams:parameters context:context error:error];
 
     if (!allTokens)
     {
@@ -99,10 +96,7 @@
     
     for (MSIDToken *tokenInCache in allTokens)
     {
-        if ([tokenInCache.clientInfo.userIdentifier isEqualToString:account.userIdentifier]
-            && [tokenInCache.clientId isEqualToString:token.clientId]
-            && [tokenInCache.authority msidIsEquivalentWithAnyAlias:aliases]
-            && [tokenInCache.scopes intersectsOrderedSet:token.scopes])
+        if ([tokenInCache.scopes intersectsOrderedSet:token.scopes])
         {
             MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyForAccessTokenWithUniqueUserId:account.userIdentifier
                                                                                         authority:tokenInCache.authority
@@ -152,61 +146,23 @@
         return nil;
     }
     
-    NSArray<MSIDToken *> *allTokens = nil;
+    NSArray<MSIDToken *> *matchedTokens = nil;
     
     if (v2params.authority)
     {
         // This is an optimization for cases, when developer provides us an authority
         // We can then do exact match except for scopes
         // We query less items and cycle through less items too
-        allTokens = [self getAllATsForAccount:account requestParams:parameters context:context error:error];
+        NSArray<MSIDToken *> *allTokens = [self getAllATsForAccount:account requestParams:parameters context:context error:error];
+        matchedTokens = [self filterAccessTokensByScopes:allTokens withParameters:v2params];
     }
     else
     {
         // This is the case, when developer doesn't provide us any authority
         // This flow is pretty unpredictable and basically only works for apps working with single tenants
-        // If we can eliminate this flow in future, we can get rid of this logic and logic under
-        allTokens = [self getAllATsForContext:context error:error];
-    }
-    
-    if (!allTokens || allTokens.count == 0)
-    {
-        // This should be rare-to-never as having a MSIDAccount object requires having a RT in cache,
-        // which should imply that at some point we got an AT for that user with this client ID
-        // as well. Unless users start working cross client id of course.
-        MSID_LOG_WARN(context, @"No access token found for user & client id.");
-        MSID_LOG_WARN_PII(context, @"No access token found for user & client id.");
-        
-        return nil;
-    }
-    
-    NSURL *authorityToCheck = v2params.authority? v2params.authority : allTokens[0].authority;
-    NSArray<NSURL *> *tokenAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authorityToCheck];
-    
-    NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
-    
-    for (MSIDToken *token in allTokens)
-    {
-        if ([token.clientInfo.userIdentifier isEqualToString:account.userIdentifier]
-            && [token.clientId isEqualToString:v2params.clientId]
-            && [token.scopes isSubsetOfOrderedSet:v2params.scopes])
-        {
-            if ([token.authority msidIsEquivalentWithAnyAlias:tokenAliases])
-            {
-                [matchedTokens addObject:token];
-            }
-            else
-            {
-                if (!v2params.authority)
-                {
-                    if (error)
-                    {
-                        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAmbiguousAuthority, @"Found multiple access tokens, which token to return is ambiguous! Please pass in authority if not provided.", nil, nil, nil, context.correlationId, nil);
-                    }
-                    return nil;
-                }
-            }
-        }
+        // If we can eliminate this flow in future, we can get rid of this logic and logic underneath
+        NSArray<MSIDToken *> *allTokens = [self getAllATsForContext:context error:error];
+        matchedTokens = [self filterAllAccessTokens:allTokens withParameters:v2params account:account context:context error:error];
     }
     
     if (matchedTokens.count == 0)
@@ -318,14 +274,79 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
+    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:refreshToken.authority context:context];
+    
     return [self saveToken:refreshToken
                     userId:account.userIdentifier
                   clientId:refreshToken.clientId
                     scopes:nil
-                 authority:refreshToken.authority
+                 authority:newAuthority
                 serializer:_serializer
                    context:context
                      error:error];
+}
+
+#pragma mark - Filtering
+
+- (NSArray<MSIDToken *> *)filterAccessTokensByScopes:(NSArray<MSIDToken *> *)allTokens
+                                      withParameters:(MSIDAADV2RequestParameters *)parameters
+{
+    NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
+    
+    for (MSIDToken *token in allTokens)
+    {
+        if ([token.scopes isSubsetOfOrderedSet:parameters.scopes])
+        {
+            [matchedTokens addObject:token];
+        }
+    }
+    
+    return matchedTokens;
+}
+
+- (NSArray<MSIDToken *> *)filterAllAccessTokens:(NSArray<MSIDToken *> *)allTokens
+                                 withParameters:(MSIDAADV2RequestParameters *)parameters
+                                        account:(MSIDAccount *)account
+                                        context:(id<MSIDRequestContext>)context
+                                          error:(NSError **)error
+{
+    if (!allTokens || [allTokens count] == 0)
+    {
+        // This should be rare-to-never as having a MSIDAccount object requires having a RT in cache,
+        // which should imply that at some point we got an AT for that user with this client ID
+        // as well. Unless users start working cross client id of course.
+        MSID_LOG_WARN(context, @"No access token found for user & client id.");
+        MSID_LOG_WARN_PII(context, @"No access token found for user & client id.");
+        return nil;
+    }
+    
+    NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
+    NSURL *authorityToCheck = allTokens[0].authority;
+    NSArray<NSURL *> *tokenAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authorityToCheck];
+    
+    for (MSIDToken *token in allTokens)
+    {
+        if ([token.clientInfo.userIdentifier isEqualToString:account.userIdentifier]
+            && [token.clientId isEqualToString:parameters.clientId]
+            && [token.scopes isSubsetOfOrderedSet:parameters.scopes])
+        {
+            if ([token.authority msidIsEquivalentWithAnyAlias:tokenAliases])
+            {
+                [matchedTokens addObject:token];
+            }
+            else
+            {
+                if (error)
+                {
+                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAmbiguousAuthority, @"Found multiple access tokens, which token to return is ambiguous! Please pass in authority if not provided.", nil, nil, nil, context.correlationId, nil);
+                }
+                
+                return nil;
+            }
+        }
+    }
+    
+    return matchedTokens;
 }
 
 #pragma mark - Datasource helpers
@@ -370,12 +391,10 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
     
-    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
-    
     // The authority used to retrieve the item over the network can differ from the preferred authority used to
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store
     // it with we switch it out before saving it to cache.
-    token.authority = newAuthority;
+    token.authority = authority;
     
     MSIDTokenCacheKey *key = [self keyForTokenType:token.tokenType
                                             userId:userId clientId:clientId
