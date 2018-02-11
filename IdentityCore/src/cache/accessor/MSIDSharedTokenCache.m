@@ -265,12 +265,43 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
+    if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        return NO;
+    }
     
+    NSError *cacheError = nil;
     
-    return [_primaryAccessor removeSharedRTForAccount:account
-                                                token:token
-                                              context:context
-                                                error:error];
+    MSIDToken *tokenInCache = [_primaryAccessor getLatestRTForToken:token
+                                                            account:account
+                                                            context:context
+                                                              error:&cacheError];
+    
+    if (cacheError)
+    {
+        if (error)
+        {
+            *error = cacheError;
+        }
+        return NO;
+    }
+    
+    if (tokenInCache
+        && tokenInCache.tokenType == MSIDTokenTypeRefreshToken
+        && [tokenInCache.token isEqualToString:token.token])
+    {
+        return [_primaryAccessor removeSharedRTForAccount:account
+                                                    token:token
+                                                  context:context
+                                                    error:error];
+    }
+    
+    return YES;
 }
 
 @end

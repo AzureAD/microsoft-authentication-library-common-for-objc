@@ -227,6 +227,24 @@
                                     error:error];
 }
 
+- (MSIDToken *)getLatestRTForToken:(MSIDToken *)token
+                           account:(MSIDAccount *)account
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
+{
+    if (![self checkUserIdentifier:account context:context error:error])
+    {
+        return nil;
+    }
+    
+    return [self getRefreshTokenForUserId:account.userIdentifier
+                                 clientId:token.clientId
+                                authority:token.authority
+                               serializer:_serializer
+                                  context:context
+                                    error:error];
+}
+
 - (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
@@ -241,50 +259,18 @@
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
-    if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", nil, nil, nil, context.correlationId, nil);
-        }
-        
-        return NO;
-    }
-    
     if (![self checkUserIdentifier:account context:context error:error])
     {
         return NO;
     }
     
-    NSError *cacheError = nil;
-    MSIDToken *tokenInCache  = [self getRefreshTokenForUserId:account.userIdentifier
-                                                     clientId:token.clientId
-                                                    authority:token.authority
-                                                   serializer:_serializer
-                                                      context:context
-                                                        error:&cacheError];
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithUniqueUserId:account.userIdentifier
+                                                                       environment:token.authority.msidHostWithPortIfNecessary
+                                                                          clientId:token.clientId];
     
-    if (cacheError)
-    {
-        if (error)
-        {
-            *error = cacheError;
-        }
-        return NO;
-    }
-
-    if (tokenInCache
-        && tokenInCache.tokenType == MSIDTokenTypeRefreshToken
-        && [tokenInCache.token isEqualToString:token.token])
-    {
-        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithUniqueUserId:account.userIdentifier
-                                                                           environment:token.authority.msidHostWithPortIfNecessary
-                                                                              clientId:token.clientId];
-        
-        return [self removeTokenWithKey:key context:context error:error];
-    }
-    
-    return YES;
+    return [self removeTokenWithKey:key
+                            context:context
+                              error:error];
 }
 
 #pragma mark - Filtering

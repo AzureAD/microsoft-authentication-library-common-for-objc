@@ -182,6 +182,25 @@
                              error:error];
 }
 
+- (MSIDToken *)getLatestRTForToken:(MSIDToken *)token
+                           account:(MSIDAccount *)account
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
+{
+    if (![self checkUserIdentifier:account context:context error:error])
+    {
+        return nil;
+    }
+    
+    return [self getItemForAccount:account
+                         authority:token.authority
+                          clientId:token.clientId
+                          resource:token.resource
+                        serializer:_serializer
+                           context:context
+                             error:error];
+}
+
 - (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
@@ -225,16 +244,6 @@
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
-    if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", nil, nil, nil, context.correlationId, nil);
-        }
-        
-        return NO;
-    }
-    
     if (![self checkUserIdentifier:account context:context error:error])
     {
         return NO;
@@ -244,33 +253,10 @@
                                                         clientId:token.clientId
                                                         resource:token.resource
                                                              upn:account.upn];
-    NSError *cacheError = nil;
     
-    MSIDToken *tokenInCache = [_dataSource itemWithKey:key
-                                            serializer:_serializer
-                                               context:context
-                                                 error:&cacheError];
-    
-    if (cacheError)
-    {
-        if (error)
-        {
-            *error = cacheError;
-        }
-        return NO;
-    }
-    
-    if (tokenInCache
-        && tokenInCache.tokenType == MSIDTokenTypeRefreshToken
-        && [tokenInCache.token isEqualToString:token.token])
-    {
-        return [_dataSource removeItemsWithKey:key
-                                       context:context
-                                         error:error];
-    }
-    
-    return YES;
-    
+    return [_dataSource removeItemsWithKey:key
+                                   context:context
+                                     error:error];
 }
 
 #pragma mark - Helper methods

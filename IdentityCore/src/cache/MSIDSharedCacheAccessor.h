@@ -56,6 +56,11 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
+- (MSIDToken *)getLatestRTForToken:(MSIDToken *)token
+                           account:(MSIDAccount *)account
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error;
+
 - (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error;
