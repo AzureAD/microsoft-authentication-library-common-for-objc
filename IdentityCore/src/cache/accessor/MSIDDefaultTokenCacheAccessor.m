@@ -59,13 +59,11 @@
     return self;
 }
 
-#pragma mark - Access tokens
+#pragma mark - Input validation
 
-- (BOOL)saveAccessToken:(MSIDToken *)token
-                account:(MSIDAccount *)account
-          requestParams:(MSIDRequestParameters *)parameters
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+- (BOOL)checkRequestParameters:(MSIDRequestParameters *)parameters
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
     if (![parameters isKindOfClass:MSIDAADV2RequestParameters.class])
     {
@@ -76,38 +74,52 @@
         return NO;
     }
     
+    return YES;
+}
+
+- (BOOL)checkUserIdentifier:(MSIDAccount *)account
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
     if (!account.userIdentifier)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"user identifier is needed to save access token for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"User identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
         }
+        return NO;
+    }
+    
+    return YES;
+}
+
+#pragma mark - Access tokens
+
+- (BOOL)saveAccessToken:(MSIDToken *)token
+                account:(MSIDAccount *)account
+          requestParams:(MSIDRequestParameters *)parameters
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
+{
+    if (![self checkRequestParameters:parameters context:context error:error]
+        || ![self checkUserIdentifier:account context:context error:error])
+    {
         return NO;
     }
     
     // delete all cache entries with intersecting scopes
     // this should not happen but we have this as a safe guard against multiple matches
     NSArray<MSIDToken *> *allTokens = [self getAllATsForAccount:account requestParams:parameters context:context error:error];
+    NSArray<MSIDToken *> *matchingTokens = [self filterAllAccessTokens:allTokens withScopes:token.scopes];
 
-    if (!allTokens)
+    if (!matchingTokens)
     {
         return NO;
     }
     
-    for (MSIDToken *tokenInCache in allTokens)
+    if (![self deleteTokens:matchingTokens account:account context:context error:error])
     {
-        if ([tokenInCache.scopes intersectsOrderedSet:token.scopes])
-        {
-            MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyForAccessTokenWithUniqueUserId:account.userIdentifier
-                                                                                        authority:tokenInCache.authority
-                                                                                         clientId:tokenInCache.clientId
-                                                                                           scopes:tokenInCache.scopes];
-            
-            if (![self removeTokenWithKey:keyToDelete context:context error:error])
-            {
-                return NO;
-            }
-        }
+        return NO;
     }
     
     return [self saveToken:token
@@ -127,24 +139,13 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    if (![parameters isKindOfClass:MSIDAADV2RequestParameters.class])
+    if (![self checkRequestParameters:parameters context:context error:error]
+        || ![self checkUserIdentifier:account context:context error:error])
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"MSIDAADV2RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
-        }
         return nil;
     }
-    MSIDAADV2RequestParameters *v2params = (MSIDAADV2RequestParameters *)parameters;
     
-    if (!account.userIdentifier)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"user identifier is needed to save access token for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
-        }
-        return nil;
-    }
+    MSIDAADV2RequestParameters *v2params = (MSIDAADV2RequestParameters *)parameters;
     
     NSArray<MSIDToken *> *matchedTokens = nil;
     
@@ -152,9 +153,9 @@
     {
         // This is an optimization for cases, when developer provides us an authority
         // We can then do exact match except for scopes
-        // We query less items and cycle through less items too
+        // We query less items and loop through less items too
         NSArray<MSIDToken *> *allTokens = [self getAllATsForAccount:account requestParams:parameters context:context error:error];
-        matchedTokens = [self filterAccessTokensByScopes:allTokens withParameters:v2params];
+        matchedTokens = [self filterAllAccessTokens:allTokens withScopes:v2params.scopes];
     }
     else
     {
@@ -203,14 +204,11 @@
 - (MSIDToken *)getSharedRTForAccount:(MSIDAccount *)account
                        requestParams:(MSIDRequestParameters *)parameters
                              context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error {
+                               error:(NSError **)error
+{
     
-    if (!account.userIdentifier)
+    if (![self checkUserIdentifier:account context:context error:error])
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"user identifier is needed to save access token for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
-        }
         return nil;
     }
     
@@ -288,14 +286,14 @@
 
 #pragma mark - Filtering
 
-- (NSArray<MSIDToken *> *)filterAccessTokensByScopes:(NSArray<MSIDToken *> *)allTokens
-                                      withParameters:(MSIDAADV2RequestParameters *)parameters
+- (NSArray<MSIDToken *> *)filterAllAccessTokens:(NSArray<MSIDToken *> *)allTokens
+                                     withScopes:(NSOrderedSet<NSString *> *)scopes
 {
     NSMutableArray<MSIDToken *> *matchedTokens = [NSMutableArray<MSIDToken *> new];
     
     for (MSIDToken *token in allTokens)
     {
-        if ([token.scopes isSubsetOfOrderedSet:parameters.scopes])
+        if ([token.scopes isSubsetOfOrderedSet:scopes])
         {
             [matchedTokens addObject:token];
         }
@@ -347,6 +345,29 @@
     }
     
     return matchedTokens;
+}
+
+#pragma mark - Delete
+
+- (BOOL)deleteTokens:(NSArray <MSIDToken *> *)tokens
+             account:(MSIDAccount *)account
+             context:(id<MSIDRequestContext>)context
+               error:(NSError **)error
+{
+    for (MSIDToken *tokenInCache in tokens)
+    {
+        MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyForAccessTokenWithUniqueUserId:account.userIdentifier
+                                                                                    authority:tokenInCache.authority
+                                                                                     clientId:tokenInCache.clientId
+                                                                                       scopes:tokenInCache.scopes];
+        
+        if (![self removeTokenWithKey:keyToDelete context:context error:error])
+        {
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 #pragma mark - Datasource helpers
@@ -513,7 +534,9 @@
     return [self getAllTokensWithKey:key context:context error:error];
 }
 
-- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError *__autoreleasing *)error
 {
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithClientId:clientId];
     return [self getAllTokensWithKey:key context:context error:error];
