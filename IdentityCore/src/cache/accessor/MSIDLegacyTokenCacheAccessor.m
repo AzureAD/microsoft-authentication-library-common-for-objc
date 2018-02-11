@@ -62,6 +62,40 @@
     return self;
 }
 
+#pragma mark - Input validation
+
+- (BOOL)checkRequestParameters:(MSIDRequestParameters *)parameters
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
+{
+    if (![parameters isKindOfClass:MSIDAADV1RequestParameters.class])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"MSIDAADV1RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (BOOL)checkUserIdentifier:(MSIDAccount *)account
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    if (!account.upn)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed for legacy token cache accessor", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
+    
+    return YES;
+}
+
 #pragma mark - MSIDSharedCacheAccessor
 
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
@@ -69,12 +103,8 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    if (!account.upn)
+    if (![self checkUserIdentifier:account context:context error:error])
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to save refresh token for legacy accessor", nil, nil, nil, context.correlationId, nil);
-        }
         return NO;
     }
     
@@ -145,20 +175,9 @@
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error
 {
-    if (![parameters isKindOfClass:MSIDAADV1RequestParameters.class])
+    if (![self checkRequestParameters:parameters context:context error:error]
+        || ![self checkUserIdentifier:account context:context error:error])
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"MSIDAADV1RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
-        }
-        return NO;
-    }
-    else if (!account.upn)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to save access token for legacy accessor", nil, nil, nil, context.correlationId, nil);
-        }
         return NO;
     }
     
@@ -184,12 +203,9 @@
         
         return NO;
     }
-    else if (!account.upn)
+    
+    if (![self checkUserIdentifier:account context:context error:error])
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to remove refresh token for legacy accessor", nil, nil, nil, context.correlationId, nil);
-        }
         return NO;
     }
     
@@ -221,12 +237,8 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    if (!account.upn)
+    if (![self checkUserIdentifier:account context:context error:error])
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed to get an access token for legacy accessor", nil, nil, nil, context.correlationId, nil);
-        }
         return nil;
     }
     
@@ -255,12 +267,8 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    if (![parameters isKindOfClass:MSIDAADV1RequestParameters.class])
+    if (![self checkRequestParameters:parameters context:context error:error])
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"MSIDAADV1RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
-        }
         return nil;
     }
     
