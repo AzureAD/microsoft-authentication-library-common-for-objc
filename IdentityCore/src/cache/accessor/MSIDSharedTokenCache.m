@@ -265,10 +265,12 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
+    
+    
     return [_primaryAccessor removeSharedRTForAccount:account
-                                        token:token
-                                      context:context
-                                        error:error];
+                                                token:token
+                                              context:context
+                                                error:error];
 }
 
 @end

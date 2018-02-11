@@ -130,7 +130,6 @@
                 serializer:_serializer
                    context:context
                      error:error];
-    return NO;
 }
 
 
@@ -215,7 +214,6 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
-    
     if (![self checkUserIdentifier:account context:context error:error])
     {
         return nil;
@@ -233,8 +231,8 @@
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
-
-    return [self getAllRTsForClientId:clientId context:context error:error];
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithClientId:clientId];
+    return [self getAllTokensWithKey:key context:context error:error];
 }
 
 
@@ -253,13 +251,18 @@
         return NO;
     }
     
+    if (![self checkUserIdentifier:account context:context error:error])
+    {
+        return NO;
+    }
+    
     NSError *cacheError = nil;
     MSIDToken *tokenInCache  = [self getRefreshTokenForUserId:account.userIdentifier
                                                      clientId:token.clientId
                                                     authority:token.authority
                                                    serializer:_serializer
                                                       context:context
-                                                        error:error];
+                                                        error:&cacheError];
     
     if (cacheError)
     {
@@ -531,14 +534,6 @@
                                     error:(NSError *__autoreleasing *)error
 {
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokens];
-    return [self getAllTokensWithKey:key context:context error:error];
-}
-
-- (NSArray<MSIDToken *> *)getAllRTsForClientId:(NSString *)clientId
-                                       context:(id<MSIDRequestContext>)context
-                                         error:(NSError *__autoreleasing *)error
-{
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithClientId:clientId];
     return [self getAllTokensWithKey:key context:context error:error];
 }
 

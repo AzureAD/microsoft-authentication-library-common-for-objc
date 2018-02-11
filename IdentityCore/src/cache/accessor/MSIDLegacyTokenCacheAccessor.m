@@ -244,11 +244,21 @@
                                                         clientId:token.clientId
                                                         resource:token.resource
                                                              upn:account.upn];
+    NSError *cacheError = nil;
     
     MSIDToken *tokenInCache = [_dataSource itemWithKey:key
                                             serializer:_serializer
                                                context:context
-                                                 error:nil];
+                                                 error:&cacheError];
+    
+    if (cacheError)
+    {
+        if (error)
+        {
+            *error = cacheError;
+        }
+        return NO;
+    }
     
     if (tokenInCache
         && tokenInCache.tokenType == MSIDTokenTypeRefreshToken
