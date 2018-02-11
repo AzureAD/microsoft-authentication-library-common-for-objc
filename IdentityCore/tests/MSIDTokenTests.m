@@ -281,6 +281,246 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
+#pragma mark - Json, Conditional fields
+
+- (void)testInitWithJson_whenJsonContainsEnvironment_shouldParseItAsAuthority
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_ENVIRONMENT : @"evironment_value",
+                                   } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(@"https://evironment_value/common", token.authority.absoluteString);
+}
+
+- (void)testJsonDictionary_whenJsonContainsEnvironment_shouldReturnJsonWithEnvironmentAndAuthority
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_ENVIRONMENT : @"evironment_value",
+                                   } mutableCopy];
+    NSMutableDictionary *expectedJson = [@{
+                                           MSID_OAUTH2_ENVIRONMENT : @"evironment_value",
+                                           MSID_OAUTH2_AUTHORITY : @"https://evironment_value/common",
+                                           } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(expectedJson, [token jsonDictionary]);
+}
+
+- (void)testInitWithJson_whenJsonContainsAuthority_shouldParseItAsAuthority
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_AUTHORITY : @"https://contoso.com",
+                                   } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(@"https://contoso.com", token.authority.absoluteString);
+}
+
+- (void)testJsonDictionary_whenJsonContainsAuthority_shouldReturnJsonWithEnvironmentAndAuthority
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_AUTHORITY : @"https://contoso.com",
+                                   } mutableCopy];
+    NSMutableDictionary *expectedJson = [@{
+                                           MSID_OAUTH2_ENVIRONMENT : @"contoso.com",
+                                           MSID_OAUTH2_AUTHORITY : @"https://contoso.com",
+                                           } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(expectedJson, [token jsonDictionary]);
+}
+
+- (void)testInitWithJson_whenJsonContainsAuthorityAndEnvironment_shouldParseAuthorityAsAuthority
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_AUTHORITY : @"https://contoso.com",
+                                   MSID_OAUTH2_ENVIRONMENT : @"evironment_value",
+                                   } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(@"https://contoso.com", token.authority.absoluteString);
+}
+
+- (void)testJsonDictionary_whenJsonContainsAuthorityAuthorityAndEnvironment_shouldReturnJsonWithEnvironmentAndAuthorityAndReplaceEnvironmentWithAuthroityValue
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_AUTHORITY : @"https://contoso.com",
+                                   MSID_OAUTH2_ENVIRONMENT : @"evironment_value",
+                                   } mutableCopy];
+    NSMutableDictionary *expectedJson = [@{
+                                           MSID_OAUTH2_ENVIRONMENT : @"contoso.com",
+                                           MSID_OAUTH2_AUTHORITY : @"https://contoso.com",
+                                           } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(expectedJson, [token jsonDictionary]);
+}
+
+- (void)testInitWithJson_whenJsonContainsAccessToken_shouldParseItAsToken
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_ACCESS_TOKEN : @"access token value",
+                                   } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(@"access token value", token.token);
+    XCTAssertEqual(MSIDTokenTypeAccessToken, token.tokenType);
+}
+
+- (void)testJsonDictionary_whenJsonContainsAccessToken_shouldReturnJsonWithAccessToken
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_ACCESS_TOKEN : @"access token value",
+                                   } mutableCopy];
+    NSMutableDictionary *expectedJson = [@{
+                                           MSID_OAUTH2_ACCESS_TOKEN : @"access token value",
+                                           } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(expectedJson, [token jsonDictionary]);
+}
+
+- (void)testInitWithJson_whenJsonContainsRefreshToken_shouldParseItAsToken
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_REFRESH_TOKEN : @"refresh token value",
+                                   } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(@"refresh token value", token.token);
+    XCTAssertEqual(MSIDTokenTypeRefreshToken, token.tokenType);
+}
+
+- (void)testJsonDictionary_whenJsonContainsRefreshToken_shouldReturnJsonWithRefreshToken
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_REFRESH_TOKEN : @"refresh token value",
+                                   } mutableCopy];
+    NSMutableDictionary *expectedJson = [@{
+                                           MSID_OAUTH2_REFRESH_TOKEN : @"refresh token value",
+                                           } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(expectedJson, [token jsonDictionary]);
+}
+
+- (void)testJsonDictionary_whenJsonContainsAccessAndRefreshToken_shouldReturnBoth
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_ACCESS_TOKEN : @"access token value",
+                                   MSID_OAUTH2_REFRESH_TOKEN : @"refresh token value",
+                                   } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(json, [token jsonDictionary]);
+}
+
+#pragma mark - Json, Nonconditional fields
+
+- (void)testInitWithJson_whenJsonContainsNonconditionalFields_shouldInitCorrespondingProperties
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_ID_TOKEN : @"id_token_value",
+                                   MSID_FAMILY_ID : @"family_id_value",
+                                   MSID_OAUTH2_RESOURCE : @"resource_value",
+                                   MSID_OAUTH2_CLIENT_ID : @"client_id_value",
+                                   MSID_OAUTH2_SCOPE : @"v1 v2",
+                                   MSID_OAUTH2_CLIENT_INFO : [@{@"key" : @"value"} msidBase64UrlJson],
+                                   MSID_OAUTH2_EXPIRES_ON : @1500000000,
+                                   MSID_OAUTH2_ADDITIONAL_SERVER_INFO : @{@"key2" : @"value2"},
+                                   } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(@"id_token_value", token.idToken);
+    XCTAssertEqualObjects(@"family_id_value", token.familyId);
+    XCTAssertEqualObjects(@"resource_value", token.resource);
+    XCTAssertEqualObjects(@"client_id_value", token.clientId);
+    NSArray *expectedScopes = @[@"v1", @"v2"];
+    XCTAssertEqualObjects(expectedScopes, [token.scopes array]);
+    XCTAssertEqualObjects([@{@"key" : @"value"} msidBase64UrlJson], token.clientInfo.rawClientInfo);
+    XCTAssertEqualObjects(@{@"key2" : @"value2"}, token.additionalServerInfo);
+}
+
+- (void)testJsonDictionary_whenJsonContainsNonconditionalFields_shouldReturnSameJson
+{
+    NSMutableDictionary *json = [@{
+                                   MSID_OAUTH2_ID_TOKEN : @"id_token_value",
+                                   MSID_FAMILY_ID : @"family_id_value",
+                                   MSID_OAUTH2_RESOURCE : @"resource_value",
+                                   MSID_OAUTH2_CLIENT_ID : @"client_id_value",
+                                   MSID_OAUTH2_SCOPE : @"v1 v2",
+                                   MSID_OAUTH2_CLIENT_INFO : [@{@"key" : @"value"} msidBase64UrlJson],
+                                   MSID_OAUTH2_EXPIRES_ON : @1500000000,
+                                   MSID_OAUTH2_ADDITIONAL_SERVER_INFO : @{@"key2" : @"value2"},
+                                   } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(json, [token jsonDictionary]);
+}
+
+#pragma mark - Json, Extra fields
+
+- (void)test_whenPass
+{
+    NSMutableDictionary *json = [@{
+                                   @"some key" : @"some value",
+                                   MSID_OAUTH2_ID_TOKEN : @"id_token_value",
+                                   MSID_FAMILY_ID : @"family_id_value",
+                                   MSID_OAUTH2_RESOURCE : @"resource_value",
+                                   MSID_OAUTH2_CLIENT_ID : @"client_id_value",
+                                   MSID_OAUTH2_SCOPE : @"v1 v2",
+                                   MSID_OAUTH2_CLIENT_INFO : [@{@"key" : @"value"} msidBase64UrlJson],
+                                   MSID_OAUTH2_EXPIRES_ON : @1500000000,
+                                   MSID_OAUTH2_ADDITIONAL_SERVER_INFO : @{@"key2" : @"value2"},
+                                   } mutableCopy];
+    
+    NSError *error;
+    MSIDToken *token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(json, [token jsonDictionary]);
+}
+
 #pragma mark - Private
 
 - (MSIDToken *)createToken

@@ -56,8 +56,8 @@ static uint64_t s_expirationBuffer = 300;
         return nil;
     }
     
-    // We don't use _json variable.
-    _json = nil;
+//    // We don't use _json variable.
+//    _json = nil;
     
     _idToken = json[MSID_OAUTH2_ID_TOKEN];
     _familyId = json[MSID_FAMILY_ID];
@@ -114,7 +114,8 @@ static uint64_t s_expirationBuffer = 300;
     [dictionary setValue:_clientInfo.rawClientInfo forKey:MSID_OAUTH2_CLIENT_INFO];
     if (self.expiresOn)
     {
-        dictionary[MSID_OAUTH2_EXPIRES_ON] = [NSString stringWithFormat:@"%qu", (uint64_t)[self.expiresOn timeIntervalSince1970]];
+        double interval =  [[NSString stringWithFormat:@"%qu", (uint64_t)[self.expiresOn timeIntervalSince1970]] doubleValue];
+        dictionary[MSID_OAUTH2_EXPIRES_ON] = [[NSNumber alloc] initWithDouble:interval];
     }
     [dictionary setValue:self.additionalServerInfo forKey:MSID_OAUTH2_ADDITIONAL_SERVER_INFO];
     
@@ -127,7 +128,9 @@ static uint64_t s_expirationBuffer = 300;
         [dictionary setValue:self.token forKey:MSID_OAUTH2_ACCESS_TOKEN];
     }
     
-    return dictionary;
+    [_json addEntriesFromDictionary:dictionary];
+    
+    return _json;
 }
 
 - (BOOL)isExpired;
