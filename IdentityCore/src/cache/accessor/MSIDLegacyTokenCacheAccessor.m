@@ -96,7 +96,58 @@
     return YES;
 }
 
-#pragma mark - MSIDSharedCacheAccessor
+#pragma mark - Access tokens
+
+- (BOOL)saveAccessToken:(MSIDToken *)token
+                account:(MSIDAccount *)account
+          requestParams:(MSIDRequestParameters *)parameters
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
+{
+    if (![self checkRequestParameters:parameters context:context error:error]
+        || ![self checkUserIdentifier:account context:context error:error])
+    {
+        return NO;
+    }
+    
+    return [self saveToken:token
+                   account:account
+                  clientId:parameters.clientId
+                serializer:token.tokenType == MSIDTokenTypeAdfsUserToken ? _adfsSerializer : _serializer
+                   context:context
+                     error:error];
+}
+
+- (MSIDToken *)getATForAccount:(MSIDAccount *)account
+                 requestParams:(MSIDRequestParameters *)parameters
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
+{
+    if (![self checkUserIdentifier:account context:context error:error])
+    {
+        return nil;
+    }
+    
+    return [self getATForAccount:account
+                   requestParams:parameters
+                      serializer:_serializer
+                         context:context
+                           error:error];
+}
+
+- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@"" utid:nil uid:nil];
+    return (MSIDAdfsToken *)[self getATForAccount:account
+                                    requestParams:parameters
+                                       serializer:_adfsSerializer
+                                          context:context
+                                            error:error];
+}
+
+#pragma mark - Refresh tokens
 
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
                   refreshToken:(MSIDToken *)refreshToken
@@ -169,26 +220,6 @@
     return resultRTs;
 }
 
-- (BOOL)saveAccessToken:(MSIDToken *)token
-                account:(MSIDAccount *)account
-          requestParams:(MSIDRequestParameters *)parameters
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
-{
-    if (![self checkRequestParameters:parameters context:context error:error]
-        || ![self checkUserIdentifier:account context:context error:error])
-    {
-        return NO;
-    }
-    
-    return [self saveToken:token
-                   account:account
-                  clientId:parameters.clientId
-                serializer:token.tokenType == MSIDTokenTypeAdfsUserToken ? _adfsSerializer : _serializer
-                   context:context
-                     error:error];
-}
-
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
                            token:(MSIDToken *)token
                          context:(id<MSIDRequestContext>)context
@@ -232,34 +263,7 @@
     
 }
 
-- (MSIDToken *)getATForAccount:(MSIDAccount *)account
-                 requestParams:(MSIDRequestParameters *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
-{
-    if (![self checkUserIdentifier:account context:context error:error])
-    {
-        return nil;
-    }
-    
-    return [self getATForAccount:account
-                   requestParams:parameters
-                      serializer:_serializer
-                         context:context
-                           error:error];
-}
-
-- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
-{
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@"" utid:nil uid:nil];
-    return (MSIDAdfsToken *)[self getATForAccount:account
-                                    requestParams:parameters
-                                       serializer:_adfsSerializer
-                                          context:context
-                                            error:error];
-}
+#pragma mark - Helper methods
 
 - (MSIDToken *)getATForAccount:(MSIDAccount *)account
                  requestParams:(MSIDRequestParameters *)parameters
@@ -282,8 +286,6 @@
                            context:context
                              error:error];
 }
-
-#pragma mark - Helper methods
 
 - (BOOL)saveToken:(MSIDToken *)token
           account:(MSIDAccount *)account

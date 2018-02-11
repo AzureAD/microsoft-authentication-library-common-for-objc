@@ -193,12 +193,21 @@
 
 #pragma mark - Refresh tokens
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
-                                              context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+- (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
+                  refreshToken:(MSIDToken *)refreshToken
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
-
-    return [self getAllRTsForClientId:clientId context:context error:error];
+    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:refreshToken.authority context:context];
+    
+    return [self saveToken:refreshToken
+                    userId:account.userIdentifier
+                  clientId:refreshToken.clientId
+                    scopes:nil
+                 authority:newAuthority
+                serializer:_serializer
+                   context:context
+                     error:error];
 }
 
 - (MSIDToken *)getSharedRTForAccount:(MSIDAccount *)account
@@ -218,6 +227,14 @@
                                serializer:_serializer
                                   context:context
                                     error:error];
+}
+
+- (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
+{
+
+    return [self getAllRTsForClientId:clientId context:context error:error];
 }
 
 
@@ -265,23 +282,6 @@
     }
     
     return YES;
-}
-
-- (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
-                  refreshToken:(MSIDToken *)refreshToken
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
-{
-    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:refreshToken.authority context:context];
-    
-    return [self saveToken:refreshToken
-                    userId:account.userIdentifier
-                  clientId:refreshToken.clientId
-                    scopes:nil
-                 authority:newAuthority
-                serializer:_serializer
-                   context:context
-                     error:error];
 }
 
 #pragma mark - Filtering
