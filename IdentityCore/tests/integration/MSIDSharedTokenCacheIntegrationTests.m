@@ -845,6 +845,45 @@
     XCTAssertEqual([[_secondaryAccessor allRefreshTokens] count], 1);
 }
 
+- (void)testRemoveRTForAccount_whenItemInCache_butWithDifferentRT_shouldNotRemoveItem
+{
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                       utid:DEFAULT_TEST_UTID
+                                                        uid:DEFAULT_TEST_UID];
+    
+    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                        request:[MSIDTestRequestParams v1DefaultParams]
+                                                      tokenType:MSIDTokenTypeRefreshToken];
+    
+    [_primaryAccessor addToken:token forAccount:account];
+    XCTAssertEqual([[_primaryAccessor allRefreshTokens] count], 1);
+    
+    MSIDTokenResponse *updatedResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                   rt:@"updated_refresh_token"
+                                                                             resource:DEFAULT_TEST_RESOURCE
+                                                                                  uid:DEFAULT_TEST_UID
+                                                                                 utid:DEFAULT_TEST_UTID
+                                                                                  upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                             tenantId:DEFAULT_TEST_UTID];
+    
+    MSIDToken *updatedToken = [[MSIDToken alloc] initWithTokenResponse:updatedResponse
+                                                               request:[MSIDTestRequestParams v1DefaultParams]
+                                                             tokenType:MSIDTokenTypeRefreshToken];
+    
+    NSError *error = nil;
+    BOOL result = [tokenCache removeRTForAccount:account token:updatedToken context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    XCTAssertEqual([[_primaryAccessor allRefreshTokens] count], 1);
+    XCTAssertEqual([[_secondaryAccessor allRefreshTokens] count], 0);
+    
+    XCTAssertEqualObjects([_primaryAccessor allRefreshTokens][0], token);
+}
+
 - (void)testSaveBrokerResponse_withMRRTToken_savesToMultipleFormats
 {
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor

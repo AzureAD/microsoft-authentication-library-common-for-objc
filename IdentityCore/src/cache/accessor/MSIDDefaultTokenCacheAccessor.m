@@ -109,7 +109,12 @@
     
     // delete all cache entries with intersecting scopes
     // this should not happen but we have this as a safe guard against multiple matches
-    NSArray<MSIDToken *> *allTokens = [self getAllATsForAccount:account requestParams:parameters context:context error:error];
+    NSArray<MSIDToken *> *allTokens = [self getAllATsForAccount:account
+                                                      authority:token.authority
+                                                       clientId:token.clientId
+                                                        context:context
+                                                          error:error];
+    
     NSArray<MSIDToken *> *matchingTokens = [self filterAllAccessTokens:allTokens withScopes:token.scopes];
 
     if (!matchingTokens)
@@ -153,7 +158,12 @@
         // This is an optimization for cases, when developer provides us an authority
         // We can then do exact match except for scopes
         // We query less items and loop through less items too
-        NSArray<MSIDToken *> *allTokens = [self getAllATsForAccount:account requestParams:parameters context:context error:error];
+        NSArray<MSIDToken *> *allTokens = [self getAllATsForAccount:account
+                                                          authority:v2params.authority
+                                                           clientId:v2params.clientId
+                                                            context:context
+                                                              error:error];
+        
         matchedTokens = [self filterAllAccessTokens:allTokens withScopes:v2params.scopes];
     }
     else
@@ -261,6 +271,16 @@
 {
     if (![self checkUserIdentifier:account context:context error:error])
     {
+        return NO;
+    }
+    
+    if (!token)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Token not provided", nil, nil, nil, context.correlationId, nil);
+        }
+        
         return NO;
     }
     
@@ -407,7 +427,8 @@
     token.authority = authority;
     
     MSIDTokenCacheKey *key = [self keyForTokenType:token.tokenType
-                                            userId:userId clientId:clientId
+                                            userId:userId
+                                          clientId:clientId
                                             scopes:scopes
                                          authority:authority];
     if (!key)
@@ -505,13 +526,14 @@
 }
 
 - (NSArray<MSIDToken *> *)getAllATsForAccount:(MSIDAccount *)account
-                                requestParams:(MSIDRequestParameters *)parameters
+                                    authority:(NSURL *)authority
+                                     clientId:(NSString *)clientId
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError **)error
 {
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
-                                                                            authority:parameters.authority
-                                                                             clientId:parameters.clientId];
+                                                                            authority:authority
+                                                                             clientId:clientId];
     return [self getAllTokensWithKey:key context:context error:error];
 }
 

@@ -942,41 +942,5 @@
     XCTAssertEqual([allRTs count], 0);
 }
 
-- (void)testRemoveSharedRTForAccount_whenItemInCache_butWithDifferentRT_shouldNotRemoveItem
-{
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponseWithoutClientInfo]
-                                                        request:[MSIDTestRequestParams v1DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
-    
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                       utid:DEFAULT_TEST_UTID
-                                                        uid:DEFAULT_TEST_UID];
-    
-    NSError *error = nil;
-    
-    // Saves refresh token with a default token value
-    BOOL result = [_legacyAccessor saveSharedRTForAccount:account
-                                             refreshToken:token
-                                                  context:nil
-                                                    error:&error];
-    
-    // Update token value, so it's different from a saved one
-    [token setValue:@"updated_refresh_token" forKey:@"token"];
-    
-    result = [_legacyAccessor removeSharedRTForAccount:account
-                                                 token:token
-                                               context:nil
-                                                 error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-    
-    NSArray *allRTs = [_dataSource allLegacyRefreshTokens];
-    XCTAssertEqual([allRTs count], 1);
-    
-    [token setValue:DEFAULT_TEST_REFRESH_TOKEN forKey:@"token"];
-    XCTAssertEqualObjects(allRTs[0], token);
-}
-
 @end
 

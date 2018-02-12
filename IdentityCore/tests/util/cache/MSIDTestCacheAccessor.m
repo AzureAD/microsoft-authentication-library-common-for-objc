@@ -62,7 +62,7 @@
         return NO;
     }
     
-    return [self saveTokenForAccount:account token:token context:context error:error];
+    return [self saveTokenForAccount:account token:token clientId:parameters.clientId authority:parameters.authority context:context error:error];
 }
 
 - (MSIDToken *)getATForAccount:(MSIDAccount *)account
@@ -72,7 +72,8 @@
 {
     return [self getTokenForAccount:account
                           tokenType:MSIDTokenTypeAccessToken
-                             params:parameters
+                           clientId:parameters.clientId
+                          authority:parameters.authority
                             context:context
                               error:error];
 }
@@ -85,7 +86,8 @@
     
     return (MSIDAdfsToken *)[self getTokenForAccount:account
                                            tokenType:MSIDTokenTypeAdfsUserToken
-                                              params:parameters
+                                            clientId:parameters.clientId
+                                           authority:parameters.authority
                                              context:context
                                                error:error];
 }
@@ -95,7 +97,12 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    return [self saveTokenForAccount:account token:refreshToken context:context error:error];
+    return [self saveTokenForAccount:account
+                               token:refreshToken
+                            clientId:refreshToken.clientId
+                           authority:refreshToken.authority
+                             context:context
+                               error:error];
 }
 
 
@@ -106,7 +113,8 @@
 {
     return [self getTokenForAccount:account
                           tokenType:MSIDTokenTypeRefreshToken
-                             params:parameters
+                           clientId:parameters.clientId
+                          authority:parameters.authority
                             context:context
                               error:error];
 }
@@ -164,7 +172,10 @@
         return NO;
     }
     
-    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.tokenType];
+    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account
+                                                      tokenType:token.tokenType
+                                                       clientId:token.clientId
+                                                      authority:token.authority];
     
     NSMutableArray *accountTokens = nil;
     
@@ -180,10 +191,26 @@
     return YES;
 }
 
+- (MSIDToken *)getLatestRTForToken:(MSIDToken *)token
+                           account:(MSIDAccount *)account
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError *__autoreleasing *)error
+{
+    return [self getTokenForAccount:account
+                          tokenType:MSIDTokenTypeRefreshToken
+                           clientId:token.clientId
+                          authority:token.authority
+                            context:context
+                              error:error];
+}
+
+
 #pragma mark - Helpers
 
 - (BOOL)saveTokenForAccount:(MSIDAccount *)account
                       token:(MSIDToken *)token
+                   clientId:(NSString *)clientId
+                  authority:(NSURL *)authority
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
@@ -198,7 +225,7 @@
         return NO;
     }
     
-    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.tokenType];
+    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.tokenType clientId:clientId authority:authority];
     
     NSMutableArray *accountTokens = nil;
     
@@ -222,12 +249,14 @@
 
 - (MSIDToken *)getTokenForAccount:(MSIDAccount *)account
                         tokenType:(MSIDTokenType)tokenType
-                           params:(MSIDRequestParameters *)parameters
+                         clientId:(NSString *)clientId
+                        authority:(NSURL *)authority
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
     if (!account
-        || !parameters)
+        || !clientId
+        || !authority)
     {
         if (error)
         {
@@ -237,7 +266,7 @@
         return nil;
     }
     
-    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:tokenType];
+    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:tokenType clientId:clientId authority:authority];
     
     NSMutableArray *accountTokens = nil;
     
@@ -255,6 +284,8 @@
 
 - (NSString *)tokenIdentifierForAccount:(MSIDAccount *)account
                               tokenType:(MSIDTokenType)tokenType
+                               clientId:(NSString *)clientId
+                              authority:(NSURL *)authority
 {
     NSString *userIdentifier = account.userIdentifier;
     
@@ -263,7 +294,9 @@
         userIdentifier = account.upn;
     }
     
-    return [NSString stringWithFormat:@"%@_%@", userIdentifier, [self tokenTypeAsString:tokenType]];
+    NSString *cloudIdentifier = tokenType == MSIDTokenTypeRefreshToken ? authority.msidHostWithPortIfNecessary : authority.absoluteString;
+    
+    return [NSString stringWithFormat:@"%@_%@_%@_%@", userIdentifier, [self tokenTypeAsString:tokenType], clientId, cloudIdentifier];
 }
 
 - (NSString *)tokenTypeAsString:(MSIDTokenType)tokenType
@@ -282,7 +315,10 @@
 
 - (void)addToken:(MSIDToken *)token forAccount:(MSIDAccount *)account
 {
-    [self saveTokenForAccount:account token:token context:nil error:nil];
+    NSString *familyId = [NSString stringWithFormat:@"foci-%@", token.familyId];
+    NSString *clientId = [NSString msidIsStringNilOrBlank:token.familyId] ? token.clientId : familyId;
+    
+    [self saveTokenForAccount:account token:token clientId:clientId authority:token.authority context:nil error:nil];
 }
 
 - (void)reset
@@ -321,23 +357,11 @@
         // Filter out tokens based on the token type
         for (NSString *key in [_cacheContents allKeys])
         {
-            if ([key hasSuffix:[self tokenTypeAsString:type]]
+            if ([key containsString:[self tokenTypeAsString:type]]
+                && (!clientId || [key containsString:clientId])
                 && _cacheContents[key])
             {
-                if (clientId)
-                {
-                    for (MSIDToken *token in _cacheContents[key])
-                    {
-                        if ([token.clientId isEqualToString:clientId])
-                        {
-                            [resultTokens addObject:token];
-                        }
-                    }
-                }
-                else
-                {
-                    [resultTokens addObjectsFromArray:_cacheContents[key]];
-                }
+                [resultTokens addObjectsFromArray:_cacheContents[key]];
             }
         }
         

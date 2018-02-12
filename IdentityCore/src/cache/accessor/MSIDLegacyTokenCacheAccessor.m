@@ -249,6 +249,16 @@
         return NO;
     }
     
+    if (!token)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Token not provided", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        return NO;
+    }
+    
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:token.authority
                                                         clientId:token.clientId
                                                         resource:token.resource

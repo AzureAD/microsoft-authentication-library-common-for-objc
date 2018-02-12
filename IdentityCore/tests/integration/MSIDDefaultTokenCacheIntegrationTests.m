@@ -386,7 +386,7 @@
                                                                                                           uid:DEFAULT_TEST_UID
                                                                                                          utid:DEFAULT_TEST_UTID
                                                                                                      familyId:nil]
-                                                         request:[MSIDTestRequestParams v2ParamsWithAuthority:[NSURL URLWithString:@"https://contoso2.com"]
+                                                         request:[MSIDTestRequestParams v2ParamsWithAuthority:[NSURL URLWithString:@"https://contoso2.com/common"]
                                                                                                   redirectUri:nil
                                                                                                      clientId:DEFAULT_TEST_CLIENT_ID
                                                                                                        scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]]
@@ -771,40 +771,6 @@
     
     NSArray *allATs = [_dataSource allDefaultAccessTokens];
     XCTAssertEqual([allATs count], 1);
-}
-
-- (void)testRemoveSharedRTForAccount_whenItemInCache_butWithDifferentRT_shouldNotRemoveItem
-{
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                       utid:DEFAULT_TEST_UTID
-                                                        uid:DEFAULT_TEST_UID];
-    
-    // Save a refresh token
-    MSIDToken *refreshToken = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
-                                                               request:[MSIDTestRequestParams v2DefaultParams]
-                                                             tokenType:MSIDTokenTypeRefreshToken];
-    
-    [_cacheAccessor saveSharedRTForAccount:account
-                              refreshToken:refreshToken
-                                   context:nil
-                                     error:nil];
-    
-    NSError *error = nil;
-
-    // Delete a token with different refresh token value
-    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponseWithRefreshToken:@"DIFFTOKEN"];
-    MSIDToken *refreshTokenToDelete = [[MSIDToken alloc] initWithTokenResponse:response
-                                                               request:[MSIDTestRequestParams v2DefaultParams]
-                                                             tokenType:MSIDTokenTypeRefreshToken];
-    BOOL result = [_cacheAccessor removeSharedRTForAccount:account
-                                                     token:refreshTokenToDelete
-                                                   context:nil error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-    
-    NSArray *allRTs = [_dataSource allDefaultRefreshTokens];
-    XCTAssertEqual([allRTs count], 1);
 }
 
 @end
