@@ -85,7 +85,7 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
         return nil;
     }
     
-    return [NSDate dateWithTimeIntervalSince1970:[expiresOn doubleValue]];
+    return [NSDate dateWithTimeIntervalSince1970:[expiresOn integerValue]];
 }
 
 @end

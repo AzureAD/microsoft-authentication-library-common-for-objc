@@ -387,15 +387,18 @@
                               error:nil];
     
     // save 4th token with different user
-    MSIDAccount *account2 = [[MSIDAccount alloc] initWithUpn:nil utid:@"UTID2" uid:@"UID2"];
     
-    MSIDAccessToken *token4 = [[MSIDAccessToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
-                                                                                                           RT:DEFAULT_TEST_REFRESH_TOKEN
-                                                                                                       scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
-                                                                                                      idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
-                                                                                                          uid:account2.uid
-                                                                                                         utid:account2.utid
-                                                                                                     familyId:nil]
+    MSIDTokenResponse *otherResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                 RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                uid:@"UID2"
+                                                                               utid:@"UTID2"
+                                                                           familyId:nil];
+    
+    MSIDAccount *account2 = [[MSIDAccount alloc] initWithTokenResponse:otherResponse];
+    
+    MSIDAccessToken *token4 = [[MSIDAccessToken alloc] initWithTokenResponse:otherResponse
                                                                      request:[MSIDTestRequestParams v2DefaultParams]];
     
     [_cacheAccessor saveAccessToken:token4

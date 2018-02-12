@@ -25,36 +25,54 @@
 
 @implementation MSIDMacTokenCache
 
-- (BOOL)setItemWithKey:(MSIDTokenCacheKey *)key
-                  item:(MSIDBaseToken *)item
-            serializer:(id<MSIDTokenSerializer>)serializer
-               context:(id<MSIDRequestContext>)context
-                 error:(NSError **)error
+- (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError *__autoreleasing *)error
 {
     return NO;
 }
 
-- (MSIDBaseToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                    serializer:(id<MSIDTokenSerializer>)serializer
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+
+- (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
+                          error:(NSError *__autoreleasing *)error
+{
+    return NO;
+}
+
+
+- (BOOL)setItem:(MSIDToken *)item
+            key:(MSIDTokenCacheKey *)key
+     serializer:(id<MSIDTokenSerializer>)serializer
+        context:(id<MSIDRequestContext>)context
+          error:(NSError *__autoreleasing *)error
+{
+    return NO;
+}
+
+
+- (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
+                     error:(NSError *__autoreleasing *)error
 {
     return nil;
 }
 
-- (BOOL)removeItemWithKey:(MSIDTokenCacheKey *)key
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
-{
-    return YES;
-}
-
-- (NSArray<MSIDBaseToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                                serializer:(id<MSIDTokenSerializer>)serializer
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
+- (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
+                serializer:(id<MSIDTokenSerializer>)serializer
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError *__autoreleasing *)error
 {
     return nil;
 }
+
+
+- (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+                            serializer:(id<MSIDTokenSerializer>)serializer
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError *__autoreleasing *)error
+{
+    return nil;
+}
+
+
 
 @end

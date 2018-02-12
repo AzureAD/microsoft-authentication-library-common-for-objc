@@ -86,7 +86,7 @@
     BOOL result = [keychainTokenCache setItem:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertTrue(result);
     
-    MSIDRefreshToken *token2 = [keychainTokenCache itemWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    MSIDRefreshToken *token2 = (MSIDRefreshToken *)[keychainTokenCache itemWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
     
     XCTAssertEqualObjects(token, token2);
 }
@@ -295,7 +295,7 @@
     [keychainTokenCache setItem:token3 key:key3 serializer:keyedArchiverSerializer context:nil error:nil];
     NSError *error;
     
-    NSArray<MSIDRefreshToken *> *items = [keychainTokenCache itemsWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];
+    NSArray<MSIDRefreshToken *> *items = (NSArray<MSIDRefreshToken *> *)([keychainTokenCache itemsWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil]);
     
     XCTAssertEqual(items.count, 2);
     XCTAssertNil(error);

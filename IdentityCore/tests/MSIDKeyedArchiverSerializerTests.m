@@ -67,7 +67,7 @@
     [expectedToken setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
     
     NSData *data = [serializer serialize:expectedToken];
-    MSIDAccessToken *resultToken = [serializer deserialize:data];
+    MSIDAccessToken *resultToken = (MSIDAccessToken *)[serializer deserialize:data];
     
     XCTAssertNotNil(data);
     XCTAssertEqualObjects(resultToken, expectedToken);
@@ -95,7 +95,7 @@
 {
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
     
-    MSIDAccessToken *token = [serializer deserialize:nil];
+    MSIDAccessToken *token = (MSIDAccessToken *)[serializer deserialize:nil];
     
     XCTAssertNil(token);
 }
@@ -105,7 +105,7 @@
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
-    MSIDAccessToken *token = [serializer deserialize:data];
+    MSIDAccessToken *token = (MSIDAccessToken *)[serializer deserialize:data];
     
     XCTAssertNil(token);
 }
