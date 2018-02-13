@@ -337,6 +337,7 @@
 		232153191FDA101900C6960D /* MSIDUserInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDUserInformation.m; sourceTree = "<group>"; };
 		2321531D1FDA1AF100C6960D /* MSIDKeyedArchiverSerializerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyedArchiverSerializerTests.m; sourceTree = "<group>"; };
 		2321532C1FDF4FD800C6960D /* MSIDTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenTests.m; sourceTree = "<group>"; };
+		237A6D61203269740084E15F /* MSIDJsonSerializable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJsonSerializable.h; sourceTree = "<group>"; };
 		23BDA6671FC7774300FE14BE /* MSIDDictionaryExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDDictionaryExtensionsTests.m; sourceTree = "<group>"; };
 		23BDA66C1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
 		23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
@@ -850,6 +851,7 @@
 		D62600091FBD305800EE4487 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				237A6D61203269740084E15F /* MSIDJsonSerializable.h */,
 				96CD69571FE84A0300D41938 /* MSIDJsonObject.h */,
 				96CD69581FE84A0300D41938 /* MSIDJsonObject.m */,
 				96CD69551FE84A0300D41938 /* MSIDURLFormObject.h */,

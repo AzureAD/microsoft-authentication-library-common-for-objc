@@ -28,9 +28,15 @@
 
 - (NSData *)serialize:(MSIDToken *)token
 {
-    NSError *error;
-    NSData *data = [token serialize:&error];
+    if (!token)
+    {
+        return nil;
+    }
     
+    NSError *error;
+    NSData *data = [NSJSONSerialization dataWithJSONObject:[token jsonDictionary]
+                                                   options:0
+                                                     error:&error];
     if (error)
     {
         return nil;
@@ -45,7 +51,13 @@
 - (MSIDToken *)deserialize:(NSData *)data
 {
     NSError *error;
-    MSIDToken *token = [[MSIDToken alloc] initWithJSONData:data error:&error];
+    NSDictionary *json = [self unarchiveJson:data error:&error];
+    
+    MSIDToken *token;
+    if (!error)
+    {
+        token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
+    }
     
     if (error)
     {
@@ -55,6 +67,28 @@
     }
     
     return token;
+}
+
+#pragma mark - Private
+
+- (NSDictionary *)unarchiveJson:(NSData *)data error:(NSError *__autoreleasing *)error
+{
+    if (!data)
+    {
+        if (error)
+        {
+            NSString *errorDescription = [NSString stringWithFormat:@"Attempt to initialize JSON object (%@) with nil data", NSStringFromClass(self.class)];
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:error];
+    
+    return json;
 }
 
 @end

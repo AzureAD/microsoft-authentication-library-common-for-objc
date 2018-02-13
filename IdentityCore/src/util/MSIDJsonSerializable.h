@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,36 +15,18 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
 
-#define MSID_JSON_ACCESSOR(KEY, GETTER) DICTIONARY_READ_PROPERTY_IMPL(_json, KEY, GETTER)
-#define MSID_JSON_MUTATOR(KEY, SETTER) DICTIONARY_WRITE_PROPERTY_IMPL(_json, KEY, SETTER)
-
-#define MSID_JSON_RW(KEY, GETTER, SETTER) \
-    MSID_JSON_ACCESSOR(KEY, GETTER) \
-    MSID_JSON_MUTATOR(KEY, SETTER)
-
-@interface MSIDJsonObject : NSObject <NSCopying, MSIDJsonSerializable>
-{
-    NSMutableDictionary *_json;
-}
-
-- (instancetype)initWithJSONData:(NSData *)data
-                           error:(NSError * __autoreleasing *)error;
+@protocol MSIDJsonSerializable <NSObject>
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(NSError * __autoreleasing *)error NS_DESIGNATED_INITIALIZER;
-
+                                 error:(NSError * __autoreleasing *)error;
 - (NSDictionary *)jsonDictionary;
-- (NSData *)serialize:(NSError * __autoreleasing *)error;
 
 @end

@@ -44,20 +44,51 @@ static uint64_t s_expirationBuffer = 300;
 @property (readwrite) MSIDTokenType tokenType;
 @property (readwrite) NSString *resource;
 @property (readwrite) NSOrderedSet<NSString *> *scopes;
+@property (readwrite) NSDictionary *json;
 
 @end
 
 @implementation MSIDToken
 
+- (BOOL)isExpired;
+{
+    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:s_expirationBuffer];
+    return [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
+}
+
+- (BOOL)isEqualToToken:(MSIDToken *)token
+{
+    if (!token)
+    {
+        return NO;
+    }
+    
+    BOOL result = YES;
+    result &= (!self.token && !token.token) || [self.token isEqualToString:token.token];
+    result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
+    result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
+    result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
+    result &= (!self.clientInfo && !token.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:token.clientInfo.rawClientInfo];
+    result &= (!self.additionalServerInfo && !token.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:token.additionalServerInfo];
+    result &= self.tokenType == token.tokenType;
+    result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
+    result &= (!self.authority && !token.authority) || [self.authority.absoluteString isEqualToString:token.authority.absoluteString];
+    result &= (!self.clientId && !token.clientId) || [self.clientId isEqualToString:token.clientId];
+    result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
+    
+    return result;
+}
+
+#pragma mark - MSIDJsonSerializable
+
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{    
-    if (!(self = [super initWithJSONDictionary:json error:error]))
+{
+    if (!(self = [super init]))
     {
         return nil;
     }
     
-//    // We don't use _json variable.
-//    _json = nil;
+    self.json = json;
     
     _idToken = json[MSID_OAUTH2_ID_TOKEN];
     _familyId = json[MSID_FAMILY_ID];
@@ -128,36 +159,16 @@ static uint64_t s_expirationBuffer = 300;
         [dictionary setValue:self.token forKey:MSID_OAUTH2_ACCESS_TOKEN];
     }
     
-    [_json addEntriesFromDictionary:dictionary];
-    
-    return _json;
-}
-
-- (BOOL)isExpired;
-{
-    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:s_expirationBuffer];
-    return [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
-}
-
-- (BOOL)isEqualToToken:(MSIDToken *)token
-{
-    if (!token)
+    NSMutableDictionary *result;
+    if (self.json)
     {
-        return NO;
+        result = [self.json mutableCopy];
+        [result addEntriesFromDictionary:dictionary];
     }
-    
-    BOOL result = YES;
-    result &= (!self.token && !token.token) || [self.token isEqualToString:token.token];
-    result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
-    result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
-    result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
-    result &= (!self.clientInfo && !token.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:token.clientInfo.rawClientInfo];
-    result &= (!self.additionalServerInfo && !token.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:token.additionalServerInfo];
-    result &= self.tokenType == token.tokenType;
-    result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
-    result &= (!self.authority && !token.authority) || [self.authority.absoluteString isEqualToString:token.authority.absoluteString];
-    result &= (!self.clientId && !token.clientId) || [self.clientId isEqualToString:token.clientId];
-    result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
+    else
+    {
+        result = dictionary;
+    }
     
     return result;
 }
