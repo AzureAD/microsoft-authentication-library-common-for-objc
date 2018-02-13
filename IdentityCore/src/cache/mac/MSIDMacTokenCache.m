@@ -75,33 +75,35 @@
         return nil;
     }
     
-    __block NSData *result = nil;
-    dispatch_barrier_sync(self.synchronizationQueue, ^{
-        NSDictionary *cacheCopy = [self.cache mutableCopy];
-        
-        // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
-        NSDictionary *wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",@CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
-        
-        @try
-        {
-            NSMutableData *data = [NSMutableData data];
-            
-            NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-            // Maintain backward compatibility with ADAL.
-            [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDTokenCacheKey.class];
-            [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDToken.class];
-            [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
-            [archiver encodeObject:wrapper forKey:NSKeyedArchiveRootObjectKey];
-            [archiver finishEncoding];
-            
-            result = data;
-        }
-        @catch (id exception)
-        {
-            // This should be exceedingly rare as all of the objects in the cache we placed there.
-            MSID_LOG_ERROR(nil, @"Failed to serialize the cache!");
-        }
+    __block NSDictionary *cacheCopy = nil;
+    dispatch_sync(self.synchronizationQueue, ^{
+        cacheCopy = [self.cache mutableCopy];
     });
+    
+    NSData *result = nil;
+    
+    // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
+    NSDictionary *wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",@CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
+    
+    @try
+    {
+        NSMutableData *data = [NSMutableData data];
+        
+        NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+        // Maintain backward compatibility with ADAL.
+        [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDTokenCacheKey.class];
+        [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDToken.class];
+        [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
+        [archiver encodeObject:wrapper forKey:NSKeyedArchiveRootObjectKey];
+        [archiver finishEncoding];
+        
+        result = data;
+    }
+    @catch (id exception)
+    {
+        // This should be exceedingly rare as all of the objects in the cache we placed there.
+        MSID_LOG_ERROR(nil, @"Failed to serialize the cache!");
+    }
     
     return result;
 }
@@ -109,37 +111,37 @@
 - (BOOL)deserialize:(nullable NSData*)data
               error:(NSError **)error
 {
+    NSDictionary *cache = nil;
     __block BOOL result = NO;
+    
+    @try
+    {
+        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+        // Maintain backward compatibility with ADAL.
+        [unarchiver setClass:MSIDTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
+        [unarchiver setClass:MSIDToken.class forClassName:@"ADTokenCacheStoreItem"];
+        [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
+        cache = [unarchiver decodeObjectOfClass:NSDictionary.class forKey:NSKeyedArchiveRootObjectKey];
+        [unarchiver finishDecoding];
+    }
+    @catch (id expection)
+    {
+        if (error) {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheBadFormat, @"Failed to unarchive data blob from -deserialize!", nil, nil, nil, nil, nil);
+        }
+    }
+    
+    if (!cache)
+    {
+        result = NO;
+    }
+    
+    if (![self validateCache:cache error:error])
+    {
+        result = NO;
+    }
+    
     dispatch_barrier_sync(self.synchronizationQueue, ^{
-        NSDictionary *cache = nil;
-        
-        @try
-        {
-            NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-            // Maintain backward compatibility with ADAL.
-            [unarchiver setClass:MSIDTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
-            [unarchiver setClass:MSIDToken.class forClassName:@"ADTokenCacheStoreItem"];
-            [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
-            cache = [unarchiver decodeObjectOfClass:NSDictionary.class forKey:NSKeyedArchiveRootObjectKey];
-            [unarchiver finishDecoding];
-        }
-        @catch (id expection)
-        {
-            if (error) {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheBadFormat, @"Failed to unarchive data blob from -deserialize!", nil, nil, nil, nil, nil);
-            }
-        }
-        
-        if (!cache)
-        {
-            result = NO;
-        }
-        
-        if (![self validateCache:cache error:error])
-        {
-            result = NO;
-        }
-        
         self.cache = [cache objectForKey:@"tokenCache"];
         result = YES;
     });
@@ -174,13 +176,11 @@
             key:(MSIDTokenCacheKey *)key
      serializer:(id<MSIDTokenSerializer>)serializer
         context:(id<MSIDRequestContext>)context
-          error:(NSError **)error
+          error:(NSError * __autoreleasing *)error
 {
     [self.delegate willWriteCache:self];
-    __block BOOL result = NO;
-    dispatch_barrier_sync(self.synchronizationQueue, ^{
-       result = [self setItemImpl:item key:key serializer:serializer context:context error:error];
-    });
+    BOOL result = NO;
+    result = [self setItemImpl:item key:key serializer:serializer context:context error:error];
     [self.delegate didWriteCache:self];
     
     return result;
@@ -209,7 +209,7 @@
 
 - (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError * __autoreleasing *)error
 {
     [self.delegate willWriteCache:self];
     __block BOOL result = NO;
@@ -224,13 +224,11 @@
 - (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
                             serializer:(id<MSIDTokenSerializer>)serializer
                                context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error
+                                 error:(NSError * __autoreleasing *)error
 {
     [self.delegate willAccessCache:self];
-    __block NSArray *result = nil;
-    dispatch_sync(self.synchronizationQueue, ^{
-        result = [self itemsWithKeyImpl:key serializer:serializer context:nil error:error];
-    });
+    NSArray *result = nil;
+    result = [self itemsWithKeyImpl:key serializer:serializer context:nil error:error];
     [self.delegate didAccessCache:self];
     
     return result;
@@ -406,15 +404,17 @@
         return NO;
     }
     
-    // Grab the token dictionary for this user id.
-    NSMutableDictionary *userDict = self.cache[@"tokens"][key.account];
-    if (!userDict)
-    {
-        userDict = [NSMutableDictionary new];
-        self.cache[@"tokens"][key.account] = userDict;
-    }
-    
-    userDict[[self keyWithoutAccount:key]] = item;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        // Grab the token dictionary for this user id.
+        NSMutableDictionary *userDict = self.cache[@"tokens"][key.account];
+        if (!userDict)
+        {
+            userDict = [NSMutableDictionary new];
+            self.cache[@"tokens"][key.account] = userDict;
+        }
+        
+        userDict[[self keyWithoutAccount:key]] = item;
+    });
     
     return YES;
 }
@@ -427,7 +427,11 @@
     MSID_LOG_INFO(context, @"Get items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Get items, key info (account: %@ service: %@)", key.account, key.service);
     
-    NSDictionary *tokens = [self.cache objectForKey:@"tokens"];
+    __block NSDictionary *tokens;
+    dispatch_sync(self.synchronizationQueue, ^{
+        tokens = [[self.cache objectForKey:@"tokens"] copy];
+    });
+    
     if (!tokens)
     {
         return nil;
