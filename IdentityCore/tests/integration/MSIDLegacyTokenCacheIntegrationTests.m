@@ -34,6 +34,7 @@
 #import "MSIDAADV1RequestParameters.h"
 #import "MSIDAADV2RequestParameters.h"
 #import "MSIDAdfsToken.h"
+#import "MSIDUserInformation.h"
 
 @interface MSIDLegacyTokenCacheTests : XCTestCase
 {
@@ -507,12 +508,18 @@
                              context:nil
                                error:&error];
     
-    // Second token
-    MSIDAccount *secondAccount = [[MSIDAccount alloc] initWithUpn:@"user2@contoso.com"
-                                                             utid:@"utid2"
-                                                              uid:@"uid2"];
+    MSIDTokenResponse *secondResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                  rt:DEFAULT_TEST_REFRESH_TOKEN
+                                                                            resource:DEFAULT_TEST_RESOURCE
+                                                                                 uid:@"uid2"
+                                                                                utid:DEFAULT_TEST_UTID
+                                                                                 upn:@"user2@contoso.com"
+                                                                            tenantId:DEFAULT_TEST_UTID];
     
-    MSIDToken *secondToken = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+    // Second token
+    MSIDAccount *secondAccount = [[MSIDAccount alloc] initWithTokenResponse:secondResponse];
+    
+    MSIDToken *secondToken = [[MSIDToken alloc] initWithTokenResponse:secondResponse
                                                               request:[MSIDTestRequestParams v1DefaultParams]
                                                             tokenType:MSIDTokenTypeAccessToken];
     
@@ -530,6 +537,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(firstToken);
+    
     XCTAssertEqualObjects(returnedToken, firstToken);
     
     NSArray *allAccessTokens = [_dataSource allLegacyAccessTokens];

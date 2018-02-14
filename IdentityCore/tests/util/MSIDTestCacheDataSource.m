@@ -227,6 +227,7 @@
     string = [string stringByReplacingOccurrencesOfString:@"." withString:@"\\."];
     string = [string stringByReplacingOccurrencesOfString:@"$" withString:@"\\$"];
     string = [string stringByReplacingOccurrencesOfString:@"/" withString:@"\\/"];
+    string = [string stringByReplacingOccurrencesOfString:@"|" withString:@"\\|"];
     return string;
 }
 
