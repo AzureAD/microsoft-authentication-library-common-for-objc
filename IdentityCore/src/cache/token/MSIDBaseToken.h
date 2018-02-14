@@ -34,9 +34,8 @@
     NSString *_clientId;
     
     MSIDClientInfo *_clientInfo;
-    NSString *_idToken;
     
-    NSDictionary *_additionalServerInfo;
+    NSDictionary *_additionalInfo;
     MSIDTokenType _tokenType;
 }
 
@@ -44,10 +43,8 @@
 @property (readwrite) NSString *clientId;
 
 @property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSString *idToken;
-
-@property (readonly) NSDictionary *additionalServerInfo;
 @property (readonly) MSIDTokenType tokenType;
+@property (readonly) NSDictionary *additionalInfo;
 
 - (BOOL)isEqualToToken:(MSIDBaseToken *)token;
 

@@ -23,6 +23,7 @@
 
 #import "MSIDRefreshToken.h"
 #import "MSIDAADTokenResponse.h"
+#import "MSIDUserInformation.h"
 
 @implementation MSIDRefreshToken
 
@@ -33,6 +34,7 @@
     MSIDRefreshToken *item = [super copyWithZone:zone];
     item->_refreshToken = [_refreshToken copyWithZone:zone];
     item->_familyId = [_familyId copyWithZone:zone];
+    item->_idToken = [_idToken copyWithZone:zone];
     
     return item;
 }
@@ -49,6 +51,9 @@
     _refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     _familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
     
+    // Decode id_token from a backward compatible way
+    _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
+    
     return self;
 }
 
@@ -58,6 +63,11 @@
     
     [coder encodeObject:self.familyId forKey:@"familyId"];
     [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
+    
+    // Encode id_token in backward compatible way with ADAL
+    MSIDUserInformation *userInformation = [MSIDUserInformation new];
+    userInformation.rawIdToken = self.idToken;
+    [coder encodeObject:userInformation forKey:@"userInformation"];
 }
 
 #pragma mark - NSObject
@@ -82,6 +92,7 @@
     NSUInteger hash = [super hash];
     hash ^= self.refreshToken.hash;
     hash ^= self.familyId.hash;
+    hash ^= self.idToken.hash;
     
     return hash;
 }
@@ -96,6 +107,7 @@
     BOOL result = [super isEqualToToken:token];
     result &= (!self.refreshToken && !token.refreshToken) || [self.refreshToken isEqualToString:token.refreshToken];
     result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
+    result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
     
     return result;
 }

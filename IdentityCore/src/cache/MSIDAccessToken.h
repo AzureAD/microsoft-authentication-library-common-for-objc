@@ -24,11 +24,21 @@
 #import "MSIDBaseToken.h"
 
 @interface MSIDAccessToken : MSIDBaseToken
+{
+    NSString *_idToken;
+}
 
 @property (readonly) NSDate *expiresOn;
+@property (readonly) NSDate *cachedAt;
 @property (readonly) NSString *accessToken;
 
+// Id token is necessary for backward ADAL compatibility
+@property (readonly) NSString *idToken;
+
+// v1 access tokens are scoped down to resources
 @property (readonly) NSString *resource;
+
+// v2 access tokens are scoped down to resources
 @property (readonly) NSOrderedSet<NSString *> *scopes;
 
 - (BOOL)isExpired;

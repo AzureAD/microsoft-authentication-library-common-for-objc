@@ -38,6 +38,7 @@ static uint64_t s_expirationBuffer = 300;
 {
     MSIDAccessToken *item = [super copyWithZone:zone];
     item->_expiresOn = [_expiresOn copyWithZone:zone];
+    item->_cachedAt = [_cachedAt copyWithZone:zone];
     item->_accessToken = [_accessToken copyWithZone:zone];
     item->_resource = [_resource copyWithZone:zone];
     item->_scopes = [_scopes copyWithZone:zone];
@@ -58,6 +59,7 @@ static uint64_t s_expirationBuffer = 300;
     _accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
     _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
     _scopes = [coder decodeObjectOfClass:[NSOrderedSet class] forKey:@"scopes"];
+    _cachedAt = [coder decodeObjectOfClass:[NSDate class] forKey:@"cachedAt"];
     
     return self;
 }
@@ -70,6 +72,7 @@ static uint64_t s_expirationBuffer = 300;
     [coder encodeObject:self.accessToken forKey:@"accessToken"];
     [coder encodeObject:self.resource forKey:@"resource"];
     [coder encodeObject:self.scopes forKey:@"scopes"];
+    [coder encodeObject:self.cachedAt forKey:@"cachedAt"];
 }
 
 #pragma mark - NSObject
@@ -96,6 +99,7 @@ static uint64_t s_expirationBuffer = 300;
     hash ^= self.accessToken.hash;
     hash ^= self.resource.hash;
     hash ^= self.scopes.hash;
+    hash ^= self.cachedAt.hash;
     
     return hash;
 }
@@ -112,6 +116,7 @@ static uint64_t s_expirationBuffer = 300;
     result &= (!self.accessToken && !token.accessToken) || [self.accessToken isEqualToString:token.accessToken];
     result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
     result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
+    result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
     
     return result;
 }
@@ -130,6 +135,7 @@ static uint64_t s_expirationBuffer = 300;
     
     _resource = json[MSID_OAUTH2_RESOURCE];
     _scopes = [json[MSID_OAUTH2_SCOPE] scopeSet];
+    _cachedAt = json[MSID_OAUTH2_CACHED_AT] ? [NSDate dateWithTimeIntervalSince1970:[json[MSID_OAUTH2_CACHED_AT] doubleValue]] : nil;
     
     return self;
 }
@@ -146,6 +152,11 @@ static uint64_t s_expirationBuffer = 300;
     [dictionary setValue:_accessToken forKey:MSID_OAUTH2_ACCESS_TOKEN];
     [dictionary setValue:_resource forKey:MSID_OAUTH2_RESOURCE];
     [dictionary setValue:[_scopes msidToString] forKey:MSID_OAUTH2_SCOPE];
+    
+    if (self.cachedAt)
+    {
+        dictionary[MSID_OAUTH2_CACHED_AT] = [NSString stringWithFormat:@"%qu", (uint64_t)[_cachedAt timeIntervalSince1970]];
+    }
     
     return dictionary;
 }
@@ -213,10 +224,10 @@ static uint64_t s_expirationBuffer = 300;
     if ([response isKindOfClass:[MSIDAADTokenResponse class]])
     {
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
-        NSMutableDictionary *serverInfo = [_additionalServerInfo mutableCopy];
+        NSMutableDictionary *serverInfo = [_additionalInfo mutableCopy];
         [serverInfo setValue:aadTokenResponse.extendedExpiresIn
                       forKey:@"ext_expires_on"];
-        _additionalServerInfo = serverInfo;
+        _additionalInfo = serverInfo;
     }
 }
 

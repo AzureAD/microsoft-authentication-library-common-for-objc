@@ -56,6 +56,7 @@ extern NSString *const MSID_OAUTH2_SCOPE_OPENID_VALUE;
 extern NSString *const MSID_OAUTH2_ASSERTION;
 
 extern NSString *const MSID_OAUTH2_EXPIRES_ON;
+extern NSString *const MSID_OAUTH2_CACHED_AT;
 extern NSString *const MSID_OAUTH2_EXT_EXPIRES_IN;
 extern NSString *const MSID_FAMILY_ID;
 

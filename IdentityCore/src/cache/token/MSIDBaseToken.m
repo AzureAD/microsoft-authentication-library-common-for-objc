@@ -36,8 +36,7 @@
     item->_authority = [_authority copyWithZone:zone];
     item->_clientId = [_clientId copyWithZone:zone];
     item->_clientInfo = [_clientInfo copyWithZone:zone];
-    item->_idToken = [_idToken copyWithZone:zone];
-    item->_additionalServerInfo = [_additionalServerInfo copyWithZone:zone];
+    item->_additionalInfo = [_additionalInfo copyWithZone:zone];
     item->_tokenType = _tokenType;
     
     return item;
@@ -74,10 +73,7 @@
         MSID_LOG_ERROR_PII(nil, @"Client info is corrupted, error: %@", error);
     }
     
-    // Decode id_token from a backward compatible way
-    _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
-    
-    _additionalServerInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
+    _additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
     
     return self;
 }
@@ -89,13 +85,7 @@
     
     // Encode client info as string
     [coder encodeObject:self.clientInfo.rawClientInfo forKey:@"clientInfo"];
-    
-    // Encode id_token in backward compatible way with ADAL
-    MSIDUserInformation *userInformation = [MSIDUserInformation new];
-    userInformation.rawIdToken = self.idToken;
-    [coder encodeObject:userInformation forKey:@"userInformation"];
-    
-    [coder encodeObject:self.additionalServerInfo forKey:@"additionalServer"];
+    [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
     
     // Backward compatibility with ADAL.
     [coder encodeObject:@"Bearer" forKey:@"accessTokenType"];
@@ -123,8 +113,7 @@
     NSUInteger hash = self.authority.hash;
     hash ^= self.clientId.hash;
     hash ^= self.clientInfo.rawClientInfo.hash;
-    hash ^= self.idToken.hash;
-    hash ^= self.additionalServerInfo.hash;
+    hash ^= self.additionalInfo.hash;
     hash ^= self.tokenType;
     
     return hash;
@@ -141,8 +130,7 @@
     result &= (!self.authority && !token.authority) || [self.authority.absoluteString isEqualToString:token.authority.absoluteString];
     result &= (!self.clientId && !token.clientId) || [self.clientId isEqualToString:token.clientId];
     result &= (!self.clientInfo && !token.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:token.clientInfo.rawClientInfo];
-    result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
-    result &= (!self.additionalServerInfo && !token.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:token.additionalServerInfo];
+    result &= (!self.additionalInfo && !token.additionalInfo) || [self.additionalInfo isEqualToDictionary:token.additionalInfo];
     result &= self.tokenType == token.tokenType;
     
     return result;
@@ -185,8 +173,7 @@
     }
     
     _clientId = json[MSID_OAUTH2_CLIENT_ID];
-    _idToken = json[MSID_OAUTH2_ID_TOKEN];
-    _additionalServerInfo = json[MSID_OAUTH2_ADDITIONAL_SERVER_INFO];
+    _additionalInfo = json[MSID_OAUTH2_ADDITIONAL_SERVER_INFO];
     
     return self;
 }
@@ -198,8 +185,7 @@
     [dictionary setValue:_authority.msidHostWithPortIfNecessary
                   forKey:MSID_OAUTH2_ENVIRONMENT];
     [dictionary setValue:_clientInfo.rawClientInfo forKey:MSID_OAUTH2_CLIENT_INFO];
-    [dictionary setValue:_idToken forKey:MSID_OAUTH2_ID_TOKEN];
-    [dictionary setValue:_additionalServerInfo
+    [dictionary setValue:_additionalInfo
                   forKey:MSID_OAUTH2_ADDITIONAL_SERVER_INFO];
     [dictionary setValue:_clientId
                   forKey:MSID_OAUTH2_CLIENT_ID];
@@ -238,8 +224,6 @@
     _authority = requestParams.authority;
     _clientId = requestParams.clientId;
     
-    _idToken = response.idToken;
-    
     // Fill in client info and spe info
     if ([response isKindOfClass:[MSIDAADTokenResponse class]])
     {
@@ -249,7 +233,7 @@
         NSMutableDictionary *serverInfo = [NSMutableDictionary dictionary];
         [serverInfo setValue:aadTokenResponse.speInfo
                       forKey:MSID_TELEMETRY_KEY_SPE_INFO];
-        _additionalServerInfo = serverInfo;
+        _additionalInfo = serverInfo;
     }
 }
 
