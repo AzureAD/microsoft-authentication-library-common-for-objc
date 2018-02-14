@@ -164,7 +164,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    XCTAssertEqual(token.tokenType, MSIDTokenTypeAdfsUserToken);
+    XCTAssertEqual(token.tokenType, MSIDTokenTypeLegacyADFSToken);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(token.singleResourceRefreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     

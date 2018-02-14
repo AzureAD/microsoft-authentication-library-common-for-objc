@@ -75,3 +75,14 @@ NSString *const MSID_OAUTH2_LOGIN_REQ                    = @"login_req";
 
 NSString *const MSID_OAUTH2_ADDITIONAL_SERVER_INFO       = @"additional_server_info";
 NSString *const MSID_OAUTH2_ENVIRONMENT                  = @"environment";
+
+NSString *const MSID_CREDENTIAL_TYPE_CACHE_KEY           = @"credential_type";
+NSString *const MSID_ENVIRONMENT_CACHE_KEY               = @"environment";
+NSString *const MSID_UNIQUE_ID_CACHE_KEY                 = @"unique_id";
+NSString *const MSID_CLIENT_ID_CACHE_KEY                 = @"client_id";
+NSString *const MSID_FAMILY_ID_CACHE_KEY                 = @"family_id";
+NSString *const MSID_TOKEN_CACHE_KEY                     = @"secret";
+NSString *const MSID_USERNAME_CACHE_KEY                  = @"username";
+NSString *const MSID_SCOPES_CACHE_KEY                    = @"target";
+NSString *const MSID_CLIENT_INFO_CACHE_KEY               = @"client_info";
+NSString *const MSID_ADDITIONAL_INFO_CACHE_KEY           = @"additional_info";

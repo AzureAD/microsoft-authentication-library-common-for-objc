@@ -21,39 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonObject.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDClientInfo.h"
 #import "MSIDTokenType.h"
 
-/*!
- This is the base class for all possible tokens.
- It's meant to be subclassed to provide additional fields.
- */
+@implementation MSIDTokenTypeHelpers
 
-@interface MSIDBaseToken : MSIDJsonObject <NSCopying, NSSecureCoding>
++ (NSString *)tokenTypeAsString:(MSIDTokenType)type
 {
-    NSURL *_authority;
-    NSString *_clientId;
-    
-    MSIDClientInfo *_clientInfo;
-    
-    NSDictionary *_additionalInfo;
-    MSIDTokenType _tokenType;
+    switch (type)
+    {
+        case MSIDTokenTypeAccessToken:
+            return @"AccessToken";
+            
+        case MSIDTokenTypeRefreshToken:
+            return @"RefreshToken";
+            
+        case MSIDTokenTypeLegacyADFSToken:
+            return @"LegacyADFSToken";
+            
+        case MSIDTokenTypeIDToken:
+            return @"IdToken";
+            
+        default:
+            return @"Token";
+    }
 }
-
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *clientId;
-
-@property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) MSIDTokenType tokenType;
-@property (readonly) NSDictionary *additionalInfo;
-
-- (BOOL)isEqualToToken:(MSIDBaseToken *)token;
-
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams;
 
 @end

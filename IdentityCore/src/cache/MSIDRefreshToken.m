@@ -65,8 +65,7 @@
     [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
     
     // Encode id_token in backward compatible way with ADAL
-    MSIDUserInformation *userInformation = [MSIDUserInformation new];
-    userInformation.rawIdToken = self.idToken;
+    MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
     [coder encodeObject:userInformation forKey:@"userInformation"];
 }
 

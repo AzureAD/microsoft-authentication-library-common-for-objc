@@ -86,7 +86,7 @@
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@"" utid:nil uid:nil];
     
     return (MSIDAdfsToken *)[self getTokenForAccount:account
-                                           tokenType:MSIDTokenTypeAdfsUserToken
+                                           tokenType:MSIDTokenTypeLegacyADFSToken
                                               params:parameters
                                              context:context
                                                error:error];

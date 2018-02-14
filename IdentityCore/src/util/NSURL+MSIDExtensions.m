@@ -110,4 +110,27 @@ const unichar queryStringSeparator = '?';
     return [NSString stringWithFormat:@"%@:%d", self.host.lowercaseString, port.intValue];
 }
 
+// TODO: add unit tests
+- (NSString *)msidTenant
+{
+    NSArray *pathComponents = [self pathComponents];
+    
+    if ([pathComponents count] <= 1)
+    {
+        return nil;
+    }
+    
+    if ([pathComponents[1] caseInsensitiveCompare:@"tfp"] == NSOrderedSame)
+    {
+        if ([pathComponents count] < 3)
+        {
+            return nil;
+        }
+        // TODO: verify if policy should be also part of the cache key
+        return pathComponents[2];
+    }
+    
+    return pathComponents[1];
+}
+
 @end

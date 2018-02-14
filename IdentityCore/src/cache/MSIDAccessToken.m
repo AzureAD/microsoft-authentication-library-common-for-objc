@@ -26,6 +26,7 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDAADV1RequestParameters.h"
 #import "MSIDAADV1TokenResponse.h"
+#import "MSIDUserInformation.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
@@ -60,6 +61,8 @@ static uint64_t s_expirationBuffer = 300;
     _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
     _scopes = [coder decodeObjectOfClass:[NSOrderedSet class] forKey:@"scopes"];
     _cachedAt = [coder decodeObjectOfClass:[NSDate class] forKey:@"cachedAt"];
+    // Decode id_token from a backward compatible way
+    _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     
     return self;
 }
@@ -73,6 +76,10 @@ static uint64_t s_expirationBuffer = 300;
     [coder encodeObject:self.resource forKey:@"resource"];
     [coder encodeObject:self.scopes forKey:@"scopes"];
     [coder encodeObject:self.cachedAt forKey:@"cachedAt"];
+    
+    // Encode id_token in backward compatible way with ADAL
+    MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
+    [coder encodeObject:userInformation forKey:@"userInformation"];
 }
 
 #pragma mark - NSObject
@@ -130,12 +137,12 @@ static uint64_t s_expirationBuffer = 300;
         return nil;
     }
     
-    _expiresOn = json[MSID_OAUTH2_EXPIRES_ON] ? [NSDate dateWithTimeIntervalSince1970:[json[MSID_OAUTH2_EXPIRES_ON] doubleValue]] : nil;
+    _expiresOn = json[MSID_OAUTH2_EXPIRES_ON] ? [NSDate dateWithTimeIntervalSince1970:[json[MSID_OAUTH2_EXPIRES_ON] integerValue]] : nil;
     _accessToken = json[MSID_OAUTH2_ACCESS_TOKEN];
     
     _resource = json[MSID_OAUTH2_RESOURCE];
     _scopes = [json[MSID_OAUTH2_SCOPE] scopeSet];
-    _cachedAt = json[MSID_OAUTH2_CACHED_AT] ? [NSDate dateWithTimeIntervalSince1970:[json[MSID_OAUTH2_CACHED_AT] doubleValue]] : nil;
+    _cachedAt = json[MSID_OAUTH2_CACHED_AT] ? [NSDate dateWithTimeIntervalSince1970:[json[MSID_OAUTH2_CACHED_AT] integerValue]] : nil;
     
     return self;
 }
@@ -206,17 +213,15 @@ static uint64_t s_expirationBuffer = 300;
 
 - (void)fillExpiryFromResponse:(MSIDTokenResponse *)response
 {
-    NSDate *expiryDate = response.expiryDate;
+    NSDate *expiresOn = response.expiryDate;
     
-    if (!expiryDate)
+    if (!expiresOn)
     {
         MSID_LOG_WARN(nil, @"The server did not return the expiration time for the access token.");
-        expiryDate = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
+        expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
     }
-    else
-    {
-        _expiresOn = expiryDate;
-    }
+    
+    _expiresOn = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[expiresOn timeIntervalSince1970]];
 }
 
 - (void)fillExtendedExpiryFromResponse:(MSIDTokenResponse *)response

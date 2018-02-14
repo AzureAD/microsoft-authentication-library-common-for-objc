@@ -127,7 +127,7 @@
     }
     
     _singleResourceRefreshToken = response.refreshToken;
-    _tokenType = MSIDTokenTypeAdfsUserToken;
+    _tokenType = MSIDTokenTypeLegacyADFSToken;
     
     return self;
 }
@@ -136,7 +136,7 @@
 
 - (MSIDTokenType)tokenType
 {
-    return MSIDTokenTypeAdfsUserToken;
+    return MSIDTokenTypeLegacyADFSToken;
 }
 
 @end

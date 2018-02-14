@@ -245,8 +245,8 @@
 
 - (NSArray *)allLegacyADFSTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAdfsUserToken
-                        serializer:[[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAdfsUserToken]];
+    return [self allTokensWithType:MSIDTokenTypeLegacyADFSToken
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeLegacyADFSToken]];
 }
 
 - (NSArray *)allLegacyAccessTokens
@@ -310,7 +310,7 @@
             break;
         }
             
-        case MSIDTokenTypeAdfsUserToken:
+        case MSIDTokenTypeLegacyADFSToken:
         {
             MSIDAdfsToken *adfsToken = (MSIDAdfsToken *)token;
             return ![NSString msidIsStringNilOrBlank:adfsToken.singleResourceRefreshToken]

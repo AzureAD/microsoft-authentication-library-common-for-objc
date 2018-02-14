@@ -59,7 +59,7 @@
 
         _atSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
         _rtSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
-        _adfsSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAdfsUserToken];
+        _adfsSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeLegacyADFSToken];
     }
     
     return self;
@@ -168,7 +168,7 @@
     return [self saveToken:token
                    account:account
                   clientId:parameters.clientId
-                serializer:token.tokenType == MSIDTokenTypeAdfsUserToken ? _adfsSerializer : _atSerializer
+                serializer:token.tokenType == MSIDTokenTypeLegacyADFSToken ? _adfsSerializer : _atSerializer
                    context:context
                      error:error];
 }

@@ -89,6 +89,7 @@
     
     // Backward compatibility with ADAL.
     [coder encodeObject:@"Bearer" forKey:@"accessTokenType"];
+    [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
 }
 
 #pragma mark - NSObject
@@ -181,14 +182,31 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary new];
-    [dictionary setValue:_authority.absoluteString forKey:MSID_OAUTH2_AUTHORITY];
+    
+    // Set credential type
+    NSString *credentialType = [MSIDTokenTypeHelpers tokenTypeAsString:self.tokenType];
+    [dictionary setValue:credentialType
+                  forKey:MSID_CREDENTIAL_TYPE_CACHE_KEY];
+    
+    // Set environment
     [dictionary setValue:_authority.msidHostWithPortIfNecessary
                   forKey:MSID_OAUTH2_ENVIRONMENT];
-    [dictionary setValue:_clientInfo.rawClientInfo forKey:MSID_OAUTH2_CLIENT_INFO];
-    [dictionary setValue:_additionalInfo
-                  forKey:MSID_OAUTH2_ADDITIONAL_SERVER_INFO];
+    
+    // Set unique_id
+    [dictionary setValue:self.clientInfo.userIdentifier
+                  forKey:MSID_UNIQUE_ID_CACHE_KEY];
+    
+    // Set client_id
     [dictionary setValue:_clientId
                   forKey:MSID_OAUTH2_CLIENT_ID];
+    
+    // Set client_info
+    [dictionary setValue:_clientInfo.rawClientInfo
+                  forKey:MSID_CLIENT_INFO_CACHE_KEY];
+    
+    // Set additional info
+    [dictionary setValue:_additionalInfo
+                  forKey:MSID_ADDITIONAL_INFO_CACHE_KEY];
     
     return dictionary;
 }
@@ -230,6 +248,7 @@
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         _clientInfo = aadTokenResponse.clientInfo;
         
+        // TODO: store whatever wasn't there instead?
         NSMutableDictionary *serverInfo = [NSMutableDictionary dictionary];
         [serverInfo setValue:aadTokenResponse.speInfo
                       forKey:MSID_TELEMETRY_KEY_SPE_INFO];

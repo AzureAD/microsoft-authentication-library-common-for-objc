@@ -32,6 +32,18 @@
     return YES;
 }
 
+- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _rawIdToken = rawIdTokenString;
+    }
+    
+    return self;
+}
+
 - (instancetype)initWithCoder:(NSCoder *)coder
 {
     if (!(self = [super init]))
@@ -47,6 +59,14 @@
 - (void)encodeWithCoder:(NSCoder *)coder
 {
     [coder encodeObject:_rawIdToken forKey:@"rawIdToken"];
+    
+#if TARGET_OS_IPHONE
+    // These are needed for back-compat with ADAL 1.x
+    /*
+    [coder encodeObject:_allClaims forKey:@"allClaims"];
+    [coder encodeObject:_userId forKey:@"userId"];
+    [coder encodeBool:_userIdDisplayable forKey:@"userIdDisplayable"];*/
+#endif
 }
 
 @end

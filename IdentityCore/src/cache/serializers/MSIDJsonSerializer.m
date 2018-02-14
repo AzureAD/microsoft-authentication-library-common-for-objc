@@ -56,7 +56,7 @@
                 _classToSerialize = MSIDRefreshToken.class;
                 break;
                 
-            case MSIDTokenTypeAdfsUserToken:
+            case MSIDTokenTypeLegacyADFSToken:
                 _classToSerialize = MSIDAdfsToken.class;
                 break;
                 
