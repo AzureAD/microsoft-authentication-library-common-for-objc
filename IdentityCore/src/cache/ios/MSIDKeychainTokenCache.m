@@ -27,6 +27,7 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDBaseToken.h"
 #import "MSIDError.h"
+#import "MSIDRefreshToken.h"
 
 static NSString *const s_libraryString = @"MSOpenTech.ADAL.1";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
@@ -299,11 +300,16 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         if (tokenItem)
         {
             // Delete tombstones generated from previous versions of ADAL.
-            if (tokenItem.tokenType == MSIDTokenTypeRefreshToken && [tokenItem.token isEqualToString:@"<tombstone>"])
+            if (tokenItem.tokenType == MSIDTokenTypeRefreshToken)
             {
-                [self deleteTombstoneWithService:attrs[(id)kSecAttrService]
-                                         account:attrs[(id)kSecAttrAccount]
-                                         context:context];
+                MSIDRefreshToken *refreshToken = (MSIDRefreshToken *)tokenItem;
+                
+                if ([refreshToken.refreshToken isEqualToString:@"<tombstone>"])
+                {
+                    [self deleteTombstoneWithService:attrs[(id)kSecAttrService]
+                                             account:attrs[(id)kSecAttrAccount]
+                                             context:context];
+                }
             }
             else
             {

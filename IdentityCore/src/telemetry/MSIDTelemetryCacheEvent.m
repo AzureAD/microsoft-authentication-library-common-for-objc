@@ -108,7 +108,7 @@
 - (void)setToken:(MSIDBaseToken *)token
 {
     [self setTokenType:token.tokenType];
-    [self setSpeInfo:token.additionalServerInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
+    [self setSpeInfo:token.additionalInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
     
     if (token.tokenType == MSIDTokenTypeRefreshToken)
     {
