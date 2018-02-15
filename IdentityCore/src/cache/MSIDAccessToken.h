@@ -24,9 +24,6 @@
 #import "MSIDBaseToken.h"
 
 @interface MSIDAccessToken : MSIDBaseToken
-{
-    NSString *_idToken;
-}
 
 @property (readonly) NSDate *expiresOn;
 @property (readonly) NSDate *cachedAt;

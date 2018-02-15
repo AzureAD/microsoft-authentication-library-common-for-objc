@@ -48,6 +48,9 @@
 @property (readonly) NSString *userId;
 @property (readonly) BOOL userIdDisplayable;
 
+// Convinience properties
+@property (readonly) NSString *rawIdToken;
+
 - (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
 + (NSString *)normalizeUserId:(NSString *)userId;
 

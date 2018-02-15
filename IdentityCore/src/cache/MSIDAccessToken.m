@@ -245,6 +245,8 @@ static uint64_t s_expirationBuffer = 300;
     _accessToken = response.accessToken;
     _scopes = [response.scope scopeSet];
     
+    _idToken = response.idToken;
+    
     [self fillExpiryFromResponse:response];
     [self fillExtendedExpiryFromResponse:response];
 }

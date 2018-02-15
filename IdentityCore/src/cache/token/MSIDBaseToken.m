@@ -266,7 +266,6 @@
         _clientInfo = aadTokenResponse.clientInfo;
         _uniqueUserId = _clientInfo.userIdentifier;
         
-        // TODO: store whatever wasn't there instead?
         NSMutableDictionary *serverInfo = [NSMutableDictionary dictionary];
         [serverInfo setValue:aadTokenResponse.speInfo
                       forKey:MSID_SPE_INFO_CACHE_KEY];

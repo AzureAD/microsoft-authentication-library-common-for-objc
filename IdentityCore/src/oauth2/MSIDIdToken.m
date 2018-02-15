@@ -52,6 +52,8 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
         return nil;
     }
     
+    _rawIdToken = rawIdTokenString;
+    
     NSArray* parts = [rawIdTokenString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count != 3)
     {

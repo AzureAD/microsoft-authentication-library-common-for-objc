@@ -121,13 +121,11 @@
     }
     
     /* Mandatory fields */
-    
     _refreshToken = json[MSID_TOKEN_CACHE_KEY];
     _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
     
     /* Optional fields */
-    
-    // TODO: username
+    _username = json[MSID_USERNAME_CACHE_KEY];
     
     return self;
 }
@@ -137,13 +135,11 @@
     NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
     
     /* Mandatory fields */
-    
     [dictionary setValue:_refreshToken forKey:MSID_TOKEN_CACHE_KEY];
     [dictionary setValue:_familyId forKey:MSID_FAMILY_ID_CACHE_KEY];
     
     /* Optional fields */
-    
-    // TODO: username
+    [dictionary setValue:_username forKey:MSID_USERNAME_CACHE_KEY];
     
     return dictionary;
 }
@@ -174,6 +170,9 @@
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         _familyId = aadTokenResponse.familyId;
     }
+    
+    _idToken = response.idToken;
+    _username = response.idTokenObj.preferredUsername;
 }
 
 #pragma mark - Token type

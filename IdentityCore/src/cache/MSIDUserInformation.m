@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDUserInformation.h"
+#import "MSIDAADV1IdToken.h"
 
 @implementation MSIDUserInformation
 
@@ -62,10 +63,11 @@
     
 #if TARGET_OS_IPHONE
     // These are needed for back-compat with ADAL 1.x
-    /*
-    [coder encodeObject:_allClaims forKey:@"allClaims"];
-    [coder encodeObject:_userId forKey:@"userId"];
-    [coder encodeBool:_userIdDisplayable forKey:@"userIdDisplayable"];*/
+    // ADAL 1.2x only supported AAD v1, so use MSIDAADV1IdToken
+    MSIDAADV1IdToken *tokenObj = [[MSIDAADV1IdToken alloc] initWithRawIdToken:_rawIdToken];
+    [coder encodeObject:tokenObj.jsonDictionary forKey:@"allClaims"];
+    [coder encodeObject:tokenObj.userId forKey:@"userId"];
+    [coder encodeBool:tokenObj.userIdDisplayable forKey:@"userIdDisplayable"];
 #endif
 }
 
