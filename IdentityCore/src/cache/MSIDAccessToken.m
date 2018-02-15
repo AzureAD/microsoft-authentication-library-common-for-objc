@@ -27,6 +27,7 @@
 #import "MSIDAADV1RequestParameters.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDUserInformation.h"
+#import "NSDate+MSIDExtensions.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
@@ -137,12 +138,35 @@ static uint64_t s_expirationBuffer = 300;
         return nil;
     }
     
-    _expiresOn = json[MSID_OAUTH2_EXPIRES_ON] ? [NSDate dateWithTimeIntervalSince1970:[json[MSID_OAUTH2_EXPIRES_ON] integerValue]] : nil;
+    /* Mandatory fields */
+    
+    // Realm
+    if (json[MSID_AUTHORITY_CACHE_KEY])
+    {
+        _authority = json[MSID_AUTHORITY_CACHE_KEY];
+    }
+    else if (json[MSID_REALM_CACHE_KEY])
+    {
+        NSString *authorityString = [NSString stringWithFormat:@"%@/%@", json[MSID_ENVIRONMENT_CACHE_KEY], json[MSID_REALM_CACHE_KEY]];
+        _authority = [NSURL URLWithString:authorityString];
+    }
+    
+    // Target
+    _resource = json[MSID_TARGET_CACHE_KEY];
+    _scopes = [json[MSID_TARGET_CACHE_KEY] scopeSet];
+    
+    // Cached at
+    _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_OAUTH2_CACHED_AT]];
+    
+    // Expires on
+    _expiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXPIRES_ON_CACHE_KEY]];
+    
+    // Token
     _accessToken = json[MSID_OAUTH2_ACCESS_TOKEN];
     
-    _resource = json[MSID_OAUTH2_RESOURCE];
-    _scopes = [json[MSID_OAUTH2_SCOPE] scopeSet];
-    _cachedAt = json[MSID_OAUTH2_CACHED_AT] ? [NSDate dateWithTimeIntervalSince1970:[json[MSID_OAUTH2_CACHED_AT] integerValue]] : nil;
+    /* Optional fields */
+    // Extended expires on
+    [_additionalInfo setValue:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] forKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
     
     return self;
 }
@@ -151,19 +175,33 @@ static uint64_t s_expirationBuffer = 300;
 {
     NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
     
-    if (self.expiresOn)
-    {
-        dictionary[MSID_OAUTH2_EXPIRES_ON] = [NSString stringWithFormat:@"%qu", (uint64_t)[_expiresOn timeIntervalSince1970]];
-    }
+    /* Mandatory fields */
+    // Realm
+    [dictionary setValue:_authority.msidTenant
+                  forKey:MSID_REALM_CACHE_KEY];
+    // Target
+    NSString *scopeString = _scopes.msidToString;
     
-    [dictionary setValue:_accessToken forKey:MSID_OAUTH2_ACCESS_TOKEN];
-    [dictionary setValue:_resource forKey:MSID_OAUTH2_RESOURCE];
-    [dictionary setValue:[_scopes msidToString] forKey:MSID_OAUTH2_SCOPE];
+    NSString *target = [NSString msidIsStringNilOrBlank:scopeString] ? _resource : scopeString;
+    [dictionary setValue:target forKey:MSID_TARGET_CACHE_KEY];
     
-    if (self.cachedAt)
-    {
-        dictionary[MSID_OAUTH2_CACHED_AT] = [NSString stringWithFormat:@"%qu", (uint64_t)[_cachedAt timeIntervalSince1970]];
-    }
+    // Cached at
+    [dictionary setValue:_cachedAt.msidDateToTimestamp forKey:MSID_OAUTH2_CACHED_AT];
+    
+    // Expires On
+    [dictionary setValue:_expiresOn.msidDateToTimestamp forKey:MSID_EXPIRES_ON_CACHE_KEY];
+    
+    // Token
+    [dictionary setValue:_accessToken forKey:MSID_TOKEN_CACHE_KEY];
+    
+    /* Optional fields */
+    
+    // Authority
+    [dictionary setValue:_authority forKey:MSID_AUTHORITY_CACHE_KEY];
+    
+    // Extended expires on
+    [dictionary setValue:[self extendedExpireTime]
+                  forKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
     
     return dictionary;
 }
@@ -230,8 +268,8 @@ static uint64_t s_expirationBuffer = 300;
     {
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         NSMutableDictionary *serverInfo = [_additionalInfo mutableCopy];
-        [serverInfo setValue:aadTokenResponse.extendedExpiresIn
-                      forKey:@"ext_expires_on"];
+        [serverInfo setValue:aadTokenResponse.extendedExpiresOnDate
+                      forKey:MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
         _additionalInfo = serverInfo;
     }
 }
@@ -249,6 +287,11 @@ static uint64_t s_expirationBuffer = 300;
 {
     NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:s_expirationBuffer];
     return [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
+}
+
+- (NSDate *)extendedExpireTime
+{
+    return _additionalInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
 }
 
 @end

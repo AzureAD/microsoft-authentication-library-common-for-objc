@@ -120,8 +120,14 @@
         return nil;
     }
     
-    _refreshToken = json[MSID_OAUTH2_REFRESH_TOKEN];
-    _familyId = json[MSID_FAMILY_ID];
+    /* Mandatory fields */
+    
+    _refreshToken = json[MSID_TOKEN_CACHE_KEY];
+    _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
+    
+    /* Optional fields */
+    
+    // TODO: username
     
     return self;
 }
@@ -130,8 +136,14 @@
 {
     NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
     
-    [dictionary setValue:_refreshToken forKey:MSID_OAUTH2_REFRESH_TOKEN];
-    [dictionary setValue:_familyId forKey:MSID_FAMILY_ID];
+    /* Mandatory fields */
+    
+    [dictionary setValue:_refreshToken forKey:MSID_TOKEN_CACHE_KEY];
+    [dictionary setValue:_familyId forKey:MSID_FAMILY_ID_CACHE_KEY];
+    
+    /* Optional fields */
+    
+    // TODO: username
     
     return dictionary;
 }

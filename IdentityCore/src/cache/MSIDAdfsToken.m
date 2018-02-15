@@ -103,7 +103,7 @@
         return nil;
     }
     
-    _singleResourceRefreshToken = json[MSID_OAUTH2_REFRESH_TOKEN];
+    _singleResourceRefreshToken = json[MSID_RESOURCE_RT_CACHE_KEY];
     
     return self;
 }
@@ -111,7 +111,7 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
-    [dictionary setValue:_singleResourceRefreshToken forKey:MSID_OAUTH2_REFRESH_TOKEN];
+    [dictionary setValue:_singleResourceRefreshToken forKey:MSID_RESOURCE_RT_CACHE_KEY];
     
     return dictionary;
 }

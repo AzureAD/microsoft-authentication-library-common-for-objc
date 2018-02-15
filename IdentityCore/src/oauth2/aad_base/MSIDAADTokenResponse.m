@@ -51,9 +51,10 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
         return nil;
     }
     
-    if (self.extendedExpiresIn)
+    if (self.extendedExpiresIn
+        && [self.extendedExpiresIn respondsToSelector:@selector(doubleValue)])
     {
-        _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSinceNow:[self.extendedExpiresIn doubleValue]];
+        _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSinceNow:[self.extendedExpiresIn integerValue]];
     }
     
     if (self.rawClientInfo)

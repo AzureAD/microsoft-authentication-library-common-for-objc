@@ -57,7 +57,11 @@
     }
     
     NSString *authorityString = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
-    _authority = [NSURL URLWithString:authorityString];
+    
+    if (authorityString)
+    {
+        _authority = [NSURL URLWithString:authorityString];
+    }
     
     _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
     
@@ -149,32 +153,41 @@
     // We don't use _json variable.
     _json = nil;
     
-    // Fill in authority URL
-    NSString *authorityString = json[MSID_OAUTH2_AUTHORITY];
+    /* Mandatory fields */
+    
+    // Unique ID
+    _uniqueUserId = json[MSID_UNIQUE_ID_CACHE_KEY];
+    
+    // Environment
     NSString *environment = json[MSID_OAUTH2_ENVIRONMENT];
     
-    if (!authorityString && environment)
+    if (environment)
     {
         NSString *authority = [NSString stringWithFormat:@"https://%@/common", environment];
         _authority = [[NSURL alloc] initWithString:authority];
     }
-    else
-    {
-        _authority = authorityString ? [[NSURL alloc] initWithString:authorityString] : nil;
-    }
     
-    // Fill in client info
+    // Client ID
+    _clientId = json[MSID_OAUTH2_CLIENT_ID];
+    
+    /* Optional fields */
+    
+    // Client info
     NSError *err;
     _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:json[MSID_OAUTH2_CLIENT_INFO] error:&err];
+    
+    // SPE info
+    _additionalInfo = [NSMutableDictionary dictionary];
+    if (json[MSID_SPE_INFO_CACHE_KEY])
+    {
+        [_additionalInfo setValue:json[MSID_SPE_INFO_CACHE_KEY] forKey:MSID_SPE_INFO_CACHE_KEY];
+    }
     
     if (err)
     {
         MSID_LOG_ERROR(nil, @"Client info is corrupted.");
         MSID_LOG_ERROR_PII(nil, @"Client info is corrupted, error: %@", err);
     }
-    
-    _clientId = json[MSID_OAUTH2_CLIENT_ID];
-    _additionalInfo = json[MSID_OAUTH2_ADDITIONAL_SERVER_INFO];
     
     return self;
 }
@@ -183,30 +196,34 @@
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary new];
     
-    // Set credential type
+    /* Mandatory fields */
+    
+    // Unique id
+    [dictionary setValue:self.clientInfo.userIdentifier
+                  forKey:MSID_UNIQUE_ID_CACHE_KEY];
+    
+    // Environment
+    [dictionary setValue:_authority.msidHostWithPortIfNecessary
+                  forKey:MSID_OAUTH2_ENVIRONMENT];
+    
+    // Credential type
     NSString *credentialType = [MSIDTokenTypeHelpers tokenTypeAsString:self.tokenType];
     [dictionary setValue:credentialType
                   forKey:MSID_CREDENTIAL_TYPE_CACHE_KEY];
     
-    // Set environment
-    [dictionary setValue:_authority.msidHostWithPortIfNecessary
-                  forKey:MSID_OAUTH2_ENVIRONMENT];
-    
-    // Set unique_id
-    [dictionary setValue:self.clientInfo.userIdentifier
-                  forKey:MSID_UNIQUE_ID_CACHE_KEY];
-    
-    // Set client_id
+    // Client ID
     [dictionary setValue:_clientId
                   forKey:MSID_OAUTH2_CLIENT_ID];
     
-    // Set client_info
+    /* Optional fields */
+    
+    // Client info
     [dictionary setValue:_clientInfo.rawClientInfo
                   forKey:MSID_CLIENT_INFO_CACHE_KEY];
     
-    // Set additional info
-    [dictionary setValue:_additionalInfo
-                  forKey:MSID_ADDITIONAL_INFO_CACHE_KEY];
+    // SPE info
+    [dictionary setValue:_additionalInfo[MSID_SPE_INFO_CACHE_KEY]
+                  forKey:MSID_SPE_INFO_CACHE_KEY];
     
     return dictionary;
 }
@@ -247,11 +264,12 @@
     {
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         _clientInfo = aadTokenResponse.clientInfo;
+        _uniqueUserId = _clientInfo.userIdentifier;
         
         // TODO: store whatever wasn't there instead?
         NSMutableDictionary *serverInfo = [NSMutableDictionary dictionary];
         [serverInfo setValue:aadTokenResponse.speInfo
-                      forKey:MSID_TELEMETRY_KEY_SPE_INFO];
+                      forKey:MSID_SPE_INFO_CACHE_KEY];
         _additionalInfo = serverInfo;
     }
 }

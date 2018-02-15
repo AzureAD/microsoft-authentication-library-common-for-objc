@@ -47,6 +47,7 @@
 @property (readwrite) NSURL *authority;
 @property (readwrite) NSString *clientId;
 
+@property (readonly) NSString *uniqueUserId;
 @property (readonly) MSIDClientInfo *clientInfo;
 @property (readonly) MSIDTokenType tokenType;
 @property (readonly) NSDictionary *additionalInfo;
