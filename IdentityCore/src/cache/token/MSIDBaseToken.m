@@ -183,17 +183,17 @@
     NSError *err;
     _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:json[MSID_OAUTH2_CLIENT_INFO] error:&err];
     
+    if (err)
+    {
+        MSID_LOG_ERROR(nil, @"Client info is corrupted.");
+        MSID_LOG_ERROR_PII(nil, @"Client info is corrupted, error: %@", err);
+    }
+    
     // SPE info
     _additionalInfo = [NSMutableDictionary dictionary];
     if (json[MSID_SPE_INFO_CACHE_KEY])
     {
         [_additionalInfo setValue:json[MSID_SPE_INFO_CACHE_KEY] forKey:MSID_SPE_INFO_CACHE_KEY];
-    }
-    
-    if (err)
-    {
-        MSID_LOG_ERROR(nil, @"Client info is corrupted.");
-        MSID_LOG_ERROR_PII(nil, @"Client info is corrupted, error: %@", err);
     }
     
     return self;
