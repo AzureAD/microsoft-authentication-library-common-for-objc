@@ -91,7 +91,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-/*
 - (void)testIsEqual_whenExpiresOnIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
@@ -130,7 +129,7 @@
     [rhs setValue:@"value 1" forKey:@"familyId"];
     
     XCTAssertEqualObjects(lhs, rhs);
-}*/
+}
 
 - (void)testIsEqual_whenClientInfoIsNotEqual_shouldReturnFalse
 {
@@ -192,7 +191,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-/*
 - (void)testIsEqual_whenResourceIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
@@ -211,7 +209,7 @@
     [rhs setValue:@"value 1" forKey:@"resource"];
     
     XCTAssertEqualObjects(lhs, rhs);
-}*/
+}
 
 - (void)testIsEqual_whenAuthorityIsNotEqual_shouldReturnFalse
 {
@@ -253,7 +251,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-/*
 - (void)testIsEqual_whenScopesIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
@@ -272,7 +269,7 @@
     [rhs setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
     
     XCTAssertEqualObjects(lhs, rhs);
-}*/
+}
 
 #pragma mark - Private
 

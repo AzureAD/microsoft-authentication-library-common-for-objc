@@ -32,6 +32,13 @@
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
 
+@interface MSIDAccessToken()
+{
+    NSString *_target;
+}
+
+@end
+
 @implementation MSIDAccessToken
 
 #pragma mark - NSCopying
@@ -42,8 +49,7 @@ static uint64_t s_expirationBuffer = 300;
     item->_expiresOn = [_expiresOn copyWithZone:zone];
     item->_cachedAt = [_cachedAt copyWithZone:zone];
     item->_accessToken = [_accessToken copyWithZone:zone];
-    item->_resource = [_resource copyWithZone:zone];
-    item->_scopes = [_scopes copyWithZone:zone];
+    item->_target = [_target copyWithZone:zone];
     
     return item;
 }
@@ -59,8 +65,7 @@ static uint64_t s_expirationBuffer = 300;
     
     _expiresOn = [coder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
     _accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
-    _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-    _scopes = [coder decodeObjectOfClass:[NSOrderedSet class] forKey:@"scopes"];
+    _target = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
     _cachedAt = [coder decodeObjectOfClass:[NSDate class] forKey:@"cachedAt"];
     // Decode id_token from a backward compatible way
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
@@ -152,8 +157,7 @@ static uint64_t s_expirationBuffer = 300;
     }
     
     // Target
-    _resource = json[MSID_TARGET_CACHE_KEY];
-    _scopes = [json[MSID_TARGET_CACHE_KEY] scopeSet];
+    _target = json[MSID_TARGET_CACHE_KEY];
     
     // Cached at
     _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_OAUTH2_CACHED_AT]];
@@ -180,10 +184,7 @@ static uint64_t s_expirationBuffer = 300;
     [dictionary setValue:_authority.msidTenant
                   forKey:MSID_REALM_CACHE_KEY];
     // Target
-    NSString *scopeString = _scopes.msidToString;
-    
-    NSString *target = [NSString msidIsStringNilOrBlank:scopeString] ? _resource : scopeString;
-    [dictionary setValue:target forKey:MSID_TARGET_CACHE_KEY];
+    [dictionary setValue:_target forKey:MSID_TARGET_CACHE_KEY];
     
     // Cached at
     [dictionary setValue:_cachedAt.msidDateToTimestamp forKey:MSID_OAUTH2_CACHED_AT];
@@ -241,10 +242,16 @@ static uint64_t s_expirationBuffer = 300;
         resource = aadV1TokenResponse.resource ? aadV1TokenResponse.resource : resource;
     }
     
-    _resource = resource;
-    _accessToken = response.accessToken;
-    _scopes = [response.scope scopeSet];
+    if (resource)
+    {
+        _target = resource;
+    }
+    else
+    {
+        _target = response.scope;
+    }
     
+    _accessToken = response.accessToken;
     _idToken = response.idToken;
     
     [self fillExpiryFromResponse:response];
@@ -294,6 +301,18 @@ static uint64_t s_expirationBuffer = 300;
 - (NSDate *)extendedExpireTime
 {
     return _additionalInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
+}
+
+#pragma mark - Resource/scopes
+
+- (NSString *)resource
+{
+    return _target;
+}
+
+- (NSOrderedSet<NSString *> *)scopes
+{
+    return [_target scopeSet];
 }
 
 @end

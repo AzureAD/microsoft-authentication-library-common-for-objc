@@ -29,6 +29,7 @@
 #import "MSIDAdfsToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDIdToken.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -307,7 +308,6 @@
         {
             MSIDRefreshToken *refreshToken = (MSIDRefreshToken *)token;
             return ![NSString msidIsStringNilOrBlank:refreshToken.refreshToken];
-            break;
         }
             
         case MSIDTokenTypeLegacyADFSToken:
@@ -315,7 +315,12 @@
             MSIDAdfsToken *adfsToken = (MSIDAdfsToken *)token;
             return ![NSString msidIsStringNilOrBlank:adfsToken.singleResourceRefreshToken]
                 && ![NSString msidIsStringNilOrBlank:adfsToken.accessToken];
-            break;
+        }
+            
+        case MSIDTokenTypeIDToken:
+        {
+            MSIDIdToken *idToken = (MSIDIdToken *)token;
+            return ![NSString msidIsStringNilOrBlank:idToken.rawIdToken];
         }
             
         default:
