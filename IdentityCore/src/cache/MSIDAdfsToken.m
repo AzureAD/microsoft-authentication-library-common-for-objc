@@ -127,7 +127,6 @@
     }
     
     _singleResourceRefreshToken = response.refreshToken;
-    _tokenType = MSIDTokenTypeLegacyADFSToken;
     
     return self;
 }
