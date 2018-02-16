@@ -107,6 +107,7 @@
     result &= (!self.refreshToken && !token.refreshToken) || [self.refreshToken isEqualToString:token.refreshToken];
     result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
     result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
+    result &= (!self.username && !token.username) || [self.username isEqualToString:token.username];
     
     return result;
 }
@@ -127,6 +128,9 @@
     /* Optional fields */
     _username = json[MSID_USERNAME_CACHE_KEY];
     
+    // ID token
+    _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
+    
     return self;
 }
 
@@ -140,6 +144,9 @@
     
     /* Optional fields */
     [dictionary setValue:_username forKey:MSID_USERNAME_CACHE_KEY];
+    
+    // ID token
+    [dictionary setValue:_idToken forKey:MSID_ID_TOKEN_CACHE_KEY];
     
     return dictionary;
 }

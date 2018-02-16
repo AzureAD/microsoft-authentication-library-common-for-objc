@@ -30,19 +30,19 @@
     switch (type)
     {
         case MSIDTokenTypeAccessToken:
-            return @"AccessToken";
+            return MSID_ACCESS_TOKEN_CACHE_TYPE;
             
         case MSIDTokenTypeRefreshToken:
-            return @"RefreshToken";
+            return MSID_REFRESH_TOKEN_CACHE_TYPE;
             
         case MSIDTokenTypeLegacyADFSToken:
-            return @"LegacyADFSToken";
+            return MSID_ADFS_TOKEN_CACHE_TYPE;
             
         case MSIDTokenTypeIDToken:
-            return @"IdToken";
+            return MSID_ID_TOKEN_CACHE_TYPE;
             
         default:
-            return @"Token";
+            return MSID_GENERAL_TOKEN_CACHE_TYPE;
     }
 }
 

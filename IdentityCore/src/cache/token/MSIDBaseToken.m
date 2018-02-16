@@ -154,12 +154,19 @@
     _json = nil;
     
     /* Mandatory fields */
+    NSString *credentialType = json[MSID_CREDENTIAL_TYPE_CACHE_KEY];
+    
+    if (credentialType
+        && ![[MSIDTokenTypeHelpers tokenTypeAsString:self.tokenType] isEqualToString:credentialType])
+    {
+        return nil;
+    }
     
     // Unique ID
     _uniqueUserId = json[MSID_UNIQUE_ID_CACHE_KEY];
     
     // Environment
-    NSString *environment = json[MSID_OAUTH2_ENVIRONMENT];
+    NSString *environment = json[MSID_ENVIRONMENT_CACHE_KEY];
     
     if (environment)
     {
@@ -168,7 +175,7 @@
     }
     
     // Client ID
-    _clientId = json[MSID_OAUTH2_CLIENT_ID];
+    _clientId = json[MSID_CLIENT_ID_CACHE_KEY];
     
     /* Optional fields */
     
@@ -204,7 +211,7 @@
     
     // Environment
     [dictionary setValue:_authority.msidHostWithPortIfNecessary
-                  forKey:MSID_OAUTH2_ENVIRONMENT];
+                  forKey:MSID_ENVIRONMENT_CACHE_KEY];
     
     // Credential type
     NSString *credentialType = [MSIDTokenTypeHelpers tokenTypeAsString:self.tokenType];
@@ -213,7 +220,7 @@
     
     // Client ID
     [dictionary setValue:_clientId
-                  forKey:MSID_OAUTH2_CLIENT_ID];
+                  forKey:MSID_CLIENT_ID_CACHE_KEY];
     
     /* Optional fields */
     

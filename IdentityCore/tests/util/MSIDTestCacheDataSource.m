@@ -285,7 +285,7 @@
         {
             MSIDBaseToken *token = [serializer deserialize:tokenData];
             
-            if (token && token.tokenType == type && [self isValidTokenForType:type token:token])
+            if (token && token.tokenType == type)
             {
                 [results addObject:token];
             }
@@ -293,39 +293,6 @@
     }
     
     return results;
-}
-
-- (BOOL)isValidTokenForType:(MSIDTokenType)type token:(MSIDBaseToken *)token
-{
-    switch (type) {
-        case MSIDTokenTypeAccessToken:
-        {
-            MSIDAccessToken *accessToken = (MSIDAccessToken *)token;
-            return ![NSString msidIsStringNilOrBlank:accessToken.accessToken];
-        }
-            
-        case MSIDTokenTypeRefreshToken:
-        {
-            MSIDRefreshToken *refreshToken = (MSIDRefreshToken *)token;
-            return ![NSString msidIsStringNilOrBlank:refreshToken.refreshToken];
-        }
-            
-        case MSIDTokenTypeLegacyADFSToken:
-        {
-            MSIDAdfsToken *adfsToken = (MSIDAdfsToken *)token;
-            return ![NSString msidIsStringNilOrBlank:adfsToken.singleResourceRefreshToken]
-                && ![NSString msidIsStringNilOrBlank:adfsToken.accessToken];
-        }
-            
-        case MSIDTokenTypeIDToken:
-        {
-            MSIDIdToken *idToken = (MSIDIdToken *)token;
-            return ![NSString msidIsStringNilOrBlank:idToken.rawIdToken];
-        }
-            
-        default:
-            break;
-    }
 }
 
 @end

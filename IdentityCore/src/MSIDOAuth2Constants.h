@@ -87,9 +87,17 @@ extern NSString *const MSID_TOKEN_CACHE_KEY;
 extern NSString *const MSID_USERNAME_CACHE_KEY;
 extern NSString *const MSID_TARGET_CACHE_KEY;
 extern NSString *const MSID_CLIENT_INFO_CACHE_KEY;
+extern NSString *const MSID_ID_TOKEN_CACHE_KEY;
 extern NSString *const MSID_ADDITIONAL_INFO_CACHE_KEY;
 extern NSString *const MSID_EXPIRES_ON_CACHE_KEY;
 extern NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY;
+extern NSString *const MSID_CACHED_AT_CACHE_KEY;
 extern NSString *const MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY;
 extern NSString *const MSID_SPE_INFO_CACHE_KEY;
 extern NSString *const MSID_RESOURCE_RT_CACHE_KEY;
+
+extern NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_ADFS_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_ID_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE;

@@ -87,10 +87,17 @@ NSString *const MSID_TOKEN_CACHE_KEY                     = @"secret";
 NSString *const MSID_USERNAME_CACHE_KEY                  = @"username";
 NSString *const MSID_TARGET_CACHE_KEY                    = @"target";
 NSString *const MSID_CLIENT_INFO_CACHE_KEY               = @"client_info";
+NSString *const MSID_ID_TOKEN_CACHE_KEY                  = @"id_token";
 NSString *const MSID_ADDITIONAL_INFO_CACHE_KEY           = @"additional_info";
 NSString *const MSID_EXPIRES_ON_CACHE_KEY                = @"expires_on";
 NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"extended_expires_on";
+NSString *const MSID_CACHED_AT_CACHE_KEY                 = @"cached_at";
 NSString *const MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY       = @"ext_expires_on";
 NSString *const MSID_SPE_INFO_CACHE_KEY                  = @"spe_info";
 NSString *const MSID_RESOURCE_RT_CACHE_KEY               = @"resource_refresh_token";
 
+NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"AccessToken";
+NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"RefreshToken";
+NSString *const MSID_ADFS_TOKEN_CACHE_TYPE               = @"LegacyADFSToken";
+NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"IdToken";
+NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"Token";

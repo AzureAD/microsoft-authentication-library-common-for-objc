@@ -300,23 +300,17 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         if (tokenItem)
         {
             // Delete tombstones generated from previous versions of ADAL.
-            if (tokenItem.tokenType == MSIDTokenTypeRefreshToken)
+            if (tokenItem.tokenType == MSIDTokenTypeRefreshToken
+                && [((MSIDRefreshToken *)tokenItem).refreshToken isEqualToString:@"<tombstone>"])
             {
-                MSIDRefreshToken *refreshToken = (MSIDRefreshToken *)tokenItem;
-                
-                if ([refreshToken.refreshToken isEqualToString:@"<tombstone>"])
-                {
-                    [self deleteTombstoneWithService:attrs[(id)kSecAttrService]
-                                             account:attrs[(id)kSecAttrAccount]
-                                             context:context];
-                }
+                [self deleteTombstoneWithService:attrs[(id)kSecAttrService]
+                                         account:attrs[(id)kSecAttrAccount]
+                                         context:context];
             }
             else
             {
                 [tokenItems addObject:tokenItem];
             }
-            
-            [tokenItems addObject:tokenItem];
         }
         else
         {

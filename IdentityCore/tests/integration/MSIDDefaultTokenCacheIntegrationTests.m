@@ -189,8 +189,8 @@
     
     NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
     XCTAssertEqual([accessTokensInCache count], 2);
-    XCTAssertEqualObjects(accessTokensInCache[0], token1);
-    XCTAssertEqualObjects(accessTokensInCache[1], token2);
+    XCTAssertTrue([accessTokensInCache containsObject:token1]);
+    XCTAssertTrue([accessTokensInCache containsObject:token2]);
 }
 
 

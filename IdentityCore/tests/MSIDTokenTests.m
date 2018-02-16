@@ -24,6 +24,10 @@
 #import <XCTest/XCTest.h>
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDAdfsToken.h"
+#import "MSIDIdToken.h"
 
 @interface MSIDBaseTokenTests : XCTestCase
 
@@ -41,9 +45,9 @@
     [super tearDown];
 }
 
-#pragma mark - isEqual tests
+#pragma mark - MSIDBaseToken
 
-- (void)testIsEqual_whenAllPropertiesAreEqual_shouldReturnTrue
+- (void)testBaseTokenIsEqual_whenAllPropertiesAreEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [self createToken];
     MSIDBaseToken *rhs = [self createToken];
@@ -51,87 +55,7 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenTokenIsNotEqual_shouldReturnFalse
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@"token 1" forKey:@"idToken"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@"token 2" forKey:@"idToken"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenTokenIsEqual_shouldReturnTrue
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@"token 1" forKey:@"idToken"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@"token 1" forKey:@"idToken"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenIdTokenIsNotEqual_shouldReturnFalse
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@"value 1" forKey:@"idToken"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@"value 2" forKey:@"idToken"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenIdTokenIsEqual_shouldReturnTrue
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@"value 1" forKey:@"idToken"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@"value 1" forKey:@"idToken"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenExpiresOnIsNotEqual_shouldReturnFalse
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:[NSDate dateWithTimeIntervalSince1970:2000000000] forKey:@"expiresOn"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenExpiresOnIsEqual_shouldReturnTrue
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenFamilyIdIsNotEqual_shouldReturnFalse
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@"value 1" forKey:@"familyId"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@"value 2" forKey:@"familyId"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenFamilyIdIsEqual_shouldReturnTrue
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@"value 1" forKey:@"familyId"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@"value 1" forKey:@"familyId"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenClientInfoIsNotEqual_shouldReturnFalse
+- (void)testBaseTokenIsEqual_whenClientInfoIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
     [lhs setValue:[self createClientInfo:@{@"key1" : @"value1"}] forKey:@"clientInfo"];
@@ -141,7 +65,7 @@
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenClientInfoIsEqual_shouldReturnTrue
+- (void)testBaseTokenIsEqual_whenClientInfoIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
     [lhs setValue:[self createClientInfo:@{@"key1" : @"value1"}] forKey:@"clientInfo"];
@@ -151,27 +75,27 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenAdditionalServerInfoIsNotEqual_shouldReturnFalse
+- (void)testBaseTokenIsEqual_whenAdditionalInfoIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@{@"key1" : @"value1"} forKey:@"additionalServerInfo"];
+    [lhs setValue:@{@"key1" : @"value1"} forKey:@"additionalInfo"];
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
+    [rhs setValue:@{@"key2" : @"value2"} forKey:@"additionalInfo"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenAdditionalServerInfoIsEqual_shouldReturnTrue
+- (void)testBaseTokenIsEqual_whenAdditionalInfoIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@{@"key" : @"value"} forKey:@"additionalServerInfo"];
+    [lhs setValue:@{@"key" : @"value"} forKey:@"additionalInfo"];
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@{@"key" : @"value"} forKey:@"additionalServerInfo"];
+    [rhs setValue:@{@"key" : @"value"} forKey:@"additionalInfo"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenTokenTypeIsNotEqual_shouldReturnFalse
+- (void)testBaseTokenIsEqual_whenTokenTypeIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
     [lhs setValue:@0 forKey:@"tokenType"];
@@ -181,7 +105,7 @@
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenTokenTypeIsEqual_shouldReturnTrue
+- (void)testBaseTokenIsEqual_whenTokenTypeIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
     [lhs setValue:@0 forKey:@"tokenType"];
@@ -191,27 +115,7 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenResourceIsNotEqual_shouldReturnFalse
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@"value 1" forKey:@"resource"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@"value 2" forKey:@"resource"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenResourceIsEqual_shouldReturnTrue
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@"value 1" forKey:@"resource"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@"value 1" forKey:@"resource"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenAuthorityIsNotEqual_shouldReturnFalse
+- (void)testBaseTokenIsEqual_whenAuthorityIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
     [lhs setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
@@ -221,7 +125,7 @@
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenAuthorityIsEqual_shouldReturnTrue
+- (void)testBaseTokenIsEqual_whenAuthorityIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
     [lhs setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
@@ -231,7 +135,7 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenClientIdIsNotEqual_shouldReturnFalse
+- (void)testBaseTokenIsEqual_whenClientIdIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
     [lhs setValue:@"value 1" forKey:@"clientId"];
@@ -241,7 +145,7 @@
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenClientIdIsEqual_shouldReturnTrue
+- (void)testBaseTokenIsEqual_whenClientIdIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
     [lhs setValue:@"value 1" forKey:@"clientId"];
@@ -251,22 +155,250 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenScopesIsNotEqual_shouldReturnFalse
+#pragma mark - MSIDAccessToken
+
+- (void)testAccessTokenIsEqual_whenTokenIsNotEqual_shouldReturnFalse
 {
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @3]] forKey:@"scopes"];
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"token 1" forKey:@"idToken"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"token 2" forKey:@"idToken"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenScopesIsEqual_shouldReturnTrue
+- (void)testAccessTokenIsEqual_whenTokenIsEqual_shouldReturnTrue
 {
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"token 1" forKey:@"idToken"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"token 1" forKey:@"idToken"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenIdTokenIsNotEqual_shouldReturnFalse
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"value 1" forKey:@"idToken"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"value 2" forKey:@"idToken"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenIdTokenIsEqual_shouldReturnTrue
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"value 1" forKey:@"idToken"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"value 1" forKey:@"idToken"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenExpiresOnIsNotEqual_shouldReturnFalse
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:[NSDate dateWithTimeIntervalSince1970:2000000000] forKey:@"expiresOn"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenExpiresOnIsEqual_shouldReturnTrue
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenCachedAtIsNotEqual_shouldReturnFalse
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:[NSDate dateWithTimeIntervalSince1970:2000000000] forKey:@"cachedAt"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenCachedAtExpiresOnIsEqual_shouldReturnTrue
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenScopesIsNotEqual_shouldReturnFalse
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"1 2" forKey:@"target"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"1 3" forKey:@"target"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenScopesIsEqual_shouldReturnTrue
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"1 2" forKey:@"target"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"1 2" forKey:@"target"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenResourceIsNotEqual_shouldReturnFalse
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"value 1" forKey:@"target"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"value 2" forKey:@"target"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenResourceIsEqual_shouldReturnTrue
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"value 1" forKey:@"target"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"value 1" forKey:@"target"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+#pragma mark - MSIDRefreshToken
+
+- (void)testRefreshTokenIsEqual_whenFamilyIdIsNotEqual_shouldReturnFalse
+{
+    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
+    [lhs setValue:@"value 1" forKey:@"familyId"];
+    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
+    [rhs setValue:@"value 2" forKey:@"familyId"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testRefreshTokenIsEqual_whenFamilyIdIsEqual_shouldReturnTrue
+{
+    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
+    [lhs setValue:@"value 1" forKey:@"familyId"];
+    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
+    [rhs setValue:@"value 1" forKey:@"familyId"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testRefreshTokenIsEqual_whenTokenIsNotEqual_shouldReturnFalse
+{
+    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
+    [lhs setValue:@"value 1" forKey:@"refreshToken"];
+    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
+    [rhs setValue:@"value 2" forKey:@"refreshToken"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testRefreshTokenIsEqual_whenTokenIsEqual_shouldReturnTrue
+{
+    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
+    [lhs setValue:@"value 1" forKey:@"refreshToken"];
+    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
+    [rhs setValue:@"value 1" forKey:@"refreshToken"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testRefreshTokenIsEqual_whenIdTokenIsNotEqual_shouldReturnFalse
+{
+    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
+    [lhs setValue:@"value 1" forKey:@"idToken"];
+    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
+    [rhs setValue:@"value 2" forKey:@"idToken"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testRefreshTokenIsEqual_whenIdTokenIsEqual_shouldReturnTrue
+{
+    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
+    [lhs setValue:@"value 1" forKey:@"idToken"];
+    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
+    [rhs setValue:@"value 1" forKey:@"idToken"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testRefreshTokenIsEqual_whenUsernameIsNotEqual_shouldReturnFalse
+{
+    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
+    [lhs setValue:@"value 1" forKey:@"username"];
+    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
+    [rhs setValue:@"value 2" forKey:@"username"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testRefreshTokenIsEqual_whenUsernameIsEqual_shouldReturnTrue
+{
+    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
+    [lhs setValue:@"value 1" forKey:@"username"];
+    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
+    [rhs setValue:@"value 1" forKey:@"username"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+#pragma mark - MSIDAdfsToken
+
+- (void)testAdfsTokenIsEqual_whenRefreshTokenIsNotEqual_shouldReturnFalse
+{
+    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    [lhs setValue:@"value 1" forKey:@"singleResourceRefreshToken"];
+    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    [rhs setValue:@"value 2" forKey:@"singleResourceRefreshToken"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testAdfsTokenIsEqual_whenRefreshTokenIsEqual_shouldReturnTrue
+{
+    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    [lhs setValue:@"value 1" forKey:@"singleResourceRefreshToken"];
+    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    [rhs setValue:@"value 1" forKey:@"singleResourceRefreshToken"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+#pragma mark - MSIDIdToken
+
+- (void)testIDTokenIsEqual_whenRefreshTokenIsNotEqual_shouldReturnFalse
+{
+    MSIDIdToken *lhs = [MSIDIdToken new];
+    [lhs setValue:@"value 1" forKey:@"rawIdToken"];
+    MSIDIdToken *rhs = [MSIDIdToken new];
+    [rhs setValue:@"value 2" forKey:@"rawIdToken"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIDTokenIsEqual_whenRefreshTokenIsEqual_shouldReturnTrue
+{
+    MSIDIdToken *lhs = [MSIDIdToken new];
+    [lhs setValue:@"value 1" forKey:@"rawIdToken"];
+    MSIDIdToken *rhs = [MSIDIdToken new];
+    [rhs setValue:@"value 1" forKey:@"rawIdToken"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
@@ -276,11 +408,11 @@
 - (MSIDBaseToken *)createToken
 {
     MSIDBaseToken *token = [MSIDBaseToken new];
-    [token setValue:@"id token value" forKey:@"idToken"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
-    [token setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
+    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalInfo"];
+    [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
     [token setValue:@"some clientId" forKey:@"clientId"];
+    [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
     
     return token;
 }

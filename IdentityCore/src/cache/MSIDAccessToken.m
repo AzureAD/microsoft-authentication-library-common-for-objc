@@ -130,6 +130,7 @@ static uint64_t s_expirationBuffer = 300;
     result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
     result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
     result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
+    result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
     
     return result;
 }
@@ -148,7 +149,7 @@ static uint64_t s_expirationBuffer = 300;
     // Realm
     if (json[MSID_AUTHORITY_CACHE_KEY])
     {
-        _authority = json[MSID_AUTHORITY_CACHE_KEY];
+        _authority = [NSURL URLWithString:json[MSID_AUTHORITY_CACHE_KEY]];
     }
     else if (json[MSID_REALM_CACHE_KEY])
     {
@@ -160,17 +161,20 @@ static uint64_t s_expirationBuffer = 300;
     _target = json[MSID_TARGET_CACHE_KEY];
     
     // Cached at
-    _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_OAUTH2_CACHED_AT]];
+    _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_CACHED_AT_CACHE_KEY]];
     
     // Expires on
     _expiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXPIRES_ON_CACHE_KEY]];
     
     // Token
-    _accessToken = json[MSID_OAUTH2_ACCESS_TOKEN];
+    _accessToken = json[MSID_TOKEN_CACHE_KEY];
     
     /* Optional fields */
     // Extended expires on
     [_additionalInfo setValue:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] forKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+    
+    // ID token
+    _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
     
     return self;
 }
@@ -187,7 +191,7 @@ static uint64_t s_expirationBuffer = 300;
     [dictionary setValue:_target forKey:MSID_TARGET_CACHE_KEY];
     
     // Cached at
-    [dictionary setValue:_cachedAt.msidDateToTimestamp forKey:MSID_OAUTH2_CACHED_AT];
+    [dictionary setValue:_cachedAt.msidDateToTimestamp forKey:MSID_CACHED_AT_CACHE_KEY];
     
     // Expires On
     [dictionary setValue:_expiresOn.msidDateToTimestamp forKey:MSID_EXPIRES_ON_CACHE_KEY];
@@ -198,11 +202,14 @@ static uint64_t s_expirationBuffer = 300;
     /* Optional fields */
     
     // Authority
-    [dictionary setValue:_authority forKey:MSID_AUTHORITY_CACHE_KEY];
+    [dictionary setValue:_authority.absoluteString forKey:MSID_AUTHORITY_CACHE_KEY];
     
     // Extended expires on
     [dictionary setValue:[self extendedExpireTime]
                   forKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+    
+    // ID token
+    [dictionary setValue:_idToken forKey:MSID_ID_TOKEN_CACHE_KEY];
     
     return dictionary;
 }
