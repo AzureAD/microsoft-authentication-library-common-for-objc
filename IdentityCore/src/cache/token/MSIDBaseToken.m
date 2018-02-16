@@ -37,6 +37,7 @@
     item->_clientId = [_clientId copyWithZone:zone];
     item->_clientInfo = [_clientInfo copyWithZone:zone];
     item->_additionalInfo = [_additionalInfo copyWithZone:zone];
+    item->_uniqueUserId = [_uniqueUserId copyWithZone:zone];
     item->_tokenType = _tokenType;
     
     return item;

@@ -50,6 +50,7 @@ static uint64_t s_expirationBuffer = 300;
     item->_cachedAt = [_cachedAt copyWithZone:zone];
     item->_accessToken = [_accessToken copyWithZone:zone];
     item->_target = [_target copyWithZone:zone];
+    item->_idToken = [_idToken copyWithZone:zone];
     
     return item;
 }

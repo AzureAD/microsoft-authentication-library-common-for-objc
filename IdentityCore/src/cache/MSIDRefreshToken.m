@@ -35,6 +35,7 @@
     item->_refreshToken = [_refreshToken copyWithZone:zone];
     item->_familyId = [_familyId copyWithZone:zone];
     item->_idToken = [_idToken copyWithZone:zone];
+    item->_username = [_username copyWithZone:zone];
     
     return item;
 }
