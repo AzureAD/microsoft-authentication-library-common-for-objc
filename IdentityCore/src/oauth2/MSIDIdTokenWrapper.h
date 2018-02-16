@@ -27,7 +27,7 @@
 
 #import "MSIDJsonObject.h"
 
-@interface MSIDIdToken : MSIDJsonObject
+@interface MSIDIdTokenWrapper : MSIDJsonObject
 {
     NSString *_uniqueId;
     NSString *_userId;

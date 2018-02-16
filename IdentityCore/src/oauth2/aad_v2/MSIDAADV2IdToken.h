@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDIdToken.h"
+#import "MSIDIdTokenWrapper.h"
 
-@interface MSIDAADV2IdToken : MSIDIdToken
+@interface MSIDAADV2IdToken : MSIDIdTokenWrapper
 
 @property (readonly) NSString *issuer;
 @property (readonly) NSString *objectId;

@@ -24,7 +24,7 @@
 #import "MSIDAccount.h"
 #import "MSIDClientInfo.h"
 #import "MSIDAADTokenResponse.h"
-#import "MSIDIdToken.h"
+#import "MSIDIdTokenWrapper.h"
 
 @implementation MSIDAccount
 
