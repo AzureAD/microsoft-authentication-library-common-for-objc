@@ -48,11 +48,10 @@
     MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
     MSIDRefreshToken *expectedToken = [MSIDRefreshToken new];
     [expectedToken setValue:@"refresh token value" forKey:@"refreshToken"];
-    [expectedToken setValue:@"id token value" forKey:@"idToken"];
     [expectedToken setValue:@"familyId value" forKey:@"familyId"];
     [expectedToken setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
-    [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
-    [expectedToken setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
+    [expectedToken setValue:@{@"spe_info" : @"test"} forKey:@"additionalInfo"];
+    [expectedToken setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
     [expectedToken setValue:@"some clientId" forKey:@"clientId"];
     
     NSData *data = [serializer serialize:expectedToken];
