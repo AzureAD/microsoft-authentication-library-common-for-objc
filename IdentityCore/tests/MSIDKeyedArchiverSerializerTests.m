@@ -47,10 +47,9 @@
 {
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
     MSIDAccessToken *expectedToken = [MSIDAccessToken new];
-    [expectedToken setValue:@"access token value" forKey:@"accessTolen"];
+    [expectedToken setValue:@"access token value" forKey:@"accessToken"];
     [expectedToken setValue:@"id token value" forKey:@"idToken"];
     [expectedToken setValue:[NSDate new] forKey:@"expiresOn"];
-    [expectedToken setValue:@"familyId value" forKey:@"familyId"];
     
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     
@@ -60,11 +59,10 @@
     XCTAssertNotNil(clientInfo);
     
     [expectedToken setValue:clientInfo forKey:@"clientInfo"];
-    [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
-    [expectedToken setValue:@"some resource" forKey:@"resource"];
+    [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalInfo"];
+    [expectedToken setValue:@"some resource" forKey:@"target"];
     [expectedToken setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
     [expectedToken setValue:@"some clientId" forKey:@"clientId"];
-    [expectedToken setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
     
     NSData *data = [serializer serialize:expectedToken];
     MSIDAccessToken *resultToken = (MSIDAccessToken *)[serializer deserialize:data];
