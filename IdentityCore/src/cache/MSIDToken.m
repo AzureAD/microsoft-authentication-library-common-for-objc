@@ -145,8 +145,7 @@ static uint64_t s_expirationBuffer = 300;
     [dictionary setValue:_clientInfo.rawClientInfo forKey:MSID_OAUTH2_CLIENT_INFO];
     if (self.expiresOn)
     {
-        double interval =  [[NSString stringWithFormat:@"%qu", (uint64_t)[self.expiresOn timeIntervalSince1970]] doubleValue];
-        dictionary[MSID_OAUTH2_EXPIRES_ON] = [[NSNumber alloc] initWithDouble:interval];
+        dictionary[MSID_OAUTH2_EXPIRES_ON] = [NSString stringWithFormat:@"%qu", (uint64_t)[self.expiresOn timeIntervalSince1970]];
     }
     [dictionary setValue:self.additionalServerInfo forKey:MSID_OAUTH2_ADDITIONAL_SERVER_INFO];
     

@@ -487,7 +487,7 @@
                                    MSID_OAUTH2_CLIENT_ID : @"client_id_value",
                                    MSID_OAUTH2_SCOPE : @"v1 v2",
                                    MSID_OAUTH2_CLIENT_INFO : [@{@"key" : @"value"} msidBase64UrlJson],
-                                   MSID_OAUTH2_EXPIRES_ON : @1500000000,
+                                   MSID_OAUTH2_EXPIRES_ON : @"1500000000",
                                    MSID_OAUTH2_ADDITIONAL_SERVER_INFO : @{@"key2" : @"value2"},
                                    } mutableCopy];
     
@@ -500,7 +500,7 @@
 
 #pragma mark - Json, Extra fields
 
-- (void)test_whenPass
+- (void)test_whenJsonContainsExtraFields_shouldKeepThem
 {
     NSMutableDictionary *json = [@{
                                    @"some key" : @"some value",
@@ -510,7 +510,7 @@
                                    MSID_OAUTH2_CLIENT_ID : @"client_id_value",
                                    MSID_OAUTH2_SCOPE : @"v1 v2",
                                    MSID_OAUTH2_CLIENT_INFO : [@{@"key" : @"value"} msidBase64UrlJson],
-                                   MSID_OAUTH2_EXPIRES_ON : @1500000000,
+                                   MSID_OAUTH2_EXPIRES_ON : @"1500000000",
                                    MSID_OAUTH2_ADDITIONAL_SERVER_INFO : @{@"key2" : @"value2"},
                                    } mutableCopy];
     
