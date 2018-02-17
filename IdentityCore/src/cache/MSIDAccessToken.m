@@ -250,14 +250,7 @@ static uint64_t s_expirationBuffer = 300;
         resource = aadV1TokenResponse.resource ? aadV1TokenResponse.resource : resource;
     }
     
-    if (resource)
-    {
-        _target = resource;
-    }
-    else
-    {
-        _target = response.scope;
-    }
+    _target = resource ? resource : response.scope;
     
     _accessToken = response.accessToken;
     _idToken = response.idToken;
