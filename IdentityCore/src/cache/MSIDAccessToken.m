@@ -109,12 +109,11 @@ static uint64_t s_expirationBuffer = 300;
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
-    hash ^= self.expiresOn.hash;
-    hash ^= self.accessToken.hash;
-    hash ^= self.resource.hash;
-    hash ^= self.scopes.hash;
-    hash ^= self.cachedAt.hash;
-    
+    hash = hash * 31 + self.expiresOn.hash;
+    hash = hash * 31 + self.accessToken.hash;
+    hash = hash * 31 + self.resource.hash;
+    hash = hash * 31 + self.scopes.hash;
+    hash = hash * 31 + self.cachedAt.hash;
     return hash;
 }
 

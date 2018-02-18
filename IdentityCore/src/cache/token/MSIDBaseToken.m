@@ -116,12 +116,12 @@
 
 - (NSUInteger)hash
 {
-    NSUInteger hash = self.authority.hash;
-    hash ^= self.clientId.hash;
-    hash ^= self.clientInfo.rawClientInfo.hash;
-    hash ^= self.additionalInfo.hash;
-    hash ^= self.tokenType;
-    
+    NSUInteger hash = 17;
+    hash = hash * 31 + self.authority.hash;
+    hash = hash * 31 + self.clientId.hash;
+    hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
+    hash = hash * 31 + self.additionalInfo.hash;
+    hash = hash * 31 + self.tokenType;
     return hash;
 }
 

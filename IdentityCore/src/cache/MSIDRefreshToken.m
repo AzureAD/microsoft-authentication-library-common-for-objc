@@ -90,10 +90,9 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
-    hash ^= self.refreshToken.hash;
-    hash ^= self.familyId.hash;
-    hash ^= self.idToken.hash;
-    
+    hash = hash * 31 + self.refreshToken.hash;
+    hash = hash * 31 + self.familyId.hash;
+    hash = hash * 31 + self.idToken.hash;
     return hash;
 }
 

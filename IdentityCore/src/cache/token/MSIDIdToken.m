@@ -79,7 +79,7 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
-    hash ^= self.rawIdToken.hash;
+    hash = hash * 31 + self.rawIdToken.hash;
     return hash;
 }
 

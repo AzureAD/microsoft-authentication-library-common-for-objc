@@ -76,8 +76,7 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
-    hash ^= self.singleResourceRefreshToken.hash;
-    
+    hash = hash * 31 + self.singleResourceRefreshToken.hash;
     return hash;
 }
 
