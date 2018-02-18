@@ -47,4 +47,7 @@
                           upn:(NSString *)upn
                      tenantId:(NSString *)tid;
 
++ (NSString *)idTokenWithPreferredUsername:(NSString *)username
+                                   subject:(NSString *)subject;
+
 @end

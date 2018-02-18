@@ -24,9 +24,27 @@
 #import "MSIDTestRequestParams.h"
 #import "MSIDAADV1RequestParameters.h"
 #import "MSIDAADV2RequestParameters.h"
+#import "MSIDRequestParameters.h"
 #import "MSIDTestCacheIdentifiers.h"
 
 @implementation MSIDTestRequestParams
+
++ (MSIDRequestParameters *)defaultParams
+{
+    return [self defaultParamsWithAuthority:DEFAULT_TEST_AUTHORITY
+                                   clientId:DEFAULT_TEST_CLIENT_ID];
+}
+
++ (MSIDRequestParameters *)defaultParamsWithAuthority:(NSString *)authority
+                                             clientId:(NSString *)clientId
+{
+    NSURL *authorityURL = [NSURL URLWithString:authority];
+    MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:authorityURL
+                                                                                redirectUri:nil
+                                                                                   clientId:clientId];
+    
+    return requestParams;
+}
 
 + (MSIDAADV1RequestParameters *)v1DefaultParams
 {

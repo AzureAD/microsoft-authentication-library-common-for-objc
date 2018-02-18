@@ -236,17 +236,20 @@ static uint64_t s_expirationBuffer = 300;
           request:(MSIDRequestParameters *)requestParams
 {
     NSString *resource = nil;
-    
-    if ([requestParams isKindOfClass:[MSIDAADV1RequestParameters class]])
-    {
-        MSIDAADV1RequestParameters *v1RequestParams = (MSIDAADV1RequestParameters *)requestParams;
-        resource = v1RequestParams.resource;
-    }
-    
+
     if ([response isKindOfClass:[MSIDAADV1TokenResponse class]])
     {
+        NSString *fallbackResource = nil;
+        
+        if ([requestParams isKindOfClass:[MSIDAADV1RequestParameters class]])
+        {
+            MSIDAADV1RequestParameters *v1RequestParams = (MSIDAADV1RequestParameters *)requestParams;
+            fallbackResource = v1RequestParams.resource;
+        }
+        
         MSIDAADV1TokenResponse *aadV1TokenResponse = (MSIDAADV1TokenResponse *)response;
-        resource = aadV1TokenResponse.resource ? aadV1TokenResponse.resource : resource;
+        // Because resource is not always returned in the token response, we rely on the input resource as a fallback
+        resource = aadV1TokenResponse.resource ? aadV1TokenResponse.resource : fallbackResource;
     }
     
     _target = resource ? resource : response.scope;
@@ -269,6 +272,8 @@ static uint64_t s_expirationBuffer = 300;
     }
     
     _expiresOn = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[expiresOn timeIntervalSince1970]];
+    
+    _cachedAt = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[[NSDate date] timeIntervalSince1970]];
 }
 
 - (void)fillExtendedExpiryFromResponse:(MSIDTokenResponse *)response

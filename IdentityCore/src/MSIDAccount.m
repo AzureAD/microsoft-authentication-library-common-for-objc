@@ -62,6 +62,11 @@
         uid = aadTokenResponse.clientInfo.uid;
         utid = aadTokenResponse.clientInfo.utid;
     }
+    else
+    {
+        uid = response.idTokenObj.subject;
+        utid = @"";
+    }
     
     NSString *userId = response.idTokenObj.userId;
     return [self initWithUpn:userId utid:utid uid:uid];

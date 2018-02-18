@@ -266,6 +266,7 @@
     // Fill from request
     _authority = requestParams.authority;
     _clientId = requestParams.clientId;
+    _additionalInfo = [NSMutableDictionary dictionary];
     
     // Fill in client info and spe info
     if ([response isKindOfClass:[MSIDAADTokenResponse class]])
@@ -273,11 +274,12 @@
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         _clientInfo = aadTokenResponse.clientInfo;
         _uniqueUserId = _clientInfo.userIdentifier;
-        
-        NSMutableDictionary *serverInfo = [NSMutableDictionary dictionary];
-        [serverInfo setValue:aadTokenResponse.speInfo
-                      forKey:MSID_SPE_INFO_CACHE_KEY];
-        _additionalInfo = serverInfo;
+        [_additionalInfo setValue:aadTokenResponse.speInfo
+                           forKey:MSID_SPE_INFO_CACHE_KEY];
+    }
+    else
+    {
+        _uniqueUserId = response.idTokenObj.userId;
     }
 }
 

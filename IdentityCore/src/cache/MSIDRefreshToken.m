@@ -171,15 +171,15 @@
 - (void)fillToken:(MSIDTokenResponse *)response
 {
     _refreshToken = response.refreshToken;
+    _username = response.idTokenObj.preferredUsername;
+    _idToken = response.idToken;
     
     if ([response isKindOfClass:[MSIDAADTokenResponse class]])
     {
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         _familyId = aadTokenResponse.familyId;
+        _username = aadTokenResponse.idTokenObj.userId;
     }
-    
-    _idToken = response.idToken;
-    _username = response.idTokenObj.preferredUsername;
 }
 
 #pragma mark - Token type
