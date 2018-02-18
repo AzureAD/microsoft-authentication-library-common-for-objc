@@ -100,7 +100,6 @@
 
 #pragma mark - Private
 
-// TODO: move to helper method.
 - (MSIDClientInfo *)createClientInfo:(NSDictionary *)clientInfoDict
 {
     NSString *base64String = [clientInfoDict msidBase64UrlJson];
