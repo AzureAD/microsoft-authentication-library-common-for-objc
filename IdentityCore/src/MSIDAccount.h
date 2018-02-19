@@ -35,13 +35,15 @@ typedef NS_ENUM(NSInteger, MSIDAccountType)
 
 @interface MSIDAccount : MSIDBaseCacheItem
 
-@property (nonatomic) NSString *upn;
+// Legacy user identifier
+@property (nonatomic) NSString *legacyUserId;
 @property (nonatomic) NSString *utid;
 @property (nonatomic) NSString *uid;
 
-@property (readonly) MSIDAccountType accountType;
-
+// Primary user identifier
 @property (readonly) NSString *userIdentifier;
+
+@property (readonly) MSIDAccountType accountType;
 @property (readonly) NSString *firstName;
 @property (readonly) NSString *lastName;
 @property (readonly) NSDictionary *additionalFields;

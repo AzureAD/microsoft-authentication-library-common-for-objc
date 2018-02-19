@@ -306,7 +306,7 @@
     
     if (!userIdentifier)
     {
-        userIdentifier = account.upn;
+        userIdentifier = account.legacyUserId;
     }
     
     NSString *cloudIdentifier = tokenType == MSIDTokenTypeRefreshToken ? authority.msidHostWithPortIfNecessary : authority.absoluteString;

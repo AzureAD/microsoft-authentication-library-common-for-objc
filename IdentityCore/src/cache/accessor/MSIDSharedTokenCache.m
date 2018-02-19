@@ -139,7 +139,7 @@
         MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenResponse:response
                                                                         request:requestParams];
         
-        account.upn = @"";
+        account.legacyUserId = @"";
         
         // Save token for ADFS
         return [_primaryAccessor saveADFSToken:adfsToken

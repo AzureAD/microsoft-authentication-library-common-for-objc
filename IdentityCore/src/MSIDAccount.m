@@ -33,7 +33,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAccount *item = [super copyWithZone:zone];
-    item->_upn = [_upn copyWithZone:zone];
+    item->_legacyUserId = [_legacyUserId copyWithZone:zone];
     item->_uid = [_uid copyWithZone:zone];
     item->_utid = [_utid copyWithZone:zone];
     
@@ -49,7 +49,7 @@
         return nil;
     }
     
-    _upn = [coder decodeObjectOfClass:[NSString class] forKey:@"upn"];
+    _legacyUserId = [coder decodeObjectOfClass:[NSString class] forKey:@"upn"];
     _uid = [coder decodeObjectOfClass:[NSString class] forKey:@"uid"];
     _utid = [coder decodeObjectOfClass:[NSString class] forKey:@"utid"];
     _accountType = [self accountTypeFromString:[coder decodeObjectOfClass:[NSString class] forKey:@"account_type"]];
@@ -64,7 +64,7 @@
 {
     [super encodeWithCoder:coder];
     
-    [coder encodeObject:_upn forKey:@"upn"];
+    [coder encodeObject:_legacyUserId forKey:@"upn"];
     [coder encodeObject:_uid forKey:@"uid"];
     [coder encodeObject:_utid forKey:@"utid"];
     [coder encodeObject:[self accountTypeString] forKey:@"account_type"];
@@ -93,7 +93,7 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
-    hash = hash * 31 + self.upn.hash;
+    hash = hash * 31 + self.legacyUserId.hash;
     hash = hash * 31 + self.uid.hash;
     hash = hash * 31 + self.utid.hash;
     return hash;
@@ -107,7 +107,7 @@
     }
     
     BOOL result = [super isEqualToItem:account];
-    result &= (!self.upn && !account.upn) || [self.upn isEqualToString:account.upn];
+    result &= (!self.legacyUserId && !account.legacyUserId) || [self.legacyUserId isEqualToString:account.legacyUserId];
     result &= (!self.uid && !account.uid) || [self.uid isEqualToString:account.uid];
     result &= (!self.utid && !account.utid) || [self.utid isEqualToString:account.utid];
     result &= (!self.firstName && !account.firstName) || [self.firstName isEqualToString:account.firstName];
@@ -138,7 +138,7 @@
     }
     
     // Authority account ID
-    _upn = json[MSID_ACCOUNT_ID_CACHE_KEY];
+    _legacyUserId = json[MSID_ACCOUNT_ID_CACHE_KEY];
     
     /* Optional fields */
     // First name
@@ -172,7 +172,7 @@
                   forKey:MSID_REALM_CACHE_KEY];
     
     // Authority account ID
-    [dictionary setValue:_upn
+    [dictionary setValue:_legacyUserId
                   forKey:MSID_ACCOUNT_ID_CACHE_KEY];
     
     /* Optional fields */
@@ -213,7 +213,7 @@
         return nil;
     }
     
-    self->_upn = upn;
+    self->_legacyUserId = upn;
     self->_utid = utid;
     self->_uid = uid;
 
@@ -248,7 +248,7 @@
     {
         return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
     }
-    return nil;    
+    return self.uniqueUserId;
 }
 
 #pragma mark - Helpers

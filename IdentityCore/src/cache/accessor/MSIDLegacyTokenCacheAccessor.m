@@ -87,7 +87,7 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    if (!account.upn)
+    if (!account.legacyUserId)
     {
         if (error)
         {
@@ -287,7 +287,7 @@
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:token.authority
                                                         clientId:token.clientId
                                                         resource:token.resource
-                                                             upn:account.upn];
+                                                             upn:account.legacyUserId];
     
     return [_dataSource removeItemsWithKey:key
                                    context:context
@@ -348,7 +348,7 @@
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:newAuthority
                                                         clientId:clientId
                                                         resource:resource
-                                                             upn:account.upn];
+                                                             upn:account.legacyUserId];
     
     BOOL result = [_dataSource setItem:token key:key serializer:serializer context:context error:error];
     
@@ -375,12 +375,12 @@
     
     for (NSURL *alias in aliases)
     {
-        BOOL matchByUPN = account.upn != nil;
+        BOOL matchByUPN = account.legacyUserId != nil;
         
         MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:alias
                                                             clientId:clientId
                                                             resource:resource
-                                                                 upn:account.upn];
+                                                                 upn:account.legacyUserId];
         if (!key)
         {
             return nil;
