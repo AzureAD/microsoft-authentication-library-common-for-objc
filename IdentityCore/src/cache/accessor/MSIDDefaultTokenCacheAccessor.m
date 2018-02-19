@@ -35,6 +35,7 @@
 #import "NSURL+MSIDExtensions.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDIdToken.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -134,6 +135,28 @@
                     userId:account.userIdentifier
                   clientId:token.clientId
                     scopes:token.scopes
+                 authority:token.authority
+                serializer:_atSerializer
+                   context:context
+                     error:error];
+}
+
+- (BOOL)saveIDToken:(MSIDIdToken *)token
+            account:(MSIDAccount *)account
+      requestParams:(MSIDRequestParameters *)parameters
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    if (![self checkRequestParameters:parameters context:context error:error]
+        || ![self checkUserIdentifier:account context:context error:error])
+    {
+        return NO;
+    }
+    
+    return [self saveToken:token
+                    userId:account.userIdentifier
+                  clientId:token.clientId
+                    scopes:nil
                  authority:token.authority
                 serializer:_atSerializer
                    context:context
@@ -388,22 +411,32 @@
                                 scopes:(NSOrderedSet<NSString *> *)scopes
                              authority:(NSURL *)authority
 {
-    if (tokenType == MSIDTokenTypeAccessToken)
+    switch (tokenType)
     {
-        return [MSIDTokenCacheKey keyForAccessTokenWithUniqueUserId:userId
+        case MSIDTokenTypeAccessToken:
+        {
+            return [MSIDTokenCacheKey keyForAccessTokenWithUniqueUserId:userId
+                                                              authority:authority
+                                                               clientId:clientId
+                                                                 scopes:scopes];
+        }
+        case MSIDTokenTypeRefreshToken:
+        {
+            return [MSIDTokenCacheKey keyForRefreshTokenWithUniqueUserId:userId
+                                                             environment:authority.msidHostWithPortIfNecessary
+                                                                clientId:clientId];
+        }
+        case MSIDTokenTypeIDToken:
+        {
+            return [MSIDTokenCacheKey keyForIDTokenWithUniqueUserId:userId
                                                           authority:authority
-                                                           clientId:clientId
-                                                             scopes:scopes];
+                                                           clientId:clientId];
+        }
+            
+        default:
+            // ADFS token type is not supported
+            return nil;
     }
-    else if (tokenType == MSIDTokenTypeRefreshToken)
-    {
-        return [MSIDTokenCacheKey keyForRefreshTokenWithUniqueUserId:userId
-                                                         environment:authority.msidHostWithPortIfNecessary
-                                                            clientId:clientId];
-    }
-    
-    // ADFS token type is not supported
-    return nil;
 }
 
 

@@ -30,6 +30,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDBaseToken.h"
+#import "MSIDIdToken.h"
 #import "MSIDBaseToken+MSIDRefreshTokenAccessor.h"
 
 @interface MSIDSharedTokenCache()
@@ -88,6 +89,24 @@
         if (!result)
         {
             return NO;
+        }
+        
+        if ([_primaryAccessor respondsToSelector:@selector(saveIDToken:account:requestParams:context:error:)])
+        {
+            // Save ID token in the primary format, if accessor supports it...
+            MSIDIdToken *idToken = [[MSIDIdToken alloc] initWithTokenResponse:response
+                                                                      request:requestParams];
+            
+            result = [_primaryAccessor saveIDToken:idToken
+                                           account:account
+                                     requestParams:requestParams
+                                           context:context
+                                             error:error];
+            
+            if (!result)
+            {
+                return NO;
+            }
         }
         
         // Create a refresh token item

@@ -29,6 +29,7 @@
 @class MSIDRefreshToken;
 @class MSIDRequestParameters;
 @class MSIDBaseToken;
+@class MSIDIdToken;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 
@@ -71,5 +72,13 @@
                            token:(MSIDBaseToken *)token
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error;
+
+@optional
+
+- (BOOL)saveIDToken:(MSIDIdToken *)token
+            account:(MSIDAccount *)account
+      requestParams:(MSIDRequestParameters *)parameters
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error;
 
 @end

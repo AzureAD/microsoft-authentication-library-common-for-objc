@@ -105,6 +105,22 @@ static NSString *keyDelimiter = @"-";
                                             target:scopes.msidToString];
 }
 
++ (MSIDTokenCacheKey *)keyForIDTokenWithUniqueUserId:(NSString *)userId
+                                           authority:(NSURL *)authority
+                                            clientId:(NSString *)clientId
+{
+    NSString *environment = authority.msidHostWithPortIfNecessary;
+    NSString *tenant = authority.msidTenant;
+    
+    NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    NSString *service = [self.class credentialIdWithType:MSIDTokenTypeIDToken clientId:clientId realm:tenant];
+    
+    return [[MSIDTokenCacheKey alloc] initWithAccount:account
+                                              service:service
+                                              generic:nil
+                                                 type:@(MSIDTokenTypeIDToken)];
+}
+
 + (MSIDTokenCacheKey *)keyForAllAccessTokensWithUniqueUserId:(NSString *)userId
                                                  environment:(NSString *)environment
                                                     clientId:(NSString *)clientId
