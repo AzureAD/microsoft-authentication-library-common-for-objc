@@ -208,10 +208,10 @@
                                                  error:error];
 }
 
-- (MSIDBaseToken *)getLatestRTForToken:(MSIDBaseToken *)token
-                               account:(MSIDAccount *)account
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error
+- (MSIDBaseToken<MSIDRefreshableToken> *)getLatestRTForToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
+                                                     account:(MSIDAccount *)account
+                                                     context:(id<MSIDRequestContext>)context
+                                                       error:(NSError **)error
 {
     if (![self checkUserIdentifier:account context:context error:error])
     {
@@ -221,7 +221,7 @@
     return (MSIDRefreshToken *)[self getItemForAccount:account
                                              authority:token.authority
                                               clientId:token.clientId
-                                              resource:token.msidResource
+                                              resource:token.resource
                                             serializer:_rtSerializer
                                                context:context
                                                  error:error];
@@ -266,7 +266,7 @@
 }
 
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
-                           token:(MSIDBaseToken *)token
+                           token:(MSIDBaseToken<MSIDRefreshableToken> *)token
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
@@ -287,7 +287,7 @@
     
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:token.authority
                                                         clientId:token.clientId
-                                                        resource:token.msidResource
+                                                        resource:token.resource
                                                              upn:account.upn];
     
     return [_dataSource removeItemsWithKey:key

@@ -26,6 +26,7 @@
 #import "MSIDUserInformation.h"
 
 @implementation MSIDRefreshToken
+@synthesize resource = _resource;
 
 #pragma mark - NSCopying
 

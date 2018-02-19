@@ -288,12 +288,11 @@
 }
 
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
-                     token:(MSIDBaseToken *)token
+                     token:(MSIDBaseToken<MSIDRefreshableToken> *)token
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    if (!token || (token.tokenType != MSIDTokenTypeRefreshToken
-                   && token.tokenType != MSIDTokenTypeLegacyADFSToken))
+    if (!token || [NSString msidIsStringNilOrBlank:token.refreshToken])
     {
         if (error)
         {
@@ -305,10 +304,10 @@
     
     NSError *cacheError = nil;
     
-    MSIDBaseToken *tokenInCache = [_primaryAccessor getLatestRTForToken:token
-                                                                account:account
-                                                                context:context
-                                                                  error:&cacheError];
+    MSIDBaseToken<MSIDRefreshableToken> *tokenInCache = [_primaryAccessor getLatestRTForToken:token
+                                                                                      account:account
+                                                                                      context:context
+                                                                                        error:&cacheError];
     
     if (cacheError)
     {
@@ -319,7 +318,7 @@
         return NO;
     }
     
-    if (tokenInCache && [tokenInCache.msidRefreshToken isEqualToString:token.msidRefreshToken])
+    if (tokenInCache && [tokenInCache.refreshToken isEqualToString:token.refreshToken])
     {
         return [_primaryAccessor removeSharedRTForAccount:account
                                                     token:token

@@ -21,14 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBaseToken.h"
-#import "MSIDRefreshableToken.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDRefreshToken : MSIDBaseToken <MSIDRefreshableToken>
+/*!
+ 
+ Compatibility protocol to use different tokens
+ or credentials that can be used as refresh tokens/refresh credentials interchangeably
+ 
+ !*/
+
+@protocol MSIDRefreshableToken <NSObject>
 
 @property (readonly) NSString *refreshToken;
-@property (readonly) NSString *familyId;
-@property (readonly) NSString *idToken;
-@property (readonly) NSString *username;
+@property (readonly) NSString *resource;
 
 @end

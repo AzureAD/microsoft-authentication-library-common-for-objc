@@ -22,8 +22,9 @@
 // THE SOFTWARE.
 
 #import "MSIDAccessToken.h"
+#import "MSIDRefreshableToken.h"
 
-@interface MSIDAdfsToken : MSIDAccessToken
+@interface MSIDAdfsToken : MSIDAccessToken <MSIDRefreshableToken>
 
 @property (readonly) NSString *refreshToken;
 

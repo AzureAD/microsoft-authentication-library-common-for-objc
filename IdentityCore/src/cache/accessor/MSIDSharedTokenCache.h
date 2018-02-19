@@ -27,6 +27,7 @@
 #import "MSIDRequestContext.h"
 #import "MSIDBrokerResponse.h"
 #import "MSIDRequestParameters.h"
+#import "MSIDRefreshableToken.h"
 
 @class MSIDAccessToken;
 @class MSIDRefreshToken;
@@ -85,7 +86,7 @@
 
 // Removal operations for RT or ADFS RT
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
-                     token:(MSIDBaseToken *)token
+                     token:(MSIDBaseToken<MSIDRefreshableToken> *)token
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 

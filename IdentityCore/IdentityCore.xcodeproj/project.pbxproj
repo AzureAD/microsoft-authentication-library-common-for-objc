@@ -204,6 +204,7 @@
 		B2A99FFA203A69F8002ECCF1 /* MSIDBaseToken+MSIDRefreshTokenAccessor.h in Headers */ = {isa = PBXBuildFile; fileRef = B2A99FF8203A69F8002ECCF1 /* MSIDBaseToken+MSIDRefreshTokenAccessor.h */; };
 		B2A99FFB203A69F8002ECCF1 /* MSIDBaseToken+MSIDRefreshTokenAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = B2A99FF9203A69F8002ECCF1 /* MSIDBaseToken+MSIDRefreshTokenAccessor.m */; };
 		B2A99FFC203A69F8002ECCF1 /* MSIDBaseToken+MSIDRefreshTokenAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = B2A99FF9203A69F8002ECCF1 /* MSIDBaseToken+MSIDRefreshTokenAccessor.m */; };
+		B2A9A003203A7EA8002ECCF1 /* MSIDRefreshableToken.h in Headers */ = {isa = PBXBuildFile; fileRef = B2A9A002203A7EA8002ECCF1 /* MSIDRefreshableToken.h */; };
 		B2C17AEA1FC790420070A514 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2C17AE91FC790420070A514 /* UIKit.framework */; };
 		B2C17AEC1FC796E60070A514 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */; };
 		B2C17AED1FC796FE0070A514 /* MSIDOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */; };
@@ -498,6 +499,7 @@
 		B29CB6D31FEC9BE700F880ED /* MSIDAADV2RequestParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV2RequestParameters.m; sourceTree = "<group>"; };
 		B2A99FF8203A69F8002ECCF1 /* MSIDBaseToken+MSIDRefreshTokenAccessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDBaseToken+MSIDRefreshTokenAccessor.h"; sourceTree = "<group>"; };
 		B2A99FF9203A69F8002ECCF1 /* MSIDBaseToken+MSIDRefreshTokenAccessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDBaseToken+MSIDRefreshTokenAccessor.m"; sourceTree = "<group>"; };
+		B2A9A002203A7EA8002ECCF1 /* MSIDRefreshableToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRefreshableToken.h; sourceTree = "<group>"; };
 		B2C17AE91FC790420070A514 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLoggerTests.m; sourceTree = "<group>"; };
 		B2C17AF21FC7A56C0070A514 /* MSIDTestLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestLogger.h; sourceTree = "<group>"; };
@@ -854,6 +856,7 @@
 				B299B4782036593C00530528 /* MSIDIdToken.m */,
 				B2A99FF8203A69F8002ECCF1 /* MSIDBaseToken+MSIDRefreshTokenAccessor.h */,
 				B2A99FF9203A69F8002ECCF1 /* MSIDBaseToken+MSIDRefreshTokenAccessor.m */,
+				B2A9A002203A7EA8002ECCF1 /* MSIDRefreshableToken.h */,
 			);
 			path = token;
 			sourceTree = "<group>";
@@ -1135,6 +1138,7 @@
 				B29CB6C31FEC8F6400F880ED /* MSIDAADV1RequestParameters.h in Headers */,
 				B210F4551FDDFA7B005A8F76 /* MSIDBrokerResponse.h in Headers */,
 				B20657AF1FC91FC900412B7D /* MSIDTelemetryEventStrings.h in Headers */,
+				B2A9A003203A7EA8002ECCF1 /* MSIDRefreshableToken.h in Headers */,
 				B2EF143A1FF2F225005DC1C0 /* MSIDAADV2TokenResponse.h in Headers */,
 				9641B5011FCF3E2700AFA0EC /* MSIDTokenCacheDataSource.h in Headers */,
 				B226D86E1FFB1DF40012BF8B /* MSIDAdfsToken.h in Headers */,

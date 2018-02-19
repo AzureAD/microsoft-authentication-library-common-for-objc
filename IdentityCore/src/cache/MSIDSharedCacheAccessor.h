@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDRefreshableToken.h"
 
 @class MSIDAccount;
 @class MSIDAdfsToken;
@@ -55,17 +56,17 @@
                                     context:(id<MSIDRequestContext>)context
                                       error:(NSError **)error;
 
-- (MSIDBaseToken *)getLatestRTForToken:(MSIDBaseToken *)token
-                               account:(MSIDAccount *)account
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error;
+- (MSIDBaseToken<MSIDRefreshableToken> *)getLatestRTForToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
+                                                     account:(MSIDAccount *)account
+                                                     context:(id<MSIDRequestContext>)context
+                                                       error:(NSError **)error;
 
 - (NSArray<MSIDRefreshToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
                                                      context:(id<MSIDRequestContext>)context
                                                        error:(NSError **)error;
 
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
-                           token:(MSIDBaseToken *)token
+                           token:(MSIDBaseToken<MSIDRefreshableToken> *)token
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error;
 
