@@ -134,7 +134,7 @@
                                          context:context
                                            error:error];
     }
-    else
+    else if ([_primaryAccessor respondsToSelector:@selector(saveADFSToken:account:requestParams:context:error:)])
     {
         MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenResponse:response
                                                                         request:requestParams];
@@ -144,12 +144,14 @@
                                                                 uid:nil];
         
         // Save token for ADFS
-        return [_primaryAccessor saveAccessToken:adfsToken
-                                         account:adfsAccount
-                                   requestParams:requestParams
-                                         context:context
-                                           error:error];
+        return [_primaryAccessor saveADFSToken:adfsToken
+                                       account:adfsAccount
+                                requestParams:requestParams
+                                       context:context
+                                         error:error];
     }
+    
+    return YES;
 }
 
 - (BOOL)saveRefreshTokenInAllCaches:(MSIDRefreshToken *)refreshToken
@@ -205,9 +207,14 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    return [_primaryAccessor getADFSTokenWithRequestParams:parameters
-                                                   context:context
-                                                     error:error];
+    if ([_primaryAccessor respondsToSelector:@selector(getADFSTokenWithRequestParams:context:error:)])
+    {
+        return [_primaryAccessor getADFSTokenWithRequestParams:parameters
+                                                       context:context
+                                                         error:error];
+    }
+    
+    return nil;
 }
 
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account

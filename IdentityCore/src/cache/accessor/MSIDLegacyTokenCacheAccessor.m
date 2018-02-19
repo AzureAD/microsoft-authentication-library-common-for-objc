@@ -117,7 +117,7 @@
     return [self saveToken:token
                    account:account
                   clientId:parameters.clientId
-                serializer:token.tokenType == MSIDTokenTypeLegacyADFSToken ? _adfsSerializer : _atSerializer
+                serializer:_atSerializer
                    context:context
                      error:error];
 }
@@ -137,6 +137,28 @@
                       serializer:_atSerializer
                          context:context
                            error:error];
+}
+
+#pragma mark - ADFS tokens
+
+- (BOOL)saveADFSToken:(MSIDAdfsToken *)token
+              account:(MSIDAccount *)account
+        requestParams:(MSIDRequestParameters *)parameters
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error
+{
+    if (![self checkRequestParameters:parameters context:context error:error]
+        || ![self checkUserIdentifier:account context:context error:error])
+    {
+        return NO;
+    }
+    
+    return [self saveToken:token
+                   account:account
+                  clientId:parameters.clientId
+                serializer:_adfsSerializer
+                   context:context
+                     error:error];
 }
 
 - (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters

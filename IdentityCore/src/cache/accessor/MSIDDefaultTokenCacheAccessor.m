@@ -214,18 +214,6 @@
     return tokenToReturn;
 }
 
-- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
-{
-    if (error)
-    {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"ADFS tokens are not currently supported for MSAL", nil, nil, nil, context.correlationId, nil);
-    }
-    
-    return nil;
-}
-
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
                   refreshToken:(MSIDRefreshToken *)refreshToken
                        context:(id<MSIDRequestContext>)context

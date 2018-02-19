@@ -44,10 +44,6 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error;
-
 - (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
                   refreshToken:(MSIDRefreshToken *)refreshToken
                        context:(id<MSIDRequestContext>)context
@@ -75,10 +71,20 @@
 
 @optional
 
+- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error;
+
 - (BOOL)saveIDToken:(MSIDIdToken *)token
             account:(MSIDAccount *)account
       requestParams:(MSIDRequestParameters *)parameters
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error;
+
+- (BOOL)saveADFSToken:(MSIDAdfsToken *)token
+              account:(MSIDAccount *)account
+        requestParams:(MSIDRequestParameters *)parameters
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error;
 
 @end

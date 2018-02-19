@@ -157,10 +157,9 @@
     
     // Check that we can get back the ADFS token
     MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@"" utid:nil uid:nil];
-    MSIDAdfsToken *token = (MSIDAdfsToken *)[tokenCache getATForAccount:account
-                                                          requestParams:requestParams
-                                                                context:nil
-                                                                  error:&error];
+    MSIDAdfsToken *token = (MSIDAdfsToken *)[tokenCache getADFSTokenWithRequestParams:requestParams
+                                                                              context:nil
+                                                                                error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);

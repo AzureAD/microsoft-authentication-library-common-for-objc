@@ -67,6 +67,19 @@
     return [self saveTokenForAccount:account token:token clientId:parameters.clientId authority:parameters.authority context:context error:error];
 }
 
+- (BOOL)saveADFSToken:(MSIDAdfsToken *)token
+              account:(MSIDAccount *)account
+        requestParams:(MSIDRequestParameters *)parameters
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error
+{
+    return [self saveAccessToken:(MSIDAccessToken *)token
+                         account:account
+                   requestParams:parameters
+                         context:context
+                           error:error];
+}
+
 - (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
                        requestParams:(MSIDRequestParameters *)parameters
                              context:(id<MSIDRequestContext>)context
