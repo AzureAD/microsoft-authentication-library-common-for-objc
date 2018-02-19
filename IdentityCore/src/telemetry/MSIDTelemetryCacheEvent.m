@@ -24,6 +24,7 @@
 #import "MSIDTelemetry.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDRefreshToken.h"
 
 @implementation MSIDTelemetryCacheEvent
 
@@ -55,7 +56,7 @@
             [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_REFRESH_TOKEN];
             break;
             
-        case MSIDTokenTypeAdfsUserToken:
+        case MSIDTokenTypeLegacyADFSToken:
             [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_ADFS_TOKEN];
             break;
             
@@ -104,14 +105,15 @@
     [self setProperty:MSID_TELEMETRY_KEY_SPE_INFO value:speInfo];
 }
 
-- (void)setToken:(MSIDToken *)token
+- (void)setToken:(MSIDBaseToken *)token
 {
     [self setTokenType:token.tokenType];
-    [self setSpeInfo:token.additionalServerInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
+    [self setSpeInfo:token.additionalInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
     
-    if (![NSString msidIsStringNilOrBlank:token.familyId])
+    if (token.tokenType == MSIDTokenTypeRefreshToken)
     {
-        [self setIsFRT:MSID_TELEMETRY_VALUE_YES];
+        MSIDRefreshToken *refresToken = (MSIDRefreshToken *)token;
+        [self setIsFRT:[NSString msidIsStringNilOrBlank:refresToken.familyId] ? MSID_TELEMETRY_VALUE_NO : MSID_TELEMETRY_VALUE_YES];
     }
 }
 

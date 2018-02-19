@@ -26,7 +26,7 @@
 
 @implementation MSIDAADV2TokenResponse
 
-- (MSIDIdToken *)idTokenObj
+- (MSIDIdTokenWrapper *)idTokenObj
 {
     return [[MSIDAADV2IdToken alloc] initWithRawIdToken:self.idToken];
 }

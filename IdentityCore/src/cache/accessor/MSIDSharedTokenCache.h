@@ -28,6 +28,8 @@
 #import "MSIDBrokerResponse.h"
 #import "MSIDRequestParameters.h"
 
+@class MSIDAccessToken;
+@class MSIDRefreshToken;
 @class MSIDAdfsToken;
 
 @interface MSIDSharedTokenCache : NSObject
@@ -45,10 +47,10 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (MSIDToken *)getATForAccount:(MSIDAccount *)account
-                 requestParams:(MSIDRequestParameters *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error;
+- (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
+                       requestParams:(MSIDRequestParameters *)parameters
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error;
 
 - (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
                                          context:(id<MSIDRequestContext>)context
@@ -58,31 +60,31 @@
  Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
  potentially be used for many resources for that given user, client ID and authority.
  */
-- (MSIDToken *)getRTForAccount:(MSIDAccount *)account
-                 requestParams:(MSIDRequestParameters *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error;
+- (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
+                        requestParams:(MSIDRequestParameters *)parameters
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
 
 /*!
  Returns a Family Refresh Token for the given authority, user and family ID, if available. A FRT can
  be used for many resources within a given family of client IDs.
  */
-- (MSIDToken *)getFRTforAccount:(MSIDAccount *)account
-                  requestParams:(MSIDRequestParameters *)parameters
-                       familyId:(NSString *)familyId
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error;
+- (MSIDRefreshToken *)getFRTforAccount:(MSIDAccount *)account
+                         requestParams:(MSIDRequestParameters *)parameters
+                              familyId:(NSString *)familyId
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError **)error;
 
 /*!
  + Returns all refresh tokens for a given client.
  + */
-- (NSArray<MSIDToken *> *)getAllClientRTs:(NSString *)clientId
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error;
+- (NSArray<MSIDRefreshToken *> *)getAllClientRTs:(NSString *)clientId
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error;
 
 // Removal operations
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
-                     token:(MSIDToken *)token
+                     token:(MSIDRefreshToken *)token
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 

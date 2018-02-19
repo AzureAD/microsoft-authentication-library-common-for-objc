@@ -27,6 +27,8 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDAccount.h"
 #import "MSIDAdfsToken.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
 
 @interface MSIDSharedTokenCache()
 {
@@ -72,9 +74,8 @@
     if (response.isMultiResource)
     {
         // Save access token item in the primary format
-        MSIDToken *accessToken = [[MSIDToken alloc] initWithTokenResponse:response
-                                                                  request:requestParams
-                                                                tokenType:MSIDTokenTypeAccessToken];
+        MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response
+                                                                              request:requestParams];
         
         BOOL result = [_primaryAccessor saveAccessToken:accessToken
                                               account:account
@@ -88,9 +89,8 @@
         }
         
         // Create a refresh token item
-        MSIDToken *refreshToken = [[MSIDToken alloc] initWithTokenResponse:response
-                                                                   request:requestParams
-                                                                 tokenType:MSIDTokenTypeRefreshToken];
+        MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenResponse:response
+                                                                                 request:requestParams];
         
         // Save RTs in all formats
         result = [self saveRefreshTokenInAllCaches:refreshToken
@@ -105,7 +105,7 @@
         }
         
         // If it's an FRT, save it separately and update the clientId of the token item
-        MSIDToken *familyRefreshToken = [refreshToken copy];
+        MSIDRefreshToken *familyRefreshToken = [refreshToken copy];
         familyRefreshToken.clientId = [MSIDTokenCacheKey familyClientId:refreshToken.familyId];
         
         return [self saveRefreshTokenInAllCaches:familyRefreshToken
@@ -116,8 +116,7 @@
     else
     {
         MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenResponse:response
-                                                                        request:requestParams
-                                                                      tokenType:MSIDTokenTypeAdfsUserToken];
+                                                                        request:requestParams];
         
         MSIDAccount *adfsAccount = [[MSIDAccount alloc] initWithUpn:@""
                                                                utid:nil
@@ -125,14 +124,14 @@
         
         // Save token for ADFS
         return [_primaryAccessor saveAccessToken:adfsToken
-                                       account:adfsAccount
-                                 requestParams:requestParams
-                                       context:context
-                                         error:error];
+                                         account:adfsAccount
+                                   requestParams:requestParams
+                                         context:context
+                                           error:error];
     }
 }
 
-- (BOOL)saveRefreshTokenInAllCaches:(MSIDToken *)refreshToken
+- (BOOL)saveRefreshTokenInAllCaches:(MSIDRefreshToken *)refreshToken
                         withAccount:(MSIDAccount *)account
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
@@ -170,10 +169,10 @@
 
 #pragma mark - Get tokens
 
-- (MSIDToken *)getATForAccount:(MSIDAccount *)account
-                 requestParams:(MSIDRequestParameters *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
+                       requestParams:(MSIDRequestParameters *)parameters
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
 {
     return [_primaryAccessor getATForAccount:account
                              requestParams:parameters
@@ -190,20 +189,20 @@
                                                      error:error];
 }
 
-- (MSIDToken *)getRTForAccount:(MSIDAccount *)account
-                 requestParams:(MSIDRequestParameters *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
+                        requestParams:(MSIDRequestParameters *)parameters
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
 {
     NSError *cacheError = nil;
     
     // try all caches in order starting with the primary
     for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
-        MSIDToken *token = [cache getSharedRTForAccount:account
-                                          requestParams:parameters
-                                                context:context
-                                                  error:&cacheError];
+        MSIDRefreshToken *token = [cache getSharedRTForAccount:account
+                                                 requestParams:parameters
+                                                       context:context
+                                                         error:&cacheError];
         
         if (token)
         {
@@ -224,11 +223,11 @@
 }
 
 
-- (MSIDToken *)getFRTforAccount:(MSIDAccount *)account
-                  requestParams:(MSIDRequestParameters *)parameters
-                       familyId:(NSString *)familyId
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (MSIDRefreshToken *)getFRTforAccount:(MSIDAccount *)account
+                         requestParams:(MSIDRequestParameters *)parameters
+                              familyId:(NSString *)familyId
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError **)error
 {
     parameters.clientId = [MSIDTokenCacheKey familyClientId:familyId];
     
@@ -238,9 +237,9 @@
                            error:error];
 }
 
-- (NSArray<MSIDToken *> *)getAllClientRTs:(NSString *)clientId
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+- (NSArray<MSIDRefreshToken *> *)getAllClientRTs:(NSString *)clientId
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
 {
     NSMutableArray *resultRTs = [NSMutableArray array];
     
@@ -261,7 +260,7 @@
 }
 
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
-                     token:(MSIDToken *)token
+                     token:(MSIDRefreshToken *)token
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {

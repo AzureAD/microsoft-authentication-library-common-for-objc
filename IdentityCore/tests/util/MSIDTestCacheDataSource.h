@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
-#import "MSIDToken.h"
+#import "MSIDBaseToken.h"
 
 @interface MSIDTestCacheDataSource : NSObject <MSIDTokenCacheDataSource>
 

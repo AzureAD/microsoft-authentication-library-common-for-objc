@@ -22,8 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDToken.h"
+#import "MSIDBaseToken.h"
 #import "MSIDUserInformation.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDAdfsToken.h"
 
 @interface MSIDKeyedArchiverSerializer ()
 {
@@ -36,25 +39,37 @@
 
 #pragma mark - Init
 
-- (instancetype)init
-{
-    return [self initWithClassName:MSIDToken.class];
-}
-
-- (instancetype)initWithClassName:(Class)serializedClass
+- (instancetype)initForTokenType:(MSIDTokenType)type
 {
     self = [super init];
     
     if (self)
     {
-        _classToSerialize = serializedClass;
+        _classToSerialize = MSIDBaseToken.class;
+        
+        switch (type) {
+            case MSIDTokenTypeAccessToken:
+                _classToSerialize = MSIDAccessToken.class;
+                break;
+                
+            case MSIDTokenTypeRefreshToken:
+                _classToSerialize = MSIDRefreshToken.class;
+                break;
+                
+            case MSIDTokenTypeLegacyADFSToken:
+                _classToSerialize = MSIDAdfsToken.class;
+                break;
+                
+            default:
+                break;
+        }
     }
     return self;
 }
 
 #pragma mark - MSIDTokenSerializer
 
-- (NSData *)serialize:(MSIDToken *)token
+- (NSData *)serialize:(MSIDBaseToken *)token
 {
     if (!token)
     {
@@ -76,7 +91,7 @@
     return data;
 }
 
-- (MSIDToken *)deserialize:(NSData *)data
+- (MSIDBaseToken *)deserialize:(NSData *)data
 {
     if (!data)
     {
@@ -87,7 +102,7 @@
     // Maintain backward compatibility with ADAL.
     [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
     [unarchiver setClass:_classToSerialize forClassName:@"ADTokenCacheStoreItem"];
-    MSIDToken *token = [unarchiver decodeObjectOfClass:_classToSerialize forKey:NSKeyedArchiveRootObjectKey];
+    MSIDBaseToken *token = [unarchiver decodeObjectOfClass:_classToSerialize forKey:NSKeyedArchiveRootObjectKey];
     [unarchiver finishDecoding];
     
     return token;

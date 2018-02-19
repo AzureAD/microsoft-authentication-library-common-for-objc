@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDIdToken.h"
+#import "MSIDIdTokenWrapper.h"
 
 #define ID_TOKEN_SUBJECT             @"sub"
 #define ID_TOKEN_PERFERRED_USERNAME  @"preferred_username"
@@ -35,7 +35,7 @@
 #define ID_TOKEN_MIDDLE_NAME         @"middle_name"
 #define ID_TOKEN_EMAIL               @"email"
 
-@implementation MSIDIdToken
+@implementation MSIDIdTokenWrapper
 
 MSID_JSON_ACCESSOR(ID_TOKEN_SUBJECT, subject)
 MSID_JSON_ACCESSOR(ID_TOKEN_PERFERRED_USERNAME, preferredUsername)
@@ -51,6 +51,8 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     {
         return nil;
     }
+    
+    _rawIdToken = rawIdTokenString;
     
     NSArray* parts = [rawIdTokenString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count != 3)
@@ -70,8 +72,8 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
         return nil;
     }
     
-    _uniqueId = [MSIDIdToken normalizeUserId:self.subject];
-    _userId = [MSIDIdToken normalizeUserId:self.subject];
+    _uniqueId = [MSIDIdTokenWrapper normalizeUserId:self.subject];
+    _userId = [MSIDIdTokenWrapper normalizeUserId:self.subject];
     _userIdDisplayable = NO;
     
     return self;

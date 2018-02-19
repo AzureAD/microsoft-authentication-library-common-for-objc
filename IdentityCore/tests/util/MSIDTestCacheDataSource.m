@@ -27,6 +27,9 @@
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDAdfsToken.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDIdToken.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -54,7 +57,7 @@
 
 #pragma mark - MSIDTokenCacheDataSource
 
-- (BOOL)setItem:(MSIDToken *)item
+- (BOOL)setItem:(MSIDBaseToken *)item
             key:(MSIDTokenCacheKey *)key
      serializer:(id<MSIDTokenSerializer>)serializer
         context:(id<MSIDRequestContext>)context
@@ -78,7 +81,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Couldn't serialize the MSIDToken item", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Couldn't serialize the MSIDBaseToken item", nil, nil, nil, nil, nil);
         }
         
         return NO;
@@ -93,10 +96,10 @@
     return YES;
 }
 
-- (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                serializer:(id<MSIDTokenSerializer>)serializer
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (MSIDBaseToken *)itemWithKey:(MSIDTokenCacheKey *)key
+                    serializer:(id<MSIDTokenSerializer>)serializer
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
     if (!key
         || !serializer)
@@ -116,7 +119,7 @@
         itemData = _cacheContents[keyString];
     }
     
-    MSIDToken *token = [serializer deserialize:itemData];
+    MSIDBaseToken *token = [serializer deserialize:itemData];
     return token;
 }
 
@@ -143,10 +146,10 @@
     return YES;
 }
 
-- (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                            serializer:(id<MSIDTokenSerializer>)serializer
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error
+- (NSArray<MSIDBaseToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+                                serializer:(id<MSIDTokenSerializer>)serializer
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
 {
     if (!key
         || !serializer)
@@ -176,7 +179,7 @@
             if (numberOfMatches > 0)
             {
                 NSData *object = _cacheContents[dictKey];
-                MSIDToken *token = [serializer deserialize:object];
+                MSIDBaseToken *token = [serializer deserialize:object];
                 
                 if (token)
                 {
@@ -243,32 +246,33 @@
 
 - (NSArray *)allLegacyADFSTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAdfsUserToken
-                        serializer:[[MSIDKeyedArchiverSerializer alloc] initWithClassName:[MSIDAdfsToken class]]];
+    return [self allTokensWithType:MSIDTokenTypeLegacyADFSToken
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeLegacyADFSToken]];
 }
 
 - (NSArray *)allLegacyAccessTokens
 {
     return [self allTokensWithType:MSIDTokenTypeAccessToken
-                        serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken]];
 }
 
 - (NSArray *)allLegacyRefreshTokens
 {
     return [self allTokensWithType:MSIDTokenTypeRefreshToken
-                        serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken]];
 }
 
 - (NSArray *)allDefaultAccessTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAccessToken serializer:[[MSIDJsonSerializer alloc] init]];
+    return [self allTokensWithType:MSIDTokenTypeAccessToken
+                        serializer:[[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken]];
 }
 
 - (NSArray *)allDefaultRefreshTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeRefreshToken serializer:[[MSIDJsonSerializer alloc] init]];
+    return [self allTokensWithType:MSIDTokenTypeRefreshToken
+                        serializer:[[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken]];
 }
-
 
 - (NSArray *)allTokensWithType:(MSIDTokenType)type
                     serializer:(id<MSIDTokenSerializer>)serializer
@@ -279,7 +283,7 @@
         
         for (NSData *tokenData in [_cacheContents allValues])
         {
-            MSIDToken *token = [serializer deserialize:tokenData];
+            MSIDBaseToken *token = [serializer deserialize:tokenData];
             
             if (token && token.tokenType == type)
             {

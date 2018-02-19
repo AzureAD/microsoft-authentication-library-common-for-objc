@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDJsonObject.h"
-#import "MSIDIdToken.h"
+#import "MSIDIdTokenWrapper.h"
 
 @interface MSIDTokenResponse : MSIDJsonObject
 
@@ -42,6 +42,6 @@
 // Derived properties
 @property (readonly) NSDate *expiryDate;
 @property (readonly) BOOL isMultiResource;
-@property (readonly) MSIDIdToken *idTokenObj;
+@property (readonly) MSIDIdTokenWrapper *idTokenObj;
 
 @end

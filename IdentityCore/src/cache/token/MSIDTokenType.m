@@ -21,9 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenCacheDataSource.h"
+#import "MSIDTokenType.h"
 
-@interface MSIDTestTokenCache : NSObject<MSIDTokenCacheDataSource>
+@implementation MSIDTokenTypeHelpers
+
++ (NSString *)tokenTypeAsString:(MSIDTokenType)type
+{
+    switch (type)
+    {
+        case MSIDTokenTypeAccessToken:
+            return MSID_ACCESS_TOKEN_CACHE_TYPE;
+            
+        case MSIDTokenTypeRefreshToken:
+            return MSID_REFRESH_TOKEN_CACHE_TYPE;
+            
+        case MSIDTokenTypeLegacyADFSToken:
+            return MSID_ADFS_TOKEN_CACHE_TYPE;
+            
+        case MSIDTokenTypeIDToken:
+            return MSID_ID_TOKEN_CACHE_TYPE;
+            
+        default:
+            return MSID_GENERAL_TOKEN_CACHE_TYPE;
+    }
+}
 
 @end

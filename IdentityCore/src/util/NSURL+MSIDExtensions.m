@@ -110,4 +110,47 @@ const unichar queryStringSeparator = '?';
     return [NSString stringWithFormat:@"%@:%d", self.host.lowercaseString, port.intValue];
 }
 
+- (NSString *)msidTenant
+{
+    NSArray *pathComponents = [self pathComponents];
+    
+    if ([pathComponents count] <= 1)
+    {
+        return nil;
+    }
+    
+    if ([pathComponents[1] caseInsensitiveCompare:@"tfp"] == NSOrderedSame)
+    {
+        if ([pathComponents count] < 3)
+        {
+            return nil;
+        }
+        
+        /* TODO: verify if policy should be also part of the cache key
+        Currently, for B2C, there'll be different refresh tokens and access tokens per policy
+        This should be controled by different clientInfo returned for different B2C policies
+        For AAD it will be:
+         
+         {
+         "uid" :"oid_in_directory"
+         "utid" :"tenant id"
+         }
+         
+         For B2C it should be:
+         
+         {
+         "uid" :"oid_in_directory+policy"
+         "utid" :"tenant id"
+         }
+         
+         So, there should be already policy identifier as part of the cache key through client info and adding additional policy identifier would mean special client side handling for B2C. Instead, this should be handled by the server side.
+         
+         */
+        
+        return pathComponents[2];
+    }
+    
+    return pathComponents[1];
+}
+
 @end

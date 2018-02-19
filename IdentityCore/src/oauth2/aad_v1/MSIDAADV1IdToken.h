@@ -25,9 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDIdToken.h"
+#import "MSIDIdTokenWrapper.h"
 
-@interface MSIDAADV1IdToken : MSIDIdToken
+@interface MSIDAADV1IdToken : MSIDIdTokenWrapper
 
 @property (readonly) NSString *upn;
 @property (readonly) NSString *identityProvider;

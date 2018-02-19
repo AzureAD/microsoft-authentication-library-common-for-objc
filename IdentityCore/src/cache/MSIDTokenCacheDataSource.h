@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDToken;
+@class MSIDBaseToken;
 @class MSIDTokenCacheKey;
 
 @protocol MSIDRequestContext;
@@ -31,13 +31,13 @@
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
-- (BOOL)setItem:(MSIDToken *)item
+- (BOOL)setItem:(MSIDBaseToken *)item
             key:(MSIDTokenCacheKey *)key
      serializer:(id<MSIDTokenSerializer>)serializer
         context:(id<MSIDRequestContext>)context
           error:(NSError **)error;
 
-- (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
+- (MSIDBaseToken *)itemWithKey:(MSIDTokenCacheKey *)key
                 serializer:(id<MSIDTokenSerializer>)serializer
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
@@ -46,10 +46,10 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
-- (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                            serializer:(id<MSIDTokenSerializer>)serializer
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error;
+- (NSArray<MSIDBaseToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+                                serializer:(id<MSIDTokenSerializer>)serializer
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
 
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
                           error:(NSError **)error;

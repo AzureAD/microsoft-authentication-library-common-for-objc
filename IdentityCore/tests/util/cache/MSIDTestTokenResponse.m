@@ -87,7 +87,7 @@
     NSString *clientInfoString = [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson];
     NSString *scopesString = scopes.msidToString;
     
-    NSMutableString *jsonString = [NSMutableString stringWithFormat:@"{\"%@\": \"access_token\", \"token_type\": \"Bearer\",\"expires_in\": \"3600\", \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"", accessToken, scopesString, refreshToken, idToken, clientInfoString];
+    NSMutableString *jsonString = [NSMutableString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": \"3600\", \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"", accessToken, scopesString, refreshToken, idToken, clientInfoString];
     
     if (familyId)
     {
@@ -160,7 +160,24 @@
 
 + (MSIDAADV1TokenResponse *)v1TokenResponseFromJSON:(NSString *)jsonString
 {
-    return [[MSIDAADV1TokenResponse alloc] initWithJSONData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] error:nil];
+    return [[MSIDAADV1TokenResponse alloc] initWithJSONData:[jsonString
+                                                             
+                                                             dataUsingEncoding:NSUTF8StringEncoding] error:nil];
+}
+
++ (MSIDTokenResponse *)defaultTokenResponseWithAT:(NSString *)accessToken
+                                               RT:(NSString *)refreshToken
+                                           scopes:(NSOrderedSet<NSString *> *)scopes
+                                         username:(NSString *)username
+                                          subject:(NSString *)subject
+{
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:username subject:subject];
+    
+    NSString *scopesString = scopes.msidToString;
+    
+    NSMutableString *jsonString = [NSMutableString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": \"3600\", \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\"}", accessToken, scopesString, refreshToken, idToken];
+    
+    return [[MSIDTokenResponse alloc] initWithJSONData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] error:nil];
 }
 
 @end

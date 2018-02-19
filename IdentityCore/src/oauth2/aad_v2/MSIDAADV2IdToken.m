@@ -51,8 +51,8 @@ MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
             uniqueId = self.subject;
         }
         
-        _uniqueId = [MSIDIdToken normalizeUserId:uniqueId];
-        _userId = [MSIDIdToken normalizeUserId:self.preferredUsername];
+        _uniqueId = [MSIDIdTokenWrapper normalizeUserId:uniqueId];
+        _userId = [MSIDIdTokenWrapper normalizeUserId:self.preferredUsername];
         _userIdDisplayable = YES;
     }
     

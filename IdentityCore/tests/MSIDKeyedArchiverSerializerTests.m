@@ -23,7 +23,8 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDToken.h"
+#import "MSIDBaseToken.h"
+#import "MSIDAccessToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDKeyedArchiverSerializerTests : XCTestCase
@@ -44,12 +45,11 @@
 
 - (void)test_whenSerializeToken_shouldReturnSameTokenOnDeserialize
 {
-    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
-    MSIDToken *expectedToken = [MSIDToken new];
-    [expectedToken setValue:@"access token value" forKey:@"token"];
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
+    MSIDAccessToken *expectedToken = [MSIDAccessToken new];
+    [expectedToken setValue:@"access token value" forKey:@"accessToken"];
     [expectedToken setValue:@"id token value" forKey:@"idToken"];
     [expectedToken setValue:[NSDate new] forKey:@"expiresOn"];
-    [expectedToken setValue:@"familyId value" forKey:@"familyId"];
     
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     
@@ -59,14 +59,13 @@
     XCTAssertNotNil(clientInfo);
     
     [expectedToken setValue:clientInfo forKey:@"clientInfo"];
-    [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
-    [expectedToken setValue:@"some resource" forKey:@"resource"];
+    [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalInfo"];
+    [expectedToken setValue:@"some resource" forKey:@"target"];
     [expectedToken setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
     [expectedToken setValue:@"some clientId" forKey:@"clientId"];
-    [expectedToken setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
     
     NSData *data = [serializer serialize:expectedToken];
-    MSIDToken *resultToken = [serializer deserialize:data];
+    MSIDAccessToken *resultToken = (MSIDAccessToken *)[serializer deserialize:data];
     
     XCTAssertNotNil(data);
     XCTAssertEqualObjects(resultToken, expectedToken);
@@ -74,7 +73,7 @@
 
 - (void)testSerialize_whenTokenNil_shouldReturnNil
 {
-    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
     
     NSData *data = [serializer serialize:nil];
     
@@ -83,28 +82,28 @@
 
 - (void)testSerialize_whenTokenWithDefaultProperties_shouldReturnNotNilData
 {
-    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
     
-    NSData *data = [serializer serialize:[MSIDToken new]];
+    NSData *data = [serializer serialize:[MSIDAccessToken new]];
     
     XCTAssertNotNil(data);
 }
 
 - (void)testDeserialize_whenDataNilNil_shouldReturnNil
 {
-    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
     
-    MSIDToken *token = [serializer deserialize:nil];
+    MSIDAccessToken *token = (MSIDAccessToken *)[serializer deserialize:nil];
     
     XCTAssertNil(token);
 }
 
 - (void)testDeserialize_whenDataInvalid_shouldReturnNil
 {
-    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
-    MSIDToken *token = [serializer deserialize:data];
+    MSIDAccessToken *token = (MSIDAccessToken *)[serializer deserialize:data];
     
     XCTAssertNil(token);
 }

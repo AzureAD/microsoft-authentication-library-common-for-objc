@@ -23,11 +23,11 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDSharedCacheAccessor.h"
-#import "MSIDToken.h"
+#import "MSIDBaseToken.h"
 
 @interface MSIDTestCacheAccessor : NSObject <MSIDSharedCacheAccessor>
 
-- (void)addToken:(MSIDToken *)token forAccount:(MSIDAccount *)account;
+- (void)addToken:(MSIDBaseToken *)token forAccount:(MSIDAccount *)account;
 - (void)reset;
 - (NSArray *)allAccessTokens;
 - (NSArray *)allRefreshTokens;

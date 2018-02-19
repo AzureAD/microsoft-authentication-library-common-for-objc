@@ -26,4 +26,7 @@
 
 @interface MSIDJsonSerializer : NSObject<MSIDTokenSerializer>
 
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
+
 @end
