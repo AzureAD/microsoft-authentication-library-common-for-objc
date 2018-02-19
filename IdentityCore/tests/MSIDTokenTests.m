@@ -364,9 +364,9 @@
 - (void)testAdfsTokenIsEqual_whenRefreshTokenIsNotEqual_shouldReturnFalse
 {
     MSIDAdfsToken *lhs = [MSIDAdfsToken new];
-    [lhs setValue:@"value 1" forKey:@"singleResourceRefreshToken"];
+    [lhs setValue:@"value 1" forKey:@"refreshToken"];
     MSIDAdfsToken *rhs = [MSIDAdfsToken new];
-    [rhs setValue:@"value 2" forKey:@"singleResourceRefreshToken"];
+    [rhs setValue:@"value 2" forKey:@"refreshToken"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
@@ -374,9 +374,9 @@
 - (void)testAdfsTokenIsEqual_whenRefreshTokenIsEqual_shouldReturnTrue
 {
     MSIDAdfsToken *lhs = [MSIDAdfsToken new];
-    [lhs setValue:@"value 1" forKey:@"singleResourceRefreshToken"];
+    [lhs setValue:@"value 1" forKey:@"refreshToken"];
     MSIDAdfsToken *rhs = [MSIDAdfsToken new];
-    [rhs setValue:@"value 1" forKey:@"singleResourceRefreshToken"];
+    [rhs setValue:@"value 1" forKey:@"refreshToken"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }

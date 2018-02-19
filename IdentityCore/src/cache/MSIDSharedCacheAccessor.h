@@ -28,6 +28,7 @@
 @class MSIDAccessToken;
 @class MSIDRefreshToken;
 @class MSIDRequestParameters;
+@class MSIDBaseToken;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 
@@ -57,17 +58,17 @@
                                     context:(id<MSIDRequestContext>)context
                                       error:(NSError **)error;
 
-- (MSIDRefreshToken *)getLatestRTForToken:(MSIDRefreshToken *)token
-                                  account:(MSIDAccount *)account
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error;
+- (MSIDBaseToken *)getLatestRTForToken:(MSIDBaseToken *)token
+                               account:(MSIDAccount *)account
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError **)error;
 
 - (NSArray<MSIDRefreshToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
                                                      context:(id<MSIDRequestContext>)context
                                                        error:(NSError **)error;
 
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
-                           token:(MSIDRefreshToken *)token
+                           token:(MSIDBaseToken *)token
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error;
 

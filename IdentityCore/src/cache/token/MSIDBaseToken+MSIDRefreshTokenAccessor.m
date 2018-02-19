@@ -21,10 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDBaseToken+MSIDRefreshTokenAccessor.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDAdfsToken.h"
 #import "MSIDAccessToken.h"
 
-@interface MSIDAdfsToken : MSIDAccessToken
+@implementation MSIDBaseToken (MSIDRefreshTokenAccessor)
 
-@property (readonly) NSString *refreshToken;
+- (NSString *)msidRefreshToken
+{
+    NSString *refreshToken = nil;
+    
+    if ([self isKindOfClass:[MSIDRefreshToken class]])
+    {
+        MSIDRefreshToken *rt = (MSIDRefreshToken *)self;
+        refreshToken = rt.refreshToken;
+    }
+    else if ([self isKindOfClass:[MSIDAdfsToken class]])
+    {
+        MSIDAdfsToken *rt = (MSIDAdfsToken *)self;
+        refreshToken = rt.refreshToken;
+    }
+    
+    return refreshToken;
+}
+
+- (NSString *)msidResource
+{
+    if ([self isKindOfClass:[MSIDAccessToken class]])
+    {
+        MSIDAccessToken *adfsToken = (MSIDAccessToken *)self;
+        return adfsToken.resource;
+    }
+    
+    return nil;
+}
 
 @end

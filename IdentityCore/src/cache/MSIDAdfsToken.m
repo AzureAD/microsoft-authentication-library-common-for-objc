@@ -30,7 +30,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAdfsToken *item = [super copyWithZone:zone];
-    item->_singleResourceRefreshToken = [_singleResourceRefreshToken copyWithZone:zone];
+    item->_refreshToken = [_refreshToken copyWithZone:zone];
     
     return item;
 }
@@ -44,7 +44,7 @@
         return nil;
     }
     
-    _singleResourceRefreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
+    _refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     
     return self;
 }
@@ -53,7 +53,7 @@
 {
     [super encodeWithCoder:coder];
     
-    [coder encodeObject:_singleResourceRefreshToken forKey:@"refreshToken"];
+    [coder encodeObject:_refreshToken forKey:@"refreshToken"];
 }
 
 #pragma mark - NSObject
@@ -76,7 +76,7 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
-    hash = hash * 31 + self.singleResourceRefreshToken.hash;
+    hash = hash * 31 + self.refreshToken.hash;
     return hash;
 }
 
@@ -88,7 +88,7 @@
     }
     
     BOOL result = [super isEqualToToken:token];
-    result &= (!self.singleResourceRefreshToken && !token.singleResourceRefreshToken) || [self.singleResourceRefreshToken isEqualToString:token.singleResourceRefreshToken];
+    result &= (!self.refreshToken && !token.refreshToken) || [self.refreshToken isEqualToString:token.refreshToken];
     
     return result;
 }
@@ -102,7 +102,7 @@
         return nil;
     }
     
-    _singleResourceRefreshToken = json[MSID_RESOURCE_RT_CACHE_KEY];
+    _refreshToken = json[MSID_RESOURCE_RT_CACHE_KEY];
     
     return self;
 }
@@ -110,7 +110,7 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
-    [dictionary setValue:_singleResourceRefreshToken forKey:MSID_RESOURCE_RT_CACHE_KEY];
+    [dictionary setValue:_refreshToken forKey:MSID_RESOURCE_RT_CACHE_KEY];
     
     return dictionary;
 }
@@ -125,7 +125,7 @@
         return nil;
     }
     
-    _singleResourceRefreshToken = response.refreshToken;
+    _refreshToken = response.refreshToken;
     
     return self;
 }

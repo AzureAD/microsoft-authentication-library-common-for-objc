@@ -238,10 +238,10 @@
                                     error:error];
 }
 
-- (MSIDRefreshToken *)getLatestRTForToken:(MSIDRefreshToken *)token
-                                  account:(MSIDAccount *)account
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+- (MSIDBaseToken *)getLatestRTForToken:(MSIDBaseToken *)token
+                               account:(MSIDAccount *)account
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError **)error
 {
     if (![self checkUserIdentifier:account context:context error:error])
     {
@@ -266,7 +266,7 @@
 
 
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
-                           token:(MSIDRefreshToken *)token
+                           token:(MSIDBaseToken *)token
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {

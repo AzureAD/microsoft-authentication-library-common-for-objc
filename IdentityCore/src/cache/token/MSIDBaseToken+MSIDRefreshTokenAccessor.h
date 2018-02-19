@@ -21,10 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccessToken.h"
+#import "MSIDBaseToken.h"
 
-@interface MSIDAdfsToken : MSIDAccessToken
+@interface MSIDBaseToken (MSIDRefreshTokenAccessor)
 
-@property (readonly) NSString *refreshToken;
+- (NSString *)msidRefreshToken;
+- (NSString *)msidResource;
 
 @end

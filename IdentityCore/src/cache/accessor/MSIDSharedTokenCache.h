@@ -31,6 +31,7 @@
 @class MSIDAccessToken;
 @class MSIDRefreshToken;
 @class MSIDAdfsToken;
+@class MSIDBaseToken;
 
 @interface MSIDSharedTokenCache : NSObject
 
@@ -82,9 +83,9 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 
-// Removal operations
+// Removal operations for RT or ADFS RT
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
-                     token:(MSIDRefreshToken *)token
+                     token:(MSIDBaseToken *)token
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 

@@ -33,6 +33,7 @@
 #import "MSIDAADV1RequestParameters.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDTokenCacheKey+Legacy.h"
+#import "MSIDBaseToken+MSIDRefreshTokenAccessor.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -185,11 +186,10 @@
                                                  error:error];
 }
 
-// TODO: what happens for ADFS tokens?
-- (MSIDRefreshToken *)getLatestRTForToken:(MSIDRefreshToken *)token
-                                  account:(MSIDAccount *)account
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+- (MSIDBaseToken *)getLatestRTForToken:(MSIDBaseToken *)token
+                               account:(MSIDAccount *)account
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError **)error
 {
     if (![self checkUserIdentifier:account context:context error:error])
     {
@@ -199,7 +199,7 @@
     return (MSIDRefreshToken *)[self getItemForAccount:account
                                              authority:token.authority
                                               clientId:token.clientId
-                                              resource:nil
+                                              resource:token.msidResource
                                             serializer:_rtSerializer
                                                context:context
                                                  error:error];
@@ -244,7 +244,7 @@
 }
 
 - (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
-                           token:(MSIDRefreshToken *)token
+                           token:(MSIDBaseToken *)token
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
@@ -265,7 +265,7 @@
     
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:token.authority
                                                         clientId:token.clientId
-                                                        resource:nil
+                                                        resource:token.msidResource
                                                              upn:account.upn];
     
     return [_dataSource removeItemsWithKey:key

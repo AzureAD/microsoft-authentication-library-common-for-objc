@@ -29,6 +29,8 @@
 #import "MSIDAdfsToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDBaseToken.h"
+#import "MSIDBaseToken+MSIDRefreshTokenAccessor.h"
 
 @interface MSIDSharedTokenCache()
 {
@@ -260,11 +262,12 @@
 }
 
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
-                     token:(MSIDRefreshToken *)token
+                     token:(MSIDBaseToken *)token
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    if (!token || token.tokenType != MSIDTokenTypeRefreshToken)
+    if (!token || (token.tokenType != MSIDTokenTypeRefreshToken
+                   && token.tokenType != MSIDTokenTypeLegacyADFSToken))
     {
         if (error)
         {
@@ -276,10 +279,10 @@
     
     NSError *cacheError = nil;
     
-    MSIDRefreshToken *tokenInCache = [_primaryAccessor getLatestRTForToken:token
-                                                                   account:account
-                                                                   context:context
-                                                                     error:&cacheError];
+    MSIDBaseToken *tokenInCache = [_primaryAccessor getLatestRTForToken:token
+                                                                account:account
+                                                                context:context
+                                                                  error:&cacheError];
     
     if (cacheError)
     {
@@ -290,18 +293,12 @@
         return NO;
     }
     
-    if (tokenInCache
-        && tokenInCache.tokenType == MSIDTokenTypeRefreshToken)
+    if (tokenInCache && [tokenInCache.msidRefreshToken isEqualToString:token.msidRefreshToken])
     {
-        MSIDRefreshToken *rtInCache = (MSIDRefreshToken *)tokenInCache;
-        
-        if ([rtInCache.refreshToken isEqualToString:token.refreshToken])
-        {
-            return [_primaryAccessor removeSharedRTForAccount:account
-                                                        token:token
-                                                      context:context
-                                                        error:error];
-        }
+        return [_primaryAccessor removeSharedRTForAccount:account
+                                                    token:token
+                                                  context:context
+                                                    error:error];
     }
     
     return YES;
