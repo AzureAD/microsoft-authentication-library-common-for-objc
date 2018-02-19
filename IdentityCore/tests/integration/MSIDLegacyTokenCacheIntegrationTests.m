@@ -503,7 +503,7 @@
                                                                             tenantId:DEFAULT_TEST_UTID];
     
     // Second token
-    MSIDAccount *secondAccount = [[MSIDAccount alloc] initWithTokenResponse:secondResponse];
+    MSIDAccount *secondAccount = [[MSIDAccount alloc] initWithTokenResponse:secondResponse request:[MSIDTestRequestParams v1DefaultParams]];
     
     MSIDAccessToken *secondToken = [[MSIDAccessToken alloc] initWithTokenResponse:secondResponse
                                                                           request:[MSIDTestRequestParams v1DefaultParams]];

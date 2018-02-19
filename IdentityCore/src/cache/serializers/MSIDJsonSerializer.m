@@ -22,11 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDJsonSerializer.h"
-#import "MSIDBaseToken.h"
 #import "MSIDJsonObject.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAdfsToken.h"
+#import "MSIDAccount.h"
 
 @interface MSIDJsonSerializer()
 {
@@ -67,10 +67,22 @@
     return self;
 }
 
-- (NSData *)serialize:(MSIDBaseToken *)token
+- (instancetype)initForAccounts
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _classToSerialize = MSIDAccount.class;
+    }
+    
+    return self;
+}
+
+- (NSData *)serialize:(MSIDBaseCacheItem *)item
 {
     NSError *error;
-    NSData *data = [token serialize:&error];
+    NSData *data = [item serialize:&error];
     
     if (error)
     {
@@ -82,10 +94,10 @@
     return data;
 }
 
-- (MSIDBaseToken *)deserialize:(NSData *)data
+- (MSIDBaseCacheItem *)deserialize:(NSData *)data
 {
     NSError *error;
-    MSIDBaseToken *token = [[_classToSerialize alloc] initWithJSONData:data error:&error];
+    MSIDBaseCacheItem *token = [[_classToSerialize alloc] initWithJSONData:data error:&error];
     
     if (error)
     {

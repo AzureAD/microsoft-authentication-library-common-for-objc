@@ -23,19 +23,33 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDTokenResponse.h"
+#import "MSIDBaseCacheItem.h"
 
-@interface MSIDAccount : NSObject
+typedef NS_ENUM(NSInteger, MSIDAccountType)
+{
+    MSIDAccountTypeAADV1 = 1,
+    MSIDAccountTypeMSA = 2,
+    MSIDAccountTypeAADV2 = 3,
+    MSIDAccountTypeOther = 4
+};
 
-@property (readonly) NSString *upn;
-@property (readonly) NSString *utid;
-@property (readonly) NSString *uid;
+@interface MSIDAccount : MSIDBaseCacheItem
+
+@property (nonatomic) NSString *upn;
+@property (nonatomic) NSString *utid;
+@property (nonatomic) NSString *uid;
+
+@property (readonly) MSIDAccountType accountType;
+
+@property (readonly) NSString *userIdentifier;
+@property (readonly) NSString *firstName;
+@property (readonly) NSString *lastName;
+@property (readonly) NSDictionary *additionalFields;
 
 - (instancetype)initWithUpn:(NSString *)upn
                        utid:(NSString *)utid
-                        uid:(NSString *)uid NS_DESIGNATED_INITIALIZER;
+                        uid:(NSString *)uid;
 
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response;
-
-- (NSString *)userIdentifier;
+- (void)updateFieldsFromAccount:(MSIDAccount *)account;
 
 @end

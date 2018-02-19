@@ -42,6 +42,8 @@
     id<MSIDTokenCacheDataSource> _dataSource;
     MSIDJsonSerializer *_atSerializer;
     MSIDJsonSerializer *_rtSerializer;
+    MSIDJsonSerializer *_idTokenSerializer;
+    MSIDJsonSerializer *_accountSerializer;
 }
 @end
 
@@ -58,6 +60,8 @@
         _dataSource = dataSource;
         _atSerializer = [[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
         _rtSerializer = [[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
+        _idTokenSerializer = [[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeIDToken];
+        _accountSerializer = [[MSIDJsonSerializer alloc] initForAccounts];
     }
     
     return self;
@@ -158,9 +162,44 @@
                   clientId:token.clientId
                     scopes:nil
                  authority:token.authority
-                serializer:_atSerializer
+                serializer:_idTokenSerializer
                    context:context
                      error:error];
+}
+
+- (BOOL)saveAccount:(MSIDAccount *)account
+      requestParams:(MSIDRequestParameters *)parameters
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    if (![self checkRequestParameters:parameters context:context error:error]
+        || ![self checkUserIdentifier:account context:context error:error])
+    {
+        return NO;
+    }
+    
+    // Get previous account, so we don't loose any fields
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAccountWithUniqueUserId:account.userIdentifier
+                                                                    authority:parameters.authority
+                                                                     clientId:parameters.clientId
+                                                                  accountType:account.accountType];
+    
+    MSIDAccount *previousAccount = (MSIDAccount *)[_dataSource itemWithKey:key
+                                                                serializer:_accountSerializer
+                                                                   context:context
+                                                                     error:error];
+    
+    if (previousAccount)
+    {
+        // Make sure we copy over all the additional fields
+        [account updateFieldsFromAccount:previousAccount];
+    }
+    
+    return [_dataSource setItem:account
+                            key:key
+                     serializer:_accountSerializer
+                        context:context
+                          error:error];
 }
 
 
@@ -433,7 +472,7 @@
          clientId:(NSString *)clientId
            scopes:(NSOrderedSet<NSString *> *)scopes
         authority:(NSURL *)authority
-       serializer:(id<MSIDTokenSerializer>)serializer
+       serializer:(id<MSIDCacheItemSerializer>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
@@ -480,7 +519,7 @@
 - (MSIDRefreshToken *)getRefreshTokenForUserId:(NSString *)userId
                                       clientId:(NSString *)clientId
                                      authority:(NSURL *)authority
-                                    serializer:(id<MSIDTokenSerializer>)serializer
+                                    serializer:(id<MSIDCacheItemSerializer>)serializer
                                        context:(id<MSIDRequestContext>)context
                                          error:(NSError **)error
 {
@@ -568,7 +607,7 @@
 }
 
 - (NSArray<MSIDBaseToken *> *)getAllTokensWithKey:(MSIDTokenCacheKey *)key
-                                       serializer:(id<MSIDTokenSerializer>)serializer
+                                       serializer:(id<MSIDCacheItemSerializer>)serializer
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError *__autoreleasing *)error
 {

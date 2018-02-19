@@ -28,6 +28,175 @@
 
 @implementation MSIDAccount
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAccount *item = [super copyWithZone:zone];
+    item->_upn = [_upn copyWithZone:zone];
+    item->_uid = [_uid copyWithZone:zone];
+    item->_utid = [_utid copyWithZone:zone];
+    
+    return item;
+}
+
+#pragma mark - NSSecureCoding
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    if (!(self = [super initWithCoder:coder]))
+    {
+        return nil;
+    }
+    
+    _upn = [coder decodeObjectOfClass:[NSString class] forKey:@"upn"];
+    _uid = [coder decodeObjectOfClass:[NSString class] forKey:@"uid"];
+    _utid = [coder decodeObjectOfClass:[NSString class] forKey:@"utid"];
+    _accountType = [self accountTypeFromString:[coder decodeObjectOfClass:[NSString class] forKey:@"account_type"]];
+    _firstName = [coder decodeObjectOfClass:[NSString class] forKey:@"first_name"];
+    _lastName = [coder decodeObjectOfClass:[NSString class] forKey:@"last_name"];
+    _additionalFields = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additional_fields"];
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+    
+    [coder encodeObject:_upn forKey:@"upn"];
+    [coder encodeObject:_uid forKey:@"uid"];
+    [coder encodeObject:_utid forKey:@"utid"];
+    [coder encodeObject:[self accountTypeString] forKey:@"account_type"];
+    [coder encodeObject:_firstName forKey:@"first_name"];
+    [coder encodeObject:_lastName forKey:@"last_name"];
+    [coder encodeObject:_additionalFields forKey:@"additional_fields"];
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:MSIDAccount.class])
+    {
+        return NO;
+    }
+    
+    return [self isEqualToItem:(MSIDAccount *)object];
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = [super hash];
+    hash = hash * 31 + self.upn.hash;
+    hash = hash * 31 + self.uid.hash;
+    hash = hash * 31 + self.utid.hash;
+    return hash;
+}
+
+- (BOOL)isEqualToItem:(MSIDAccount *)account
+{
+    if (!account)
+    {
+        return NO;
+    }
+    
+    BOOL result = [super isEqualToItem:account];
+    result &= (!self.upn && !account.upn) || [self.upn isEqualToString:account.upn];
+    result &= (!self.uid && !account.uid) || [self.uid isEqualToString:account.uid];
+    result &= (!self.utid && !account.utid) || [self.utid isEqualToString:account.utid];
+    result &= (!self.firstName && !account.firstName) || [self.firstName isEqualToString:account.firstName];
+    result &= (!self.lastName && !account.lastName) || [self.lastName isEqualToString:account.lastName];
+    result &= self.accountType == account.accountType;
+    
+    return result;
+}
+
+#pragma mark - JSON
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    if (!(self = [super initWithJSONDictionary:json error:error]))
+    {
+        return nil;
+    }
+    
+    // Realm
+    if (json[MSID_AUTHORITY_CACHE_KEY])
+    {
+        _authority = [NSURL URLWithString:json[MSID_AUTHORITY_CACHE_KEY]];
+    }
+    else if (json[MSID_REALM_CACHE_KEY])
+    {
+        NSString *authorityString = [NSString stringWithFormat:@"https://%@/%@", json[MSID_ENVIRONMENT_CACHE_KEY], json[MSID_REALM_CACHE_KEY]];
+        _authority = [NSURL URLWithString:authorityString];
+    }
+    
+    // Authority account ID
+    _upn = json[MSID_ACCOUNT_ID_CACHE_KEY];
+    
+    /* Optional fields */
+    // First name
+    _firstName = json[MSID_FIRST_NAME_CACHE_KEY];
+    
+    // Last name
+    _lastName = json[MSID_LAST_NAME_CACHE_KEY];
+    
+    // Account type
+    _accountType = [self accountTypeFromString:json[MSID_ACCOUNT_TYPE_CACHE_KEY]];
+    
+    // Additional fields for extensibility
+    _additionalFields = json;
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    
+    // Additional fields
+    [dictionary addEntriesFromDictionary:_additionalFields];
+    
+    // Parent JSON
+    [dictionary addEntriesFromDictionary:[super jsonDictionary]];
+    
+    /* Mandatory fields */
+    // Realm
+    [dictionary setValue:_authority.msidTenant
+                  forKey:MSID_REALM_CACHE_KEY];
+    
+    // Authority account ID
+    [dictionary setValue:_upn
+                  forKey:MSID_ACCOUNT_ID_CACHE_KEY];
+    
+    /* Optional fields */
+    // First name
+    [dictionary setValue:_firstName
+                  forKey:MSID_FIRST_NAME_CACHE_KEY];
+    
+    // Last name
+    [dictionary setValue:_lastName
+                  forKey:MSID_LAST_NAME_CACHE_KEY];
+    
+    // Account type
+    [dictionary setValue:[self accountTypeString]
+                  forKey:MSID_ACCOUNT_TYPE_CACHE_KEY];
+    
+    // Authority
+    [dictionary setValue:_authority.absoluteString
+                  forKey:MSID_AUTHORITY_CACHE_KEY];
+    
+    return dictionary;
+}
+
+#pragma mark - Init
+
 - (instancetype)init
 {
     return [self initWithUpn:nil
@@ -52,6 +221,7 @@
 }
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+                              request:(MSIDRequestParameters *)requestParams
 {
     NSString *uid = nil;
     NSString *utid = nil;
@@ -79,6 +249,51 @@
         return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
     }
     return nil;    
+}
+
+#pragma mark - Helpers
+
+- (NSString *)accountTypeString
+{
+    switch (self.accountType)
+    {
+        case MSIDAccountTypeAADV1:
+            return @"AAD";
+            
+        case MSIDAccountTypeMSA:
+            return @"MSA";
+            
+        case MSIDAccountTypeAADV2:
+            return @"MSSTS";
+            
+        default:
+            return @"Other";
+    }
+}
+
+static NSDictionary *accountTypes = nil;
+
+- (MSIDAccountType)accountTypeFromString:(NSString *)type
+{
+    if (!accountTypes)
+    {
+        accountTypes = @{@"AAD": @(MSIDAccountTypeAADV1),
+                         @"MSA": @(MSIDAccountTypeMSA),
+                         @"MSSTS": @(MSIDAccountTypeAADV2)};
+    }
+    
+    NSNumber *accountType = accountTypes[type];
+    return accountType ? [accountType integerValue] : MSIDAccountTypeOther;
+}
+
+#pragma mark - Update
+
+- (void)updateFieldsFromAccount:(MSIDAccount *)account
+{
+    NSMutableDictionary *allAdditionalFields = [NSMutableDictionary dictionary];
+    [allAdditionalFields addEntriesFromDictionary:account.additionalFields];
+    [allAdditionalFields addEntriesFromDictionary:_additionalFields];
+    _additionalFields = allAdditionalFields;
 }
 
 @end

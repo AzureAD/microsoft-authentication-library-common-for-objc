@@ -23,7 +23,7 @@
 
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDTokenCacheKey.h"
-#import "MSIDTokenSerializer.h"
+#import "MSIDCacheItemSerializer.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDAdfsToken.h"
@@ -57,9 +57,9 @@
 
 #pragma mark - MSIDTokenCacheDataSource
 
-- (BOOL)setItem:(MSIDBaseToken *)item
+- (BOOL)setItem:(MSIDBaseCacheItem *)item
             key:(MSIDTokenCacheKey *)key
-     serializer:(id<MSIDTokenSerializer>)serializer
+     serializer:(id<MSIDCacheItemSerializer>)serializer
         context:(id<MSIDRequestContext>)context
           error:(NSError **)error
 {
@@ -96,10 +96,10 @@
     return YES;
 }
 
-- (MSIDBaseToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                    serializer:(id<MSIDTokenSerializer>)serializer
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (MSIDBaseCacheItem *)itemWithKey:(MSIDTokenCacheKey *)key
+                        serializer:(id<MSIDCacheItemSerializer>)serializer
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
 {
     if (!key
         || !serializer)
@@ -119,7 +119,7 @@
         itemData = _cacheContents[keyString];
     }
     
-    MSIDBaseToken *token = [serializer deserialize:itemData];
+    MSIDBaseCacheItem *token = [serializer deserialize:itemData];
     return token;
 }
 
@@ -146,10 +146,10 @@
     return YES;
 }
 
-- (NSArray<MSIDBaseToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                                serializer:(id<MSIDTokenSerializer>)serializer
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
+- (NSArray<MSIDBaseCacheItem *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+                                    serializer:(id<MSIDCacheItemSerializer>)serializer
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
 {
     if (!key
         || !serializer)
@@ -179,7 +179,7 @@
             if (numberOfMatches > 0)
             {
                 NSData *object = _cacheContents[dictKey];
-                MSIDBaseToken *token = [serializer deserialize:object];
+                MSIDBaseCacheItem *token = [serializer deserialize:object];
                 
                 if (token)
                 {
@@ -278,7 +278,7 @@
 }
 
 - (NSArray *)allTokensWithType:(MSIDTokenType)type
-                    serializer:(id<MSIDTokenSerializer>)serializer
+                    serializer:(id<MSIDCacheItemSerializer>)serializer
 {
     NSMutableArray *results = [NSMutableArray array];
     
@@ -286,7 +286,7 @@
         
         for (NSData *tokenData in [_cacheContents allValues])
         {
-            MSIDBaseToken *token = [serializer deserialize:tokenData];
+            MSIDBaseToken *token = (MSIDBaseToken *)[serializer deserialize:tokenData];
             
             if (token && token.tokenType == type)
             {

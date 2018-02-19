@@ -23,9 +23,9 @@
 
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDTokenCacheKey.h"
-#import "MSIDTokenSerializer.h"
+#import "MSIDCacheItemSerializer.h"
 #import "MSIDKeychainUtil.h"
-#import "MSIDBaseToken.h"
+#import "MSIDBaseCacheItem.h"
 #import "MSIDError.h"
 #import "MSIDRefreshToken.h"
 
@@ -116,9 +116,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 
 #pragma mark - MSIDTokenCacheDataSource
 
-- (BOOL)setItem:(MSIDBaseToken *)item
+- (BOOL)setItem:(MSIDBaseCacheItem *)item
             key:(MSIDTokenCacheKey *)key
-     serializer:(id<MSIDTokenSerializer>)serializer
+     serializer:(id<MSIDCacheItemSerializer>)serializer
         context:(id<MSIDRequestContext>)context
           error:(NSError **)error
 {
@@ -185,13 +185,13 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return status == errSecSuccess;
 }
 
-- (MSIDBaseToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                    serializer:(id<MSIDTokenSerializer>)serializer
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (MSIDBaseCacheItem *)itemWithKey:(MSIDTokenCacheKey *)key
+                        serializer:(id<MSIDCacheItemSerializer>)serializer
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
 {
     MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
-    NSArray<MSIDBaseToken *> *items = [self itemsWithKey:key serializer:serializer context:context error:error];
+    NSArray<MSIDBaseCacheItem *> *items = [self itemsWithKey:key serializer:serializer context:context error:error];
     
     if (items.count > 1)
     {
@@ -247,10 +247,10 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return YES;
 }
 
-- (NSArray<MSIDBaseToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                                serializer:(id<MSIDTokenSerializer>)serializer
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
+- (NSArray<MSIDBaseCacheItem *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+                                    serializer:(id<MSIDCacheItemSerializer>)serializer
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
 {
     assert(serializer);
     
@@ -300,16 +300,16 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     NSArray *items = CFBridgingRelease(cfItems);
     
-    NSMutableArray *tokenItems = [[NSMutableArray<MSIDBaseToken *> alloc] initWithCapacity:items.count];
+    NSMutableArray *tokenItems = [[NSMutableArray<MSIDBaseCacheItem *> alloc] initWithCapacity:items.count];
     for (NSDictionary *attrs in items)
     {
         NSData *itemData = [attrs objectForKey:(id)kSecValueData];
-        MSIDBaseToken *tokenItem = [serializer deserialize:itemData];
+        MSIDBaseCacheItem *tokenItem = [serializer deserialize:itemData];
         
         if (tokenItem)
         {
             // Delete tombstones generated from previous versions of ADAL.
-            if (tokenItem.tokenType == MSIDTokenTypeRefreshToken
+            if ([tokenItem isKindOfClass:[MSIDRefreshToken class]]
                 && [((MSIDRefreshToken *)tokenItem).refreshToken isEqualToString:@"<tombstone>"])
             {
                 [self deleteTombstoneWithService:attrs[(id)kSecAttrService]

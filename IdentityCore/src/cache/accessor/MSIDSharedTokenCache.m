@@ -70,8 +70,9 @@
                            response:(MSIDTokenResponse *)response
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
-{
-    MSIDAccount *account = [[MSIDAccount alloc] initWithTokenResponse:response];
+{    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithTokenResponse:response
+                                                              request:requestParams];
     
     if (response.isMultiResource)
     {
@@ -138,16 +139,22 @@
         MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenResponse:response
                                                                         request:requestParams];
         
-        MSIDAccount *adfsAccount = [[MSIDAccount alloc] initWithUpn:@""
-                                                               utid:nil
-                                                                uid:nil];
+        account.upn = @"";
         
         // Save token for ADFS
         return [_primaryAccessor saveADFSToken:adfsToken
-                                       account:adfsAccount
+                                       account:account
                                 requestParams:requestParams
                                        context:context
                                          error:error];
+    }
+    
+    if ([_primaryAccessor respondsToSelector:@selector(saveAccount:requestParams:context:error:)])
+    {
+        return [_primaryAccessor saveAccount:account
+                               requestParams:requestParams
+                                     context:context
+                                       error:error];
     }
     
     return YES;

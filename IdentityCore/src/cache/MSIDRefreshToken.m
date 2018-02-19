@@ -36,7 +36,6 @@
     item->_refreshToken = [_refreshToken copyWithZone:zone];
     item->_familyId = [_familyId copyWithZone:zone];
     item->_idToken = [_idToken copyWithZone:zone];
-    item->_username = [_username copyWithZone:zone];
     
     return item;
 }
@@ -52,7 +51,6 @@
     
     _refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     _familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
-    _username = [coder decodeObjectOfClass:[NSString class] forKey:@"username"];
     
     // Decode id_token from a backward compatible way
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
@@ -66,7 +64,6 @@
     
     [coder encodeObject:self.familyId forKey:@"familyId"];
     [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
-    [coder encodeObject:self.username forKey:@"username"];
     
     // Encode id_token in backward compatible way with ADAL
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
@@ -87,7 +84,7 @@
         return NO;
     }
     
-    return [self isEqualToToken:(MSIDRefreshToken *)object];
+    return [self isEqualToItem:(MSIDRefreshToken *)object];
 }
 
 - (NSUInteger)hash
@@ -99,18 +96,17 @@
     return hash;
 }
 
-- (BOOL)isEqualToToken:(MSIDRefreshToken *)token
+- (BOOL)isEqualToItem:(MSIDRefreshToken *)token
 {
     if (!token)
     {
         return NO;
     }
     
-    BOOL result = [super isEqualToToken:token];
+    BOOL result = [super isEqualToItem:token];
     result &= (!self.refreshToken && !token.refreshToken) || [self.refreshToken isEqualToString:token.refreshToken];
     result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
     result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
-    result &= (!self.username && !token.username) || [self.username isEqualToString:token.username];
     
     return result;
 }
@@ -129,7 +125,6 @@
     _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
     
     /* Optional fields */
-    _username = json[MSID_USERNAME_CACHE_KEY];
     
     // ID token
     _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
@@ -146,7 +141,6 @@
     [dictionary setValue:_familyId forKey:MSID_FAMILY_ID_CACHE_KEY];
     
     /* Optional fields */
-    [dictionary setValue:_username forKey:MSID_USERNAME_CACHE_KEY];
     
     // ID token
     [dictionary setValue:_idToken forKey:MSID_ID_TOKEN_CACHE_KEY];
@@ -174,14 +168,12 @@
 - (void)fillToken:(MSIDTokenResponse *)response
 {
     _refreshToken = response.refreshToken;
-    _username = response.idTokenObj.preferredUsername;
     _idToken = response.idToken;
     
     if ([response isKindOfClass:[MSIDAADTokenResponse class]])
     {
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         _familyId = aadTokenResponse.familyId;
-        _username = aadTokenResponse.idTokenObj.userId;
     }
 }
 

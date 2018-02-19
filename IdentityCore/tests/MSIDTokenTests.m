@@ -95,16 +95,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testBaseTokenIsEqual_whenTokenTypeIsNotEqual_shouldReturnFalse
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@0 forKey:@"tokenType"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@1 forKey:@"tokenType"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
 - (void)testBaseTokenIsEqual_whenTokenTypeIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];

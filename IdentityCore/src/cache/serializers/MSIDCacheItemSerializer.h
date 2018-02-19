@@ -22,21 +22,16 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenCacheDataSource.h"
-#import "MSIDBaseToken.h"
+#import "MSIDTokenType.h"
 
-@interface MSIDTestCacheDataSource : NSObject <MSIDTokenCacheDataSource>
+@class MSIDBaseCacheItem;
 
-- (void)reset;
+@protocol MSIDCacheItemSerializer <NSObject>
 
-- (NSArray *)allLegacyADFSTokens;
-- (NSArray *)allLegacyAccessTokens;
-- (NSArray *)allLegacyRefreshTokens;
+- (instancetype)initForTokenType:(MSIDTokenType)type;
+- (instancetype)initForAccounts;
 
-- (NSArray *)allDefaultAccessTokens;
-- (NSArray *)allDefaultRefreshTokens;
-
-- (NSArray *)allTokensWithType:(MSIDTokenType)type
-                    serializer:(id<MSIDCacheItemSerializer>)serializer;
+- (NSData *)serialize:(MSIDBaseCacheItem *)item;
+- (MSIDBaseCacheItem *)deserialize:(NSData *)data;
 
 @end

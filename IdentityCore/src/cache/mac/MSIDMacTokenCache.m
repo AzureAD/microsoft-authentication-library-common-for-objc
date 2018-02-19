@@ -25,19 +25,19 @@
 
 @implementation MSIDMacTokenCache
 
-- (BOOL)setItem:(MSIDBaseToken *)item
+- (BOOL)setItem:(MSIDBaseCacheItem *)item
             key:(MSIDTokenCacheKey *)key
-     serializer:(id<MSIDTokenSerializer>)serializer
+     serializer:(id<MSIDCacheItemSerializer>)serializer
         context:(id<MSIDRequestContext>)context
           error:(NSError **)error
 {
     return NO;
 }
 
-- (MSIDBaseToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                    serializer:(id<MSIDTokenSerializer>)serializer
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (MSIDBaseCacheItem *)itemWithKey:(MSIDTokenCacheKey *)key
+                        serializer:(id<MSIDCacheItemSerializer>)serializer
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
 {
     return nil;
 }
@@ -49,10 +49,10 @@
     return NO;
 }
 
-- (NSArray<MSIDBaseToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                                serializer:(id<MSIDTokenSerializer>)serializer
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
+- (NSArray<MSIDBaseCacheItem *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+                                    serializer:(id<MSIDCacheItemSerializer>)serializer
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
 {
     return nil;
 }

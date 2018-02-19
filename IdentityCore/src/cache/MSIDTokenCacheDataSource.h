@@ -23,33 +23,33 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDBaseToken;
+@class MSIDBaseCacheItem;
 @class MSIDTokenCacheKey;
 
 @protocol MSIDRequestContext;
-@protocol MSIDTokenSerializer;
+@protocol MSIDCacheItemSerializer;
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
-- (BOOL)setItem:(MSIDBaseToken *)item
+- (BOOL)setItem:(MSIDBaseCacheItem *)item
             key:(MSIDTokenCacheKey *)key
-     serializer:(id<MSIDTokenSerializer>)serializer
+     serializer:(id<MSIDCacheItemSerializer>)serializer
         context:(id<MSIDRequestContext>)context
           error:(NSError **)error;
 
-- (MSIDBaseToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                serializer:(id<MSIDTokenSerializer>)serializer
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error;
+- (MSIDBaseCacheItem *)itemWithKey:(MSIDTokenCacheKey *)key
+                        serializer:(id<MSIDCacheItemSerializer>)serializer
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error;
 
 - (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
-- (NSArray<MSIDBaseToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                                serializer:(id<MSIDTokenSerializer>)serializer
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error;
+- (NSArray<MSIDBaseCacheItem *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+                                    serializer:(id<MSIDCacheItemSerializer>)serializer
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error;
 
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
                           error:(NSError **)error;

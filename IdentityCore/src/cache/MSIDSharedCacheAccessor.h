@@ -82,6 +82,11 @@
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error;
 
+- (BOOL)saveAccount:(MSIDAccount *)account
+      requestParams:(MSIDRequestParameters *)parameters
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error;
+
 - (BOOL)saveADFSToken:(MSIDAdfsToken *)token
               account:(MSIDAccount *)account
         requestParams:(MSIDRequestParameters *)parameters

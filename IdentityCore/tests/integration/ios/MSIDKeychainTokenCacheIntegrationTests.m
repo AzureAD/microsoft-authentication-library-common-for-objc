@@ -157,7 +157,7 @@
     MSIDTokenCacheKey *queryKey = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:nil generic:@"test" type:nil];
     NSError *error;
     
-    NSArray<MSIDBaseToken *> *items = [keychainTokenCache itemsWithKey:queryKey serializer:keyedArchiverSerializer context:nil error:&error];
+    NSArray<MSIDBaseCacheItem *> *items = [keychainTokenCache itemsWithKey:queryKey serializer:keyedArchiverSerializer context:nil error:&error];
     
     XCTAssertEqual(items.count, 2);
     
@@ -183,7 +183,7 @@
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
     [keychainTokenCache setItem:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     
-    NSArray<MSIDBaseToken *> *items = [keychainTokenCache itemsWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
+    NSArray<MSIDBaseCacheItem *> *items = [keychainTokenCache itemsWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertEqual(items.count, 1);
     
     NSError *error;
@@ -204,7 +204,7 @@
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
     [keychainTokenCache setItem:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     
-    NSArray<MSIDBaseToken *> *items = [keychainTokenCache itemsWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
+    NSArray<MSIDBaseCacheItem *> *items = [keychainTokenCache itemsWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertEqual(items.count, 1);
     
     NSError *error;
@@ -237,7 +237,7 @@
     MSIDTokenCacheKey *key4 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item4" generic:@"test" type:nil];
     [keychainTokenCache setItem:token4 key:key4 serializer:keyedArchiverSerializer context:nil error:nil];
     
-    NSArray<MSIDBaseToken *> *items = [keychainTokenCache itemsWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];
+    NSArray<MSIDBaseCacheItem *> *items = [keychainTokenCache itemsWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];
     
     XCTAssertEqual(items.count, 4);
     

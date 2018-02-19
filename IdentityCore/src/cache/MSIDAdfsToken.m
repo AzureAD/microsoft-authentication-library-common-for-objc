@@ -70,7 +70,7 @@
         return NO;
     }
     
-    return [self isEqualToToken:(MSIDAdfsToken *)object];
+    return [self isEqualToItem:(MSIDAdfsToken *)object];
 }
 
 - (NSUInteger)hash
@@ -80,14 +80,14 @@
     return hash;
 }
 
-- (BOOL)isEqualToToken:(MSIDAdfsToken *)token
+- (BOOL)isEqualToItem:(MSIDAdfsToken *)token
 {
     if (!token)
     {
         return NO;
     }
     
-    BOOL result = [super isEqualToToken:token];
+    BOOL result = [super isEqualToItem:token];
     result &= (!self.refreshToken && !token.refreshToken) || [self.refreshToken isEqualToString:token.refreshToken];
     
     return result;

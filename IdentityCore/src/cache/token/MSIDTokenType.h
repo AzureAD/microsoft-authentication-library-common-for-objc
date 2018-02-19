@@ -28,7 +28,8 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
     MSIDTokenTypeAccessToken = 1,
     MSIDTokenTypeRefreshToken = 2,
     MSIDTokenTypeIDToken = 3,
-    MSIDTokenTypeLegacyADFSToken = 4
+    MSIDTokenTypeLegacyADFSToken = 4,
+    MSIDTokenTypeOther = 5
 };
 
 @interface MSIDTokenTypeHelpers : NSObject

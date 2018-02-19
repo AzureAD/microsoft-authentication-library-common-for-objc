@@ -396,7 +396,7 @@
                                                                                utid:@"UTID2"
                                                                            familyId:nil];
     
-    MSIDAccount *account2 = [[MSIDAccount alloc] initWithTokenResponse:otherResponse];
+    MSIDAccount *account2 = [[MSIDAccount alloc] initWithTokenResponse:otherResponse request:[MSIDTestRequestParams v2DefaultParams]];
     
     MSIDAccessToken *token4 = [[MSIDAccessToken alloc] initWithTokenResponse:otherResponse
                                                                      request:[MSIDTestRequestParams v2DefaultParams]];

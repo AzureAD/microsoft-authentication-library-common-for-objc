@@ -73,7 +73,7 @@
         return NO;
     }
     
-    return [self isEqualToToken:(MSIDIdToken *)object];
+    return [self isEqualToItem:(MSIDIdToken *)object];
 }
 
 - (NSUInteger)hash
@@ -83,14 +83,14 @@
     return hash;
 }
 
-- (BOOL)isEqualToToken:(MSIDIdToken *)token
+- (BOOL)isEqualToItem:(MSIDIdToken *)token
 {
     if (!token)
     {
         return NO;
     }
     
-    BOOL result = [super isEqualToToken:token];
+    BOOL result = [super isEqualToItem:token];
     result &= (!self.rawIdToken && !token.rawIdToken) || [self.rawIdToken isEqualToString:token.rawIdToken];
     return result;
 }

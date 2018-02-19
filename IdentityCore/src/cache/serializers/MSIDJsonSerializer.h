@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenSerializer.h"
+#import "MSIDCacheItemSerializer.h"
 
-@interface MSIDJsonSerializer : NSObject<MSIDTokenSerializer>
+@interface MSIDJsonSerializer : NSObject<MSIDCacheItemSerializer>
 
 + (instancetype)new NS_UNAVAILABLE;
 - (instancetype)init NS_UNAVAILABLE;

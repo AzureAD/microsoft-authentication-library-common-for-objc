@@ -298,7 +298,7 @@
 
 - (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
                        requestParams:(MSIDRequestParameters *)parameters
-                          serializer:(id<MSIDTokenSerializer>)serializer
+                          serializer:(id<MSIDCacheItemSerializer>)serializer
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
@@ -321,7 +321,7 @@
 - (BOOL)saveToken:(MSIDBaseToken *)token
           account:(MSIDAccount *)account
          clientId:(NSString *)clientId
-       serializer:(id<MSIDTokenSerializer>)serializer
+       serializer:(id<MSIDCacheItemSerializer>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
@@ -361,7 +361,7 @@
                            authority:(NSURL *)authority
                             clientId:(NSString *)clientId
                             resource:(NSString *)resource
-                          serializer:(id<MSIDTokenSerializer>)serializer
+                          serializer:(id<MSIDCacheItemSerializer>)serializer
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {

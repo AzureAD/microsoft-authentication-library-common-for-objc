@@ -29,6 +29,5 @@
 @property (readonly) NSString *refreshToken;
 @property (readonly) NSString *familyId;
 @property (readonly) NSString *idToken;
-@property (readonly) NSString *username;
 
 @end

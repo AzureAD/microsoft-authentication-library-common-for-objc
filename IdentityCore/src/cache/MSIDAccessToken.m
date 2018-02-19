@@ -103,7 +103,7 @@ static uint64_t s_expirationBuffer = 300;
         return NO;
     }
     
-    return [self isEqualToToken:(MSIDAccessToken *)object];
+    return [self isEqualToItem:(MSIDAccessToken *)object];
 }
 
 - (NSUInteger)hash
@@ -117,14 +117,14 @@ static uint64_t s_expirationBuffer = 300;
     return hash;
 }
 
-- (BOOL)isEqualToToken:(MSIDAccessToken *)token
+- (BOOL)isEqualToItem:(MSIDAccessToken *)token
 {
     if (!token)
     {
         return NO;
     }
     
-    BOOL result = [super isEqualToToken:token];
+    BOOL result = [super isEqualToItem:token];
     result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
     result &= (!self.accessToken && !token.accessToken) || [self.accessToken isEqualToString:token.accessToken];
     result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];

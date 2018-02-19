@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenCacheKey.h"
+#import "MSIDAccount.h"
 
 @interface MSIDTokenCacheKey (Default)
 
@@ -45,6 +46,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (MSIDTokenCacheKey *)keyForIDTokenWithUniqueUserId:(NSString *)userId
                                            authority:(NSURL *)authority
                                             clientId:(NSString *)clientId;
+
++ (MSIDTokenCacheKey *)keyForAccountWithUniqueUserId:(NSString *)userId
+                                           authority:(NSURL *)authority
+                                            clientId:(NSString *)clientId
+                                         accountType:(MSIDAccountType)accountType;
 /*!
  Key for getting all MSAL access tokens for a user, environment and clientId
  */
