@@ -194,4 +194,45 @@
     XCTAssertNotNil(token.expiresOn);
 }
 
+#pragma mark - Init with JSON
+
+- (void)testInitWithJSONDictionary_whenAuthorityProvided_shouldFillData
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *jsonDict = @{@"credential_type" : @"LegacyADFSToken",
+                               @"unique_id" : @"user_unique_id",
+                               @"environment" : @"login.microsoftonline.com",
+                               @"client_id": @"test_client_id",
+                               @"client_info": clientInfoString,
+                               @"target": @"resource",
+                               @"cached_at": @"15637373",
+                               @"expires_on": @"84848484",
+                               @"extended_expires_on": @"15737373",
+                               @"id_token": @"id token",
+                               @"authority": @"https://login.microsoftonline.com/contoso.com",
+                               @"realm": @"contoso.com",
+                               @"secret":@"access_token",
+                               @"resource_refresh_token":@"refresh token"
+                               };
+    
+    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    XCTAssertNotNil(token);
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    XCTAssertEqualObjects(token.authority, authority);
+    XCTAssertEqualObjects(token.uniqueUserId, @"user_unique_id");
+    XCTAssertEqualObjects(token.clientId, @"test_client_id");
+    XCTAssertEqualObjects(token.resource, @"resource");
+    XCTAssertNotNil(token.cachedAt);
+    XCTAssertNotNil(token.expiresOn);
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.idToken, @"id token");
+    XCTAssertNotNil(token.additionalInfo[@"ext_expires_on"]);
+    XCTAssertEqualObjects(token.accessToken, @"access_token");
+    XCTAssertEqualObjects(token.singleResourceRefreshToken, @"refresh token");
+    
+}
+
+
 @end

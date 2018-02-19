@@ -51,6 +51,7 @@
     
     _refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     _familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
+    _username = [coder decodeObjectOfClass:[NSString class] forKey:@"username"];
     
     // Decode id_token from a backward compatible way
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
@@ -64,6 +65,7 @@
     
     [coder encodeObject:self.familyId forKey:@"familyId"];
     [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
+    [coder encodeObject:self.username forKey:@"username"];
     
     // Encode id_token in backward compatible way with ADAL
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];

@@ -153,7 +153,7 @@ static uint64_t s_expirationBuffer = 300;
     }
     else if (json[MSID_REALM_CACHE_KEY])
     {
-        NSString *authorityString = [NSString stringWithFormat:@"%@/%@", json[MSID_ENVIRONMENT_CACHE_KEY], json[MSID_REALM_CACHE_KEY]];
+        NSString *authorityString = [NSString stringWithFormat:@"https://%@/%@", json[MSID_ENVIRONMENT_CACHE_KEY], json[MSID_REALM_CACHE_KEY]];
         _authority = [NSURL URLWithString:authorityString];
     }
     
@@ -171,7 +171,9 @@ static uint64_t s_expirationBuffer = 300;
     
     /* Optional fields */
     // Extended expires on
-    [_additionalInfo setValue:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] forKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+    NSDate *extExpiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
+    [_additionalInfo setValue:extExpiresOn
+                       forKey:MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
     
     // ID token
     _idToken = json[MSID_ID_TOKEN_CACHE_KEY];

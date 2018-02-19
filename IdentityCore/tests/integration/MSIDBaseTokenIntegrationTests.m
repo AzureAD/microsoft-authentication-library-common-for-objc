@@ -135,4 +135,96 @@
     XCTAssertEqualObjects(token.additionalInfo, [NSMutableDictionary dictionary]);
 }
 
+#pragma mark - Init with JSON
+
+- (void)testInitWithJSONDictionary_whenWrongCredentialType_shouldReturnNil
+{
+    NSDictionary *jsonDict = @{@"credential_type" : @"RefreshToken"};
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    XCTAssertNil(token);
+}
+
+- (void)testInitWithJSONDictionary_whenNoSPEInfo_shouldFillData
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *jsonDict = @{@"credential_type" : @"Token",
+                               @"unique_id" : @"user_unique_id",
+                               @"environment" : @"login.microsoftonline.com",
+                               @"client_id": @"test_client_id",
+                               @"client_info": clientInfoString
+                               };
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    XCTAssertNotNil(token);
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    XCTAssertEqualObjects(token.authority, authority);
+    XCTAssertEqualObjects(token.uniqueUserId, @"user_unique_id");
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalInfo, [NSDictionary dictionary]);
+}
+
+- (void)testInitWithJSONDictionary_whenSPEInfo_shouldFillDataAndSPEInfo
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *jsonDict = @{@"credential_type" : @"Token",
+                               @"unique_id" : @"user_unique_id",
+                               @"environment" : @"login.microsoftonline.com",
+                               @"client_id": @"test_client_id",
+                               @"client_info": clientInfoString,
+                               @"spe_info": @"I"
+                               };
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    XCTAssertNotNil(token);
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    XCTAssertEqualObjects(token.authority, authority);
+    XCTAssertEqualObjects(token.uniqueUserId, @"user_unique_id");
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    NSDictionary *additionalInfo = @{@"spe_info": @"I"};
+    XCTAssertEqualObjects(token.additionalInfo, additionalInfo);
+}
+
+- (void)testInitWithJSONDictionary_whenCorruptedClientInfo_shouldFillData
+{
+    NSDictionary *jsonDict = @{@"credential_type" : @"Token",
+                               @"unique_id" : @"user_unique_id",
+                               @"environment" : @"login.microsoftonline.com",
+                               @"client_id": @"test_client_id",
+                               @"client_info": @"test"
+                               };
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    XCTAssertNotNil(token);
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    XCTAssertEqualObjects(token.authority, authority);
+    XCTAssertEqualObjects(token.uniqueUserId, @"user_unique_id");
+    XCTAssertNil(token.clientInfo.rawClientInfo);
+    XCTAssertEqualObjects(token.additionalInfo, [NSDictionary dictionary]);
+}
+
+- (void)testInitWithJSONDictionary_whenNoClientInfo_shouldFillData
+{
+    NSDictionary *jsonDict = @{@"credential_type" : @"Token",
+                               @"unique_id" : @"user_unique_id",
+                               @"environment" : @"login.microsoftonline.com",
+                               @"client_id": @"test_client_id",
+                               };
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    XCTAssertNotNil(token);
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    XCTAssertEqualObjects(token.authority, authority);
+    XCTAssertEqualObjects(token.uniqueUserId, @"user_unique_id");
+    XCTAssertNil(token.clientInfo.rawClientInfo);
+    XCTAssertEqualObjects(token.additionalInfo, [NSDictionary dictionary]);
+}
+
+#pragma mark - JSON dictionary
+
 @end

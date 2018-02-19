@@ -139,7 +139,7 @@
 
 - (MSIDTokenType)tokenType
 {
-    return MSIDTokenTypeRefreshToken;
+    return MSIDTokenTypeIDToken;
 }
 
 
