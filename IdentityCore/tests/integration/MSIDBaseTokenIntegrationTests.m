@@ -227,4 +227,44 @@
 
 #pragma mark - JSON dictionary
 
+- (void)testSerializeToJSON_afterDeserialization_shouldReturnData
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *jsonDict = @{@"credential_type" : @"Token",
+                               @"unique_id" : @"user_unique_id",
+                               @"environment" : @"login.microsoftonline.com",
+                               @"client_id": @"test_client_id",
+                               @"client_info": clientInfoString,
+                               @"spe_info": @"I"
+                               };
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    NSDictionary *serializedDict = [token jsonDictionary];
+    XCTAssertEqualObjects(jsonDict, serializedDict);
+}
+
+- (void)testSerializeToJSON_afterDeserialization_noUniqueId_shouldReturnData
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *jsonDict = @{@"credential_type" : @"Token",
+                               @"environment" : @"login.microsoftonline.com",
+                               @"client_id": @"test_client_id",
+                               @"client_info": clientInfoString,
+                               @"spe_info": @"I"
+                               };
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    NSDictionary *serializedDict = [token jsonDictionary];
+    XCTAssertEqualObjects(serializedDict[@"credential_type"], @"Token");
+    XCTAssertEqualObjects(serializedDict[@"environment"], @"login.microsoftonline.com");
+    XCTAssertEqualObjects(serializedDict[@"client_id"], @"test_client_id");
+    XCTAssertEqualObjects(serializedDict[@"client_info"], clientInfoString);
+    XCTAssertEqualObjects(serializedDict[@"spe_info"], @"I");
+    XCTAssertEqualObjects(serializedDict[@"unique_id"], @"1.1234-5678-90abcdefg");
+}
+
 @end

@@ -261,4 +261,70 @@
     XCTAssertEqualObjects(token.accessToken, @"access_token");
 }
 
+#pragma mark - JSON dictionary
+
+- (void)testSerializeToJSON_afterDeserialization_shouldReturnData
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *jsonDict = @{@"credential_type" : @"AccessToken",
+                               @"unique_id" : @"user_unique_id",
+                               @"environment" : @"login.microsoftonline.com",
+                               @"client_id": @"test_client_id",
+                               @"client_info": clientInfoString,
+                               @"target": @"resource",
+                               @"cached_at": @"15637373",
+                               @"expires_on": @"84848484",
+                               @"extended_expires_on": @"15737373",
+                               @"id_token": @"id token",
+                               @"authority": @"https://login.microsoftonline.com/contoso.com",
+                               @"realm": @"contoso.com",
+                               @"secret":@"access_token"
+                               };
+    
+    MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    NSDictionary *serializedDict = [token jsonDictionary];
+    XCTAssertEqualObjects(serializedDict, jsonDict);
+}
+
+- (void)testSerializeToJSON_whenNoAuthorityProvided_afterDeserialization_shouldReturnData
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *jsonDict = @{@"credential_type" : @"AccessToken",
+                               @"unique_id" : @"user_unique_id",
+                               @"environment" : @"login.microsoftonline.com",
+                               @"client_id": @"test_client_id",
+                               @"client_info": clientInfoString,
+                               @"target": @"resource",
+                               @"cached_at": @"15637373",
+                               @"expires_on": @"84848484",
+                               @"extended_expires_on": @"15737373",
+                               @"id_token": @"id token",
+                               @"realm": @"contoso.com",
+                               @"secret":@"access_token"
+                               };
+    
+    MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    NSDictionary *expectedDict = @{@"credential_type" : @"AccessToken",
+                                   @"unique_id" : @"user_unique_id",
+                                   @"environment" : @"login.microsoftonline.com",
+                                   @"client_id": @"test_client_id",
+                                   @"client_info": clientInfoString,
+                                   @"target": @"resource",
+                                   @"cached_at": @"15637373",
+                                   @"expires_on": @"84848484",
+                                   @"extended_expires_on": @"15737373",
+                                   @"id_token": @"id token",
+                                   @"authority": @"https://login.microsoftonline.com/contoso.com",
+                                   @"realm": @"contoso.com",
+                                   @"secret":@"access_token"
+                                   };
+    
+    NSDictionary *serializedDict = [token jsonDictionary];
+    XCTAssertEqualObjects(serializedDict, expectedDict);
+    
+}
 @end

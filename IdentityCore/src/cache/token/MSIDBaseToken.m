@@ -207,7 +207,8 @@
     /* Mandatory fields */
     
     // Unique id
-    [dictionary setValue:self.clientInfo.userIdentifier
+    NSString *uniqueUserId = self.uniqueUserId ? self.uniqueUserId : self.clientInfo.userIdentifier;
+    [dictionary setValue:uniqueUserId
                   forKey:MSID_UNIQUE_ID_CACHE_KEY];
     
     // Environment

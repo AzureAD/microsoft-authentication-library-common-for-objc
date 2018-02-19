@@ -207,7 +207,7 @@ static uint64_t s_expirationBuffer = 300;
     [dictionary setValue:_authority.absoluteString forKey:MSID_AUTHORITY_CACHE_KEY];
     
     // Extended expires on
-    [dictionary setValue:[self extendedExpireTime]
+    [dictionary setValue:[self extendedExpireTime].msidDateToTimestamp
                   forKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
     
     // ID token

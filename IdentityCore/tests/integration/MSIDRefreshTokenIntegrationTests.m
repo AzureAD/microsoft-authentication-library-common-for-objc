@@ -261,4 +261,27 @@
     XCTAssertNil(token.familyId);
 }
 
+#pragma mark - JSON dictionary
+
+- (void)testSerializeToJSON_afterDeserialization_shouldReturnData
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *jsonDict = @{@"credential_type" : @"RefreshToken",
+                               @"unique_id" : @"user_unique_id",
+                               @"environment" : @"login.microsoftonline.com",
+                               @"client_id": @"test_client_id",
+                               @"client_info": clientInfoString,
+                               @"id_token": @"id token",
+                               @"secret":@"refresh token",
+                               @"family_id":@"family id",
+                               @"username":@"test user"
+                               };
+    
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    NSDictionary *serializedDict = [token jsonDictionary];
+    XCTAssertEqualObjects(serializedDict, jsonDict);
+}
+
 @end
