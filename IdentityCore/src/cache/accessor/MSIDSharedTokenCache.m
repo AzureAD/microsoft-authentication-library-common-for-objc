@@ -31,7 +31,6 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDBaseToken.h"
 #import "MSIDIdToken.h"
-#import "MSIDBaseToken+MSIDRefreshTokenAccessor.h"
 
 @interface MSIDSharedTokenCache()
 {

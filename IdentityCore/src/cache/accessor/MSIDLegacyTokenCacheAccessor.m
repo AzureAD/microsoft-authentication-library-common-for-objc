@@ -33,7 +33,6 @@
 #import "MSIDAADV1RequestParameters.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDTokenCacheKey+Legacy.h"
-#import "MSIDBaseToken+MSIDRefreshTokenAccessor.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
