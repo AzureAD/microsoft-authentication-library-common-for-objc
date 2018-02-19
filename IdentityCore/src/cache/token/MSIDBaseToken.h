@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,37 +15,46 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDJsonObject.h"
+#import "MSIDTokenResponse.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDClientInfo.h"
+#import "MSIDTokenType.h"
 
-@interface MSIDTestIdTokenUtil : NSObject
+/*!
+ This is the base class for all possible tokens.
+ It's meant to be subclassed to provide additional fields.
+ */
 
-+ (NSString *)defaultV2IdToken;
-+ (NSString *)defaultV1IdToken;
-+ (NSString *)defaultName;
-+ (NSString *)defaultUsername;
-+ (NSString *)defaultTenantId;
-+ (NSString *)defaultUniqueId;
+@interface MSIDBaseToken : MSIDJsonObject <NSCopying, NSSecureCoding>
+{
+    NSURL *_authority;
+    NSString *_clientId;
+    
+    MSIDClientInfo *_clientInfo;
+    
+    NSDictionary *_additionalInfo;
+    MSIDTokenType _tokenType;
+}
 
-+ (NSString *)idTokenWithName:(NSString *)name
-            preferredUsername:(NSString *)preferredUsername;
+@property (readwrite) NSURL *authority;
+@property (readwrite) NSString *clientId;
 
-+ (NSString *)idTokenWithName:(NSString *)name
-            preferredUsername:(NSString *)preferredUsername
-                     tenantId:(NSString *)tid;
+@property (readonly) NSString *uniqueUserId;
+@property (readonly) MSIDClientInfo *clientInfo;
+@property (readonly) MSIDTokenType tokenType;
+@property (readonly) NSDictionary *additionalInfo;
 
-+ (NSString *)idTokenWithName:(NSString *)name
-                          upn:(NSString *)upn
-                     tenantId:(NSString *)tid;
+- (BOOL)isEqualToToken:(MSIDBaseToken *)token;
 
-+ (NSString *)idTokenWithPreferredUsername:(NSString *)username
-                                   subject:(NSString *)subject;
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+                              request:(MSIDRequestParameters *)requestParams;
 
 @end

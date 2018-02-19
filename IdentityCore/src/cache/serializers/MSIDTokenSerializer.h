@@ -22,12 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTokenType.h"
 
-@class MSIDToken;
+@class MSIDBaseToken;
 
 @protocol MSIDTokenSerializer <NSObject>
 
-- (NSData *)serialize:(MSIDToken *)token;
-- (MSIDToken *)deserialize:(NSData *)data;
+- (instancetype)initForTokenType:(MSIDTokenType)type;
+
+- (NSData *)serialize:(MSIDBaseToken *)token;
+- (MSIDBaseToken *)deserialize:(NSData *)data;
 
 @end

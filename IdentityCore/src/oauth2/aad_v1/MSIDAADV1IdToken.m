@@ -57,7 +57,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
             uniqueId = self.subject;
         }
         
-        _uniqueId = [MSIDIdToken normalizeUserId:uniqueId];
+        _uniqueId = [MSIDIdTokenWrapper normalizeUserId:uniqueId];
         
         // Set userId (ADAL fallbacks)
         if (![NSString msidIsStringNilOrBlank:self.upn])
@@ -91,7 +91,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
             _userIdDisplayable = NO;
         }
         
-        _userId = [MSIDIdToken normalizeUserId:_userId];
+        _userId = [MSIDIdTokenWrapper normalizeUserId:_userId];
     }
     
     return self;

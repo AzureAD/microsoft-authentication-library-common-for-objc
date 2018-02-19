@@ -60,9 +60,9 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
     return YES;
 }
 
-- (MSIDIdToken *)idTokenObj
+- (MSIDIdTokenWrapper *)idTokenObj
 {
-    return [[MSIDIdToken alloc] initWithRawIdToken:self.idToken];
+    return [[MSIDIdTokenWrapper alloc] initWithRawIdToken:self.idToken];
 }
 
 @end

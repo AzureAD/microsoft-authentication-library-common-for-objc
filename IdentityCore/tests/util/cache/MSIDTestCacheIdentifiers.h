@@ -33,3 +33,4 @@
 #define DEFAULT_TEST_ACCESS_TOKEN @"access_token"
 #define DEFAULT_TEST_REFRESH_TOKEN @"refresh_token"
 #define DEFAULT_TEST_FAMILY_ID @"family"
+#define DEFAULT_TEST_ID_TOKEN_SUBJECT @"sub"

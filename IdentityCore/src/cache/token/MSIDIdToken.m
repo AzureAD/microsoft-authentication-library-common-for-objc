@@ -21,17 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAdfsToken.h"
+#import "MSIDIdToken.h"
+#import "MSIDUserInformation.h"
 
-@implementation MSIDAdfsToken
+@implementation MSIDIdToken
 
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    MSIDAdfsToken *item = [super copyWithZone:zone];
-    item->_singleResourceRefreshToken = [_singleResourceRefreshToken copyWithZone:zone];
-    
+    MSIDIdToken *item = [super copyWithZone:zone];
+    item->_rawIdToken = [_rawIdToken copyWithZone:zone];
     return item;
 }
 
@@ -43,8 +43,9 @@
     {
         return nil;
     }
-    
-    _singleResourceRefreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
+
+    // Decode id_token from a backward compatible way
+    _rawIdToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     
     return self;
 }
@@ -53,7 +54,9 @@
 {
     [super encodeWithCoder:coder];
     
-    [coder encodeObject:_singleResourceRefreshToken forKey:@"refreshToken"];
+    // Encode id_token in backward compatible way with ADAL
+    MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:_rawIdToken];
+    [coder encodeObject:userInformation forKey:@"userInformation"];
 }
 
 #pragma mark - NSObject
@@ -65,22 +68,22 @@
         return YES;
     }
     
-    if (![object isKindOfClass:MSIDAdfsToken.class])
+    if (![object isKindOfClass:MSIDIdToken.class])
     {
         return NO;
     }
     
-    return [self isEqualToToken:(MSIDAdfsToken *)object];
+    return [self isEqualToToken:(MSIDIdToken *)object];
 }
 
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
-    hash = hash * 31 + self.singleResourceRefreshToken.hash;
+    hash = hash * 31 + self.rawIdToken.hash;
     return hash;
 }
 
-- (BOOL)isEqualToToken:(MSIDAdfsToken *)token
+- (BOOL)isEqualToToken:(MSIDIdToken *)token
 {
     if (!token)
     {
@@ -88,8 +91,7 @@
     }
     
     BOOL result = [super isEqualToToken:token];
-    result &= (!self.singleResourceRefreshToken && !token.singleResourceRefreshToken) || [self.singleResourceRefreshToken isEqualToString:token.singleResourceRefreshToken];
-    
+    result &= (!self.rawIdToken && !token.rawIdToken) || [self.rawIdToken isEqualToString:token.rawIdToken];
     return result;
 }
 
@@ -102,7 +104,8 @@
         return nil;
     }
     
-    _singleResourceRefreshToken = json[MSID_RESOURCE_RT_CACHE_KEY];
+    /* Mandatory fields */
+    _rawIdToken = json[MSID_TOKEN_CACHE_KEY];
     
     return self;
 }
@@ -110,7 +113,9 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
-    [dictionary setValue:_singleResourceRefreshToken forKey:MSID_RESOURCE_RT_CACHE_KEY];
+    
+    /* Mandatory fields */
+    [dictionary setValue:_rawIdToken forKey:MSID_TOKEN_CACHE_KEY];
     
     return dictionary;
 }
@@ -125,7 +130,7 @@
         return nil;
     }
     
-    _singleResourceRefreshToken = response.refreshToken;
+    _rawIdToken = response.idToken;
     
     return self;
 }
@@ -134,7 +139,8 @@
 
 - (MSIDTokenType)tokenType
 {
-    return MSIDTokenTypeLegacyADFSToken;
+    return MSIDTokenTypeIDToken;
 }
+
 
 @end

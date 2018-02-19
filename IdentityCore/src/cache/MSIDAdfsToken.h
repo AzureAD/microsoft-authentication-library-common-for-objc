@@ -21,12 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDToken.h"
+#import "MSIDAccessToken.h"
 
-@interface MSIDAdfsToken : MSIDToken
+@interface MSIDAdfsToken : MSIDAccessToken
 
-// For ADFS user token, consider @token to be an access token and
-// @singleResourceRefreshToken to be a refresh token
 @property (readonly) NSString *singleResourceRefreshToken;
 
 @end

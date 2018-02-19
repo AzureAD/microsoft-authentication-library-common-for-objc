@@ -24,7 +24,7 @@
 #import "MSIDAccount.h"
 #import "MSIDClientInfo.h"
 #import "MSIDAADTokenResponse.h"
-#import "MSIDIdToken.h"
+#import "MSIDIdTokenWrapper.h"
 
 @implementation MSIDAccount
 
@@ -61,6 +61,11 @@
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         uid = aadTokenResponse.clientInfo.uid;
         utid = aadTokenResponse.clientInfo.utid;
+    }
+    else
+    {
+        uid = response.idTokenObj.subject;
+        utid = @"";
     }
     
     NSString *userId = response.idTokenObj.userId;

@@ -21,14 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef MSIDTokenType_h
-#define MSIDTokenType_h
+#import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, MSIDTokenType)
 {
-    MSIDTokenTypeAccessToken,
-    MSIDTokenTypeRefreshToken,
-    MSIDTokenTypeAdfsUserToken
+    MSIDTokenTypeAccessToken = 1,
+    MSIDTokenTypeRefreshToken = 2,
+    MSIDTokenTypeIDToken = 3,
+    MSIDTokenTypeLegacyADFSToken = 4
 };
 
-#endif /* MSIDTokenType_h */
+@interface MSIDTokenTypeHelpers : NSObject
+
++ (NSString *)tokenTypeAsString:(MSIDTokenType)type;
+
+@end

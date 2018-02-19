@@ -26,5 +26,7 @@
 @interface NSDate (MSIDExtensions)
 
 - (NSString *)msidToString;
+- (NSString *)msidDateToTimestamp;
++ (NSDate *)msidDateFromTimeStamp:(NSString *)timeStamp;
 
 @end

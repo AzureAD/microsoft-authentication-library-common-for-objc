@@ -93,4 +93,15 @@
     return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
 }
 
++ (NSString *)idTokenWithPreferredUsername:(NSString *)username
+                                   subject:(NSString *)subject
+{
+    NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
+    NSString *idTokenp2 = [@{ @"iss" : @"issuer",
+                              @"name" : @"Test name",
+                              @"preferred_username" : username,
+                              @"sub" : subject} msidBase64UrlJson];
+    return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
+}
+
 @end

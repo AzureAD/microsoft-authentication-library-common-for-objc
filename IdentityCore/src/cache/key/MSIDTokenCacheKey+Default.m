@@ -25,7 +25,6 @@
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDTokenType.h"
-#import "MSIDCredentialType.h"
 #import "NSURL+MSIDExtensions.h"
 
 static NSString *keyDelimiter = @"-";
@@ -35,11 +34,11 @@ static NSString *keyDelimiter = @"-";
 #pragma mark - Helpers
 
 // kSecAttrService - credential_id (<credential_type>-<client_id>-<realm>)
-+ (NSString *)credentialIdWithType:(MSIDCredentialType)type
++ (NSString *)credentialIdWithType:(MSIDTokenType)type
                           clientId:(NSString *)clientId
                              realm:(NSString *)realm
 {
-    NSString *credentialType = [self credentialType:type];
+    NSString *credentialType = [MSIDTokenTypeHelpers tokenTypeAsString:type];
     
     return [NSString stringWithFormat:@"%@%@%@%@%@",
             credentialType, keyDelimiter, clientId,
@@ -52,30 +51,6 @@ static NSString *keyDelimiter = @"-";
 {
     return [NSString stringWithFormat:@"%@%@%@",
             uniqueId, keyDelimiter, environment];
-}
-
-+ (NSString *)credentialType:(MSIDCredentialType)type
-{
-    switch (type)
-    {
-        case MSIDCredentialTypeOAuthAccessToken:
-            return @"AccessToken";
-            
-        case MSIDCredentialTypeOAuthRefreshToken:
-            return @"RefreshToken";
-            
-        case MSIDCredentialTypeOIDCIdTokenUnsigned:
-            return @"IdToken";
-            
-        case MSIDCredentialTypeOIDCIdToken:
-            return @"IdToken";
-            
-        case MSIDCredentialTypePassword:
-            return @"Password";
-            
-        default:
-            return @"Credential";
-    }
 }
 
 #pragma mark - Internal
@@ -92,12 +67,12 @@ static NSString *keyDelimiter = @"-";
     // kSecAttrType - type
     
     NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
-    NSString *service = [self.class credentialIdWithType:MSIDCredentialTypeOAuthAccessToken clientId:clientId realm:realm];
+    NSString *service = [self.class credentialIdWithType:MSIDTokenTypeAccessToken clientId:clientId realm:realm];
     
     return [[MSIDTokenCacheKey alloc] initWithAccount:account
                                               service:service
                                               generic:target
-                                                 type:@(MSIDCredentialTypeOAuthAccessToken)];
+                                                 type:@(MSIDTokenTypeAccessToken)];
 }
 
 #pragma mark - Default
@@ -160,7 +135,7 @@ static NSString *keyDelimiter = @"-";
     return [[MSIDTokenCacheKey alloc] initWithAccount:nil
                                               service:nil
                                               generic:nil
-                                                 type:@(MSIDCredentialTypeOAuthAccessToken)];
+                                                 type:@(MSIDTokenTypeAccessToken)];
 }
 
 // rt with uid and utid
@@ -168,22 +143,22 @@ static NSString *keyDelimiter = @"-";
                                               environment:(NSString *)environment
                                                  clientId:(NSString *)clientId
 {
-    NSString *service = [self credentialIdWithType:MSIDCredentialTypeOAuthRefreshToken clientId:clientId realm:nil];
+    NSString *service = [self credentialIdWithType:MSIDTokenTypeRefreshToken clientId:clientId realm:nil];
     NSString *account = [self accountIdWithUniqueUserId:userId environment:environment];
     
     return [[MSIDTokenCacheKey alloc] initWithAccount:account
                                               service:service
                                               generic:nil
-                                                 type:@(MSIDCredentialTypeOAuthRefreshToken)];
+                                                 type:@(MSIDTokenTypeRefreshToken)];
 }
 
 + (MSIDTokenCacheKey *)keyForRefreshTokenWithClientId:(NSString *)clientId
 {
-    NSString *service = [self credentialIdWithType:MSIDCredentialTypeOAuthRefreshToken clientId:clientId realm:nil];
+    NSString *service = [self credentialIdWithType:MSIDTokenTypeRefreshToken clientId:clientId realm:nil];
     return [[MSIDTokenCacheKey alloc] initWithAccount:nil
                                               service:service
                                               generic:nil
-                                                 type:@(MSIDCredentialTypeOAuthRefreshToken)];
+                                                 type:@(MSIDTokenTypeRefreshToken)];
 }
 
 @end

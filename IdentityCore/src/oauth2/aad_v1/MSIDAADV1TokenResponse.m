@@ -35,7 +35,7 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
             && ![NSString msidIsStringNilOrBlank:self.refreshToken];
 }
 
-- (MSIDIdToken *)idTokenObj
+- (MSIDIdTokenWrapper *)idTokenObj
 {
     return [[MSIDAADV1IdToken alloc] initWithRawIdToken:self.idToken];
 }

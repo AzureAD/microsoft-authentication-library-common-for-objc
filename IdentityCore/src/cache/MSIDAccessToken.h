@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,37 +15,29 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import "MSIDBaseToken.h"
 
-@interface MSIDTestIdTokenUtil : NSObject
+@interface MSIDAccessToken : MSIDBaseToken
 
-+ (NSString *)defaultV2IdToken;
-+ (NSString *)defaultV1IdToken;
-+ (NSString *)defaultName;
-+ (NSString *)defaultUsername;
-+ (NSString *)defaultTenantId;
-+ (NSString *)defaultUniqueId;
+@property (readonly) NSDate *expiresOn;
+@property (readonly) NSDate *cachedAt;
+@property (readonly) NSString *accessToken;
 
-+ (NSString *)idTokenWithName:(NSString *)name
-            preferredUsername:(NSString *)preferredUsername;
+// Id token is necessary for backward ADAL compatibility
+@property (readonly) NSString *idToken;
 
-+ (NSString *)idTokenWithName:(NSString *)name
-            preferredUsername:(NSString *)preferredUsername
-                     tenantId:(NSString *)tid;
+// v1 access tokens are scoped down to resources
+@property (readonly) NSString *resource;
 
-+ (NSString *)idTokenWithName:(NSString *)name
-                          upn:(NSString *)upn
-                     tenantId:(NSString *)tid;
+// v2 access tokens are scoped down to resources
+@property (readonly) NSOrderedSet<NSString *> *scopes;
 
-+ (NSString *)idTokenWithPreferredUsername:(NSString *)username
-                                   subject:(NSString *)subject;
+- (BOOL)isExpired;
 
 @end

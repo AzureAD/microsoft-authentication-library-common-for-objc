@@ -25,8 +25,14 @@
 
 @class MSIDAADV1RequestParameters;
 @class MSIDAADV2RequestParameters;
+@class MSIDRequestParameters;
 
 @interface MSIDTestRequestParams : NSObject
+
++ (MSIDRequestParameters *)defaultParams;
+
++ (MSIDRequestParameters *)defaultParamsWithAuthority:(NSString *)authority
+                                             clientId:(NSString *)clientId;
 
 + (MSIDAADV1RequestParameters *)v1DefaultParams;
 
@@ -41,4 +47,5 @@
                                           redirectUri:(NSString *)redirectUri
                                              clientId:(NSString *)clientId
                                                scopes:(NSOrderedSet<NSString *> *)scopes;
+
 @end

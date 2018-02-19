@@ -27,7 +27,7 @@
 
 #import "MSIDJsonObject.h"
 
-@interface MSIDIdToken : MSIDJsonObject
+@interface MSIDIdTokenWrapper : MSIDJsonObject
 {
     NSString *_uniqueId;
     NSString *_userId;
@@ -47,6 +47,9 @@
 @property (readonly) NSString *uniqueId;
 @property (readonly) NSString *userId;
 @property (readonly) BOOL userIdDisplayable;
+
+// Convinience properties
+@property (readonly) NSString *rawIdToken;
 
 - (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
 + (NSString *)normalizeUserId:(NSString *)userId;
