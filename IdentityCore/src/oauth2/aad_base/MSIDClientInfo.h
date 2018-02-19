@@ -27,15 +27,15 @@
 
 #import "MSIDJsonObject.h"
 
-@interface MSIDClientInfo : MSIDJsonObject
+@interface MSIDClientInfo : MSIDJsonObject <NSCopying>
 
 @property (readonly) NSString *uid;
 @property (readonly) NSString *utid;
 @property (readonly) NSString *rawClientInfo;
-
 @property (readonly) NSString *userIdentifier;
 
 - (id)initWithRawClientInfo:(NSString *)rawClientInfo
                       error:(NSError *__autoreleasing *)error;
+- (BOOL)isEqualToClientInfo:(MSIDClientInfo *)clientInfo;
 
 @end
