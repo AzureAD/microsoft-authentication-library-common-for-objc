@@ -838,9 +838,8 @@
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
-    MSIDToken *token = [[MSIDToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                        request:[MSIDTestRequestParams v1DefaultParams]
-                                                      tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
     
     [_primaryAccessor addToken:token forAccount:account];
     XCTAssertEqual([[_primaryAccessor allRefreshTokens] count], 1);
@@ -853,9 +852,8 @@
                                                                                   upn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                              tenantId:DEFAULT_TEST_UTID];
     
-    MSIDToken *updatedToken = [[MSIDToken alloc] initWithTokenResponse:updatedResponse
-                                                               request:[MSIDTestRequestParams v1DefaultParams]
-                                                             tokenType:MSIDTokenTypeRefreshToken];
+    MSIDRefreshToken *updatedToken = [[MSIDRefreshToken alloc] initWithTokenResponse:updatedResponse
+                                                                             request:[MSIDTestRequestParams v1DefaultParams]];
     
     NSError *error = nil;
     BOOL result = [tokenCache removeRTForAccount:account token:updatedToken context:nil error:&error];

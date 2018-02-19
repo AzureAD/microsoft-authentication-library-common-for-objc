@@ -323,7 +323,7 @@
     {
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *)token;
         NSString *familyId = [NSString stringWithFormat:@"foci-%@", refreshToken.familyId];
-        clientId = [NSString msidIsStringNilOrBlank:familyId] ? token.clientId : familyId;
+        clientId = [NSString msidIsStringNilOrBlank:refreshToken.familyId] ? token.clientId : familyId;
     }
     
     [self saveTokenForAccount:account token:token clientId:clientId authority:token.authority context:nil error:nil];
