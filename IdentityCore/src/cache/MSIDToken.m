@@ -35,15 +35,6 @@ static uint64_t s_expirationBuffer = 300;
 
 @interface MSIDToken ()
 
-@property (readwrite) NSString *token;
-@property (readwrite) NSString *idToken;
-@property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSString *familyId;
-@property (readwrite) MSIDClientInfo *clientInfo;
-@property (readwrite) NSDictionary *additionalServerInfo;
-@property (readwrite) MSIDTokenType tokenType;
-@property (readwrite) NSString *resource;
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
 @property (readwrite) NSDictionary *json;
 
 @end
