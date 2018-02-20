@@ -27,7 +27,7 @@
 
 @interface MSIDTestCacheAccessor : NSObject <MSIDSharedCacheAccessor>
 
-- (void)addToken:(MSIDBaseToken *)token forAccount:(MSIDAccount *)account;
+- (void)addToken:(MSIDBaseToken *)token forAccount:(MSIDAccountItem *)account;
 - (void)reset;
 - (NSArray *)allAccessTokens;
 - (NSArray *)allRefreshTokens;

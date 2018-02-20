@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDRefreshableToken.h"
 
-@class MSIDAccount;
+@class MSIDAccountItem;
 @class MSIDAdfsToken;
 @class MSIDAccessToken;
 @class MSIDRefreshToken;
@@ -35,29 +35,29 @@
 @protocol MSIDSharedCacheAccessor <NSObject>
 
 - (BOOL)saveAccessToken:(MSIDAccessToken *)token
-                account:(MSIDAccount *)account
+                account:(MSIDAccountItem *)account
           requestParams:(MSIDRequestParameters *)parameters
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error;
 
-- (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
+- (MSIDAccessToken *)getATForAccount:(MSIDAccountItem *)account
                        requestParams:(MSIDRequestParameters *)parameters
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
+- (BOOL)saveSharedRTForAccount:(MSIDAccountItem *)account
                   refreshToken:(MSIDRefreshToken *)refreshToken
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error;
 
 
-- (MSIDRefreshToken *)getSharedRTForAccount:(MSIDAccount *)account
+- (MSIDRefreshToken *)getSharedRTForAccount:(MSIDAccountItem *)account
                               requestParams:(MSIDRequestParameters *)parameters
                                     context:(id<MSIDRequestContext>)context
                                       error:(NSError **)error;
 
 - (MSIDBaseToken<MSIDRefreshableToken> *)getLatestRTForToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                                     account:(MSIDAccount *)account
+                                                     account:(MSIDAccountItem *)account
                                                      context:(id<MSIDRequestContext>)context
                                                        error:(NSError **)error;
 
@@ -65,7 +65,7 @@
                                                      context:(id<MSIDRequestContext>)context
                                                        error:(NSError **)error;
 
-- (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
+- (BOOL)removeSharedRTForAccount:(MSIDAccountItem *)account
                            token:(MSIDBaseToken<MSIDRefreshableToken> *)token
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error;
@@ -77,18 +77,18 @@
                                            error:(NSError **)error;
 
 - (BOOL)saveIDToken:(MSIDIdToken *)token
-            account:(MSIDAccount *)account
+            account:(MSIDAccountItem *)account
       requestParams:(MSIDRequestParameters *)parameters
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error;
 
-- (BOOL)saveAccount:(MSIDAccount *)account
+- (BOOL)saveAccount:(MSIDAccountItem *)account
       requestParams:(MSIDRequestParameters *)parameters
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error;
 
 - (BOOL)saveADFSToken:(MSIDAdfsToken *)token
-              account:(MSIDAccount *)account
+              account:(MSIDAccountItem *)account
         requestParams:(MSIDRequestParameters *)parameters
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error;

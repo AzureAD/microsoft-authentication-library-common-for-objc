@@ -23,7 +23,7 @@
 
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDJsonSerializer.h"
-#import "MSIDAccount.h"
+#import "MSIDAccountItem.h"
 #import "MSIDBaseToken.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -85,7 +85,7 @@
     return YES;
 }
 
-- (BOOL)checkUserIdentifier:(MSIDAccount *)account
+- (BOOL)checkUserIdentifier:(MSIDAccountItem *)account
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
@@ -104,7 +104,7 @@
 #pragma mark - Access tokens
 
 - (BOOL)saveAccessToken:(MSIDAccessToken *)token
-                account:(MSIDAccount *)account
+                account:(MSIDAccountItem *)account
           requestParams:(MSIDRequestParameters *)parameters
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error
@@ -146,7 +146,7 @@
 }
 
 - (BOOL)saveIDToken:(MSIDIdToken *)token
-            account:(MSIDAccount *)account
+            account:(MSIDAccountItem *)account
       requestParams:(MSIDRequestParameters *)parameters
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
@@ -167,7 +167,7 @@
                      error:error];
 }
 
-- (BOOL)saveAccount:(MSIDAccount *)account
+- (BOOL)saveAccount:(MSIDAccountItem *)account
       requestParams:(MSIDRequestParameters *)parameters
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
@@ -184,7 +184,7 @@
                                                                      clientId:parameters.clientId
                                                                   accountType:account.accountType];
     
-    MSIDAccount *previousAccount = (MSIDAccount *)[_dataSource itemWithKey:key
+    MSIDAccountItem *previousAccount = (MSIDAccountItem *)[_dataSource itemWithKey:key
                                                                 serializer:_accountSerializer
                                                                    context:context
                                                                      error:error];
@@ -203,7 +203,7 @@
 }
 
 
-- (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
+- (MSIDAccessToken *)getATForAccount:(MSIDAccountItem *)account
                        requestParams:(MSIDRequestParameters *)parameters
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
@@ -253,7 +253,7 @@
     return tokenToReturn;
 }
 
-- (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
+- (BOOL)saveSharedRTForAccount:(MSIDAccountItem *)account
                   refreshToken:(MSIDRefreshToken *)refreshToken
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
@@ -270,7 +270,7 @@
                      error:error];
 }
 
-- (MSIDRefreshToken *)getSharedRTForAccount:(MSIDAccount *)account
+- (MSIDRefreshToken *)getSharedRTForAccount:(MSIDAccountItem *)account
                               requestParams:(MSIDRequestParameters *)parameters
                                     context:(id<MSIDRequestContext>)context
                                       error:(NSError **)error
@@ -289,7 +289,7 @@
 }
 
 - (MSIDBaseToken<MSIDRefreshableToken> *)getLatestRTForToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                                     account:(MSIDAccount *)account
+                                                     account:(MSIDAccountItem *)account
                                                      context:(id<MSIDRequestContext>)context
                                                        error:(NSError **)error
 {
@@ -315,7 +315,7 @@
 }
 
 
-- (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
+- (BOOL)removeSharedRTForAccount:(MSIDAccountItem *)account
                            token:(MSIDBaseToken<MSIDRefreshableToken> *)token
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
@@ -364,7 +364,7 @@
 
 - (NSArray<MSIDAccessToken *> *)filterAllAccessTokens:(NSArray<MSIDAccessToken *> *)allTokens
                                        withParameters:(MSIDAADV2RequestParameters *)parameters
-                                              account:(MSIDAccount *)account
+                                              account:(MSIDAccountItem *)account
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
@@ -410,7 +410,7 @@
 #pragma mark - Delete
 
 - (BOOL)deleteAccessTokens:(NSArray<MSIDAccessToken *> *)tokens
-                   account:(MSIDAccount *)account
+                   account:(MSIDAccountItem *)account
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
@@ -586,7 +586,7 @@
     return nil;
 }
 
-- (NSArray<MSIDAccessToken *> *)getAllATsForAccount:(MSIDAccount *)account
+- (NSArray<MSIDAccessToken *> *)getAllATsForAccount:(MSIDAccountItem *)account
                                           authority:(NSURL *)authority
                                            clientId:(NSString *)clientId
                                             context:(id<MSIDRequestContext>)context

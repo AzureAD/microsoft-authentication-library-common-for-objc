@@ -25,7 +25,7 @@
 #import "MSIDTokenCacheKey.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetry+Internal.h"
-#import "MSIDAccount.h"
+#import "MSIDAccountItem.h"
 #import "MSIDAdfsToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
@@ -71,7 +71,7 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {    
-    MSIDAccount *account = [[MSIDAccount alloc] initWithTokenResponse:response
+    MSIDAccountItem *account = [[MSIDAccountItem alloc] initWithTokenResponse:response
                                                               request:requestParams];
     
     if (response.isMultiResource)
@@ -161,7 +161,7 @@
 }
 
 - (BOOL)saveRefreshTokenInAllCaches:(MSIDRefreshToken *)refreshToken
-                        withAccount:(MSIDAccount *)account
+                        withAccount:(MSIDAccountItem *)account
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
@@ -198,7 +198,7 @@
 
 #pragma mark - Get tokens
 
-- (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
+- (MSIDAccessToken *)getATForAccount:(MSIDAccountItem *)account
                        requestParams:(MSIDRequestParameters *)parameters
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
@@ -223,7 +223,7 @@
     return nil;
 }
 
-- (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
+- (MSIDRefreshToken *)getRTForAccount:(MSIDAccountItem *)account
                         requestParams:(MSIDRequestParameters *)parameters
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
@@ -257,7 +257,7 @@
 }
 
 
-- (MSIDRefreshToken *)getFRTforAccount:(MSIDAccount *)account
+- (MSIDRefreshToken *)getFRTforAccount:(MSIDAccountItem *)account
                          requestParams:(MSIDRequestParameters *)parameters
                               familyId:(NSString *)familyId
                                context:(id<MSIDRequestContext>)context
@@ -293,7 +293,7 @@
     return resultRTs;
 }
 
-- (BOOL)removeRTForAccount:(MSIDAccount *)account
+- (BOOL)removeRTForAccount:(MSIDAccountItem *)account
                      token:(MSIDBaseToken<MSIDRefreshableToken> *)token
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error

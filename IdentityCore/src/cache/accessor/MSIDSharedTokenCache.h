@@ -49,7 +49,7 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
+- (MSIDAccessToken *)getATForAccount:(MSIDAccountItem *)account
                        requestParams:(MSIDRequestParameters *)parameters
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
@@ -62,7 +62,7 @@
  Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
  potentially be used for many resources for that given user, client ID and authority.
  */
-- (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
+- (MSIDRefreshToken *)getRTForAccount:(MSIDAccountItem *)account
                         requestParams:(MSIDRequestParameters *)parameters
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
@@ -71,7 +71,7 @@
  Returns a Family Refresh Token for the given authority, user and family ID, if available. A FRT can
  be used for many resources within a given family of client IDs.
  */
-- (MSIDRefreshToken *)getFRTforAccount:(MSIDAccount *)account
+- (MSIDRefreshToken *)getFRTforAccount:(MSIDAccountItem *)account
                          requestParams:(MSIDRequestParameters *)parameters
                               familyId:(NSString *)familyId
                                context:(id<MSIDRequestContext>)context
@@ -85,7 +85,7 @@
                                            error:(NSError **)error;
 
 // Removal operations for RT or ADFS RT
-- (BOOL)removeRTForAccount:(MSIDAccount *)account
+- (BOOL)removeRTForAccount:(MSIDAccountItem *)account
                      token:(MSIDBaseToken<MSIDRefreshableToken> *)token
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;

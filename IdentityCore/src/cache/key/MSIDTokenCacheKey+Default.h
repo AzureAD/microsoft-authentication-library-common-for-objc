@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenCacheKey.h"
-#import "MSIDAccount.h"
+#import "MSIDAccountItem.h"
 
 @interface MSIDTokenCacheKey (Default)
 

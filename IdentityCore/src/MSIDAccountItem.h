@@ -33,7 +33,7 @@ typedef NS_ENUM(NSInteger, MSIDAccountType)
     MSIDAccountTypeOther = 4
 };
 
-@interface MSIDAccount : MSIDBaseCacheItem
+@interface MSIDAccountItem : MSIDBaseCacheItem
 
 // Legacy user identifier
 @property (nonatomic) NSString *legacyUserId;
@@ -52,6 +52,6 @@ typedef NS_ENUM(NSInteger, MSIDAccountType)
                        utid:(NSString *)utid
                         uid:(NSString *)uid;
 
-- (void)updateFieldsFromAccount:(MSIDAccount *)account;
+- (void)updateFieldsFromAccount:(MSIDAccountItem *)account;
 
 @end

@@ -21,18 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccount.h"
+#import "MSIDAccountItem.h"
 #import "MSIDClientInfo.h"
 #import "MSIDAADTokenResponse.h"
 #import "MSIDIdTokenWrapper.h"
 
-@implementation MSIDAccount
+@implementation MSIDAccountItem
 
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    MSIDAccount *item = [super copyWithZone:zone];
+    MSIDAccountItem *item = [super copyWithZone:zone];
     item->_legacyUserId = [_legacyUserId copyWithZone:zone];
     item->_uid = [_uid copyWithZone:zone];
     item->_utid = [_utid copyWithZone:zone];
@@ -82,12 +82,12 @@
         return YES;
     }
     
-    if (![object isKindOfClass:MSIDAccount.class])
+    if (![object isKindOfClass:MSIDAccountItem.class])
     {
         return NO;
     }
     
-    return [self isEqualToItem:(MSIDAccount *)object];
+    return [self isEqualToItem:(MSIDAccountItem *)object];
 }
 
 - (NSUInteger)hash
@@ -99,7 +99,7 @@
     return hash;
 }
 
-- (BOOL)isEqualToItem:(MSIDAccount *)account
+- (BOOL)isEqualToItem:(MSIDAccountItem *)account
 {
     if (!account)
     {
@@ -288,7 +288,7 @@ static NSDictionary *accountTypes = nil;
 
 #pragma mark - Update
 
-- (void)updateFieldsFromAccount:(MSIDAccount *)account
+- (void)updateFieldsFromAccount:(MSIDAccountItem *)account
 {
     NSMutableDictionary *allAdditionalFields = [NSMutableDictionary dictionary];
     [allAdditionalFields addEntriesFromDictionary:account.additionalFields];

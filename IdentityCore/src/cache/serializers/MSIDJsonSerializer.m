@@ -26,7 +26,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAdfsToken.h"
-#import "MSIDAccount.h"
+#import "MSIDAccountItem.h"
 
 @interface MSIDJsonSerializer()
 {
@@ -73,7 +73,7 @@
     
     if (self)
     {
-        _classToSerialize = MSIDAccount.class;
+        _classToSerialize = MSIDAccountItem.class;
     }
     
     return self;
