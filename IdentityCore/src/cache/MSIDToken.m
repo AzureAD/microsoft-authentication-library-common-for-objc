@@ -35,6 +35,7 @@ static uint64_t s_expirationBuffer = 300;
 
 @interface MSIDToken ()
 
+
 @property (readwrite) NSDictionary *json;
 
 @end

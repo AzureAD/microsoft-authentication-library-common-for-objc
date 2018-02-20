@@ -112,7 +112,6 @@
               error:(NSError **)error
 {
     NSDictionary *cache = nil;
-    __block BOOL result = NO;
     
     @try
     {
@@ -133,14 +132,15 @@
     
     if (!cache)
     {
-        result = NO;
+        return NO;
     }
     
     if (![self validateCache:cache error:error])
     {
-        result = NO;
+        return NO;
     }
     
+    __block BOOL result = NO;
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         self.cache = [cache objectForKey:@"tokenCache"];
         result = YES;
