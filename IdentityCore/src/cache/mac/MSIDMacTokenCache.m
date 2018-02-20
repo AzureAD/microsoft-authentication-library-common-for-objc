@@ -46,14 +46,17 @@
 
 @implementation MSIDMacTokenCache
 
-- (dispatch_queue_t)synchronizationQueue
+- (instancetype)init
 {
-    if (!_synchronizationQueue) {
-        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidmactokencache-%@", [NSUUID UUID].UUIDString];
-        _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+    if (!(self = [super init]))
+    {
+        return nil;
     }
     
-    return _synchronizationQueue;
+    NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidmactokencache-%@", [NSUUID UUID].UUIDString];
+    _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+    
+    return self;
 }
 
 + (MSIDMacTokenCache *)defaultCache
