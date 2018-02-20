@@ -288,19 +288,19 @@
 - (BOOL)validateCache:(NSDictionary *)dict
                 error:(NSError **)error
 {
-    RETURN_ERROR_IF_CONDITION_FALSE([dict isKindOfClass:[NSDictionary class]], MSIDErrorCacheBadFormat, @"Root level object of cache is not a NSDictionary!");
+    RETURN_ERROR_IF_CONDITION_FALSE([dict isKindOfClass:[NSDictionary class]], MSIDErrorCacheBadFormat, @"Root level object of cache is not a NSDictionary.");
     RETURN_ERROR_IF_CONDITION_FALSE(dict[@"version"], MSIDErrorCacheBadFormat, @"Missing version number from cache.");
     RETURN_ERROR_IF_CONDITION_FALSE([dict[@"version"] floatValue] <= CURRENT_WRAPPER_CACHE_VERSION, MSIDErrorCacheBadFormat, @"Cache is a future unsupported version.");
     
     NSDictionary *cache = dict[@"tokenCache"];
     RETURN_ERROR_IF_CONDITION_FALSE(cache, MSIDErrorCacheBadFormat, @"Missing token cache from data.");
-    RETURN_ERROR_IF_CONDITION_FALSE([cache isKindOfClass:[NSMutableDictionary class]], MSIDErrorCacheBadFormat, @"Cache is not a mutable dictionary!");
+    RETURN_ERROR_IF_CONDITION_FALSE([cache isKindOfClass:[NSMutableDictionary class]], MSIDErrorCacheBadFormat, @"Cache is not a mutable dictionary.");
     
     NSDictionary *tokens = cache[@"tokens"];
     
     if (tokens)
     {
-        RETURN_ERROR_IF_CONDITION_FALSE([tokens isKindOfClass:[NSMutableDictionary class]], MSIDErrorCacheBadFormat, @"tokens must be a mutable dictionary.");
+        RETURN_ERROR_IF_CONDITION_FALSE([tokens isKindOfClass:[NSMutableDictionary class]], MSIDErrorCacheBadFormat, @"Tokens must be a mutable dictionary.");
         for (id userId in tokens)
         {
             // On the second level we're expecting NSDictionaries keyed off of the user ids (an NSString*)
@@ -313,7 +313,7 @@
                 // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
                 RETURN_ERROR_IF_CONDITION_FALSE([key isKindOfClass:[MSIDTokenCacheKey class]], MSIDErrorCacheBadFormat, @"Key is not of the expected class type.");
                 id token = [userDict objectForKey:key];
-                RETURN_ERROR_IF_CONDITION_FALSE([token isKindOfClass:[MSIDToken class]], MSIDErrorCacheBadFormat, @"Token is not of the expected class type!");
+                RETURN_ERROR_IF_CONDITION_FALSE([token isKindOfClass:[MSIDToken class]], MSIDErrorCacheBadFormat, @"Token is not of the expected class type.");
             }
         }
     }

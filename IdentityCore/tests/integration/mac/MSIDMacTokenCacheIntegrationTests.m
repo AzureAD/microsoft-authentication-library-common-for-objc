@@ -26,45 +26,7 @@
 #import "MSIDTokenCacheKey.h"
 #import "MSIDMacTokenCache.h"
 
-@interface MSIDMacTokenCacheMocDelegate : NSObject<MSIDMacTokenCacheDelegate>
-
-@property (nonatomic) NSInteger willAccessCount;
-@property (nonatomic) NSInteger didAccessCount;
-@property (nonatomic) NSInteger willWriteCount;
-@property (nonatomic) NSInteger didWriteCount;
-
-@end
-
-@implementation MSIDMacTokenCacheMocDelegate
-
-#pragma mark - MSIDMacTokenCacheDelegate
-
-- (void)willAccessCache:(nonnull MSIDMacTokenCache *)cache
-{
-    self.willAccessCount++;
-}
-
-- (void)didAccessCache:(nonnull MSIDMacTokenCache *)cache
-{
-    self.didAccessCount++;
-}
-
-- (void)willWriteCache:(nonnull MSIDMacTokenCache *)cache
-{
-    self.willWriteCount++;
-}
-
-- (void)didWriteCache:(nonnull MSIDMacTokenCache *)cache
-{
-    self.didWriteCount++;
-}
-
-@end
-
 @interface MSIDMacTokenCacheIntegrationTests : XCTestCase
-
-@property (nonatomic) MSIDMacTokenCacheMocDelegate *macTokenCacheMocDelegate;
-
 @end
 
 @implementation MSIDMacTokenCacheIntegrationTests
@@ -72,8 +34,6 @@
 - (void)setUp
 {
     [super setUp];
-    
-    self.macTokenCacheMocDelegate = [MSIDMacTokenCacheMocDelegate new];
 }
 
 - (void)tearDown
@@ -156,41 +116,6 @@
     NSArray<MSIDToken *> *items = [cache itemsWithKey:nil serializer:nil context:nil error:nil];
     XCTAssertNotNil(items);
     XCTAssertEqual(items.count, 0);
-}
-
-#pragma mark - MSIDMacTokenCacheDelegate
-
-- (void)testItemsWithKey_whenDelegateNotNil_shouldNotifyDelegateAbotCacheAccessing
-{
-    MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    cache.delegate = self.macTokenCacheMocDelegate;
-    
-    [cache itemWithKey:nil serializer:nil context:nil error:nil];
-    
-    XCTAssertEqual(self.macTokenCacheMocDelegate.willAccessCount, 1);
-    XCTAssertEqual(self.macTokenCacheMocDelegate.didAccessCount, 1);
-}
-
-- (void)testSetItem_whenDelegateNotNil_shouldNotifyDelegateAbotCacheWriting
-{
-    MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    cache.delegate = self.macTokenCacheMocDelegate;
-    
-    [cache setItem:nil key:[MSIDTokenCacheKey new] serializer:nil context:nil error:nil];
-    
-    XCTAssertEqual(self.macTokenCacheMocDelegate.willWriteCount, 1);
-    XCTAssertEqual(self.macTokenCacheMocDelegate.didWriteCount, 1);
-}
-
-- (void)testRemoveItemsWithKey_whenDelegateNotNil_shouldNotifyDelegateAbotCacheWriting
-{
-    MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    cache.delegate = self.macTokenCacheMocDelegate;
-    
-    [cache removeItemsWithKey:nil context:nil error:nil];
-    
-    XCTAssertEqual(self.macTokenCacheMocDelegate.willWriteCount, 1);
-    XCTAssertEqual(self.macTokenCacheMocDelegate.didWriteCount, 1);
 }
 
 @end
