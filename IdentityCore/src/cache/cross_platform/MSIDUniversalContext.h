@@ -22,12 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDCacheItemSerializer.h"
+#import "MSIDRequestContext.h"
 
-@interface MSIDJsonSerializer : NSObject<MSIDCacheItemSerializer>
+@interface MSIDUniversalContext : NSObject <MSIDRequestContext>
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithClassName:(Class)className;
+@property (nonatomic, readonly) NSUUID *correlationId;
+@property (nonatomic, readonly) NSString *logComponent;
+@property (nonatomic, readonly) NSString *telemetryRequestId;
+
+- (instancetype)initWithCorrelationId:(NSUUID *)correlationId
+                   telemetryRequestId:(NSString *)telemetryRequestId;
 
 @end

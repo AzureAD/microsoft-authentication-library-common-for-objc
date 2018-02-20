@@ -44,6 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                   scopes:(NSOrderedSet<NSString *> *)scopes;
 
 + (MSIDTokenCacheKey *)keyForIDTokenWithUniqueUserId:(NSString *)userId
+                                         environment:(NSString *)environment
+                                            clientId:(NSString *)clientId
+                                               realm:(NSString *)realm;
+
++ (MSIDTokenCacheKey *)keyForIDTokenWithUniqueUserId:(NSString *)userId
                                            authority:(NSURL *)authority
                                             clientId:(NSString *)clientId;
 
@@ -51,6 +56,17 @@ NS_ASSUME_NONNULL_BEGIN
                                            authority:(NSURL *)authority
                                             clientId:(NSString *)clientId
                                          accountType:(MSIDAccountType)accountType;
+
++ (MSIDTokenCacheKey *)keyForAllCredentialWithUniqueUserId:(NSString *)userId
+                                               environment:(NSString *)environment
+                                                    target:(NSString *)target;
+
++ (MSIDTokenCacheKey *)keyForCredentialWithUniqueUserId:(NSString *)uniqueId
+                                            environment:(NSString *)environment
+                                               clientId:(NSString *)clientId
+                                                  realm:(NSString *)realm
+                                                 target:(NSString *)target
+                                              tokenType:(MSIDTokenType)tokenType;
 /*!
  Key for getting all MSAL access tokens for a user, environment and clientId
  */

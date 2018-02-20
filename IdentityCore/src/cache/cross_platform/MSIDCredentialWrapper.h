@@ -22,12 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDCacheItemSerializer.h"
+#import "MSIDBaseCacheItem.h"
+#import "MSIDCredential.h"
 
-@interface MSIDJsonSerializer : NSObject<MSIDCacheItemSerializer>
+@interface MSIDCredentialWrapper : MSIDBaseCacheItem
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithClassName:(Class)className;
+@property (nonatomic, readonly) MSIDCredential *credential;
+
+- (instancetype)initWithCredential:(MSIDCredential *)credential;
 
 @end

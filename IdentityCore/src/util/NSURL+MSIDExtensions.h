@@ -32,5 +32,6 @@
 - (NSString *)msidTenant;
 
 - (NSDictionary *)msidQueryParameters;
++ (NSURL *)urlWithEnvironment:(NSString *)environment andTenant:(NSString *)tenant;
 
 @end

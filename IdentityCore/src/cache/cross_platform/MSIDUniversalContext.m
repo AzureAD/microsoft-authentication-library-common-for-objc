@@ -21,13 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDCacheItemSerializer.h"
+#import "MSIDUniversalContext.h"
 
-@interface MSIDJsonSerializer : NSObject<MSIDCacheItemSerializer>
+@implementation MSIDUniversalContext
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithClassName:(Class)className;
+- (instancetype)initWithCorrelationId:(NSUUID *)correlationId
+                   telemetryRequestId:(NSString *)telemetryRequestId
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _correlationId = correlationId;
+        _telemetryRequestId = telemetryRequestId;
+    }
+    
+    return self;
+}
+
+- (NSString *)logComponent
+{
+    return @"Universal";
+}
 
 @end

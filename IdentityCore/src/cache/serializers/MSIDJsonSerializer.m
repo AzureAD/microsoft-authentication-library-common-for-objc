@@ -79,6 +79,18 @@
     return self;
 }
 
+- (instancetype)initWithClassName:(Class)className
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _classToSerialize = className;
+    }
+    
+    return self;
+}
+
 - (NSData *)serialize:(MSIDBaseCacheItem *)item
 {
     NSError *error;

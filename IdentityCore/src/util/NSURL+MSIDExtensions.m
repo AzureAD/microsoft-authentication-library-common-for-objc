@@ -153,4 +153,16 @@ const unichar queryStringSeparator = '?';
     return pathComponents[1];
 }
 
++ (NSURL *)urlWithEnvironment:(NSString *)environment andTenant:(NSString *)tenant
+{
+    if (!environment)
+    {
+        return nil;
+    }
+    
+    NSString *path = [NSString msidIsStringNilOrBlank:tenant] ? tenant : @"common";
+    NSString *urlString = [NSString stringWithFormat:@"https://%@/%@", environment, path];
+    return [NSURL URLWithString:urlString];
+}
+
 @end
