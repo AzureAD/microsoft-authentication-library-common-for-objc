@@ -44,10 +44,15 @@
 
 - (void)testKeyWithAuthorityClientIdResourceUpn_shouldCreateKeyWithAccountAndService
 {
-    MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:@"https://contoso.com"] clientId:@"client_id_value" resource:@"resource_value" upn:@"eric_cartman@contoso.com"];
+    MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:@"https://login.windows.net/contoso.com"] clientId:@"c3c7f5e5-7153-44d4-90e6-329686d48d76" resource:@"resource" upn:@"eric_cartman@contoso.com"];
     
+#if TARGET_OS_IPHONE
+    XCTAssertEqualObjects(@"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t", msidTokenCacheKey.account);
+#elif
     XCTAssertEqualObjects(@"eric_cartman@contoso.com", msidTokenCacheKey.account);
-    XCTAssertEqualObjects(@"MSOpenTech.ADAL.1|aHR0cHM6Ly9jb250b3NvLmNvbQ|Y21WemIzVnlZMlZmZG1Gc2RXVQ|Y2xpZW50X2lkX3ZhbHVl", msidTokenCacheKey.service);
+#endif
+    
+    XCTAssertEqualObjects(@"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2", msidTokenCacheKey.service);
 }
 
 @end

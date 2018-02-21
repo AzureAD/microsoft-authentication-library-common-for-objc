@@ -29,14 +29,12 @@
 //A special attribute to write, instead of nil/empty one.
 static NSString *const s_nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
 static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
+static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
+static NSString *const s_msalServiceFormat = @"%@$%@$%@";
 
 static uint32_t const s_msalV1 = 'MSv1';
 
 @interface MSIDTokenCacheKey ()
-
-@property (copy) NSURL *authority;
-@property (copy) NSString *resource;
-@property (copy) NSString *clientId;
 
 @end
 
@@ -87,15 +85,11 @@ static uint32_t const s_msalV1 = 'MSv1';
                                resource:(NSString *)resource
                                     upn:(NSString *)upn
 {
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:upn
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:[self adalAccountWithUpn:upn]
                                                                 service:[self.class serviceWithAuthority:authority
                                                                                                 resource:resource
                                                                                                 clientId:clientId]
                                                                    type:nil];
-    
-    key.authority = authority;
-    key.clientId = clientId;
-    key.resource = resource;
     
     return key;
 }
@@ -199,16 +193,29 @@ static uint32_t const s_msalV1 = 'MSv1';
 }
 
 #pragma mark - Private
+/*
+ In order to be backward compatable with legacy format
+ in ADAL we must to encode upn as base64 string
+ for iOS only. For ADAL Mac we don't encode upn.
+ */
++ (NSString *)adalAccountWithUpn:(NSString *)upn
+{
+#if TARGET_OS_IPHONE
+    return [upn msidBase64UrlEncode];
+#endif
+    
+    return upn;
+}
 
 + (NSString *)serviceWithAuthority:(NSURL *)authority
                           resource:(NSString *)resource
                           clientId:(NSString *)clientId
 {
     
-    return [NSString stringWithFormat:@"%@|%@|%@|%@",
+    return [NSString stringWithFormat:s_adalServiceFormat,
             s_adalLibraryString,
             authority.absoluteString.msidBase64UrlEncode,
-            [self.class getAttributeName:resource.msidBase64UrlEncode],
+            [self.class getAttributeName:resource],
             clientId.msidBase64UrlEncode];
 }
 
@@ -221,7 +228,7 @@ static uint32_t const s_msalV1 = 'MSv1';
         return nil;
     }
     
-    return [NSString stringWithFormat:@"%@$%@$%@",
+    return [NSString stringWithFormat:s_msalServiceFormat,
             authority? authority.absoluteString.msidBase64UrlEncode : @"",
             clientId? clientId.msidBase64UrlEncode : @"",
             scopes? scopes.msidToString.msidBase64UrlEncode : @""];
@@ -235,9 +242,6 @@ static uint32_t const s_msalV1 = 'MSv1';
     key.account = [self.account copyWithZone:zone];
     key.service = [self.service copyWithZone:zone];
     key.type = [self.type copyWithZone:zone];
-    key.authority = [self.authority copyWithZone:zone];
-    key.resource = [self.resource copyWithZone:zone];
-    key.clientId = [self.clientId copyWithZone:zone];
     
     return key;
 }
@@ -256,22 +260,19 @@ static uint32_t const s_msalV1 = 'MSv1';
         return nil;
     }
     
+    // TODO: Do we need to store _account, _service, _type?
     _account = [coder decodeObjectOfClass:[NSString class] forKey:@"account"];
     _service = [coder decodeObjectOfClass:[NSString class] forKey:@"service"];
     _type = [coder decodeObjectOfClass:[NSNumber class] forKey:@"type"];
     
-    NSString *authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
-    if (authority)
-    {
-        _authority = [[NSURL alloc] initWithString:authority];
-    }
-    
-    _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-    _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-    
+    // Backward compatibility with ADAL.
     if (!_service)
     {
-        _service = [self.class serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+        NSString *authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+        NSString *resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
+        NSString *clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+        
+        _service = [self.class serviceWithAuthority:[authority msidUrl] resource:resource clientId:clientId];
     }
     
     return self;
@@ -282,9 +283,23 @@ static uint32_t const s_msalV1 = 'MSv1';
     [coder encodeObject:_account forKey:@"account"];
     [coder encodeObject:_service forKey:@"service"];
     [coder encodeObject:_type forKey:@"type"];
-    [coder encodeObject:_resource forKey:@"resource"];
-    [coder encodeObject:_authority.absoluteString forKey:@"authority"];
-    [coder encodeObject:_clientId forKey:@"clientId"];
+    
+    // Backward compatibility with ADAL.
+    if (_service)
+    {
+        NSArray<NSString *> * items = [_service componentsSeparatedByString:@"|"];
+        if (items.count == 4) // See s_adalServiceFormat.
+        {
+            NSString *authority = [items[1] msidBase64UrlDecode];
+            [coder encodeObject:authority forKey:@"authority"];
+            
+            NSString *resource = items[2] == s_nilKey ? nil : [items[2] msidBase64UrlDecode];
+            [coder encodeObject:resource forKey:@"resource"];
+            
+            NSString *clientId= [items[3] msidBase64UrlDecode];
+            [coder encodeObject:clientId forKey:@"clientId"];
+        }
+    }
 }
 
 @end
