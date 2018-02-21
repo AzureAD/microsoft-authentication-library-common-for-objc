@@ -51,7 +51,7 @@
 - (MSIDToken *)deserialize:(NSData *)data
 {
     NSError *error;
-    NSDictionary *json = [self unarchiveJson:data error:&error];
+    NSDictionary *json = [self deserializeJSON:data error:&error];
     
     MSIDToken *token;
     if (!error)
@@ -71,7 +71,7 @@
 
 #pragma mark - Private
 
-- (NSDictionary *)unarchiveJson:(NSData *)data error:(NSError *__autoreleasing *)error
+- (NSDictionary *)deserializeJSON:(NSData *)data error:(NSError *__autoreleasing *)error
 {
     if (!data)
     {
