@@ -32,6 +32,14 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
 
 static uint32_t const s_msalV1 = 'MSv1';
 
+@interface MSIDTokenCacheKey ()
+
+@property (copy) NSURL *authority;
+@property (copy) NSString *resource;
+@property (copy) NSString *clientId;
+
+@end
+
 @implementation MSIDTokenCacheKey
 
 - (id)initWithAccount:(NSString *)account
@@ -56,37 +64,10 @@ static uint32_t const s_msalV1 = 'MSv1';
     return ([NSString msidIsStringNilOrBlank:original]) ? s_nilKey : [original msidBase64UrlEncode];
 }
 
-+ (NSString *)serviceWithAuthority:(NSURL *)authority
-                          resource:(NSString *)resource
-                          clientId:(NSString *)clientId
-{
-    
-    return [NSString stringWithFormat:@"%@|%@|%@|%@",
-            s_adalLibraryString,
-            authority.absoluteString.msidBase64UrlEncode,
-            [self.class getAttributeName:resource.msidBase64UrlEncode],
-            clientId.msidBase64UrlEncode];
-}
-
 + (NSString *)accountWithUserIdentifier:(NSString *)userId
                             environment:(NSString *)environment
 {
     return userId? [NSString stringWithFormat:@"%u$%@@%@", s_msalV1, userId, environment]: nil;
-}
-
-+ (NSString *)serviceWithAuthority:(NSURL *)authority
-                            scopes:(NSOrderedSet<NSString *> *)scopes
-                          clientId:(NSString *)clientId
-{
-    if (scopes.count == 0)
-    {
-        return nil;
-    }
-        
-    return [NSString stringWithFormat:@"%@$%@$%@",
-            authority? authority.absoluteString.msidBase64UrlEncode : @"",
-            clientId? clientId.msidBase64UrlEncode : @"",
-            scopes? scopes.msidToString.msidBase64UrlEncode : @""];
 }
 
 + (MSIDTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSURL *)authority
@@ -106,11 +87,17 @@ static uint32_t const s_msalV1 = 'MSv1';
                                resource:(NSString *)resource
                                     upn:(NSString *)upn
 {
-    return [[MSIDTokenCacheKey alloc] initWithAccount:upn
-                                              service:[self.class serviceWithAuthority:authority
-                                                                              resource:resource
-                                                                              clientId:clientId]
-                                                 type:nil];
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:upn
+                                                                service:[self.class serviceWithAuthority:authority
+                                                                                                resource:resource
+                                                                                                clientId:clientId]
+                                                                   type:nil];
+    
+    key.authority = authority;
+    key.clientId = clientId;
+    key.resource = resource;
+    
+    return key;
 }
 
 + (MSIDTokenCacheKey *)keyForAccessTokenWithAuthority:(NSURL *)authority
@@ -167,6 +154,137 @@ static uint32_t const s_msalV1 = 'MSv1';
     }
     
     return [NSString stringWithFormat:@"foci-%@", familyId];
+}
+
+- (BOOL)isEqualToTokenCacheKey:(MSIDTokenCacheKey *)key
+{
+    if (!key)
+    {
+        return NO;
+    }
+    
+    BOOL result = YES;
+    result &= (!self.account && !key.account) || [self.account isEqualToString:key.account];
+    result &= (!self.service && !key.service) || [self.service isEqualToString:key.service];
+    result &= (!self.type && !key.type) || [self.type isEqualToNumber:key.type];
+    
+    return result;
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:MSIDTokenCacheKey.class])
+    {
+        return NO;
+    }
+    
+    return [self isEqualToTokenCacheKey:(MSIDTokenCacheKey *)object];
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = 17;
+    hash = hash * 31 + self.account.hash;
+    hash = hash * 31 + self.service.hash;
+    hash = hash * 31 + self.type.hash;
+    
+    return hash;
+}
+
+#pragma mark - Private
+
++ (NSString *)serviceWithAuthority:(NSURL *)authority
+                          resource:(NSString *)resource
+                          clientId:(NSString *)clientId
+{
+    
+    return [NSString stringWithFormat:@"%@|%@|%@|%@",
+            s_adalLibraryString,
+            authority.absoluteString.msidBase64UrlEncode,
+            [self.class getAttributeName:resource.msidBase64UrlEncode],
+            clientId.msidBase64UrlEncode];
+}
+
++ (NSString *)serviceWithAuthority:(NSURL *)authority
+                            scopes:(NSOrderedSet<NSString *> *)scopes
+                          clientId:(NSString *)clientId
+{
+    if (scopes.count == 0)
+    {
+        return nil;
+    }
+    
+    return [NSString stringWithFormat:@"%@$%@$%@",
+            authority? authority.absoluteString.msidBase64UrlEncode : @"",
+            clientId? clientId.msidBase64UrlEncode : @"",
+            scopes? scopes.msidToString.msidBase64UrlEncode : @""];
+}
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey allocWithZone:zone] init];
+    key.account = [self.account copyWithZone:zone];
+    key.service = [self.service copyWithZone:zone];
+    key.type = [self.type copyWithZone:zone];
+    key.authority = [self.authority copyWithZone:zone];
+    key.resource = [self.resource copyWithZone:zone];
+    key.clientId = [self.clientId copyWithZone:zone];
+    
+    return key;
+}
+
+#pragma mark - NSSecureCoding
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _account = [coder decodeObjectOfClass:[NSString class] forKey:@"account"];
+    _service = [coder decodeObjectOfClass:[NSString class] forKey:@"service"];
+    _type = [coder decodeObjectOfClass:[NSNumber class] forKey:@"type"];
+    
+    NSString *authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+    if (authority)
+    {
+        _authority = [[NSURL alloc] initWithString:authority];
+    }
+    
+    _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
+    _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+    
+    if (!_service)
+    {
+        _service = [self.class serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+    }
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeObject:_account forKey:@"account"];
+    [coder encodeObject:_service forKey:@"service"];
+    [coder encodeObject:_type forKey:@"type"];
+    [coder encodeObject:_resource forKey:@"resource"];
+    [coder encodeObject:_authority.absoluteString forKey:@"authority"];
+    [coder encodeObject:_clientId forKey:@"clientId"];
 }
 
 @end

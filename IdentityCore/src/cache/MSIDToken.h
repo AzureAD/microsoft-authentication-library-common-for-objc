@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonObject.h"
+#import "MSIDJsonSerializable.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDClientInfo.h"
 #import "MSIDTokenType.h"
 
-@interface MSIDToken : MSIDJsonObject <NSCopying, NSSecureCoding>
+@interface MSIDToken : NSObject <NSCopying, NSSecureCoding, MSIDJsonSerializable>
 {
     MSIDTokenType _tokenType;
 }

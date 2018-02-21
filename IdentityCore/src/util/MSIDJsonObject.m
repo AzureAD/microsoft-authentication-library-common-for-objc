@@ -102,4 +102,39 @@
                                              error:error];
 }
 
+- (BOOL)isEqualToJsonObject:(MSIDJsonObject *)jsonObject;
+{
+    if (!jsonObject)
+    {
+        return NO;
+    }
+
+    BOOL result = YES;
+    result &= (!_json && !jsonObject->_json) || [_json isEqualToDictionary:jsonObject->_json];
+
+    return result;
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+
+    if (![object isKindOfClass:MSIDJsonObject.class])
+    {
+        return NO;
+    }
+
+    return [self isEqualToJsonObject:(MSIDJsonObject *)object];
+}
+
+- (NSUInteger)hash
+{
+    return [_json hash];
+}
+
 @end

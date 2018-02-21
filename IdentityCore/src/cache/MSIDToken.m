@@ -33,17 +33,54 @@
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
 
+@interface MSIDToken ()
+
+
+@property (readwrite) NSDictionary *json;
+
+@end
+
 @implementation MSIDToken
 
+- (BOOL)isExpired;
+{
+    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:s_expirationBuffer];
+    return [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
+}
+
+- (BOOL)isEqualToToken:(MSIDToken *)token
+{
+    if (!token)
+    {
+        return NO;
+    }
+    
+    BOOL result = YES;
+    result &= (!self.token && !token.token) || [self.token isEqualToString:token.token];
+    result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
+    result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
+    result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
+    result &= (!self.clientInfo && !token.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:token.clientInfo.rawClientInfo];
+    result &= (!self.additionalServerInfo && !token.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:token.additionalServerInfo];
+    result &= self.tokenType == token.tokenType;
+    result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
+    result &= (!self.authority && !token.authority) || [self.authority.absoluteString isEqualToString:token.authority.absoluteString];
+    result &= (!self.clientId && !token.clientId) || [self.clientId isEqualToString:token.clientId];
+    result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
+    
+    return result;
+}
+
+#pragma mark - MSIDJsonSerializable
+
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{    
-    if (!(self = [super initWithJSONDictionary:json error:error]))
+{
+    if (!(self = [super init]))
     {
         return nil;
     }
     
-    // We don't use _json variable.
-    _json = nil;
+    self.json = json;
     
     _idToken = json[MSID_OAUTH2_ID_TOKEN];
     _familyId = json[MSID_FAMILY_ID];
@@ -113,34 +150,16 @@ static uint64_t s_expirationBuffer = 300;
         [dictionary setValue:self.token forKey:MSID_OAUTH2_ACCESS_TOKEN];
     }
     
-    return dictionary;
-}
-
-- (BOOL)isExpired;
-{
-    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:s_expirationBuffer];
-    return [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
-}
-
-- (BOOL)isEqualToToken:(MSIDToken *)token
-{
-    if (!token)
+    NSMutableDictionary *result;
+    if (self.json)
     {
-        return NO;
+        result = [self.json mutableCopy];
+        [result addEntriesFromDictionary:dictionary];
     }
-    
-    BOOL result = YES;
-    result &= (!self.token && !token.token) || [self.token isEqualToString:token.token];
-    result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
-    result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
-    result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
-    result &= (!self.clientInfo && !token.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:token.clientInfo.rawClientInfo];
-    result &= (!self.additionalServerInfo && !token.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:token.additionalServerInfo];
-    result &= self.tokenType == token.tokenType;
-    result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
-    result &= (!self.authority && !token.authority) || [self.authority.absoluteString isEqualToString:token.authority.absoluteString];
-    result &= (!self.clientId && !token.clientId) || [self.clientId isEqualToString:token.clientId];
-    result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
+    else
+    {
+        result = dictionary;
+    }
     
     return result;
 }
@@ -164,17 +183,18 @@ static uint64_t s_expirationBuffer = 300;
 
 - (NSUInteger)hash
 {
-    NSUInteger hash = self.token.hash;
-    hash ^= self.idToken.hash;
-    hash ^= self.expiresOn.hash;
-    hash ^= self.familyId.hash;
-    hash ^= self.clientInfo.hash;
-    hash ^= self.additionalServerInfo.hash;
-    hash ^= self.tokenType;
-    hash ^= self.resource.hash;
-    hash ^= self.authority.hash;
-    hash ^= self.clientId.hash;
-    hash ^= self.scopes.hash;
+    NSUInteger hash = 17;
+    hash = hash * 31 + self.token.hash;
+    hash = hash * 31 + self.idToken.hash;
+    hash = hash * 31 + self.expiresOn.hash;
+    hash = hash * 31 + self.familyId.hash;
+    hash = hash * 31 + self.clientInfo.hash;
+    hash = hash * 31 + self.additionalServerInfo.hash;
+    hash = hash * 31 + self.tokenType;
+    hash = hash * 31 + self.resource.hash;
+    hash = hash * 31 + self.authority.hash;
+    hash = hash * 31 + self.clientId.hash;
+    hash = hash * 31 + self.scopes.hash;
     
     return hash;
 }
