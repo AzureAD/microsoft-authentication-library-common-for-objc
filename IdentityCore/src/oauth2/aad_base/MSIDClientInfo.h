@@ -36,6 +36,5 @@
 
 - (id)initWithRawClientInfo:(NSString *)rawClientInfo
                       error:(NSError *__autoreleasing *)error;
-- (BOOL)isEqualToClientInfo:(MSIDClientInfo *)clientInfo;
 
 @end

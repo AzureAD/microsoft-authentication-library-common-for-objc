@@ -49,4 +49,6 @@
 - (NSDictionary *)jsonDictionary;
 - (NSData *)serialize:(NSError * __autoreleasing *)error;
 
+- (BOOL)isEqualToJsonObject:(MSIDJsonObject *)jsonObject;
+
 @end

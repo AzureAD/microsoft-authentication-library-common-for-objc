@@ -53,41 +53,6 @@ MSID_JSON_RW(@"client_info", rawClientInfo, setRawClientInfo)
     return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
 }
 
-- (BOOL)isEqualToClientInfo:(MSIDClientInfo *)clientInfo
-{
-    if (!clientInfo)
-    {
-        return NO;
-    }
-    
-    BOOL result = YES;
-    result &= (!_json && !clientInfo->_json) || [_json isEqualToDictionary:clientInfo->_json];
-    
-    return result;
-}
-
-#pragma mark - NSObject
-
-- (BOOL)isEqual:(id)object
-{
-    if (self == object)
-    {
-        return YES;
-    }
-    
-    if (![object isKindOfClass:MSIDClientInfo.class])
-    {
-        return NO;
-    }
-    
-    return [self isEqualToClientInfo:(MSIDClientInfo *)object];
-}
-
-- (NSUInteger)hash
-{
-    return [_json hash];
-}
-
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
