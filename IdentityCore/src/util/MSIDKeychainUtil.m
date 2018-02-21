@@ -74,7 +74,7 @@
         }
         else
         {
-            MSID_LOG_ERROR(nil, @"fetching kSecAttrAccessGroup, status: %d", status);
+            MSID_LOG_ERROR(nil, @"fetching kSecAttrAccessGroup, status: %d", (int)status);
         }
         
         CFRelease(result);
@@ -107,3 +107,4 @@
 }
 
 @end
+

@@ -60,8 +60,6 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
         _uniqueId = [MSIDIdToken normalizeUserId:uniqueId];
         
         // Set userId (ADAL fallbacks)
-        NSString *userId = nil;
-        
         if (![NSString msidIsStringNilOrBlank:self.upn])
         {
             _userId = self.upn;
@@ -93,7 +91,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
             _userIdDisplayable = NO;
         }
         
-        _userId = [MSIDIdToken normalizeUserId:userId];
+        _userId = [MSIDIdToken normalizeUserId:_userId];
     }
     
     return self;

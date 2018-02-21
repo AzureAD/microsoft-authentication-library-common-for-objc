@@ -52,7 +52,7 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
         return nil;
     }
     
-    return [NSDate dateWithTimeIntervalSinceNow:[expiresIn doubleValue]];
+    return [NSDate dateWithTimeIntervalSinceNow:[expiresIn integerValue]];
 }
 
 - (BOOL)isMultiResource

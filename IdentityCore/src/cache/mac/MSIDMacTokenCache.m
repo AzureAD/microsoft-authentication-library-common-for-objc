@@ -192,7 +192,7 @@
 - (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
                 serializer:(id<MSIDTokenSerializer>)serializer
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing *)error
 {
     MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
     NSArray<MSIDToken *> *items = [self itemsWithKey:key serializer:serializer context:context error:error];

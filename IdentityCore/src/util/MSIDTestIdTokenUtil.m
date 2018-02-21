@@ -87,7 +87,7 @@
     NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
     NSString *idTokenp2 = [@{ @"iss" : @"issuer",
                               @"name" : name,
-                              @"UPN" : upn,
+                              @"upn" : upn,
                               @"tid" : tid ? tid : [self defaultTenantId],
                               @"oid" : [self defaultUniqueId]} msidBase64UrlJson];
     return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];

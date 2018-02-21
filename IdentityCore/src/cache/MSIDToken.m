@@ -107,7 +107,7 @@ static uint64_t s_expirationBuffer = 300;
         MSID_LOG_ERROR_PII(nil, @"Client info is corrupted, error: %@", err);
     }
     
-    _expiresOn = json[MSID_OAUTH2_EXPIRES_ON] ? [NSDate dateWithTimeIntervalSince1970:[json[MSID_OAUTH2_EXPIRES_ON] doubleValue]] : nil;
+    _expiresOn = json[MSID_OAUTH2_EXPIRES_ON] ? [NSDate dateWithTimeIntervalSince1970:[json[MSID_OAUTH2_EXPIRES_ON] integerValue]] : nil;
     _additionalServerInfo = json[MSID_OAUTH2_ADDITIONAL_SERVER_INFO];
     
     if (json[MSID_OAUTH2_REFRESH_TOKEN])
@@ -396,17 +396,15 @@ static uint64_t s_expirationBuffer = 300;
 
 - (void)fillExpiryFromResponse:(MSIDTokenResponse *)tokenResponse
 {
-    NSDate *expiryDate = tokenResponse.expiryDate;
+    NSDate *expiresOn = tokenResponse.expiryDate;
     
-    if (!expiryDate)
+    if (!expiresOn)
     {
         MSID_LOG_WARN(nil, @"The server did not return the expiration time for the access token.");
-        expiryDate = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
+        expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
     }
-    else
-    {
-        _expiresOn = expiryDate;
-    }
+    
+    _expiresOn = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[expiresOn timeIntervalSince1970]];
 }
 
 - (void)fillAdditionalServerInfoFromResponse:(MSIDTokenResponse *)tokenResponse
