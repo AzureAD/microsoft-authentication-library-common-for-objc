@@ -45,13 +45,12 @@
 - (void)testKeyWithAuthorityClientIdResourceUpn_shouldCreateKeyWithAccountAndService
 {
     MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:@"https://login.windows.net/contoso.com"] clientId:@"c3c7f5e5-7153-44d4-90e6-329686d48d76" resource:@"resource" upn:@"eric_cartman@contoso.com"];
-    
+    NSString *expectedUpn = @"eric_cartman@contoso.com";
 #if TARGET_OS_IPHONE
-    XCTAssertEqualObjects(@"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t", msidTokenCacheKey.account);
-#elif
-    XCTAssertEqualObjects(@"eric_cartman@contoso.com", msidTokenCacheKey.account);
+    expectedUpn = @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t";
 #endif
     
+    XCTAssertEqualObjects(expectedUpn, msidTokenCacheKey.account);
     XCTAssertEqualObjects(@"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2", msidTokenCacheKey.service);
 }
 
