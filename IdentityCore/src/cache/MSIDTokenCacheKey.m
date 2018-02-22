@@ -260,7 +260,6 @@ static uint32_t const s_msalV1 = 'MSv1';
         return nil;
     }
     
-    // TODO: Do we need to store _account, _service, _type?
     _account = [coder decodeObjectOfClass:[NSString class] forKey:@"account"];
     _service = [coder decodeObjectOfClass:[NSString class] forKey:@"service"];
     _type = [coder decodeObjectOfClass:[NSNumber class] forKey:@"type"];
