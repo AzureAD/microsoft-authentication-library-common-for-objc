@@ -22,29 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenCacheDataSource.h"
 
-@class MSIDMacTokenCache;
+@protocol MSIDJsonSerializable <NSObject>
 
-@protocol MSIDMacTokenCacheDelegate <NSObject>
-
-- (void)willAccessCache:(nonnull MSIDMacTokenCache *)cache;
-- (void)didAccessCache:(nonnull MSIDMacTokenCache *)cache;
-- (void)willWriteCache:(nonnull MSIDMacTokenCache *)cache;
-- (void)didWriteCache:(nonnull MSIDMacTokenCache *)cache;
-
-@end
-
-@interface MSIDMacTokenCache : NSObject<MSIDTokenCacheDataSource>
-
-@property (nonatomic, weak, nullable) id <MSIDMacTokenCacheDelegate> delegate;
-
-+ (nonnull MSIDMacTokenCache *)defaultCache;
-
-- (nullable NSData *)serialize;
-- (BOOL)deserialize:(nullable NSData*)data
-              error:(NSError *_Nullable *_Nullable)error;
-
-- (void)clear;
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                                 error:(NSError * __autoreleasing *)error;
+- (NSDictionary *)jsonDictionary;
 
 @end

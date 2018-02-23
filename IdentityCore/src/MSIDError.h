@@ -59,6 +59,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorUserNotFound           = -51202,
     MSIDErrorNoAccessTokensFound    = -51203,
     MSIDErrorWrapperCacheFailure    = -51204,
+    MSIDErrorCacheBadFormat         = -51205,
+    MSIDErrorCacheVersionMismatch   = -51206,
     
     MSIDErrorServerInvalidResponse = -51300,
     MSIDErrorDeveloperAuthorityValidation = -51301,

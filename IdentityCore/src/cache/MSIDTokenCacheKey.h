@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDTokenCacheKey : NSObject
+@interface MSIDTokenCacheKey : NSObject <NSCopying, NSSecureCoding>
 
 NS_ASSUME_NONNULL_BEGIN
 

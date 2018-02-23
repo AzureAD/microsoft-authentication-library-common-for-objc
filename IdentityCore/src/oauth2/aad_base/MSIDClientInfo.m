@@ -53,4 +53,14 @@ MSID_JSON_RW(@"client_info", rawClientInfo, setRawClientInfo)
     return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
 }
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo allocWithZone:zone] init];
+    clientInfo->_json = _json;
+    
+    return clientInfo;
+}
+
 @end

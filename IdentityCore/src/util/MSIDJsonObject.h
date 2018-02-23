@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 
 #define MSID_JSON_ACCESSOR(KEY, GETTER) DICTIONARY_READ_PROPERTY_IMPL(_json, KEY, GETTER)
 #define MSID_JSON_MUTATOR(KEY, SETTER) DICTIONARY_WRITE_PROPERTY_IMPL(_json, KEY, SETTER)
@@ -34,7 +35,7 @@
     MSID_JSON_ACCESSOR(KEY, GETTER) \
     MSID_JSON_MUTATOR(KEY, SETTER)
 
-@interface MSIDJsonObject : NSObject <NSCopying>
+@interface MSIDJsonObject : NSObject <NSCopying, MSIDJsonSerializable>
 {
     NSMutableDictionary *_json;
 }
@@ -47,5 +48,7 @@
 
 - (NSDictionary *)jsonDictionary;
 - (NSData *)serialize:(NSError * __autoreleasing *)error;
+
+- (BOOL)isEqualToJsonObject:(MSIDJsonObject *)jsonObject;
 
 @end
