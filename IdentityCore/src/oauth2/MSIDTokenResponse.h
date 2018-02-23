@@ -34,8 +34,8 @@
 @property (readonly) NSString *expiresIn;
 @property (readonly) NSString *accessToken;
 @property (readonly) NSString *tokenType;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *scope;
+@property NSString *refreshToken;
+@property NSString *scope;
 @property (readonly) NSString *state;
 @property (readonly) NSString *idToken;
 
