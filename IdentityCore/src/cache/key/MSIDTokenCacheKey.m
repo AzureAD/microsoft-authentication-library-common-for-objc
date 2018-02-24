@@ -28,7 +28,7 @@
 
 - (id)initWithAccount:(NSString *)account
               service:(NSString *)service
-              generic:(NSString *)generic
+              generic:(NSData *)generic
                  type:(NSNumber *)type
 {
     if (!(self = [super init]))
@@ -39,7 +39,7 @@
     self.account = account;
     self.service = service;
     self.type = type;
-    self.generic = [generic dataUsingEncoding:NSUTF8StringEncoding];
+    self.generic = generic;
     
     return self;
 }

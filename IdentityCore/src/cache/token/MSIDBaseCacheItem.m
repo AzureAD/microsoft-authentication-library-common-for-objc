@@ -24,6 +24,12 @@
 #import "MSIDBaseCacheItem.h"
 #import "MSIDAADTokenResponse.h"
 
+@interface MSIDBaseCacheItem()
+
+@property (readwrite) NSDictionary *json;
+
+@end
+
 @implementation MSIDBaseCacheItem
 
 #pragma mark - NSCopying
@@ -146,13 +152,12 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    if (!(self = [super initWithJSONDictionary:json error:error]))
+    if (!(self = [super init]))
     {
         return nil;
     }
     
-    // We don't use _json variable.
-    _json = nil;
+    _json = json;
     
     // Unique ID
     _uniqueUserId = json[MSID_UNIQUE_ID_CACHE_KEY];
@@ -196,7 +201,12 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *dictionary = [NSMutableDictionary new];
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    
+    if (_json)
+    {
+        [dictionary addEntriesFromDictionary:_json];
+    }
     
     /* Mandatory fields */
     

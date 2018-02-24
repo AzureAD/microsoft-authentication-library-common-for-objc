@@ -32,7 +32,7 @@
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDAADV1RequestParameters.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDTokenCacheKey+Legacy.h"
+#import "MSIDLegacyTokenCacheKey.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -236,7 +236,7 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                            context:context];
     
-    NSArray *legacyTokens = [_dataSource itemsWithKey:[MSIDTokenCacheKey keyForAllItems]
+    NSArray *legacyTokens = [_dataSource itemsWithKey:[MSIDLegacyTokenCacheKey keyForAllItems]
                                            serializer:_rtSerializer
                                               context:context
                                                 error:error];
@@ -284,10 +284,10 @@
         return NO;
     }
     
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:token.authority
-                                                        clientId:token.clientId
-                                                        resource:token.resource
-                                                             upn:account.legacyUserId];
+    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:token.authority
+                                                                    clientId:token.clientId
+                                                                    resource:token.resource
+                                                                         upn:account.legacyUserId];
     
     return [_dataSource removeItemsWithKey:key
                                    context:context
@@ -345,10 +345,10 @@
         resource = ((MSIDAccessToken *)token).resource;
     }
     
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:newAuthority
-                                                        clientId:clientId
-                                                        resource:resource
-                                                             upn:account.legacyUserId];
+    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:newAuthority
+                                                                    clientId:clientId
+                                                                    resource:resource
+                                                                         upn:account.legacyUserId];
     
     BOOL result = [_dataSource setItem:token key:key serializer:serializer context:context error:error];
     
@@ -377,10 +377,10 @@
     {
         BOOL matchByUPN = account.legacyUserId != nil;
         
-        MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyWithAuthority:alias
-                                                            clientId:clientId
-                                                            resource:resource
-                                                                 upn:account.legacyUserId];
+        MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:alias
+                                                                        clientId:clientId
+                                                                        resource:resource
+                                                                             upn:account.legacyUserId];
         if (!key)
         {
             return nil;

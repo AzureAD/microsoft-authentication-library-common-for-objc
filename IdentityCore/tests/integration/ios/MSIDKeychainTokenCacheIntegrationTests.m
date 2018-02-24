@@ -42,8 +42,6 @@
     [super setUp];
     
     [MSIDKeychainTokenCache reset];
-    
-    MSIDKeychainTokenCache.defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
 - (void)tearDown
@@ -51,7 +49,11 @@
     [super tearDown];
     
     [MSIDKeychainTokenCache reset];
+    
+    MSIDKeychainTokenCache.defaultKeychainGroup = @"com.microsoft.adalcache";
 }
+
+#pragma mark - Tests
 
 - (void)test_whenSetDefaultKeychainGroup_shouldReturnProperGroup
 {

@@ -31,11 +31,11 @@
 #import "MSIDAADV2RequestParameters.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDTokenCacheKey+Default.h"
 #import "NSURL+MSIDExtensions.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDIdToken.h"
+#import "MSIDDefaultTokenCacheKey.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -179,10 +179,10 @@
     }
     
     // Get previous account, so we don't loose any fields
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAccountWithUniqueUserId:account.userIdentifier
-                                                                    authority:parameters.authority
-                                                                     clientId:parameters.clientId
-                                                                  accountType:account.accountType];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:account.userIdentifier
+                                                                                  authority:parameters.authority
+                                                                                   clientId:parameters.clientId
+                                                                                accountType:account.accountType];
     
     MSIDAccount *previousAccount = (MSIDAccount *)[_dataSource itemWithKey:key
                                                                 serializer:_accountSerializer
@@ -310,7 +310,7 @@
                                                      context:(id<MSIDRequestContext>)context
                                                        error:(NSError **)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithClientId:clientId];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForRefreshTokenWithClientId:clientId];
     return (NSArray<MSIDRefreshToken *> *)[self getAllTokensWithKey:key serializer:_rtSerializer context:context error:error];
 }
 
@@ -335,9 +335,9 @@
         return NO;
     }
     
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForRefreshTokenWithUniqueUserId:account.userIdentifier
-                                                                       environment:token.authority.msidHostWithPortIfNecessary
-                                                                          clientId:token.clientId];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForRefreshTokenWithUniqueUserId:account.userIdentifier
+                                                                                     environment:token.authority.msidHostWithPortIfNecessary
+                                                                                        clientId:token.clientId];
     
     return [self removeTokenWithKey:key
                             context:context
@@ -416,10 +416,10 @@
 {
     for (MSIDAccessToken *tokenInCache in tokens)
     {
-        MSIDTokenCacheKey *keyToDelete = [MSIDTokenCacheKey keyForAccessTokenWithUniqueUserId:account.userIdentifier
-                                                                                    authority:tokenInCache.authority
-                                                                                     clientId:tokenInCache.clientId
-                                                                                       scopes:tokenInCache.scopes];
+        MSIDDefaultTokenCacheKey *keyToDelete = [MSIDDefaultTokenCacheKey keyForAccessTokenWithUniqueUserId:account.userIdentifier
+                                                                                                  authority:tokenInCache.authority
+                                                                                                   clientId:tokenInCache.clientId
+                                                                                                     scopes:tokenInCache.scopes];
         
         if (![self removeTokenWithKey:keyToDelete context:context error:error])
         {
@@ -432,32 +432,32 @@
 
 #pragma mark - Datasource helpers
 
-- (MSIDTokenCacheKey *)keyForTokenType:(MSIDTokenType)tokenType
-                                userId:(NSString *)userId
-                              clientId:(NSString *)clientId
-                                scopes:(NSOrderedSet<NSString *> *)scopes
-                             authority:(NSURL *)authority
+- (MSIDDefaultTokenCacheKey *)keyForTokenType:(MSIDTokenType)tokenType
+                                       userId:(NSString *)userId
+                                     clientId:(NSString *)clientId
+                                       scopes:(NSOrderedSet<NSString *> *)scopes
+                                    authority:(NSURL *)authority
 {
     switch (tokenType)
     {
         case MSIDTokenTypeAccessToken:
         {
-            return [MSIDTokenCacheKey keyForAccessTokenWithUniqueUserId:userId
-                                                              authority:authority
-                                                               clientId:clientId
-                                                                 scopes:scopes];
+            return [MSIDDefaultTokenCacheKey keyForAccessTokenWithUniqueUserId:userId
+                                                                     authority:authority
+                                                                      clientId:clientId
+                                                                        scopes:scopes];
         }
         case MSIDTokenTypeRefreshToken:
         {
-            return [MSIDTokenCacheKey keyForRefreshTokenWithUniqueUserId:userId
-                                                             environment:authority.msidHostWithPortIfNecessary
-                                                                clientId:clientId];
+            return [MSIDDefaultTokenCacheKey keyForRefreshTokenWithUniqueUserId:userId
+                                                                    environment:authority.msidHostWithPortIfNecessary
+                                                                       clientId:clientId];
         }
         case MSIDTokenTypeIDToken:
         {
-            return [MSIDTokenCacheKey keyForIDTokenWithUniqueUserId:userId
-                                                          authority:authority
-                                                           clientId:clientId];
+            return [MSIDDefaultTokenCacheKey keyForIDTokenWithUniqueUserId:userId
+                                                                 authority:authority
+                                                                  clientId:clientId];
         }
             
         default:
@@ -592,9 +592,9 @@
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
-                                                                            authority:authority
-                                                                             clientId:clientId];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
+                                                                                          authority:authority
+                                                                                           clientId:clientId];
     return (NSArray<MSIDAccessToken *> *)[self getAllTokensWithKey:key serializer:_atSerializer context:context error:error];
 }
 
@@ -602,7 +602,7 @@
 - (NSArray<MSIDAccessToken *> *)getAllATsForContext:(id<MSIDRequestContext>)context
                                               error:(NSError *__autoreleasing *)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllAccessTokens];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokens];
     return (NSArray<MSIDAccessToken *> *)[self getAllTokensWithKey:key serializer:_atSerializer context:context error:error];
 }
 

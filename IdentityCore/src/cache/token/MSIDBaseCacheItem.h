@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonObject.h"
+#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDClientInfo.h"
@@ -32,7 +33,7 @@
  It's meant to be subclassed to provide additional fields.
  */
 
-@interface MSIDBaseCacheItem : MSIDJsonObject <NSCopying, NSSecureCoding>
+@interface MSIDBaseCacheItem : NSObject <NSCopying, NSSecureCoding, MSIDJsonSerializable>
 {
     NSURL *_authority;
     NSString *_clientId;

@@ -24,6 +24,12 @@
 #import <Foundation/Foundation.h>
 
 @interface MSIDTokenCacheKey : NSObject
+{
+    NSString *_account;
+    NSString *_service;
+    NSNumber *_type;
+    NSData *_generic;
+}
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable id)initWithAccount:(nullable NSString *)account
                        service:(nullable NSString *)service
-                       generic:(nullable NSString *)generic
+                       generic:(nullable NSData *)generic
                           type:(nullable NSNumber *)type;
 
 /*!

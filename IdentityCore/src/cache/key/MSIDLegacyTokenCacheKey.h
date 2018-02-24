@@ -23,26 +23,26 @@
 
 #import "MSIDTokenCacheKey.h"
 
-@interface MSIDTokenCacheKey (Legacy)
+@interface MSIDLegacyTokenCacheKey : MSIDTokenCacheKey <NSCopying, NSSecureCoding>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /*!
  Key for ADFS user tokens, account will be @""
  */
-+ (MSIDTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSURL *)authority
-                                               clientId:(NSString *)clientId
-                                               resource:(NSString *)resource;
++ (MSIDLegacyTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSURL *)authority
+                                                     clientId:(NSString *)clientId
+                                                     resource:(NSString *)resource;
 
 /*!
  Key for ADAL tokens
  1. access tokens - single resource, one authority, one clientId and one upn.
  2. FRT & MRRT - null authority, one authority, one clientId and one upn.
  */
-+ (MSIDTokenCacheKey *)keyWithAuthority:(NSURL *)authority
-                               clientId:(NSString *)clientId
-                               resource:(nullable NSString *)resource
-                                    upn:(NSString *)upn;
++ (MSIDLegacyTokenCacheKey *)keyWithAuthority:(NSURL *)authority
+                                     clientId:(NSString *)clientId
+                                     resource:(nullable NSString *)resource
+                                          upn:(NSString *)upn;
 
 NS_ASSUME_NONNULL_END
 

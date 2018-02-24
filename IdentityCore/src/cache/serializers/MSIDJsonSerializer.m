@@ -81,9 +81,15 @@
 
 - (NSData *)serialize:(MSIDBaseCacheItem *)item
 {
-    NSError *error;
-    NSData *data = [item serialize:&error];
+    if (!item)
+    {
+        return nil;
+    }
     
+    NSError *error;
+    NSData *data = [NSJSONSerialization dataWithJSONObject:[item jsonDictionary]
+                                                   options:0
+                                                     error:&error];
     if (error)
     {
         return nil;
@@ -97,7 +103,14 @@
 - (MSIDBaseCacheItem *)deserialize:(NSData *)data
 {
     NSError *error;
-    MSIDBaseCacheItem *token = [[_classToSerialize alloc] initWithJSONData:data error:&error];
+    NSDictionary *json = [self deserializeJSON:data error:&error];
+    
+    MSIDBaseCacheItem *item;
+    
+    if (!error)
+    {
+        item = [[_classToSerialize alloc] initWithJSONDictionary:json error:&error];
+    }
     
     if (error)
     {
@@ -106,7 +119,29 @@
         MSID_LOG_ERROR_PII(nil, @"Failed to deserialize json object, error: %@", error);
     }
     
-    return token;
+    return item;
+}
+
+#pragma mark - Private
+
+- (NSDictionary *)deserializeJSON:(NSData *)data error:(NSError *__autoreleasing *)error
+{
+    if (!data)
+    {
+        if (error)
+        {
+            NSString *errorDescription = [NSString stringWithFormat:@"Attempt to initialize JSON object (%@) with nil data", NSStringFromClass(self.class)];
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:error];
+    
+    return json;
 }
 
 @end
