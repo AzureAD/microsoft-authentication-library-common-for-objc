@@ -22,12 +22,12 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenResponse.h"
-#import "MSIDBaseCacheItem.h"
 #import "MSIDCacheItem.h"
 #import "MSIDAccountType.h"
 
 @class MSIDAccountCacheItem;
+@class MSIDRequestParameters;
+@class MSIDTokenResponse;
 
 @interface MSIDAccount : NSObject
 

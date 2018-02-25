@@ -36,28 +36,6 @@
     return item;
 }
 
-/*
-#pragma mark - NSSecureCoding
-
-- (instancetype)initWithCoder:(NSCoder *)coder
-{
-    if (!(self = [super initWithCoder:coder]))
-    {
-        return nil;
-    }
-    
-    _refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
-    
-    return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)coder
-{
-    [super encodeWithCoder:coder];
-    
-    [coder encodeObject:_refreshToken forKey:@"refreshToken"];
-}*/
-
 #pragma mark - NSObject
 
 - (BOOL)isEqual:(id)object
@@ -94,29 +72,6 @@
     
     return result;
 }
-
-/*
-#pragma mark - JSON
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    if (!(self = [super initWithJSONDictionary:json error:error]))
-    {
-        return nil;
-    }
-    
-    _refreshToken = json[MSID_RESOURCE_RT_CACHE_KEY];
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
-    [dictionary setValue:_refreshToken forKey:MSID_RESOURCE_RT_CACHE_KEY];
-    
-    return dictionary;
-}*/
 
 #pragma mark - Cache
 

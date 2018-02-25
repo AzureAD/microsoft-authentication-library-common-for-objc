@@ -94,39 +94,6 @@
     return result;
 }
 
-#pragma mark - JSON
-
-/*
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    if (!(self = [super initWithJSONDictionary:json error:error]))
-    {
-        return nil;
-    }
-    
-    NSString *credentialType = json[MSID_CREDENTIAL_TYPE_CACHE_KEY];
-    
-    if (credentialType
-        && ![[MSIDTokenTypeHelpers tokenTypeAsString:self.tokenType] isEqualToString:credentialType])
-    {
-        return nil;
-    }
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
-    
-    // Credential type
-    NSString *credentialType = [MSIDTokenTypeHelpers tokenTypeAsString:self.tokenType];
-    [dictionary setValue:credentialType
-                  forKey:MSID_CREDENTIAL_TYPE_CACHE_KEY];
-    
-    return dictionary;
-}*/
-
 #pragma mark - Token type
 
 - (MSIDTokenType)tokenType

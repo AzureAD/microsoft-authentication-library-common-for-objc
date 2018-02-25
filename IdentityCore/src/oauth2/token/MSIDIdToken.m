@@ -36,31 +36,6 @@
     return item;
 }
 
-/*
-#pragma mark - NSSecureCoding
-
-- (instancetype)initWithCoder:(NSCoder *)coder
-{
-    if (!(self = [super initWithCoder:coder]))
-    {
-        return nil;
-    }
-
-    // Decode id_token from a backward compatible way
-    _rawIdToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
-    
-    return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)coder
-{
-    [super encodeWithCoder:coder];
-    
-    // Encode id_token in backward compatible way with ADAL
-    MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:_rawIdToken];
-    [coder encodeObject:userInformation forKey:@"userInformation"];
-}*/
-
 #pragma mark - NSObject
 
 - (BOOL)isEqual:(id)object
@@ -96,30 +71,6 @@
     result &= (!self.rawIdToken && !token.rawIdToken) || [self.rawIdToken isEqualToString:token.rawIdToken];
     return result;
 }
-
-/*
-#pragma mark - JSON
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    if (!(self = [super initWithJSONDictionary:json error:error]))
-    {
-        return nil;
-    }
-    
-    _rawIdToken = json[MSID_TOKEN_CACHE_KEY];
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
-    
-    [dictionary setValue:_rawIdToken forKey:MSID_TOKEN_CACHE_KEY];
-    
-    return dictionary;
-}*/
 
 #pragma mark - Cache
 

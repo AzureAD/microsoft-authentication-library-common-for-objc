@@ -26,6 +26,8 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDIdTokenWrapper.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDTokenResponse.h"
 
 @implementation MSIDAccount
 
@@ -151,16 +153,6 @@
     self->_lastName = response.idTokenObj.familyName;
     
     return self;
-}
-
-#pragma mark - Update
-
-- (void)updateFieldsFromAccount:(MSIDAccount *)account
-{
-    NSMutableDictionary *allAdditionalFields = [NSMutableDictionary dictionary];
-    [allAdditionalFields addEntriesFromDictionary:account.additionalFields];
-    [allAdditionalFields addEntriesFromDictionary:_additionalFields];
-    _additionalFields = allAdditionalFields;
 }
 
 #pragma mark - Cache

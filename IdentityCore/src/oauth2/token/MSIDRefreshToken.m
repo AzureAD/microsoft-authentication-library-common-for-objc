@@ -40,37 +40,6 @@
     return item;
 }
 
-/*
-#pragma mark - NSSecureCoding
-
-- (instancetype)initWithCoder:(NSCoder *)coder
-{
-    if (!(self = [super initWithCoder:coder]))
-    {
-        return nil;
-    }
-    
-    _refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
-    _familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
-    
-    // Decode id_token from a backward compatible way
-    _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
-    
-    return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)coder
-{
-    [super encodeWithCoder:coder];
-    
-    [coder encodeObject:self.familyId forKey:@"familyId"];
-    [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
-    
-    // Encode id_token in backward compatible way with ADAL
-    MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
-    [coder encodeObject:userInformation forKey:@"userInformation"];
-}*/
-
 #pragma mark - NSObject
 
 - (BOOL)isEqual:(id)object
@@ -111,38 +80,6 @@
     
     return result;
 }
-
-/*
-#pragma mark - JSON
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    if (!(self = [super initWithJSONDictionary:json error:error]))
-    {
-        return nil;
-    }
-    
-    _refreshToken = json[MSID_TOKEN_CACHE_KEY];
-    _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
- 
-    // ID token
-    _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
-    
-    [dictionary setValue:_refreshToken forKey:MSID_TOKEN_CACHE_KEY];
-    [dictionary setValue:_familyId forKey:MSID_FAMILY_ID_CACHE_KEY];
- 
-    // ID token
-    [dictionary setValue:_idToken forKey:MSID_ID_TOKEN_CACHE_KEY];
-    
-    return dictionary;
-}*/
 
 #pragma mark - Cache
 

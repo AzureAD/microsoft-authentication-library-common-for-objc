@@ -54,41 +54,6 @@ static uint64_t s_expirationBuffer = 300;
     return item;
 }
 
-/*
-#pragma mark - NSSecureCoding
-
-- (instancetype)initWithCoder:(NSCoder *)coder
-{
-    if (!(self = [super initWithCoder:coder]))
-    {
-        return nil;
-    }
-    
-    _expiresOn = [coder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
-    _accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
-    _target = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-    _cachedAt = [coder decodeObjectOfClass:[NSDate class] forKey:@"cachedAt"];
-    // Decode id_token from a backward compatible way
-    _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
-    
-    return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)coder
-{
-    [super encodeWithCoder:coder];
-    
-    [coder encodeObject:self.expiresOn forKey:@"expiresOn"];
-    [coder encodeObject:self.accessToken forKey:@"accessToken"];
-    [coder encodeObject:self.resource forKey:@"resource"];
-    [coder encodeObject:self.scopes forKey:@"scopes"];
-    [coder encodeObject:self.cachedAt forKey:@"cachedAt"];
-    
-    // Encode id_token in backward compatible way with ADAL
-    MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
-    [coder encodeObject:userInformation forKey:@"userInformation"];
-}*/
-
 #pragma mark - NSObject
 
 - (BOOL)isEqual:(id)object
@@ -134,82 +99,6 @@ static uint64_t s_expirationBuffer = 300;
     
     return result;
 }
-
-/*
-#pragma mark - JSON
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    if (!(self = [super initWithJSONDictionary:json error:error]))
-    {
-        return nil;
-    }
-    
-    // Realm
-    if (json[MSID_AUTHORITY_CACHE_KEY])
-    {
-        _authority = [NSURL URLWithString:json[MSID_AUTHORITY_CACHE_KEY]];
-    }
-    else if (json[MSID_REALM_CACHE_KEY])
-    {
-        NSString *authorityString = [NSString stringWithFormat:@"https://%@/%@", json[MSID_ENVIRONMENT_CACHE_KEY], json[MSID_REALM_CACHE_KEY]];
-        _authority = [NSURL URLWithString:authorityString];
-    }
-    
-    // Target
-    _target = json[MSID_TARGET_CACHE_KEY];
-    
-    // Cached at
-    _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_CACHED_AT_CACHE_KEY]];
-    
-    // Expires on
-    _expiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXPIRES_ON_CACHE_KEY]];
-    
-    // Token
-    _accessToken = json[MSID_TOKEN_CACHE_KEY];
-    
-    // Extended expires on
-    NSDate *extExpiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
-    [_additionalInfo setValue:extExpiresOn
-                       forKey:MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
-    
-    // ID token
-    _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
-    
-    // Realm
-    [dictionary setValue:_authority.msidTenant
-                  forKey:MSID_REALM_CACHE_KEY];
-    // Target
-    [dictionary setValue:_target forKey:MSID_TARGET_CACHE_KEY];
-    
-    // Cached at
-    [dictionary setValue:_cachedAt.msidDateToTimestamp forKey:MSID_CACHED_AT_CACHE_KEY];
-    
-    // Expires On
-    [dictionary setValue:_expiresOn.msidDateToTimestamp forKey:MSID_EXPIRES_ON_CACHE_KEY];
-    
-    // Token
-    [dictionary setValue:_accessToken forKey:MSID_TOKEN_CACHE_KEY];
-    
-    // Authority
-    [dictionary setValue:_authority.absoluteString forKey:MSID_AUTHORITY_CACHE_KEY];
-    
-    // Extended expires on
-    [dictionary setValue:[self extendedExpireTime].msidDateToTimestamp
-                  forKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-    
-    // ID token
-    [dictionary setValue:_idToken forKey:MSID_ID_TOKEN_CACHE_KEY];
-    
-    return dictionary;
-}*/
 
 #pragma mark - Cache
 
