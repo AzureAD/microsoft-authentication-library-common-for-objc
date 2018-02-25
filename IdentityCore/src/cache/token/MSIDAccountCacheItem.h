@@ -21,39 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDClientInfo.h"
-#import "MSIDTokenType.h"
+#import "MSIDCacheItem.h"
 
-/*!
- This is the base class for all possible cache entries.
- It's meant to be subclassed to provide additional fields.
- */
-
-// TODO: remove me!
-@interface MSIDBaseCacheItem : NSObject <NSCopying, NSSecureCoding, MSIDJsonSerializable>
-{
-    NSURL *_authority;
-    NSString *_clientId;
-    MSIDClientInfo *_clientInfo;
-    NSDictionary *_additionalInfo;
-    NSString *_username;
-}
-
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *clientId;
-
-@property (readonly) NSString *uniqueUserId; // TODO: is this necessary?
-@property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSDictionary *additionalInfo;
-@property (readonly) NSString *username; // TODO: is this necessary?
-
-- (BOOL)isEqualToItem:(MSIDBaseCacheItem *)item;
-
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams;
+@interface MSIDAccountCacheItem : MSIDCacheItem
 
 @end

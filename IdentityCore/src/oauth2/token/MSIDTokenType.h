@@ -35,5 +35,6 @@ typedef NS_ENUM(NSInteger, MSIDTokenType)
 @interface MSIDTokenTypeHelpers : NSObject
 
 + (NSString *)tokenTypeAsString:(MSIDTokenType)type;
++ (MSIDTokenType)tokenTypeFromString:(NSString *)type;
 
 @end

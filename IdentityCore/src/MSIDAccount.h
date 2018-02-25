@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTokenResponse.h"
 #import "MSIDBaseCacheItem.h"
+#import "MSIDCacheItem.h"
 
 typedef NS_ENUM(NSInteger, MSIDAccountType)
 {

@@ -23,37 +23,28 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDJsonSerializable.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDRequestParameters.h"
 #import "MSIDClientInfo.h"
-#import "MSIDTokenType.h"
 
-/*!
- This is the base class for all possible cache entries.
- It's meant to be subclassed to provide additional fields.
- */
-
-// TODO: remove me!
-@interface MSIDBaseCacheItem : NSObject <NSCopying, NSSecureCoding, MSIDJsonSerializable>
+@interface MSIDCacheItem : NSObject <NSCopying, NSSecureCoding, MSIDJsonSerializable>
 {
     NSURL *_authority;
     NSString *_clientId;
+    NSString *_username;
+    NSString *_uniqueUserId;
     MSIDClientInfo *_clientInfo;
     NSDictionary *_additionalInfo;
-    NSString *_username;
 }
 
 @property (readwrite) NSURL *authority;
+@property (readwrite) NSString *environment;
 @property (readwrite) NSString *clientId;
+@property (readwrite) NSString *username;
 
-@property (readonly) NSString *uniqueUserId; // TODO: is this necessary?
-@property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSDictionary *additionalInfo;
-@property (readonly) NSString *username; // TODO: is this necessary?
+@property (readwrite) NSString *uniqueUserId;
 
-- (BOOL)isEqualToItem:(MSIDBaseCacheItem *)item;
+@property (readwrite) MSIDClientInfo *clientInfo;
+@property (readwrite) NSDictionary *additionalInfo;
 
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams;
+- (BOOL)isEqualToItem:(MSIDCacheItem *)item;
 
 @end

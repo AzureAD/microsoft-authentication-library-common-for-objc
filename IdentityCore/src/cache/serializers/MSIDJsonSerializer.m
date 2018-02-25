@@ -23,10 +23,9 @@
 
 #import "MSIDJsonSerializer.h"
 #import "MSIDJsonObject.h"
-#import "MSIDAccessToken.h"
-#import "MSIDRefreshToken.h"
-#import "MSIDAdfsToken.h"
-#import "MSIDAccount.h"
+#import "MSIDTokenCacheItem.h"
+#import "MSIDCacheItem.h"
+#import "MSIDTokenCacheItem.h"
 
 @interface MSIDJsonSerializer()
 {
@@ -39,47 +38,31 @@
 
 #pragma mark - Init
 
-- (instancetype)initForTokenType:(MSIDTokenType)type
+- (instancetype)initWithType:(MSIDSerializerType)type
 {
     self = [super init];
     
     if (self)
     {
-        _classToSerialize = MSIDBaseToken.class;
-        
         switch (type) {
-            case MSIDTokenTypeAccessToken:
-                _classToSerialize = MSIDAccessToken.class;
+            case MSIDTokenSerializerType:
+                _classToSerialize = MSIDTokenCacheItem.class;
                 break;
                 
-            case MSIDTokenTypeRefreshToken:
-                _classToSerialize = MSIDRefreshToken.class;
-                break;
-                
-            case MSIDTokenTypeLegacyADFSToken:
-                _classToSerialize = MSIDAdfsToken.class;
+            case MSIDAccountSerializerType:
+                // TODO: set correct serializer type
+                _classToSerialize = MSIDCacheItem.class;
                 break;
                 
             default:
+                _classToSerialize = MSIDCacheItem.class;
                 break;
         }
     }
     return self;
 }
 
-- (instancetype)initForAccounts
-{
-    self = [super init];
-    
-    if (self)
-    {
-        _classToSerialize = MSIDAccount.class;
-    }
-    
-    return self;
-}
-
-- (NSData *)serialize:(MSIDBaseCacheItem *)item
+- (NSData *)serialize:(MSIDCacheItem *)item
 {
     if (!item)
     {
@@ -92,34 +75,27 @@
                                                      error:&error];
     if (error)
     {
-        return nil;
         MSID_LOG_ERROR(nil, @"Failed to serialize token.");
         MSID_LOG_ERROR_PII(nil, @"Failed to serialize token, error: %@", error);
+        return nil;
     }
 
     return data;
 }
 
-- (MSIDBaseCacheItem *)deserialize:(NSData *)data
+- (MSIDCacheItem *)deserialize:(NSData *)data
 {
-    NSError *error;
+    NSError *error = nil;
     NSDictionary *json = [self deserializeJSON:data error:&error];
-    
-    MSIDBaseCacheItem *item;
-    
-    if (!error)
-    {
-        item = [[_classToSerialize alloc] initWithJSONDictionary:json error:&error];
-    }
     
     if (error)
     {
-        return nil;
         MSID_LOG_ERROR(nil, @"Failed to deserialize json object.");
         MSID_LOG_ERROR_PII(nil, @"Failed to deserialize json object, error: %@", error);
+        return nil;
     }
     
-    return item;
+    return [[_classToSerialize alloc] initWithJSONDictionary:json error:nil];
 }
 
 #pragma mark - Private

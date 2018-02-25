@@ -40,9 +40,7 @@
 @interface MSIDDefaultTokenCacheAccessor()
 {
     id<MSIDTokenCacheDataSource> _dataSource;
-    MSIDJsonSerializer *_atSerializer;
-    MSIDJsonSerializer *_rtSerializer;
-    MSIDJsonSerializer *_idTokenSerializer;
+    MSIDJsonSerializer *_tokenSerializer;
     MSIDJsonSerializer *_accountSerializer;
 }
 @end
@@ -58,10 +56,8 @@
     if (self)
     {
         _dataSource = dataSource;
-        _atSerializer = [[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
-        _rtSerializer = [[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
-        _idTokenSerializer = [[MSIDJsonSerializer alloc] initForTokenType:MSIDTokenTypeIDToken];
-        _accountSerializer = [[MSIDJsonSerializer alloc] initForAccounts];
+        _tokenSerializer = [[MSIDJsonSerializer alloc] initWithType:MSIDTokenSerializerType];
+        _accountSerializer = [[MSIDJsonSerializer alloc] initWithType:MSIDAccountSerializerType];
     }
     
     return self;
@@ -117,20 +113,12 @@
     
     // delete all cache entries with intersecting scopes
     // this should not happen but we have this as a safe guard against multiple matches
-    NSArray<MSIDAccessToken *> *allTokens = [self getAllATsForAccount:account
-                                                            authority:token.authority
-                                                             clientId:token.clientId
-                                                              context:context
-                                                                error:error];
-    
-    NSArray<MSIDAccessToken *> *matchingTokens = [self filterAllAccessTokens:allTokens withScopes:token.scopes];
-
-    if (!matchingTokens)
-    {
-        return NO;
-    }
-    
-    if (![self deleteAccessTokens:matchingTokens account:account context:context error:error])
+    if (![self deleteAllAccessTokensWithIntersectingScopes:token.scopes
+                                                   account:account
+                                                 authority:token.authority
+                                                  clientId:token.clientId
+                                                   context:context
+                                                     error:error])
     {
         return NO;
     }
@@ -140,9 +128,49 @@
                   clientId:token.clientId
                     scopes:token.scopes
                  authority:token.authority
-                serializer:_atSerializer
+                serializer:_tokenSerializer
                    context:context
                      error:error];
+}
+
+// TODO: move to helpers
+- (BOOL)deleteAllAccessTokensWithIntersectingScopes:(NSOrderedSet<NSString *> *)scopes
+                                            account:(MSIDAccount *)account
+                                          authority:(NSURL *)authority
+                                           clientId:(NSString *)clientId
+                                            context:(id<MSIDRequestContext>)context
+                                              error:(NSError **)error
+{
+    NSArray<MSIDTokenCacheItem *> *allCacheItems = [self getAllATsForAccount:account
+                                                                   authority:authority
+                                                                    clientId:clientId
+                                                                     context:context
+                                                                       error:error];
+    
+    if (!allCacheItems)
+    {
+        return NO;
+    }
+    
+    for (MSIDTokenCacheItem *cacheItem in allCacheItems)
+    {
+        NSOrderedSet *scopeSet = [cacheItem.target scopeSet];
+        
+        if ([scopeSet intersectsOrderedSet:scopes])
+        {
+            MSIDDefaultTokenCacheKey *keyToDelete = [MSIDDefaultTokenCacheKey keyForAccessTokenWithUniqueUserId:account.userIdentifier
+                                                                                                      authority:authority
+                                                                                                       clientId:clientId
+                                                                                                         scopes:scopeSet];
+            
+            if (![self removeTokenWithKey:keyToDelete context:context error:error])
+            {
+                return NO;
+            }
+        }
+    }
+    
+    return YES;
 }
 
 - (BOOL)saveIDToken:(MSIDIdToken *)token
@@ -162,7 +190,7 @@
                   clientId:token.clientId
                     scopes:nil
                  authority:token.authority
-                serializer:_idTokenSerializer
+                serializer:_tokenSerializer
                    context:context
                      error:error];
 }
@@ -195,11 +223,16 @@
         [account updateFieldsFromAccount:previousAccount];
     }
     
+    // TODO: update account
+    /*
     return [_dataSource setItem:account
                             key:key
                      serializer:_accountSerializer
                         context:context
                           error:error];
+     */
+    
+    return NO;
 }
 
 
@@ -223,21 +256,25 @@
         // This is an optimization for cases, when developer provides us an authority
         // We can then do exact match except for scopes
         // We query less items and loop through less items too
-        NSArray<MSIDAccessToken *> *allTokens = [self getAllATsForAccount:account
-                                                                authority:v2params.authority
-                                                                 clientId:v2params.clientId
-                                                                  context:context
-                                                                    error:error];
+        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllATsForAccount:account
+                                                                  authority:v2params.authority
+                                                                   clientId:v2params.clientId
+                                                                    context:context
+                                                                      error:error];
         
-        matchedTokens = [self filterAllAccessTokens:allTokens withScopes:v2params.scopes];
+        matchedTokens = [self filterAllAccessTokenCacheItems:allItems withScopes:v2params.scopes];
     }
     else
     {
         // This is the case, when developer doesn't provide us any authority
         // This flow is pretty unpredictable and basically only works for apps working with single tenants
         // If we can eliminate this flow in future, we can get rid of this logic and logic underneath
-        NSArray<MSIDAccessToken *> *allTokens = [self getAllATsForContext:context error:error];
-        matchedTokens = [self filterAllAccessTokens:allTokens withParameters:v2params account:account context:context error:error];
+        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllATsForContext:context error:error];
+        matchedTokens = [self filterAllAccessTokenCacheItems:allItems
+                                              withParameters:v2params
+                                                     account:account
+                                                     context:context
+                                                       error:error];
     }
     
     if (matchedTokens.count == 0)
@@ -265,7 +302,7 @@
                   clientId:refreshToken.clientId
                     scopes:nil
                  authority:newAuthority
-                serializer:_rtSerializer
+                serializer:_tokenSerializer
                    context:context
                      error:error];
 }
@@ -283,7 +320,7 @@
     return [self getRefreshTokenForUserId:account.userIdentifier
                                  clientId:parameters.clientId
                                 authority:parameters.authority
-                               serializer:_rtSerializer
+                               serializer:_tokenSerializer
                                   context:context
                                     error:error];
 }
@@ -301,7 +338,7 @@
     return [self getRefreshTokenForUserId:account.userIdentifier
                                  clientId:token.clientId
                                 authority:token.authority
-                               serializer:_rtSerializer
+                               serializer:_tokenSerializer
                                   context:context
                                     error:error];
 }
@@ -311,7 +348,21 @@
                                                        error:(NSError **)error
 {
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForRefreshTokenWithClientId:clientId];
-    return (NSArray<MSIDRefreshToken *> *)[self getAllTokensWithKey:key serializer:_rtSerializer context:context error:error];
+    NSArray<MSIDTokenCacheItem *> *cacheItems = [self getAllTokensWithKey:key context:context error:error];
+    
+    NSMutableArray *results = [NSMutableArray array];
+    
+    for (MSIDTokenCacheItem *cacheItem in cacheItems)
+    {
+        MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
+        
+        if (refreshToken)
+        {
+            [results addObject:cacheItem];
+        }
+    }
+    
+    return results;
 }
 
 
@@ -346,29 +397,31 @@
 
 #pragma mark - Filtering
 
-- (NSArray<MSIDAccessToken *> *)filterAllAccessTokens:(NSArray<MSIDAccessToken *> *)allTokens
-                                           withScopes:(NSOrderedSet<NSString *> *)scopes
+- (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allCacheItems
+                                                    withScopes:(NSOrderedSet<NSString *> *)scopes
 {
-    NSMutableArray<MSIDAccessToken *> *matchedTokens = [NSMutableArray<MSIDAccessToken *> new];
+    NSMutableArray<MSIDAccessToken *> *matchedItems = [NSMutableArray<MSIDAccessToken *> new];
     
-    for (MSIDAccessToken *token in allTokens)
+    for (MSIDTokenCacheItem *cacheItem in allCacheItems)
     {
-        if ([token.scopes isSubsetOfOrderedSet:scopes])
+        MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
+        
+        if ([accessToken.scopes isSubsetOfOrderedSet:scopes])
         {
-            [matchedTokens addObject:token];
+            [matchedItems addObject:accessToken];
         }
     }
     
-    return matchedTokens;
+    return matchedItems;
 }
 
-- (NSArray<MSIDAccessToken *> *)filterAllAccessTokens:(NSArray<MSIDAccessToken *> *)allTokens
-                                       withParameters:(MSIDAADV2RequestParameters *)parameters
-                                              account:(MSIDAccount *)account
-                                              context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+- (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
+                                                withParameters:(MSIDAADV2RequestParameters *)parameters
+                                                       account:(MSIDAccount *)account
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError **)error
 {
-    if (!allTokens || [allTokens count] == 0)
+    if (!allItems || [allItems count] == 0)
     {
         // This should be rare-to-never as having a MSIDAccount object requires having a RT in cache,
         // which should imply that at some point we got an AT for that user with this client ID
@@ -379,18 +432,20 @@
     }
     
     NSMutableArray<MSIDAccessToken *> *matchedTokens = [NSMutableArray<MSIDAccessToken *> new];
-    NSURL *authorityToCheck = allTokens[0].authority;
+    NSURL *authorityToCheck = allItems[0].authority; // TODO: what if nil?
     NSArray<NSURL *> *tokenAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authorityToCheck];
     
-    for (MSIDAccessToken *token in allTokens)
+    for (MSIDTokenCacheItem *cacheItem in allItems)
     {
-        if ([token.clientInfo.userIdentifier isEqualToString:account.userIdentifier]
-            && [token.clientId isEqualToString:parameters.clientId]
-            && [token.scopes isSubsetOfOrderedSet:parameters.scopes])
+        MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
+        
+        if ([accessToken.uniqueUserId isEqualToString:account.userIdentifier]
+            && [accessToken.clientId isEqualToString:parameters.clientId]
+            && [accessToken.scopes isSubsetOfOrderedSet:parameters.scopes])
         {
-            if ([token.authority msidIsEquivalentWithAnyAlias:tokenAliases])
+            if ([accessToken.authority msidIsEquivalentWithAnyAlias:tokenAliases])
             {
-                [matchedTokens addObject:token];
+                [matchedTokens addObject:accessToken];
             }
             else
             {
@@ -405,29 +460,6 @@
     }
     
     return matchedTokens;
-}
-
-#pragma mark - Delete
-
-- (BOOL)deleteAccessTokens:(NSArray<MSIDAccessToken *> *)tokens
-                   account:(MSIDAccount *)account
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
-{
-    for (MSIDAccessToken *tokenInCache in tokens)
-    {
-        MSIDDefaultTokenCacheKey *keyToDelete = [MSIDDefaultTokenCacheKey keyForAccessTokenWithUniqueUserId:account.userIdentifier
-                                                                                                  authority:tokenInCache.authority
-                                                                                                   clientId:tokenInCache.clientId
-                                                                                                     scopes:tokenInCache.scopes];
-        
-        if (![self removeTokenWithKey:keyToDelete context:context error:error])
-        {
-            return NO;
-        }
-    }
-    
-    return YES;
 }
 
 #pragma mark - Datasource helpers
@@ -492,24 +524,27 @@
                                           clientId:clientId
                                             scopes:scopes
                                          authority:authority];
+    
+    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
+    
     if (!key)
     {
         [self stopTelemetryEvent:event
-                       withToken:token
+                        withItem:cacheItem
                          success:NO
                          context:context];
         
         return NO;
     }
     
-    BOOL result = [_dataSource setItem:token
+    BOOL result = [_dataSource setItem:cacheItem
                                    key:key
                             serializer:serializer
                                context:context
                                  error:error];
     
     [self stopTelemetryEvent:event
-                   withToken:token
+                    withItem:cacheItem
                      success:result
                      context:context];
     
@@ -541,7 +576,7 @@
         if (!key)
         {
             [self stopTelemetryEvent:event
-                           withToken:nil
+                           withItem:nil
                              success:NO
                              context:context];
             
@@ -549,17 +584,18 @@
         }
         
         NSError *cacheError = nil;
-
-        MSIDRefreshToken *token = (MSIDRefreshToken *)[_dataSource itemWithKey:key
-                                                                    serializer:serializer
-                                                                       context:context
-                                                                         error:&cacheError];
         
-        if (token)
+        MSIDTokenCacheItem *cacheItem = (MSIDTokenCacheItem *)[_dataSource itemWithKey:key
+                                                                            serializer:serializer
+                                                                               context:context
+                                                                                 error:&cacheError];
+        
+        if (cacheItem)
         {
-            token.authority = authority;
-            [self stopTelemetryEvent:event withToken:token success:YES context:context];
-            return token;
+            MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
+            refreshToken.authority = authority;
+            [self stopTelemetryEvent:event withItem:cacheItem success:YES context:context];
+            return refreshToken;
         }
        
         if (cacheError)
@@ -570,7 +606,7 @@
             }
             
             [self stopTelemetryEvent:event
-                           withToken:nil
+                           withItem:nil
                              success:NO
                              context:context];
             
@@ -579,37 +615,36 @@
     }
     
     [self stopTelemetryEvent:event
-                   withToken:nil
+                   withItem:nil
                      success:NO
                      context:context];
     
     return nil;
 }
 
-- (NSArray<MSIDAccessToken *> *)getAllATsForAccount:(MSIDAccount *)account
-                                          authority:(NSURL *)authority
-                                           clientId:(NSString *)clientId
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error
+- (NSArray<MSIDTokenCacheItem *> *)getAllATsForAccount:(MSIDAccount *)account
+                                             authority:(NSURL *)authority
+                                              clientId:(NSString *)clientId
+                                               context:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error
 {
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
                                                                                           authority:authority
                                                                                            clientId:clientId];
-    return (NSArray<MSIDAccessToken *> *)[self getAllTokensWithKey:key serializer:_atSerializer context:context error:error];
+    return [self getAllTokensWithKey:key context:context error:error];
 }
 
 
-- (NSArray<MSIDAccessToken *> *)getAllATsForContext:(id<MSIDRequestContext>)context
-                                              error:(NSError *__autoreleasing *)error
+- (NSArray<MSIDTokenCacheItem *> *)getAllATsForContext:(id<MSIDRequestContext>)context
+                                                 error:(NSError *__autoreleasing *)error
 {
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokens];
-    return (NSArray<MSIDAccessToken *> *)[self getAllTokensWithKey:key serializer:_atSerializer context:context error:error];
+    return [self getAllTokensWithKey:key context:context error:error];
 }
 
-- (NSArray<MSIDBaseToken *> *)getAllTokensWithKey:(MSIDTokenCacheKey *)key
-                                       serializer:(id<MSIDCacheItemSerializer>)serializer
-                                          context:(id<MSIDRequestContext>)context
-                                            error:(NSError *__autoreleasing *)error
+- (NSArray<MSIDTokenCacheItem *> *)getAllTokensWithKey:(MSIDTokenCacheKey *)key
+                                               context:(id<MSIDRequestContext>)context
+                                                 error:(NSError *__autoreleasing *)error
 {
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
@@ -617,9 +652,9 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                            context:context];
     
-    NSArray *tokens = [_dataSource itemsWithKey:key serializer:serializer context:context error:error];
+    NSArray *tokens = [_dataSource itemsWithKey:key serializer:_tokenSerializer context:context error:error];
     
-    [self stopTelemetryEvent:event withToken:nil success:(tokens != nil) context:context];
+    [self stopTelemetryEvent:event withItem:nil success:(tokens != nil) context:context];
     return tokens;
 }
 
@@ -636,21 +671,21 @@
     
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
     
-    [self stopTelemetryEvent:event withToken:nil success:YES context:context];
+    [self stopTelemetryEvent:event withItem:nil success:YES context:context];
     return result;
 }
 
 #pragma mark - Telemetry helpers
 
 - (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
-                 withToken:(MSIDBaseToken *)token
+                  withItem:(MSIDTokenCacheItem *)item
                    success:(BOOL)success
                    context:(id<MSIDRequestContext>)context
 {
     [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
-    if (token)
+    if (item)
     {
-        [event setToken:token];
+        [event setCacheItem:item];
     }
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
                                         event:event];

@@ -21,39 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDClientInfo.h"
+#import "MSIDCacheItem.h"
 #import "MSIDTokenType.h"
 
-/*!
- This is the base class for all possible cache entries.
- It's meant to be subclassed to provide additional fields.
- */
+@interface MSIDTokenCacheItem : MSIDCacheItem
 
-// TODO: remove me!
-@interface MSIDBaseCacheItem : NSObject <NSCopying, NSSecureCoding, MSIDJsonSerializable>
-{
-    NSURL *_authority;
-    NSString *_clientId;
-    MSIDClientInfo *_clientInfo;
-    NSDictionary *_additionalInfo;
-    NSString *_username;
-}
+// Token type
+@property (readwrite) MSIDTokenType tokenType;
 
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *clientId;
+// Tokens
+@property (readwrite) NSString *accessToken;
+@property (readwrite) NSString *refreshToken;
+@property (readwrite) NSString *idToken;
 
-@property (readonly) NSString *uniqueUserId; // TODO: is this necessary?
-@property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSDictionary *additionalInfo;
-@property (readonly) NSString *username; // TODO: is this necessary?
+// Targets
+@property (readwrite) NSString *target;
 
-- (BOOL)isEqualToItem:(MSIDBaseCacheItem *)item;
+// Tenant
+@property (readwrite) NSString *tenant;
 
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams;
+// Dates
+@property (readwrite) NSDate *expiresOn;
+@property (readwrite) NSDate *cachedAt;
+
+// Family ID
+@property (readwrite) NSString *familyId;
 
 @end

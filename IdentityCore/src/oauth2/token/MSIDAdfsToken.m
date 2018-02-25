@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAdfsToken.h"
+#import "MSIDTokenResponse.h"
 
 @implementation MSIDAdfsToken
 
@@ -35,6 +36,7 @@
     return item;
 }
 
+/*
 #pragma mark - NSSecureCoding
 
 - (instancetype)initWithCoder:(NSCoder *)coder
@@ -54,7 +56,7 @@
     [super encodeWithCoder:coder];
     
     [coder encodeObject:_refreshToken forKey:@"refreshToken"];
-}
+}*/
 
 #pragma mark - NSObject
 
@@ -93,6 +95,7 @@
     return result;
 }
 
+/*
 #pragma mark - JSON
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
@@ -113,9 +116,30 @@
     [dictionary setValue:_refreshToken forKey:MSID_RESOURCE_RT_CACHE_KEY];
     
     return dictionary;
+}*/
+
+#pragma mark - Cache
+
+- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem
+{
+    self = [super initWithTokenCacheItem:tokenCacheItem];
+    
+    if (self)
+    {
+        _refreshToken = tokenCacheItem.refreshToken;
+    }
+    
+    return self;
 }
 
-#pragma mark - Init
+- (MSIDTokenCacheItem *)tokenCacheItem
+{
+    MSIDTokenCacheItem *cacheItem = [super tokenCacheItem];
+    cacheItem.refreshToken = self.refreshToken;
+    return cacheItem;
+}
+
+#pragma mark - Response
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
                               request:(MSIDRequestParameters *)requestParams

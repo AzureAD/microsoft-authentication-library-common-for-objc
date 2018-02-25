@@ -40,6 +40,7 @@
     return item;
 }
 
+/*
 #pragma mark - NSSecureCoding
 
 - (instancetype)initWithCoder:(NSCoder *)coder
@@ -68,7 +69,7 @@
     // Encode id_token in backward compatible way with ADAL
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
     [coder encodeObject:userInformation forKey:@"userInformation"];
-}
+}*/
 
 #pragma mark - NSObject
 
@@ -111,6 +112,7 @@
     return result;
 }
 
+/*
 #pragma mark - JSON
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
@@ -120,12 +122,9 @@
         return nil;
     }
     
-    /* Mandatory fields */
     _refreshToken = json[MSID_TOKEN_CACHE_KEY];
     _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
-    
-    /* Optional fields */
-    
+ 
     // ID token
     _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
     
@@ -136,19 +135,48 @@
 {
     NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
     
-    /* Mandatory fields */
     [dictionary setValue:_refreshToken forKey:MSID_TOKEN_CACHE_KEY];
     [dictionary setValue:_familyId forKey:MSID_FAMILY_ID_CACHE_KEY];
-    
-    /* Optional fields */
-    
+ 
     // ID token
     [dictionary setValue:_idToken forKey:MSID_ID_TOKEN_CACHE_KEY];
     
     return dictionary;
+}*/
+
+#pragma mark - Cache
+
+- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem
+{
+    self = [super initWithTokenCacheItem:tokenCacheItem];
+    
+    if (self)
+    {
+        _refreshToken = tokenCacheItem.refreshToken;
+        _idToken = tokenCacheItem.idToken;
+        _familyId = tokenCacheItem.familyId;
+        
+        if (!_authority)
+        {
+            // TODO: should we do this?
+            NSString *authorityString = [NSString stringWithFormat:@"https://%@/common", tokenCacheItem.environment];
+            _authority = [NSURL URLWithString:authorityString];
+        }
+    }
+    
+    return self;
 }
 
-#pragma mark - Init
+- (MSIDTokenCacheItem *)tokenCacheItem
+{
+    MSIDTokenCacheItem *cacheItem = [super tokenCacheItem];
+    cacheItem.refreshToken = self.refreshToken;
+    cacheItem.idToken = self.idToken;
+    cacheItem.familyId = self.familyId;
+    return cacheItem;
+}
+
+#pragma mark - Response
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
                               request:(MSIDRequestParameters *)requestParams

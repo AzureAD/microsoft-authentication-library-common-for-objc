@@ -24,14 +24,19 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTokenType.h"
 
-@class MSIDBaseCacheItem;
+@class MSIDCacheItem;
+
+typedef NS_ENUM(NSInteger, MSIDSerializerType)
+{
+    MSIDTokenSerializerType,
+    MSIDAccountSerializerType
+};
 
 @protocol MSIDCacheItemSerializer <NSObject>
 
-- (instancetype)initForTokenType:(MSIDTokenType)type;
-- (instancetype)initForAccounts;
+- (instancetype)initWithType:(MSIDSerializerType)type;
 
-- (NSData *)serialize:(MSIDBaseCacheItem *)item;
-- (MSIDBaseCacheItem *)deserialize:(NSData *)data;
+- (NSData *)serialize:(MSIDCacheItem *)item;
+- (MSIDCacheItem *)deserialize:(NSData *)data;
 
 @end

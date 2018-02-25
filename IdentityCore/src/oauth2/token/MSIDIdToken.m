@@ -23,6 +23,7 @@
 
 #import "MSIDIdToken.h"
 #import "MSIDUserInformation.h"
+#import "MSIDTokenResponse.h"
 
 @implementation MSIDIdToken
 
@@ -35,6 +36,7 @@
     return item;
 }
 
+/*
 #pragma mark - NSSecureCoding
 
 - (instancetype)initWithCoder:(NSCoder *)coder
@@ -57,7 +59,7 @@
     // Encode id_token in backward compatible way with ADAL
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:_rawIdToken];
     [coder encodeObject:userInformation forKey:@"userInformation"];
-}
+}*/
 
 #pragma mark - NSObject
 
@@ -95,6 +97,7 @@
     return result;
 }
 
+/*
 #pragma mark - JSON
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
@@ -104,7 +107,6 @@
         return nil;
     }
     
-    /* Mandatory fields */
     _rawIdToken = json[MSID_TOKEN_CACHE_KEY];
     
     return self;
@@ -114,13 +116,41 @@
 {
     NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
     
-    /* Mandatory fields */
     [dictionary setValue:_rawIdToken forKey:MSID_TOKEN_CACHE_KEY];
     
     return dictionary;
+}*/
+
+#pragma mark - Cache
+
+- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem
+{
+    self = [super initWithTokenCacheItem:tokenCacheItem];
+    
+    if (self)
+    {
+        _rawIdToken = tokenCacheItem.idToken;
+        
+        if (!_authority && tokenCacheItem.tenant)
+        {
+            // TODO: this should be in a helper
+            NSString *authorityString = [NSString stringWithFormat:@"https://%@/%@", tokenCacheItem.environment, tokenCacheItem.tenant];
+            
+            _authority = [NSURL URLWithString:authorityString];
+        }
+    }
+    
+    return self;
 }
 
-#pragma mark - Init
+- (MSIDTokenCacheItem *)tokenCacheItem
+{
+    MSIDTokenCacheItem *cacheItem = [super tokenCacheItem];
+    cacheItem.idToken = self.rawIdToken;
+    return cacheItem;
+}
+
+#pragma mark - Response
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
                               request:(MSIDRequestParameters *)requestParams

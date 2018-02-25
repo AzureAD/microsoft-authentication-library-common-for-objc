@@ -22,18 +22,46 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDBaseCacheItem.h"
+#import "MSIDTokenType.h"
+#import "MSIDClientInfo.h"
+#import "MSIDTokenCacheItem.h"
+
+@class MSIDTokenResponse;
+@class MSIDRequestParameters;
 
 /*!
  This is the base class for all possible tokens.
  It's meant to be subclassed to provide additional fields.
  */
 
-@interface MSIDBaseToken : MSIDBaseCacheItem
+@interface MSIDBaseToken : NSObject <NSCopying>
 {
-    MSIDTokenType _tokenType;
+    NSURL *_authority;
+    NSString *_clientId;
+    NSString *_uniqueUserId;
+    MSIDClientInfo *_clientInfo;
+    NSDictionary *_additionalInfo;
+    NSString *_username;
 }
 
 @property (readonly) MSIDTokenType tokenType;
+@property (readwrite) NSURL *authority;
+@property (readwrite) NSString *clientId;
+
+@property (readonly) MSIDClientInfo *clientInfo;
+@property (readonly) NSDictionary *additionalInfo;
+
+// User info
+@property (readonly) NSString *uniqueUserId;
+@property (readonly) NSString *username;
+
+- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem;
+
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+                              request:(MSIDRequestParameters *)requestParams;
+
+- (MSIDTokenCacheItem *)tokenCacheItem;
+
+- (BOOL)isEqualToItem:(MSIDBaseToken *)item;
 
 @end

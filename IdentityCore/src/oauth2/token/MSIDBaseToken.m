@@ -25,6 +25,8 @@
 #import "MSIDUserInformation.h"
 #import "MSIDAADTokenResponse.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDClientInfo.h"
+#import "MSIDRequestParameters.h"
 
 @implementation MSIDBaseToken
 
@@ -32,8 +34,13 @@
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    MSIDBaseToken *item = [super copyWithZone:zone];
-    item->_tokenType = _tokenType;
+    MSIDBaseToken *item = [[self.class allocWithZone:zone] init];
+    item->_authority = _authority;
+    item->_clientId = _clientId;
+    item->_uniqueUserId = _uniqueUserId;
+    item->_clientInfo = _clientInfo;
+    item->_additionalInfo = _additionalInfo;
+    item->_username = _username;
     
     return item;
 }
@@ -52,31 +59,44 @@
         return NO;
     }
     
-    return [self isEqualToItem:(MSIDBaseCacheItem *)object];
+    return [self isEqualToItem:(MSIDBaseToken *)object];
 }
 
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
+    hash = hash * 31 + self.authority.hash;
+    hash = hash * 31 + self.clientId.hash;
+    hash = hash * 31 + self.uniqueUserId.hash;
+    hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
+    hash = hash * 31 + self.additionalInfo.hash;
+    hash = hash * 31 + self.username.hash;
     hash = hash * 31 + self.tokenType;
     return hash;
 }
 
-- (BOOL)isEqualToItem:(MSIDBaseToken *)token
+- (BOOL)isEqualToItem:(MSIDBaseToken *)item
 {
-    if (!token)
+    if (!item)
     {
         return NO;
     }
     
-    BOOL result = [super isEqualToItem:token];
-    result &= self.tokenType == token.tokenType;
+    BOOL result = YES;
+    result &= (!self.authority && !item.authority) || [self.authority.absoluteString isEqualToString:item.authority.absoluteString];
+    result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
+    result &= (!self.uniqueUserId && !item.uniqueUserId) || [self.uniqueUserId isEqualToString:item.uniqueUserId];
+    result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
+    result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqualToDictionary:item.additionalInfo];
+    result &= (!self.username && !item.username) || [self.username isEqualToString:item.username];
+    result &= (self.tokenType == item.tokenType);
     
     return result;
 }
 
 #pragma mark - JSON
 
+/*
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
     if (!(self = [super initWithJSONDictionary:json error:error]))
@@ -84,7 +104,6 @@
         return nil;
     }
     
-    /* Mandatory fields */
     NSString *credentialType = json[MSID_CREDENTIAL_TYPE_CACHE_KEY];
     
     if (credentialType
@@ -100,21 +119,111 @@
 {
     NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
     
-    /* Mandatory fields */
-    
     // Credential type
     NSString *credentialType = [MSIDTokenTypeHelpers tokenTypeAsString:self.tokenType];
     [dictionary setValue:credentialType
                   forKey:MSID_CREDENTIAL_TYPE_CACHE_KEY];
     
     return dictionary;
-}
+}*/
 
 #pragma mark - Token type
 
 - (MSIDTokenType)tokenType
 {
     return MSIDTokenTypeOther;
+}
+
+#pragma mark - Cache
+
+- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem
+{
+    self = [super init];
+    
+    if (self)
+    {
+        if (!tokenCacheItem)
+        {
+            return nil;
+        }
+        
+        if (tokenCacheItem.tokenType != MSIDTokenTypeOther
+            && tokenCacheItem.tokenType != self.tokenType)
+        {
+            MSID_LOG_ERROR(nil, @"Trying to initialize with a wrong token type");
+            return nil;
+        }
+        
+        _authority = tokenCacheItem.authority;
+        _clientId = tokenCacheItem.clientId;
+        _clientInfo = tokenCacheItem.clientInfo;
+        _additionalInfo = tokenCacheItem.additionalInfo;
+        _username = tokenCacheItem.username;
+        _uniqueUserId = tokenCacheItem.uniqueUserId;
+    }
+    
+    return self;
+}
+
+- (MSIDTokenCacheItem *)tokenCacheItem
+{
+    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] init];
+    cacheItem.tokenType = self.tokenType;
+    cacheItem.authority = self.authority;
+    cacheItem.clientId = self.clientId;
+    cacheItem.clientInfo = self.clientInfo;
+    cacheItem.additionalInfo = self.additionalInfo;
+    cacheItem.username = self.username;
+    cacheItem.uniqueUserId = self.uniqueUserId;
+    return cacheItem;
+}
+
+#pragma mark - Token response
+
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+                              request:(MSIDRequestParameters *)requestParams
+{
+    if (!response
+        || !requestParams)
+    {
+        return nil;
+    }
+    
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    [self fillTokenFromResponse:response
+                        request:requestParams];
+    
+    return self;
+}
+
+#pragma mark - Fill item
+
+- (void)fillTokenFromResponse:(MSIDTokenResponse *)response
+                      request:(MSIDRequestParameters *)requestParams
+{
+    // Fill from request
+    _authority = requestParams.authority;
+    _clientId = requestParams.clientId;
+    _additionalInfo = [NSMutableDictionary dictionary];
+    _username = response.idTokenObj.preferredUsername ? response.idTokenObj.preferredUsername : response.idTokenObj.userId;
+    
+    // Fill in client info and spe info
+    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
+    {
+        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
+        _clientInfo = aadTokenResponse.clientInfo;
+        _uniqueUserId = _clientInfo.userIdentifier;
+        [_additionalInfo setValue:aadTokenResponse.speInfo
+                           forKey:MSID_SPE_INFO_CACHE_KEY];
+    }
+    else
+    {
+        _uniqueUserId = response.idTokenObj.userId;
+    }
 }
 
 @end

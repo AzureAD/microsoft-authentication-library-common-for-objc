@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDBaseCacheItem;
+@class MSIDCacheItem;
 @class MSIDTokenCacheKey;
 
 @protocol MSIDRequestContext;
@@ -31,30 +31,32 @@
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
-- (BOOL)setItem:(MSIDBaseCacheItem *)item
+- (BOOL)setItem:(MSIDCacheItem *)item
             key:(MSIDTokenCacheKey *)key
      serializer:(id<MSIDCacheItemSerializer>)serializer
         context:(id<MSIDRequestContext>)context
           error:(NSError **)error;
 
-- (MSIDBaseCacheItem *)itemWithKey:(MSIDTokenCacheKey *)key
-                        serializer:(id<MSIDCacheItemSerializer>)serializer
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error;
+- (MSIDCacheItem *)itemWithKey:(MSIDTokenCacheKey *)key
+                    serializer:(id<MSIDCacheItemSerializer>)serializer
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error;
 
 - (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
-- (NSArray<MSIDBaseCacheItem *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                                    serializer:(id<MSIDCacheItemSerializer>)serializer
-                                       context:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error;
+- (NSArray<MSIDCacheItem *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+                                serializer:(id<MSIDCacheItemSerializer>)serializer
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
 
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
 
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
+
+// TODO: add specific methods for accounts and tokens
 
 @end

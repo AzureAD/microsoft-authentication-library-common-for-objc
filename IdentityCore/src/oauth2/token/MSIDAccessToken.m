@@ -33,9 +33,8 @@
 static uint64_t s_expirationBuffer = 300;
 
 @interface MSIDAccessToken()
-{
-    NSString *_target;
-}
+
+@property (readwrite) NSString *target;
 
 @end
 
@@ -55,6 +54,7 @@ static uint64_t s_expirationBuffer = 300;
     return item;
 }
 
+/*
 #pragma mark - NSSecureCoding
 
 - (instancetype)initWithCoder:(NSCoder *)coder
@@ -87,7 +87,7 @@ static uint64_t s_expirationBuffer = 300;
     // Encode id_token in backward compatible way with ADAL
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
     [coder encodeObject:userInformation forKey:@"userInformation"];
-}
+}*/
 
 #pragma mark - NSObject
 
@@ -135,6 +135,7 @@ static uint64_t s_expirationBuffer = 300;
     return result;
 }
 
+/*
 #pragma mark - JSON
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
@@ -143,8 +144,6 @@ static uint64_t s_expirationBuffer = 300;
     {
         return nil;
     }
-    
-    /* Mandatory fields */
     
     // Realm
     if (json[MSID_AUTHORITY_CACHE_KEY])
@@ -169,7 +168,6 @@ static uint64_t s_expirationBuffer = 300;
     // Token
     _accessToken = json[MSID_TOKEN_CACHE_KEY];
     
-    /* Optional fields */
     // Extended expires on
     NSDate *extExpiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
     [_additionalInfo setValue:extExpiresOn
@@ -185,7 +183,6 @@ static uint64_t s_expirationBuffer = 300;
 {
     NSMutableDictionary *dictionary = [[super jsonDictionary] mutableCopy];
     
-    /* Mandatory fields */
     // Realm
     [dictionary setValue:_authority.msidTenant
                   forKey:MSID_REALM_CACHE_KEY];
@@ -201,8 +198,6 @@ static uint64_t s_expirationBuffer = 300;
     // Token
     [dictionary setValue:_accessToken forKey:MSID_TOKEN_CACHE_KEY];
     
-    /* Optional fields */
-    
     // Authority
     [dictionary setValue:_authority.absoluteString forKey:MSID_AUTHORITY_CACHE_KEY];
     
@@ -214,9 +209,46 @@ static uint64_t s_expirationBuffer = 300;
     [dictionary setValue:_idToken forKey:MSID_ID_TOKEN_CACHE_KEY];
     
     return dictionary;
+}*/
+
+#pragma mark - Cache
+
+- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem
+{
+    self = [super initWithTokenCacheItem:tokenCacheItem];
+    
+    if (self)
+    {
+        _expiresOn = tokenCacheItem.expiresOn;
+        _cachedAt = tokenCacheItem.cachedAt;
+        _accessToken = tokenCacheItem.accessToken;
+        _idToken = tokenCacheItem.idToken;
+        _target = tokenCacheItem.target;
+        
+        if (!_authority && tokenCacheItem.tenant)
+        {
+            // TODO: this should be in a helper
+            NSString *authorityString = [NSString stringWithFormat:@"https://%@/%@", tokenCacheItem.environment, tokenCacheItem.tenant];
+            
+            _authority = [NSURL URLWithString:authorityString];
+        }
+    }
+    
+    return self;
 }
 
-#pragma mark - Init
+- (MSIDTokenCacheItem *)tokenCacheItem
+{
+    MSIDTokenCacheItem *cacheItem = [super tokenCacheItem];
+    cacheItem.expiresOn = self.expiresOn;
+    cacheItem.cachedAt = self.cachedAt;
+    cacheItem.accessToken = self.accessToken;
+    cacheItem.idToken = self.idToken;
+    cacheItem.target = self.target;
+    return cacheItem;
+}
+
+#pragma mark - Response
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
                               request:(MSIDRequestParameters *)requestParams
