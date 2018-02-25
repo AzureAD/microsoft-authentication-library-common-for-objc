@@ -22,7 +22,19 @@
 // THE SOFTWARE.
 
 #import "MSIDCacheItem.h"
+#import "MSIDAccountType.h"
 
 @interface MSIDAccountCacheItem : MSIDCacheItem
+
+@property (readwrite) NSString *tenant;
+
+@property (readwrite) NSString *legacyUserIdentifier;
+@property (readwrite) MSIDAccountType accountType;
+@property (readwrite) NSString *firstName;
+@property (readwrite) NSString *lastName;
+
+@property (readwrite) NSDictionary *additionalAccountFields;
+
+- (void)updateFieldsFromAccount:(MSIDAccountCacheItem *)account;
 
 @end

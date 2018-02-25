@@ -22,25 +22,18 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
-#import "MSIDClientInfo.h"
 
-@interface MSIDCacheItem : NSObject <NSSecureCoding, MSIDJsonSerializable>
+typedef NS_ENUM(NSInteger, MSIDAccountType)
 {
-    NSURL *_authority;
-    NSString *_username;
-    NSString *_uniqueUserId;
-    MSIDClientInfo *_clientInfo;
-    NSDictionary *_additionalInfo;
-}
+    MSIDAccountTypeAADV1 = 1,
+    MSIDAccountTypeMSA = 2,
+    MSIDAccountTypeAADV2 = 3,
+    MSIDAccountTypeOther = 4
+};
 
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *environment;
-@property (readwrite) NSString *username;
+@interface MSIDAccountTypeHelpers : NSObject
 
-@property (readwrite) NSString *uniqueUserId;
-
-@property (readwrite) MSIDClientInfo *clientInfo;
-@property (readwrite) NSDictionary *additionalInfo;
++ (NSString *)accountTypeAsString:(MSIDAccountType)accountType;
++ (MSIDAccountType)accountTypeFromString:(NSString *)type;
 
 @end

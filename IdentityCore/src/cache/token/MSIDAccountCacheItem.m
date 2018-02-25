@@ -25,4 +25,106 @@
 
 @implementation MSIDAccountCacheItem
 
+#pragma mark - NSSecureCoding
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    if (!(self = [super initWithCoder:coder]))
+    {
+        return nil;
+    }
+    
+    _legacyUserIdentifier = [coder decodeObjectOfClass:[NSString class] forKey:@"legacy_user_id"];
+    
+    _accountType = [MSIDAccountTypeHelpers accountTypeFromString:[coder decodeObjectOfClass:[NSString class] forKey:@"account_type"]];
+    
+    _firstName = [coder decodeObjectOfClass:[NSString class] forKey:@"first_name"];
+    _lastName = [coder decodeObjectOfClass:[NSString class] forKey:@"last_name"];
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+    
+    [coder encodeObject:_legacyUserIdentifier forKey:@"legacy_user_id"];
+    [coder encodeObject:[MSIDAccountTypeHelpers accountTypeAsString:_accountType] forKey:@"account_type"];
+    [coder encodeObject:_firstName forKey:@"first_name"];
+    [coder encodeObject:_lastName forKey:@"last_name"];
+}
+
+#pragma mark - JSON
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    if (!(self = [super initWithJSONDictionary:json error:error]))
+    {
+        return nil;
+    }
+    
+    // Authority account ID
+    _legacyUserIdentifier = json[MSID_ACCOUNT_ID_CACHE_KEY];
+    
+    // Tenant
+    _tenant = json[MSID_REALM_CACHE_KEY];
+    
+    /* Optional fields */
+    // First name
+    _firstName = json[MSID_FIRST_NAME_CACHE_KEY];
+    
+    // Last name
+    _lastName = json[MSID_LAST_NAME_CACHE_KEY];
+    
+    // Account type
+    _accountType = [MSIDAccountTypeHelpers accountTypeFromString:json[MSID_ACCOUNT_TYPE_CACHE_KEY]];
+    
+    // Extensibility
+    _additionalAccountFields = json;
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    
+    if (_additionalAccountFields)
+    {
+        [dictionary addEntriesFromDictionary:_additionalAccountFields];
+    }
+    
+    // Parent JSON
+    [dictionary addEntriesFromDictionary:[super jsonDictionary]];
+    
+    /* Mandatory fields */
+    // Tenant
+    dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
+    
+    // Authority account ID
+    dictionary[MSID_ACCOUNT_ID_CACHE_KEY] = _legacyUserIdentifier;
+    
+    /* Optional fields */
+    // First name
+    dictionary[MSID_FIRST_NAME_CACHE_KEY] = _firstName;
+    
+    // Last name
+    dictionary[MSID_LAST_NAME_CACHE_KEY] = _lastName;
+    
+    // Account type
+    dictionary[MSID_ACCOUNT_TYPE_CACHE_KEY] = [MSIDAccountTypeHelpers accountTypeAsString:_accountType];
+    
+    return dictionary;
+}
+
+#pragma mark - Update
+
+- (void)updateFieldsFromAccount:(MSIDAccountCacheItem *)account
+{
+    NSMutableDictionary *allAdditionalFields = [NSMutableDictionary dictionary];
+    [allAdditionalFields addEntriesFromDictionary:account.additionalAccountFields];
+    [allAdditionalFields addEntriesFromDictionary:_additionalAccountFields];
+    _additionalAccountFields = allAdditionalFields;
+}
+
 @end

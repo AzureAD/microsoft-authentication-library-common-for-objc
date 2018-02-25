@@ -36,6 +36,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDDefaultTokenCacheKey.h"
+#import "MSIDAccountCacheItem.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -213,24 +214,19 @@
                                                                 context:context
                                                                   error:error];
     
-    (void)previousAccount;
-    /*
+    MSIDAccountCacheItem *currentAccount = account.accountCacheItem;
+    
     if (previousAccount)
     {
         // Make sure we copy over all the additional fields
-        [account updateFieldsFromAccount:previousAccount];
-    }*/
+        [currentAccount updateFieldsFromAccount:previousAccount];
+    }
     
-    // TODO: update account
-    /*
-    return [_dataSource setItem:account
-                            key:key
-                     serializer:_accountSerializer
-                        context:context
-                          error:error];
-     */
-    
-    return NO;
+    return [_dataSource saveAccount:currentAccount
+                                key:key
+                         serializer:_serializer
+                            context:context
+                              error:error];
 }
 
 

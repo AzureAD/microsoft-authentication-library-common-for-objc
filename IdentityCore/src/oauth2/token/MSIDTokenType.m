@@ -48,6 +48,7 @@
 
 static NSDictionary *tokenTypes = nil;
 
+// TODO: dispatch once
 + (MSIDTokenType)tokenTypeFromString:(NSString *)type
 {
     if (!tokenTypes)

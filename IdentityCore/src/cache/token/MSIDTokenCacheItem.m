@@ -28,22 +28,6 @@
 
 @implementation MSIDTokenCacheItem
 
-#pragma mark - NSCopying
-
-- (id)copyWithZone:(NSZone *)zone
-{
-    MSIDTokenCacheItem *item = [super copyWithZone:zone];
-    item->_tokenType = _tokenType;
-    item->_accessToken = _accessToken;
-    item->_refreshToken = _refreshToken;
-    item->_idToken = _idToken;
-    item->_target = _target;
-    item->_familyId = _familyId;
-    item->_cachedAt = _cachedAt;
-    item->_expiresOn = _expiresOn;
-    return item;
-}
-
 #pragma mark - NSSecureCoding
 
 - (instancetype)initWithCoder:(NSCoder *)coder
@@ -62,6 +46,8 @@
     _target = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
     _cachedAt = [coder decodeObjectOfClass:[NSDate class] forKey:@"cachedAt"];
     
+    _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+    
     // Decode id_token from a backward compatible way
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     
@@ -74,6 +60,8 @@
     
     [coder encodeObject:self.familyId forKey:@"familyId"];
     [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
+    
+    [coder encodeObject:self.clientId forKey:@"clientId"];
     
     [coder encodeObject:self.expiresOn forKey:@"expiresOn"];
     [coder encodeObject:self.accessToken forKey:@"accessToken"];
@@ -88,58 +76,6 @@
     // Encode id_token in backward compatible way with ADAL
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
     [coder encodeObject:userInformation forKey:@"userInformation"];
-}
-
-#pragma mark - NSObject
-
-// TODO: this is not necessary here?
-- (BOOL)isEqual:(id)object
-{
-    if (self == object)
-    {
-        return YES;
-    }
-    
-    if (![object isKindOfClass:self.class])
-    {
-        return NO;
-    }
-    
-    return [self isEqualToItem:(MSIDTokenCacheItem *)object];
-}
-
-- (NSUInteger)hash
-{
-    NSUInteger hash = [super hash];
-    hash = hash * 31 + self.tokenType;
-    hash = hash * 31 + self.accessToken.hash;
-    hash = hash * 31 + self.refreshToken.hash;
-    hash = hash * 31 + self.idToken.hash;
-    hash = hash * 31 + self.target.hash;
-    hash = hash * 31 + self.familyId.hash;
-    hash = hash * 31 + self.expiresOn.hash;
-    hash = hash * 31 + self.cachedAt.hash;
-    return hash;
-}
-
-- (BOOL)isEqualToItem:(MSIDTokenCacheItem *)item
-{
-    if (!item)
-    {
-        return NO;
-    }
-    
-    BOOL result = [super isEqualToItem:item];
-    result &= self.tokenType == item.tokenType;
-    result &= (!self.accessToken && !item.accessToken) || [self.accessToken isEqualToString:item.accessToken];
-    result &= (!self.refreshToken && !item.refreshToken) || [self.refreshToken isEqualToString:item.refreshToken];
-    result &= (!self.idToken && !item.idToken) || [self.idToken isEqualToString:item.idToken];
-    result &= (!self.target && !item.target) || [self.target isEqualToString:item.target];
-    result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
-    result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqualToDate:item.cachedAt];
-    result &= (!self.expiresOn && !item.expiresOn) || [self.expiresOn isEqualToDate:item.expiresOn];
-    
-    return result;
 }
 
 #pragma mark - JSON
@@ -162,6 +98,9 @@
     
     // Tenant
     _tenant = json[MSID_REALM_CACHE_KEY];
+    
+    // Client ID
+    _clientId = json[MSID_CLIENT_ID_CACHE_KEY];
     
     // Target
     _target = json[MSID_TARGET_CACHE_KEY];
@@ -223,6 +162,9 @@
     
     // Family ID
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;
+    
+    // Client ID
+    dictionary[MSID_CLIENT_ID_CACHE_KEY] = _clientId;
     
     // Tenant
     dictionary[MSID_REALM_CACHE_KEY] = _tenant;

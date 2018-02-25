@@ -26,6 +26,9 @@
 
 @interface MSIDTokenCacheItem : MSIDCacheItem
 
+// Client id
+@property (readwrite) NSString *clientId;
+
 // Token type
 @property (readwrite) MSIDTokenType tokenType;
 

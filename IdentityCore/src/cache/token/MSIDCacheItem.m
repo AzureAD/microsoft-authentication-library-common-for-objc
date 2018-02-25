@@ -31,22 +31,6 @@
 
 @implementation MSIDCacheItem
 
-#pragma mark - NSCopying
-
-// TODO: this shouldn't be necessary?
-- (id)copyWithZone:(NSZone *)zone
-{
-    MSIDCacheItem *item = [[self.class allocWithZone:zone] init];
-    item->_authority = [_authority copyWithZone:zone];
-    item->_clientId = [_clientId copyWithZone:zone];
-    item->_clientInfo = [_clientInfo copyWithZone:zone];
-    item->_additionalInfo = [_additionalInfo copyWithZone:zone];
-    item->_uniqueUserId = [_uniqueUserId copyWithZone:zone];
-    item->_username = [_username copyWithZone:zone];
-    
-    return item;
-}
-
 #pragma mark - NSSecureCoding
 
 + (BOOL)supportsSecureCoding
@@ -68,8 +52,6 @@
         _authority = [NSURL URLWithString:authorityString];
     }
     
-    _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-    
     _uniqueUserId = _clientInfo.userIdentifier;
     _additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
     _username = [coder decodeObjectOfClass:[NSString class] forKey:@"username"];
@@ -83,7 +65,6 @@
 - (void)encodeWithCoder:(NSCoder *)coder
 {
     [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
-    [coder encodeObject:self.clientId forKey:@"clientId"];
     
     [coder encodeObject:self.clientInfo forKey:@"clientInfo"];
     [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
@@ -92,51 +73,6 @@
     [coder encodeObject:@"Bearer" forKey:@"accessTokenType"];
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
     [coder encodeObject:self.username forKey:@"username"];
-}
-
-#pragma mark - NSObject
-
-- (BOOL)isEqual:(id)object
-{
-    if (self == object)
-    {
-        return YES;
-    }
-    
-    if (![object isKindOfClass:self.class])
-    {
-        return NO;
-    }
-    
-    return [self isEqualToItem:(MSIDCacheItem *)object];
-}
-
-- (NSUInteger)hash
-{
-    NSUInteger hash = 17;
-    hash = hash * 31 + self.authority.hash;
-    hash = hash * 31 + self.clientId.hash;
-    hash = hash * 31 + self.clientInfo.hash;
-    hash = hash * 31 + self.additionalInfo.hash;
-    hash = hash * 31 + self.username.hash;
-    return hash;
-}
-
-- (BOOL)isEqualToItem:(MSIDCacheItem *)item
-{
-    if (!item)
-    {
-        return NO;
-    }
-    
-    BOOL result = YES;
-    result &= (!self.authority && !item.authority) || [self.authority.absoluteString isEqualToString:item.authority.absoluteString];
-    result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
-    result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
-    result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqualToDictionary:item.additionalInfo];
-    result &= (!self.username && !item.username) || [self.username isEqualToString:item.username];
-    
-    return result;
 }
 
 #pragma mark - JSON
@@ -155,9 +91,6 @@
     
     // Environment
     _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
-    
-    // Client ID
-    _clientId = json[MSID_CLIENT_ID_CACHE_KEY];
     
     /* Optional fields */
     NSString *rawClientInfo = json[MSID_OAUTH2_CLIENT_INFO];
@@ -196,9 +129,6 @@
     
     // Environment
     dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _environment;
-    
-    // Client ID
-    dictionary[MSID_CLIENT_ID_CACHE_KEY] = _clientId;
     
     /* Optional fields */
     

@@ -25,34 +25,38 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDBaseCacheItem.h"
 #import "MSIDCacheItem.h"
+#import "MSIDAccountType.h"
 
-typedef NS_ENUM(NSInteger, MSIDAccountType)
-{
-    MSIDAccountTypeAADV1 = 1,
-    MSIDAccountTypeMSA = 2,
-    MSIDAccountTypeAADV2 = 3,
-    MSIDAccountTypeOther = 4
-};
+@class MSIDAccountCacheItem;
 
-@interface MSIDAccount : MSIDBaseCacheItem
+@interface MSIDAccount : NSObject
 
 // Legacy user identifier
-@property (nonatomic) NSString *legacyUserId;
-@property (nonatomic) NSString *utid;
-@property (nonatomic) NSString *uid;
+@property (readwrite) NSString *legacyUserId;
+@property (readwrite) NSString *utid;
+@property (readwrite) NSString *uid;
 
 // Primary user identifier
 @property (readonly) NSString *userIdentifier;
 
 @property (readonly) MSIDAccountType accountType;
+
+@property (readonly) NSString *username;
 @property (readonly) NSString *firstName;
 @property (readonly) NSString *lastName;
 @property (readonly) NSDictionary *additionalFields;
+
+@property (readonly) NSURL *authority;
 
 - (instancetype)initWithUpn:(NSString *)upn
                        utid:(NSString *)utid
                         uid:(NSString *)uid;
 
-- (void)updateFieldsFromAccount:(MSIDAccount *)account;
+- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
+                              request:(MSIDRequestParameters *)requestParams;
+
+- (instancetype)initWithAccountCacheItem:(MSIDAccountCacheItem *)cacheItem;
+
+- (MSIDAccountCacheItem *)accountCacheItem;
 
 @end

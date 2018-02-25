@@ -21,26 +21,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
-#import "MSIDClientInfo.h"
+#import "MSIDAccountType.h"
 
-@interface MSIDCacheItem : NSObject <NSSecureCoding, MSIDJsonSerializable>
+@implementation MSIDAccountTypeHelpers
+
++ (NSString *)accountTypeAsString:(MSIDAccountType)accountType
 {
-    NSURL *_authority;
-    NSString *_username;
-    NSString *_uniqueUserId;
-    MSIDClientInfo *_clientInfo;
-    NSDictionary *_additionalInfo;
+    switch (accountType)
+    {
+        case MSIDAccountTypeAADV1:
+            return @"AAD";
+            
+        case MSIDAccountTypeMSA:
+            return @"MSA";
+            
+        case MSIDAccountTypeAADV2:
+            return @"MSSTS";
+            
+        default:
+            return @"Other";
+    }
 }
 
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *environment;
-@property (readwrite) NSString *username;
+static NSDictionary *accountTypes = nil;
 
-@property (readwrite) NSString *uniqueUserId;
-
-@property (readwrite) MSIDClientInfo *clientInfo;
-@property (readwrite) NSDictionary *additionalInfo;
+// TODO: dispatch once
++ (MSIDAccountType)accountTypeFromString:(NSString *)type
+{
+    if (!accountTypes)
+    {
+        accountTypes = @{@"AAD": @(MSIDAccountTypeAADV1),
+                         @"MSA": @(MSIDAccountTypeMSA),
+                         @"MSSTS": @(MSIDAccountTypeAADV2)};
+    }
+    
+    NSNumber *accountType = accountTypes[type];
+    return accountType ? [accountType integerValue] : MSIDAccountTypeOther;
+}
 
 @end
