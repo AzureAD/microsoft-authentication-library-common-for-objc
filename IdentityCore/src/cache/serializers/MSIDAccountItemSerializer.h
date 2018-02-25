@@ -27,7 +27,7 @@
 
 @protocol MSIDAccountItemSerializer <NSObject>
 
-- (NSData *)serialize:(MSIDAccountCacheItem *)item;
-- (MSIDAccountCacheItem *)deserialize:(NSData *)data;
+- (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item;
+- (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data;
 
 @end

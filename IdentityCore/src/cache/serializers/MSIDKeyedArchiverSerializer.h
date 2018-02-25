@@ -22,13 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDCacheItemSerializer.h"
 #import "MSIDAccountItemSerializer.h"
 #import "MSIDTokenItemSerializer.h"
 
-@interface MSIDKeyedArchiverSerializer : NSObject <MSIDCacheItemSerializer>
-
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
+@interface MSIDKeyedArchiverSerializer : NSObject <MSIDTokenItemSerializer, MSIDAccountItemSerializer>
 
 @end

@@ -26,7 +26,7 @@
 
 @protocol MSIDTokenItemSerializer <NSObject>
 
-- (NSData *)serialize:(MSIDTokenCacheItem *)item;
-- (MSIDTokenCacheItem *)deserialize:(NSData *)data;
+- (NSData *)serializeTokenCacheItem:(MSIDTokenCacheItem *)item;
+- (MSIDTokenCacheItem *)deserializeTokenCacheItem:(NSData *)data;
 
 @end

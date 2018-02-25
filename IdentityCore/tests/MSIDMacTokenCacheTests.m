@@ -327,7 +327,7 @@
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
     cache.delegate = self.macTokenCacheMocDelegate;
     
-    [cache itemWithKey:nil serializer:nil context:nil error:nil];
+    [cache tokenWithKey:nil serializer:nil context:nil error:nil];
     
     XCTAssertEqual(self.macTokenCacheMocDelegate.willAccessCount, 1);
     XCTAssertEqual(self.macTokenCacheMocDelegate.didAccessCount, 1);
@@ -338,7 +338,7 @@
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
     cache.delegate = self.macTokenCacheMocDelegate;
     
-    [cache setItem:nil key:[MSIDTokenCacheKey new] serializer:nil context:nil error:nil];
+    [cache saveToken:nil key:[MSIDTokenCacheKey new] serializer:nil context:nil error:nil];
     
     XCTAssertEqual(self.macTokenCacheMocDelegate.willWriteCount, 1);
     XCTAssertEqual(self.macTokenCacheMocDelegate.didWriteCount, 1);

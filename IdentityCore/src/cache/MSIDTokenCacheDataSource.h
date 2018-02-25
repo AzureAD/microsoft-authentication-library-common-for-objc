@@ -23,33 +23,34 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDCacheItem;
+@class MSIDTokenCacheItem;
+@class MSIDAccountCacheItem;
 @class MSIDTokenCacheKey;
 
 @protocol MSIDRequestContext;
-@protocol MSIDCacheItemSerializer;
+@protocol MSIDAccountItemSerializer;
+@protocol MSIDTokenItemSerializer;
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
-- (BOOL)setItem:(MSIDCacheItem *)item
-            key:(MSIDTokenCacheKey *)key
-     serializer:(id<MSIDCacheItemSerializer>)serializer
-        context:(id<MSIDRequestContext>)context
-          error:(NSError **)error;
+// Tokens
+- (BOOL)saveToken:(MSIDTokenCacheItem *)item
+              key:(MSIDTokenCacheKey *)key
+       serializer:(id<MSIDTokenItemSerializer>)serializer
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error;
 
-- (MSIDCacheItem *)itemWithKey:(MSIDTokenCacheKey *)key
-                    serializer:(id<MSIDCacheItemSerializer>)serializer
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error;
+- (MSIDTokenCacheItem *)tokenWithKey:(MSIDTokenCacheKey *)key
+                          serializer:(id<MSIDTokenItemSerializer>)serializer
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error;
 
-- (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error;
+- (NSArray<MSIDTokenCacheItem *> *)tokensWithKey:(MSIDTokenCacheKey *)key
+                                      serializer:(id<MSIDTokenItemSerializer>)serializer
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error;
 
-- (NSArray<MSIDCacheItem *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                                serializer:(id<MSIDCacheItemSerializer>)serializer
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error;
+// Wipe info
 
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
@@ -57,6 +58,28 @@
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
-// TODO: add specific methods for accounts and tokens
+// Removal
+
+- (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
+
+// Accounts
+
+- (BOOL)saveAccount:(MSIDAccountCacheItem *)item
+                key:(MSIDTokenCacheKey *)key
+         serializer:(id<MSIDAccountItemSerializer>)serializer
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error;
+
+- (MSIDAccountCacheItem *)accountWithKey:(MSIDTokenCacheKey *)key
+                              serializer:(id<MSIDAccountItemSerializer>)serializer
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error;
+
+- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDTokenCacheKey *)key
+                                          serializer:(id<MSIDAccountItemSerializer>)serializer
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError **)error;
 
 @end

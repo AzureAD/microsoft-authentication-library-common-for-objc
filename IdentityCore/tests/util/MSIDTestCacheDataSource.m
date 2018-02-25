@@ -57,7 +57,7 @@
 
 #pragma mark - MSIDTokenCacheDataSource
 
-- (BOOL)setItem:(MSIDBaseCacheItem *)item
+- (BOOL)saveToken:(MSIDBaseCacheItem *)item
             key:(MSIDTokenCacheKey *)key
      serializer:(id<MSIDCacheItemSerializer>)serializer
         context:(id<MSIDRequestContext>)context
@@ -96,7 +96,7 @@
     return YES;
 }
 
-- (MSIDBaseCacheItem *)itemWithKey:(MSIDTokenCacheKey *)key
+- (MSIDBaseCacheItem *)tokenWithKey:(MSIDTokenCacheKey *)key
                         serializer:(id<MSIDCacheItemSerializer>)serializer
                            context:(id<MSIDRequestContext>)context
                              error:(NSError **)error
@@ -146,7 +146,7 @@
     return YES;
 }
 
-- (NSArray<MSIDBaseCacheItem *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+- (NSArray<MSIDBaseCacheItem *> *)tokensWithKey:(MSIDTokenCacheKey *)key
                                     serializer:(id<MSIDCacheItemSerializer>)serializer
                                        context:(id<MSIDRequestContext>)context
                                          error:(NSError **)error

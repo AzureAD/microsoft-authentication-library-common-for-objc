@@ -40,8 +40,7 @@
 @interface MSIDDefaultTokenCacheAccessor()
 {
     id<MSIDTokenCacheDataSource> _dataSource;
-    MSIDJsonSerializer *_tokenSerializer;
-    MSIDJsonSerializer *_accountSerializer;
+    MSIDJsonSerializer *_serializer;
 }
 @end
 
@@ -56,8 +55,7 @@
     if (self)
     {
         _dataSource = dataSource;
-        _tokenSerializer = [[MSIDJsonSerializer alloc] initWithType:MSIDTokenSerializerType];
-        _accountSerializer = [[MSIDJsonSerializer alloc] initWithType:MSIDAccountSerializerType];
+        _serializer = [[MSIDJsonSerializer alloc] init];
     }
     
     return self;
@@ -128,7 +126,6 @@
                   clientId:token.clientId
                     scopes:token.scopes
                  authority:token.authority
-                serializer:_tokenSerializer
                    context:context
                      error:error];
 }
@@ -190,7 +187,6 @@
                   clientId:token.clientId
                     scopes:nil
                  authority:token.authority
-                serializer:_tokenSerializer
                    context:context
                      error:error];
 }
@@ -212,16 +208,18 @@
                                                                                    clientId:parameters.clientId
                                                                                 accountType:account.accountType];
     
-    MSIDAccount *previousAccount = (MSIDAccount *)[_dataSource itemWithKey:key
-                                                                serializer:_accountSerializer
-                                                                   context:context
-                                                                     error:error];
+    MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key
+                                                             serializer:_serializer
+                                                                context:context
+                                                                  error:error];
     
+    (void)previousAccount;
+    /*
     if (previousAccount)
     {
         // Make sure we copy over all the additional fields
         [account updateFieldsFromAccount:previousAccount];
-    }
+    }*/
     
     // TODO: update account
     /*
@@ -302,7 +300,6 @@
                   clientId:refreshToken.clientId
                     scopes:nil
                  authority:newAuthority
-                serializer:_tokenSerializer
                    context:context
                      error:error];
 }
@@ -320,7 +317,6 @@
     return [self getRefreshTokenForUserId:account.userIdentifier
                                  clientId:parameters.clientId
                                 authority:parameters.authority
-                               serializer:_tokenSerializer
                                   context:context
                                     error:error];
 }
@@ -338,7 +334,6 @@
     return [self getRefreshTokenForUserId:account.userIdentifier
                                  clientId:token.clientId
                                 authority:token.authority
-                               serializer:_tokenSerializer
                                   context:context
                                     error:error];
 }
@@ -504,7 +499,6 @@
          clientId:(NSString *)clientId
            scopes:(NSOrderedSet<NSString *> *)scopes
         authority:(NSURL *)authority
-       serializer:(id<MSIDCacheItemSerializer>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
@@ -537,11 +531,11 @@
         return NO;
     }
     
-    BOOL result = [_dataSource setItem:cacheItem
-                                   key:key
-                            serializer:serializer
-                               context:context
-                                 error:error];
+    BOOL result = [_dataSource saveToken:cacheItem
+                                     key:key
+                              serializer:_serializer
+                                 context:context
+                                   error:error];
     
     [self stopTelemetryEvent:event
                     withItem:cacheItem
@@ -554,7 +548,6 @@
 - (MSIDRefreshToken *)getRefreshTokenForUserId:(NSString *)userId
                                       clientId:(NSString *)clientId
                                      authority:(NSURL *)authority
-                                    serializer:(id<MSIDCacheItemSerializer>)serializer
                                        context:(id<MSIDRequestContext>)context
                                          error:(NSError **)error
 {
@@ -585,10 +578,10 @@
         
         NSError *cacheError = nil;
         
-        MSIDTokenCacheItem *cacheItem = (MSIDTokenCacheItem *)[_dataSource itemWithKey:key
-                                                                            serializer:serializer
-                                                                               context:context
-                                                                                 error:&cacheError];
+        MSIDTokenCacheItem *cacheItem = [_dataSource tokenWithKey:key
+                                                       serializer:_serializer
+                                                          context:context
+                                                            error:&cacheError];
         
         if (cacheItem)
         {
@@ -652,7 +645,7 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                            context:context];
     
-    NSArray *tokens = [_dataSource itemsWithKey:key serializer:_tokenSerializer context:context error:error];
+    NSArray *tokens = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
     
     [self stopTelemetryEvent:event withItem:nil success:(tokens != nil) context:context];
     return tokens;

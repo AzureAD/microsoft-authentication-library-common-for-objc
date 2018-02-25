@@ -26,41 +26,9 @@
 #import "MSIDTokenCacheItem.h"
 #import "MSIDCacheItem.h"
 #import "MSIDTokenCacheItem.h"
-
-@interface MSIDJsonSerializer()
-{
-    Class _classToSerialize;
-}
-
-@end
+#import "MSIDAccountCacheItem.h"
 
 @implementation MSIDJsonSerializer
-
-#pragma mark - Init
-
-- (instancetype)initWithType:(MSIDSerializerType)type
-{
-    self = [super init];
-    
-    if (self)
-    {
-        switch (type) {
-            case MSIDTokenSerializerType:
-                _classToSerialize = MSIDTokenCacheItem.class;
-                break;
-                
-            case MSIDAccountSerializerType:
-                // TODO: set correct serializer type
-                _classToSerialize = MSIDCacheItem.class;
-                break;
-                
-            default:
-                _classToSerialize = MSIDCacheItem.class;
-                break;
-        }
-    }
-    return self;
-}
 
 - (NSData *)serialize:(MSIDCacheItem *)item
 {
@@ -83,7 +51,7 @@
     return data;
 }
 
-- (MSIDCacheItem *)deserialize:(NSData *)data
+- (MSIDCacheItem *)deserialize:(NSData *)data className:(Class)className
 {
     NSError *error = nil;
     NSDictionary *json = [self deserializeJSON:data error:&error];
@@ -95,7 +63,7 @@
         return nil;
     }
     
-    return [[_classToSerialize alloc] initWithJSONDictionary:json error:nil];
+    return [[className alloc] initWithJSONDictionary:json error:nil];
 }
 
 #pragma mark - Private
@@ -118,6 +86,30 @@
                                                            error:error];
     
     return json;
+}
+
+#pragma mark - Token
+
+- (NSData *)serializeTokenCacheItem:(MSIDTokenCacheItem *)item
+{
+    return [self serialize:item];
+}
+
+- (MSIDTokenCacheItem *)deserializeTokenCacheItem:(NSData *)data
+{
+    return (MSIDTokenCacheItem *)[self deserialize:data className:MSIDTokenCacheItem.class];
+}
+
+#pragma mark - Account
+
+- (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item
+{
+    return [self serialize:item];
+}
+
+- (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data
+{
+    return (MSIDAccountCacheItem *)[self deserialize:data className:MSIDAccountCacheItem.class];
 }
 
 @end

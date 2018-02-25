@@ -53,7 +53,7 @@
     if (self)
     {
         _dataSource = dataSource;
-        _serializer = [[MSIDKeyedArchiverSerializer alloc] initWithType:MSIDTokenSerializerType];
+        _serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     }
     
     return self;
@@ -252,10 +252,10 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                            context:context];
     
-    NSArray<MSIDCacheItem *> *legacyCacheItems = [_dataSource itemsWithKey:[MSIDLegacyTokenCacheKey keyForAllItems]
-                                                                serializer:_serializer
-                                                                   context:context
-                                                                     error:error];
+    NSArray<MSIDTokenCacheItem *> *legacyCacheItems = [_dataSource tokensWithKey:[MSIDLegacyTokenCacheKey keyForAllItems]
+                                                                      serializer:_serializer
+                                                                         context:context
+                                                                           error:error];
     
     if (!legacyCacheItems)
     {
@@ -366,11 +366,11 @@
     
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
     
-    BOOL result = [_dataSource setItem:token.tokenCacheItem
-                                   key:key
-                            serializer:_serializer
-                               context:context
-                                 error:error];
+    BOOL result = [_dataSource saveToken:token.tokenCacheItem
+                                     key:key
+                              serializer:_serializer
+                                 context:context
+                                   error:error];
     
     [self stopTelemetryEvent:event
                     withItem:cacheItem
@@ -410,7 +410,7 @@
         
         NSError *cacheError = nil;
         
-        NSArray *tokens = [_dataSource itemsWithKey:key
+        NSArray *tokens = [_dataSource tokensWithKey:key
                                          serializer:_serializer
                                             context:context
                                               error:&cacheError];
