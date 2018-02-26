@@ -22,11 +22,27 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedCacheAccessor.h"
+#import "MSIDTokenType.h"
 
-@interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDSharedCacheAccessor>
+@class MSIDAccount;
+@class MSIDRequestParameters;
+@class MSIDBaseToken;
+@class MSIDRefreshToken;
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
+@protocol MSIDSSOStateShareable <NSObject>
+
+- (BOOL)saveSSOToken:(MSIDRefreshToken *)refreshToken
+             account:(MSIDAccount *)account
+             context:(id<MSIDRequestContext>)context
+               error:(NSError **)error;
+
+- (MSIDRefreshToken *)getSSOTokenWithAccount:(MSIDAccount *)account
+                               requestParams:(MSIDRequestParameters *)parameters
+                                     context:(id<MSIDRequestContext>)context
+                                       error:(NSError **)error;
+
+- (NSArray *)getAllSSOTokensWithClientId:(NSString *)clientId
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error;
 
 @end

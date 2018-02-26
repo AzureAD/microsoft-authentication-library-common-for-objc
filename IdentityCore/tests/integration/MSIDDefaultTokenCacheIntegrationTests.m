@@ -23,7 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDTestCacheDataSource.h"
-#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDDefaultTokenCache.h"
 #import "MSIDTestRequestParams.h"
 #import "MSIDTestTokenResponse.h"
 #import "MSIDBaseToken.h"
@@ -39,7 +39,7 @@
 
 @interface MSIDDefaultTokenCacheIntegrationTests : XCTestCase
 {
-    MSIDDefaultTokenCacheAccessor *_cacheAccessor;
+    MSIDDefaultTokenCache *_cacheAccessor;
     MSIDTestCacheDataSource *_dataSource;
 }
 @end

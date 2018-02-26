@@ -22,22 +22,23 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDSharedCacheAccessor.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDRequestContext.h"
-#import "MSIDBrokerResponse.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDRefreshableToken.h"
+#import "MSIDSSOStateShareable.h"
 
-@class MSIDAccessToken;
+@protocol MSIDTokenCacheDataSource;
+@protocol MSIDRefreshableToken;
+@class MSIDTokenResponse;
+@class MSIDBrokerResponse;
 @class MSIDRefreshToken;
-@class MSIDAdfsToken;
-@class MSIDBaseToken;
+@class MSIDAccessToken;
+@class MSIDTokenCacheItem;
 
-@interface MSIDSharedTokenCache : NSObject
+@interface MSIDBaseTokenCache : NSObject <MSIDSSOStateShareable>
 
-- (instancetype)initWithPrimaryCacheAccessor:(id<MSIDSharedCacheAccessor>)primaryAccessor
-                         otherCacheAccessors:(NSArray<id<MSIDSharedCacheAccessor>> *)otherAccessors;
+@property (nonatomic, readonly) id<MSIDTokenCacheDataSource> dataSource;
+@property (nonatomic, readonly) NSArray<id<MSIDSSOStateShareable>> *allAccessors;
+
+- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
+                secondaryAccessors:(NSArray<id<MSIDSSOStateShareable>> *)secondaryAccessors;
 
 // Save operations
 - (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)requestParams
@@ -49,14 +50,15 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
+- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
+             withAccount:(MSIDAccount *)account
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error;
+
 - (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
                        requestParams:(MSIDRequestParameters *)parameters
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
-
-- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error;
 
 /*!
  Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
@@ -78,8 +80,8 @@
                                  error:(NSError **)error;
 
 /*!
- + Returns all refresh tokens for a given client.
- + */
+ Returns all refresh tokens for a given client.
+ */
 - (NSArray<MSIDRefreshToken *> *)getAllClientRTs:(NSString *)clientId
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
@@ -90,4 +92,17 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
+// Protected
+- (MSIDTokenCacheItem *)getLatestTokenCacheItem:(MSIDTokenCacheItem *)cacheItem
+                                        account:(MSIDAccount *)account
+                                        context:(id<MSIDRequestContext>)context
+                                          error:(NSError **)error;
+
+- (BOOL)removeTokenCacheItem:(MSIDTokenCacheItem *)cacheItem
+                     account:(MSIDAccount *)account
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error;
+
 @end
+
+
