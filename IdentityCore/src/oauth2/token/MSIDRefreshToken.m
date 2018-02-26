@@ -126,6 +126,12 @@
 - (void)fillToken:(MSIDTokenResponse *)response
 {
     _refreshToken = response.refreshToken;
+    
+    if (!_refreshToken)
+    {
+        MSID_LOG_ERROR(nil, @"Trying to initialize refresh token when missing refresh token field");
+    }
+    
     _idToken = response.idToken;
     
     if ([response isKindOfClass:[MSIDAADTokenResponse class]])

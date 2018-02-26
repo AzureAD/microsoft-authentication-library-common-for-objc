@@ -111,8 +111,19 @@ static uint64_t s_expirationBuffer = 300;
         _expiresOn = tokenCacheItem.expiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
         _accessToken = tokenCacheItem.accessToken;
+        
+        if (!_accessToken)
+        {
+            MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
+        }
+        
         _idToken = tokenCacheItem.idToken;
         _target = tokenCacheItem.target;
+        
+        if (!_target)
+        {
+            MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing target field");
+        }
     }
     
     return self;

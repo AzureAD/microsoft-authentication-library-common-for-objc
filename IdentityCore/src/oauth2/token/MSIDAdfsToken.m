@@ -106,6 +106,11 @@
     
     _refreshToken = response.refreshToken;
     
+    if (!_refreshToken)
+    {
+        MSID_LOG_ERROR(nil, @"Trying to initialize ADFS token when missing refresh token field");
+    }
+    
     return self;
 }
 

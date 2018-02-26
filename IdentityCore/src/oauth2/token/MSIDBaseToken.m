@@ -122,7 +122,19 @@
         }
         
         _authority = tokenCacheItem.authority;
+        
+        if (!_authority)
+        {
+            MSID_LOG_ERROR(nil, @"Trying to initialize token when missing authority field");
+        }
+        
         _clientId = tokenCacheItem.clientId;
+        
+        if (!_clientId)
+        {
+            MSID_LOG_ERROR(nil, @"Trying to initialize token when missing clientId field");
+        }
+        
         _clientInfo = tokenCacheItem.clientInfo;
         _additionalInfo = tokenCacheItem.additionalInfo;
         _username = tokenCacheItem.username;
