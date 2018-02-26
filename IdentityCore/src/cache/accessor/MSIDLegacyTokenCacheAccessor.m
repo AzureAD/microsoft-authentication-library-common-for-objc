@@ -30,9 +30,9 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
-#import "MSIDAADV1RequestParameters.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
+#import "MSIDRequestParameters.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -60,22 +60,6 @@
 }
 
 #pragma mark - Input validation
-
-- (BOOL)checkRequestParameters:(MSIDRequestParameters *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
-{
-    if (![parameters isKindOfClass:MSIDAADV1RequestParameters.class])
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"MSIDAADV1RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
-        }
-        return NO;
-    }
-    
-    return YES;
-}
 
 - (BOOL)checkUserIdentifier:(MSIDAccount *)account
                     context:(id<MSIDRequestContext>)context
@@ -153,22 +137,13 @@
                                         context:context
                                           error:error];
     }
-    
-    // For all other tokens, just do direct query to keychain
-    if (![self checkRequestParameters:parameters context:context error:error])
-    {
-        return nil;
-    }
-    
-    MSIDAADV1RequestParameters *aadRequestParams = (MSIDAADV1RequestParameters *)parameters;
-    NSString *resource = aadRequestParams.resource;
-    
+        
     return [self getTokenWithType:tokenType
                           account:account
                   useLegacyUserId:YES
                         authority:parameters.authority
                          clientId:parameters.clientId
-                         resource:resource
+                         resource:parameters.resource
                           context:context
                             error:error];
 }

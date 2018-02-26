@@ -65,4 +65,9 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
     return [[MSIDIdTokenWrapper alloc] initWithRawIdToken:self.idToken];
 }
 
+- (NSString *)target
+{
+    return self.scope;
+}
+
 @end

@@ -22,12 +22,14 @@
 // THE SOFTWARE.
 
 #import "MSIDRequestParameters.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDRequestParameters
 
 - (instancetype)initWithAuthority:(NSURL *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
+                           target:(NSString *)target
 {
     self = [super init];
     
@@ -36,9 +38,20 @@
         _authority = authority;
         _redirectUri = redirectUri;
         _clientId = clientId;
+        _target = target;
     }
     
     return self;
+}
+
+- (NSString *)resource
+{
+    return _target;
+}
+
+- (NSOrderedSet<NSString *> *)scopes
+{
+    return [_target scopeSet];
 }
 
 @end

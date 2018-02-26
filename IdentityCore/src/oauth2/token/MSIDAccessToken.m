@@ -24,10 +24,10 @@
 #import "MSIDAccessToken.h"
 #import "MSIDAADTokenResponse.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDAADV1RequestParameters.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDUserInformation.h"
 #import "NSDate+MSIDExtensions.h"
+#import "MSIDRequestParameters.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;
@@ -150,24 +150,8 @@ static uint64_t s_expirationBuffer = 300;
 - (void)fillToken:(MSIDTokenResponse *)response
           request:(MSIDRequestParameters *)requestParams
 {
-    NSString *resource = nil;
-
-    if ([response isKindOfClass:[MSIDAADV1TokenResponse class]])
-    {
-        NSString *fallbackResource = nil;
-        
-        if ([requestParams isKindOfClass:[MSIDAADV1RequestParameters class]])
-        {
-            MSIDAADV1RequestParameters *v1RequestParams = (MSIDAADV1RequestParameters *)requestParams;
-            fallbackResource = v1RequestParams.resource;
-        }
-        
-        MSIDAADV1TokenResponse *aadV1TokenResponse = (MSIDAADV1TokenResponse *)response;
-        // Because resource is not always returned in the token response, we rely on the input resource as a fallback
-        resource = aadV1TokenResponse.resource ? aadV1TokenResponse.resource : fallbackResource;
-    }
-    
-    _target = resource ? resource : response.scope;
+    // Because resource/scopes is not always returned in the token response, we rely on the input resource/scopes as a fallback
+    _target = response.target ? response.target : requestParams.target;
     
     _accessToken = response.accessToken;
     _idToken = response.idToken;

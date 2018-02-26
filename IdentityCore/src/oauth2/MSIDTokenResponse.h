@@ -39,9 +39,18 @@
 @property (readonly) NSString *state;
 @property (readonly) NSString *idToken;
 
-// Derived properties
+/* Derived properties */
+
+// NSDate derived from expiresIn property and time received
 @property (readonly) NSDate *expiryDate;
+
+// Specifies if token in the token response is multi resource
 @property (readonly) BOOL isMultiResource;
+
+// Wrapper object around ID token
 @property (readonly) MSIDIdTokenWrapper *idTokenObj;
+
+// Generic target of the access token, scope for base token response, resource for AAD v1
+@property (readonly) NSString *target;
 
 @end

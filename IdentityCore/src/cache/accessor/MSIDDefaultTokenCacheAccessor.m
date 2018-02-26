@@ -27,7 +27,6 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
-#import "MSIDAADV2RequestParameters.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDAadAuthorityCache.h"
 #import "NSURL+MSIDExtensions.h"
@@ -37,6 +36,7 @@
 #import "MSIDDefaultTokenCacheKey.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAADV2IdToken.h"
+#import "MSIDRequestParameters.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -63,22 +63,6 @@
 }
 
 #pragma mark - Input validation
-
-- (BOOL)checkRequestParameters:(MSIDRequestParameters *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
-{
-    if (![parameters isKindOfClass:MSIDAADV2RequestParameters.class])
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"MSIDAADV2RequestParameters is expected here, received something else", nil, nil, nil, context.correlationId, nil);
-        }
-        return NO;
-    }
-    
-    return YES;
-}
 
 - (BOOL)checkUserIdentifier:(MSIDAccount *)account
                     context:(id<MSIDRequestContext>)context
@@ -429,8 +413,7 @@
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
-    if (![self checkRequestParameters:parameters context:context error:error]
-        || ![self checkUserIdentifier:account context:context error:error])
+    if (![self checkUserIdentifier:account context:context error:error])
     {
         return NO;
     }
@@ -467,31 +450,28 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
-    if (![self checkRequestParameters:parameters context:context error:error]
-        || ![self checkUserIdentifier:account context:context error:error])
+    if (![self checkUserIdentifier:account context:context error:error])
     {
         return nil;
     }
     
-    MSIDAADV2RequestParameters *v2params = (MSIDAADV2RequestParameters *)parameters;
-    
     NSArray<MSIDAccessToken *> *matchedTokens = nil;
     
-    if (v2params.authority)
+    if (parameters.authority)
     {
         // This is an optimization for cases, when developer provides us an authority
         // We can then do exact match except for scopes
         // We query less items and loop through less items too
         
         MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
-                                                                                              authority:v2params.authority
-                                                                                               clientId:v2params.clientId];
+                                                                                              authority:parameters.authority
+                                                                                               clientId:parameters.clientId];
         
         NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithKey:key
                                                                     context:context
                                                                       error:error];
         
-        matchedTokens = [self filterAllAccessTokenCacheItems:allItems withScopes:v2params.scopes];
+        matchedTokens = [self filterAllAccessTokenCacheItems:allItems withScopes:parameters.scopes];
     }
     else
     {
@@ -503,7 +483,7 @@
                                                                       error:error];
         
         matchedTokens = [self filterAllAccessTokenCacheItems:allItems
-                                              withParameters:v2params
+                                              withParameters:parameters
                                                      account:account
                                                      context:context
                                                        error:error];
@@ -580,7 +560,7 @@
 }
 
 - (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                                withParameters:(MSIDAADV2RequestParameters *)parameters
+                                                withParameters:(MSIDRequestParameters *)parameters
                                                        account:(MSIDAccount *)account
                                                        context:(id<MSIDRequestContext>)context
                                                          error:(NSError **)error

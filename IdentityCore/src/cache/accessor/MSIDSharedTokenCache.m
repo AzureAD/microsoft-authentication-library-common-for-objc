@@ -180,7 +180,8 @@
 {
     MSIDRequestParameters *params = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:response.authority]
                                                                          redirectUri:nil
-                                                                            clientId:response.clientId];
+                                                                            clientId:response.clientId
+                                                                              target:response.resource];
     
     return [self saveTokensWithRequestParams:params
                                     response:response.tokenResponse
