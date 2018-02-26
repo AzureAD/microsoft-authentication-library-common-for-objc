@@ -113,14 +113,6 @@ static uint64_t s_expirationBuffer = 300;
         _accessToken = tokenCacheItem.accessToken;
         _idToken = tokenCacheItem.idToken;
         _target = tokenCacheItem.target;
-        
-        if (!_authority && tokenCacheItem.tenant)
-        {
-            // TODO: this should be in a helper
-            NSString *authorityString = [NSString stringWithFormat:@"https://%@/%@", tokenCacheItem.environment, tokenCacheItem.tenant];
-            
-            _authority = [NSURL URLWithString:authorityString];
-        }
     }
     
     return self;

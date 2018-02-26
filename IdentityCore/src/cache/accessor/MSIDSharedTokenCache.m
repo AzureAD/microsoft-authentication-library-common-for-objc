@@ -80,28 +80,26 @@
         MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response
                                                                               request:requestParams];
         
-        BOOL result = [_primaryAccessor saveAccessToken:accessToken
-                                              account:account
-                                        requestParams:requestParams
-                                              context:context
-                                                error:error];
+        BOOL result = [_primaryAccessor saveToken:accessToken
+                                          account:account
+                                          context:context
+                                            error:error];
         
         if (!result)
         {
             return NO;
         }
         
-        if ([_primaryAccessor respondsToSelector:@selector(saveIDToken:account:requestParams:context:error:)])
+        if ([_primaryAccessor supportsTokenType:MSIDTokenTypeIDToken])
         {
             // Save ID token in the primary format, if accessor supports it...
             MSIDIdToken *idToken = [[MSIDIdToken alloc] initWithTokenResponse:response
                                                                       request:requestParams];
             
-            result = [_primaryAccessor saveIDToken:idToken
-                                           account:account
-                                     requestParams:requestParams
-                                           context:context
-                                             error:error];
+            result = [_primaryAccessor saveToken:idToken
+                                         account:account
+                                         context:context
+                                           error:error];
             
             if (!result)
             {
@@ -134,7 +132,7 @@
                                          context:context
                                            error:error];
     }
-    else if ([_primaryAccessor respondsToSelector:@selector(saveADFSToken:account:requestParams:context:error:)])
+    else if ([_primaryAccessor supportsTokenType:MSIDTokenTypeLegacyADFSToken])
     {
         MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenResponse:response
                                                                         request:requestParams];
@@ -142,22 +140,16 @@
         account.legacyUserId = @"";
         
         // Save token for ADFS
-        return [_primaryAccessor saveADFSToken:adfsToken
-                                       account:account
-                                requestParams:requestParams
-                                       context:context
-                                         error:error];
+        [_primaryAccessor saveToken:adfsToken
+                            account:account
+                            context:context
+                              error:error];
     }
     
-    if ([_primaryAccessor respondsToSelector:@selector(saveAccount:requestParams:context:error:)])
-    {
-        return [_primaryAccessor saveAccount:account
-                               requestParams:requestParams
-                                     context:context
-                                       error:error];
-    }
-    
-    return YES;
+    return [_primaryAccessor saveAccount:account
+                           requestParams:requestParams
+                                 context:context
+                                   error:error];
 }
 
 - (BOOL)saveRefreshTokenInAllCaches:(MSIDRefreshToken *)refreshToken
@@ -168,10 +160,10 @@
     // Save RTs in all formats including primary
     for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
-        BOOL result = [cache saveSharedRTForAccount:account
-                                       refreshToken:refreshToken
-                                            context:context
-                                              error:error];
+        BOOL result = [cache saveToken:refreshToken
+                               account:account
+                               context:context
+                                 error:error];
         
         if (!result)
         {
@@ -203,21 +195,24 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
-    return [_primaryAccessor getATForAccount:account
-                             requestParams:parameters
-                                   context:context
-                                     error:error];
+    return (MSIDAccessToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeAccessToken
+                                                         account:account
+                                                   requestParams:parameters
+                                                         context:context
+                                                           error:error];
 }
 
 - (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    if ([_primaryAccessor respondsToSelector:@selector(getADFSTokenWithRequestParams:context:error:)])
+    if ([_primaryAccessor supportsTokenType:MSIDTokenTypeLegacyADFSToken])
     {
-        return [_primaryAccessor getADFSTokenWithRequestParams:parameters
-                                                       context:context
-                                                         error:error];
+        return (MSIDAdfsToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacyADFSToken
+                                                           account:nil
+                                                    requestParams:parameters
+                                                           context:context
+                                                             error:error];
     }
     
     return nil;
@@ -233,10 +228,11 @@
     // try all caches in order starting with the primary
     for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
-        MSIDRefreshToken *token = [cache getSharedRTForAccount:account
-                                                 requestParams:parameters
-                                                       context:context
-                                                         error:&cacheError];
+        MSIDRefreshToken *token = (MSIDRefreshToken *)[cache getTokenWithType:MSIDTokenTypeRefreshToken
+                                                                      account:account
+                                                                requestParams:parameters
+                                                                      context:context
+                                                                        error:error];
         
         if (token)
         {
@@ -280,9 +276,10 @@
     // Get RTs from all caches
     for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
-        NSArray *otherRTs = [cache getAllSharedRTsWithClientId:clientId
-                                                       context:context
-                                                         error:error];
+        NSArray *otherRTs = [cache getAllTokensOfType:MSIDTokenTypeRefreshToken
+                                         withClientId:clientId
+                                              context:context
+                                                error:error];
         
         if (otherRTs)
         {
@@ -310,10 +307,10 @@
     
     NSError *cacheError = nil;
     
-    MSIDBaseToken<MSIDRefreshableToken> *tokenInCache = [_primaryAccessor getLatestRTForToken:token
-                                                                                      account:account
-                                                                                      context:context
-                                                                                        error:&cacheError];
+    MSIDBaseToken<MSIDRefreshableToken> *tokenInCache = (MSIDBaseToken<MSIDRefreshableToken> *)[_primaryAccessor getLatestToken:token
+                                                                                                                        account:account
+                                                                                                                        context:context
+                                                                                                                          error:&cacheError];
     
     if (cacheError)
     {
@@ -326,10 +323,10 @@
     
     if (tokenInCache && [tokenInCache.refreshToken isEqualToString:token.refreshToken])
     {
-        return [_primaryAccessor removeSharedRTForAccount:account
-                                                    token:token
-                                                  context:context
-                                                    error:error];
+        return [_primaryAccessor removeToken:tokenInCache
+                                     account:account
+                                     context:context
+                                       error:error];
     }
     
     return YES;

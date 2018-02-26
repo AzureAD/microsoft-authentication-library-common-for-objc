@@ -28,6 +28,7 @@
 @interface MSIDCacheItem : NSObject <NSSecureCoding, MSIDJsonSerializable>
 {
     NSURL *_authority;
+    NSString *_environment;
     NSString *_username;
     NSString *_uniqueUserId;
     MSIDClientInfo *_clientInfo;

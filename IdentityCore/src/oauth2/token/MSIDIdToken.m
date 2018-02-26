@@ -24,6 +24,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDUserInformation.h"
 #import "MSIDTokenResponse.h"
+#import "NSURL+MSIDExtensions.h"
 
 @implementation MSIDIdToken
 
@@ -81,14 +82,6 @@
     if (self)
     {
         _rawIdToken = tokenCacheItem.idToken;
-        
-        if (!_authority && tokenCacheItem.tenant)
-        {
-            // TODO: this should be in a helper
-            NSString *authorityString = [NSString stringWithFormat:@"https://%@/%@", tokenCacheItem.environment, tokenCacheItem.tenant];
-            
-            _authority = [NSURL URLWithString:authorityString];
-        }
     }
     
     return self;

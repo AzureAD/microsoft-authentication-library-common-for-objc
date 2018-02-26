@@ -67,7 +67,7 @@
 
 - (void)testSaveAccessToken_withV1RequestParameters_shouldReturnError
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -89,7 +89,7 @@
 
 - (void)testSaveAccessToken_withTokenAndAccount_shouldSaveToken
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -115,7 +115,7 @@
 
 - (void)testSaveAccessToken_sameEverythingWithScopesIntersect_shouldOverwriteToken
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -155,7 +155,7 @@
 
 - (void)testSaveAccessToken_sameEverythingWithScopesDontIntersect_shouldWriteNewToken
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -196,7 +196,7 @@
 
 - (void)testSaveAccessToken_withDifferentAuthorities_shouldSave2Tokens
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -239,7 +239,7 @@
 
 - (void)testSaveAccessToken_withDifferentUsers_shouldSave2Tokens
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -254,7 +254,7 @@
                               error:nil];
     
     // save 2nd token with different user
-    MSIDAccount *account2 = [[MSIDAccount alloc] initWithUpn:nil utid:@"UTID2" uid:@"UID2"];
+    MSIDAccount *account2 = [[MSIDAccount alloc] initWithLegacyUserId:nil utid:@"UTID2" uid:@"UID2"];
     
     MSIDAccessToken *token4 = [[MSIDAccessToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
                                                                                                            RT:DEFAULT_TEST_REFRESH_TOKEN
@@ -282,7 +282,7 @@
 
 - (void)testSaveSharedRTForAccount_withRT_shouldSaveOneEntry
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -307,7 +307,7 @@
 
 - (void)testGetAccessToken_whenNoItemsInCache_shouldReturnNil
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -324,7 +324,7 @@
 
 - (void)testGetAccessToken_withWrongParameters_shouldReturnError
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -341,7 +341,7 @@
 
 - (void)testGetAccessToken_withMultipleAccessTokensInCache_shouldReturnRightToken
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -427,7 +427,7 @@
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
                                                                     request:[MSIDTestRequestParams v2DefaultParams]];
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -454,7 +454,7 @@
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
                                                                     request:[MSIDTestRequestParams v2DefaultParams]];
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -482,7 +482,7 @@
 
 - (void)testGetAccessToken_withNoAuthority_andMultipleAuthoritiesFound_shouldReturnError
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -528,7 +528,7 @@
 
 - (void)testGetSharedRTForAccount_whenNoItemsInCache_shouldReturnNil
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -547,7 +547,7 @@
     MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
                                                                       request:[MSIDTestRequestParams v2DefaultParams]];
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:nil
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -573,7 +573,7 @@
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
                                                                     request:[MSIDTestRequestParams v2DefaultParams]];
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:nil
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -596,7 +596,7 @@
 
 - (void)testGetSharedRTForAccount_whenAccountWithNoUtidAndUidProvided_shouldReturnError
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:nil
                                                         uid:nil];
     
@@ -627,7 +627,7 @@
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
                                                                     request:[MSIDTestRequestParams v2DefaultParams]];
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:nil
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -652,7 +652,7 @@
     MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
                                                                       request:[MSIDTestRequestParams v2DefaultParams]];
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:nil
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -674,7 +674,7 @@
 
 - (void)testGetAllSharedRTsAfterSaving_whenBothATandRTinCache_andAccountWithUtidUidProvided_shouldReturnItems
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     
@@ -712,7 +712,7 @@
 
 - (void)testRemoveSharedRTForAccount_whenItemInCache_andAccountWithUidUtidProvided_shouldRemoveOnlyRTItems
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        utid:DEFAULT_TEST_UTID
                                                         uid:DEFAULT_TEST_UID];
     

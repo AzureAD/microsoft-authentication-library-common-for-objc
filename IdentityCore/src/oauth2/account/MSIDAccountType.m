@@ -43,19 +43,20 @@
     }
 }
 
-static NSDictionary *accountTypes = nil;
+static NSDictionary *sAccountTypes = nil;
 
-// TODO: dispatch once
 + (MSIDAccountType)accountTypeFromString:(NSString *)type
 {
-    if (!accountTypes)
-    {
-        accountTypes = @{@"AAD": @(MSIDAccountTypeAADV1),
-                         @"MSA": @(MSIDAccountTypeMSA),
-                         @"MSSTS": @(MSIDAccountTypeAADV2)};
-    }
+    static dispatch_once_t sAccountTypesOnce;
     
-    NSNumber *accountType = accountTypes[type];
+    dispatch_once(&sAccountTypesOnce, ^{
+        
+        sAccountTypes = @{@"AAD": @(MSIDAccountTypeAADV1),
+                          @"MSA": @(MSIDAccountTypeMSA),
+                          @"MSSTS": @(MSIDAccountTypeAADV2)};
+    });
+    
+    NSNumber *accountType = sAccountTypes[type];
     return accountType ? [accountType integerValue] : MSIDAccountTypeOther;
 }
 

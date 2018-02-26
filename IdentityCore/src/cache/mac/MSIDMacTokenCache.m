@@ -352,7 +352,6 @@ return NO; \
                 // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
                 RETURN_ERROR_IF_CONDITION_FALSE([key isKindOfClass:[MSIDTokenCacheKey class]], MSIDErrorCacheBadFormat, @"Key is not of the expected class type.");
                 id token = [userDict objectForKey:key];
-                // TODO: replace format here
                 RETURN_ERROR_IF_CONDITION_FALSE([token isKindOfClass:[MSIDTokenCacheItem class]], MSIDErrorCacheBadFormat, @"Token is not of the expected class type.");
             }
         }

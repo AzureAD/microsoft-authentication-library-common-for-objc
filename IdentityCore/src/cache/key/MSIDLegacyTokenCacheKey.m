@@ -83,7 +83,7 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
 + (MSIDLegacyTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                      clientId:(NSString *)clientId
                                      resource:(NSString *)resource
-                                          upn:(NSString *)upn
+                                 legacyUserId:(NSString *)upn
 {
     NSString *service = [self.class serviceWithAuthority:authority
                                                 resource:resource

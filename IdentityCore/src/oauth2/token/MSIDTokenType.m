@@ -46,22 +46,23 @@
     }
 }
 
-static NSDictionary *tokenTypes = nil;
+static NSDictionary *sTokenTypes = nil;
 
-// TODO: dispatch once
 + (MSIDTokenType)tokenTypeFromString:(NSString *)type
 {
-    if (!tokenTypes)
-    {
-        tokenTypes = @{MSID_ACCESS_TOKEN_CACHE_TYPE: @(MSIDTokenTypeAccessToken),
-                       MSID_REFRESH_TOKEN_CACHE_TYPE: @(MSIDTokenTypeRefreshToken),
-                       MSID_ADFS_TOKEN_CACHE_TYPE: @(MSIDTokenTypeLegacyADFSToken),
-                       MSID_ID_TOKEN_CACHE_TYPE: @(MSIDTokenTypeIDToken),
-                       MSID_GENERAL_TOKEN_CACHE_TYPE: @(MSIDTokenTypeOther)
-                       };
-    }
+    static dispatch_once_t sTokenTypesOnce;
     
-    NSNumber *tokenType = tokenTypes[type];
+    dispatch_once(&sTokenTypesOnce, ^{
+        
+        sTokenTypes = @{MSID_ACCESS_TOKEN_CACHE_TYPE: @(MSIDTokenTypeAccessToken),
+                        MSID_REFRESH_TOKEN_CACHE_TYPE: @(MSIDTokenTypeRefreshToken),
+                        MSID_ADFS_TOKEN_CACHE_TYPE: @(MSIDTokenTypeLegacyADFSToken),
+                        MSID_ID_TOKEN_CACHE_TYPE: @(MSIDTokenTypeIDToken),
+                        MSID_GENERAL_TOKEN_CACHE_TYPE: @(MSIDTokenTypeOther)
+                        };
+    });
+    
+    NSNumber *tokenType = sTokenTypes[type];
     return tokenType ? [tokenType integerValue] : MSIDTokenTypeOther;
 }
 

@@ -25,6 +25,8 @@
 #import "MSIDUserInformation.h"
 #import "MSIDTokenType.h"
 #import "NSDate+MSIDExtensions.h"
+#import "NSURL+MSIDExtensions.h"
+#import "MSIDIdTokenWrapper.h"
 
 @implementation MSIDTokenCacheItem
 
@@ -146,7 +148,17 @@
     _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
     
     // Authority
-    _authority = json[MSID_AUTHORITY_CACHE_KEY];
+    if (!_authority && _tenant)
+    {
+        if (_tenant)
+        {
+            _authority = [NSURL msidURLWithEnvironment:_environment tenant:_tenant];
+        }
+        else
+        {
+            _authority = [NSURL msidURLWithEnvironment:_environment];
+        }
+    }
     
     return self;
 }
@@ -211,9 +223,6 @@
     
     // ID token
     dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
-    
-    // Authority
-    dictionary[MSID_AUTHORITY_CACHE_KEY] = _authority;
     
     return dictionary;
 }

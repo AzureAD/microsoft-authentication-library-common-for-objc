@@ -153,4 +153,21 @@ const unichar queryStringSeparator = '?';
     return pathComponents[1];
 }
 
++ (NSURL *)msidURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant
+{
+    if ([NSString msidIsStringNilOrBlank:environment]
+        || [NSString msidIsStringNilOrBlank:tenant])
+    {
+        return nil;
+    }
+    
+    NSString *authorityString = [NSString stringWithFormat:@"https://%@/%@", environment, tenant];
+    return [NSURL URLWithString:authorityString];
+}
+
++ (NSURL *)msidURLWithEnvironment:(NSString *)environment
+{
+    return [self msidURLWithEnvironment:environment tenant:@"common"];
+}
+
 @end

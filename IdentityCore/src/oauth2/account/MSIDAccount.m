@@ -100,14 +100,14 @@
 
 - (instancetype)init
 {
-    return [self initWithUpn:nil
-                        utid:nil
-                         uid:nil];
+    return [self initWithLegacyUserId:nil
+                                 utid:nil
+                                  uid:nil];
 }
 
-- (instancetype)initWithUpn:(NSString *)upn
-                       utid:(NSString *)utid
-                        uid:(NSString *)uid
+- (instancetype)initWithLegacyUserId:(NSString *)upn
+                                utid:(NSString *)utid
+                                 uid:(NSString *)uid
 {
     if (!(self = [super init]))
     {
@@ -176,9 +176,7 @@
         
         if (!_authority && cacheItem.tenant)
         {
-            // TODO: this should be in a helper
-            NSString *authorityString = [NSString stringWithFormat:@"https://%@/%@", cacheItem.environment, cacheItem.tenant];
-            _authority = [NSURL URLWithString:authorityString];
+            _authority = [NSURL msidURLWithEnvironment:cacheItem.environment tenant:cacheItem.tenant];
         }
         
         _username = cacheItem.username;

@@ -93,158 +93,139 @@
     return YES;
 }
 
-#pragma mark - Access tokens
+#pragma mark - MSIDSharedCacheAccessor
 
-// TODO: this is a duplicate code of saveADFSToken
-- (BOOL)saveAccessToken:(MSIDAccessToken *)token
-                account:(MSIDAccount *)account
-          requestParams:(MSIDRequestParameters *)parameters
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+- (BOOL)saveToken:(MSIDBaseToken *)token
+          account:(MSIDAccount *)account
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error
 {
-    if (![self checkRequestParameters:parameters context:context error:error]
-        || ![self checkUserIdentifier:account context:context error:error])
+    if (![self checkUserIdentifier:account context:context error:error])
     {
         return NO;
     }
     
-    return [self saveToken:token
-                   account:account
-                  clientId:parameters.clientId
-                  resource:token.resource
-                   context:context
-                     error:error];
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
+    
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
+                                                                           context:context];
+    
+    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
+    
+    // The authority used to retrieve the item over the network can differ from the preferred authority used to
+    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
+    // it with we switch it out before saving it to cache.
+    token.authority = newAuthority;
+    
+    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
+    
+    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:newAuthority
+                                                                    clientId:cacheItem.clientId
+                                                                    resource:cacheItem.target
+                                                                         legacyUserId:account.legacyUserId];
+    
+    BOOL result = [_dataSource saveToken:cacheItem
+                                     key:key
+                              serializer:_serializer
+                                 context:context
+                                   error:error];
+    
+    [self stopTelemetryEvent:event
+                    withItem:cacheItem
+                     success:result
+                     context:context];
+    
+    return result;
 }
 
-- (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
-                       requestParams:(MSIDRequestParameters *)parameters
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
+- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
+                            account:(MSIDAccount *)account
+                      requestParams:(MSIDRequestParameters *)parameters
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
 {
-    if (![self checkUserIdentifier:account context:context error:error])
+    // Do custom handling for refresh tokens, because they need fallback logic with different identifiers
+    if (tokenType == MSIDTokenTypeRefreshToken)
+    {
+        return [self getRefreshTokenWithAccount:account
+                                  requestParams:parameters
+                                        context:context
+                                          error:error];
+    }
+    
+    // For all other tokens, just do direct query to keychain
+    if (![self checkRequestParameters:parameters context:context error:error])
     {
         return nil;
     }
     
-    MSIDTokenCacheItem *cacheItem = [self getATCacheItemForAccount:account
-                                                     requestParams:parameters
-                                                           context:context
-                                                             error:error];
+    MSIDAADV1RequestParameters *aadRequestParams = (MSIDAADV1RequestParameters *)parameters;
+    NSString *resource = aadRequestParams.resource;
     
-    if (cacheItem)
-    {
-        MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
-        return accessToken;
-    }
-    
-    return nil;
+    return [self getTokenWithType:tokenType
+                          account:account
+                  useLegacyUserId:YES
+                        authority:parameters.authority
+                         clientId:parameters.clientId
+                         resource:resource
+                          context:context
+                            error:error];
 }
 
-#pragma mark - ADFS tokens
-
-// TODO: duplicate code of saveATForAccount
-- (BOOL)saveADFSToken:(MSIDAdfsToken *)token
-              account:(MSIDAccount *)account
-        requestParams:(MSIDRequestParameters *)parameters
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error
+- (MSIDBaseToken *)getLatestToken:(MSIDBaseToken *)token
+                          account:(MSIDAccount *)account
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
 {
-    if (![self checkRequestParameters:parameters context:context error:error]
-        || ![self checkUserIdentifier:account context:context error:error])
-    {
-        return NO;
-    }
+    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
     
-    return [self saveToken:token
-                   account:account
-                  clientId:parameters.clientId
-                  resource:token.resource
-                   context:context
-                     error:error];
+    return [self getTokenWithType:cacheItem.tokenType
+                          account:account
+                  useLegacyUserId:YES
+                        authority:cacheItem.authority
+                         clientId:cacheItem.clientId
+                         resource:cacheItem.target
+                          context:context
+                            error:error];
 }
 
-- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
-{
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@"" utid:nil uid:nil];
-    
-    MSIDTokenCacheItem *cacheItem = [self getATCacheItemForAccount:account
-                                                     requestParams:parameters
-                                                           context:context
-                                                             error:error];
-    
-    if (cacheItem)
-    {
-        MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenCacheItem:cacheItem];
-        return adfsToken;
-    }
-    
-    return nil;
-}
-
-#pragma mark - Refresh tokens
-
-- (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
-                  refreshToken:(MSIDRefreshToken *)refreshToken
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (BOOL)removeToken:(MSIDBaseToken *)token
+            account:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
 {
     if (![self checkUserIdentifier:account context:context error:error])
     {
         return NO;
     }
     
-    // Save refresh token entry
-    return [self saveToken:refreshToken
-                   account:account
-                  clientId:refreshToken.clientId
-                  resource:nil
-                   context:context
-                     error:error];
-}
-
-- (MSIDRefreshToken *)getSharedRTForAccount:(MSIDAccount *)account
-                              requestParams:(MSIDRequestParameters *)parameters
-                                    context:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error
-{
-    MSIDTokenCacheItem *cacheItem = [self getItemForAccount:account
-                                                  authority:parameters.authority
-                                                   clientId:parameters.clientId
-                                                   resource:nil
-                                                    context:context
-                                                      error:error];
-    
-    MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
-    return refreshToken;
-}
-
-// Can this be more generic?
-- (MSIDBaseToken<MSIDRefreshableToken> *)getLatestRTForToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                                     account:(MSIDAccount *)account
-                                                     context:(id<MSIDRequestContext>)context
-                                                       error:(NSError **)error
-{
-    if (![self checkUserIdentifier:account context:context error:error])
+    if (!token)
     {
-        return nil;
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Token not provided", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        return NO;
     }
     
-    MSIDTokenCacheItem *cacheItem = [self getItemForAccount:account
-                                                  authority:token.authority
-                                                   clientId:token.clientId
-                                                   resource:token.resource
-                                                    context:context
-                                                      error:error];
+    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
     
-    MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
-    return refreshToken;
+    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:cacheItem.authority
+                                                                    clientId:cacheItem.clientId
+                                                                    resource:cacheItem.target
+                                                                         legacyUserId:account.legacyUserId];
+    
+    return [_dataSource removeItemsWithKey:key
+                                   context:context
+                                     error:error];
 }
 
-- (NSArray<MSIDRefreshToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
-                                                     context:(id<MSIDRequestContext>)context
-                                                       error:(NSError **)error
+- (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
+                   withClientId:(NSString *)clientId
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
 {
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
@@ -263,130 +244,99 @@
         return nil;
     }
     
-    NSMutableArray *resultRTs = [NSMutableArray array];
+    NSMutableArray *resultTokens = [NSMutableArray array];
     
     for (MSIDTokenCacheItem *cacheItem in legacyCacheItems)
     {
-        if (![NSString msidIsStringNilOrBlank:cacheItem.refreshToken]
+        if (cacheItem.tokenType == tokenType
             && [cacheItem.clientId isEqualToString:clientId])
         {
-            MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
-           
-            if (refreshToken)
+            MSIDBaseToken *token = [self getTokenWithType:tokenType fromCacheItem:cacheItem];
+            
+            if (token)
             {
-                [resultRTs addObject:refreshToken];
+                [resultTokens addObject:token];
             }
         }
     }
     
     [self stopTelemetryEvent:event withItem:nil success:YES context:context];
     
-    return resultRTs;
+    return resultTokens;
 }
 
-// Have a generic removal API instead
-- (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
-                           token:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                         context:(id<MSIDRequestContext>)context
-                           error:(NSError **)error
+- (BOOL)supportsTokenType:(MSIDTokenType)tokenType
 {
-    if (![self checkUserIdentifier:account context:context error:error])
-    {
-        return NO;
+    switch (tokenType) {
+        case MSIDTokenTypeAccessToken:
+        case MSIDTokenTypeRefreshToken:
+        case MSIDTokenTypeLegacyADFSToken:
+            return YES;
+            
+        default:
+            return NO;
     }
-    
-    if (!token)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Token not provided", nil, nil, nil, context.correlationId, nil);
-        }
-        
-        return NO;
-    }
-    
-    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:token.authority
-                                                                    clientId:token.clientId
-                                                                    resource:token.resource
-                                                                         upn:account.legacyUserId];
-    
-    return [_dataSource removeItemsWithKey:key
-                                   context:context
-                                     error:error];
 }
 
-#pragma mark - Helper methods
-
-- (MSIDTokenCacheItem *)getATCacheItemForAccount:(MSIDAccount *)account
-                                   requestParams:(MSIDRequestParameters *)parameters
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+- (BOOL)saveAccount:(MSIDAccount *)account
+      requestParams:(MSIDRequestParameters *)parameters
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
 {
-    if (![self checkRequestParameters:parameters context:context error:error])
+    return YES;
+}
+
+#pragma mark - Private
+
+- (MSIDBaseToken *)getRefreshTokenWithAccount:(MSIDAccount *)account
+                                requestParams:(MSIDRequestParameters *)parameters
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError **)error
+{
+    MSIDBaseToken *resultToken = nil;
+    
+    if (![NSString msidIsStringNilOrBlank:account.legacyUserId])
+    {
+        resultToken = [self getTokenWithType:MSIDTokenTypeRefreshToken
+                                     account:account
+                             useLegacyUserId:YES
+                                   authority:parameters.authority
+                                    clientId:parameters.clientId
+                                    resource:nil
+                                     context:context
+                                       error:error];
+    }
+    
+    // If no legacy user ID available, or no token found by legacy user ID, try to look by unique user ID
+    if (!resultToken && ![NSString msidIsStringNilOrBlank:account.userIdentifier])
+    {
+        resultToken = [self getTokenWithType:MSIDTokenTypeRefreshToken
+                                     account:account
+                             useLegacyUserId:NO
+                                   authority:parameters.authority
+                                    clientId:parameters.clientId
+                                    resource:nil
+                                     context:context
+                                       error:error];
+    }
+    
+    return resultToken;
+}
+
+- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
+                            account:(MSIDAccount *)account
+                    useLegacyUserId:(BOOL)useLegacy
+                          authority:(NSURL *)authority
+                           clientId:(NSString *)clientId
+                           resource:(NSString *)resource
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    if (useLegacy && ![self checkUserIdentifier:account context:context error:error])
     {
         return nil;
     }
     
-    MSIDAADV1RequestParameters *aadRequestParams = (MSIDAADV1RequestParameters *)parameters;
-    
-    MSIDTokenCacheItem *cacheItem = [self getItemForAccount:account
-                                                  authority:aadRequestParams.authority
-                                                   clientId:aadRequestParams.clientId
-                                                   resource:aadRequestParams.resource
-                                                    context:context
-                                                      error:error];
-    
-    return cacheItem;
-}
-
-- (BOOL)saveToken:(MSIDBaseToken *)token
-          account:(MSIDAccount *)account
-         clientId:(NSString *)clientId
-         resource:(NSString *)resource
-          context:(id<MSIDRequestContext>)context
-            error:(NSError **)error
-{
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
-    
-    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
-                                                                           context:context];
-    
-    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
-    
-    // The authority used to retrieve the item over the network can differ from the preferred authority used to
-    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
-    // it with we switch it out before saving it to cache.
-    token.authority = newAuthority;
-    
-    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:newAuthority
-                                                                    clientId:clientId
-                                                                    resource:resource
-                                                                         upn:account.legacyUserId];
-    
-    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
-    
-    BOOL result = [_dataSource saveToken:token.tokenCacheItem
-                                     key:key
-                              serializer:_serializer
-                                 context:context
-                                   error:error];
-    
-    [self stopTelemetryEvent:event
-                    withItem:cacheItem
-                     success:result
-                     context:context];
-    
-    return result;
-}
-
-- (MSIDTokenCacheItem *)getItemForAccount:(MSIDAccount *)account
-                                authority:(NSURL *)authority
-                                 clientId:(NSString *)clientId
-                                 resource:(NSString *)resource
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
-{
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
     
@@ -397,12 +347,12 @@
     
     for (NSURL *alias in aliases)
     {
-        BOOL matchByUPN = account.legacyUserId != nil;
+        NSString *legacyUserId = useLegacy ? account.legacyUserId : nil;
         
         MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:alias
                                                                         clientId:clientId
                                                                         resource:resource
-                                                                             upn:account.legacyUserId];
+                                                                             legacyUserId:legacyUserId];
         if (!key)
         {
             return nil;
@@ -411,9 +361,9 @@
         NSError *cacheError = nil;
         
         NSArray *tokens = [_dataSource tokensWithKey:key
-                                         serializer:_serializer
-                                            context:context
-                                              error:&cacheError];
+                                          serializer:_serializer
+                                             context:context
+                                               error:&cacheError];
         
         if (cacheError)
         {
@@ -436,7 +386,7 @@
              This is an additional fallback for cases, when UPN is not known, but uid and utid are available
              In that case, token is matched by uid and utid instead.
              */
-            if (!matchByUPN
+            if (!useLegacy
                 && ![cacheItem.uniqueUserId isEqualToString:account.userIdentifier])
             {
                 continue;
@@ -447,7 +397,9 @@
                              success:YES
                              context:context];
             
-            return cacheItem;
+            MSIDBaseToken *token = [self getTokenWithType:tokenType fromCacheItem:cacheItem];
+            token.authority = authority;
+            return token;
         }
     }
     
@@ -455,6 +407,30 @@
                     withItem:nil
                      success:NO
                      context:context];
+    
+    return nil;
+}
+
+- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
+                      fromCacheItem:(MSIDTokenCacheItem *)cacheItem
+{
+    switch (tokenType)
+    {
+        case MSIDTokenTypeAccessToken:
+        {
+            return [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
+        }
+        case MSIDTokenTypeRefreshToken:
+        {
+            return [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
+        }
+        case MSIDTokenTypeLegacyADFSToken:
+        {
+            return [[MSIDAdfsToken alloc] initWithTokenCacheItem:cacheItem];
+        }
+        default:
+            return nil;
+    }
     
     return nil;
 }

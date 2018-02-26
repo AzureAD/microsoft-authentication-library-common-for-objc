@@ -52,12 +52,13 @@
         _authority = [NSURL URLWithString:authorityString];
     }
     
-    _uniqueUserId = _clientInfo.userIdentifier;
     _additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
     _username = [coder decodeObjectOfClass:[NSString class] forKey:@"username"];
     
     NSString *rawClientInfo = [coder decodeObjectOfClass:[NSString class] forKey:@"clientInfo"];
     [self fillClientInfo:rawClientInfo];
+    
+    _uniqueUserId = _clientInfo.userIdentifier;
     
     return self;
 }

@@ -23,7 +23,6 @@
 
 #import <Foundation/Foundation.h>
 
-// TODO: rename this
 @interface MSIDTokenCacheKey : NSObject
 {
     NSString *_account;

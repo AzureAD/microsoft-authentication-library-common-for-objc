@@ -92,13 +92,6 @@
         _refreshToken = tokenCacheItem.refreshToken;
         _idToken = tokenCacheItem.idToken;
         _familyId = tokenCacheItem.familyId;
-        
-        if (!_authority)
-        {
-            // TODO: should we do this?
-            NSString *authorityString = [NSString stringWithFormat:@"https://%@/common", tokenCacheItem.environment];
-            _authority = [NSURL URLWithString:authorityString];
-        }
     }
     
     return self;

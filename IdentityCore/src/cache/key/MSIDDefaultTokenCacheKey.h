@@ -23,6 +23,7 @@
 
 #import "MSIDTokenCacheKey.h"
 #import "MSIDAccount.h"
+#import "MSIDTokenType.h"
 
 @interface MSIDDefaultTokenCacheKey : MSIDTokenCacheKey
 
@@ -75,7 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  Key for all MSAL refresh tokens for a client
  */
-+ (MSIDDefaultTokenCacheKey *)keyForRefreshTokenWithClientId:(NSString *)clientId;
+
++ (MSIDDefaultTokenCacheKey *)keyForTokenWithType:(MSIDTokenType)type clientId:(NSString *)clientId;
 
 NS_ASSUME_NONNULL_END
 

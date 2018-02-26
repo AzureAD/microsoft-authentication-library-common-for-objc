@@ -183,13 +183,13 @@ static NSString *keyDelimiter = @"-";
                                                         type:@(MSIDTokenTypeRefreshToken)];
 }
 
-+ (MSIDDefaultTokenCacheKey *)keyForRefreshTokenWithClientId:(NSString *)clientId
++ (MSIDDefaultTokenCacheKey *)keyForTokenWithType:(MSIDTokenType)type clientId:(NSString *)clientId
 {
-    NSString *service = [self credentialIdWithType:MSIDTokenTypeRefreshToken clientId:clientId realm:nil];
+    NSString *service = [self credentialIdWithType:type clientId:clientId realm:nil];
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:nil
                                                      service:service
                                                      generic:nil
-                                                        type:@(MSIDTokenTypeRefreshToken)];
+                                                        type:@(type)];
 }
 
 @end

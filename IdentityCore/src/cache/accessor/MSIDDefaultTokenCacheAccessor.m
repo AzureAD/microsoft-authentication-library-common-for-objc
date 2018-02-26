@@ -24,7 +24,6 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDAccount.h"
-#import "MSIDBaseToken.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
@@ -37,6 +36,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDDefaultTokenCacheKey.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAADV2IdToken.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -96,54 +96,305 @@
     return YES;
 }
 
-#pragma mark - Access tokens
+#pragma mark - MSIDSharedCacheAccessor
 
-- (BOOL)saveAccessToken:(MSIDAccessToken *)token
-                account:(MSIDAccount *)account
-          requestParams:(MSIDRequestParameters *)parameters
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+- (BOOL)saveToken:(MSIDBaseToken *)token
+          account:(MSIDAccount *)account
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error
 {
-    if (![self checkRequestParameters:parameters context:context error:error]
-        || ![self checkUserIdentifier:account context:context error:error])
+    if (![self checkUserIdentifier:account context:context error:error])
     {
         return NO;
     }
     
-    // delete all cache entries with intersecting scopes
-    // this should not happen but we have this as a safe guard against multiple matches
-    if (![self deleteAllAccessTokensWithIntersectingScopes:token.scopes
-                                                   account:account
-                                                 authority:token.authority
-                                                  clientId:token.clientId
-                                                   context:context
-                                                     error:error])
+    if (token.tokenType == MSIDTokenTypeAccessToken)
     {
-        return NO;
+        // Access tokens have a special handling because of scopes
+        if (![self deleteAllAccessTokensWithIntersectingScopes:(MSIDAccessToken *)token
+                                                       account:account
+                                                       context:context
+                                                         error:error])
+        {
+            return NO;
+        }
+        
+        return [self saveToken:token
+                        userId:account.userIdentifier
+                     authority:token.authority
+                       context:context
+                         error:error];
     }
+    
+    // All other tokens have the same handling
+    NSURL *authority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
     
     return [self saveToken:token
                     userId:account.userIdentifier
-                  clientId:token.clientId
-                    scopes:token.scopes
-                 authority:token.authority
+                 authority:authority
                    context:context
                      error:error];
 }
 
-// TODO: move to helpers
-- (BOOL)deleteAllAccessTokensWithIntersectingScopes:(NSOrderedSet<NSString *> *)scopes
+- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
+                            account:(MSIDAccount *)account
+                      requestParams:(MSIDRequestParameters *)parameters
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    switch (tokenType)
+    {
+        case MSIDTokenTypeAccessToken:
+        {
+            return [self getATForAccount:account
+                           requestParams:parameters
+                                 context:context
+                                   error:error];
+        }
+        case MSIDTokenTypeRefreshToken:
+        {
+            return [self getRTForAccount:account
+                           requestParams:parameters
+                                 context:context
+                                   error:error];
+        }
+        default:
+        {
+            return [self getTokenWithType:tokenType
+                                  account:account
+                          useLegacyUserId:NO
+                                authority:parameters.authority
+                                 clientId:parameters.clientId
+                                   scopes:nil
+                                  context:context
+                                    error:error];
+        }
+    }
+}
+
+- (MSIDBaseToken *)getLatestToken:(MSIDBaseToken *)token
+                          account:(MSIDAccount *)account
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
+    
+    return [self getTokenWithType:cacheItem.tokenType
+                          account:account
+                  useLegacyUserId:NO
+                        authority:cacheItem.authority
+                         clientId:cacheItem.clientId
+                           scopes:[cacheItem.target scopeSet]
+                          context:context
+                            error:error];
+}
+
+- (BOOL)removeToken:(MSIDBaseToken *)token
+            account:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    if (![self checkUserIdentifier:account context:context error:error])
+    {
+        return NO;
+    }
+    
+    if (!token)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Token not provided", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        return NO;
+    }
+    
+    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
+    
+    MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
+                                            userId:account.userIdentifier
+                                          clientId:cacheItem.clientId
+                                            scopes:[cacheItem.target scopeSet]
+                                         authority:cacheItem.authority];
+    
+    return [_dataSource removeItemsWithKey:key
+                                   context:context
+                                     error:error];
+}
+
+- (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
+                   withClientId:(NSString *)clientId
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForTokenWithType:tokenType clientId:clientId];
+    NSArray<MSIDTokenCacheItem *> *cacheItems = [self getAllTokensWithKey:key context:context error:error];
+    
+    NSMutableArray *results = [NSMutableArray array];
+    
+    for (MSIDTokenCacheItem *cacheItem in cacheItems)
+    {
+        MSIDBaseToken *token = [self getTokenWithType:tokenType fromCacheItem:cacheItem];
+        
+        if (token)
+        {
+            [results addObject:token];
+        }
+    }
+    
+    return results;
+}
+
+- (BOOL)supportsTokenType:(MSIDTokenType)tokenType
+{
+    switch (tokenType) {
+        case MSIDTokenTypeAccessToken:
+        case MSIDTokenTypeRefreshToken:
+        case MSIDTokenTypeIDToken:
+            return YES;
+            
+        default:
+            return NO;
+    }
+}
+
+#pragma mark - Private
+
+- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
+                            account:(MSIDAccount *)account
+                    useLegacyUserId:(BOOL)useLegacyUserId
+                          authority:(NSURL *)authority
+                           clientId:(NSString *)clientId
+                             scopes:(NSOrderedSet<NSString *> *)scopes
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
+    
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
+                                                                           context:context];
+    
+    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+    
+    for (NSURL *alias in aliases)
+    {
+        NSString *userId = useLegacyUserId ? nil : account.userIdentifier;
+        
+        MSIDTokenCacheKey *key = [self keyForTokenType:tokenType
+                                                userId:userId
+                                              clientId:clientId
+                                                scopes:scopes
+                                             authority:alias];
+        if (!key)
+        {
+            [self stopTelemetryEvent:event
+                            withItem:nil
+                             success:NO
+                             context:context];
+            
+            return nil;
+        }
+        
+        NSError *cacheError = nil;
+        
+        NSArray *tokens = [_dataSource tokensWithKey:key
+                                          serializer:_serializer
+                                             context:context
+                                               error:&cacheError];
+        
+        if (cacheError)
+        {
+            if (error)
+            {
+                *error = cacheError;
+            }
+            
+            [self stopTelemetryEvent:event
+                            withItem:nil
+                             success:NO
+                             context:context];
+            
+            return nil;
+        }
+        
+        for (MSIDTokenCacheItem *cacheItem in tokens)
+        {
+            /*
+             This is an additional fallback for cases, when user identifier is not known, but legacy user ID is available
+             In that case, token is matched by legacy user ID instead.
+             */
+            if (useLegacyUserId)
+            {
+                if (!cacheItem.idToken)
+                {
+                    continue; // Can't match by legacy ID without having an id token
+                }
+                
+                MSIDAADV2IdToken *idTokenWrapper = [[MSIDAADV2IdToken alloc] initWithRawIdToken:cacheItem.idToken];
+                
+                if (![idTokenWrapper matchesLegacyUserId:account.legacyUserId])
+                {
+                    // Id token was there, but legacy user ID match wasn't found, continue to the next token
+                    continue;
+                }
+            }
+            
+            [self stopTelemetryEvent:event
+                            withItem:cacheItem
+                             success:YES
+                             context:context];
+            
+            MSIDBaseToken *token = [self getTokenWithType:tokenType fromCacheItem:cacheItem];
+            token.authority = authority;
+            return token;
+        }
+    }
+    
+    [self stopTelemetryEvent:event
+                    withItem:nil
+                     success:NO
+                     context:context];
+    
+    return nil;
+}
+
+- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
+                      fromCacheItem:(MSIDTokenCacheItem *)cacheItem
+{
+    switch (tokenType)
+    {
+        case MSIDTokenTypeAccessToken:
+        {
+            return [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
+        }
+        case MSIDTokenTypeRefreshToken:
+        {
+            return [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
+        }
+        case MSIDTokenTypeIDToken:
+        {
+            return [[MSIDIdToken alloc] initWithTokenCacheItem:cacheItem];
+        }
+        default:
+            return nil;
+    }
+    
+    return nil;
+}
+
+#pragma mark - Access token helpers
+
+- (BOOL)deleteAllAccessTokensWithIntersectingScopes:(MSIDAccessToken *)accessToken
                                             account:(MSIDAccount *)account
-                                          authority:(NSURL *)authority
-                                           clientId:(NSString *)clientId
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
-    NSArray<MSIDTokenCacheItem *> *allCacheItems = [self getAllATsForAccount:account
-                                                                   authority:authority
-                                                                    clientId:clientId
-                                                                     context:context
-                                                                       error:error];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
+                                                                                          authority:accessToken.authority
+                                                                                           clientId:accessToken.clientId];
+    
+    NSArray<MSIDTokenCacheItem *> *allCacheItems = [self getAllTokensWithKey:key context:context error:error];
     
     if (!allCacheItems)
     {
@@ -154,11 +405,11 @@
     {
         NSOrderedSet *scopeSet = [cacheItem.target scopeSet];
         
-        if ([scopeSet intersectsOrderedSet:scopes])
+        if ([scopeSet intersectsOrderedSet:accessToken.scopes])
         {
             MSIDDefaultTokenCacheKey *keyToDelete = [MSIDDefaultTokenCacheKey keyForAccessTokenWithUniqueUserId:account.userIdentifier
-                                                                                                      authority:authority
-                                                                                                       clientId:clientId
+                                                                                                      authority:accessToken.authority
+                                                                                                       clientId:accessToken.clientId
                                                                                                          scopes:scopeSet];
             
             if (![self removeTokenWithKey:keyToDelete context:context error:error])
@@ -171,26 +422,7 @@
     return YES;
 }
 
-- (BOOL)saveIDToken:(MSIDIdToken *)token
-            account:(MSIDAccount *)account
-      requestParams:(MSIDRequestParameters *)parameters
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
-{
-    if (![self checkRequestParameters:parameters context:context error:error]
-        || ![self checkUserIdentifier:account context:context error:error])
-    {
-        return NO;
-    }
-    
-    return [self saveToken:token
-                    userId:account.userIdentifier
-                  clientId:token.clientId
-                    scopes:nil
-                 authority:token.authority
-                   context:context
-                     error:error];
-}
+#pragma mark - Account
 
 - (BOOL)saveAccount:(MSIDAccount *)account
       requestParams:(MSIDRequestParameters *)parameters
@@ -250,9 +482,12 @@
         // This is an optimization for cases, when developer provides us an authority
         // We can then do exact match except for scopes
         // We query less items and loop through less items too
-        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllATsForAccount:account
-                                                                  authority:v2params.authority
-                                                                   clientId:v2params.clientId
+        
+        MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
+                                                                                              authority:v2params.authority
+                                                                                               clientId:v2params.clientId];
+        
+        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithKey:key
                                                                     context:context
                                                                       error:error];
         
@@ -263,7 +498,10 @@
         // This is the case, when developer doesn't provide us any authority
         // This flow is pretty unpredictable and basically only works for apps working with single tenants
         // If we can eliminate this flow in future, we can get rid of this logic and logic underneath
-        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllATsForContext:context error:error];
+        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithKey:[MSIDDefaultTokenCacheKey keyForAllAccessTokens]
+                                                                    context:context
+                                                                      error:error];
+        
         matchedTokens = [self filterAllAccessTokenCacheItems:allItems
                                               withParameters:v2params
                                                      account:account
@@ -284,109 +522,44 @@
     return tokenToReturn;
 }
 
-- (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
-                  refreshToken:(MSIDRefreshToken *)refreshToken
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
-{
-    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:refreshToken.authority context:context];
-    
-    return [self saveToken:refreshToken
-                    userId:account.userIdentifier
-                  clientId:refreshToken.clientId
-                    scopes:nil
-                 authority:newAuthority
-                   context:context
-                     error:error];
-}
 
-- (MSIDRefreshToken *)getSharedRTForAccount:(MSIDAccount *)account
-                              requestParams:(MSIDRequestParameters *)parameters
-                                    context:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error
+- (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
+                        requestParams:(MSIDRequestParameters *)parameters
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
 {
-    if (![self checkUserIdentifier:account context:context error:error])
+    MSIDBaseToken *refreshToken = nil;
+    
+    // First try to look by the unique user identifier
+    if (![NSString msidIsStringNilOrBlank:account.userIdentifier])
     {
-        return nil;
+        refreshToken = [self getTokenWithType:MSIDTokenTypeRefreshToken
+                                      account:account
+                              useLegacyUserId:NO
+                                    authority:parameters.authority
+                                     clientId:parameters.clientId
+                                       scopes:nil
+                                      context:context
+                                        error:error];
     }
     
-    return [self getRefreshTokenForUserId:account.userIdentifier
-                                 clientId:parameters.clientId
-                                authority:parameters.authority
-                                  context:context
-                                    error:error];
-}
-
-- (MSIDBaseToken<MSIDRefreshableToken> *)getLatestRTForToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                                     account:(MSIDAccount *)account
-                                                     context:(id<MSIDRequestContext>)context
-                                                       error:(NSError **)error
-{
-    if (![self checkUserIdentifier:account context:context error:error])
+    // If token wasn't found and legacy user ID is available, try to look by legacy user id
+    if (!refreshToken && [NSString msidIsStringNilOrBlank:account.legacyUserId])
     {
-        return nil;
+        refreshToken = [self getTokenWithType:MSIDTokenTypeRefreshToken
+                                      account:account
+                              useLegacyUserId:YES
+                                    authority:parameters.authority
+                                     clientId:parameters.clientId
+                                       scopes:nil
+                                      context:context
+                                        error:error];
     }
     
-    return [self getRefreshTokenForUserId:account.userIdentifier
-                                 clientId:token.clientId
-                                authority:token.authority
-                                  context:context
-                                    error:error];
+    return (MSIDRefreshToken *)refreshToken;
 }
 
-- (NSArray<MSIDRefreshToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
-                                                     context:(id<MSIDRequestContext>)context
-                                                       error:(NSError **)error
-{
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForRefreshTokenWithClientId:clientId];
-    NSArray<MSIDTokenCacheItem *> *cacheItems = [self getAllTokensWithKey:key context:context error:error];
-    
-    NSMutableArray *results = [NSMutableArray array];
-    
-    for (MSIDTokenCacheItem *cacheItem in cacheItems)
-    {
-        MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
-        
-        if (refreshToken)
-        {
-            [results addObject:cacheItem];
-        }
-    }
-    
-    return results;
-}
-
-
-- (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
-                           token:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                         context:(id<MSIDRequestContext>)context
-                           error:(NSError **)error
-{
-    if (![self checkUserIdentifier:account context:context error:error])
-    {
-        return NO;
-    }
-    
-    if (!token)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Token not provided", nil, nil, nil, context.correlationId, nil);
-        }
-        
-        return NO;
-    }
-    
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForRefreshTokenWithUniqueUserId:account.userIdentifier
-                                                                                     environment:token.authority.msidHostWithPortIfNecessary
-                                                                                        clientId:token.clientId];
-    
-    return [self removeTokenWithKey:key
-                            context:context
-                              error:error];
-}
-
-#pragma mark - Filtering
+#pragma mark - Access token filtering
 
 - (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allCacheItems
                                                     withScopes:(NSOrderedSet<NSString *> *)scopes
@@ -423,7 +596,7 @@
     }
     
     NSMutableArray<MSIDAccessToken *> *matchedTokens = [NSMutableArray<MSIDAccessToken *> new];
-    NSURL *authorityToCheck = allItems[0].authority; // TODO: what if nil?
+    NSURL *authorityToCheck = allItems[0].authority;
     NSArray<NSURL *> *tokenAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authorityToCheck];
     
     for (MSIDTokenCacheItem *cacheItem in allItems)
@@ -472,9 +645,16 @@
         }
         case MSIDTokenTypeRefreshToken:
         {
-            return [MSIDDefaultTokenCacheKey keyForRefreshTokenWithUniqueUserId:userId
-                                                                    environment:authority.msidHostWithPortIfNecessary
-                                                                       clientId:clientId];
+            if (userId)
+            {
+                return [MSIDDefaultTokenCacheKey keyForRefreshTokenWithUniqueUserId:userId
+                                                                        environment:authority.msidHostWithPortIfNecessary
+                                                                           clientId:clientId];
+            }
+            else
+            {
+                return [MSIDDefaultTokenCacheKey keyForTokenWithType:MSIDTokenTypeRefreshToken clientId:clientId];
+            }
         }
         case MSIDTokenTypeIDToken:
         {
@@ -484,16 +664,12 @@
         }
             
         default:
-            // ADFS token type is not supported
             return nil;
     }
 }
 
-
 - (BOOL)saveToken:(MSIDBaseToken *)token
            userId:(NSString *)userId
-         clientId:(NSString *)clientId
-           scopes:(NSOrderedSet<NSString *> *)scopes
         authority:(NSURL *)authority
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
@@ -509,13 +685,13 @@
     // it with we switch it out before saving it to cache.
     token.authority = authority;
     
-    MSIDTokenCacheKey *key = [self keyForTokenType:token.tokenType
-                                            userId:userId
-                                          clientId:clientId
-                                            scopes:scopes
-                                         authority:authority];
-    
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
+    
+    MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
+                                            userId:userId
+                                          clientId:cacheItem.clientId
+                                            scopes:[cacheItem.target scopeSet]
+                                         authority:authority];
     
     if (!key)
     {
@@ -539,96 +715,6 @@
                      context:context];
     
     return result;
-}
-
-- (MSIDRefreshToken *)getRefreshTokenForUserId:(NSString *)userId
-                                      clientId:(NSString *)clientId
-                                     authority:(NSURL *)authority
-                                       context:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error
-{
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
-    
-    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
-                                                                           context:context];
-    
-    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
-    
-    for (NSURL *alias in aliases)
-    {
-        MSIDTokenCacheKey *key = [self keyForTokenType:MSIDTokenTypeRefreshToken
-                                                userId:userId
-                                              clientId:clientId
-                                                scopes:nil
-                                             authority:alias];
-        if (!key)
-        {
-            [self stopTelemetryEvent:event
-                           withItem:nil
-                             success:NO
-                             context:context];
-            
-            return nil;
-        }
-        
-        NSError *cacheError = nil;
-        
-        MSIDTokenCacheItem *cacheItem = [_dataSource tokenWithKey:key
-                                                       serializer:_serializer
-                                                          context:context
-                                                            error:&cacheError];
-        
-        if (cacheItem)
-        {
-            MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
-            refreshToken.authority = authority;
-            [self stopTelemetryEvent:event withItem:cacheItem success:YES context:context];
-            return refreshToken;
-        }
-       
-        if (cacheError)
-        {
-            if (error)
-            {
-                *error = cacheError;
-            }
-            
-            [self stopTelemetryEvent:event
-                           withItem:nil
-                             success:NO
-                             context:context];
-            
-            return nil;
-        }
-    }
-    
-    [self stopTelemetryEvent:event
-                   withItem:nil
-                     success:NO
-                     context:context];
-    
-    return nil;
-}
-
-- (NSArray<MSIDTokenCacheItem *> *)getAllATsForAccount:(MSIDAccount *)account
-                                             authority:(NSURL *)authority
-                                              clientId:(NSString *)clientId
-                                               context:(id<MSIDRequestContext>)context
-                                                 error:(NSError **)error
-{
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
-                                                                                          authority:authority
-                                                                                           clientId:clientId];
-    return [self getAllTokensWithKey:key context:context error:error];
-}
-
-
-- (NSArray<MSIDTokenCacheItem *> *)getAllATsForContext:(id<MSIDRequestContext>)context
-                                                 error:(NSError *__autoreleasing *)error
-{
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokens];
-    return [self getAllTokensWithKey:key context:context error:error];
 }
 
 - (NSArray<MSIDTokenCacheItem *> *)getAllTokensWithKey:(MSIDTokenCacheKey *)key

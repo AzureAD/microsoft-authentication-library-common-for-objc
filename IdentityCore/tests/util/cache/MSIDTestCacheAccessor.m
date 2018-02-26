@@ -97,7 +97,7 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@"" utid:nil uid:nil];
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"" utid:nil uid:nil];
     
     return (MSIDAdfsToken *)[self getTokenForAccount:account
                                            tokenType:MSIDTokenTypeLegacyADFSToken

@@ -53,5 +53,6 @@
 
 - (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
 + (NSString *)normalizeUserId:(NSString *)userId;
+- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId;
 
 @end

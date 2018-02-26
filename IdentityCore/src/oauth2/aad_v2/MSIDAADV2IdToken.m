@@ -59,4 +59,10 @@ MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
     return self;
 }
 
+- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId
+{
+    return [super matchesLegacyUserId:legacyUserId]
+        || [self.objectId isEqualToString:legacyUserId];
+}
+
 @end

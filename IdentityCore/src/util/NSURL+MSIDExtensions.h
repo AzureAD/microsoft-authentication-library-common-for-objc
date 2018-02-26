@@ -31,6 +31,9 @@
 - (NSString *)msidHostWithPortIfNecessary;
 - (NSString *)msidTenant;
 
++ (NSURL *)msidURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant;
++ (NSURL *)msidURLWithEnvironment:(NSString *)environment;
+
 - (NSDictionary *)msidQueryParameters;
 
 @end

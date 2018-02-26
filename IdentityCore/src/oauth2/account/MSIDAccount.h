@@ -48,9 +48,9 @@
 
 @property (readonly) NSURL *authority;
 
-- (instancetype)initWithUpn:(NSString *)upn
-                       utid:(NSString *)utid
-                        uid:(NSString *)uid;
+- (instancetype)initWithLegacyUserId:(NSString *)upn
+                                utid:(NSString *)utid
+                                 uid:(NSString *)uid;
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
                               request:(MSIDRequestParameters *)requestParams;

@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (MSIDLegacyTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                      clientId:(NSString *)clientId
                                      resource:(nullable NSString *)resource
-                                          upn:(NSString *)upn;
+                                 legacyUserId:(nullable NSString *)upn;
 
 NS_ASSUME_NONNULL_END
 
