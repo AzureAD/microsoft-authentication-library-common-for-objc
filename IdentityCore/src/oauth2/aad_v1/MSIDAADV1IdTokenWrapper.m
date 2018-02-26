@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDAADV1IdToken.h"
+#import "MSIDAADV1IdTokenWrapper.h"
 
 #define ID_TOKEN_UPN                @"upn"
 #define ID_TOKEN_IDP                @"idp"
@@ -34,7 +34,7 @@
 #define ID_TOKEN_GUEST_ID           @"altsecid"
 #define ID_TOKEN_UNIQUE_NAME        @"unique_name"
 
-@implementation MSIDAADV1IdToken
+@implementation MSIDAADV1IdTokenWrapper
 
 MSID_JSON_ACCESSOR(ID_TOKEN_UPN, upn)
 MSID_JSON_ACCESSOR(ID_TOKEN_IDP, identityProvider)

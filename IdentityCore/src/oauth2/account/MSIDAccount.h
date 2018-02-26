@@ -48,7 +48,7 @@
 
 @property (readonly) NSURL *authority;
 
-- (instancetype)initWithLegacyUserId:(NSString *)upn
+- (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
                                 utid:(NSString *)utid
                                  uid:(NSString *)uid;
 

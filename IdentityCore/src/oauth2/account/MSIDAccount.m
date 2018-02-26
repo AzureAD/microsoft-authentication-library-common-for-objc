@@ -105,7 +105,7 @@
                                   uid:nil];
 }
 
-- (instancetype)initWithLegacyUserId:(NSString *)upn
+- (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
                                 utid:(NSString *)utid
                                  uid:(NSString *)uid
 {
@@ -114,7 +114,7 @@
         return nil;
     }
     
-    self->_legacyUserId = upn;
+    self->_legacyUserId = legacyUserId;
     self->_utid = utid;
     self->_uid = uid;
 

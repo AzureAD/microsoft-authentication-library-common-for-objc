@@ -69,7 +69,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"UPN is needed for legacy token cache accessor", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Legacy user ID is needed for legacy token cache accessor", nil, nil, nil, context.correlationId, nil);
         }
         return NO;
     }
@@ -358,7 +358,7 @@
         for (MSIDTokenCacheItem *cacheItem in tokens)
         {
             /*
-             This is an additional fallback for cases, when UPN is not known, but uid and utid are available
+             This is an additional fallback for cases, when legacy user ID is not known, but uid and utid are available
              In that case, token is matched by uid and utid instead.
              */
             if (!useLegacy

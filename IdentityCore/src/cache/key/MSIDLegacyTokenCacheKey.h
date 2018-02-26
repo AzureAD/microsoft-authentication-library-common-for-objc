@@ -37,12 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  Key for ADAL tokens
  1. access tokens - single resource, one authority, one clientId and one upn.
- 2. FRT & MRRT - null authority, one authority, one clientId and one upn.
+ 2. FRT & MRRT - null authority, one authority, one clientId and one legacyUserId.
  */
 + (MSIDLegacyTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                      clientId:(NSString *)clientId
                                      resource:(nullable NSString *)resource
-                                 legacyUserId:(nullable NSString *)upn;
+                                 legacyUserId:(nullable NSString *)legacyUserId;
 
 NS_ASSUME_NONNULL_END
 

@@ -83,13 +83,13 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
 + (MSIDLegacyTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                      clientId:(NSString *)clientId
                                      resource:(NSString *)resource
-                                 legacyUserId:(NSString *)upn
+                                 legacyUserId:(NSString *)legacyUserId
 {
     NSString *service = [self.class serviceWithAuthority:authority
                                                 resource:resource
                                                 clientId:clientId];
     
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:upn
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:legacyUserId
                                                                             service:service
                                                                             generic:[s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding]
                                                                                type:nil];

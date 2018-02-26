@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV2TokenResponse.h"
-#import "MSIDAADV2IdToken.h"
+#import "MSIDAADV2IdTokenWrapper.h"
 
 @implementation MSIDAADV2TokenResponse
 
 - (MSIDIdTokenWrapper *)idTokenObj
 {
-    return [[MSIDAADV2IdToken alloc] initWithRawIdToken:self.idToken];
+    return [[MSIDAADV2IdTokenWrapper alloc] initWithRawIdToken:self.idToken];
 }
 
 @end

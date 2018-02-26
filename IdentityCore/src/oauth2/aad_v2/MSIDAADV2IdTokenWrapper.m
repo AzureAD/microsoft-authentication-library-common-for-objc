@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV2IdToken.h"
+#import "MSIDAADV2IdTokenWrapper.h"
 
 #define ID_TOKEN_ISSUER              @"iss"
 #define ID_TOKEN_OBJECT_ID           @"oid"
@@ -29,7 +29,7 @@
 #define ID_TOKEN_VERSION             @"ver"
 #define ID_TOKEN_HOME_OBJECT_ID      @"home_oid"
 
-@implementation MSIDAADV2IdToken
+@implementation MSIDAADV2IdTokenWrapper
 
 MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 MSID_JSON_ACCESSOR(ID_TOKEN_OBJECT_ID, objectId)

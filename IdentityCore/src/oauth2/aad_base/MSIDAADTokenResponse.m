@@ -23,7 +23,7 @@
 
 #import "MSIDAADTokenResponse.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDAADV1IdToken.h"
+#import "MSIDAADV1IdTokenWrapper.h"
 
 @interface MSIDAADTokenResponse ()
 

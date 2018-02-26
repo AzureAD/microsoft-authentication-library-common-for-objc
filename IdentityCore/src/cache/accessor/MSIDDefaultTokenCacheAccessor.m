@@ -35,7 +35,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDDefaultTokenCacheKey.h"
 #import "MSIDAccountCacheItem.h"
-#import "MSIDAADV2IdToken.h"
+#import "MSIDAADV2IdTokenWrapper.h"
 #import "MSIDRequestParameters.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
@@ -315,7 +315,7 @@
                     continue; // Can't match by legacy ID without having an id token
                 }
                 
-                MSIDAADV2IdToken *idTokenWrapper = [[MSIDAADV2IdToken alloc] initWithRawIdToken:cacheItem.idToken];
+                MSIDAADV2IdTokenWrapper *idTokenWrapper = [[MSIDAADV2IdTokenWrapper alloc] initWithRawIdToken:cacheItem.idToken];
                 
                 if (![idTokenWrapper matchesLegacyUserId:account.legacyUserId])
                 {
