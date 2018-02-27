@@ -24,6 +24,8 @@
 #import "MSIDCacheItem.h"
 #import "MSIDTokenType.h"
 
+@class MSIDBaseToken;
+
 @interface MSIDTokenCacheItem : MSIDCacheItem
 
 // Client id
@@ -49,5 +51,7 @@
 
 // Family ID
 @property (readwrite) NSString *familyId;
+
+- (MSIDBaseToken *)tokenWithType:(MSIDTokenType)tokenType;
 
 @end

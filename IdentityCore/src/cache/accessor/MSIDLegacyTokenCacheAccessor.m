@@ -33,6 +33,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDRequestParameters.h"
+#import "MSIDTokenResponse.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -78,6 +79,53 @@
 }
 
 #pragma mark - MSIDSharedCacheAccessor
+
+- (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)requestParams
+                            account:(MSIDAccount *)account
+                           response:(MSIDTokenResponse *)response
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    if (response.isMultiResource)
+    {
+        // Save access token item in the primary format
+        MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response
+                                                                              request:requestParams];
+        
+        BOOL result = [self saveToken:accessToken
+                              account:account
+                              context:context
+                                error:error];
+        
+        if (!result) return NO;
+    }
+    else
+    {
+        MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenResponse:response
+                                                                        request:requestParams];
+        
+        account.legacyUserId = @"";
+        
+        // Save token for ADFS
+        return [self saveToken:adfsToken
+                       account:account
+                       context:context
+                         error:error];
+    }
+    
+    return YES;
+}
+
+- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
+                 account:(MSIDAccount *)account
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
+{
+    return [self saveToken:refreshToken
+                   account:account
+                   context:context
+                     error:error];
+}
 
 - (BOOL)saveToken:(MSIDBaseToken *)token
           account:(MSIDAccount *)account
@@ -226,7 +274,7 @@
         if (cacheItem.tokenType == tokenType
             && [cacheItem.clientId isEqualToString:clientId])
         {
-            MSIDBaseToken *token = [self getTokenWithType:tokenType fromCacheItem:cacheItem];
+            MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
             
             if (token)
             {
@@ -238,27 +286,6 @@
     [self stopTelemetryEvent:event withItem:nil success:YES context:context];
     
     return resultTokens;
-}
-
-- (BOOL)supportsTokenType:(MSIDTokenType)tokenType
-{
-    switch (tokenType) {
-        case MSIDTokenTypeAccessToken:
-        case MSIDTokenTypeRefreshToken:
-        case MSIDTokenTypeLegacyADFSToken:
-            return YES;
-            
-        default:
-            return NO;
-    }
-}
-
-- (BOOL)saveAccount:(MSIDAccount *)account
-      requestParams:(MSIDRequestParameters *)parameters
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
-{
-    return YES;
 }
 
 #pragma mark - Private
@@ -372,7 +399,7 @@
                              success:YES
                              context:context];
             
-            MSIDBaseToken *token = [self getTokenWithType:tokenType fromCacheItem:cacheItem];
+            MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
             token.authority = authority;
             return token;
         }
@@ -382,30 +409,6 @@
                     withItem:nil
                      success:NO
                      context:context];
-    
-    return nil;
-}
-
-- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
-                      fromCacheItem:(MSIDTokenCacheItem *)cacheItem
-{
-    switch (tokenType)
-    {
-        case MSIDTokenTypeAccessToken:
-        {
-            return [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
-        }
-        case MSIDTokenTypeRefreshToken:
-        {
-            return [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
-        }
-        case MSIDTokenTypeLegacyADFSToken:
-        {
-            return [[MSIDAdfsToken alloc] initWithTokenCacheItem:cacheItem];
-        }
-        default:
-            return nil;
-    }
     
     return nil;
 }

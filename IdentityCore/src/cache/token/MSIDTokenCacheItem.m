@@ -27,6 +27,11 @@
 #import "NSDate+MSIDExtensions.h"
 #import "NSURL+MSIDExtensions.h"
 #import "MSIDIdTokenWrapper.h"
+#import "MSIDBaseToken.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDAdfsToken.h"
+#import "MSIDIdToken.h"
 
 @implementation MSIDTokenCacheItem
 
@@ -225,6 +230,35 @@
     dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
     
     return dictionary;
+}
+
+#pragma mark - Helpers
+
+- (MSIDBaseToken *)tokenWithType:(MSIDTokenType)tokenType
+{
+    switch (tokenType)
+    {
+        case MSIDTokenTypeAccessToken:
+        {
+            return [[MSIDAccessToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDTokenTypeRefreshToken:
+        {
+            return [[MSIDRefreshToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDTokenTypeLegacyADFSToken:
+        {
+            return [[MSIDAdfsToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDTokenTypeIDToken:
+        {
+            return [[MSIDIdToken alloc] initWithTokenCacheItem:self];
+        }
+        default:
+            return nil;
+    }
+    
+    return nil;
 }
 
 @end

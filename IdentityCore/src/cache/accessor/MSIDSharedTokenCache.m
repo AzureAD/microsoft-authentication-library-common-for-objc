@@ -74,82 +74,38 @@
     MSIDAccount *account = [[MSIDAccount alloc] initWithTokenResponse:response
                                                               request:requestParams];
     
-    if (response.isMultiResource)
+    BOOL result = [_primaryAccessor saveTokensWithRequestParams:requestParams
+                                                        account:account
+                                                       response:response
+                                                        context:context
+                                                          error:error];
+    
+    if (!result) return NO;
+    
+    // Create a refresh token item
+    MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenResponse:response
+                                                                             request:requestParams];
+    
+    // Save RTs in all formats
+    result = [self saveRefreshTokenInAllCaches:refreshToken
+                                   withAccount:account
+                                       context:context
+                                         error:error];
+    
+    if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
     {
-        // Save access token item in the primary format
-        MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response
-                                                                              request:requestParams];
-        
-        BOOL result = [_primaryAccessor saveToken:accessToken
-                                          account:account
-                                          context:context
-                                            error:error];
-        
-        if (!result)
-        {
-            return NO;
-        }
-        
-        if ([_primaryAccessor supportsTokenType:MSIDTokenTypeIDToken])
-        {
-            // Save ID token in the primary format, if accessor supports it...
-            MSIDIdToken *idToken = [[MSIDIdToken alloc] initWithTokenResponse:response
-                                                                      request:requestParams];
-            
-            result = [_primaryAccessor saveToken:idToken
-                                         account:account
-                                         context:context
-                                           error:error];
-            
-            if (!result)
-            {
-                return NO;
-            }
-        }
-        
-        // Create a refresh token item
-        MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenResponse:response
-                                                                                 request:requestParams];
-        
-        // Save RTs in all formats
-        result = [self saveRefreshTokenInAllCaches:refreshToken
-                                       withAccount:account
-                                           context:context
-                                             error:error];
-        
-        if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
-        {
-            // If saving failed or it's not an FRT, we're done
-            return result;
-        }
-        
-        // If it's an FRT, save it separately and update the clientId of the token item
-        MSIDRefreshToken *familyRefreshToken = [refreshToken copy];
-        familyRefreshToken.clientId = [MSIDTokenCacheKey familyClientId:refreshToken.familyId];
-        
-        return [self saveRefreshTokenInAllCaches:familyRefreshToken
-                                     withAccount:account
-                                         context:context
-                                           error:error];
-    }
-    else if ([_primaryAccessor supportsTokenType:MSIDTokenTypeLegacyADFSToken])
-    {
-        MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenResponse:response
-                                                                        request:requestParams];
-        
-        account.legacyUserId = @"";
-        
-        // Save token for ADFS
-        [_primaryAccessor saveToken:adfsToken
-                            account:account
-                            context:context
-                              error:error];
+        // If saving failed or it's not an FRT, we're done
+        return result;
     }
     
-    return [_primaryAccessor saveAccount:account
-                           requestParams:requestParams
-                                 context:context
-                                   error:error];
+    // If it's an FRT, save it separately and update the clientId of the token item
+    MSIDRefreshToken *familyRefreshToken = [refreshToken copy];
+    familyRefreshToken.clientId = [MSIDTokenCacheKey familyClientId:refreshToken.familyId];
+    
+    return [self saveRefreshTokenInAllCaches:familyRefreshToken
+                                 withAccount:account
+                                     context:context
+                                       error:error];
 }
 
 - (BOOL)saveRefreshTokenInAllCaches:(MSIDRefreshToken *)refreshToken
@@ -160,10 +116,10 @@
     // Save RTs in all formats including primary
     for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
-        BOOL result = [cache saveToken:refreshToken
-                               account:account
-                               context:context
-                                 error:error];
+        BOOL result = [cache saveRefreshToken:refreshToken
+                                      account:account
+                                      context:context
+                                        error:error];
         
         if (!result)
         {
@@ -207,16 +163,11 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    if ([_primaryAccessor supportsTokenType:MSIDTokenTypeLegacyADFSToken])
-    {
-        return (MSIDAdfsToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacyADFSToken
-                                                           account:nil
-                                                    requestParams:parameters
-                                                           context:context
-                                                             error:error];
-    }
-    
-    return nil;
+    return (MSIDAdfsToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacyADFSToken
+                                                       account:nil
+                                                 requestParams:parameters
+                                                       context:context
+                                                         error:error];
 }
 
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account

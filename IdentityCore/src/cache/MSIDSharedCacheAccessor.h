@@ -27,13 +27,22 @@
 @class MSIDAccount;
 @class MSIDRequestParameters;
 @class MSIDBaseToken;
+@class MSIDTokenResponse;
+@class MSIDRefreshToken;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 
-- (BOOL)saveToken:(MSIDBaseToken *)token
-          account:(MSIDAccount *)account
-          context:(id<MSIDRequestContext>)context
-            error:(NSError **)error;
+- (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)requestParams
+                            account:(MSIDAccount *)account
+                           response:(MSIDTokenResponse *)response
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error;
+
+- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
+                 account:(MSIDAccount *)account
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error;
+
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
@@ -56,11 +65,5 @@
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
 
-- (BOOL)supportsTokenType:(MSIDTokenType)tokenType;
-
-- (BOOL)saveAccount:(MSIDAccount *)account
-      requestParams:(MSIDRequestParameters *)parameters
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error;
 
 @end

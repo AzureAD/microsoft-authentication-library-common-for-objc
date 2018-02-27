@@ -82,42 +82,57 @@
 
 #pragma mark - MSIDSharedCacheAccessor
 
-- (BOOL)saveToken:(MSIDBaseToken *)token
-          account:(MSIDAccount *)account
-          context:(id<MSIDRequestContext>)context
-            error:(NSError **)error
+- (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)requestParams
+                            account:(MSIDAccount *)account
+                           response:(MSIDTokenResponse *)response
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
 {
     if (![self checkUserIdentifier:account context:context error:error])
     {
         return NO;
     }
     
-    if (token.tokenType == MSIDTokenTypeAccessToken)
-    {
-        // Access tokens have a special handling because of scopes
-        if (![self deleteAllAccessTokensWithIntersectingScopes:(MSIDAccessToken *)token
-                                                       account:account
-                                                       context:context
-                                                         error:error])
-        {
-            return NO;
-        }
-        
-        return [self saveToken:token
-                        userId:account.userIdentifier
-                     authority:token.authority
+    // Save access token item in the primary format
+    MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response
+                                                                          request:requestParams];
+    
+    if (![self saveAccessToken:accessToken
+                       account:account
                        context:context
-                         error:error];
+                         error:error])
+    {
+        return NO;
     }
     
-    // All other tokens have the same handling
-    NSURL *authority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
+    // Save ID token
+    MSIDIdToken *idToken = [[MSIDIdToken alloc] initWithTokenResponse:response
+                                                              request:requestParams];
     
-    return [self saveToken:token
-                    userId:account.userIdentifier
-                 authority:authority
-                   context:context
-                     error:error];
+    if (![self saveTokenWithPreferredCache:idToken
+                                   account:account
+                                   context:context
+                                     error:error])
+    {
+        return NO;
+    }
+    
+    // Save account
+    return [self saveAccount:account
+               requestParams:requestParams
+                     context:context
+                       error:error];
+}
+
+- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
+                 account:(MSIDAccount *)account
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
+{
+    return [self saveTokenWithPreferredCache:refreshToken
+                                     account:account
+                                     context:context
+                                       error:error];
 }
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
@@ -218,7 +233,7 @@
     
     for (MSIDTokenCacheItem *cacheItem in cacheItems)
     {
-        MSIDBaseToken *token = [self getTokenWithType:tokenType fromCacheItem:cacheItem];
+        MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
         
         if (token)
         {
@@ -227,19 +242,6 @@
     }
     
     return results;
-}
-
-- (BOOL)supportsTokenType:(MSIDTokenType)tokenType
-{
-    switch (tokenType) {
-        case MSIDTokenTypeAccessToken:
-        case MSIDTokenTypeRefreshToken:
-        case MSIDTokenTypeIDToken:
-            return YES;
-            
-        default:
-            return NO;
-    }
 }
 
 #pragma mark - Private
@@ -329,7 +331,7 @@
                              success:YES
                              context:context];
             
-            MSIDBaseToken *token = [self getTokenWithType:tokenType fromCacheItem:cacheItem];
+            MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
             token.authority = authority;
             return token;
         }
@@ -339,30 +341,6 @@
                     withItem:nil
                      success:NO
                      context:context];
-    
-    return nil;
-}
-
-- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
-                      fromCacheItem:(MSIDTokenCacheItem *)cacheItem
-{
-    switch (tokenType)
-    {
-        case MSIDTokenTypeAccessToken:
-        {
-            return [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
-        }
-        case MSIDTokenTypeRefreshToken:
-        {
-            return [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
-        }
-        case MSIDTokenTypeIDToken:
-        {
-            return [[MSIDIdToken alloc] initWithTokenCacheItem:cacheItem];
-        }
-        default:
-            return nil;
-    }
     
     return nil;
 }
@@ -646,6 +624,42 @@
         default:
             return nil;
     }
+}
+
+- (BOOL)saveAccessToken:(MSIDAccessToken *)accessToken
+                account:(MSIDAccount *)account
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
+{
+    // Access tokens have a special handling because of scopes
+    if (![self deleteAllAccessTokensWithIntersectingScopes:accessToken
+                                                   account:account
+                                                   context:context
+                                                     error:error])
+    {
+        return NO;
+    }
+    
+    return [self saveToken:accessToken
+                    userId:account.userIdentifier
+                 authority:accessToken.authority
+                   context:context
+                     error:error];
+}
+
+- (BOOL)saveTokenWithPreferredCache:(MSIDBaseToken *)token
+                            account:(MSIDAccount *)account
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    // All other tokens have the same handling
+    NSURL *authority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
+    
+    return [self saveToken:token
+                    userId:account.userIdentifier
+                 authority:authority
+                   context:context
+                     error:error];
 }
 
 - (BOOL)saveToken:(MSIDBaseToken *)token
