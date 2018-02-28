@@ -28,20 +28,17 @@
 @interface MSIDCacheItem : NSObject <NSSecureCoding, MSIDJsonSerializable>
 {
     NSURL *_authority;
-    NSString *_environment;
     NSString *_username;
     NSString *_uniqueUserId;
     MSIDClientInfo *_clientInfo;
     NSDictionary *_additionalInfo;
 }
 
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *environment;
-@property (readwrite) NSString *username;
+@property (readwrite, nonnull) NSURL *authority;
+@property (readwrite, nonnull) NSString *uniqueUserId;
 
-@property (readwrite) NSString *uniqueUserId;
-
-@property (readwrite) MSIDClientInfo *clientInfo;
-@property (readwrite) NSDictionary *additionalInfo;
+@property (readwrite, nullable) NSString *username;
+@property (readwrite, nullable) MSIDClientInfo *clientInfo;
+@property (readwrite, nullable) NSDictionary *additionalInfo;
 
 @end

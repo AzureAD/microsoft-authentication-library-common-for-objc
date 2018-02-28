@@ -173,12 +173,6 @@
         _firstName = cacheItem.firstName;
         _lastName = cacheItem.lastName;
         _authority = cacheItem.authority;
-        
-        if (!_authority && cacheItem.tenant)
-        {
-            _authority = [NSURL msidURLWithEnvironment:cacheItem.environment tenant:cacheItem.tenant];
-        }
-        
         _username = cacheItem.username;
         _userIdentifier = cacheItem.uniqueUserId;
     }
@@ -190,10 +184,8 @@
 {
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
     cacheItem.authority = self.authority;
-    cacheItem.environment = self.authority.msidHostWithPortIfNecessary;
     cacheItem.username = self.username;
     cacheItem.uniqueUserId = self.userIdentifier;
-    cacheItem.tenant = self.authority.msidTenant;
     cacheItem.legacyUserIdentifier = self.legacyUserId;
     cacheItem.accountType = self.accountType;
     cacheItem.firstName = self.firstName;

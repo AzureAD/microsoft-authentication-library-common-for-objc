@@ -29,29 +29,26 @@
 @interface MSIDTokenCacheItem : MSIDCacheItem
 
 // Client id
-@property (readwrite) NSString *clientId;
+@property (readwrite, nonnull) NSString *clientId;
 
 // Token type
 @property (readwrite) MSIDTokenType tokenType;
 
 // Tokens
-@property (readwrite) NSString *accessToken;
-@property (readwrite) NSString *refreshToken;
-@property (readwrite) NSString *idToken;
+@property (readwrite, nullable) NSString *accessToken;
+@property (readwrite, nullable) NSString *refreshToken;
+@property (readwrite, nullable) NSString *idToken;
 
 // Targets
-@property (readwrite) NSString *target;
-
-// Tenant
-@property (readwrite) NSString *tenant;
+@property (readwrite, nullable) NSString *target;
 
 // Dates
-@property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSDate *cachedAt;
+@property (readwrite, nullable) NSDate *expiresOn;
+@property (readwrite, nullable) NSDate *cachedAt;
 
 // Family ID
-@property (readwrite) NSString *familyId;
+@property (readwrite, nullable) NSString *familyId;
 
-- (MSIDBaseToken *)tokenWithType:(MSIDTokenType)tokenType;
+- (nullable MSIDBaseToken *)tokenWithType:(MSIDTokenType)tokenType;
 
 @end

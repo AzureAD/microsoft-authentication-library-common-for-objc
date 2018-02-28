@@ -26,15 +26,13 @@
 
 @interface MSIDAccountCacheItem : MSIDCacheItem
 
-@property (readwrite) NSString *tenant;
-
-@property (readwrite) NSString *legacyUserIdentifier;
+@property (readwrite, nullable) NSString *legacyUserIdentifier;
 @property (readwrite) MSIDAccountType accountType;
-@property (readwrite) NSString *firstName;
-@property (readwrite) NSString *lastName;
+@property (readwrite, nullable) NSString *firstName;
+@property (readwrite, nullable) NSString *lastName;
 
-@property (readwrite) NSDictionary *additionalAccountFields;
+@property (readwrite, nullable) NSDictionary *additionalAccountFields;
 
-- (void)updateFieldsFromAccount:(MSIDAccountCacheItem *)account;
+- (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
 
 @end

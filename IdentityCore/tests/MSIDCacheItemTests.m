@@ -32,11 +32,10 @@
 
 @implementation MSIDCacheItemTests
 
-- (void)test_whenKeyedArchivingToken_shouldReturnSameTokenOnDeserialize
+- (void)testKeyedArchivingToken_whenAllFieldsSet_shouldReturnSameTokenOnDeserialize
 {
     MSIDCacheItem *cacheItem = [MSIDCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    cacheItem.environment = DEFAULT_TEST_ENVIRONMENT;
     cacheItem.username = DEFAULT_TEST_ID_TOKEN_USERNAME;
     cacheItem.uniqueUserId = DEFAULT_TEST_ID_TOKEN_USERNAME;
     
@@ -54,7 +53,6 @@
     XCTAssertNotNil(newItem);
     
     XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
-    XCTAssertEqualObjects(newItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertEqualObjects(newItem.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
     XCTAssertEqualObjects(newItem.additionalInfo, @{@"test": @"2"});
     XCTAssertEqualObjects(newItem.clientInfo, clientInfo);
@@ -63,13 +61,30 @@
     XCTAssertEqualObjects(newItem.uniqueUserId, uniqueUserId);
 }
 
-- (void)testJSONDictionary_whenSerializing_shouldReturnJSONDictionary
+- (void)testKeyedArchivingToken_whenNoClientInfo_shouldReturnTokenWithoutClientInfoUniqueId
 {
     MSIDCacheItem *cacheItem = [MSIDCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    cacheItem.environment = DEFAULT_TEST_ENVIRONMENT;
+    cacheItem.uniqueUserId = @"unique_id";
+    
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
+    
+    XCTAssertNotNil(data);
+    
+    MSIDCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    
+    XCTAssertNotNil(newItem);
+    
+    XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
+    XCTAssertNil(newItem.clientInfo);
+    XCTAssertNil(newItem.uniqueUserId);
+}
+
+- (void)testJSONDictionary_whenAllFieldsSet_shouldReturnJSONDictionary
+{
+    MSIDCacheItem *cacheItem = [MSIDCacheItem new];
+    cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     cacheItem.username = DEFAULT_TEST_ID_TOKEN_USERNAME;
-    cacheItem.uniqueUserId = @"user_unique_id";
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfoString error:nil];
@@ -80,7 +95,9 @@
     
     XCTAssertNotNil(jsonDict);
     
-    NSDictionary *expectedDict = @{@"unique_id" : @"user_unique_id",
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    
+    NSDictionary *expectedDict = @{@"unique_id" : uniqueUserId,
                                    @"environment" : @"login.microsoftonline.com",
                                    @"client_info": clientInfoString,
                                    @"additional_info": @{@"test": @"2"},
@@ -91,7 +108,62 @@
     XCTAssertEqualObjects(jsonDict, expectedDict);
 }
 
-- (void)testJSONDictionary_whenDeSerializing_shouldHaveAllFieldsSet
+- (void)testJSONDictionary_whenBothUniqueIdAndClientInfoSet_shouldUseClientInfo
+{
+    MSIDCacheItem *cacheItem = [MSIDCacheItem new];
+    
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfoString error:nil];
+    cacheItem.clientInfo = clientInfo;
+    cacheItem.uniqueUserId = @"unique_id";
+    
+    NSDictionary *jsonDict = [cacheItem jsonDictionary];
+    
+    XCTAssertNotNil(jsonDict);
+    
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    
+    NSDictionary *expectedDict = @{@"unique_id" : uniqueUserId,
+                                   @"client_info": clientInfoString,
+                                   };
+    
+    XCTAssertEqualObjects(jsonDict, expectedDict);
+}
+
+- (void)testJSONDictionary_whenOnlyUniqueIdIsSet_shouldSaveUniqueId
+{
+    MSIDCacheItem *cacheItem = [MSIDCacheItem new];
+    cacheItem.uniqueUserId = @"unique_id";
+    
+    NSDictionary *jsonDict = [cacheItem jsonDictionary];
+    XCTAssertNotNil(jsonDict);
+    
+    NSDictionary *expectedDict = @{@"unique_id" : @"unique_id"};
+    XCTAssertEqualObjects(jsonDict, expectedDict);
+}
+
+- (void)testJSONDictionary_whenOnlyClientInfoSet_shouldUseClientInfo
+{
+    MSIDCacheItem *cacheItem = [MSIDCacheItem new];
+    
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfoString error:nil];
+    cacheItem.clientInfo = clientInfo;
+    
+    NSDictionary *jsonDict = [cacheItem jsonDictionary];
+    
+    XCTAssertNotNil(jsonDict);
+    
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    
+    NSDictionary *expectedDict = @{@"unique_id" : uniqueUserId,
+                                   @"client_info": clientInfoString,
+                                   };
+    
+    XCTAssertEqualObjects(jsonDict, expectedDict);
+}
+
+- (void)testInitWithJSONDictionary_whenAllFieldsSet_shouldReturnCacheItem
 {
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfoString error:nil];
@@ -111,13 +183,53 @@
     XCTAssertNotNil(newItem);
     
     XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
-    XCTAssertEqualObjects(newItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertEqualObjects(newItem.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
     XCTAssertEqualObjects(newItem.additionalInfo, @{@"test": @"2"});
     XCTAssertEqualObjects(newItem.clientInfo, clientInfo);
     
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(newItem.uniqueUserId, uniqueUserId);
+}
+
+- (void)testInitWithJSONDictionary_whenNoClientInfo_shouldReturnUniqueUserId
+{
+    NSDictionary *jsonDict = @{@"unique_id" : @"user_unique_id"};
+    
+    NSError *error = nil;
+    MSIDCacheItem *newItem = [[MSIDCacheItem alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(newItem);
+    XCTAssertEqualObjects(newItem.uniqueUserId, @"user_unique_id");
+    XCTAssertNil(newItem.clientInfo);
+}
+
+- (void)testInitWithJSONDictionary_whenNoAuthorityNoTenant_shouldReturnCommonAuthority
+{
+    NSDictionary *jsonDict = @{@"environment" : @"login.microsoftonline.com"};
+    
+    NSError *error = nil;
+    MSIDCacheItem *newItem = [[MSIDCacheItem alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(newItem);
+    
+    XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+}
+
+- (void)testInitWithJSONDictionary_whenNoAuthorityAndTenant_shouldReturnTenantedAuthority
+{
+    NSDictionary *jsonDict = @{@"environment" : @"login.microsoftonline.com",
+                               @"realm" : @"contoso.com"
+                               };
+    
+    NSError *error = nil;
+    MSIDCacheItem *newItem = [[MSIDCacheItem alloc] initWithJSONDictionary:jsonDict error:nil];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(newItem);
+    
+    XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"]);
 }
 
 @end

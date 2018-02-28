@@ -32,11 +32,10 @@
 
 @implementation MSIDTokenCacheItemTests
 
-- (void)test_whenKeyedArchivingAccessToken_shouldReturnSameTokenOnDeserialize
+- (void)test_whenKeyedArchivingToken_shouldReturnSameTokenOnDeserialize
 {
     MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    cacheItem.environment = DEFAULT_TEST_ENVIRONMENT;
     cacheItem.username = DEFAULT_TEST_ID_TOKEN_USERNAME;
     cacheItem.uniqueUserId = DEFAULT_TEST_ID_TOKEN_USERNAME;
     
@@ -51,22 +50,36 @@
     cacheItem.idToken = DEFAULT_TEST_ID_TOKEN;
     cacheItem.target = DEFAULT_TEST_RESOURCE;
     
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    
+    cacheItem.expiresOn = expiresOn;
+    cacheItem.cachedAt = cachedAt;
+    cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
+    
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
     
     XCTAssertNotNil(data);
     
-    MSIDCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    MSIDTokenCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     
     XCTAssertNotNil(newItem);
     
     XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
-    XCTAssertEqualObjects(newItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertEqualObjects(newItem.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
     XCTAssertEqualObjects(newItem.additionalInfo, @{@"test": @"2"});
     XCTAssertEqualObjects(newItem.clientInfo, clientInfo);
     
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(newItem.uniqueUserId, uniqueUserId);
+    XCTAssertEqualObjects(newItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(newItem.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(newItem.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(newItem.idToken, DEFAULT_TEST_ID_TOKEN);
+    XCTAssertEqualObjects(newItem.target, DEFAULT_TEST_RESOURCE);
+    XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
+    XCTAssertEqualObjects(newItem.familyId, DEFAULT_TEST_FAMILY_ID);
 }
 
 @end

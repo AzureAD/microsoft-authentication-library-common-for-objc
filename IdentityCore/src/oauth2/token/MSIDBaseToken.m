@@ -154,7 +154,6 @@
     cacheItem.additionalInfo = self.additionalInfo;
     cacheItem.username = self.username;
     cacheItem.uniqueUserId = self.uniqueUserId;
-    cacheItem.environment = self.authority.msidHostWithPortIfNecessary;
     return cacheItem;
 }
 

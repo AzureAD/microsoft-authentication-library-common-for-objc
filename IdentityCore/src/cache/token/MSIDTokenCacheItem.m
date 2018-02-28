@@ -103,9 +103,6 @@
     // Family ID
     _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
     
-    // Tenant
-    _tenant = json[MSID_REALM_CACHE_KEY];
-    
     // Client ID
     _clientId = json[MSID_CLIENT_ID_CACHE_KEY];
     
@@ -152,19 +149,6 @@
     // ID token
     _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
     
-    // Authority
-    if (!_authority && _tenant)
-    {
-        if (_tenant)
-        {
-            _authority = [NSURL msidURLWithEnvironment:_environment tenant:_tenant];
-        }
-        else
-        {
-            _authority = [NSURL msidURLWithEnvironment:_environment];
-        }
-    }
-    
     return self;
 }
 
@@ -182,9 +166,6 @@
     
     // Client ID
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = _clientId;
-    
-    // Tenant
-    dictionary[MSID_REALM_CACHE_KEY] = _tenant;
     
     // Target
     dictionary[MSID_TARGET_CACHE_KEY] = _target;
@@ -209,12 +190,14 @@
         case MSIDTokenTypeAccessToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _accessToken;
+            dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
             break;
         }
         case MSIDTokenTypeLegacyADFSToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _accessToken;
             dictionary[MSID_RESOURCE_RT_CACHE_KEY] = _refreshToken;
+            dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
             break;
         }
             

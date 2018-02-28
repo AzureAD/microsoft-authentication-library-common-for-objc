@@ -50,7 +50,6 @@
     if (authorityString)
     {
         _authority = [NSURL URLWithString:authorityString];
-        _environment = _authority.msidHostWithPortIfNecessary;
     }
     
     _additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
@@ -90,7 +89,7 @@
     _uniqueUserId = json[MSID_UNIQUE_ID_CACHE_KEY];
     
     // Environment
-    _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
+    NSString *environment = json[MSID_ENVIRONMENT_CACHE_KEY];
     
     /* Optional fields */
     NSString *rawClientInfo = json[MSID_OAUTH2_CLIENT_INFO];
@@ -109,6 +108,19 @@
     {
         _authority = [NSURL URLWithString:authorityString];
     }
+    else if (environment)
+    {
+        NSString *tenant = json[MSID_REALM_CACHE_KEY];
+        
+        if (tenant)
+        {
+            _authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
+        }
+        else
+        {
+            _authority = [NSURL msidURLWithEnvironment:environment];
+        }
+    }
     
     return self;
 }
@@ -125,10 +137,10 @@
     /* Mandatory fields */
     
     // Unique id
-    dictionary[MSID_UNIQUE_ID_CACHE_KEY] = _uniqueUserId;
+    dictionary[MSID_UNIQUE_ID_CACHE_KEY] = _clientInfo.userIdentifier ? _clientInfo.userIdentifier : _uniqueUserId;
     
     // Environment
-    dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _environment;
+    dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _authority.msidHostWithPortIfNecessary;
     
     /* Optional fields */
     

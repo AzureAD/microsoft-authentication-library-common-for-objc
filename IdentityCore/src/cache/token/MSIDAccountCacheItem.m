@@ -66,9 +66,6 @@
     // Authority account ID
     _legacyUserIdentifier = json[MSID_ACCOUNT_ID_CACHE_KEY];
     
-    // Tenant
-    _tenant = json[MSID_REALM_CACHE_KEY];
-    
     /* Optional fields */
     // First name
     _firstName = json[MSID_FIRST_NAME_CACHE_KEY];
