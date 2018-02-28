@@ -26,7 +26,6 @@
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDRefreshToken.h"
-#import "MSIDBaseCacheItem.h"
 
 @interface MSIDJsonSerializerTests : XCTestCase
 

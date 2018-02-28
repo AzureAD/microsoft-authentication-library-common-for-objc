@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDBaseCacheItem.h"
 #import "MSIDTokenCacheKey.h"
 #import "MSIDMacTokenCache.h"
 

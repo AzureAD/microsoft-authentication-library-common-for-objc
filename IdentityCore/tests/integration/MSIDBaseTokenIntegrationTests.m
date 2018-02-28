@@ -27,10 +27,9 @@
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDTestRequestParams.h"
 #import "MSIDAADV1TokenResponse.h"
-#import "MSIDAADV1RequestParameters.h"
 #import "MSIDAADV2TokenResponse.h"
-#import "MSIDAADV2RequestParameters.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDRequestParameters.h"
 
 @interface MSIDBaseTokenIntegrationTests : XCTestCase
 
@@ -62,7 +61,7 @@
 - (void)testInitWithTokenResponse_whenAADV1TokenResponse_v1RequestParams_shouldFillToken
 {
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDAADV1RequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
     
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenResponse:response request:params];
     
@@ -81,7 +80,7 @@
 - (void)testInitWithTokenResponse_whenAADV1TokenResponse_v2RequestParams_shouldFillToken
 {
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDAADV2RequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
     
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenResponse:response request:params];
     
@@ -100,7 +99,7 @@
 - (void)testInitWithTokenResponse_whenAADV2TokenResponse_v1RequestParams_shouldFillToken
 {
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDAADV1RequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
     
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenResponse:response request:params];
     
@@ -119,7 +118,7 @@
 - (void)testInitWithTokenResponse_whenAADV2TokenResponse_v2RequestParams_shouldFillToken
 {
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDAADV2RequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
     
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenResponse:response request:params];
     

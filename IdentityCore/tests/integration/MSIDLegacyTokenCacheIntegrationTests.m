@@ -31,8 +31,6 @@
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
-#import "MSIDAADV1RequestParameters.h"
-#import "MSIDAADV2RequestParameters.h"
 #import "MSIDAdfsToken.h"
 #import "MSIDUserInformation.h"
 #import "MSIDAccessToken.h"

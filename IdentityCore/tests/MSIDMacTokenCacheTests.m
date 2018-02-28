@@ -24,7 +24,6 @@
 #import <XCTest/XCTest.h>
 #import "MSIDMacTokenCache.h"
 #import "MSIDTokenCacheKey.h"
-#import "MSIDBaseCacheItem.h"
 
 @interface MSIDMacTokenCacheMocDelegate : NSObject<MSIDMacTokenCacheDelegate>
 

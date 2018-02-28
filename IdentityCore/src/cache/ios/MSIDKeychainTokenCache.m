@@ -126,7 +126,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     assert(item);
     assert(serializer);
     
-    NSData *itemData = [serializer serialize:item];
+    NSData *itemData = [serializer serializeTokenCacheItem:item];
     
     if (!itemData)
     {
@@ -137,6 +137,8 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         MSID_LOG_ERROR(context, @"Failed to serialize token item.");
         return NO;
     }
+    
+    MSID_LOG_INFO_PII(context, @"Save keychain item, item info %@", item);
     
     return [self saveData:itemData
                       key:key
@@ -182,12 +184,12 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     for (NSDictionary *attrs in items)
     {
         NSData *itemData = [attrs objectForKey:(id)kSecValueData];
-        MSIDTokenCacheItem *tokenItem = [serializer deserialize:itemData];
+        MSIDTokenCacheItem *tokenItem = [serializer deserializeTokenCacheItem:itemData];
         
         if (tokenItem)
         {
             // Delete tombstones generated from previous versions of ADAL.
-            if (tokenItem.refreshToken isEqualToString:@"<tombstone>"])
+            if ([tokenItem.refreshToken isEqualToString:@"<tombstone>"])
             {
                 [self deleteTombstoneWithService:attrs[(id)kSecAttrService]
                                          account:attrs[(id)kSecAttrAccount]
@@ -221,7 +223,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     assert(item);
     assert(serializer);
     
-    NSData *itemData = [serializer serialize:item];
+    NSData *itemData = [serializer serializeAccountCacheItem:item];
     
     if (!itemData)
     {
@@ -232,6 +234,8 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         MSID_LOG_ERROR(context, @"Failed to serialize token item.");
         return NO;
     }
+    
+    MSID_LOG_INFO_PII(context, @"Save keychain item, item info %@", item);
     
     return [self saveData:itemData
                       key:key
@@ -277,7 +281,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     for (NSDictionary *attrs in items)
     {
         NSData *itemData = [attrs objectForKey:(id)kSecValueData];
-        MSIDAccountCacheItem *accountItem = [serializer deserialize:itemData];
+        MSIDAccountCacheItem *accountItem = [serializer deserializeAccountCacheItem:itemData];
         
         if (accountItem)
         {
@@ -462,9 +466,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 - (NSArray *)itemsWithWithKey:(MSIDTokenCacheKey *)key
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error
-{
-    assert(serializer);
-    
+{    
     MSID_LOG_INFO(context, @"Get keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Get keychain items, key info (account: %@ service: %@)", key.account, key.service);
     
@@ -522,7 +524,6 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     MSID_LOG_INFO(context, @"Set keychain item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Set keychain item, key info (account: %@ service: %@)", key.account, key.service);
-    MSID_LOG_INFO_PII(context, @"Item info %@", item);
     
     if (!key.service || !key.account || !key.generic)
     {

@@ -50,6 +50,7 @@
     if (authorityString)
     {
         _authority = [NSURL URLWithString:authorityString];
+        _environment = _authority.msidHostWithPortIfNecessary;
     }
     
     _additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
@@ -58,8 +59,6 @@
     NSString *rawClientInfo = [coder decodeObjectOfClass:[NSString class] forKey:@"clientInfo"];
     [self fillClientInfo:rawClientInfo];
     
-    _uniqueUserId = _clientInfo.userIdentifier;
-    
     return self;
 }
 
@@ -67,7 +66,7 @@
 {
     [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
     
-    [coder encodeObject:self.clientInfo forKey:@"clientInfo"];
+    [coder encodeObject:self.clientInfo.rawClientInfo forKey:@"clientInfo"];
     [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
     
     // Backward compatibility with ADAL.
@@ -164,8 +163,10 @@
     {
         MSID_LOG_ERROR(nil, @"Client info is corrupted.");
     }
-    
-    _uniqueUserId = _clientInfo.userIdentifier;
+    else
+    {
+        _uniqueUserId = _clientInfo.userIdentifier;
+    }
 }
 
 @end

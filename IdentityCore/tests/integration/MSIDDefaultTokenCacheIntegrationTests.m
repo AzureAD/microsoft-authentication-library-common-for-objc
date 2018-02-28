@@ -31,8 +31,6 @@
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
-#import "MSIDAADV1RequestParameters.h"
-#import "MSIDAADV2RequestParameters.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
@@ -466,7 +464,7 @@
                               error:nil];
     
     // Retrieve token
-    MSIDAADV2RequestParameters *param = [MSIDTestRequestParams v2DefaultParams];
+    MSIDRequestParameters *param = [MSIDTestRequestParams v2DefaultParams];
     param.authority = nil;
     
     NSError *error = nil;
@@ -487,7 +485,7 @@
                                                         uid:DEFAULT_TEST_UID];
     
     // save token 1
-    MSIDAADV2RequestParameters *param = [MSIDTestRequestParams v2DefaultParams];
+    MSIDRequestParameters *param = [MSIDTestRequestParams v2DefaultParams];
     param.authority = [NSURL URLWithString:@"https://authority1.contoso.com"];
     
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
