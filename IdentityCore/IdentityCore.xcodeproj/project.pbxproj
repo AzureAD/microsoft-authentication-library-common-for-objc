@@ -24,7 +24,6 @@
 		231CE9AC1FE86EA300E95D3E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 231CE9AB1FE86EA300E95D3E /* Assets.xcassets */; };
 		231CE9AF1FE86EA300E95D3E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 231CE9AD1FE86EA300E95D3E /* LaunchScreen.storyboard */; };
 		231CE9C31FE871FA00E95D3E /* MSIDKeychainTokenCache+MSIDTestsUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 231CE9BA1FE870B500E95D3E /* MSIDKeychainTokenCache+MSIDTestsUtil.m */; };
-		231CE9C41FE872A900E95D3E /* MSIDKeychainTokenCacheIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 231CE9BF1FE8710A00E95D3E /* MSIDKeychainTokenCacheIntegrationTests.m */; };
 		2321531B1FDA101900C6960D /* MSIDUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 232153191FDA101900C6960D /* MSIDUserInformation.m */; };
 		2321531C1FDA101900C6960D /* MSIDUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 232153191FDA101900C6960D /* MSIDUserInformation.m */; };
 		23BDA6691FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA6671FC7774300FE14BE /* MSIDDictionaryExtensionsTests.m */; };
@@ -1460,7 +1459,6 @@
 				04930F901FEC8EE200FC4DCD /* MSIDAadAuthorityCacheTests.m in Sources */,
 				B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */,
 				B2DD5B7A20461F5E0084313F /* MSIDAccountCacheItemTests.m in Sources */,
-				231CE9C41FE872A900E95D3E /* MSIDKeychainTokenCacheIntegrationTests.m in Sources */,
 				B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				B210F4501FDDF5D2005A8F76 /* MSIDClientInfoTests.m in Sources */,
 				B20657CF1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
