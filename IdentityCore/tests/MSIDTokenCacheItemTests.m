@@ -202,10 +202,10 @@
 
 #pragma mark - JSON deserialization
 
-- (void)testInitWithJSONDictionary_whenAccessToken_andAllFieldsSet_shouldReturnJSONDictionary
+- (void)testInitWithJSONDictionary_whenAccessToken_andAllFieldsSet_shouldReturnAccessTokenCacheItem
 {
-    NSDate *expiresOn = [NSDate date];
-    NSDate *cachedAt = [NSDate date];
+    NSDate *expiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
+    NSDate *cachedAt = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
     
     NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
@@ -229,6 +229,93 @@
     NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
     XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeAccessToken);
+    XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(cacheItem.target, DEFAULT_TEST_RESOURCE);
+    XCTAssertEqualObjects(cacheItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(cacheItem.cachedAt, cachedAt);
+    XCTAssertEqualObjects(cacheItem.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(cacheItem.idToken, DEFAULT_TEST_ID_TOKEN);
+}
+
+- (void)testInitWithJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnRefreshTokenCacheItem
+{
+    NSDictionary *jsonDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
+                                     @"credential_type": @"RefreshToken",
+                                     @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                     @"secret": DEFAULT_TEST_REFRESH_TOKEN,
+                                     @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                     @"id_token": DEFAULT_TEST_ID_TOKEN,
+                                     @"family_id": DEFAULT_TEST_FAMILY_ID
+                                     };
+    
+    NSError *error = nil;
+    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    
+    XCTAssertNotNil(cacheItem);
+    NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
+    XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
+    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeRefreshToken);
+    XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(cacheItem.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(cacheItem.idToken, DEFAULT_TEST_ID_TOKEN);
+    XCTAssertEqualObjects(cacheItem.familyId, DEFAULT_TEST_FAMILY_ID);
+}
+
+- (void)testInitWithJSONDictionary_whenADFSToken_andAllFieldsSet_shouldReturnADFSTokenCacheItem
+{
+    NSDate *expiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
+    NSDate *cachedAt = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
+    
+    NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
+    
+    NSDictionary *jsonDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
+                                     @"credential_type": @"LegacyADFSToken",
+                                     @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                     @"target": DEFAULT_TEST_RESOURCE,
+                                     @"cached_at": cachedAtString,
+                                     @"expires_on": expiresOnString,
+                                     @"secret": DEFAULT_TEST_ACCESS_TOKEN,
+                                     @"realm": @"common",
+                                     @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                     @"id_token": DEFAULT_TEST_ID_TOKEN,
+                                     @"resource_refresh_token": DEFAULT_TEST_REFRESH_TOKEN
+                                     };
+    
+    NSError *error = nil;
+    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    
+    XCTAssertNotNil(cacheItem);
+    NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
+    XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
+    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeLegacyADFSToken);
+    XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(cacheItem.target, DEFAULT_TEST_RESOURCE);
+    XCTAssertEqualObjects(cacheItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(cacheItem.cachedAt, cachedAt);
+    XCTAssertEqualObjects(cacheItem.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(cacheItem.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(cacheItem.idToken, DEFAULT_TEST_ID_TOKEN);
+}
+
+- (void)testInitWithJSONDictionary_whenIDToken_andAllFieldsSet_shouldReturnIDTokenCacheItem
+{
+    NSDictionary *jsonDictionary = @{@"credential_type": @"IdToken",
+                                     @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                     @"secret": DEFAULT_TEST_ID_TOKEN,
+                                     @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                     @"realm": @"common"
+                                     };
+    
+    NSError *error = nil;
+    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    
+    XCTAssertNotNil(cacheItem);
+    NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
+    XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
+    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeIDToken);
+    XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(cacheItem.idToken, DEFAULT_TEST_ID_TOKEN);
 }
 
 @end
