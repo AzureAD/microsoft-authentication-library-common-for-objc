@@ -238,4 +238,22 @@
     XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"]);
 }
 
+#pragma mark - Additional fields
+
+- (void)testJSONSerialization_whenJsonContainsExtraFields_shouldKeepThem
+{
+    NSDictionary *json = @{@"unique_id" : @"uid.utid",
+                                  @"environment" : @"login.microsoftonline.com",
+                                  @"additional_info": @{@"test": @"2"},
+                                  @"username": DEFAULT_TEST_ID_TOKEN_USERNAME,
+                                  @"authority":DEFAULT_TEST_AUTHORITY,
+                                  @"some key" : @"some value"
+                                  };
+    
+    NSError *error;
+    MSIDCacheItem *cacheItem = [[MSIDCacheItem alloc] initWithJSONDictionary:json error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(json, [cacheItem jsonDictionary]);
+}
+
 @end

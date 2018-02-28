@@ -304,7 +304,7 @@
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"secret": DEFAULT_TEST_ID_TOKEN,
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
-                                     @"realm": @"common"
+                                     @"realm": @"common",
                                      };
     
     NSError *error = nil;
