@@ -32,7 +32,7 @@
 
 @implementation MSIDTokenCacheItemTests
 
-- (void)test_whenKeyedArchivingToken_shouldReturnSameTokenOnDeserialize
+- (void)testKeyedArchivingToken_whenAllFieldsSet_shouldReturnSameTokenOnDeserialize
 {
     MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
@@ -80,6 +80,39 @@
     XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, DEFAULT_TEST_FAMILY_ID);
+}
+
+- (void)testJSONDictionary_whenAccessToken_andAllFieldsSet_shouldReturnJSONDictionary
+{
+    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
+    cacheItem.tokenType = MSIDTokenTypeAccessToken;
+    cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem.target = DEFAULT_TEST_RESOURCE;
+    
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    
+    cacheItem.cachedAt = cachedAt;
+    cacheItem.expiresOn = expiresOn;
+    cacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
+    
+    NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
+    
+    NSDictionary *expectedDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
+                                         @"credential_type": @"AccessToken",
+                                         @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                         @"target": DEFAULT_TEST_RESOURCE,
+                                         @"cached_at": cachedAtString,
+                                         @"expires_on": expiresOnString,
+                                         @"secret": DEFAULT_TEST_ACCESS_TOKEN,
+                                         @"realm": @"common",
+                                         @"environment": DEFAULT_TEST_ENVIRONMENT
+                                         };
+    
+    XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
+    
 }
 
 @end
