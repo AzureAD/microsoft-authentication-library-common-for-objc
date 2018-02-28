@@ -32,6 +32,8 @@
 
 @implementation MSIDCacheItemTests
 
+#pragma mark - Keyed archiver
+
 - (void)testKeyedArchivingToken_whenAllFieldsSet_shouldReturnSameTokenOnDeserialize
 {
     MSIDCacheItem *cacheItem = [MSIDCacheItem new];
@@ -79,6 +81,8 @@
     XCTAssertNil(newItem.clientInfo);
     XCTAssertNil(newItem.uniqueUserId);
 }
+
+#pragma mark - JSON serialization
 
 - (void)testJSONDictionary_whenAllFieldsSet_shouldReturnJSONDictionary
 {
@@ -162,6 +166,8 @@
     
     XCTAssertEqualObjects(jsonDict, expectedDict);
 }
+
+#pragma mark - JSON deserialization
 
 - (void)testInitWithJSONDictionary_whenAllFieldsSet_shouldReturnCacheItem
 {

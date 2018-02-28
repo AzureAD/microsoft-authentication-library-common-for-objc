@@ -94,8 +94,6 @@
         return nil;
     }
     
-    /* Mandatory fields */
-    
     // Token type
     NSString *tokenType = json[MSID_CREDENTIAL_TYPE_CACHE_KEY];
     _tokenType = [MSIDTokenTypeHelpers tokenTypeFromString:tokenType];
@@ -114,6 +112,9 @@
     
     // Expires on
     _expiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXPIRES_ON_CACHE_KEY]];
+    
+    // ID token
+    _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
     
     switch (_tokenType) {
         case MSIDTokenTypeRefreshToken:
@@ -143,11 +144,6 @@
             break;
         }
     }
-    
-    /* Optional fields */
-    
-    // ID token
-    _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
     
     return self;
 }
@@ -180,17 +176,20 @@
         case MSIDTokenTypeRefreshToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _refreshToken;
+            dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
             break;
         }
         case MSIDTokenTypeIDToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _idToken;
+            dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
             break;
         }
         case MSIDTokenTypeAccessToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _accessToken;
             dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
+            dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
             break;
         }
         case MSIDTokenTypeLegacyADFSToken:
@@ -198,6 +197,7 @@
             dictionary[MSID_TOKEN_CACHE_KEY] = _accessToken;
             dictionary[MSID_RESOURCE_RT_CACHE_KEY] = _refreshToken;
             dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
+            dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
             break;
         }
             
@@ -206,11 +206,6 @@
             break;
         }
     }
-    
-    /* Optional fields */
-    
-    // ID token
-    dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
     
     return dictionary;
 }
