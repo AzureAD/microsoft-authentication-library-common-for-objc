@@ -41,4 +41,6 @@
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
 @property (readwrite, nullable) NSDictionary *additionalInfo;
 
+- (BOOL)isEqualToItem:(nonnull MSIDCacheItem *)item;
+
 @end

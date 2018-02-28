@@ -31,13 +31,58 @@
 
 @implementation MSIDCacheItem
 
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:self.class])
+    {
+        return NO;
+    }
+    
+    return [self isEqualToItem:(MSIDCacheItem *)object];
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = [super hash];
+    hash = hash * 31 + self.authority.hash;
+    hash = hash * 31 + self.username.hash;
+    hash = hash * 31 + self.uniqueUserId.hash;
+    hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
+    hash = hash * 31 + self.additionalInfo.hash;
+
+    return hash;
+}
+
+- (BOOL)isEqualToItem:(MSIDCacheItem *)item
+{
+    if (!item)
+    {
+        return NO;
+    }
+    
+    BOOL result = YES;
+    result &= (!self.authority && !item.authority) || [self.authority.absoluteString isEqualToString:item.authority.absoluteString];
+    result &= (!self.username && !item.username) || [self.username isEqualToString:item.username];
+    result &= (!self.uniqueUserId && !item.uniqueUserId) || [self.uniqueUserId isEqualToString:item.uniqueUserId];
+    result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
+    result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqualToDictionary:item.additionalInfo];
+    
+    return result;
+}
+
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDCacheItem *item = [[self.class allocWithZone:zone] init];
     item.authority = [self.authority copyWithZone:zone];
-    item.environment = [self.environment copyWithZone:zone];
     item.username = [self.username copyWithZone:zone];
     item.uniqueUserId = [self.uniqueUserId copyWithZone:zone];
     item.clientInfo = [self.clientInfo copyWithZone:zone];

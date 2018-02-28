@@ -35,6 +35,42 @@
 
 @implementation MSIDTokenCacheItem
 
+#pragma mark - MSIDCacheItem
+
+- (BOOL)isEqualToItem:(MSIDTokenCacheItem *)item
+{
+    BOOL result = [super isEqualToItem:item];
+    result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
+    result &= self.tokenType == item.tokenType;
+    result &= (!self.accessToken && !item.accessToken) || [self.accessToken isEqualToString:item.accessToken];
+    result &= (!self.refreshToken && !item.refreshToken) || [self.refreshToken isEqualToString:item.refreshToken];
+    result &= (!self.idToken && !item.idToken) || [self.idToken isEqualToString:item.idToken];
+    result &= (!self.target && !item.target) || [self.target isEqualToString:item.target];
+    result &= (!self.expiresOn && !item.expiresOn) || [self.expiresOn isEqualToDate:item.expiresOn];
+    result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqualToDate:item.cachedAt];
+    result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
+    
+    return result;
+}
+
+#pragma mark - NSObject
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = [super hash];
+    hash = hash * 31 + self.clientId.hash;
+    hash = hash * 31 + self.tokenType;
+    hash = hash * 31 + self.accessToken.hash;
+    hash = hash * 31 + self.refreshToken.hash;
+    hash = hash * 31 + self.idToken.hash;
+    hash = hash * 31 + self.target.hash;
+    hash = hash * 31 + self.expiresOn.hash;
+    hash = hash * 31 + self.cachedAt.hash;
+    hash = hash * 31 + self.familyId.hash;
+    
+    return hash;
+}
+
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
@@ -46,7 +82,6 @@
     item.refreshToken = [self.refreshToken copyWithZone:zone];
     item.idToken = [self.idToken copyWithZone:zone];
     item.target = [self.target copyWithZone:zone];
-    item.tenant = [self.tenant copyWithZone:zone];
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
