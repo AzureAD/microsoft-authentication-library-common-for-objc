@@ -73,7 +73,7 @@
         return NO;
     }
     
-    if (!response.accessToken)
+    if ([NSString msidIsStringNilOrBlank:response.accessToken])
     {
         if (error)
         {
@@ -134,7 +134,7 @@
     NSString *responseId = [response correlationId];
     if (![NSString msidIsStringNilOrBlank:responseId])
     {
-        NSUUID* responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
+        NSUUID *responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
         if (!responseUUID)
         {
             MSID_LOG_INFO_CORR(requestCorrelationId, @"Bad correlation id - The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
