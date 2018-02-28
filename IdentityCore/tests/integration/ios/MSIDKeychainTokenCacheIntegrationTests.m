@@ -24,14 +24,15 @@
 #import <XCTest/XCTest.h>
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDKeychainUtil.h"
-#import "MSIDBaseToken.h"
+#import "MSIDTokenCacheItem.h"
 #import "MSIDTokenCacheKey.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
-#import "MSIDRefreshToken.h"
-#import "MSIDAccessToken.h"
+#import "MSIDTokenCacheItem.h"
 
 @interface MSIDKeychainTokenCacheIntegrationTests : XCTestCase
+
+@property (nonatomic) NSData *generic;
 
 @end
 
@@ -42,6 +43,8 @@
     [super setUp];
     
     [MSIDKeychainTokenCache reset];
+    
+    self.generic = [@"some value" dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (void)tearDown
@@ -67,10 +70,10 @@
 - (void)test_whenSetItemWithValidParameters_shouldReturnTrue
 {    
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDRefreshToken *token = [MSIDRefreshToken new];
-    [token setValue:@"some token" forKey:@"idToken"];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:@"test" type:nil];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    token.accessToken = @"some token";
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     
@@ -80,15 +83,15 @@
 - (void)test_whenSetItem_shouldGetSameItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDRefreshToken *token = [MSIDRefreshToken new];
-    [token setValue:@"some token" forKey:@"idToken"];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:@"test" type:nil];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    token.accessToken = @"some token";
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertTrue(result);
     
-    MSIDRefreshToken *token2 = (MSIDRefreshToken *)[keychainTokenCache tokenWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    MSIDTokenCacheItem *token2 = [keychainTokenCache tokenWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
     
     XCTAssertEqualObjects(token, token2);
 }
@@ -97,9 +100,9 @@
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     
-    MSIDBaseToken *token = [MSIDBaseToken new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:nil service:@"test_service" generic:@"test" type:nil];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:nil service:@"test_service" generic:self.generic type:nil];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     NSError *error;
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:keyedArchiverSerializer context:nil error:&error];
@@ -111,9 +114,9 @@
 - (void)testSetItem_whenKeysServiceIsNil_shouldReturnFalseAndError
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDBaseToken *token = [MSIDBaseToken new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:nil generic:@"test" type:nil];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:nil generic:self.generic type:nil];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     NSError *error;
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:keyedArchiverSerializer context:nil error:&error];
@@ -125,16 +128,16 @@
 - (void)testSetItem_whenItemAlreadyExistInKeychain_shouldUpdateIt
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDAccessToken *token = [MSIDAccessToken new];
-    [token setValue:@"some token" forKey:@"idToken"];
-    MSIDAccessToken *token2 = [MSIDAccessToken new];
-    [token2 setValue:@"some token2" forKey:@"idToken"];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:@"test" type:nil];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeAccessToken];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    token.accessToken = @"some token";
+    MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
+    token2.accessToken = @"some token";
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     
     [keychainTokenCache saveToken:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     [keychainTokenCache saveToken:token2 key:key serializer:keyedArchiverSerializer context:nil error:nil];
-    MSIDAccessToken *tokenResult = (MSIDAccessToken *)[keychainTokenCache tokenWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    MSIDTokenCacheItem *tokenResult = [keychainTokenCache tokenWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
     
     XCTAssertEqualObjects(tokenResult, token2);
 }
@@ -142,24 +145,24 @@
 - (void)testItemsWithKey_whenKeyIsQuery_shouldReturnProperItems
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     // Item 1.
-    MSIDBaseToken *token1 = [MSIDBaseToken new];
-    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:@"test" type:nil];
+    MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 2.
-    MSIDBaseToken *token2 = [MSIDBaseToken new];
-    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:@"test" type:nil];
+    MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 3.
-    MSIDBaseToken *token3 = [MSIDBaseToken new];
-    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" generic:@"test" type:nil];
+    MSIDTokenCacheItem *token3 = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token3 key:key3 serializer:keyedArchiverSerializer context:nil error:nil];
     
-    MSIDTokenCacheKey *queryKey = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:nil generic:@"test" type:nil];
+    MSIDTokenCacheKey *queryKey = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:nil generic:self.generic type:nil];
     NSError *error;
     
-    NSArray<MSIDBaseCacheItem *> *items = [keychainTokenCache tokensWithKey:queryKey serializer:keyedArchiverSerializer context:nil error:&error];
+    NSArray<MSIDTokenCacheItem *> *items = [keychainTokenCache tokensWithKey:queryKey serializer:keyedArchiverSerializer context:nil error:&error];
     
     XCTAssertEqual(items.count, 2);
     
@@ -171,21 +174,19 @@
 
 - (void)testItemsWithKey_whenKeyIsQueryWithType_shouldReturnProperItems
 {
-    // Todo: need to create MSIDBaseToken with refreshtoken using response.
+    // Todo: need to create MSIDTokenCacheItem with refreshtoken using response.
 }
-
-
 
 - (void)testRemoveItemWithKey_whenKeyIsValid_shouldRemoveItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDAccessToken *token = [MSIDAccessToken new];
-    [token setValue:@"some token" forKey:@"idToken"];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:@"test" type:nil];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    token.accessToken = @"some token";
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     [keychainTokenCache saveToken:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     
-    NSArray<MSIDBaseCacheItem *> *items = [keychainTokenCache tokensWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
+    NSArray<MSIDTokenCacheItem *> *items = [keychainTokenCache tokensWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertEqual(items.count, 1);
     
     NSError *error;
@@ -200,13 +201,13 @@
 - (void)testRemoveItemWithKey_whenKeyIsValidWithType_shouldRemoveItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDAccessToken *token = [MSIDAccessToken new];
-    [token setValue:@"some token" forKey:@"idToken"];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:@"test" type:nil];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    token.accessToken = @"some token";
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     [keychainTokenCache saveToken:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     
-    NSArray<MSIDBaseCacheItem *> *items = [keychainTokenCache tokensWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
+    NSArray<MSIDTokenCacheItem *> *items = [keychainTokenCache tokensWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertEqual(items.count, 1);
     
     NSError *error;
@@ -218,28 +219,28 @@
     XCTAssertNil(error);
 }
 
-- (void)testRemoveItemWithKey_whenKeyIsNil_shouldRemoveAllItems
+- (void)testRemoveItemWithKey_whenKeyIsNil_shouldReturnError
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     // Item 1.
-    MSIDBaseToken *token1 = [MSIDBaseToken new];
-    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:@"test" type:nil];
+    MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 2.
-    MSIDBaseToken *token2 = [MSIDBaseToken new];
-    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:@"test" type:nil];
+    MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 3.
-    MSIDBaseToken *token3 = [MSIDBaseToken new];
-    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" generic:@"test" type:nil];
+    MSIDTokenCacheItem *token3 = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token3 key:key3 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 4.
-    MSIDBaseToken *token4 = [MSIDBaseToken new];
-    MSIDTokenCacheKey *key4 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item4" generic:@"test" type:nil];
+    MSIDTokenCacheItem *token4 = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key4 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item4" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token4 key:key4 serializer:keyedArchiverSerializer context:nil error:nil];
     
-    NSArray<MSIDBaseCacheItem *> *items = [keychainTokenCache tokensWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];
+    NSArray<MSIDTokenCacheItem *> *items = [keychainTokenCache tokensWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];
     
     XCTAssertEqual(items.count, 4);
     
@@ -248,9 +249,9 @@
     BOOL result = [keychainTokenCache removeItemsWithKey:nil context:nil error:&error];
     items = [keychainTokenCache tokensWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];
     
-    XCTAssertTrue(result);
-    XCTAssertEqual(items.count, 0);
-    XCTAssertNil(error);
+    XCTAssertFalse(result);
+    XCTAssertEqual(items.count, 4);
+    XCTAssertNotNil(error);
 }
 
 - (void)testSaveWipeInfoWithContext_shouldReturnTrueAndNilError
@@ -281,24 +282,24 @@
 - (void)testItemsWithKey_whenFindsTombstoneItems_shouldSkipThem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     // Item 1.
-    MSIDRefreshToken *token1 = [MSIDRefreshToken new];
-    [token1 setValue:@"<tombstone>" forKey:@"refreshToken"];
-    [token1 setValue:[[NSNumber alloc] initWithInt:MSIDTokenTypeRefreshToken] forKey:@"tokenType"];
-    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:@"test" type:nil];
+    MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    token1.refreshToken = @"<tombstone>";
+    token1.tokenType = MSIDTokenTypeRefreshToken;
+    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 2.
-    MSIDRefreshToken *token2 = [MSIDRefreshToken new];
-    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:@"test" type:nil];
+    MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 3.
-    MSIDRefreshToken *token3 = [MSIDRefreshToken new];
-    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item3" generic:@"test" type:nil];
+    MSIDTokenCacheItem *token3 = [MSIDTokenCacheItem new];
+    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item3" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token3 key:key3 serializer:keyedArchiverSerializer context:nil error:nil];
     NSError *error;
     
-    NSArray<MSIDRefreshToken *> *items = (NSArray<MSIDRefreshToken *> *)([keychainTokenCache tokensWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil]);
+    NSArray<MSIDTokenCacheItem *> *items = ([keychainTokenCache tokensWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil]);
     
     XCTAssertEqual(items.count, 2);
     XCTAssertNil(error);
@@ -307,10 +308,11 @@
 - (void)testItemsWithKey_whenFindsTombstoneItems_shouldDeleteThemFromKeychain
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [[MSIDKeyedArchiverSerializer alloc] initForTokenType:MSIDTokenTypeRefreshToken];
-    MSIDRefreshToken *token1 = [MSIDRefreshToken new];
-    [token1 setValue:@"<tombstone>" forKey:@"refreshToken"];
-    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:@"test" type:nil];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
+    MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    token1.refreshToken = @"<tombstone>";
+    token1.tokenType = MSIDTokenTypeRefreshToken;
+    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
     
     [keychainTokenCache tokensWithKey:nil serializer:keyedArchiverSerializer context:nil error:nil];

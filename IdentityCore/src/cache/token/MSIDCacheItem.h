@@ -25,7 +25,7 @@
 #import "MSIDJsonSerializable.h"
 #import "MSIDClientInfo.h"
 
-@interface MSIDCacheItem : NSObject <NSSecureCoding, MSIDJsonSerializable>
+@interface MSIDCacheItem : NSObject <NSCopying, NSSecureCoding, MSIDJsonSerializable>
 {
     NSURL *_authority;
     NSString *_username;
@@ -40,5 +40,7 @@
 @property (readwrite, nullable) NSString *username;
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
 @property (readwrite, nullable) NSDictionary *additionalInfo;
+
+- (BOOL)isEqualToItem:(nonnull MSIDCacheItem *)item;
 
 @end
