@@ -31,6 +31,21 @@
 
 @implementation MSIDCacheItem
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDCacheItem *item = [[self.class allocWithZone:zone] init];
+    item.authority = [self.authority copyWithZone:zone];
+    item.environment = [self.environment copyWithZone:zone];
+    item.username = [self.username copyWithZone:zone];
+    item.uniqueUserId = [self.uniqueUserId copyWithZone:zone];
+    item.clientInfo = [self.clientInfo copyWithZone:zone];
+    item.additionalInfo = [self.additionalInfo copyWithZone:zone];
+    
+    return item;
+}
+
 #pragma mark - NSSecureCoding
 
 + (BOOL)supportsSecureCoding

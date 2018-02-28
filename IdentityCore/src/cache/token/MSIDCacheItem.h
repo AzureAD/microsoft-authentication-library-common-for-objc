@@ -25,7 +25,7 @@
 #import "MSIDJsonSerializable.h"
 #import "MSIDClientInfo.h"
 
-@interface MSIDCacheItem : NSObject <NSSecureCoding, MSIDJsonSerializable>
+@interface MSIDCacheItem : NSObject <NSCopying, NSSecureCoding, MSIDJsonSerializable>
 {
     NSURL *_authority;
     NSString *_username;

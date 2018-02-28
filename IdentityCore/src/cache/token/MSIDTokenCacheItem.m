@@ -35,6 +35,25 @@
 
 @implementation MSIDTokenCacheItem
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDTokenCacheItem *item = [super copyWithZone:zone];
+    item.clientId = [self.clientId copyWithZone:zone];
+    item.tokenType = self.tokenType;
+    item.accessToken = [self.accessToken copyWithZone:zone];
+    item.refreshToken = [self.refreshToken copyWithZone:zone];
+    item.idToken = [self.idToken copyWithZone:zone];
+    item.target = [self.target copyWithZone:zone];
+    item.tenant = [self.tenant copyWithZone:zone];
+    item.expiresOn = [self.expiresOn copyWithZone:zone];
+    item.cachedAt = [self.cachedAt copyWithZone:zone];
+    item.familyId = [self.familyId copyWithZone:zone];
+    
+    return item;
+}
+
 #pragma mark - NSSecureCoding
 
 - (instancetype)initWithCoder:(NSCoder *)coder

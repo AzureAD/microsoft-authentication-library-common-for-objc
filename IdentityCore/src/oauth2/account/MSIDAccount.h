@@ -29,7 +29,7 @@
 @class MSIDRequestParameters;
 @class MSIDTokenResponse;
 
-@interface MSIDAccount : NSObject
+@interface MSIDAccount : NSObject <NSCopying>
 
 // Legacy user identifier
 @property (readwrite) NSString *legacyUserId;
