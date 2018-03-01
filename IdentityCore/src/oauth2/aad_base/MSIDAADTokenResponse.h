@@ -41,6 +41,7 @@
 // Derived properties
 @property (readonly) NSDate *extendedExpiresOnDate;
 
-+ (MSIDErrorCode)getErrorCode:(BOOL)fromRefreshToken;
+- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
+          fromRefreshToken:(BOOL)fromRefreshToken;
 
 @end

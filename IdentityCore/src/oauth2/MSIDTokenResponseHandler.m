@@ -24,20 +24,15 @@
 #import "MSIDTokenResponseHandler.h"
 #import "MSIDAADTokenResponse.h"
 #import "MSIDRequestContext.h"
-#import "MSIDAADV1TokenResponse.h"
-#import "MSIDAADV2TokenResponse.h"
 #import "MSIDError.h"
 #import "MSIDClientInfo.h"
-#import "MSIDAADV2RequestParameters.h"
-#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDTokenResponseHandler
 
-+ (BOOL)processResponse:(MSIDAADTokenResponse *)response
-           refreshToken:(NSString *)refreshToken
-          requestParams:(MSIDRequestParameters *)parameters
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError * __autoreleasing *)error
++ (BOOL)verifyResponse:(MSIDAADTokenResponse *)response
+      fromRefreshToken:(BOOL)fromRefreshToken
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError * __autoreleasing *)error
 {
     if (!response)
     {
@@ -55,20 +50,7 @@
     {
         if (error)
         {
-            MSIDErrorCode errorCode = refreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
-            if ([response isKindOfClass:MSIDAADV2TokenResponse.class])
-            {
-                errorCode = [self.class getErrorCodeForAADV2:response.error];
-            }
-            
-            *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     errorCode,
-                                     response.errorDescription,
-                                     response.error,
-                                     nil,
-                                     nil,
-                                     context.correlationId,
-                                     nil);
+            *error = [response getOAuthError:context fromRefreshToken:fromRefreshToken];
         }
         return NO;
     }
@@ -92,33 +74,6 @@
                                      MSIDErrorInternal, @"Client info was not returned in the server response", nil, nil, nil, context.correlationId, nil);
         }
         return NO;
-    }
-    
-    // Checking for V1 response is done
-    if (![response isKindOfClass:MSIDAADV2TokenResponse.class] || ![parameters isKindOfClass:MSIDAADV2RequestParameters.class])
-    {
-        return YES;
-    }
-    
-    // The rest of the checking is only for V2
-    MSIDAADV2RequestParameters *aadV2Parameters = (MSIDAADV2RequestParameters *)parameters;
-    if ([NSString msidIsStringNilOrBlank:response.scope])
-    {
-        MSID_LOG_INFO(context, @"No scope in server response, using passed in scope instead.");
-        MSID_LOG_INFO_PII(context, @"No scope in server response, using passed in scope instead.");
-        [response setScope:aadV2Parameters.scopes.msidToString];
-    }
-    
-    // For silent flow, with grant type being MSID_OAUTH2_REFRESH_TOKEN, this value may be missing from the response.
-    // In this case, we simply return the refresh token in the request.
-    if (refreshToken)
-    {
-        if (!response.refreshToken)
-        {
-            response.refreshToken = refreshToken;
-            MSID_LOG_WARN(context, @"Refresh token was missing from the token refresh response, so the refresh token in the request is returned instead");
-            MSID_LOG_WARN_PII(context, @"Refresh token was missing from the token refresh response, so the refresh token in the request is returned instead");
-        }
     }
     
     // TODO: ADAL and MSAL are checking if user matches in different places. Discuss if we should move that logic to this function
@@ -148,24 +103,6 @@
     {
         MSID_LOG_INFO_CORR(requestCorrelationId, @"Missing correlation id - No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
     }
-}
-
-+ (MSIDErrorCode)getErrorCodeForAADV2:(NSString *)oauthError
-{
-    if ([oauthError isEqualToString:@"invalid_request"])
-    {
-        return MSIDErrorInvalidRequest;
-    }
-    if ([oauthError isEqualToString:@"invalid_client"])
-    {
-        return MSIDErrorInvalidClient;
-    }
-    if ([oauthError isEqualToString:@"invalid_scope"])
-    {
-        return MSIDErrorInvalidParameter;
-    }
-    
-    return MSIDErrorInteractionRequired;
 }
 
 @end

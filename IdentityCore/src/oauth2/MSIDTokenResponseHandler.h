@@ -28,10 +28,9 @@
 
 @interface MSIDTokenResponseHandler : NSObject
 
-+ (BOOL)processResponse:(MSIDAADTokenResponse *)response
-           refreshToken:(NSString *)refreshToken
-          requestParams:(MSIDRequestParameters *)parameters
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError * __autoreleasing *)error;
++ (BOOL)verifyResponse:(MSIDAADTokenResponse *)response
+      fromRefreshToken:(BOOL)fromRefreshToken
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError * __autoreleasing *)error;
 
 @end

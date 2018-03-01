@@ -88,7 +88,8 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
     return [NSDate dateWithTimeIntervalSince1970:[expiresOn integerValue]];
 }
 
-+ (MSIDErrorCode)getErrorCode:(BOOL)fromRefreshToken
+- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
+          fromRefreshToken:(BOOL)fromRefreshToken;
 {
     // Method should be implemented in subclasses
     return nil;
