@@ -229,8 +229,7 @@
                            context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
-    if (!account
-        || !clientId
+    if (!clientId
         || !authority)
     {
         if (error)
@@ -262,11 +261,15 @@
                                clientId:(NSString *)clientId
                               authority:(NSURL *)authority
 {
-    NSString *userIdentifier = account.userIdentifier;
+    NSString *userIdentifier = nil;
     
-    if (!userIdentifier)
+    if (!account)
     {
-        userIdentifier = account.legacyUserId;
+        userIdentifier = @"";
+    }
+    else
+    {
+        userIdentifier = account.userIdentifier ? account.userIdentifier : account.legacyUserId;
     }
     
     NSString *cloudIdentifier = tokenType == MSIDTokenTypeRefreshToken ? authority.msidHostWithPortIfNecessary : authority.absoluteString;

@@ -91,6 +91,7 @@
     result &= (!self.firstName && !account.firstName) || [self.firstName isEqualToString:account.firstName];
     result &= (!self.lastName && !account.lastName) || [self.lastName isEqualToString:account.lastName];
     result &= (!self.username && !account.username) || [self.username isEqualToString:account.username];
+    result &= (!self.userIdentifier && !account.userIdentifier) || [self.userIdentifier isEqualToString:account.userIdentifier];
     result &= self.accountType == account.accountType;
     
     return result;
@@ -117,6 +118,11 @@
     self->_legacyUserId = legacyUserId;
     self->_utid = utid;
     self->_uid = uid;
+    
+    if (uid && utid)
+    {
+        self->_userIdentifier = [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
+    }
 
     return self;
 }

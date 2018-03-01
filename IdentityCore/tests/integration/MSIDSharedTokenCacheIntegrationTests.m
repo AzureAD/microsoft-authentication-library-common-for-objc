@@ -135,79 +135,6 @@
     XCTAssertEqual([rtsInSecondaryFormat count], 0);
 }
 
-- (void)testSaveTokens_withADFSToken_returnsADFSToken
-{
-    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
-                                                                              otherCacheAccessors:@[_secondaryAccessor]];
-    
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
-    MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1SingleResourceTokenResponse];
-    
-    NSError *error = nil;
-    // Save tokens
-    BOOL result = [tokenCache saveTokensWithRequestParams:requestParams
-                                                 response:tokenResponse
-                                                  context:nil
-                                                    error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-    
-    // Check that we can get back the ADFS token
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"" utid:nil uid:nil];
-    MSIDAdfsToken *token = (MSIDAdfsToken *)[tokenCache getADFSTokenWithRequestParams:requestParams
-                                                                              context:nil
-                                                                                error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertNotNil(token);
-    XCTAssertEqual(token.tokenType, MSIDTokenTypeLegacyADFSToken);
-    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
-    XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
-    
-    // Check that no refresh token is returned back
-    MSIDRefreshToken *refreshToken = [tokenCache getRTForAccount:account
-                                            requestParams:requestParams
-                                                  context:nil
-                                                    error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertNil(refreshToken);
-}
-
-- (void)testSaveTokens_withADFSToken_onlySavesToPrimaryCache
-{
-    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
-                                                                              otherCacheAccessors:@[_secondaryAccessor]];
-    
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
-    MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1SingleResourceTokenResponse];
-    
-    NSError *error = nil;
-    // Save tokens
-    BOOL result = [tokenCache saveTokensWithRequestParams:requestParams
-                                                 response:tokenResponse
-                                                  context:nil
-                                                    error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-    
-    // Check that token was only saved to the primary format
-    NSArray *atsInPrimaryFormat = [_primaryAccessor allAccessTokens];
-    XCTAssertEqual([atsInPrimaryFormat count], 1);
-    
-    // Check that no tokens were stored in the secondary format
-    NSArray *atsInSecondaryFormat = [_secondaryAccessor allAccessTokens];
-    XCTAssertEqual([atsInSecondaryFormat count], 0);
-    
-    // Check that no refresh tokens were stored
-    NSArray *rtsInPrimaryFormat = [_primaryAccessor allRefreshTokens];
-    NSArray *rtsInSecondaryFormat = [_secondaryAccessor allRefreshTokens];
-    XCTAssertEqual([rtsInPrimaryFormat count], 0);
-    XCTAssertEqual([rtsInSecondaryFormat count], 0);
-}
-
 - (void)testSaveTokens_withMRRTToken_returnsAccessAndRefreshTokens
 {
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
@@ -861,6 +788,41 @@
     XCTAssertEqual([[_secondaryAccessor allRefreshTokens] count], 0);
     
     XCTAssertEqualObjects([_primaryAccessor allRefreshTokens][0], token);
+}
+
+- (void)testRemoveRTForAccount_whenNilToken_shouldReturnError
+{
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                utid:DEFAULT_TEST_UTID
+                                                                 uid:DEFAULT_TEST_UID];
+    
+    NSError *error = nil;
+    BOOL result = [tokenCache removeRTForAccount:account token:nil context:nil error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testRemoveRTForAccount_whenBlankRefreshToken_shouldReturnError
+{
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                utid:DEFAULT_TEST_UTID
+                                                                 uid:DEFAULT_TEST_UID];
+    
+    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    [refreshToken setValue:@"" forKey:@"refreshToken"];
+    
+    NSError *error = nil;
+    BOOL result = [tokenCache removeRTForAccount:account token:refreshToken context:nil error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
 - (void)testSaveBrokerResponse_withMRRTToken_savesToMultipleFormats
