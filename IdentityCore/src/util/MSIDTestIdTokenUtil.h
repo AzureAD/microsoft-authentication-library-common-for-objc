@@ -50,4 +50,9 @@
 + (NSString *)idTokenWithPreferredUsername:(NSString *)username
                                    subject:(NSString *)subject;
 
++ (NSString *)idTokenWithPreferredUsername:(NSString *)username
+                                   subject:(NSString *)subject
+                                 givenName:(NSString *)givenName
+                                familyName:(NSString *)familyName;
+
 @end
