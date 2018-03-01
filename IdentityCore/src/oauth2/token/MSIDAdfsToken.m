@@ -82,6 +82,12 @@
     if (self)
     {
         _refreshToken = tokenCacheItem.refreshToken;
+        
+        if (!_refreshToken)
+        {
+            MSID_LOG_ERROR(nil, @"Trying to initialize ADFS token when missing refresh token field");
+            return nil;
+        }
     }
     
     return self;
@@ -109,6 +115,7 @@
     if (!_refreshToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize ADFS token when missing refresh token field");
+        return nil;
     }
     
     return self;

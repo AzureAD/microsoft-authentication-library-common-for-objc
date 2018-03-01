@@ -170,6 +170,67 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
+#pragma mark - Token cache item
+
+- (void)testInitWithTokenCacheItem_whenNilCacheItem_shouldReturnNil
+{
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:nil];
+    XCTAssertNil(token);
+}
+
+- (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
+{
+    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    cacheItem.tokenType = MSIDTokenTypeIDToken;
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
+    XCTAssertNil(token);
+}
+
+- (void)testInitWithTokenCacheItem_whenNoAuthority_shouldReturnNil
+{
+    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    cacheItem.tokenType = MSIDTokenTypeOther;
+    cacheItem.clientId = @"test";
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
+    XCTAssertNil(token);
+}
+
+- (void)testInitWithTokenCacheItem_whenNoClientId_shouldReturnNil
+{
+    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    cacheItem.tokenType = MSIDTokenTypeOther;
+    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
+    XCTAssertNil(token);
+}
+
+- (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
+{
+    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    cacheItem.tokenType = MSIDTokenTypeOther;
+    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.username = @"test";
+    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.clientId = @"client id";
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+    XCTAssertEqualObjects(token.clientId, @"client id");
+    XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
+    XCTAssertEqualObjects(token.additionalInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(token.username, @"test");
+    
+    MSIDCacheItem *newCacheItem = [token tokenCacheItem];
+    XCTAssertEqualObjects(cacheItem, newCacheItem);
+}
+
 #pragma mark - Private
 
 - (MSIDBaseToken *)createToken

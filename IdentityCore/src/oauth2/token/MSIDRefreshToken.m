@@ -90,6 +90,13 @@
     if (self)
     {
         _refreshToken = tokenCacheItem.refreshToken;
+        
+        if (!_refreshToken)
+        {
+            MSID_LOG_ERROR(nil, @"Trying to initialize refresh token when missing refresh token field");
+            return nil;
+        }
+        
         _idToken = tokenCacheItem.idToken;
         _familyId = tokenCacheItem.familyId;
     }
@@ -116,20 +123,24 @@
         return nil;
     }
     
-    [self fillToken:response];
+    if (![self fillToken:response])
+    {
+        return nil;
+    }
     
     return self;
 }
 
 #pragma mark - Fill item
 
-- (void)fillToken:(MSIDTokenResponse *)response
+- (BOOL)fillToken:(MSIDTokenResponse *)response
 {
     _refreshToken = response.refreshToken;
     
     if (!_refreshToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize refresh token when missing refresh token field");
+        return NO;
     }
     
     _idToken = response.idToken;
@@ -139,6 +150,8 @@
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         _familyId = aadTokenResponse.familyId;
     }
+    
+    return YES;
 }
 
 #pragma mark - Token type

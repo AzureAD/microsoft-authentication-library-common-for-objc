@@ -23,93 +23,52 @@
 
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDRefreshToken.h"
+#import "MSIDIdToken.h"
 
-@interface MSIDRefreshTokenTests : XCTestCase
+@interface MSIDIdTokenTests : XCTestCase
 
 @end
 
-@implementation MSIDRefreshTokenTests
+@implementation MSIDIdTokenTests
 
 #pragma mark - Copy tests
 
 - (void)testCopy_whenAllPropertiesAreSet_shouldReturnEqualCopy
 {
-    MSIDRefreshToken *token = [self createToken];
-    MSIDRefreshToken *tokenCopy = [token copy];
+    MSIDIdToken *token = [self createToken];
+    MSIDIdToken *tokenCopy = [token copy];
     
     XCTAssertEqualObjects(tokenCopy, token);
 }
 
 #pragma mark - isEqual tests
 
-- (void)testRefreshTokenIsEqual_whenAllPropertiesAreEqual_shouldReturnTrue
+- (void)testIdTokenIsEqual_whenAllPropertiesAreEqual_shouldReturnTrue
 {
-    MSIDRefreshToken *lhs = [self createToken];
-    MSIDRefreshToken *rhs = [self createToken];
+    MSIDIdToken *lhs = [self createToken];
+    MSIDIdToken *rhs = [self createToken];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
 
 #pragma mark - MSIDRefreshToken
 
-- (void)testRefreshTokenIsEqual_whenRefreshTokenIsNotEqual_shouldReturnFalse
+- (void)testIdTokenIsEqual_whenIdTokenIsNotEqual_shouldReturnFalse
 {
-    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
-    [lhs setValue:@"token 1" forKey:@"refreshToken"];
-    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
-    [rhs setValue:@"token 2" forKey:@"refreshToken"];
+    MSIDIdToken *lhs = [MSIDIdToken new];
+    [lhs setValue:@"token 1" forKey:@"rawIdToken"];
+    MSIDIdToken *rhs = [MSIDIdToken new];
+    [rhs setValue:@"token 2" forKey:@"rawIdToken"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testRefreshTokenIsEqual_whenRefreshTokenIsEqual_shouldReturnTrue
+- (void)testIdTokenIsEqual_whenIdTokenIsEqual_shouldReturnTrue
 {
-    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
-    [lhs setValue:@"token 1" forKey:@"refreshToken"];
-    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
-    [rhs setValue:@"token 1" forKey:@"refreshToken"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
-
-- (void)testRefreshTokenIsEqual_whenFamilyIdIsNotEqual_shouldReturnFalse
-{
-    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
-    [lhs setValue:@"family 1" forKey:@"familyId"];
-    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
-    [rhs setValue:@"family 2" forKey:@"familyId"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testRefreshTokenIsEqual_whenFamilyIdIsEqual_shouldReturnTrue
-{
-    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
-    [lhs setValue:@"family 1" forKey:@"familyId"];
-    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
-    [rhs setValue:@"family 1" forKey:@"familyId"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
-- (void)testRefreshTokenIsEqual_whenIdTokenIsNotEqual_shouldReturnFalse
-{
-    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
-    [lhs setValue:@"token 1" forKey:@"idToken"];
-    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
-    [rhs setValue:@"token 2" forKey:@"idToken"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testRefreshTokenIsEqual_whenIdTokenIsEqual_shouldReturnTrue
-{
-    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
-    [lhs setValue:@"token 1" forKey:@"idToken"];
-    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
-    [rhs setValue:@"token 1" forKey:@"idToken"];
+    MSIDIdToken *lhs = [MSIDIdToken new];
+    [lhs setValue:@"token 1" forKey:@"rawIdToken"];
+    MSIDIdToken *rhs = [MSIDIdToken new];
+    [rhs setValue:@"token 1" forKey:@"rawIdToken"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
@@ -118,23 +77,23 @@
 
 - (void)testInitWithTokenCacheItem_whenNilCacheItem_shouldReturnNil
 {
-    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:nil];
+    MSIDIdToken *token = [[MSIDIdToken alloc] initWithTokenCacheItem:nil];
     XCTAssertNil(token);
 }
 
 - (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
 {
     MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeIDToken;
+    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
     
-    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
+    MSIDIdToken *token = [[MSIDIdToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
 }
 
-- (void)testInitWithTokenCacheItem_whenNoRefreshToken_shouldReturnNil
+- (void)testInitWithTokenCacheItem_whenNoIdToken_shouldReturnNil
 {
     MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
+    cacheItem.tokenType = MSIDTokenTypeIDToken;
     cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
@@ -142,24 +101,23 @@
     cacheItem.uniqueUserId = @"uid.utid";
     cacheItem.clientId = @"client id";
     
-    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
+    MSIDIdToken *token = [[MSIDIdToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
 }
 
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
     MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
+    cacheItem.tokenType = MSIDTokenTypeIDToken;
     cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
     cacheItem.username = @"test";
     cacheItem.uniqueUserId = @"uid.utid";
     cacheItem.clientId = @"client id";
-    cacheItem.refreshToken = @"refresh token";
-    cacheItem.idToken = @"ID TOKEN";
+    cacheItem.idToken = @"id token";
     
-    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
+    MSIDIdToken *token = [[MSIDIdToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
     XCTAssertEqualObjects(token.clientId, @"client id");
@@ -167,8 +125,7 @@
     XCTAssertEqualObjects(token.additionalInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
     XCTAssertEqualObjects(token.username, @"test");
-    XCTAssertEqualObjects(token.idToken, @"ID TOKEN");
-    XCTAssertEqualObjects(token.refreshToken, @"refresh token");
+    XCTAssertEqualObjects(token.rawIdToken, @"id token");
     
     MSIDTokenCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
@@ -176,18 +133,16 @@
 
 #pragma mark - Private
 
-- (MSIDRefreshToken *)createToken
+- (MSIDIdToken *)createToken
 {
-    MSIDRefreshToken *token = [MSIDRefreshToken new];
+    MSIDIdToken *token = [MSIDIdToken new];
     [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalInfo"];
     [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
     [token setValue:@"username" forKey:@"username"];
-    [token setValue:@"refreshToken" forKey:@"refreshToken"];
-    [token setValue:@"familyId" forKey:@"familyId"];
-    [token setValue:@"idToken" forKey:@"idToken"];
+    [token setValue:@"idToken" forKey:@"rawIdToken"];
     
     return token;
 }

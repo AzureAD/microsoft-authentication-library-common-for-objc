@@ -126,6 +126,7 @@
         if (!_authority)
         {
             MSID_LOG_ERROR(nil, @"Trying to initialize token when missing authority field");
+            return nil;
         }
         
         _clientId = tokenCacheItem.clientId;
@@ -133,6 +134,7 @@
         if (!_clientId)
         {
             MSID_LOG_ERROR(nil, @"Trying to initialize token when missing clientId field");
+            return nil;
         }
         
         _clientInfo = tokenCacheItem.clientInfo;

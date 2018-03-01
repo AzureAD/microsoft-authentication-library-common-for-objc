@@ -115,6 +115,7 @@ static uint64_t s_expirationBuffer = 300;
         if (!_accessToken)
         {
             MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
+            return nil;
         }
         
         _idToken = tokenCacheItem.idToken;
@@ -123,6 +124,7 @@ static uint64_t s_expirationBuffer = 300;
         if (!_target)
         {
             MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing target field");
+            return nil;
         }
     }
     
@@ -150,25 +152,42 @@ static uint64_t s_expirationBuffer = 300;
         return nil;
     }
     
-    [self fillToken:response
-            request:requestParams];
+    if (![self fillToken:response request:requestParams])
+    {
+        return nil;
+    }
     
     return self;
 }
 
 #pragma mark - Fill item
 
-- (void)fillToken:(MSIDTokenResponse *)response
+- (BOOL)fillToken:(MSIDTokenResponse *)response
           request:(MSIDRequestParameters *)requestParams
 {
     // Because resource/scopes is not always returned in the token response, we rely on the input resource/scopes as a fallback
     _target = response.target ? response.target : requestParams.target;
     
+    if (!_target)
+    {
+        MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing target field");
+        return NO;
+    }
+    
     _accessToken = response.accessToken;
+    
+    if (!_accessToken)
+    {
+        MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
+        return NO;
+    }
+    
     _idToken = response.idToken;
     
     [self fillExpiryFromResponse:response];
     [self fillExtendedExpiryFromResponse:response];
+    
+    return YES;
 }
 
 - (void)fillExpiryFromResponse:(MSIDTokenResponse *)response

@@ -193,6 +193,81 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
+#pragma mark - Token cache item
+
+- (void)testInitWithTokenCacheItem_whenNilCacheItem_shouldReturnNil
+{
+    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenCacheItem:nil];
+    XCTAssertNil(token);
+}
+
+- (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
+{
+    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    cacheItem.tokenType = MSIDTokenTypeIDToken;
+    
+    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenCacheItem:cacheItem];
+    XCTAssertNil(token);
+}
+
+- (void)testInitWithTokenCacheItem_whenNoRefreshToken_shouldReturnNil
+{
+    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    cacheItem.tokenType = MSIDTokenTypeAccessToken;
+    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.username = @"test";
+    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.clientId = @"client id";
+    cacheItem.target = @"target";
+    cacheItem.accessToken = @"token";
+    
+    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenCacheItem:cacheItem];
+    XCTAssertNil(token);
+}
+
+- (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
+{
+    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    cacheItem.tokenType = MSIDTokenTypeLegacyADFSToken;
+    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.username = @"test";
+    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.clientId = @"client id";
+    cacheItem.accessToken = @"token";
+    
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    
+    cacheItem.expiresOn = expiresOn;
+    cacheItem.cachedAt = cachedAt;
+    cacheItem.idToken = @"ID TOKEN";
+    cacheItem.target = @"target";
+    cacheItem.refreshToken = @"refresh token";
+    
+    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenCacheItem:cacheItem];
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+    XCTAssertEqualObjects(token.clientId, @"client id");
+    XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
+    XCTAssertEqualObjects(token.additionalInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(token.username, @"test");
+    XCTAssertEqualObjects(token.expiresOn, expiresOn);
+    XCTAssertEqualObjects(token.cachedAt, cachedAt);
+    XCTAssertEqualObjects(token.idToken, @"ID TOKEN");
+    XCTAssertEqualObjects(token.resource, @"target");
+    XCTAssertEqualObjects(token.refreshToken, @"refresh token");
+    XCTAssertEqualObjects(token.accessToken, @"token");
+    
+    MSIDTokenCacheItem *newCacheItem = [token tokenCacheItem];
+    XCTAssertEqualObjects(cacheItem, newCacheItem);
+}
+
+
 #pragma mark - Private
 
 - (MSIDAdfsToken *)createToken

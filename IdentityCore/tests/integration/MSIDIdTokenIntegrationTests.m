@@ -150,49 +150,4 @@
     XCTAssertEqualObjects(token.rawIdToken, idToken);
 }
 
-#pragma mark - Init with JSON
-
-- (void)testInitWithJSONDictionary_shouldFillData
-{
-    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
-    
-    NSDictionary *jsonDict = @{@"credential_type" : @"IdToken",
-                               @"unique_id" : @"user_unique_id",
-                               @"environment" : @"login.microsoftonline.com",
-                               @"client_id": @"test_client_id",
-                               @"client_info": clientInfoString,
-                               @"secret":@"id token"
-                               };
-    
-    MSIDIdToken *token = [[MSIDIdToken alloc] initWithJSONDictionary:jsonDict error:nil];
-    
-    XCTAssertNotNil(token);
-    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
-    XCTAssertEqualObjects(token.authority, authority);
-    XCTAssertEqualObjects(token.uniqueUserId, @"user_unique_id");
-    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
-    XCTAssertEqualObjects(token.additionalInfo, [NSDictionary dictionary]);
-    XCTAssertEqualObjects(token.rawIdToken, @"id token");
-}
-
-#pragma mark - JSON dictionary
-
-- (void)testSerializeToJSON_afterDeserialization_shouldReturnData
-{
-    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
-    
-    NSDictionary *jsonDict = @{@"credential_type" : @"IdToken",
-                               @"unique_id" : @"user_unique_id",
-                               @"environment" : @"login.microsoftonline.com",
-                               @"client_id": @"test_client_id",
-                               @"client_info": clientInfoString,
-                               @"secret":@"id token"
-                               };
-    
-    MSIDIdToken *token = [[MSIDIdToken alloc] initWithJSONDictionary:jsonDict error:nil];
-    
-    NSDictionary *serializedDict = [token jsonDictionary];
-    XCTAssertEqualObjects(serializedDict, jsonDict);
-}
-
 @end
