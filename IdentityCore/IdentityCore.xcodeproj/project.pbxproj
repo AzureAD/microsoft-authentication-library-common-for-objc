@@ -248,6 +248,7 @@
 		B2DD5BB9204793090084313F /* MSIDTestCacheAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEF71FF2FC540015FC1D /* MSIDTestCacheAccessor.m */; };
 		B2DD5BBC204794F80084313F /* MSIDSharedTokenCacheIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEF21FF2FA300015FC1D /* MSIDSharedTokenCacheIntegrationTests.m */; };
 		B2DD5BBD204794F90084313F /* MSIDSharedTokenCacheIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEF21FF2FA300015FC1D /* MSIDSharedTokenCacheIntegrationTests.m */; };
+		B2DD5BBF204799DC0084313F /* MSIDMacTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2335EFB3203BB07600C342D0 /* MSIDMacTokenCacheTests.m */; };
 		B2EF143A1FF2F225005DC1C0 /* MSIDAADV2TokenResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B2EF14391FF2F21E005DC1C0 /* MSIDAADV2TokenResponse.h */; };
 		B2EF143B1FF2F228005DC1C0 /* MSIDAADV2TokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EF14381FF2F21D005DC1C0 /* MSIDAADV2TokenResponse.m */; };
 		B2EF143C1FF2F228005DC1C0 /* MSIDAADV2TokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EF14381FF2F21D005DC1C0 /* MSIDAADV2TokenResponse.m */; };
@@ -1621,6 +1622,7 @@
 				23CC94482046507D00AA0551 /* MSIDMacTokenCacheIntegrationTests.m in Sources */,
 				B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				04930F911FEC8EE300FC4DCD /* MSIDAadAuthorityCacheTests.m in Sources */,
+				B2DD5BBF204799DC0084313F /* MSIDMacTokenCacheTests.m in Sources */,
 				B2DD5BA5204761720084313F /* MSIDRefreshTokenTests.m in Sources */,
 				B210F44F1FDDF5D2005A8F76 /* MSIDClientInfoTests.m in Sources */,
 				B2DD5BB9204793090084313F /* MSIDTestCacheAccessor.m in Sources */,

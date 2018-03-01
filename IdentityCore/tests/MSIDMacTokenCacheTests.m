@@ -24,6 +24,8 @@
 #import <XCTest/XCTest.h>
 #import "MSIDMacTokenCache.h"
 #import "MSIDTokenCacheKey.h"
+#import "MSIDLegacyTokenCacheKey.h"
+#import "MSIDTokenCacheItem.h"
 
 @interface MSIDMacTokenCacheMocDelegate : NSObject<MSIDMacTokenCacheDelegate>
 
@@ -83,8 +85,8 @@
 - (void)testDeserialize_whenCacheValid_shouldReturnTrueAndNilError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDBaseCacheItem *token = [MSIDBaseCacheItem new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem alloc];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : [@{
@@ -106,7 +108,7 @@
 - (void)testDeserialize_whenKeyInvalid_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDBaseCacheItem *token = [MSIDBaseCacheItem new];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : [@{
@@ -129,7 +131,7 @@
 - (void)testDeserialize_whenTokenInvalid_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : [@{
@@ -152,7 +154,7 @@
 - (void)testDeserialize_whenUserIdInvalid_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @0 : [@{
@@ -175,8 +177,8 @@
 - (void)testDeserialize_whenUserIdDictionaryIsNotMutable_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDBaseCacheItem *token = [MSIDBaseCacheItem new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : @{
@@ -199,7 +201,7 @@
 - (void)testDeserialize_whenTokensDictionaryIsNotMutable_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : @{
                                                                 @"test_account" : [@{
@@ -222,7 +224,7 @@
 - (void)testDeserialize_whenTokenCacheDictionaryIsNotMutable_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : @{
                                       @"tokens" : [@{
                                               @"test_account" : [@{
@@ -274,8 +276,8 @@
 - (void)testDeserialize_whenCacheDoesntHaveVersion_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDBaseCacheItem *token = [MSIDBaseCacheItem new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : [@{
@@ -298,8 +300,8 @@
 - (void)testDeserialize_whenCacheVersionMoreThenCurrent_shouldReturnTrueAndNilError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDBaseCacheItem *token = [MSIDBaseCacheItem new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : [@{
