@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
 #import "MSIDBaseToken.h"
+#import "MSIDTokenItemSerializer.h"
 
 @interface MSIDTestCacheDataSource : NSObject <MSIDTokenCacheDataSource>
 
@@ -37,6 +38,8 @@
 - (NSArray *)allDefaultRefreshTokens;
 
 - (NSArray *)allTokensWithType:(MSIDTokenType)type
-                    serializer:(id<MSIDCacheItemSerializer>)serializer;
+                    serializer:(id<MSIDTokenItemSerializer>)serializer;
+
+- (NSArray *)allAccounts;
 
 @end
