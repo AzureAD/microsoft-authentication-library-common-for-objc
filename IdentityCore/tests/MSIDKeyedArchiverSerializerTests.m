@@ -46,6 +46,7 @@
     cacheItem.additionalInfo = @{@"spe_info" : @"test"};
     cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
     cacheItem.clientId = @"some clientId";
+    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
     
     NSData *data = [serializer serializeTokenCacheItem:cacheItem];
     MSIDTokenCacheItem *resultToken = [serializer deserializeTokenCacheItem:data];

@@ -112,6 +112,22 @@
     // Decode id_token from a backward compatible way
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     
+    BOOL rtPresent = ![NSString msidIsStringNilOrBlank:_refreshToken];
+    BOOL atPresent = ![NSString msidIsStringNilOrBlank:_accessToken];
+    
+    if (rtPresent && atPresent)
+    {
+        _tokenType = MSIDTokenTypeLegacyADFSToken;
+    }
+    else if (rtPresent)
+    {
+        _tokenType = MSIDTokenTypeRefreshToken;
+    }
+    else if (atPresent)
+    {
+        _tokenType = MSIDTokenTypeAccessToken;
+    }
+    
     return self;
 }
 
@@ -126,13 +142,11 @@
     
     [coder encodeObject:self.expiresOn forKey:@"expiresOn"];
     [coder encodeObject:self.accessToken forKey:@"accessToken"];
-    [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
     [coder encodeObject:self.target forKey:@"resource"];
     [coder encodeObject:self.cachedAt forKey:@"cachedAt"];
     
     // Backward compatibility with ADAL.
     [coder encodeObject:@"Bearer" forKey:@"accessTokenType"];
-    [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
     
     // Encode id_token in backward compatible way with ADAL
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];

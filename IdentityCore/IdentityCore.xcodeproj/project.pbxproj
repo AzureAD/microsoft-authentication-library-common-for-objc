@@ -168,6 +168,8 @@
 		B251CC5A20410E54005E0179 /* MSIDCacheItem.h in Headers */ = {isa = PBXBuildFile; fileRef = B251CC5820410E54005E0179 /* MSIDCacheItem.h */; };
 		B251CC5B20410E54005E0179 /* MSIDCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B251CC5920410E54005E0179 /* MSIDCacheItem.m */; };
 		B251CC5C20410E54005E0179 /* MSIDCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B251CC5920410E54005E0179 /* MSIDCacheItem.m */; };
+		B253BD7920487C8A00D07F31 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECF041FF33AE70015FC1D /* MSIDLegacyTokenCacheIntegrationTests.m */; };
+		B253BD7A20487C8A00D07F31 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECF041FF33AE70015FC1D /* MSIDLegacyTokenCacheIntegrationTests.m */; };
 		B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */; };
 		B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */; };
 		B2893CAF1FCF68B200E348E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2893CAE1FCF68B200E348E9 /* Security.framework */; };
@@ -1501,6 +1503,7 @@
 				B2DD5BAE2047807F0084313F /* MSIDIdTokenIntegrationTests.m in Sources */,
 				B2DD5BAC2047806F0084313F /* MSIDAdfsTokenIntegrationTests.m in Sources */,
 				B210F42E1FDDE6A5005A8F76 /* MSIDJsonObjectTests.m in Sources */,
+				B253BD7920487C8A00D07F31 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */,
 				B2DD5B97204756580084313F /* MSIDAccountTypeTests.m in Sources */,
 				23CC944B2046685100AA0551 /* MSIDKeychainTokenCacheIntegrationTests.m in Sources */,
 				B2C17AF01FC7A1BF0070A514 /* MSIDLoggerTests.m in Sources */,
@@ -1632,6 +1635,7 @@
 				B2DD5BBF204799DC0084313F /* MSIDMacTokenCacheTests.m in Sources */,
 				B2DD5BA5204761720084313F /* MSIDRefreshTokenTests.m in Sources */,
 				B210F44F1FDDF5D2005A8F76 /* MSIDClientInfoTests.m in Sources */,
+				B253BD7A20487C8A00D07F31 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */,
 				B2DD5BB9204793090084313F /* MSIDTestCacheAccessor.m in Sources */,
 				B2DD5B7820461F510084313F /* MSIDTokenCacheItemTests.m in Sources */,
 				B2DD5B9F204761550084313F /* MSIDAccessTokenTests.m in Sources */,

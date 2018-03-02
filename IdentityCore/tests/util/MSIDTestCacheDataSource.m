@@ -31,6 +31,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDJsonSerializer.h"
+#import "MSIDAccount.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -437,9 +438,14 @@
         {
             MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:tokenData];
             
-            if (token && token.tokenType == type)
+            if (token)
             {
-                [results addObject:token];
+                MSIDBaseToken *baseToken = [token tokenWithType:type];
+                
+                if (baseToken)
+                {
+                    [results addObject:baseToken];
+                }
             }
         }
     }
@@ -457,11 +463,16 @@
         
         for (NSData *accountData in [_accountContents allValues])
         {
-            MSIDAccountCacheItem *account = [serializer deserializeAccountCacheItem:accountData];
+            MSIDAccountCacheItem *accountCacheItem = [serializer deserializeAccountCacheItem:accountData];
             
-            if (account)
+            if (accountCacheItem)
             {
-                [results addObject:account];
+                MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
+                
+                if (account)
+                {
+                    [results addObject:account];
+                }
             }
         }
     }
