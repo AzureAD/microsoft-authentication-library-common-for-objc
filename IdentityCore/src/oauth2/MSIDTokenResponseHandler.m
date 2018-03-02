@@ -22,14 +22,14 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenResponseHandler.h"
-#import "MSIDAADTokenResponse.h"
+#import "MSIDTokenResponse.h"
 #import "MSIDRequestContext.h"
 #import "MSIDError.h"
 #import "MSIDClientInfo.h"
 
 @implementation MSIDTokenResponseHandler
 
-+ (BOOL)verifyResponse:(MSIDAADTokenResponse *)response
++ (BOOL)verifyResponse:(MSIDTokenResponse *)response
       fromRefreshToken:(BOOL)fromRefreshToken
                context:(id<MSIDRequestContext>)context
                  error:(NSError * __autoreleasing *)error
@@ -43,8 +43,6 @@
         }
         return NO;
     }
-    
-    [self.class checkCorrelationId:response requestCorrelationId:context.correlationId];
     
     if (response.error)
     {
@@ -64,14 +62,12 @@
         return NO;
     }
     
-    if (!response.clientInfo)
+    NSError *errorFromExtendedProperties = [response verifyExtendedProperties:context];
+    if (errorFromExtendedProperties)
     {
-        MSID_LOG_ERROR(context, @"Client info was not returned in the server response");
-        MSID_LOG_ERROR_PII(context, @"Client info was not returned in the server response");
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorInternal, @"Client info was not returned in the server response", nil, nil, nil, context.correlationId, nil);
+            *error = errorFromExtendedProperties;
         }
         return NO;
     }
@@ -79,30 +75,6 @@
     // TODO: ADAL and MSAL are checking if user matches in different places. Discuss if we should move that logic to this function
     
     return YES;
-}
-
-+ (void)checkCorrelationId:(MSIDAADTokenResponse *)response
-      requestCorrelationId:(NSUUID *)requestCorrelationId
-{
-    MSID_LOG_VERBOSE_CORR(requestCorrelationId, @"Token extraction. Attempt to extract the data from the server response.");
-    
-    NSString *responseId = [response correlationId];
-    if (![NSString msidIsStringNilOrBlank:responseId])
-    {
-        NSUUID *responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
-        if (!responseUUID)
-        {
-            MSID_LOG_INFO_CORR(requestCorrelationId, @"Bad correlation id - The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
-        }
-        else if (![requestCorrelationId isEqual:responseUUID])
-        {
-            MSID_LOG_INFO_CORR(requestCorrelationId, @"Correlation id mismatch - Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
-        }
-    }
-    else
-    {
-        MSID_LOG_INFO_CORR(requestCorrelationId, @"Missing correlation id - No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
-    }
 }
 
 @end

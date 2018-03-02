@@ -45,7 +45,7 @@
 
 - (void)testVerifyResponse_whenNilRespose_shouldReturnError
 {
-    MSIDAADTokenResponse *response = nil;
+    MSIDTokenResponse *response = nil;
     NSError *error = nil;
     BOOL isToken = [MSIDTokenResponseHandler verifyResponse:response
                                            fromRefreshToken:YES

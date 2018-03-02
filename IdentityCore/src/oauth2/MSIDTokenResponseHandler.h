@@ -23,12 +23,12 @@
 
 #import "MSIDRequestContext.h"
 
-@class MSIDAADTokenResponse;
+@class MSIDTokenResponse;
 @class MSIDRequestParameters;
 
 @interface MSIDTokenResponseHandler : NSObject
 
-+ (BOOL)verifyResponse:(MSIDAADTokenResponse *)response
++ (BOOL)verifyResponse:(MSIDTokenResponse *)response
       fromRefreshToken:(BOOL)fromRefreshToken
                context:(id<MSIDRequestContext>)context
                  error:(NSError * __autoreleasing *)error;

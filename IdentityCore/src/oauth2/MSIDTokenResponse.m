@@ -65,4 +65,17 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
     return [[MSIDIdToken alloc] initWithRawIdToken:self.idToken];
 }
 
+- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
+          fromRefreshToken:(BOOL)fromRefreshToken;
+{
+    // Method should be implemented in subclasses
+    return nil;
+}
+
+- (NSError *)verifyExtendedProperties:(id<MSIDRequestContext>)context
+{
+    // Method should be implemented in subclasses
+    return nil;
+}
+
 @end

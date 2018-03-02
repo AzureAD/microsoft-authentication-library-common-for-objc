@@ -44,4 +44,9 @@
 @property (readonly) BOOL isMultiResource;
 @property (readonly) MSIDIdToken *idTokenObj;
 
+- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
+          fromRefreshToken:(BOOL)fromRefreshToken;
+
+- (NSError *)verifyExtendedProperties:(id<MSIDRequestContext>)context;
+
 @end
