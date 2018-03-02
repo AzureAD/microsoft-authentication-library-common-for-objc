@@ -41,7 +41,7 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 }
 
 - (NSError *)getOAuthError:(id<MSIDRequestContext>)context
-          fromRefreshToken:(BOOL)fromRefreshToken;
+          fromRefreshToken:(BOOL)fromRefreshToken
 {
     if (!self.error)
     {
