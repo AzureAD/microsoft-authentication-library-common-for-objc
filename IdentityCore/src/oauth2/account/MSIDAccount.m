@@ -154,10 +154,9 @@
     {
         _userIdentifier = [NSString stringWithFormat:@"%@.%@", uid, utid];
     }
-    _username = response.idTokenObj.preferredUsername; // TODO: Is it correct?
+    _username = response.idTokenObj.username;
     _firstName = response.idTokenObj.givenName;
     _lastName = response.idTokenObj.familyName;
-    // TODO: should we put middle name as well?
     _authority = requestParams.authority;
     _accountType = response.accountType;
     

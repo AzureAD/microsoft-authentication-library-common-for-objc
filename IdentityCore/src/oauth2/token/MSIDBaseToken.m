@@ -190,7 +190,7 @@
     _authority = requestParams.authority;
     _clientId = requestParams.clientId;
     _additionalInfo = [NSMutableDictionary dictionary];
-    _username = response.idTokenObj.preferredUsername ? response.idTokenObj.preferredUsername : response.idTokenObj.userId;
+    _username = response.idTokenObj.username;
     
     // Fill in client info and spe info
     if ([response isKindOfClass:[MSIDAADTokenResponse class]])
