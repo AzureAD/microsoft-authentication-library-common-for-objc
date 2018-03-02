@@ -25,10 +25,10 @@
 
 typedef NS_ENUM(NSInteger, MSIDAccountType)
 {
-    MSIDAccountTypeAADV1 = 1,
-    MSIDAccountTypeMSA = 2,
-    MSIDAccountTypeAADV2 = 3,
-    MSIDAccountTypeOther = 4
+    MSIDAccountTypeOther,
+    MSIDAccountTypeAADV1,
+    MSIDAccountTypeMSA,
+    MSIDAccountTypeAADV2
 };
 
 @interface MSIDAccountTypeHelpers : NSObject

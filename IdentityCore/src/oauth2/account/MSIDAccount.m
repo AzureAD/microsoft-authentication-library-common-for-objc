@@ -28,6 +28,7 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDClientInfo.h"
 
 @implementation MSIDAccount
 
@@ -37,8 +38,7 @@
 {
     MSIDAccount *item = [[self.class allocWithZone:zone] init];
     item->_legacyUserId = [_legacyUserId copyWithZone:zone];
-    item->_uid = [_uid copyWithZone:zone];
-    item->_utid = [_utid copyWithZone:zone];
+    item->_clientInfo = [_clientInfo copyWithZone:zone];
     item->_firstName = [_firstName copyWithZone:zone];
     item->_lastName = [_lastName copyWithZone:zone];
     item->_username = [_username copyWithZone:zone];
@@ -68,8 +68,7 @@
 {
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.legacyUserId.hash;
-    hash = hash * 31 + self.uid.hash;
-    hash = hash * 31 + self.utid.hash;
+    hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
     hash = hash * 31 + self.firstName.hash;
     hash = hash * 31 + self.lastName.hash;
     hash = hash * 31 + self.accountType;
@@ -86,8 +85,7 @@
     
     BOOL result = YES;
     result &= (!self.legacyUserId && !account.legacyUserId) || [self.legacyUserId isEqualToString:account.legacyUserId];
-    result &= (!self.uid && !account.uid) || [self.uid isEqualToString:account.uid];
-    result &= (!self.utid && !account.utid) || [self.utid isEqualToString:account.utid];
+    result &= (!self.clientInfo.rawClientInfo && !account.clientInfo.rawClientInfo) || [self.clientInfo.rawClientInfo isEqualToString:account.clientInfo.rawClientInfo];
     result &= (!self.firstName && !account.firstName) || [self.firstName isEqualToString:account.firstName];
     result &= (!self.lastName && !account.lastName) || [self.lastName isEqualToString:account.lastName];
     result &= (!self.username && !account.username) || [self.username isEqualToString:account.username];
@@ -99,38 +97,38 @@
 
 #pragma mark - Init
 
-- (instancetype)init
+- (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
+                          clientInfo:(MSIDClientInfo *)clientInfo
 {
-    return [self initWithLegacyUserId:nil
-                                 utid:nil
-                                  uid:nil];
+    self = [self initWithLegacyUserId:legacyUserId
+                         uniqueUserId:clientInfo.userIdentifier];
+    
+    if (self)
+    {
+        _clientInfo = clientInfo;
+    }
+    
+    return self;
 }
 
 - (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
-                                utid:(NSString *)utid
-                                 uid:(NSString *)uid
+                        uniqueUserId:(NSString *)userIdentifier
 {
-    if (!(self = [super init]))
+    if (!(self = [self init]))
     {
         return nil;
     }
     
-    self->_legacyUserId = legacyUserId;
-    self->_utid = utid;
-    self->_uid = uid;
+    _legacyUserId = legacyUserId;
+    _userIdentifier = userIdentifier;
     
-    if (uid && utid)
-    {
-        self->_userIdentifier = [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
-    }
-
     return self;
 }
 
 - (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
                               request:(MSIDRequestParameters *)requestParams
 {
-    if (!(self = [super init]))
+    if (!(self = [self init]))
     {
         return nil;
     }
@@ -151,13 +149,16 @@
     }
     
     NSString *userId = response.idTokenObj.userId;
-    self->_legacyUserId = userId;
-    self->_utid = utid;
-    self->_uid = uid;
-    self->_userIdentifier = [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
-    self->_firstName = response.idTokenObj.givenName;
-    self->_lastName = response.idTokenObj.familyName;
-    self->_accountType = response.accountType;
+    _legacyUserId = userId;
+    if (uid && utid)
+    {
+        _userIdentifier = [NSString stringWithFormat:@"%@.%@", uid, utid];
+    }
+    _username = response.idTokenObj.username;
+    _firstName = response.idTokenObj.givenName;
+    _lastName = response.idTokenObj.familyName;
+    _authority = requestParams.authority;
+    _accountType = response.accountType;
     
     return self;
 }
