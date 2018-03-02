@@ -45,4 +45,9 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
     return self.resource;
 }
 
+- (MSIDAccountType)accountType
+{
+    return MSIDAccountTypeAADV1;
+}
+
 @end

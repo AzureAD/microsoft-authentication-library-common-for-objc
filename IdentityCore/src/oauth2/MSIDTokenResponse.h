@@ -23,6 +23,7 @@
 
 #import "MSIDJsonObject.h"
 #import "MSIDIdTokenWrapper.h"
+#import "MSIDAccountType.h"
 
 @interface MSIDTokenResponse : MSIDJsonObject
 
@@ -52,5 +53,8 @@
 
 // Generic target of the access token, scope for base token response, resource for AAD v1
 @property (readonly) NSString *target;
+
+// Account type for an account generated from this response
+@property (readonly) MSIDAccountType accountType;
 
 @end

@@ -31,4 +31,9 @@
     return [[MSIDAADV2IdTokenWrapper alloc] initWithRawIdToken:self.idToken];
 }
 
+- (MSIDAccountType)accountType
+{
+    return MSIDAccountTypeAADV2;
+}
+
 @end

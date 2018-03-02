@@ -157,6 +157,7 @@
     self->_userIdentifier = [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
     self->_firstName = response.idTokenObj.givenName;
     self->_lastName = response.idTokenObj.familyName;
+    self->_accountType = response.accountType;
     
     return self;
 }

@@ -70,4 +70,9 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
     return self.scope;
 }
 
+- (MSIDAccountType)accountType
+{
+    return MSIDAccountTypeOther;
+}
+
 @end
