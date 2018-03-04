@@ -21,40 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonObject.h"
-#import "MSIDIdTokenWrapper.h"
-#import "MSIDAccountType.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDTokenResponse : MSIDJsonObject
+@interface MSIDHelpers : NSObject
 
-// Default properties for an openid error response
-@property (readonly) NSString *error;
-@property (readonly) NSString *errorDescription;
-
-// Default properties for a successful openid response
-@property (readonly) NSInteger expiresIn;
-@property (readonly) NSString *accessToken;
-@property (readonly) NSString *tokenType;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *scope;
-@property (readonly) NSString *state;
-@property (readonly) NSString *idToken;
-
-/* Derived properties */
-
-// NSDate derived from expiresIn property and time received
-@property (readonly) NSDate *expiryDate;
-
-// Specifies if token in the token response is multi resource
-@property (readonly) BOOL isMultiResource;
-
-// Wrapper object around ID token
-@property (readonly) MSIDIdTokenWrapper *idTokenObj;
-
-// Generic target of the access token, scope for base token response, resource for AAD v1
-@property (readonly) NSString *target;
-
-// Account type for an account generated from this response
-@property (readonly) MSIDAccountType accountType;
+/*! Returns integer value if the passed object can be converted to integer, 0 otherwise */
++ (NSInteger)msidIntegerValue:(id)value;
 
 @end

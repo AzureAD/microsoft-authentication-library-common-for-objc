@@ -210,6 +210,12 @@ static uint64_t s_expirationBuffer = 300;
     if ([response isKindOfClass:[MSIDAADTokenResponse class]])
     {
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
+        
+        if (!aadTokenResponse.extendedExpiresOnDate)
+        {
+            return;
+        }
+        
         NSMutableDictionary *serverInfo = [_additionalInfo mutableCopy];
         [serverInfo setValue:aadTokenResponse.extendedExpiresOnDate
                       forKey:MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];

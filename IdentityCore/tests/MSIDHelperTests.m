@@ -21,40 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonObject.h"
-#import "MSIDIdTokenWrapper.h"
-#import "MSIDAccountType.h"
+#import <XCTest/XCTest.h>
+#import "MSIDHelpers.h"
 
-@interface MSIDTokenResponse : MSIDJsonObject
+@interface MSIDHelperTests : XCTestCase
 
-// Default properties for an openid error response
-@property (readonly) NSString *error;
-@property (readonly) NSString *errorDescription;
+@end
 
-// Default properties for a successful openid response
-@property (readonly) NSInteger expiresIn;
-@property (readonly) NSString *accessToken;
-@property (readonly) NSString *tokenType;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *scope;
-@property (readonly) NSString *state;
-@property (readonly) NSString *idToken;
+@implementation MSIDHelperTests
 
-/* Derived properties */
+- (void)testMsidIntegerValue_whenParsableNSString_shouldReturnValue
+{
+    NSString *input = @"3600";
+    NSInteger result = [MSIDHelpers msidIntegerValue:input];
+    XCTAssertEqual(result, 3600);
+}
 
-// NSDate derived from expiresIn property and time received
-@property (readonly) NSDate *expiryDate;
+- (void)testMsidIntegerValue_whenNonParsableNSString_shouldReturnZero
+{
+    NSString *input = @"xyz";
+    NSInteger result = [MSIDHelpers msidIntegerValue:input];
+    XCTAssertEqual(result, 0);
+}
 
-// Specifies if token in the token response is multi resource
-@property (readonly) BOOL isMultiResource;
+- (void)testMsidIntegerValue_whenParsableNSNumber_shouldReturnValue
+{
+    NSNumber *input = @3600;
+    NSInteger result = [MSIDHelpers msidIntegerValue:input];
+    XCTAssertEqual(result, 3600);
+}
 
-// Wrapper object around ID token
-@property (readonly) MSIDIdTokenWrapper *idTokenObj;
+- (void)testMsidIntegerValue_whenParsableNegativeNSNumber_shouldReturnNegativeNumber
+{
+    NSNumber *input = @(-1);
+    NSInteger result = [MSIDHelpers msidIntegerValue:input];
+    XCTAssertEqual(result, -1);
+}
 
-// Generic target of the access token, scope for base token response, resource for AAD v1
-@property (readonly) NSString *target;
-
-// Account type for an account generated from this response
-@property (readonly) MSIDAccountType accountType;
+- (void)testMsidIntegerValue_whenNonParsableObject_shouldReturnZero
+{
+    NSArray *input = [NSArray array];
+    NSInteger result = [MSIDHelpers msidIntegerValue:input];
+    XCTAssertEqual(result, 0);
+}
 
 @end
