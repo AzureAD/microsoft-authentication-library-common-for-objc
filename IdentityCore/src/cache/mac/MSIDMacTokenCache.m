@@ -22,19 +22,21 @@
 // THE SOFTWARE.
 
 #import "MSIDMacTokenCache.h"
-#import "MSIDToken.h"
-#import "MSIDTokenCacheKey.h"
-#import "MSIDTokenSerializer.h"
+#import "MSIDTokenCacheItem.h"
+#import "MSIDLegacyTokenCacheKey.h"
+#import "MSIDTokenItemSerializer.h"
+#import "MSIDAccountItemSerializer.h"
+#import "MSIDAccountCacheItem.h"
 #import "MSIDUserInformation.h"
 
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
 #define RETURN_ERROR_IF_CONDITION_FALSE(_cond, _code, _details) { \
-    if (!(_cond)) { \
-        NSError* _MSID_ERROR = MSIDCreateError(MSIDErrorDomain, _code, _details, nil, nil, nil, nil, nil); \
-        if (error) { *error = _MSID_ERROR; } \
-        return NO; \
-    } \
+if (!(_cond)) { \
+NSError* _MSID_ERROR = MSIDCreateError(MSIDErrorDomain, _code, _details, nil, nil, nil, nil, nil); \
+if (error) { *error = _MSID_ERROR; } \
+return NO; \
+} \
 }
 
 @interface MSIDMacTokenCache ()
@@ -94,8 +96,8 @@
         
         NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
         // Maintain backward compatibility with ADAL.
-        [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDTokenCacheKey.class];
-        [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDToken.class];
+        [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDLegacyTokenCacheKey.class];
+        [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDTokenCacheItem.class];
         [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
         [archiver encodeObject:wrapper forKey:NSKeyedArchiveRootObjectKey];
         [archiver finishEncoding];
@@ -120,8 +122,8 @@
     {
         NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
         // Maintain backward compatibility with ADAL.
-        [unarchiver setClass:MSIDTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
-        [unarchiver setClass:MSIDToken.class forClassName:@"ADTokenCacheStoreItem"];
+        [unarchiver setClass:MSIDLegacyTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
+        [unarchiver setClass:MSIDTokenCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
         [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
         cache = [unarchiver decodeObjectOfClass:NSDictionary.class forKey:NSKeyedArchiveRootObjectKey];
         [unarchiver finishDecoding];
@@ -173,13 +175,13 @@
     self.cache = nil;
 }
 
-#pragma mark - MSIDTokenCacheDataSource
+#pragma mark - Tokens
 
-- (BOOL)setItem:(MSIDToken *)item
-            key:(MSIDTokenCacheKey *)key
-     serializer:(id<MSIDTokenSerializer>)serializer
-        context:(id<MSIDRequestContext>)context
-          error:(NSError * __autoreleasing *)error
+- (BOOL)saveToken:(MSIDTokenCacheItem *)item
+              key:(MSIDTokenCacheKey *)key
+       serializer:(id<MSIDTokenItemSerializer>)serializer
+          context:(id<MSIDRequestContext>)context
+            error:(NSError * __autoreleasing *)error
 {
     [self.delegate willWriteCache:self];
     BOOL result = NO;
@@ -189,13 +191,13 @@
     return result;
 }
 
-- (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                serializer:(id<MSIDTokenSerializer>)serializer
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError *__autoreleasing *)error
+- (MSIDTokenCacheItem *)tokenWithKey:(MSIDTokenCacheKey *)key
+                          serializer:(id<MSIDTokenItemSerializer>)serializer
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError *__autoreleasing *)error
 {
     MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
-    NSArray<MSIDToken *> *items = [self itemsWithKey:key serializer:serializer context:context error:error];
+    NSArray<MSIDTokenCacheItem *> *items = [self tokensWithKey:key serializer:serializer context:context error:error];
     
     if (items.count > 1)
     {
@@ -209,6 +211,51 @@
     
     return items.firstObject;
 }
+
+- (NSArray<MSIDTokenCacheItem *> *)tokensWithKey:(MSIDTokenCacheKey *)key
+                                      serializer:(id<MSIDTokenItemSerializer>)serializer
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError * __autoreleasing *)error
+{
+    [self.delegate willAccessCache:self];
+    NSArray *result = nil;
+    result = [self itemsWithKeyImpl:key serializer:serializer context:nil error:error];
+    [self.delegate didAccessCache:self];
+    
+    return result;
+}
+
+#pragma mark - Accounts
+
+- (BOOL)saveAccount:(MSIDAccountCacheItem *)item
+                key:(MSIDTokenCacheKey *)key
+         serializer:(id<MSIDAccountItemSerializer>)serializer
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    // TODO: implement me
+    return NO;
+}
+
+- (MSIDAccountCacheItem *)accountWithKey:(MSIDTokenCacheKey *)key
+                              serializer:(id<MSIDAccountItemSerializer>)serializer
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error
+{
+    // TODO: implement me
+    return nil;
+}
+
+- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDTokenCacheKey *)key
+                                          serializer:(id<MSIDAccountItemSerializer>)serializer
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError **)error
+{
+    // TODO: implement me
+    return nil;
+}
+
+#pragma mark - Removal
 
 - (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
                    context:(id<MSIDRequestContext>)context
@@ -224,18 +271,7 @@
     return result;
 }
 
-- (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                            serializer:(id<MSIDTokenSerializer>)serializer
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError * __autoreleasing *)error
-{
-    [self.delegate willAccessCache:self];
-    NSArray *result = nil;
-    result = [self itemsWithKeyImpl:key serializer:serializer context:nil error:error];
-    [self.delegate didAccessCache:self];
-    
-    return result;
-}
+#pragma mark - Wipe
 
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
                           error:(NSError **)error
@@ -255,7 +291,7 @@
     fromDictionary:(nonnull NSDictionary *)dictionary
                key:(nonnull MSIDTokenCacheKey *)key
 {
-    MSIDToken *item = [dictionary objectForKey:[self keyWithoutAccount:key]];
+    MSIDTokenCacheItem *item = [dictionary objectForKey:[self legacyKeyWithoutAccount:key]];
     if (item)
     {
         item = [item copy];
@@ -316,7 +352,7 @@
                 // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
                 RETURN_ERROR_IF_CONDITION_FALSE([key isKindOfClass:[MSIDTokenCacheKey class]], MSIDErrorCacheBadFormat, @"Key is not of the expected class type.");
                 id token = [userDict objectForKey:key];
-                RETURN_ERROR_IF_CONDITION_FALSE([token isKindOfClass:[MSIDToken class]], MSIDErrorCacheBadFormat, @"Token is not of the expected class type.");
+                RETURN_ERROR_IF_CONDITION_FALSE([token isKindOfClass:[MSIDTokenCacheItem class]], MSIDErrorCacheBadFormat, @"Token is not of the expected class type.");
             }
         }
     }
@@ -350,12 +386,12 @@
         return YES;
     }
     
-    if (![userTokens objectForKey:[self keyWithoutAccount:key]])
+    if (![userTokens objectForKey:[self legacyKeyWithoutAccount:key]])
     {
         return YES;
     }
     
-    [userTokens removeObjectForKey:[self keyWithoutAccount:key]];
+    [userTokens removeObjectForKey:[self legacyKeyWithoutAccount:key]];
     
     // Check to see if we need to remove the overall dict
     if (!userTokens.count)
@@ -366,9 +402,9 @@
     return YES;
 }
 
-- (BOOL)setItemImpl:(MSIDToken *)item
+- (BOOL)setItemImpl:(MSIDTokenCacheItem *)item
                 key:(MSIDTokenCacheKey *)key
-         serializer:(id<MSIDTokenSerializer>)serializer
+         serializer:(id<MSIDTokenItemSerializer>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
@@ -416,16 +452,16 @@
             self.cache[@"tokens"][key.account] = userDict;
         }
         
-        userDict[[self keyWithoutAccount:key]] = item;
+        userDict[[self legacyKeyWithoutAccount:key]] = item;
     });
     
     return YES;
 }
 
-- (NSArray<MSIDToken *> *)itemsWithKeyImpl:(MSIDTokenCacheKey *)key
-                                serializer:(id<MSIDTokenSerializer>)serializer
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
+- (NSArray<MSIDTokenCacheItem *> *)itemsWithKeyImpl:(MSIDTokenCacheKey *)key
+                                         serializer:(id<MSIDTokenItemSerializer>)serializer
+                                            context:(id<MSIDRequestContext>)context
+                                              error:(NSError **)error
 {
     MSID_LOG_INFO(context, @"Get items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Get items, key info (account: %@ service: %@)", key.account, key.service);
@@ -459,14 +495,17 @@
     return items;
 }
 
-- (MSIDTokenCacheKey *)keyWithoutAccount:(MSIDTokenCacheKey *)key
+- (MSIDLegacyTokenCacheKey *)legacyKeyWithoutAccount:(MSIDTokenCacheKey *)key
 {
     // In order to be backward compatible with ADAL,
     // we need to store keys into dictionary without 'account'.
-    MSIDTokenCacheKey *newKey = [key copy];
-    newKey.account = nil;
+    MSIDLegacyTokenCacheKey *newKey = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:nil
+                                                                               service:key.service
+                                                                               generic:key.generic
+                                                                                  type:key.type];
     
     return newKey;
 }
 
 @end
+

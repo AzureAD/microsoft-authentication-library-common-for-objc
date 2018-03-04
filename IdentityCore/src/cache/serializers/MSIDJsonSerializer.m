@@ -22,51 +22,48 @@
 // THE SOFTWARE.
 
 #import "MSIDJsonSerializer.h"
-#import "MSIDToken.h"
+#import "MSIDJsonObject.h"
+#import "MSIDTokenCacheItem.h"
+#import "MSIDCacheItem.h"
+#import "MSIDTokenCacheItem.h"
+#import "MSIDAccountCacheItem.h"
 
 @implementation MSIDJsonSerializer
 
-- (NSData *)serialize:(MSIDToken *)token
+- (NSData *)serialize:(MSIDCacheItem *)item
 {
-    if (!token)
+    if (!item)
     {
         return nil;
     }
     
     NSError *error;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:[token jsonDictionary]
+    NSData *data = [NSJSONSerialization dataWithJSONObject:[item jsonDictionary]
                                                    options:0
                                                      error:&error];
     if (error)
     {
-        return nil;
         MSID_LOG_ERROR(nil, @"Failed to serialize token.");
         MSID_LOG_ERROR_PII(nil, @"Failed to serialize token, error: %@", error);
+        return nil;
     }
 
-    
     return data;
 }
 
-- (MSIDToken *)deserialize:(NSData *)data
+- (MSIDCacheItem *)deserialize:(NSData *)data className:(Class)className
 {
-    NSError *error;
+    NSError *error = nil;
     NSDictionary *json = [self deserializeJSON:data error:&error];
-    
-    MSIDToken *token;
-    if (!error)
-    {
-        token = [[MSIDToken alloc] initWithJSONDictionary:json error:&error];
-    }
     
     if (error)
     {
-        return nil;
         MSID_LOG_ERROR(nil, @"Failed to deserialize json object.");
         MSID_LOG_ERROR_PII(nil, @"Failed to deserialize json object, error: %@", error);
+        return nil;
     }
     
-    return token;
+    return [[className alloc] initWithJSONDictionary:json error:nil];
 }
 
 #pragma mark - Private
@@ -89,6 +86,30 @@
                                                            error:error];
     
     return json;
+}
+
+#pragma mark - Token
+
+- (NSData *)serializeTokenCacheItem:(MSIDTokenCacheItem *)item
+{
+    return [self serialize:item];
+}
+
+- (MSIDTokenCacheItem *)deserializeTokenCacheItem:(NSData *)data
+{
+    return (MSIDTokenCacheItem *)[self deserialize:data className:MSIDTokenCacheItem.class];
+}
+
+#pragma mark - Account
+
+- (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item
+{
+    return [self serialize:item];
+}
+
+- (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data
+{
+    return (MSIDAccountCacheItem *)[self deserialize:data className:MSIDAccountCacheItem.class];
 }
 
 @end

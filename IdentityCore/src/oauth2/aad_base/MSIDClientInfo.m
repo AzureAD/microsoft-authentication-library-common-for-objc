@@ -50,7 +50,11 @@ MSID_JSON_RW(@"client_info", rawClientInfo, setRawClientInfo)
 
 - (NSString *)userIdentifier
 {
-    return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
+    if (self.uid && self.utid)
+    {
+        return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
+    }
+    else return nil;
 }
 
 #pragma mark - NSCopying

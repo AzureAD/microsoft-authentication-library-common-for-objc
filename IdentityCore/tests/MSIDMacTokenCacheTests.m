@@ -24,7 +24,8 @@
 #import <XCTest/XCTest.h>
 #import "MSIDMacTokenCache.h"
 #import "MSIDTokenCacheKey.h"
-#import "MSIDToken.h"
+#import "MSIDLegacyTokenCacheKey.h"
+#import "MSIDTokenCacheItem.h"
 
 @interface MSIDMacTokenCacheMocDelegate : NSObject<MSIDMacTokenCacheDelegate>
 
@@ -84,8 +85,8 @@
 - (void)testDeserialize_whenCacheValid_shouldReturnTrueAndNilError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDToken *token = [MSIDToken new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" type:nil];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem alloc];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : [@{
@@ -107,7 +108,7 @@
 - (void)testDeserialize_whenKeyInvalid_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDToken *token = [MSIDToken new];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : [@{
@@ -130,7 +131,7 @@
 - (void)testDeserialize_whenTokenInvalid_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" type:nil];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : [@{
@@ -153,7 +154,7 @@
 - (void)testDeserialize_whenUserIdInvalid_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" type:nil];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @0 : [@{
@@ -176,8 +177,8 @@
 - (void)testDeserialize_whenUserIdDictionaryIsNotMutable_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDToken *token = [MSIDToken new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" type:nil];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : @{
@@ -200,7 +201,7 @@
 - (void)testDeserialize_whenTokensDictionaryIsNotMutable_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" type:nil];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : @{
                                                                 @"test_account" : [@{
@@ -223,7 +224,7 @@
 - (void)testDeserialize_whenTokenCacheDictionaryIsNotMutable_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" type:nil];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : @{
                                       @"tokens" : [@{
                                               @"test_account" : [@{
@@ -275,8 +276,8 @@
 - (void)testDeserialize_whenCacheDoesntHaveVersion_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDToken *token = [MSIDToken new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" type:nil];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : [@{
@@ -299,8 +300,8 @@
 - (void)testDeserialize_whenCacheVersionMoreThenCurrent_shouldReturnTrueAndNilError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    MSIDToken *token = [MSIDToken new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" type:nil];
+    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     NSDictionary *wrapper = @{@"tokenCache" : [@{
                                                  @"tokens" : [@{
                                                                 @"test_account" : [@{
@@ -327,7 +328,7 @@
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
     cache.delegate = self.macTokenCacheMocDelegate;
     
-    [cache itemWithKey:nil serializer:nil context:nil error:nil];
+    [cache tokenWithKey:nil serializer:nil context:nil error:nil];
     
     XCTAssertEqual(self.macTokenCacheMocDelegate.willAccessCount, 1);
     XCTAssertEqual(self.macTokenCacheMocDelegate.didAccessCount, 1);
@@ -338,7 +339,7 @@
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
     cache.delegate = self.macTokenCacheMocDelegate;
     
-    [cache setItem:nil key:[MSIDTokenCacheKey new] serializer:nil context:nil error:nil];
+    [cache saveToken:nil key:[MSIDTokenCacheKey new] serializer:nil context:nil error:nil];
     
     XCTAssertEqual(self.macTokenCacheMocDelegate.willWriteCount, 1);
     XCTAssertEqual(self.macTokenCacheMocDelegate.didWriteCount, 1);

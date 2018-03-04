@@ -22,56 +22,53 @@
 // THE SOFTWARE.
 
 #import "MSIDTestRequestParams.h"
-#import "MSIDAADV1RequestParameters.h"
-#import "MSIDAADV2RequestParameters.h"
+#import "MSIDRequestParameters.h"
 #import "MSIDTestCacheIdentifiers.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDTestRequestParams
 
-+ (MSIDAADV1RequestParameters *)v1DefaultParams
++ (MSIDRequestParameters *)defaultParams
 {
-    return [self v1ParamsWithAuthority:DEFAULT_TEST_AUTHORITY
-                              clientId:DEFAULT_TEST_CLIENT_ID
-                              resource:DEFAULT_TEST_RESOURCE];
+    return [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
+                                                redirectUri:nil
+                                                   clientId:DEFAULT_TEST_CLIENT_ID
+                                                     target:nil];
 }
 
-+ (MSIDAADV1RequestParameters *)v1ParamsWithAuthority:(NSString *)authority
-                                             clientId:(NSString *)clientId
-                                             resource:(NSString *)resource
++ (MSIDRequestParameters *)paramsWithAuthority:(NSString *)authority
+                                      clientId:(NSString *)clientId
+                                   redirectUri:(NSString *)redirectUri
+                                        target:(NSString *)target
 {
-    NSURL *authorityURL = [NSURL URLWithString:authority];
-    MSIDAADV1RequestParameters *requestParams = [[MSIDAADV1RequestParameters alloc] initWithAuthority:authorityURL
-                                                                                          redirectUri:nil
-                                                                                             clientId:clientId
-                                                                                             resource:resource];
-    
-    return requestParams;
+    return [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:authority]
+                                                redirectUri:redirectUri
+                                                   clientId:clientId
+                                                     target:target];
 }
 
-+ (MSIDAADV2RequestParameters *)v2DefaultParams
++ (MSIDRequestParameters *)v1DefaultParams
 {
-    NSURL *authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
-    return [self.class v2ParamsWithAuthority:authority redirectUri:nil clientId:DEFAULT_TEST_CLIENT_ID scopes:scopes];
+    return [self paramsWithAuthority:DEFAULT_TEST_AUTHORITY
+                            clientId:DEFAULT_TEST_CLIENT_ID
+                         redirectUri:nil
+                              target:DEFAULT_TEST_RESOURCE];
 }
 
-+ (MSIDAADV2RequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes
++ (MSIDRequestParameters *)v2DefaultParams
 {
-    NSURL *authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    MSIDAADV2RequestParameters *requestParams = [self.class v2ParamsWithAuthority:authority redirectUri:nil clientId:DEFAULT_TEST_CLIENT_ID scopes:scopes];
-    
-    return requestParams;
+    return [self paramsWithAuthority:DEFAULT_TEST_AUTHORITY
+                            clientId:DEFAULT_TEST_CLIENT_ID
+                         redirectUri:nil
+                              target:DEFAULT_TEST_SCOPE];
 }
 
-+ (MSIDAADV2RequestParameters *)v2ParamsWithAuthority:(NSURL *)authority
-                                          redirectUri:(NSString *)redirectUri
-                                             clientId:(NSString *)clientId
-                                               scopes:(NSOrderedSet<NSString *> *)scopes
++ (MSIDRequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes
 {
-    return [[MSIDAADV2RequestParameters alloc] initWithAuthority:authority
-                                                     redirectUri:redirectUri
-                                                        clientId:clientId
-                                                          scopes:scopes];
+    return [self paramsWithAuthority:DEFAULT_TEST_AUTHORITY
+                            clientId:DEFAULT_TEST_CLIENT_ID
+                         redirectUri:nil
+                              target:[scopes msidToString]];
 }
 
 @end
