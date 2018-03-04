@@ -109,6 +109,8 @@
     
     _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
     
+    _oauthTokenType = [coder decodeObjectOfClass:[NSString class] forKey:@"accessTokenType"];
+    
     // Decode id_token from a backward compatible way
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     
@@ -146,7 +148,8 @@
     [coder encodeObject:self.cachedAt forKey:@"cachedAt"];
     
     // Backward compatibility with ADAL.
-    [coder encodeObject:@"Bearer" forKey:@"accessTokenType"];
+    NSString *tokenType = [NSString msidIsStringNilOrBlank:self.oauthTokenType] ? MSID_OAUTH2_BEARER : self.oauthTokenType;
+    [coder encodeObject:tokenType forKey:@"accessTokenType"];
     
     // Encode id_token in backward compatible way with ADAL
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
@@ -183,6 +186,9 @@
     
     // ID token
     _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
+    
+    // Access token type
+    _oauthTokenType = json[MSID_OAUTH_TOKEN_TYPE_CACHE_KEY];
     
     switch (_tokenType) {
         case MSIDTokenTypeRefreshToken:
@@ -239,6 +245,9 @@
     
     // Expires on
     dictionary[MSID_EXPIRES_ON_CACHE_KEY] = _expiresOn.msidDateToTimestamp;
+    
+    // Oauth token type
+    dictionary[MSID_OAUTH_TOKEN_TYPE_CACHE_KEY] = _oauthTokenType;
     
     switch (_tokenType) {
         case MSIDTokenTypeRefreshToken:

@@ -29,6 +29,8 @@
 @property (readonly) NSDate *cachedAt;
 @property (readonly) NSString *accessToken;
 
+@property (readonly) NSString *accessTokenType;
+
 // Id token is necessary for backward ADAL compatibility
 @property (readonly) NSString *idToken;
 

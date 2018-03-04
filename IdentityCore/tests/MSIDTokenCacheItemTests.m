@@ -58,6 +58,7 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
+    cacheItem.oauthTokenType = @"token type";
     
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
     
@@ -82,6 +83,7 @@
     XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, DEFAULT_TEST_FAMILY_ID);
+    XCTAssertEqualObjects(newItem.oauthTokenType, @"token type");
 }
 
 #pragma mark - JSON serialization
@@ -102,6 +104,7 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     cacheItem.target = DEFAULT_TEST_RESOURCE;
+    cacheItem.oauthTokenType = @"token type";
     
     NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
@@ -115,7 +118,8 @@
                                          @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                          @"realm": @"common",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
-                                         @"id_token": DEFAULT_TEST_ID_TOKEN
+                                         @"id_token": DEFAULT_TEST_ID_TOKEN,
+                                         @"access_token_type": @"token type"
                                          };
     
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
@@ -219,7 +223,8 @@
                                      @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                      @"realm": @"common",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
-                                     @"id_token": DEFAULT_TEST_ID_TOKEN
+                                     @"id_token": DEFAULT_TEST_ID_TOKEN,
+                                     @"access_token_type": @"Bearer"
                                      };
     
     NSError *error = nil;
@@ -235,6 +240,7 @@
     XCTAssertEqualObjects(cacheItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(cacheItem.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(cacheItem.idToken, DEFAULT_TEST_ID_TOKEN);
+    XCTAssertEqualObjects(cacheItem.oauthTokenType, @"Bearer");
 }
 
 - (void)testInitWithJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnRefreshTokenCacheItem
