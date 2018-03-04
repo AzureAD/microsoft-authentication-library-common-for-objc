@@ -25,7 +25,7 @@
 #import "MSIDTokenCacheKey.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDJsonSerializer.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDIdToken.h"
@@ -397,9 +397,9 @@
     }
 }
 
-- (NSArray *)allLegacyADFSTokens
+- (NSArray *)allLegacySingleResourceTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeLegacyADFSToken
+    return [self allTokensWithType:MSIDTokenTypeLegacySingleResourceToken
                         serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 

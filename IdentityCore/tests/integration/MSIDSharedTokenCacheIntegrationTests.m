@@ -30,7 +30,7 @@
 #import "MSIDTestRequestParams.h"
 #import "MSIDAccount.h"
 #import "MSIDTestCacheIdentifiers.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDTestBrokerResponse.h"
@@ -335,13 +335,13 @@
     XCTAssertNil(returnedToken);
 }
 
-- (void)testGetADFSTokenForAccount_whenATPresentInPrimaryCache_returnsToken
+- (void)testGetLegacyTokenForAccount_whenATPresentInPrimaryCache_returnsToken
 {
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse]
-                                                                request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse]
+                                                                                                request:[MSIDTestRequestParams v1DefaultParams]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@""
                                                         uniqueUserId:nil];
@@ -350,9 +350,9 @@
     
     // Check that AT is returned
     NSError *error = nil;
-    MSIDAdfsToken *returnedToken = [tokenCache getADFSTokenWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                                     context:nil
-                                                                       error:&error];
+    MSIDLegacySingleResourceToken *returnedToken = [tokenCache getLegacyTokenWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                                       context:nil
+                                                                                         error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);

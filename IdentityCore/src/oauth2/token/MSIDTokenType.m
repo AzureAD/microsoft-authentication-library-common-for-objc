@@ -35,8 +35,8 @@
         case MSIDTokenTypeRefreshToken:
             return MSID_REFRESH_TOKEN_CACHE_TYPE;
             
-        case MSIDTokenTypeLegacyADFSToken:
-            return MSID_ADFS_TOKEN_CACHE_TYPE;
+        case MSIDTokenTypeLegacySingleResourceToken:
+            return MSID_LEGACY_TOKEN_CACHE_TYPE;
             
         case MSIDTokenTypeIDToken:
             return MSID_ID_TOKEN_CACHE_TYPE;
@@ -56,7 +56,7 @@ static NSDictionary *sTokenTypes = nil;
         
         sTokenTypes = @{MSID_ACCESS_TOKEN_CACHE_TYPE: @(MSIDTokenTypeAccessToken),
                         MSID_REFRESH_TOKEN_CACHE_TYPE: @(MSIDTokenTypeRefreshToken),
-                        MSID_ADFS_TOKEN_CACHE_TYPE: @(MSIDTokenTypeLegacyADFSToken),
+                        MSID_LEGACY_TOKEN_CACHE_TYPE: @(MSIDTokenTypeLegacySingleResourceToken),
                         MSID_ID_TOKEN_CACHE_TYPE: @(MSIDTokenTypeIDToken),
                         MSID_GENERAL_TOKEN_CACHE_TYPE: @(MSIDTokenTypeOther)
                         };

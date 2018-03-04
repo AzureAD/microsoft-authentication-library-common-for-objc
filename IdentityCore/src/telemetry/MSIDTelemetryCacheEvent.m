@@ -56,7 +56,7 @@
             [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_REFRESH_TOKEN];
             break;
             
-        case MSIDTokenTypeLegacyADFSToken:
+        case MSIDTokenTypeLegacySingleResourceToken:
             [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_ADFS_TOKEN];
             break;
             
