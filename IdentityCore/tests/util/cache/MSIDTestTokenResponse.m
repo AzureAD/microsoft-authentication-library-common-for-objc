@@ -87,22 +87,38 @@
     NSString *clientInfoString = [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson];
     NSString *scopesString = scopes.msidToString;
     
-    NSMutableString *jsonString = [NSMutableString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": \"3600\", \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"", accessToken, scopesString, refreshToken, idToken, clientInfoString];
+    NSMutableDictionary *jsonDictionary = [@{@"token_type": @"Bearer",
+                                            @"expires_in": @"3600",
+                                            @"client_info": clientInfoString,
+                                            @"scope": scopesString
+                                             } mutableCopy];
+    
+    if (accessToken)
+    {
+        jsonDictionary[@"access_token"] = accessToken;
+    }
+    
+    if (refreshToken)
+    {
+        jsonDictionary[@"refresh_token"] = refreshToken;
+    }
+    
+    if (idToken)
+    {
+        jsonDictionary[@"id_token"] = idToken;
+    }
     
     if (familyId)
     {
-        [jsonString appendString:[NSString stringWithFormat:@", \"foci\":\"%@\"}", familyId]];
+        jsonDictionary[@"foci"] = familyId;
     }
-    else
-    {
-        [jsonString appendString:@"}"];
-    }
-    return [self v2TokenResponseFromJSON:jsonString];
+    
+    return [self v2TokenResponseFromJSONDictionary:jsonDictionary];
 }
 
-+ (MSIDAADV2TokenResponse *)v2TokenResponseFromJSON:(NSString *)jsonString
++ (MSIDAADV2TokenResponse *)v2TokenResponseFromJSONDictionary:(NSDictionary *)jsonDictionary
 {
-    return [[MSIDAADV2TokenResponse alloc] initWithJSONData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] error:nil];
+    return [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:jsonDictionary error:nil];
 }
 
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponse
@@ -124,21 +140,44 @@
                                               upn:(NSString *)upn
                                          tenantId:(NSString *)tenantId
 {
-    NSString *clientInfoString = [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson];
+    NSString *clientInfoString = (uid && utid) ? [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson] : nil;
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:upn tenantId:tenantId];
     
-    NSString *jsonString = [NSString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": \"3600\", \"resource\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\"}", accessToken, resource, refreshToken, idToken, clientInfoString];
+    NSMutableDictionary *jsonDictionary = [@{@"token_type": @"Bearer",
+                                            @"expires_in": @"3600",
+                                            @"resource": resource} mutableCopy];
     
-    return [self v1TokenResponseFromJSON:jsonString];
+    if (accessToken)
+    {
+        jsonDictionary[@"access_token"] = accessToken;
+    }
+    
+    if (refreshToken)
+    {
+        jsonDictionary[@"refresh_token"] = refreshToken;
+    }
+    
+    if (idToken)
+    {
+        jsonDictionary[@"id_token"] = idToken;
+    }
+    
+    if (clientInfoString)
+    {
+        jsonDictionary[@"client_info"] = clientInfoString;
+    }
+    
+    return [self v1TokenResponseFromJSONDictionary:jsonDictionary];
 }
 
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithoutClientInfo
-{
-    NSString *idToken = [MSIDTestIdTokenUtil defaultV1IdToken];
-    
-    NSString *jsonString = [NSString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": \"3600\", \"resource\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_REFRESH_TOKEN, idToken];
-    
-    return [self v1TokenResponseFromJSON:jsonString];
+{    
+    return [self v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                    rt:DEFAULT_TEST_REFRESH_TOKEN
+                              resource:DEFAULT_TEST_RESOURCE
+                                   uid:nil utid:nil
+                                   upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                              tenantId:nil];
 }
 
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithFamilyId:(NSString *)familyId
@@ -146,23 +185,47 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     NSString *idToken = [MSIDTestIdTokenUtil defaultV1IdToken];
     
-    NSString *jsonString = [NSString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": \"3600\", \"resource\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\", \"client_info\": \"%@\", \"foci\":\"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_RESOURCE, DEFAULT_TEST_REFRESH_TOKEN, idToken, clientInfoString, familyId];
+    NSDictionary *jsonDict = @{@"access_token": DEFAULT_TEST_ACCESS_TOKEN,
+                               @"token_type": @"Bearer",
+                               @"expires_in": @"3600",
+                               @"resource":DEFAULT_TEST_RESOURCE,
+                               @"refresh_token":DEFAULT_TEST_REFRESH_TOKEN,
+                               @"id_token": idToken,
+                               @"client_info": clientInfoString,
+                               @"foci": familyId
+                               };
     
-    return [self v1TokenResponseFromJSON:jsonString];
+    return [self v1TokenResponseFromJSONDictionary:jsonDict];
 }
 
 + (MSIDAADV1TokenResponse *)v1SingleResourceTokenResponse
 {
-    NSString *jsonString = [NSString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": \"3600\", \"refresh_token\": \"%@\"}", DEFAULT_TEST_ACCESS_TOKEN, DEFAULT_TEST_REFRESH_TOKEN];
-    
-    return [self v1TokenResponseFromJSON:jsonString];
+    return [self v1SingleResourceTokenResponseWithAccessToken:DEFAULT_TEST_ACCESS_TOKEN
+                                                 refreshToken:DEFAULT_TEST_REFRESH_TOKEN];
 }
 
-+ (MSIDAADV1TokenResponse *)v1TokenResponseFromJSON:(NSString *)jsonString
++ (MSIDAADV1TokenResponse *)v1SingleResourceTokenResponseWithAccessToken:(NSString *)accessToken
+                                                            refreshToken:(NSString *)refreshToken
 {
-    return [[MSIDAADV1TokenResponse alloc] initWithJSONData:[jsonString
-                                                             
-                                                             dataUsingEncoding:NSUTF8StringEncoding] error:nil];
+    NSMutableDictionary *jsonDictionary = [@{@"token_type": @"Bearer",
+                                            @"expires_in": @"3600"} mutableCopy];
+    
+    if (accessToken)
+    {
+        jsonDictionary[@"access_token"] = accessToken;
+    }
+    
+    if (refreshToken)
+    {
+        jsonDictionary[@"refresh_token"] = refreshToken;
+    }
+    
+    return [self v1TokenResponseFromJSONDictionary:jsonDictionary];
+}
+
++ (MSIDAADV1TokenResponse *)v1TokenResponseFromJSONDictionary:(NSDictionary *)jsonDictionary
+{
+    return [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:jsonDictionary error:nil];
 }
 
 + (MSIDTokenResponse *)defaultTokenResponseWithAT:(NSString *)accessToken

@@ -835,4 +835,51 @@ static NSString * extracted() {
     XCTAssertEqualObjects(rtsInPrimaryFormat[0], rtsInSecondaryFormat[0]);
 }
 
+- (void)testSaveTokensWithRequestParams_whenNoRefreshTokenReturnedInResponse_shouldOnlySaveAccessToken_keepOldRefreshToken
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                              request:[MSIDTestRequestParams v1DefaultParams]];
+    
+    MSIDRefreshToken *oldRefreshToken = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                                request:[MSIDTestRequestParams v1DefaultParams]];
+    
+    // Add old token
+    [_primaryAccessor addToken:oldRefreshToken forAccount:account];
+    [_secondaryAccessor addToken:oldRefreshToken forAccount:account];
+    
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:@"at"
+                                                                                      rt:nil
+                                                                                resource:@"rt"
+                                                                                     uid:@"uid"
+                                                                                    utid:@"utid"
+                                                                                     upn:@"upn"
+                                                                                tenantId:@"tenant"];
+    
+    NSError *error = nil;
+    // Save tokens
+    BOOL result = [tokenCache saveTokensWithRequestParams:requestParams
+                                                 response:tokenResponse
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *rtsInPrimaryFormat = [_primaryAccessor allRefreshTokens];
+    XCTAssertEqual([rtsInPrimaryFormat count], 1);
+    XCTAssertEqualObjects(rtsInPrimaryFormat[0], oldRefreshToken);
+    
+    NSArray *atsInPrimaryFormat = [_primaryAccessor allAccessTokens];
+    XCTAssertEqual([atsInPrimaryFormat count], 1);
+    XCTAssertEqualObjects([atsInPrimaryFormat[0] accessToken], @"at");
+    
+    NSArray *rtsInSecondaryFormat = [_secondaryAccessor allRefreshTokens];
+    XCTAssertEqual([rtsInSecondaryFormat count], 1);
+    XCTAssertEqualObjects(rtsInSecondaryFormat[0], oldRefreshToken);
+}
+
 @end

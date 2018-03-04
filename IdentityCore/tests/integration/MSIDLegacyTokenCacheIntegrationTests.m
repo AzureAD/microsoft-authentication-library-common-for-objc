@@ -80,6 +80,33 @@
     XCTAssertEqualObjects([accessTokensInCache[0] accessToken], tokenResponse.accessToken);
 }
 
+- (void)testSaveTokensWithRequestParams_withMultiResourceResponseAndNoAccessToken_shouldNotSaveAccessToken
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME uniqueUserId:@"some id"];
+    
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:nil
+                                                                                 rt:@"rt"
+                                                                           resource:@"resource"
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                                upn:@"upn"
+                                                                           tenantId:@"tenantId"];
+    
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveTokensWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                       account:account
+                                                      response:tokenResponse
+                                                       context:nil
+                                                         error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
+    
+    NSArray *accessTokensInCache = [_dataSource allLegacyAccessTokens];
+    XCTAssertEqual([accessTokensInCache count], 0);
+}
+
 - (void)testSaveTokensWithRequestParams_withAccessToken_andAccountWithoutUPN_shouldFail
 {
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil uniqueUserId:@"some id"];
@@ -120,6 +147,33 @@
     XCTAssertEqual(adfsToken.tokenType, MSIDTokenTypeLegacyADFSToken);
     XCTAssertEqualObjects(adfsToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(adfsToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+}
+
+- (void)testSaveTokensWithRequestParams_withADFSTokenNoAccessToken_shouldNotSaveToken
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME uniqueUserId:@"some id"];
+    
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:nil
+                                                                                 rt:@"rt"
+                                                                           resource:@"resource"
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                                upn:@"upn"
+                                                                           tenantId:@"tenantId"];
+    
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveTokensWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                       account:account
+                                                      response:tokenResponse
+                                                       context:nil
+                                                         error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
+    
+    NSArray *accessTokensInCache = [_dataSource allLegacyAccessTokens];
+    XCTAssertEqual([accessTokensInCache count], 0);
 }
 
 - (void)testSaveRefreshTokenForAccount_withMRRT_shouldSaveOneEntry
