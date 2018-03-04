@@ -249,4 +249,12 @@ static uint64_t s_expirationBuffer = 300;
     return [_target scopeSet];
 }
 
+#pragma mark - Description
+
+- (NSString *)description
+{
+    NSString *baseDescription = [super description];
+    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, target=%@, id token=%@)", _PII_NULLIFY(_accessToken), _expiresOn, _target, _PII_NULLIFY(_idToken)];
+}
+
 @end

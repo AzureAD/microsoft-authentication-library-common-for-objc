@@ -207,4 +207,12 @@
     }
 }
 
+#pragma mark - Description
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ tokenType=%@ uniqueUserId=%@ clientInfo=%@)",
+            _authority, _clientId, [MSIDTokenTypeHelpers tokenTypeAsString:self.tokenType], _uniqueUserId, _clientInfo];
+}
+
 @end

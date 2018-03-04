@@ -70,9 +70,12 @@
                            response:(MSIDTokenResponse *)response
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
-{    
+{
     MSIDAccount *account = [[MSIDAccount alloc] initWithTokenResponse:response
                                                               request:requestParams];
+    
+    MSID_LOG_VERBOSE(context, @"Saving tokens with authority %@, clientId %@, resource %@", requestParams.authority, requestParams.clientId, requestParams.resource);
+    MSID_LOG_VERBOSE_PII(context, @"Saving tokens with authority %@, clientId %@, resource %@, user ID: %@, legacy user ID: %@", requestParams.authority, requestParams.clientId, requestParams.resource, account.userIdentifier, account.legacyUserId);
     
     BOOL result = [_primaryAccessor saveTokensWithRequestParams:requestParams
                                                         account:account
@@ -86,6 +89,9 @@
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenResponse:response
                                                                              request:requestParams];
     
+    MSID_LOG_VERBOSE(context, @"Saving refresh token in all caches");
+    MSID_LOG_VERBOSE_PII(context, @"Saving refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
+    
     // Save RTs in all formats
     result = [self saveRefreshTokenInAllCaches:refreshToken
                                    withAccount:account
@@ -97,6 +103,9 @@
         // If saving failed or it's not an FRT, we're done
         return result;
     }
+    
+    MSID_LOG_VERBOSE(context, @"Saving family refresh token in all caches");
+    MSID_LOG_VERBOSE_PII(context, @"Saving family refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
     
     // If it's an FRT, save it separately and update the clientId of the token item
     MSIDRefreshToken *familyRefreshToken = [refreshToken copy];
@@ -257,6 +266,9 @@
         return NO;
     }
     
+    MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
+    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, legacy userId %@, token %@", token.clientId, token.authority, account.userIdentifier, account.legacyUserId, _PII_NULLIFY(token.refreshToken));
+    
     NSError *cacheError = nil;
     
     MSIDBaseToken<MSIDRefreshableToken> *tokenInCache = (MSIDBaseToken<MSIDRefreshableToken> *)[_primaryAccessor getLatestToken:token
@@ -275,6 +287,9 @@
     
     if (tokenInCache && [tokenInCache.refreshToken isEqualToString:token.refreshToken])
     {
+        MSID_LOG_VERBOSE(context, @"Found refresh token in cache and it's the latest version, removing token");
+        MSID_LOG_VERBOSE_PII(context, @"Found refresh token in cache and it's the latest version, removing token %@", token);
+        
         return [_primaryAccessor removeToken:tokenInCache
                                      account:account
                                      context:context
