@@ -354,7 +354,7 @@
         MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:alias
                                                                         clientId:clientId
                                                                         resource:resource
-                                                                             legacyUserId:legacyUserId];
+                                                                    legacyUserId:legacyUserId];
         if (!key)
         {
             return nil;

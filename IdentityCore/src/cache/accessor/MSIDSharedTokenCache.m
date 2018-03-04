@@ -159,12 +159,26 @@
                                                            error:error];
 }
 
+- (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(MSIDAccount *)account
+                                              requestParams:(MSIDRequestParameters *)parameters
+                                                    context:(id<MSIDRequestContext>)context
+                                                      error:(NSError **)error
+{
+    return (MSIDLegacySingleResourceToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
+                                                                       account:account
+                                                                 requestParams:parameters
+                                                                       context:context
+                                                                         error:error];
+}
+
 - (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDRequestParameters *)parameters
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error
 {
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"" uniqueUserId:nil];
+    
     return (MSIDLegacySingleResourceToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
-                                                                       account:nil
+                                                                       account:account
                                                                  requestParams:parameters
                                                                        context:context
                                                                          error:error];

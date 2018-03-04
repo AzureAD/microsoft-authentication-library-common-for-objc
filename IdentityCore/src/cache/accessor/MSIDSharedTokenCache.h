@@ -54,6 +54,11 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
+- (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(MSIDAccount *)account
+                                              requestParams:(MSIDRequestParameters *)parameters
+                                                    context:(id<MSIDRequestContext>)context
+                                                      error:(NSError **)error;
+
 - (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDRequestParameters *)parameters
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error;
