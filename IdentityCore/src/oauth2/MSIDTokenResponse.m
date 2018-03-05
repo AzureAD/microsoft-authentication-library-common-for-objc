@@ -75,4 +75,18 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
     return MSIDAccountTypeOther;
 }
 
+- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
+          fromRefreshToken:(BOOL)fromRefreshToken;
+{
+    // Method should be implemented in subclasses
+    return nil;
+}
+
+- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
+{
+    // Method should be implemented in subclasses
+    return YES;
+}
+
 @end

@@ -50,4 +50,24 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
     return MSIDAccountTypeAADV1;
 }
 
+- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
+          fromRefreshToken:(BOOL)fromRefreshToken
+{
+    if (!self.error)
+    {
+        return nil;
+    }
+    
+    MSIDErrorCode errorCode = fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
+
+    return MSIDCreateError(MSIDOAuthErrorDomain,
+                           errorCode,
+                           self.errorDescription,
+                           self.error,
+                           nil,
+                           nil,
+                           context.correlationId,
+                           nil);
+}
+
 @end
