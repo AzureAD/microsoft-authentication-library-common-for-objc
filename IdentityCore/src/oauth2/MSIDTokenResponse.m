@@ -72,10 +72,11 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
     return nil;
 }
 
-- (NSError *)verifyExtendedProperties:(id<MSIDRequestContext>)context
+- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
 {
     // Method should be implemented in subclasses
-    return nil;
+    return YES;
 }
 
 @end

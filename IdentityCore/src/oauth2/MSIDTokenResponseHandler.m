@@ -62,8 +62,8 @@
         return NO;
     }
     
-    NSError *errorFromExtendedProperties = [response verifyExtendedProperties:context];
-    if (errorFromExtendedProperties)
+    NSError *errorFromExtendedProperties = nil;
+    if (![response verifyExtendedProperties:context error:&errorFromExtendedProperties])
     {
         if (error)
         {

@@ -47,6 +47,7 @@
 - (NSError *)getOAuthError:(id<MSIDRequestContext>)context
           fromRefreshToken:(BOOL)fromRefreshToken;
 
-- (NSError *)verifyExtendedProperties:(id<MSIDRequestContext>)context;
+- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
+                           error:(NSError **)error;
 
 @end

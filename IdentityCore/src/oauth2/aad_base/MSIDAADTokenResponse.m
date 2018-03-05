@@ -88,7 +88,8 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
     return [NSDate dateWithTimeIntervalSince1970:[expiresOn integerValue]];
 }
 
-- (NSError *)verifyExtendedProperties:(id<MSIDRequestContext>)context
+- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
 {
     [self checkCorrelationId:context.correlationId];
     
@@ -96,10 +97,14 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
     {
         MSID_LOG_ERROR(context, @"Client info was not returned in the server response");
         MSID_LOG_ERROR_PII(context, @"Client info was not returned in the server response");
-        return MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Client info was not returned in the server response", nil, nil, nil, context.correlationId, nil);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Client info was not returned in the server response", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
     }
     
-    return nil;
+    return YES;
 }
 
 - (void)checkCorrelationId:(NSUUID *)requestCorrelationId
