@@ -42,7 +42,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (MSIDLegacyTokenCacheKey *)keyWithAuthority:(NSURL *)authority
                                      clientId:(NSString *)clientId
                                      resource:(nullable NSString *)resource
-                                 legacyUserId:(nullable NSString *)legacyUserId;
+                                 legacyUserId:(NSString *)legacyUserId;
+
+/*!
+ Query for ADAL tokens
+ 1. access tokens - single resource, one authority, one clientId and one upn.
+ 2. FRT & MRRT - null authority, one authority, one clientId and one legacyUserId.
+ */
++ (MSIDLegacyTokenCacheKey *)queryWithAuthority:(NSURL *)authority
+                                       clientId:(NSString *)clientId
+                                       resource:(nullable NSString *)resource
+                                   legacyUserId:(nullable NSString *)legacyUserId;
 
 NS_ASSUME_NONNULL_END
 

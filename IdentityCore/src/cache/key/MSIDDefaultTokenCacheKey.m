@@ -33,7 +33,18 @@ static NSString *keyDelimiter = @"-";
 
 #pragma mark - Helpers
 
-// kSecAttrService - credential_id (<credential_type>-<client_id>-<realm>)
+// kSecAttrService - (<credential_type>-<client_id>-<realm>-<target>)
++ (NSString *)serviceWithType:(MSIDTokenType)type
+                     clientID:(NSString *)clientId
+                        realm:(NSString *)realm
+                       target:(NSString *)target
+{
+    NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm];
+    NSString *service = [NSString stringWithFormat:@"%@%@%@", credentialId, keyDelimiter, target ? target : @""];
+    return service;
+}
+
+// credential_id - (<credential_type>-<client_id>-<realm>)
 + (NSString *)credentialIdWithType:(MSIDTokenType)type
                           clientId:(NSString *)clientId
                              realm:(NSString *)realm
@@ -62,16 +73,17 @@ static NSString *keyDelimiter = @"-";
                                                           target:(NSString *)target
 {
     // kSecAttrAccount - account_id (<unique_id>-<environment>)
-    // kSecAttrService - credential_id (<credential_type>-<client_id>-<realm>)
-    // kSecAttrGeneric - target (<target>)
+    // kSecAttrService - credential_id+target (<credential_type>-<client_id>-<realm>-<target>)
+    // kSecAttrGeneric - credential_id (<credential_type>-<client_id>-<realm>)
     // kSecAttrType - type
     
     NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
-    NSString *service = [self.class credentialIdWithType:MSIDTokenTypeAccessToken clientId:clientId realm:realm];
+    NSString *generic = [self.class credentialIdWithType:MSIDTokenTypeAccessToken clientId:clientId realm:realm];
+    NSString *service = [self.class serviceWithType:MSIDTokenTypeAccessToken clientID:clientId realm:realm target:target];
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
-                                                     generic:[target dataUsingEncoding:NSUTF8StringEncoding]
+                                                     generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:@(MSIDTokenTypeAccessToken)];
 }
 
@@ -113,11 +125,11 @@ static NSString *keyDelimiter = @"-";
     NSString *tenant = authority.msidTenant;
     
     NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
-    NSString *service = [self.class credentialIdWithType:MSIDTokenTypeIDToken clientId:clientId realm:tenant];
+    NSString *service = [self.class serviceWithType:MSIDTokenTypeIDToken clientID:clientId realm:tenant target:nil];
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
-                                                     generic:nil
+                                                     generic:[service dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:@(MSIDTokenTypeIDToken)];
 }
 
@@ -136,32 +148,38 @@ static NSString *keyDelimiter = @"-";
                                                         type:@(accountType)];
 }
 
-+ (MSIDDefaultTokenCacheKey *)keyForAllAccessTokensWithUniqueUserId:(NSString *)userId
-                                                        environment:(NSString *)environment
-                                                           clientId:(NSString *)clientId
-                                                              realm:(NSString *)realm
++ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
+                                                          environment:(NSString *)environment
+                                                             clientId:(NSString *)clientId
+                                                                realm:(NSString *)realm
 {
-    return [self keyForAccessTokensWithUniqueUserId:userId
-                                        environment:environment
-                                           clientId:clientId
-                                              realm:realm
-                                             target:nil];
+    // kSecAttrAccount - account_id (<unique_id>-<environment>)
+    // kSecAttrGeneric - credential_id (<credential_type>-<client_id>-<realm>)
+    // kSecAttrType - type
+    
+    NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    NSString *generic = [self.class credentialIdWithType:MSIDTokenTypeAccessToken clientId:clientId realm:realm];
+    
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
+                                                     service:nil
+                                                     generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
+                                                        type:@(MSIDTokenTypeAccessToken)];
 }
 
-+ (MSIDDefaultTokenCacheKey *)keyForAllAccessTokensWithUniqueUserId:(NSString *)userId
-                                                          authority:(NSURL *)authority
-                                                           clientId:(NSString *)clientId
++ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
+                                                            authority:(NSURL *)authority
+                                                             clientId:(NSString *)clientId
 {
     NSString *environment = authority.msidHostWithPortIfNecessary;
     NSString *tenant = authority.msidTenant;
     
-    return [self keyForAllAccessTokensWithUniqueUserId:userId
-                                           environment:environment
-                                              clientId:clientId
-                                                 realm:tenant];
+    return [self queryForAllAccessTokensWithUniqueUserId:userId
+                                             environment:environment
+                                                clientId:clientId
+                                                   realm:tenant];
 }
 
-+ (MSIDDefaultTokenCacheKey *)keyForAllAccessTokens
++ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokens
 {
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:nil
                                                      service:nil
@@ -174,22 +192,30 @@ static NSString *keyDelimiter = @"-";
                                                      environment:(NSString *)environment
                                                         clientId:(NSString *)clientId
 {
-    NSString *service = [self credentialIdWithType:MSIDTokenTypeRefreshToken clientId:clientId realm:nil];
+    NSString *service = [self.class serviceWithType:MSIDTokenTypeRefreshToken clientID:clientId realm:nil target:nil];
     NSString *account = [self accountIdWithUniqueUserId:userId environment:environment];
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
-                                                     generic:nil
+                                                     generic:[service dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:@(MSIDTokenTypeRefreshToken)];
 }
 
-+ (MSIDDefaultTokenCacheKey *)keyForTokenWithType:(MSIDTokenType)type clientId:(NSString *)clientId
++ (MSIDDefaultTokenCacheKey *)queryForAllTokensWithType:(MSIDTokenType)type
 {
-    NSString *service = [self credentialIdWithType:type clientId:clientId realm:nil];
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:nil
+                                                     service:nil
+                                                     generic:nil
+                                                        type:@(type)];
+}
+
++ (MSIDDefaultTokenCacheKey *)queryForAllRefreshTokensWithClientId:(NSString *)clientId
+{
+    NSString *service = [self.class serviceWithType:MSIDTokenTypeRefreshToken clientID:clientId realm:nil target:nil];
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:nil
                                                      service:service
                                                      generic:nil
-                                                        type:@(type)];
+                                                        type:@(MSIDTokenTypeRefreshToken)];
 }
 
 @end

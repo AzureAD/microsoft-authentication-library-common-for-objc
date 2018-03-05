@@ -35,6 +35,8 @@
 
 @interface MSIDTestCacheDataSource()
 {
+    NSMutableDictionary<NSString *, NSString *> *_tokenKeys;
+    NSMutableDictionary<NSString *, NSString *> *_accountKeys;
     NSMutableDictionary<NSString *, NSData *> *_tokenContents;
     NSMutableDictionary<NSString *, NSData *> *_accountContents;
     NSDictionary *_wipeInfo;
@@ -52,6 +54,8 @@
     
     if (self)
     {
+        _tokenKeys = [NSMutableDictionary dictionary];
+        _accountKeys = [NSMutableDictionary dictionary];
         _tokenContents = [NSMutableDictionary dictionary];
         _accountContents = [NSMutableDictionary dictionary];
     }
@@ -80,7 +84,12 @@
     }
     
     NSData *serializedItem = [serializer serializeTokenCacheItem:item];
-    return [self saveItemData:serializedItem key:key cacheDictionary:_tokenContents context:context error:error];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_tokenKeys
+                 cacheContent:_tokenContents
+                      context:context
+                        error:error];
 }
 
 - (MSIDTokenCacheItem *)tokenWithKey:(MSIDTokenCacheKey *)key
@@ -99,7 +108,8 @@
     }
     
     NSData *itemData = [self itemDataWithKey:key
-                             cacheDictionary:_tokenContents
+                              keysDictionary:_tokenKeys
+                           contentDictionary:_tokenContents
                                      context:context
                                        error:error];
 
@@ -121,10 +131,25 @@
         return NO;
     }
     
-    NSString *keyString = [self stringFromKey:key];
+    NSString *uniqueKey = [self uniqueIdFromKey:key];
     
     @synchronized (self) {
-        [_tokenContents removeObjectForKey:keyString];
+        
+        NSString *tokenComponentsKey = _tokenKeys[uniqueKey];
+        [_tokenKeys removeObjectForKey:uniqueKey];
+        
+        if (tokenComponentsKey)
+        {
+            [_tokenContents removeObjectForKey:tokenComponentsKey];
+        }
+        
+        NSString *accountComponentsKey = _accountKeys[uniqueKey];
+        [_accountKeys removeObjectForKey:uniqueKey];
+        
+        if (accountComponentsKey)
+        {
+            [_accountContents removeObjectForKey:accountComponentsKey];
+        }
     }
     
     return YES;
@@ -147,7 +172,11 @@
     
     NSMutableArray *resultItems = [NSMutableArray array];
     
-    NSArray<NSData *> *items = [self itemsWithKey:key cacheDictionary:_tokenContents context:context error:error];
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:_tokenKeys
+                                contentDictionary:_tokenContents
+                                          context:context
+                                            error:error];
     
     for (NSData *itemData in items)
     {
@@ -193,7 +222,12 @@
     }
     
     NSData *serializedItem = [serializer serializeAccountCacheItem:item];
-    return [self saveItemData:serializedItem key:key cacheDictionary:_accountContents context:context error:error];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_accountKeys
+                 cacheContent:_accountContents
+                      context:context
+                        error:error];
 }
 
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDTokenCacheKey *)key
@@ -212,7 +246,8 @@
     }
     
     NSData *itemData = [self itemDataWithKey:key
-                             cacheDictionary:_accountContents
+                              keysDictionary:_accountKeys
+                           contentDictionary:_accountContents
                                      context:context
                                        error:error];
     
@@ -237,7 +272,11 @@
     
     NSMutableArray *resultItems = [NSMutableArray array];
     
-    NSArray<NSData *> *items = [self itemsWithKey:key cacheDictionary:_accountContents context:context error:error];
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:_accountKeys
+                                contentDictionary:_accountContents
+                                          context:context
+                                            error:error];
     
     for (NSData *itemData in items)
     {
@@ -254,7 +293,13 @@
 
 #pragma mark - Helpers
 
-- (NSString *)stringFromKey:(MSIDTokenCacheKey *)key
+- (NSString *)uniqueIdFromKey:(MSIDTokenCacheKey *)key
+{
+    // Simulate keychain behavior by using account and service as unique key
+    return [NSString stringWithFormat:@"%@_%@", key.account, key.service];
+}
+
+- (NSString *)keyComponentsStringFromKey:(MSIDTokenCacheKey *)key
 {
     NSString *generic = key.generic ? [[NSString alloc] initWithData:key.generic encoding:NSUTF8StringEncoding] : nil;
     return [NSString stringWithFormat:@"%@_%@_%@_%@", key.account, key.service, key.type, generic];
@@ -286,11 +331,12 @@
 #pragma mark - Private
 
 - (NSData *)itemDataWithKey:(MSIDTokenCacheKey *)key
-            cacheDictionary:(NSDictionary *)cache
+             keysDictionary:(NSDictionary *)cacheKeys
+          contentDictionary:(NSDictionary *)cacheContent
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    if (!key || !cache)
+    if (!key || !cacheKeys || !cacheContent)
     {
         if (error)
         {
@@ -300,23 +346,29 @@
         return nil;
     }
     
-    NSString *keyString = [self stringFromKey:key];
-    NSData *itemData = nil;
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:cacheKeys
+                                contentDictionary:cacheContent
+                                          context:context
+                                            error:error];
     
-    @synchronized (self) {
-        itemData = cache[keyString];
+    if ([items count])
+    {
+        NSData *itemData = items[0];
+        return itemData;
     }
     
-    return itemData;
+    return nil;
 }
 
 - (BOOL)saveItemData:(NSData *)serializedItem
                  key:(MSIDTokenCacheKey *)key
-     cacheDictionary:(NSMutableDictionary *)cache
+           cacheKeys:(NSMutableDictionary *)cacheKeys
+        cacheContent:(NSMutableDictionary *)cacheContent
              context:(id<MSIDRequestContext>)context
                error:(NSError **)error
 {
-    if (!key || !cache)
+    if (!key || !cacheKeys || !cacheContent)
     {
         if (error)
         {
@@ -336,22 +388,37 @@
         return NO;
     }
     
-    NSString *keyString = [self stringFromKey:key];
+    /*
+     This is trying to simulate keychain behavior for generic password type,
+     where account and service are used as unique key, but both type and generic
+     can be used for queries. So, cache keys will store key to the item in the cacheContent dictionary.
+     That way there can be only one item with unique combination of account and service,
+     but we'll still be able to query by generic and type.
+     */
+    
+    NSString *uniqueIdKey = [self uniqueIdFromKey:key];
+    NSString *componentsKey = [self keyComponentsStringFromKey:key];
     
     @synchronized (self) {
-        cache[keyString] = serializedItem;
+        cacheKeys[uniqueIdKey] = componentsKey;
+    }
+    
+    @synchronized (self) {
+        cacheContent[componentsKey] = serializedItem;
     }
     
     return YES;
 }
 
 - (NSArray<NSData *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                    cacheDictionary:(NSDictionary *)cache
+                     keysDictionary:(NSDictionary *)cacheKeys
+                  contentDictionary:(NSDictionary *)cacheContent
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
     if (!key
-        || !cache)
+        || !cacheKeys
+        || !cacheContent)
     {
         if (error)
         {
@@ -361,6 +428,33 @@
         return nil;
     }
     
+    NSData *itemData = nil;
+    
+    if (key.account
+        && key.service
+        && key.generic
+        && key.type)
+    {
+        // If all key attributes are set, look for an exact match
+        NSString *componentsKey = [self keyComponentsStringFromKey:key];
+        itemData = cacheContent[componentsKey];
+    }
+    else if (key.account
+             && key.service)
+    {
+        // If all key attributes that are part of unique id are set, look for an exact match in keys
+        NSString *uniqueId = [self uniqueIdFromKey:key];
+        NSString *itemKey = cacheKeys[uniqueId];
+        itemData = cacheContent[itemKey];
+    }
+    
+    if (itemData)
+    {
+        // Direct match, return without additional lookup
+        return @[itemData];
+    }
+    
+    // If no direct match found, do a partial query
     NSMutableArray *resultItems = [NSMutableArray array];
     
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:[self regexFromKey:key]
@@ -369,7 +463,7 @@
     
     @synchronized (self) {
         
-        for (NSString *dictKey in [cache allKeys])
+        for (NSString *dictKey in [cacheContent allKeys])
         {
             NSUInteger numberOfMatches = [regex numberOfMatchesInString:dictKey
                                                                 options:0
@@ -377,7 +471,7 @@
             
             if (numberOfMatches > 0)
             {
-                NSData *object = cache[dictKey];
+                NSData *object = cacheContent[dictKey];
                 [resultItems addObject:object];
             }
         }
