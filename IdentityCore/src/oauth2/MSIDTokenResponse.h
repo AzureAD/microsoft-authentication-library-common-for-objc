@@ -22,7 +22,8 @@
 // THE SOFTWARE.
 
 #import "MSIDJsonObject.h"
-#import "MSIDIdToken.h"
+#import "MSIDIdTokenWrapper.h"
+#import "MSIDAccountType.h"
 
 @interface MSIDTokenResponse : MSIDJsonObject
 
@@ -39,10 +40,22 @@
 @property (readonly) NSString *state;
 @property (readonly) NSString *idToken;
 
-// Derived properties
+/* Derived properties */
+
+// NSDate derived from expiresIn property and time received
 @property (readonly) NSDate *expiryDate;
+
+// Specifies if token in the token response is multi resource
 @property (readonly) BOOL isMultiResource;
-@property (readonly) MSIDIdToken *idTokenObj;
+
+// Wrapper object around ID token
+@property (readonly) MSIDIdTokenWrapper *idTokenObj;
+
+// Generic target of the access token, scope for base token response, resource for AAD v1
+@property (readonly) NSString *target;
+
+// Account type for an account generated from this response
+@property (readonly) MSIDAccountType accountType;
 
 - (NSError *)getOAuthError:(id<MSIDRequestContext>)context
           fromRefreshToken:(BOOL)fromRefreshToken;

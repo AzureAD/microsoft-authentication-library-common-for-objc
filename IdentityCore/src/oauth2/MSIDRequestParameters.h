@@ -25,12 +25,17 @@
 
 @interface MSIDRequestParameters : NSObject
 
-@property NSURL *authority;
-@property NSString *redirectUri;
-@property NSString *clientId;
+@property (readwrite) NSURL *authority;
+@property (readwrite) NSString *redirectUri;
+@property (readwrite) NSString *clientId;
+@property (readwrite) NSString *target;
+
+@property (readonly) NSString *resource;
+@property (readonly) NSOrderedSet<NSString *> *scopes;
 
 - (instancetype)initWithAuthority:(NSURL *)authority
                       redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId;
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target;
 
 @end

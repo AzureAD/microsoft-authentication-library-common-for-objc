@@ -23,8 +23,9 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDTokenCacheItem.h"
+#import "MSIDAccountCacheItem.h"
 
 @interface MSIDKeyedArchiverSerializerTests : XCTestCase
 
@@ -32,81 +33,129 @@
 
 @implementation MSIDKeyedArchiverSerializerTests
 
-- (void)setUp
-{
-    [super setUp];
-}
-
-- (void)tearDown
-{
-    [super tearDown];
-}
+#pragma mark - Token cache item
 
 - (void)test_whenSerializeToken_shouldReturnSameTokenOnDeserialize
 {
-    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
-    MSIDToken *expectedToken = [MSIDToken new];
-    [expectedToken setValue:@"access token value" forKey:@"token"];
-    [expectedToken setValue:@"id token value" forKey:@"idToken"];
-    [expectedToken setValue:[NSDate new] forKey:@"expiresOn"];
-    [expectedToken setValue:@"familyId value" forKey:@"familyId"];
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     
-    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] init];
+    cacheItem.refreshToken = @"refresh token value";
+    cacheItem.familyId = @"familyId value";
+    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    cacheItem.additionalInfo = @{@"spe_info" : @"test"};
+    cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    cacheItem.clientId = @"some clientId";
+    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
     
-    NSError *error = nil;
-    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(clientInfo);
-    
-    [expectedToken setValue:clientInfo forKey:@"clientInfo"];
-    [expectedToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
-    [expectedToken setValue:@"some resource" forKey:@"resource"];
-    [expectedToken setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
-    [expectedToken setValue:@"some clientId" forKey:@"clientId"];
-    [expectedToken setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
-    
-    NSData *data = [serializer serialize:expectedToken];
-    MSIDToken *resultToken = [serializer deserialize:data];
+    NSData *data = [serializer serializeTokenCacheItem:cacheItem];
+    MSIDTokenCacheItem *resultToken = [serializer deserializeTokenCacheItem:data];
     
     XCTAssertNotNil(data);
-    XCTAssertEqualObjects(resultToken, expectedToken);
+    XCTAssertEqualObjects(resultToken, cacheItem);
 }
 
 - (void)testSerialize_whenTokenNil_shouldReturnNil
 {
-    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     
-    NSData *data = [serializer serialize:nil];
+    NSData *data = [serializer serializeTokenCacheItem:nil];
     
     XCTAssertNil(data);
 }
 
 - (void)testSerialize_whenTokenWithDefaultProperties_shouldReturnNotNilData
 {
-    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     
-    NSData *data = [serializer serialize:[MSIDToken new]];
+    NSData *data = [serializer serializeTokenCacheItem:[MSIDTokenCacheItem new]];
     
     XCTAssertNotNil(data);
 }
 
 - (void)testDeserialize_whenDataNilNil_shouldReturnNil
 {
-    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     
-    MSIDToken *token = [serializer deserialize:nil];
+    MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:nil];
     
     XCTAssertNil(token);
 }
 
 - (void)testDeserialize_whenDataInvalid_shouldReturnNil
 {
-    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
-    MSIDToken *token = [serializer deserialize:data];
+    MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:data];
     
     XCTAssertNil(token);
+}
+
+#pragma mark - Account
+
+- (void)test_whenSerializeAccountCacheItem_shouldReturnSameAccountOnDeserialize
+{
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+    
+    MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
+    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    cacheItem.additionalInfo = @{@"spe_info" : @"test"};
+    cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    cacheItem.lastName = @"last name";
+    cacheItem.legacyUserIdentifier = @"upn";
+    cacheItem.firstName = @"name";
+    
+    NSData *data = [serializer serializeAccountCacheItem:cacheItem];
+    MSIDAccountCacheItem *resultItem = [serializer deserializeAccountCacheItem:data];
+    
+    XCTAssertNotNil(data);
+    XCTAssertEqualObjects(resultItem, cacheItem);
+}
+
+- (void)testSerializeAccountCacheItem_whenAccountNil_shouldReturnNil
+{
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+    
+    NSData *data = [serializer serializeAccountCacheItem:nil];
+    
+    XCTAssertNil(data);
+}
+
+- (void)testSerializeAccountCacheItem_whenAccountWithDefaultProperties_shouldReturnNotNilData
+{
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+    
+    NSData *data = [serializer serializeAccountCacheItem:[MSIDAccountCacheItem new]];
+    
+    XCTAssertNotNil(data);
+}
+
+- (void)testDeserializeAccountCacheItem_whenDataNilNil_shouldReturnNil
+{
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+    
+    MSIDAccountCacheItem *account = [serializer deserializeAccountCacheItem:nil];
+    
+    XCTAssertNil(account);
+}
+
+- (void)testDeserializeAccountCacheItem_whenDataInvalid_shouldReturnNil
+{
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+    NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    MSIDAccountCacheItem *token = [serializer deserializeAccountCacheItem:data];
+    
+    XCTAssertNil(token);
+}
+
+#pragma mark - Private
+
+- (MSIDClientInfo *)createClientInfo:(NSDictionary *)clientInfoDict
+{
+    NSString *base64String = [clientInfoDict msidBase64UrlJson];
+    return [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
 }
 
 @end

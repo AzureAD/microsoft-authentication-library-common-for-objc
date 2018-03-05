@@ -23,22 +23,20 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDAADV1RequestParameters;
-@class MSIDAADV2RequestParameters;
+@class MSIDRequestParameters;
 
 @interface MSIDTestRequestParams : NSObject
 
-+ (MSIDAADV1RequestParameters *)v1DefaultParams;
++ (MSIDRequestParameters *)defaultParams;
 
-+ (MSIDAADV1RequestParameters *)v1ParamsWithAuthority:(NSString *)authority
-                                             clientId:(NSString *)clientId
-                                             resource:(NSString *)resource;
++ (MSIDRequestParameters *)paramsWithAuthority:(NSString *)authority
+                                      clientId:(NSString *)clientId
+                                   redirectUri:(NSString *)redirectUri
+                                        target:(NSString *)target;
 
-+ (MSIDAADV2RequestParameters *)v2DefaultParams;
++ (MSIDRequestParameters *)v1DefaultParams;
++ (MSIDRequestParameters *)v2DefaultParams;
 
-+ (MSIDAADV2RequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes;
-+ (MSIDAADV2RequestParameters *)v2ParamsWithAuthority:(NSURL *)authority
-                                          redirectUri:(NSString *)redirectUri
-                                             clientId:(NSString *)clientId
-                                               scopes:(NSOrderedSet<NSString *> *)scopes;
++ (MSIDRequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes;
+
 @end
