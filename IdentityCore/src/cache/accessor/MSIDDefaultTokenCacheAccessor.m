@@ -507,7 +507,7 @@
     }
     
     // If token wasn't found and legacy user ID is available, try to look by legacy user id
-    if (!refreshToken && [NSString msidIsStringNilOrBlank:account.legacyUserId])
+    if (!refreshToken && ![NSString msidIsStringNilOrBlank:account.legacyUserId])
     {
         refreshToken = [self getTokenWithType:MSIDTokenTypeRefreshToken
                                       account:account

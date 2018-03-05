@@ -40,7 +40,10 @@ static NSString *keyDelimiter = @"-";
                        target:(NSString *)target
 {
     NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm];
-    NSString *service = [NSString stringWithFormat:@"%@%@%@", credentialId, keyDelimiter, target ? target : @""];
+    NSString *service = [NSString stringWithFormat:@"%@%@%@",
+                         credentialId,
+                         (target ? keyDelimiter : @""),
+                         (target ? target : @"")];
     return service;
 }
 
@@ -53,7 +56,8 @@ static NSString *keyDelimiter = @"-";
     
     return [NSString stringWithFormat:@"%@%@%@%@%@",
             credentialType, keyDelimiter, clientId,
-            keyDelimiter, realm ? realm : @""];
+            (realm ? keyDelimiter : @""),
+            (realm ? realm : @"")];
 }
 
 // kSecAttrAccount - account_id (<unique_id>-<environment>)
