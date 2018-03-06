@@ -30,7 +30,7 @@
 
 #pragma mark - Private
 
-- (NSData *)serialize:(MSIDCacheItem *)item className:(Class)className
+- (NSData *)serialize:(MSIDCacheItem *)item
 {
     if (!item)
     {
@@ -45,7 +45,7 @@
     NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
     // Maintain backward compatibility with ADAL.
     [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
-    [archiver setClassName:@"ADTokenCacheStoreItem" forClass:className];
+    [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDTokenCacheItem.class];
     [archiver encodeObject:item forKey:NSKeyedArchiveRootObjectKey];
     [archiver finishEncoding];
     
@@ -62,7 +62,7 @@
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     // Maintain backward compatibility with ADAL.
     [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
-    [unarchiver setClass:className forClassName:@"ADTokenCacheStoreItem"];
+    [unarchiver setClass:MSIDTokenCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
     MSIDCacheItem *token = [unarchiver decodeObjectOfClass:className forKey:NSKeyedArchiveRootObjectKey];
     [unarchiver finishDecoding];
     
@@ -73,7 +73,7 @@
 
 - (NSData *)serializeTokenCacheItem:(MSIDTokenCacheItem *)item
 {
-    return [self serialize:item className:MSIDTokenCacheItem.class];
+    return [self serialize:item];
 }
 
 - (MSIDTokenCacheItem *)deserializeTokenCacheItem:(NSData *)data
@@ -85,7 +85,7 @@
 
 - (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item
 {
-    return [self serialize:item className:MSIDAccountCacheItem.class];
+    return [self serialize:item];
 }
 
 - (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data
