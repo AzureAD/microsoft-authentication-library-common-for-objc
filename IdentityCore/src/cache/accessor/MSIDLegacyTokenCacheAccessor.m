@@ -92,6 +92,18 @@
         MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response
                                                                               request:requestParams];
         
+        if (!accessToken)
+        {
+            MSID_LOG_ERROR(context, @"Couldn't initialize access token entry. Not updating cache");
+            
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Tried to save access token, but no access token returned", nil, nil, nil, context.correlationId, nil);
+            }
+            
+            return NO;
+        }
+        
         BOOL result = [self saveToken:accessToken
                               account:account
                               context:context
@@ -103,6 +115,18 @@
     {
         MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenResponse:response
                                                                         request:requestParams];
+        
+        if (!adfsToken)
+        {
+            MSID_LOG_ERROR(context, @"Couldn't initialize ADFS token entry. Not updating cache");
+            
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Tried to save ADFS token, but no ADFS token returned", nil, nil, nil, context.correlationId, nil);
+            }
+            
+            return NO;
+        }
         
         account.legacyUserId = @"";
         

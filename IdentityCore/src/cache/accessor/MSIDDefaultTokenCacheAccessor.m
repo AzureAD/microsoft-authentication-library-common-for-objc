@@ -97,6 +97,18 @@
     MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response
                                                                           request:requestParams];
     
+    if (!accessToken)
+    {
+        MSID_LOG_ERROR(context, @"Couldn't initialize access token entry. Not updating cache");
+        
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Tried to save access token, but no access token returned", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        return NO;
+    }
+    
     if (![self saveAccessToken:accessToken
                        account:account
                        context:context
@@ -109,12 +121,17 @@
     MSIDIdToken *idToken = [[MSIDIdToken alloc] initWithTokenResponse:response
                                                               request:requestParams];
     
-    if (![self saveTokenWithPreferredCache:idToken
-                                   account:account
-                                   context:context
-                                     error:error])
+    if (idToken)
     {
-        return NO;
+        MSID_LOG_INFO(context, @"ID token returned. Updating ID token cache entry");
+        
+        if (![self saveTokenWithPreferredCache:idToken
+                                       account:account
+                                       context:context
+                                         error:error])
+        {
+            return NO;
+        }
     }
     
     // Save account

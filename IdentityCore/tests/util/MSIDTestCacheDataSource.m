@@ -427,6 +427,12 @@
                         serializer:[[MSIDJsonSerializer alloc] init]];
 }
 
+- (NSArray *)allDefaultIDTokens
+{
+    return [self allTokensWithType:MSIDTokenTypeIDToken
+                        serializer:[[MSIDJsonSerializer alloc] init]];
+}
+
 - (NSArray *)allTokensWithType:(MSIDTokenType)type
                     serializer:(id<MSIDTokenItemSerializer>)serializer
 {

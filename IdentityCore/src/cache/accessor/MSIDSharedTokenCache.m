@@ -86,6 +86,12 @@
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenResponse:response
                                                                              request:requestParams];
     
+    if (!refreshToken)
+    {
+        MSID_LOG_INFO(context, @"No refresh token returned in the token response, not updating cache");
+        return YES;
+    }
+    
     // Save RTs in all formats
     result = [self saveRefreshTokenInAllCaches:refreshToken
                                    withAccount:account
