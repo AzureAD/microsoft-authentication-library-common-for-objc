@@ -21,24 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenResponse.h"
-#import "MSIDClientInfo.h"
+#import "MSIDHelpers.h"
 
-@interface MSIDAADTokenResponse : MSIDTokenResponse
+@implementation MSIDHelpers
 
-// Default properties for an AAD error response
-@property (readonly) NSString *correlationId;
-
-// Default properties for an AAD successful response
-@property (readonly) NSInteger expiresOn;
-@property (readonly) NSInteger extendedExpiresIn;
-@property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSString *familyId;
-
-// Custom properties that ADAL/MSAL handles
-@property (readonly) NSString *speInfo;
-
-// Derived properties
-@property (readonly) NSDate *extendedExpiresOnDate;
++ (NSInteger)msidIntegerValue:(id)value
+{
+    if (value && [value respondsToSelector:@selector(integerValue)])
+    {
+        return [value integerValue];
+    }
+    
+    return 0;
+}
 
 @end

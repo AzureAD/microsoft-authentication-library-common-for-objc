@@ -21,24 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenResponse.h"
-#import "MSIDClientInfo.h"
+#import <XCTest/XCTest.h>
+#import "MSIDHelpers.h"
 
-@interface MSIDAADTokenResponse : MSIDTokenResponse
+@interface MSIDHelperTests : XCTestCase
 
-// Default properties for an AAD error response
-@property (readonly) NSString *correlationId;
+@end
 
-// Default properties for an AAD successful response
-@property (readonly) NSInteger expiresOn;
-@property (readonly) NSInteger extendedExpiresIn;
-@property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSString *familyId;
+@implementation MSIDHelperTests
 
-// Custom properties that ADAL/MSAL handles
-@property (readonly) NSString *speInfo;
+- (void)testMsidIntegerValue_whenParsableNSString_shouldReturnValue
+{
+    NSString *input = @"3600";
+    NSInteger result = [MSIDHelpers msidIntegerValue:input];
+    XCTAssertEqual(result, 3600);
+}
 
-// Derived properties
-@property (readonly) NSDate *extendedExpiresOnDate;
+- (void)testMsidIntegerValue_whenNonParsableNSString_shouldReturnZero
+{
+    NSString *input = @"xyz";
+    NSInteger result = [MSIDHelpers msidIntegerValue:input];
+    XCTAssertEqual(result, 0);
+}
+
+- (void)testMsidIntegerValue_whenParsableNSNumber_shouldReturnValue
+{
+    NSNumber *input = @3600;
+    NSInteger result = [MSIDHelpers msidIntegerValue:input];
+    XCTAssertEqual(result, 3600);
+}
+
+- (void)testMsidIntegerValue_whenParsableNegativeNSNumber_shouldReturnNegativeNumber
+{
+    NSNumber *input = @(-1);
+    NSInteger result = [MSIDHelpers msidIntegerValue:input];
+    XCTAssertEqual(result, -1);
+}
+
+- (void)testMsidIntegerValue_whenNonParsableObject_shouldReturnZero
+{
+    NSArray *input = [NSArray array];
+    NSInteger result = [MSIDHelpers msidIntegerValue:input];
+    XCTAssertEqual(result, 0);
+}
 
 @end

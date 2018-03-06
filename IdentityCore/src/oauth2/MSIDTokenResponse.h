@@ -32,7 +32,7 @@
 @property (readonly) NSString *errorDescription;
 
 // Default properties for a successful openid response
-@property (readonly) NSString *expiresIn;
+@property (readonly) NSInteger expiresIn;
 @property (readonly) NSString *accessToken;
 @property (readonly) NSString *tokenType;
 @property (readonly) NSString *refreshToken;

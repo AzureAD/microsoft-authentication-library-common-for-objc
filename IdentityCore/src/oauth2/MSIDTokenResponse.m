@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenResponse.h"
+#import "MSIDHelpers.h"
 
 @implementation MSIDTokenResponse
 
@@ -30,7 +31,6 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ERROR, error)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_ERROR_DESCRIPTION, errorDescription)
 
 // Default properties for a successful response
-MSID_JSON_ACCESSOR(MSID_OAUTH2_EXPIRES_IN, expiresIn)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_ACCESS_TOKEN, accessToken)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_TOKEN_TYPE, tokenType)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_REFRESH_TOKEN, refreshToken)
@@ -38,21 +38,35 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_SCOPE, scope)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_STATE, state)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
 
+- (NSInteger)expiresIn
+{
+    id expiresInObj = _json[MSID_OAUTH2_EXPIRES_IN];
+    NSInteger expiresIn = [MSIDHelpers msidIntegerValue:expiresInObj];
+    
+    if (!expiresIn && expiresInObj)
+    {
+        MSID_LOG_WARN(nil, @"Unparsable time - The response value for the access token expiration cannot be parsed: %@", expiresInObj);
+    }
+    
+    return expiresIn;
+}
+
+- (void)setExpiresIn:(NSInteger)expiresIn
+{
+    NSString *expiresInString = [NSString stringWithFormat:@"%ld", expiresIn];
+    _json[MSID_OAUTH2_EXPIRES_IN] = expiresInString;
+}
+
 - (NSDate *)expiryDate
 {
-    NSString *expiresIn = self.expiresIn;
+    NSInteger expiresIn = self.expiresIn;
     
     if (!expiresIn)
     {
-        if (_json[MSID_OAUTH2_EXPIRES_IN])
-        {
-            MSID_LOG_WARN(nil, @"Unparsable time - The response value for the access token expiration cannot be parsed: %@", _json[MSID_OAUTH2_EXPIRES_IN]);
-        }
-        
         return nil;
     }
     
-    return [NSDate dateWithTimeIntervalSinceNow:[expiresIn integerValue]];
+    return [NSDate dateWithTimeIntervalSinceNow:expiresIn];
 }
 
 - (BOOL)isMultiResource
