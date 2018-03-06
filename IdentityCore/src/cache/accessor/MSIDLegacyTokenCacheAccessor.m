@@ -116,7 +116,7 @@
         MSIDLegacySingleResourceToken *legacyToken = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:response
                                                                                                           request:requestParams];
         
-        if (!adfsToken)
+        if (!legacyToken)
         {
             MSID_LOG_ERROR(context, @"Couldn't initialize ADFS token entry. Not updating cache");
             
