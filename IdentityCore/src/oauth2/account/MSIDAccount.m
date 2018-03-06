@@ -141,6 +141,7 @@
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         uid = aadTokenResponse.clientInfo.uid;
         utid = aadTokenResponse.clientInfo.utid;
+        _clientInfo = aadTokenResponse.clientInfo;
     }
     else
     {
@@ -183,6 +184,7 @@
         _authority = cacheItem.authority;
         _username = cacheItem.username;
         _userIdentifier = cacheItem.uniqueUserId;
+        _clientInfo = cacheItem.clientInfo;
     }
     
     return self;
@@ -198,8 +200,17 @@
     cacheItem.accountType = self.accountType;
     cacheItem.firstName = self.firstName;
     cacheItem.lastName = self.lastName;
+    cacheItem.clientInfo = self.clientInfo;
     
     return cacheItem;
+}
+
+#pragma mark - Description
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"(authority=%@ username=%@ uniqueUserId=%@ clientInfo=%@ accountType=%@ legacyUserId=%@)",
+            _authority, _username, _userIdentifier, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _legacyUserId];
 }
 
 @end

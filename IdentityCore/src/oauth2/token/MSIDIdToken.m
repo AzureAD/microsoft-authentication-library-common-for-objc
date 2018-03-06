@@ -128,5 +128,12 @@
     return MSIDTokenTypeIDToken;
 }
 
+#pragma mark - Description
+
+- (NSString *)description
+{
+    NSString *baseDescription = [super description];
+    return [baseDescription stringByAppendingFormat:@"(id token=%@)", _PII_NULLIFY(_rawIdToken)];
+}
 
 @end

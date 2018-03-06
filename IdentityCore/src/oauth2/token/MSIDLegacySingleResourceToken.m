@@ -128,4 +128,12 @@
     return MSIDTokenTypeLegacySingleResourceToken;
 }
 
+#pragma mark - Description
+
+- (NSString *)description
+{
+    NSString *baseDescription = [super description];
+    return [baseDescription stringByAppendingFormat:@"(refresh token=%@)", _PII_NULLIFY(_refreshToken)];
+}
+
 @end

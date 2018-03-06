@@ -161,4 +161,12 @@
     return MSIDTokenTypeRefreshToken;
 }
 
+#pragma mark - Description
+
+- (NSString *)description
+{
+    NSString *baseDescription = [super description];
+    return [baseDescription stringByAppendingFormat:@"(refresh token=%@, family ID=%@, id token=%@)", _PII_NULLIFY(_refreshToken), _familyId, _PII_NULLIFY(_idToken)];
+}
+
 @end
