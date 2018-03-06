@@ -33,6 +33,7 @@
 
 // Token type
 @property (readwrite) MSIDTokenType tokenType;
+@property (readwrite, nullable) NSString *oauthTokenType;
 
 // Tokens
 @property (readwrite, nullable) NSString *accessToken;

@@ -21,30 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-NSString *MSIDErrorDescriptionKey = @"MSIDErrorDescriptionKey";
-NSString *MSIDOAuthErrorKey = @"MSIDOAuthErrorKey";
-NSString *MSIDOAuthSubErrorKey = @"MSIDOAuthSubErrorKey";
-NSString *MSIDCorrelationIdKey = @"MSIDCorrelationIdKey";
-NSString *MSIDHTTPHeadersKey = @"MSIDHTTPHeadersKey";
-NSString *MSIDHTTPResponseCodeKey = @"MSIDHTTPResponseCodeKey";
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshableToken.h"
 
-NSString *MSIDErrorDomain = @"MSIDErrorDomain";
-NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
+@interface MSIDLegacySingleResourceToken : MSIDAccessToken <MSIDRefreshableToken>
 
-NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo)
-{
-    NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    userInfo[MSIDErrorDescriptionKey] = errorDescription;
-    userInfo[MSIDOAuthErrorKey] = oauthError;
-    userInfo[MSIDOAuthSubErrorKey] = subError;
-    userInfo[NSUnderlyingErrorKey]  = underlyingError;
-    userInfo[MSIDCorrelationIdKey] = correlationId;
-    if (additionalUserInfo)
-    {
-        [userInfo addEntriesFromDictionary:additionalUserInfo];
-    }
-    
-    return [NSError errorWithDomain:domain code:code userInfo:userInfo];
-}
+@property (readonly) NSString *refreshToken;
 
-
+@end

@@ -21,16 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 #import "MSIDTokenResponse.h"
 
-@implementation MSIDAdfsToken
+@implementation MSIDLegacySingleResourceToken
 
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    MSIDAdfsToken *item = [super copyWithZone:zone];
+    MSIDLegacySingleResourceToken *item = [super copyWithZone:zone];
     item->_refreshToken = [_refreshToken copyWithZone:zone];
     
     return item;
@@ -45,12 +45,12 @@
         return YES;
     }
     
-    if (![object isKindOfClass:MSIDAdfsToken.class])
+    if (![object isKindOfClass:MSIDLegacySingleResourceToken.class])
     {
         return NO;
     }
     
-    return [self isEqualToItem:(MSIDAdfsToken *)object];
+    return [self isEqualToItem:(MSIDLegacySingleResourceToken *)object];
 }
 
 - (NSUInteger)hash
@@ -60,7 +60,7 @@
     return hash;
 }
 
-- (BOOL)isEqualToItem:(MSIDAdfsToken *)token
+- (BOOL)isEqualToItem:(MSIDLegacySingleResourceToken *)token
 {
     if (!token)
     {
@@ -85,7 +85,7 @@
         
         if (!_refreshToken)
         {
-            MSID_LOG_ERROR(nil, @"Trying to initialize ADFS token when missing refresh token field");
+            MSID_LOG_ERROR(nil, @"Trying to initialize legacy single resource token when missing refresh token field");
             return nil;
         }
     }
@@ -114,7 +114,7 @@
     
     if (!_refreshToken)
     {
-        MSID_LOG_ERROR(nil, @"Trying to initialize ADFS token when missing refresh token field");
+        MSID_LOG_ERROR(nil, @"Trying to initialize legacy single resource token when missing refresh token field");
         return nil;
     }
     
@@ -125,7 +125,7 @@
 
 - (MSIDTokenType)tokenType
 {
-    return MSIDTokenTypeLegacyADFSToken;
+    return MSIDTokenTypeLegacySingleResourceToken;
 }
 
 #pragma mark - Description

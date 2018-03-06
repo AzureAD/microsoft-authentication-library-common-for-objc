@@ -36,4 +36,42 @@
     return MSIDAccountTypeAADV2;
 }
 
+- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
+          fromRefreshToken:(BOOL)fromRefreshToken;
+{
+    if (!self.error)
+    {
+        return nil;
+    }
+    
+    MSIDErrorCode errorCode = [self getErrorCodeForAADV2:self.error];
+    
+    return MSIDCreateError(MSIDOAuthErrorDomain,
+                           errorCode,
+                           self.errorDescription,
+                           self.error,
+                           nil,
+                           nil,
+                           context.correlationId,
+                           nil);
+}
+
+- (MSIDErrorCode)getErrorCodeForAADV2:(NSString *)oauthError
+{
+    if ([oauthError isEqualToString:@"invalid_request"])
+    {
+        return MSIDErrorInvalidRequest;
+    }
+    if ([oauthError isEqualToString:@"invalid_client"])
+    {
+        return MSIDErrorInvalidClient;
+    }
+    if ([oauthError isEqualToString:@"invalid_scope"])
+    {
+        return MSIDErrorInvalidParameter;
+    }
+    
+    return MSIDErrorInteractionRequired;
+}
+
 @end

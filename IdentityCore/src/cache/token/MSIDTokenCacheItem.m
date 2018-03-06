@@ -30,7 +30,7 @@
 #import "MSIDBaseToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 
 @implementation MSIDTokenCacheItem
@@ -109,6 +109,8 @@
     
     _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
     
+    _oauthTokenType = [coder decodeObjectOfClass:[NSString class] forKey:@"accessTokenType"];
+    
     // Decode id_token from a backward compatible way
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     
@@ -117,7 +119,7 @@
     
     if (rtPresent && atPresent)
     {
-        _tokenType = MSIDTokenTypeLegacyADFSToken;
+        _tokenType = MSIDTokenTypeLegacySingleResourceToken;
     }
     else if (rtPresent)
     {
@@ -146,7 +148,8 @@
     [coder encodeObject:self.cachedAt forKey:@"cachedAt"];
     
     // Backward compatibility with ADAL.
-    [coder encodeObject:@"Bearer" forKey:@"accessTokenType"];
+    NSString *tokenType = [NSString msidIsStringNilOrBlank:self.oauthTokenType] ? MSID_OAUTH2_BEARER : self.oauthTokenType;
+    [coder encodeObject:tokenType forKey:@"accessTokenType"];
     
     // Encode id_token in backward compatible way with ADAL
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
@@ -184,6 +187,9 @@
     // ID token
     _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
     
+    // Access token type
+    _oauthTokenType = json[MSID_OAUTH_TOKEN_TYPE_CACHE_KEY];
+    
     switch (_tokenType) {
         case MSIDTokenTypeRefreshToken:
         {
@@ -200,7 +206,7 @@
             _accessToken = json[MSID_TOKEN_CACHE_KEY];
             break;
         }
-        case MSIDTokenTypeLegacyADFSToken:
+        case MSIDTokenTypeLegacySingleResourceToken:
         {
             _accessToken = json[MSID_TOKEN_CACHE_KEY];
             _refreshToken = json[MSID_RESOURCE_RT_CACHE_KEY];
@@ -240,6 +246,9 @@
     // Expires on
     dictionary[MSID_EXPIRES_ON_CACHE_KEY] = _expiresOn.msidDateToTimestamp;
     
+    // Oauth token type
+    dictionary[MSID_OAUTH_TOKEN_TYPE_CACHE_KEY] = _oauthTokenType;
+    
     switch (_tokenType) {
         case MSIDTokenTypeRefreshToken:
         {
@@ -260,7 +269,7 @@
             dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
             break;
         }
-        case MSIDTokenTypeLegacyADFSToken:
+        case MSIDTokenTypeLegacySingleResourceToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _accessToken;
             dictionary[MSID_RESOURCE_RT_CACHE_KEY] = _refreshToken;
@@ -292,9 +301,9 @@
         {
             return [[MSIDRefreshToken alloc] initWithTokenCacheItem:self];
         }
-        case MSIDTokenTypeLegacyADFSToken:
+        case MSIDTokenTypeLegacySingleResourceToken:
         {
-            return [[MSIDAdfsToken alloc] initWithTokenCacheItem:self];
+            return [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:self];
         }
         case MSIDTokenTypeIDToken:
         {

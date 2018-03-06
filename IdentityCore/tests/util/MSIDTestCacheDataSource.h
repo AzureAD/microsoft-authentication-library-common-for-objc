@@ -30,12 +30,13 @@
 
 - (void)reset;
 
-- (NSArray *)allLegacyADFSTokens;
+- (NSArray *)allLegacySingleResourceTokens;
 - (NSArray *)allLegacyAccessTokens;
 - (NSArray *)allLegacyRefreshTokens;
 
 - (NSArray *)allDefaultAccessTokens;
 - (NSArray *)allDefaultRefreshTokens;
+- (NSArray *)allDefaultIDTokens;
 
 - (NSArray *)allTokensWithType:(MSIDTokenType)type
                     serializer:(id<MSIDTokenItemSerializer>)serializer;

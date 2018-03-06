@@ -58,6 +58,7 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
+    cacheItem.oauthTokenType = @"token type";
     
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
     
@@ -82,6 +83,7 @@
     XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, DEFAULT_TEST_FAMILY_ID);
+    XCTAssertEqualObjects(newItem.oauthTokenType, @"token type");
 }
 
 #pragma mark - JSON serialization
@@ -102,6 +104,7 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     cacheItem.target = DEFAULT_TEST_RESOURCE;
+    cacheItem.oauthTokenType = @"token type";
     
     NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
@@ -115,7 +118,8 @@
                                          @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                          @"realm": @"common",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
-                                         @"id_token": DEFAULT_TEST_ID_TOKEN
+                                         @"id_token": DEFAULT_TEST_ID_TOKEN,
+                                         @"access_token_type": @"token type"
                                          };
     
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
@@ -163,11 +167,11 @@
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
 }
 
-- (void)testJSONDictionary_whenADFSToken_andAllFieldsSet_shouldReturnJSONDictionary
+- (void)testJSONDictionary_whenLegacyToken_andAllFieldsSet_shouldReturnJSONDictionary
 {
     MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    cacheItem.tokenType = MSIDTokenTypeLegacyADFSToken;
+    cacheItem.tokenType = MSIDTokenTypeLegacySingleResourceToken;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     cacheItem.idToken = DEFAULT_TEST_ID_TOKEN;
@@ -185,7 +189,7 @@
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
     
     NSDictionary *expectedDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                         @"credential_type": @"LegacyADFSToken",
+                                         @"credential_type": @"LegacySingleResourceToken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"target": DEFAULT_TEST_RESOURCE,
                                          @"cached_at": cachedAtString,
@@ -219,7 +223,8 @@
                                      @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                      @"realm": @"common",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
-                                     @"id_token": DEFAULT_TEST_ID_TOKEN
+                                     @"id_token": DEFAULT_TEST_ID_TOKEN,
+                                     @"access_token_type": @"Bearer"
                                      };
     
     NSError *error = nil;
@@ -235,6 +240,7 @@
     XCTAssertEqualObjects(cacheItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(cacheItem.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(cacheItem.idToken, DEFAULT_TEST_ID_TOKEN);
+    XCTAssertEqualObjects(cacheItem.oauthTokenType, @"Bearer");
 }
 
 - (void)testInitWithJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnRefreshTokenCacheItem
@@ -261,7 +267,7 @@
     XCTAssertEqualObjects(cacheItem.familyId, DEFAULT_TEST_FAMILY_ID);
 }
 
-- (void)testInitWithJSONDictionary_whenADFSToken_andAllFieldsSet_shouldReturnADFSTokenCacheItem
+- (void)testInitWithJSONDictionary_whenLegacyToken_andAllFieldsSet_shouldReturnLegacyTokenCacheItem
 {
     NSDate *expiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
     NSDate *cachedAt = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
@@ -270,7 +276,7 @@
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
     
     NSDictionary *jsonDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                     @"credential_type": @"LegacyADFSToken",
+                                     @"credential_type": @"LegacySingleResourceToken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"target": DEFAULT_TEST_RESOURCE,
                                      @"cached_at": cachedAtString,
@@ -288,7 +294,7 @@
     XCTAssertNotNil(cacheItem);
     NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
-    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeLegacyADFSToken);
+    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeLegacySingleResourceToken);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.target, DEFAULT_TEST_RESOURCE);
     XCTAssertEqualObjects(cacheItem.expiresOn, expiresOn);

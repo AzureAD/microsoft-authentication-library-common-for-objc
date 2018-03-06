@@ -50,6 +50,7 @@ static uint64_t s_expirationBuffer = 300;
     item->_accessToken = [_accessToken copyWithZone:zone];
     item->_target = [_target copyWithZone:zone];
     item->_idToken = [_idToken copyWithZone:zone];
+    item->_accessTokenType = [_accessTokenType copyWithZone:zone];
     
     return item;
 }
@@ -79,6 +80,7 @@ static uint64_t s_expirationBuffer = 300;
     hash = hash * 31 + self.resource.hash;
     hash = hash * 31 + self.scopes.hash;
     hash = hash * 31 + self.cachedAt.hash;
+    hash = hash * 31 + self.accessTokenType.hash;
     return hash;
 }
 
@@ -96,6 +98,7 @@ static uint64_t s_expirationBuffer = 300;
     result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
     result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
     result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
+    result &= (!self.accessTokenType && !token.accessTokenType) || [self.accessTokenType isEqualToString:token.accessTokenType];
     
     return result;
 }
@@ -111,6 +114,7 @@ static uint64_t s_expirationBuffer = 300;
         _expiresOn = tokenCacheItem.expiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
         _accessToken = tokenCacheItem.accessToken;
+        _accessTokenType = tokenCacheItem.oauthTokenType;
         
         if (!_accessToken)
         {
@@ -139,6 +143,7 @@ static uint64_t s_expirationBuffer = 300;
     cacheItem.accessToken = self.accessToken;
     cacheItem.idToken = self.idToken;
     cacheItem.target = self.target;
+    cacheItem.oauthTokenType = self.accessTokenType;
     return cacheItem;
 }
 
@@ -167,6 +172,7 @@ static uint64_t s_expirationBuffer = 300;
 {
     // Because resource/scopes is not always returned in the token response, we rely on the input resource/scopes as a fallback
     _target = response.target ? response.target : requestParams.target;
+    _accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     
     if (!_target)
     {
