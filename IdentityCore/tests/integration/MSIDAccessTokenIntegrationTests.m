@@ -59,6 +59,7 @@
     XCTAssertEqualObjects(token.additionalInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
     
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
     
@@ -90,6 +91,7 @@
     
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
     
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
     
@@ -118,6 +120,7 @@
     
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
     
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
     
@@ -146,6 +149,7 @@
     
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
     
     NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
     
@@ -174,6 +178,7 @@
     
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
     XCTAssertEqualObjects(token.additionalInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
     
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
