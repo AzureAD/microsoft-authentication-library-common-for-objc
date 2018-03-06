@@ -30,9 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  Key for ADFS user tokens, account will be @""
  */
-+ (MSIDLegacyTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSURL *)authority
-                                                     clientId:(NSString *)clientId
-                                                     resource:(NSString *)resource;
++ (MSIDLegacyTokenCacheKey *)keyForLegacySingleResourceTokenWithAuthority:(NSURL *)authority
+                                                                 clientId:(NSString *)clientId
+                                                                 resource:(NSString *)resource;
 
 /*!
  Key for ADAL tokens

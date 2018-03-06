@@ -30,7 +30,7 @@
 
 - (void)reset;
 
-- (NSArray *)allLegacyADFSTokens;
+- (NSArray *)allLegacySingleResourceTokens;
 - (NSArray *)allLegacyAccessTokens;
 - (NSArray *)allLegacyRefreshTokens;
 

@@ -26,7 +26,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDAccount.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDBaseToken.h"
@@ -165,15 +165,29 @@
                                                            error:error];
 }
 
-- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+- (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(MSIDAccount *)account
+                                              requestParams:(MSIDRequestParameters *)parameters
+                                                    context:(id<MSIDRequestContext>)context
+                                                      error:(NSError **)error
 {
-    return (MSIDAdfsToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacyADFSToken
-                                                       account:nil
-                                                 requestParams:parameters
-                                                       context:context
-                                                         error:error];
+    return (MSIDLegacySingleResourceToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
+                                                                       account:account
+                                                                 requestParams:parameters
+                                                                       context:context
+                                                                         error:error];
+}
+
+- (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"" uniqueUserId:nil];
+    
+    return (MSIDLegacySingleResourceToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
+                                                                       account:account
+                                                                 requestParams:parameters
+                                                                       context:context
+                                                                         error:error];
 }
 
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account

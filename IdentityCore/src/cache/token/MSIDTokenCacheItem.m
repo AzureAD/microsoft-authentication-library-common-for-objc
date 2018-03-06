@@ -30,7 +30,7 @@
 #import "MSIDBaseToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 
 @implementation MSIDTokenCacheItem
@@ -117,7 +117,7 @@
     
     if (rtPresent && atPresent)
     {
-        _tokenType = MSIDTokenTypeLegacyADFSToken;
+        _tokenType = MSIDTokenTypeLegacySingleResourceToken;
     }
     else if (rtPresent)
     {
@@ -200,7 +200,7 @@
             _accessToken = json[MSID_TOKEN_CACHE_KEY];
             break;
         }
-        case MSIDTokenTypeLegacyADFSToken:
+        case MSIDTokenTypeLegacySingleResourceToken:
         {
             _accessToken = json[MSID_TOKEN_CACHE_KEY];
             _refreshToken = json[MSID_RESOURCE_RT_CACHE_KEY];
@@ -260,7 +260,7 @@
             dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
             break;
         }
-        case MSIDTokenTypeLegacyADFSToken:
+        case MSIDTokenTypeLegacySingleResourceToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _accessToken;
             dictionary[MSID_RESOURCE_RT_CACHE_KEY] = _refreshToken;
@@ -292,9 +292,9 @@
         {
             return [[MSIDRefreshToken alloc] initWithTokenCacheItem:self];
         }
-        case MSIDTokenTypeLegacyADFSToken:
+        case MSIDTokenTypeLegacySingleResourceToken:
         {
-            return [[MSIDAdfsToken alloc] initWithTokenCacheItem:self];
+            return [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:self];
         }
         case MSIDTokenTypeIDToken:
         {

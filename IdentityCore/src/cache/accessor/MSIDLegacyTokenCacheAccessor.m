@@ -24,7 +24,7 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDAccount.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDTelemetry+Internal.h"
@@ -113,8 +113,8 @@
     }
     else
     {
-        MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenResponse:response
-                                                                        request:requestParams];
+        MSIDLegacySingleResourceToken *legacyToken = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:response
+                                                                                                          request:requestParams];
         
         if (!adfsToken)
         {
@@ -130,8 +130,8 @@
         
         account.legacyUserId = @"";
         
-        // Save token for ADFS
-        return [self saveToken:adfsToken
+        // Save token for legacy single resource token
+        return [self saveToken:legacyToken
                        account:account
                        context:context
                          error:error];
@@ -378,7 +378,7 @@
         MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:alias
                                                                         clientId:clientId
                                                                         resource:resource
-                                                                             legacyUserId:legacyUserId];
+                                                                    legacyUserId:legacyUserId];
         if (!key)
         {
             return nil;

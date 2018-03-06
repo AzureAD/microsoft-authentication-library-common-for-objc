@@ -59,9 +59,9 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
 
 #pragma mark - Legacy keys
 
-+ (MSIDLegacyTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSURL *)authority
-                                                     clientId:(NSString *)clientId
-                                                     resource:(NSString *)resource
++ (MSIDLegacyTokenCacheKey *)keyForLegacySingleResourceTokenWithAuthority:(NSURL *)authority
+                                                                 clientId:(NSString *)clientId
+                                                                 resource:(NSString *)resource
 {
     NSString *service = [self.class serviceWithAuthority:authority
                                                 resource:resource

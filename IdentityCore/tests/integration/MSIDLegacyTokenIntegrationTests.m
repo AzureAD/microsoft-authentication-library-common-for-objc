@@ -23,7 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDTestTokenResponse.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDTestRequestParams.h"
 #import "MSIDAADV1TokenResponse.h"
@@ -33,11 +33,11 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDRequestParameters.h"
 
-@interface MSIDAdfsTokenIntegrationTests : XCTestCase
+@interface MSIDLegacyTokenIntegrationTests : XCTestCase
 
 @end
 
-@implementation MSIDAdfsTokenIntegrationTests
+@implementation MSIDLegacyTokenIntegrationTests
 
 #pragma mark - Init
 
@@ -51,7 +51,7 @@
     
     MSIDRequestParameters *params = [MSIDTestRequestParams defaultParams];
     
-    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenResponse:response request:params];
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:response request:params];
     
     XCTAssertEqualObjects(token.authority, params.authority);
     XCTAssertEqualObjects(token.clientId, params.clientId);
@@ -77,7 +77,7 @@
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
     MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
     
-    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenResponse:response request:params];
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:response request:params];
     
     XCTAssertEqualObjects(token.authority, params.authority);
     XCTAssertEqualObjects(token.clientId, params.clientId);
@@ -106,7 +106,7 @@
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
     MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
     
-    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenResponse:response request:params];
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:response request:params];
     
     XCTAssertEqualObjects(token.authority, params.authority);
     XCTAssertEqualObjects(token.clientId, params.clientId);
@@ -135,7 +135,7 @@
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
     MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
     
-    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenResponse:response request:params];
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:response request:params];
     
     XCTAssertEqualObjects(token.authority, params.authority);
     XCTAssertEqualObjects(token.clientId, params.clientId);
@@ -167,7 +167,7 @@
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
     MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
     
-    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenResponse:response request:params];
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:response request:params];
     
     XCTAssertEqualObjects(token.authority, params.authority);
     XCTAssertEqualObjects(token.clientId, params.clientId);

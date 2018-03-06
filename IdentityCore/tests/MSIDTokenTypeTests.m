@@ -48,10 +48,10 @@
     XCTAssertEqualObjects(result, @"IdToken");
 }
 
-- (void)testTokenTypeAsString_whenADFSTokenType_shouldReturnADFSTokenString
+- (void)testTokenTypeAsString_whenLegacyTokenType_shouldReturnLegacyTokenString
 {
-    NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeLegacyADFSToken];
-    XCTAssertEqualObjects(result, @"LegacyADFSToken");
+    NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeLegacySingleResourceToken];
+    XCTAssertEqualObjects(result, @"LegacySingleResourceToken");
 }
 
 - (void)testTokenTypeAsString_whenOtherTokenType_shouldReturnOtherTokenString
@@ -78,10 +78,10 @@
     XCTAssertEqual(result, MSIDTokenTypeIDToken);
 }
 
-- (void)testTokenTypeFromString_whenADFSTokenString_shouldReturnADFSTokenType
+- (void)testTokenTypeFromString_whenLegacyTokenString_shouldReturnLegacyTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"LegacyADFSToken"];
-    XCTAssertEqual(result, MSIDTokenTypeLegacyADFSToken);
+    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"LegacySingleResourceToken"];
+    XCTAssertEqual(result, MSIDTokenTypeLegacySingleResourceToken);
 }
 
 - (void)testTokenTypeFromString_whenOtherTokenString_shouldReturnOtherTokenType

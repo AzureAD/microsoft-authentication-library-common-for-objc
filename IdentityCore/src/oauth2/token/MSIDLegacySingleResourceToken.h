@@ -24,7 +24,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshableToken.h"
 
-@interface MSIDAdfsToken : MSIDAccessToken <MSIDRefreshableToken>
+@interface MSIDLegacySingleResourceToken : MSIDAccessToken <MSIDRefreshableToken>
 
 @property (readonly) NSString *refreshToken;
 

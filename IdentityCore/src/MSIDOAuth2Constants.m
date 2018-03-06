@@ -101,6 +101,6 @@ NSString *const MSID_LAST_NAME_CACHE_KEY                 = @"last_name";
 
 NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"AccessToken";
 NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"RefreshToken";
-NSString *const MSID_ADFS_TOKEN_CACHE_TYPE               = @"LegacyADFSToken";
+NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE             = @"LegacySingleResourceToken";
 NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"IdToken";
 NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"Token";

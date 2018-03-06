@@ -31,7 +31,7 @@
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 #import "MSIDUserInformation.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
@@ -126,7 +126,7 @@
     XCTAssertEqual([accessTokensInCache count], 0);
 }
 
-- (void)testSaveTokensWithRequestParams_withADFSTokenAndAccount_shouldSaveToken
+- (void)testSaveTokensWithRequestParams_withLegacyTokenAndAccount_shouldSaveToken
 {
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"" uniqueUserId:@"some id"];
     
@@ -140,13 +140,13 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *accessTokensInCache = [_dataSource allLegacyADFSTokens];
-    XCTAssertEqual([accessTokensInCache count], 1);
+    NSArray *legacyTokensInCache = [_dataSource allLegacySingleResourceTokens];
+    XCTAssertEqual([legacyTokensInCache count], 1);
     
-    MSIDAdfsToken *adfsToken = accessTokensInCache[0];
-    XCTAssertEqual(adfsToken.tokenType, MSIDTokenTypeLegacyADFSToken);
-    XCTAssertEqualObjects(adfsToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
-    XCTAssertEqualObjects(adfsToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+    MSIDLegacySingleResourceToken *legacyToken = legacyTokensInCache[0];
+    XCTAssertEqual(legacyToken.tokenType, MSIDTokenTypeLegacySingleResourceToken);
+    XCTAssertEqualObjects(legacyToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(legacyToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
 
 - (void)testSaveTokensWithRequestParams_withADFSTokenNoAccessToken_shouldNotSaveToken
@@ -524,12 +524,12 @@
     XCTAssertEqual([allAccessTokens count], 2);
 }
 
-- (void)testGetADFSToken_withCorrectAccountAndParameters_shouldReturnToken
+- (void)testGetLegacyToken_withCorrectAccountAndParameters_shouldReturnToken
 {
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@""
                                                        uniqueUserId:nil];
     
-    // Save ADFS token response
+    // Save legacy token response
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveTokensWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
                                                        account:account
@@ -540,7 +540,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    MSIDAdfsToken *returnedToken = (MSIDAdfsToken *) [_legacyAccessor getTokenWithType:MSIDTokenTypeLegacyADFSToken
+    MSIDLegacySingleResourceToken *returnedToken = (MSIDLegacySingleResourceToken *) [_legacyAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
                                                                                account:account
                                                                          requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                                                context:nil
@@ -549,7 +549,7 @@
     XCTAssertNil(error);
     XCTAssertNotNil(returnedToken);
     
-    XCTAssertEqual(returnedToken.tokenType, MSIDTokenTypeLegacyADFSToken);
+    XCTAssertEqual(returnedToken.tokenType, MSIDTokenTypeLegacySingleResourceToken);
     XCTAssertEqualObjects(returnedToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(returnedToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }

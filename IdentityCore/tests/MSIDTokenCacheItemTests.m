@@ -163,11 +163,11 @@
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
 }
 
-- (void)testJSONDictionary_whenADFSToken_andAllFieldsSet_shouldReturnJSONDictionary
+- (void)testJSONDictionary_whenLegacyToken_andAllFieldsSet_shouldReturnJSONDictionary
 {
     MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    cacheItem.tokenType = MSIDTokenTypeLegacyADFSToken;
+    cacheItem.tokenType = MSIDTokenTypeLegacySingleResourceToken;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     cacheItem.idToken = DEFAULT_TEST_ID_TOKEN;
@@ -185,7 +185,7 @@
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
     
     NSDictionary *expectedDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                         @"credential_type": @"LegacyADFSToken",
+                                         @"credential_type": @"LegacySingleResourceToken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"target": DEFAULT_TEST_RESOURCE,
                                          @"cached_at": cachedAtString,
@@ -261,7 +261,7 @@
     XCTAssertEqualObjects(cacheItem.familyId, DEFAULT_TEST_FAMILY_ID);
 }
 
-- (void)testInitWithJSONDictionary_whenADFSToken_andAllFieldsSet_shouldReturnADFSTokenCacheItem
+- (void)testInitWithJSONDictionary_whenLegacyToken_andAllFieldsSet_shouldReturnLegacyTokenCacheItem
 {
     NSDate *expiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
     NSDate *cachedAt = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
@@ -270,7 +270,7 @@
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
     
     NSDictionary *jsonDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                     @"credential_type": @"LegacyADFSToken",
+                                     @"credential_type": @"LegacySingleResourceToken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"target": DEFAULT_TEST_RESOURCE,
                                      @"cached_at": cachedAtString,
@@ -288,7 +288,7 @@
     XCTAssertNotNil(cacheItem);
     NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
-    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeLegacyADFSToken);
+    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeLegacySingleResourceToken);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.target, DEFAULT_TEST_RESOURCE);
     XCTAssertEqualObjects(cacheItem.expiresOn, expiresOn);
