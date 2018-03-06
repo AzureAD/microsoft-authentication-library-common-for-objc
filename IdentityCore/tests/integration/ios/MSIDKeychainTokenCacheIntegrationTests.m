@@ -332,4 +332,116 @@
     XCTAssertEqual(status, errSecItemNotFound);
 }
 
+#pragma mark - Partial queries
+
+- (void)testTokensWithKey_whenQueryingByGeneric_shouldReturnCorrectItem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
+    
+    MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    token1.tokenType = MSIDTokenTypeAccessToken;
+    token1.accessToken = @"at";
+    
+    NSData *generic1 = [@"generic1" dataUsingEncoding:NSUTF8StringEncoding];
+    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"service" generic:generic1 type:nil];
+    [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
+    token2.tokenType = MSIDTokenTypeRefreshToken;
+    token2.refreshToken = @"rt";
+    
+    NSData *generic2 = [@"generic2" dataUsingEncoding:NSUTF8StringEncoding];
+    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"service2" generic:generic2 type:nil];
+    [keychainTokenCache saveToken:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil generic:generic2 type:nil];
+    NSArray<MSIDTokenCacheItem *> *items = [keychainTokenCache tokensWithKey:key3 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    XCTAssertEqual(items.count, 1);
+    XCTAssertEqualObjects(items[0].refreshToken, @"rt");
+}
+
+- (void)testTokensWithKey_whenQueryingByType_shouldReturnCorrectItem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
+    
+    MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    token1.tokenType = MSIDTokenTypeAccessToken;
+    token1.accessToken = @"at";
+    
+    NSData *generic1 = [@"generic1" dataUsingEncoding:NSUTF8StringEncoding];
+    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"service" generic:generic1 type:@1];
+    [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
+    token2.tokenType = MSIDTokenTypeRefreshToken;
+    token2.refreshToken = @"rt";
+    
+    NSData *generic2 = [@"generic2" dataUsingEncoding:NSUTF8StringEncoding];
+    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"service2" generic:generic2 type:@2];
+    [keychainTokenCache saveToken:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil generic:nil type:@2];
+    NSArray<MSIDTokenCacheItem *> *items = [keychainTokenCache tokensWithKey:key3 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    XCTAssertEqual(items.count, 1);
+    XCTAssertEqualObjects(items[0].refreshToken, @"rt");
+}
+
+- (void)testTokensWithKey_whenQueryingByAccount_shouldReturnCorrectItem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
+    
+    MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    token1.tokenType = MSIDTokenTypeAccessToken;
+    token1.accessToken = @"at";
+    
+    NSData *generic1 = [@"generic1" dataUsingEncoding:NSUTF8StringEncoding];
+    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"service" generic:generic1 type:@1];
+    [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
+    token2.tokenType = MSIDTokenTypeRefreshToken;
+    token2.refreshToken = @"rt";
+    
+    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"service" generic:generic1 type:@1];
+    [keychainTokenCache saveToken:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:nil generic:nil type:nil];
+    NSArray<MSIDTokenCacheItem *> *items = [keychainTokenCache tokensWithKey:key3 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    XCTAssertEqual(items.count, 1);
+    XCTAssertEqualObjects(items[0].refreshToken, @"rt");
+}
+
+- (void)testTokensWithKey_whenQueryingByService_shouldReturnCorrectItem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
+    
+    MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    token1.tokenType = MSIDTokenTypeAccessToken;
+    token1.accessToken = @"at";
+    
+    NSData *generic1 = [@"generic1" dataUsingEncoding:NSUTF8StringEncoding];
+    MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"service" generic:generic1 type:@1];
+    [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
+    token2.tokenType = MSIDTokenTypeRefreshToken;
+    token2.refreshToken = @"rt";
+    
+    MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"service2" generic:generic1 type:@1];
+    [keychainTokenCache saveToken:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:nil service:@"service2" generic:nil type:nil];
+    NSArray<MSIDTokenCacheItem *> *items = [keychainTokenCache tokensWithKey:key3 serializer:keyedArchiverSerializer context:nil error:nil];
+    
+    XCTAssertEqual(items.count, 1);
+    XCTAssertEqualObjects(items[0].refreshToken, @"rt");
+}
+
 @end

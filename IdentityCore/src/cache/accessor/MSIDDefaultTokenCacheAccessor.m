@@ -243,13 +243,18 @@
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForTokenWithType:tokenType clientId:clientId];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllTokensWithType:tokenType];
     NSArray<MSIDTokenCacheItem *> *cacheItems = [self getAllTokensWithKey:key context:context error:error];
     
     NSMutableArray *results = [NSMutableArray array];
     
     for (MSIDTokenCacheItem *cacheItem in cacheItems)
     {
+        if (![cacheItem.clientId isEqualToString:clientId])
+        {
+            continue;
+        }
+        
         MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
         
         if (token)
@@ -369,9 +374,9 @@
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
-                                                                                          authority:accessToken.authority
-                                                                                           clientId:accessToken.clientId];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccessTokensWithUniqueUserId:account.userIdentifier
+                                                                                            authority:accessToken.authority
+                                                                                             clientId:accessToken.clientId];
     
     NSArray<MSIDTokenCacheItem *> *allCacheItems = [self getAllTokensWithKey:key context:context error:error];
     
@@ -458,9 +463,9 @@
         // We can then do exact match except for scopes
         // We query less items and loop through less items too
         
-        MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAllAccessTokensWithUniqueUserId:account.userIdentifier
-                                                                                              authority:parameters.authority
-                                                                                               clientId:parameters.clientId];
+        MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccessTokensWithUniqueUserId:account.userIdentifier
+                                                                                                authority:parameters.authority
+                                                                                                 clientId:parameters.clientId];
         
         NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithKey:key
                                                                     context:context
@@ -473,7 +478,7 @@
         // This is the case, when developer doesn't provide us any authority
         // This flow is pretty unpredictable and basically only works for apps working with single tenants
         // If we can eliminate this flow in future, we can get rid of this logic and logic underneath
-        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithKey:[MSIDDefaultTokenCacheKey keyForAllAccessTokens]
+        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithKey:[MSIDDefaultTokenCacheKey queryForAllAccessTokens]
                                                                     context:context
                                                                       error:error];
         
@@ -519,7 +524,7 @@
     }
     
     // If token wasn't found and legacy user ID is available, try to look by legacy user id
-    if (!refreshToken && [NSString msidIsStringNilOrBlank:account.legacyUserId])
+    if (!refreshToken && ![NSString msidIsStringNilOrBlank:account.legacyUserId])
     {
         refreshToken = [self getTokenWithType:MSIDTokenTypeRefreshToken
                                       account:account
@@ -628,7 +633,7 @@
             }
             else
             {
-                return [MSIDDefaultTokenCacheKey keyForTokenWithType:MSIDTokenTypeRefreshToken clientId:clientId];
+                return [MSIDDefaultTokenCacheKey queryForAllRefreshTokensWithClientId:clientId];
             }
         }
         case MSIDTokenTypeIDToken:
