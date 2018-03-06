@@ -55,16 +55,16 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  Key for getting all MSAL access tokens for a user, environment and clientId
  */
-+ (MSIDDefaultTokenCacheKey *)keyForAllAccessTokensWithUniqueUserId:(NSString *)userId
-                                                        environment:(NSString *)environment
-                                                           clientId:(NSString *)clientId
-                                                              realm:(NSString *)realm;
++ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
+                                                          environment:(NSString *)environment
+                                                             clientId:(NSString *)clientId
+                                                                realm:(NSString *)realm;
 
-+ (MSIDDefaultTokenCacheKey *)keyForAllAccessTokensWithUniqueUserId:(NSString *)userId
-                                                          authority:(NSURL *)authority
-                                                           clientId:(NSString *)clientId;
++ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
+                                                            authority:(NSURL *)authority
+                                                             clientId:(NSString *)clientId;
 
-+ (MSIDDefaultTokenCacheKey *)keyForAllAccessTokens;
++ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokens;
 
 /*!
  Key for MSAL refresh tokens - one user, one clientId, and one environment
@@ -74,10 +74,16 @@ NS_ASSUME_NONNULL_BEGIN
                                                         clientId:(NSString *)clientId;
 
 /*!
- Key for all MSAL refresh tokens for a client
+ Key for all MSAL tokens for a type
  */
 
-+ (MSIDDefaultTokenCacheKey *)keyForTokenWithType:(MSIDTokenType)type clientId:(NSString *)clientId;
++ (MSIDDefaultTokenCacheKey *)queryForAllTokensWithType:(MSIDTokenType)type;
+
+/*!
+ Key for all MSAL refresh tokens with a clientId
+ */
+
++ (MSIDDefaultTokenCacheKey *)queryForAllRefreshTokensWithClientId:(NSString *)clientID;
 
 NS_ASSUME_NONNULL_END
 

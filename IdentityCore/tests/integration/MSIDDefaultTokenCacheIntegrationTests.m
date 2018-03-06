@@ -101,6 +101,34 @@
     XCTAssertEqualObjects([accessTokensInCache[0] accessToken], tokenResponse.accessToken);
 }
 
+- (void)testSaveTokensWithRequestParams_withNilAccessToken_shouldNotSaveToken_returnError
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+    
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:nil
+                                                                                 RT:@"rt"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:@"id_token"
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:@"family_id"];
+    
+    NSError *error = nil;
+    BOOL result = [_cacheAccessor saveTokensWithRequestParams:[MSIDTestRequestParams v2DefaultParams]
+                                                      account:account
+                                                     response:tokenResponse
+                                                      context:nil
+                                                        error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
+    
+    NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
+    XCTAssertEqual([accessTokensInCache count], 0);
+}
+
 - (void)testSaveTokensWithRequestParams_withAccessTokenSameEverythingWithScopesIntersect_shouldOverwriteToken
 {
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
@@ -240,6 +268,66 @@
 
     NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
     XCTAssertEqual([accessTokensInCache count], 2);
+}
+
+- (void)testSaveTokensWithRequestParams_withNilIDToken_shouldNotSaveIDToken_andSaveAccessToken
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+    
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"at"
+                                                                                 RT:@"rt"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:nil
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:@"family_id"];
+    
+    NSError *error = nil;
+    BOOL result = [_cacheAccessor saveTokensWithRequestParams:[MSIDTestRequestParams v2DefaultParams]
+                                                      account:account
+                                                     response:tokenResponse
+                                                      context:nil
+                                                        error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
+    XCTAssertEqual([accessTokensInCache count], 1);
+    
+    NSArray *idTokensInCache = [_dataSource allDefaultIDTokens];
+    XCTAssertEqual([idTokensInCache count], 0);
+}
+
+- (void)testSaveTokensWithRequestParams_withIDToken_shouldSaveIDToken_andSaveAccessToken
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+    
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"at"
+                                                                                 RT:@"rt"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:@"id_token"
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:@"family_id"];
+    
+    NSError *error = nil;
+    BOOL result = [_cacheAccessor saveTokensWithRequestParams:[MSIDTestRequestParams v2DefaultParams]
+                                                      account:account
+                                                     response:tokenResponse
+                                                      context:nil
+                                                        error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
+    XCTAssertEqual([accessTokensInCache count], 1);
+    
+    NSArray *idTokensInCache = [_dataSource allDefaultIDTokens];
+    XCTAssertEqual([idTokensInCache count], 1);
 }
 
 - (void)testSaveRefreshToken_withRTAndAccount_shouldSaveOneEntry
@@ -409,6 +497,81 @@
     XCTAssertEqualObjects(returnedToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
 }
 
+- (void)testGetTokenWithType_whenTypeAccessCorrectAccount_andNoAuthority_shouldReturnToken
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+    
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    
+    // Save token
+    [_cacheAccessor saveTokensWithRequestParams:[MSIDTestRequestParams v2DefaultParams]
+                                        account:account
+                                       response:tokenResponse
+                                        context:nil
+                                          error:nil];
+    
+    MSIDRequestParameters *parameters = [MSIDTestRequestParams paramsWithAuthority:nil
+                                                                          clientId:DEFAULT_TEST_CLIENT_ID
+                                                                       redirectUri:nil
+                                                                            target:DEFAULT_TEST_SCOPE];
+    
+    NSError *error = nil;
+    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
+                                                                                 account:account
+                                                                           requestParams:parameters
+                                                                                 context:nil
+                                                                                   error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(returnedToken);
+    XCTAssertEqualObjects(returnedToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+}
+
+- (void)testGetTokenWithType_whenTypeAccessCorrectAccount_noAuthorityAndMultipleAccessTokensInCache_shouldReturnError
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+    
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    
+    // Save first token
+    [_cacheAccessor saveTokensWithRequestParams:[MSIDTestRequestParams v2DefaultParams]
+                                        account:account
+                                       response:tokenResponse
+                                        context:nil
+                                          error:nil];
+    
+    // Save second token
+    MSIDRequestParameters *secondParameters = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.de/common"
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:DEFAULT_TEST_SCOPE];
+    
+    [_cacheAccessor saveTokensWithRequestParams:secondParameters
+                                        account:account
+                                       response:tokenResponse
+                                        context:nil
+                                          error:nil];
+    
+    // Query cache
+    MSIDRequestParameters *parameters = [MSIDTestRequestParams paramsWithAuthority:nil
+                                                                          clientId:DEFAULT_TEST_CLIENT_ID
+                                                                       redirectUri:nil
+                                                                            target:DEFAULT_TEST_SCOPE];
+    
+    NSError *error = nil;
+    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
+                                                                                 account:account
+                                                                           requestParams:parameters
+                                                                                 context:nil
+                                                                                   error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertNil(returnedToken);
+    XCTAssertEqual(error.code, MSIDErrorAmbiguousAuthority);
+}
+
 
 - (void)testGetTokenWithType_whenTypeAccessCorrectAccountAndParametersWithNoAuthority_shouldReturnToken
 {
@@ -514,6 +677,34 @@
                                                                                    context:nil
                                                                                      error:&error];
 
+    XCTAssertNil(error);
+    XCTAssertNotNil(returnedToken);
+    XCTAssertEqualObjects(returnedToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+}
+
+- (void)testGetTokenWithType_whenTypeRefreshAccountWithLegacyIDProvided_shouldReturnToken
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v2DefaultParams]];
+    
+    [_cacheAccessor saveRefreshToken:token
+                             account:account
+                             context:nil
+                               error:nil];
+    
+    
+    MSIDAccount *queryAccount = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                             uniqueUserId:nil];
+    
+    NSError *error = nil;
+    MSIDRefreshToken *returnedToken = (MSIDRefreshToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+                                                                                   account:queryAccount
+                                                                             requestParams:[MSIDTestRequestParams v2DefaultParams]
+                                                                                   context:nil
+                                                                                     error:&error];
+    
     XCTAssertNil(error);
     XCTAssertNotNil(returnedToken);
     XCTAssertEqualObjects(returnedToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);

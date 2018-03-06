@@ -31,7 +31,7 @@
 
 @class MSIDAccessToken;
 @class MSIDRefreshToken;
-@class MSIDAdfsToken;
+@class MSIDLegacySingleResourceToken;
 @class MSIDBaseToken;
 
 @interface MSIDSharedTokenCache : NSObject
@@ -54,9 +54,14 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error;
+- (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(MSIDAccount *)account
+                                              requestParams:(MSIDRequestParameters *)parameters
+                                                    context:(id<MSIDRequestContext>)context
+                                                      error:(NSError **)error;
+
+- (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDRequestParameters *)parameters
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error;
 
 /*!
  Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
@@ -84,7 +89,7 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 
-// Removal operations for RT or ADFS RT
+// Removal operations for RT or legacy single resource RT
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
                      token:(MSIDBaseToken<MSIDRefreshableToken> *)token
                    context:(id<MSIDRequestContext>)context

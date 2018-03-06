@@ -36,6 +36,7 @@ extern NSString *MSIDHTTPResponseCodeKey;
  and MSIDErrorConveter in corresponding project.
  */
 extern NSString *MSIDErrorDomain;
+extern NSString *MSIDOAuthErrorDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
@@ -63,6 +64,12 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     MSIDErrorServerInvalidResponse = -51300,
     MSIDErrorDeveloperAuthorityValidation = -51301,
+    MSIDErrorServerRefreshTokenRejected = -51302,
+    MSIDErrorServerOauth = -51303,
+    MSIDErrorInvalidRequest = -51304,
+    MSIDErrorInvalidClient = -51305,
+    MSIDErrorInvalidParameter = -51306
+    
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

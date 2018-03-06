@@ -57,4 +57,10 @@
 // Account type for an account generated from this response
 @property (readonly) MSIDAccountType accountType;
 
+- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
+          fromRefreshToken:(BOOL)fromRefreshToken;
+
+- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
+                           error:(NSError **)error;
+
 @end

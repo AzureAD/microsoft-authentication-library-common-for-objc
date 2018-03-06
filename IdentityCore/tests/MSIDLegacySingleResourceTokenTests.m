@@ -23,171 +23,171 @@
 
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 
-@interface MSIDAdfsTokenTests : XCTestCase
+@interface MSIDLegacySingleResourceTokenTests : XCTestCase
 
 @end
 
-@implementation MSIDAdfsTokenTests
+@implementation MSIDLegacySingleResourceTokenTests
 
 #pragma mark - Copy tests
 
 - (void)testCopy_whenAllPropertiesAreSet_shouldReturnEqualCopy
 {
-    MSIDAdfsToken *token = [self createToken];
-    MSIDAdfsToken *tokenCopy = [token copy];
+    MSIDLegacySingleResourceToken *token = [self createToken];
+    MSIDLegacySingleResourceToken *tokenCopy = [token copy];
     
     XCTAssertEqualObjects(tokenCopy, token);
 }
 
 #pragma mark - isEqual tests
 
-- (void)testADFSTokenIsEqual_whenAllPropertiesAreEqual_shouldReturnTrue
+- (void)testLegacyTokenIsEqual_whenAllPropertiesAreEqual_shouldReturnTrue
 {
-    MSIDAdfsToken *lhs = [self createToken];
-    MSIDAdfsToken *rhs = [self createToken];
+    MSIDLegacySingleResourceToken *lhs = [self createToken];
+    MSIDLegacySingleResourceToken *rhs = [self createToken];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-#pragma mark - MSIDAdfsToken
+#pragma mark - MSIDLegacySingleResourceToken
 
-- (void)testADFSTokenIsEqual_whenTokenIsNotEqual_shouldReturnFalse
+- (void)testLegacyTokenIsEqual_whenTokenIsNotEqual_shouldReturnFalse
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:@"token 1" forKey:@"accessToken"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:@"token 2" forKey:@"accessToken"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenTokenIsEqual_shouldReturnTrue
+- (void)testLegacyTokenIsEqual_whenTokenIsEqual_shouldReturnTrue
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:@"token 1" forKey:@"accessToken"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:@"token 1" forKey:@"accessToken"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenIdTokenIsNotEqual_shouldReturnFalse
+- (void)testLegacyTokenIsEqual_whenIdTokenIsNotEqual_shouldReturnFalse
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:@"value 1" forKey:@"idToken"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:@"value 2" forKey:@"idToken"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenIdTokenIsEqual_shouldReturnTrue
+- (void)testLegacyTokenIsEqual_whenIdTokenIsEqual_shouldReturnTrue
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:@"value 1" forKey:@"idToken"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:@"value 1" forKey:@"idToken"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenExpiresOnIsNotEqual_shouldReturnFalse
+- (void)testLegacyTokenIsEqual_whenExpiresOnIsNotEqual_shouldReturnFalse
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:[NSDate dateWithTimeIntervalSince1970:2000000000] forKey:@"expiresOn"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenExpiresOnIsEqual_shouldReturnTrue
+- (void)testLegacyTokenIsEqual_whenExpiresOnIsEqual_shouldReturnTrue
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenCachedAtIsNotEqual_shouldReturnFalse
+- (void)testLegacyTokenIsEqual_whenCachedAtIsNotEqual_shouldReturnFalse
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:[NSDate dateWithTimeIntervalSince1970:2000000000] forKey:@"cachedAt"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenCachedAtIsEqual_shouldReturnTrue
+- (void)testLegacyTokenIsEqual_whenCachedAtIsEqual_shouldReturnTrue
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenScopesIsNotEqual_shouldReturnFalse
+- (void)testLegacyTokenIsEqual_whenScopesIsNotEqual_shouldReturnFalse
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:@"1 2" forKey:@"target"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:@"1 3" forKey:@"target"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenScopesIsEqual_shouldReturnTrue
+- (void)testLegacyTokenIsEqual_whenScopesIsEqual_shouldReturnTrue
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:@"1 2" forKey:@"target"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:@"1 2" forKey:@"target"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenResourceIsNotEqual_shouldReturnFalse
+- (void)testLegacyTokenIsEqual_whenResourceIsNotEqual_shouldReturnFalse
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:@"value 1" forKey:@"target"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:@"value 2" forKey:@"target"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenResourceIsEqual_shouldReturnTrue
+- (void)testLegacyTokenIsEqual_whenResourceIsEqual_shouldReturnTrue
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:@"value 1" forKey:@"target"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:@"value 1" forKey:@"target"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenRefreshTokenIsNotEqual_shouldReturnFalse
+- (void)testLegacyTokenIsEqual_whenRefreshTokenIsNotEqual_shouldReturnFalse
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:@"value 1" forKey:@"refreshToken"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:@"value 2" forKey:@"refreshToken"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testADFSTokenIsEqual_whenRefreshTokenIsEqual_shouldReturnTrue
+- (void)testLegacyTokenIsEqual_whenRefreshTokenIsEqual_shouldReturnTrue
 {
-    MSIDAdfsToken *lhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
     [lhs setValue:@"value 1" forKey:@"refreshToken"];
-    MSIDAdfsToken *rhs = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
     [rhs setValue:@"value 1" forKey:@"refreshToken"];
     
     XCTAssertEqualObjects(lhs, rhs);
@@ -197,7 +197,7 @@
 
 - (void)testInitWithTokenCacheItem_whenNilCacheItem_shouldReturnNil
 {
-    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenCacheItem:nil];
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:nil];
     XCTAssertNil(token);
 }
 
@@ -206,7 +206,7 @@
     MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
     cacheItem.tokenType = MSIDTokenTypeIDToken;
     
-    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenCacheItem:cacheItem];
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
 }
 
@@ -223,14 +223,14 @@
     cacheItem.target = @"target";
     cacheItem.accessToken = @"token";
     
-    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenCacheItem:cacheItem];
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
 }
 
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
     MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeLegacyADFSToken;
+    cacheItem.tokenType = MSIDTokenTypeLegacySingleResourceToken;
     cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
@@ -248,7 +248,7 @@
     cacheItem.target = @"target";
     cacheItem.refreshToken = @"refresh token";
     
-    MSIDAdfsToken *token = [[MSIDAdfsToken alloc] initWithTokenCacheItem:cacheItem];
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
     XCTAssertEqualObjects(token.clientId, @"client id");
@@ -270,9 +270,9 @@
 
 #pragma mark - Private
 
-- (MSIDAdfsToken *)createToken
+- (MSIDLegacySingleResourceToken *)createToken
 {
-    MSIDAdfsToken *token = [MSIDAdfsToken new];
+    MSIDLegacySingleResourceToken *token = [MSIDLegacySingleResourceToken new];
     [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];

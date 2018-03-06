@@ -21,11 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccessToken.h"
-#import "MSIDRefreshableToken.h"
+#import "MSIDRequestContext.h"
 
-@interface MSIDAdfsToken : MSIDAccessToken <MSIDRefreshableToken>
+@class MSIDTokenResponse;
+@class MSIDRequestParameters;
 
-@property (readonly) NSString *refreshToken;
+@interface MSIDTokenResponseHandler : NSObject
+
++ (BOOL)verifyResponse:(MSIDTokenResponse *)response
+      fromRefreshToken:(BOOL)fromRefreshToken
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError * __autoreleasing *)error;
 
 @end

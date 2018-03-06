@@ -173,6 +173,26 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
+- (void)testAccessTokenIsEqual_whenAccessTokenTypeIsNotEqual_shouldReturnFalse
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"value 1" forKey:@"accessTokenType"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"value 2" forKey:@"accessTokenType"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenAccessTokenTypeIsEqual_shouldReturnTrue
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"value 1" forKey:@"accessTokenType"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"value 1" forKey:@"accessTokenType"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
 #pragma mark - Token cache item
 
 - (void)testInitWithTokenCacheItem_whenNilCacheItem_shouldReturnNil
@@ -241,6 +261,7 @@
     cacheItem.cachedAt = cachedAt;
     cacheItem.idToken = @"ID TOKEN";
     cacheItem.target = @"target";
+    cacheItem.oauthTokenType = @"Bearer";
     
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
@@ -255,6 +276,7 @@
     XCTAssertEqualObjects(token.idToken, @"ID TOKEN");
     XCTAssertEqualObjects(token.resource, @"target");
     XCTAssertEqualObjects(token.accessToken, @"token");
+    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
     
     MSIDTokenCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
@@ -277,6 +299,7 @@
     [token setValue:@"idtoken" forKey:@"idToken"];
     [token setValue:@"resource" forKey:@"target"];
     [token setValue:@"scopes" forKey:@"target"];
+    [token setValue:@"Bearer" forKey:@"accessTokenType"];
     
     return token;
 }

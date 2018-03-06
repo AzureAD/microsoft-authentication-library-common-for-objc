@@ -24,7 +24,7 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDAccount.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDTelemetry+Internal.h"
@@ -92,6 +92,18 @@
         MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response
                                                                               request:requestParams];
         
+        if (!accessToken)
+        {
+            MSID_LOG_ERROR(context, @"Couldn't initialize access token entry. Not updating cache");
+            
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Tried to save access token, but no access token returned", nil, nil, nil, context.correlationId, nil);
+            }
+            
+            return NO;
+        }
+        
         BOOL result = [self saveToken:accessToken
                               account:account
                               context:context
@@ -101,13 +113,25 @@
     }
     else
     {
-        MSIDAdfsToken *adfsToken = [[MSIDAdfsToken alloc] initWithTokenResponse:response
-                                                                        request:requestParams];
+        MSIDLegacySingleResourceToken *legacyToken = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:response
+                                                                                                          request:requestParams];
+        
+        if (!adfsToken)
+        {
+            MSID_LOG_ERROR(context, @"Couldn't initialize ADFS token entry. Not updating cache");
+            
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Tried to save ADFS token, but no ADFS token returned", nil, nil, nil, context.correlationId, nil);
+            }
+            
+            return NO;
+        }
         
         account.legacyUserId = @"";
         
-        // Save token for ADFS
-        return [self saveToken:adfsToken
+        // Save token for legacy single resource token
+        return [self saveToken:legacyToken
                        account:account
                        context:context
                          error:error];
@@ -354,7 +378,7 @@
         MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:alias
                                                                         clientId:clientId
                                                                         resource:resource
-                                                                             legacyUserId:legacyUserId];
+                                                                    legacyUserId:legacyUserId];
         if (!key)
         {
             return nil;

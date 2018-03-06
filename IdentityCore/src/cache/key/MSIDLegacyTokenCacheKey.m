@@ -59,9 +59,9 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
 
 #pragma mark - Legacy keys
 
-+ (MSIDLegacyTokenCacheKey *)keyForAdfsUserTokenWithAuthority:(NSURL *)authority
-                                                     clientId:(NSString *)clientId
-                                                     resource:(NSString *)resource
++ (MSIDLegacyTokenCacheKey *)keyForLegacySingleResourceTokenWithAuthority:(NSURL *)authority
+                                                                 clientId:(NSString *)clientId
+                                                                 resource:(NSString *)resource
 {
     NSString *service = [self.class serviceWithAuthority:authority
                                                 resource:resource
@@ -84,6 +84,19 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
                                      clientId:(NSString *)clientId
                                      resource:(NSString *)resource
                                  legacyUserId:(NSString *)legacyUserId
+{
+    // For legacy token cache both key and query should produce the same result
+    // The separation here is just for clarity and possible future optimisations
+    return [self queryWithAuthority:authority
+                           clientId:clientId
+                           resource:resource
+                       legacyUserId:legacyUserId];
+}
+
++ (MSIDLegacyTokenCacheKey *)queryWithAuthority:(NSURL *)authority
+                                       clientId:(NSString *)clientId
+                                       resource:(NSString *)resource
+                                   legacyUserId:(NSString *)legacyUserId
 {
     NSString *service = [self.class serviceWithAuthority:authority
                                                 resource:resource

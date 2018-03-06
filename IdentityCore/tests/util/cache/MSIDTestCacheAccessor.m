@@ -261,16 +261,7 @@
                                clientId:(NSString *)clientId
                               authority:(NSURL *)authority
 {
-    NSString *userIdentifier = nil;
-    
-    if (!account)
-    {
-        userIdentifier = @"";
-    }
-    else
-    {
-        userIdentifier = account.userIdentifier ? account.userIdentifier : account.legacyUserId;
-    }
+    NSString *userIdentifier = account.userIdentifier ? account.userIdentifier : account.legacyUserId;
     
     NSString *cloudIdentifier = tokenType == MSIDTokenTypeRefreshToken ? authority.msidHostWithPortIfNecessary : authority.absoluteString;
     
