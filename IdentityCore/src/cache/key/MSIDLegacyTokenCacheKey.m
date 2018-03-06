@@ -26,12 +26,9 @@
 //A special attribute to write, instead of nil/empty one.
 static NSString *const s_nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
 static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
+static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
 @interface MSIDLegacyTokenCacheKey()
-
-@property (nonatomic, readwrite) NSURL *authority;
-@property (nonatomic, readwrite) NSString *resource;
-@property (nonatomic, readwrite) NSString *clientId;
 
 @end
 
@@ -50,7 +47,7 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
                           clientId:(NSString *)clientId
 {
     
-    return [NSString stringWithFormat:@"%@|%@|%@|%@",
+    return [NSString stringWithFormat:s_adalServiceFormat,
             s_adalLibraryString,
             authority.absoluteString.msidBase64UrlEncode,
             [self.class getAttributeName:resource],
@@ -71,10 +68,6 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
                                                                             service:service
                                                                             generic:[s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding]
                                                                                type:nil];
-    
-    key.authority = authority;
-    key.clientId = clientId;
-    key.resource = resource;
     
     return key;
 }
@@ -107,10 +100,6 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
                                                                             generic:[s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding]
                                                                                type:nil];
     
-    key.authority = authority;
-    key.clientId = clientId;
-    key.resource = resource;
-    
     return key;
 }
 
@@ -132,18 +121,14 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
     _service = [coder decodeObjectOfClass:[NSString class] forKey:@"service"];
     _type = [coder decodeObjectOfClass:[NSNumber class] forKey:@"type"];
     
-    NSString *authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
-    if (authority)
-    {
-        _authority = [[NSURL alloc] initWithString:authority];
-    }
-    
-    _resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-    _clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-    
+    // Backward compatibility with ADAL.
     if (!_service)
     {
-        _service = [self.class serviceWithAuthority:_authority resource:_resource clientId:_clientId];
+        NSString *authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+        NSString *resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
+        NSString *clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+        
+        _service = [self.class serviceWithAuthority:[authority msidUrl] resource:resource clientId:clientId];
     }
     
     return self;
@@ -154,9 +139,23 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
     [coder encodeObject:_account forKey:@"account"];
     [coder encodeObject:_service forKey:@"service"];
     [coder encodeObject:_type forKey:@"type"];
-    [coder encodeObject:_resource forKey:@"resource"];
-    [coder encodeObject:_authority.absoluteString forKey:@"authority"];
-    [coder encodeObject:_clientId forKey:@"clientId"];
+
+    // Backward compatibility with ADAL.
+    if (_service)
+    {
+        NSArray<NSString *> * items = [_service componentsSeparatedByString:@"|"];
+        if (items.count == 4) // See s_adalServiceFormat.
+        {
+            NSString *authority = [items[1] msidBase64UrlDecode];
+            [coder encodeObject:authority forKey:@"authority"];
+            
+            NSString *resource = items[2] == s_nilKey ? nil : [items[2] msidBase64UrlDecode];
+            [coder encodeObject:resource forKey:@"resource"];
+            
+            NSString *clientId= [items[3] msidBase64UrlDecode];
+            [coder encodeObject:clientId forKey:@"clientId"];
+        }
+    }
 }
 
 #pragma mark - NSObject
@@ -209,9 +208,6 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
     key.account = [self.account copyWithZone:zone];
     key.service = [self.service copyWithZone:zone];
     key.type = [self.type copyWithZone:zone];
-    key.authority = [_authority copyWithZone:zone];
-    key.resource = [_resource copyWithZone:zone];
-    key.clientId = [_clientId copyWithZone:zone];
     
     return key;
 }
