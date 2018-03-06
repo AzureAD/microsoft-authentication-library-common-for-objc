@@ -26,9 +26,21 @@
 
 @interface MSIDLegacyCacheKeyTests : XCTestCase
 
+@property (nonatomic) NSString *expectedUpn;
+
 @end
 
 @implementation MSIDLegacyCacheKeyTests
+
+- (void)setUp
+{
+    [super setUp];
+    
+    self.expectedUpn = @"eric_cartman@contoso.com";
+#if TARGET_OS_IPHONE
+    self.expectedUpn = @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t";
+#endif
+}
 
 - (void)testLegacyTokenCacheKey_withAllParameters_shouldReturnKey
 {
@@ -36,8 +48,8 @@
     MSIDLegacyTokenCacheKey *legacyKey = [MSIDLegacyTokenCacheKey keyWithAuthority:authority
                                                                           clientId:@"client"
                                                                           resource:@"resource"
-                                                                      legacyUserId:@"user"];
-    XCTAssertEqualObjects(legacyKey.account, @"dXNlcg");
+                                                                      legacyUserId:@"eric_cartman@contoso.com"];
+    XCTAssertEqualObjects(legacyKey.account, self.expectedUpn);
     XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
     XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertNil(legacyKey.type);
@@ -49,8 +61,8 @@
     MSIDLegacyTokenCacheKey *legacyKey = [MSIDLegacyTokenCacheKey keyWithAuthority:authority
                                                                           clientId:@"client"
                                                                           resource:nil
-                                                                      legacyUserId:@"user"];
-    XCTAssertEqualObjects(legacyKey.account, @"dXNlcg");
+                                                                      legacyUserId:@"eric_cartman@contoso.com"];
+    XCTAssertEqualObjects(legacyKey.account, self.expectedUpn);
     XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|CC3513A0-0E69-4B4D-97FC-DFB6C91EE132|Y2xpZW50");
     XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertNil(legacyKey.type);
@@ -62,8 +74,8 @@
     MSIDLegacyTokenCacheKey *legacyKey = [MSIDLegacyTokenCacheKey queryWithAuthority:authority
                                                                             clientId:@"client"
                                                                             resource:@"resource"
-                                                                        legacyUserId:@"user"];
-    XCTAssertEqualObjects(legacyKey.account, @"dXNlcg");
+                                                                        legacyUserId:@"eric_cartman@contoso.com"];
+    XCTAssertEqualObjects(legacyKey.account, self.expectedUpn);
     XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
     XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertNil(legacyKey.type);

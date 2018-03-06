@@ -67,7 +67,7 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
                                                 resource:resource
                                                 clientId:clientId];
     
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@""
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:[self adalAccountWithUserId:@""]
                                                                             service:service
                                                                             generic:[s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding]
                                                                                type:nil];
@@ -102,7 +102,7 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
                                                 resource:resource
                                                 clientId:clientId];
     
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:legacyUserId.msidBase64UrlEncode
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:[self adalAccountWithUserId:legacyUserId]
                                                                             service:service
                                                                             generic:[s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding]
                                                                                type:nil];
@@ -214,6 +214,21 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
     key.clientId = [_clientId copyWithZone:zone];
     
     return key;
+}
+
+#pragma mark - Private
+/*
+ In order to be backward compatable with legacy format
+ in ADAL we must to encode userId as base64 string
+ for iOS only. For ADAL Mac we don't encode upn.
+ */
++ (NSString *)adalAccountWithUserId:(NSString *)userId
+{
+#if TARGET_OS_IPHONE
+    return [userId msidBase64UrlEncode];
+#endif
+    
+    return userId;
 }
 
 @end
