@@ -53,7 +53,7 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
     return [NSString stringWithFormat:@"%@|%@|%@|%@",
             s_adalLibraryString,
             authority.absoluteString.msidBase64UrlEncode,
-            [self.class getAttributeName:resource.msidBase64UrlEncode],
+            [self.class getAttributeName:resource],
             clientId.msidBase64UrlEncode];
 }
 
@@ -102,7 +102,7 @@ static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
                                                 resource:resource
                                                 clientId:clientId];
     
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:legacyUserId
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:legacyUserId.msidBase64UrlEncode
                                                                             service:service
                                                                             generic:[s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding]
                                                                                type:nil];

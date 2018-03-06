@@ -37,8 +37,8 @@
                                                                           clientId:@"client"
                                                                           resource:@"resource"
                                                                       legacyUserId:@"user"];
-    XCTAssertEqualObjects(legacyKey.account, @"user");
-    XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|Y21WemIzVnlZMlU|Y2xpZW50");
+    XCTAssertEqualObjects(legacyKey.account, @"dXNlcg");
+    XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
     XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertNil(legacyKey.type);
 }
@@ -50,7 +50,7 @@
                                                                           clientId:@"client"
                                                                           resource:nil
                                                                       legacyUserId:@"user"];
-    XCTAssertEqualObjects(legacyKey.account, @"user");
+    XCTAssertEqualObjects(legacyKey.account, @"dXNlcg");
     XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|CC3513A0-0E69-4B4D-97FC-DFB6C91EE132|Y2xpZW50");
     XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertNil(legacyKey.type);
@@ -63,8 +63,8 @@
                                                                             clientId:@"client"
                                                                             resource:@"resource"
                                                                         legacyUserId:@"user"];
-    XCTAssertEqualObjects(legacyKey.account, @"user");
-    XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|Y21WemIzVnlZMlU|Y2xpZW50");
+    XCTAssertEqualObjects(legacyKey.account, @"dXNlcg");
+    XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
     XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertNil(legacyKey.type);
 }
@@ -77,7 +77,7 @@
                                                                             resource:@"resource"
                                                                         legacyUserId:@""];
     XCTAssertEqualObjects(legacyKey.account, @"");
-    XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|Y21WemIzVnlZMlU|Y2xpZW50");
+    XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
     XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertNil(legacyKey.type);
 }
@@ -90,7 +90,7 @@
                                                                             resource:@"resource"
                                                                         legacyUserId:nil];
     XCTAssertNil(legacyKey.account);
-    XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|Y21WemIzVnlZMlU|Y2xpZW50");
+    XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
     XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertNil(legacyKey.type);
 }
