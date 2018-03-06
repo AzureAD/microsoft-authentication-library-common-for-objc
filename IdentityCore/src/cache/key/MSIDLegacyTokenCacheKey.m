@@ -152,7 +152,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
             NSString *resource = [items[2] isEqualToString:s_nilKey] ? nil : [items[2] msidBase64UrlDecode];
             [coder encodeObject:resource forKey:@"resource"];
             
-            NSString *clientId= [items[3] msidBase64UrlDecode];
+            NSString *clientId = [items[3] msidBase64UrlDecode];
             [coder encodeObject:clientId forKey:@"clientId"];
         }
     }
