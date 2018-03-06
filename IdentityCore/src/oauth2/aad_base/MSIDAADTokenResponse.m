@@ -23,7 +23,8 @@
 
 #import "MSIDAADTokenResponse.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDAADV1IdToken.h"
+#import "MSIDAADV1IdTokenWrapper.h"
+#import "MSIDHelpers.h"
 
 @interface MSIDAADTokenResponse ()
 
@@ -37,8 +38,6 @@
 MSID_JSON_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId)
 
 // Default properties for a successful response
-MSID_JSON_ACCESSOR(MSID_OAUTH2_EXPIRES_ON, expiresOn);
-MSID_JSON_ACCESSOR(MSID_OAUTH2_EXT_EXPIRES_IN, extendedExpiresIn)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_CLIENT_INFO, rawClientInfo)
 MSID_JSON_ACCESSOR(MSID_FAMILY_ID, familyId)
@@ -53,7 +52,7 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
     
     if (self.extendedExpiresIn)
     {
-        _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSinceNow:[self.extendedExpiresIn doubleValue]];
+        _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSinceNow:self.extendedExpiresIn];
     }
     
     if (self.rawClientInfo)
@@ -62,6 +61,44 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
     }
     
     return self;
+}
+
+- (NSInteger)expiresOn
+{
+    id expiresOnObj = _json[MSID_OAUTH2_EXPIRES_ON];
+    NSInteger expiresOn = [MSIDHelpers msidIntegerValue:expiresOnObj];
+    
+    if (!expiresOn && expiresOnObj)
+    {
+        MSID_LOG_WARN(nil, @"Unparsable time - The response value for the access token expiration (expiresOn) cannot be parsed: %@", expiresOnObj);
+    }
+    
+    return expiresOn;
+}
+
+- (void)setExpiresOn:(NSInteger)expiresOn
+{
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", expiresOn];
+    _json[MSID_OAUTH2_EXPIRES_ON] = expiresOnString;
+}
+
+- (NSInteger)extendedExpiresIn
+{
+    id extExpiresInObj = _json[MSID_OAUTH2_EXT_EXPIRES_IN];
+    NSInteger extExpiresIn = [MSIDHelpers msidIntegerValue:extExpiresInObj];
+    
+    if (!extExpiresIn && extExpiresInObj)
+    {
+        MSID_LOG_WARN(nil, @"Unparsable time - The response value for the access token expiration (extended expires IN) cannot be parsed: %@", extExpiresInObj);
+    }
+    
+    return extExpiresIn;
+}
+
+- (void)setExtendedExpiresIn:(NSInteger)extendedExpiresIn
+{
+    NSString *extExpiresInString = [NSString stringWithFormat:@"%ld", extendedExpiresIn];
+    _json[MSID_OAUTH2_EXT_EXPIRES_IN] = extExpiresInString;
 }
 
 - (NSDate *)expiryDate
@@ -73,19 +110,55 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
         return date;
     }
     
-    NSString *expiresOn = self.expiresOn;
+    NSInteger expiresOn = self.expiresOn;
     
     if (!expiresOn)
     {
-        if (_json[MSID_OAUTH2_EXPIRES_ON])
-        {
-            MSID_LOG_WARN(nil, @"Unparsable time - The response value for the access token expiration cannot be parsed: %@", _json[MSID_OAUTH2_EXPIRES_ON]);
-        }
-        
         return nil;
     }
     
-    return [NSDate dateWithTimeIntervalSince1970:[expiresOn integerValue]];
+    return [NSDate dateWithTimeIntervalSince1970:expiresOn];
+}
+
+- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
+{
+    [self checkCorrelationId:context.correlationId];
+    
+    if (!self.clientInfo)
+    {
+        MSID_LOG_ERROR(context, @"Client info was not returned in the server response");
+        MSID_LOG_ERROR_PII(context, @"Client info was not returned in the server response");
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Client info was not returned in the server response", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (void)checkCorrelationId:(NSUUID *)requestCorrelationId
+{
+    MSID_LOG_VERBOSE_CORR(requestCorrelationId, @"Token extraction. Attempt to extract the data from the server response.");
+    
+    if (![NSString msidIsStringNilOrBlank:self.correlationId])
+    {
+        NSUUID *responseUUID = [[NSUUID alloc] initWithUUIDString:self.correlationId];
+        if (!responseUUID)
+        {
+            MSID_LOG_INFO_CORR(requestCorrelationId, @"Bad correlation id - The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, self.correlationId);
+        }
+        else if (![requestCorrelationId isEqual:responseUUID])
+        {
+            MSID_LOG_INFO_CORR(requestCorrelationId, @"Correlation id mismatch - Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, self.correlationId);
+        }
+    }
+    else
+    {
+        MSID_LOG_INFO_CORR(requestCorrelationId, @"Missing correlation id - No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
+    }
 }
 
 @end

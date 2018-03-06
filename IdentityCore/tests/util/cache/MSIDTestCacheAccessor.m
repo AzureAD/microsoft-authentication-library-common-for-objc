@@ -24,6 +24,9 @@
 #import "MSIDTestCacheAccessor.h"
 #import "MSIDError.h"
 #import "MSIDAccount.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDRequestParameters.h"
 
 @interface MSIDTestCacheAccessor()
 {
@@ -46,11 +49,12 @@
     return self;
 }
 
-- (BOOL)saveAccessToken:(MSIDToken *)token
-                account:(MSIDAccount *)account
-          requestParams:(MSIDRequestParameters *)parameters
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+
+- (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)parameters
+                            account:(MSIDAccount *)account
+                           response:(MSIDTokenResponse *)response
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
 {
     if (!parameters)
     {
@@ -62,58 +66,86 @@
         return NO;
     }
     
-    return [self saveTokenForAccount:account token:token context:context error:error];
+    MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response request:parameters];
+    
+    return [self saveTokenForAccount:account token:accessToken clientId:parameters.clientId authority:parameters.authority context:context error:error];
 }
 
-- (MSIDToken *)getATForAccount:(MSIDAccount *)account
-                 requestParams:(MSIDRequestParameters *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
+                 account:(MSIDAccount *)account
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
+{
+    return [self saveTokenForAccount:account token:refreshToken clientId:refreshToken.clientId authority:refreshToken.authority context:context error:error];
+}
+
+
+- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
+                            account:(MSIDAccount *)account
+                      requestParams:(MSIDRequestParameters *)parameters
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
 {
     return [self getTokenForAccount:account
-                          tokenType:MSIDTokenTypeAccessToken
-                             params:parameters
+                          tokenType:tokenType
+                           clientId:parameters.clientId
+                          authority:parameters.authority
                             context:context
                               error:error];
 }
 
-- (MSIDAdfsToken *)getADFSTokenWithRequestParams:(MSIDRequestParameters *)parameters
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
-{
-    MSIDAccount *account = [[MSIDAccount alloc] initWithUpn:@"" utid:nil uid:nil];
-    
-    return (MSIDAdfsToken *)[self getTokenForAccount:account
-                                           tokenType:MSIDTokenTypeAdfsUserToken
-                                              params:parameters
-                                             context:context
-                                               error:error];
-}
-
-- (BOOL)saveSharedRTForAccount:(MSIDAccount *)account
-                  refreshToken:(MSIDToken *)refreshToken
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
-{
-    return [self saveTokenForAccount:account token:refreshToken context:context error:error];
-}
-
-
-- (MSIDToken *)getSharedRTForAccount:(MSIDAccount *)account
-                       requestParams:(MSIDRequestParameters *)parameters
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
+- (MSIDBaseToken *)getLatestToken:(MSIDBaseToken *)token
+                          account:(MSIDAccount *)account
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
 {
     return [self getTokenForAccount:account
                           tokenType:MSIDTokenTypeRefreshToken
-                             params:parameters
+                           clientId:token.clientId
+                          authority:token.authority
                             context:context
                               error:error];
 }
 
-- (NSArray<MSIDToken *> *)getAllSharedRTsWithClientId:(NSString *)clientId
-                                              context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+- (BOOL)removeToken:(MSIDBaseToken *)token
+            account:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    if (!account
+        || !token)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account
+                                                      tokenType:token.tokenType
+                                                       clientId:token.clientId
+                                                      authority:token.authority];
+    
+    NSMutableArray *accountTokens = nil;
+    
+    @synchronized (self) {
+        accountTokens = _cacheContents[tokenIdentifier];
+        
+        if (accountTokens)
+        {
+            [accountTokens removeObject:token];
+        }
+    }
+    
+    return YES;
+}
+
+- (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
+                   withClientId:(NSString *)clientId
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
 {
     if (!clientId)
     {
@@ -134,9 +166,9 @@
         {
             NSArray *contents = _cacheContents[key];
             
-            for (MSIDToken *token in contents)
+            for (MSIDBaseToken *token in contents)
             {
-                if (token.tokenType == MSIDTokenTypeRefreshToken
+                if (token.tokenType == tokenType
                     && [token.clientId isEqualToString:clientId])
                 {
                     [resultTokens addObject:token];
@@ -148,42 +180,12 @@
     return  resultTokens;
 }
 
-- (BOOL)removeSharedRTForAccount:(MSIDAccount *)account
-                           token:(MSIDToken *)token
-                         context:(id<MSIDRequestContext>)context
-                           error:(NSError **)error
-{
-    if (!account
-        || !token)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
-        }
-        
-        return NO;
-    }
-    
-    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.tokenType];
-    
-    NSMutableArray *accountTokens = nil;
-    
-    @synchronized (self) {
-        accountTokens = _cacheContents[tokenIdentifier];
-    }
-    
-    if (accountTokens)
-    {
-        [accountTokens removeObject:token];
-    }
-    
-    return YES;
-}
-
 #pragma mark - Helpers
 
 - (BOOL)saveTokenForAccount:(MSIDAccount *)account
-                      token:(MSIDToken *)token
+                      token:(MSIDBaseToken *)token
+                   clientId:(NSString *)clientId
+                  authority:(NSURL *)authority
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
@@ -198,7 +200,7 @@
         return NO;
     }
     
-    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.tokenType];
+    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.tokenType clientId:clientId authority:authority];
     
     NSMutableArray *accountTokens = nil;
     
@@ -220,14 +222,15 @@
     return YES;
 }
 
-- (MSIDToken *)getTokenForAccount:(MSIDAccount *)account
-                        tokenType:(MSIDTokenType)tokenType
-                           params:(MSIDRequestParameters *)parameters
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+- (MSIDBaseToken *)getTokenForAccount:(MSIDAccount *)account
+                            tokenType:(MSIDTokenType)tokenType
+                             clientId:(NSString *)clientId
+                            authority:(NSURL *)authority
+                           context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
 {
-    if (!account
-        || !parameters)
+    if (!clientId
+        || !authority)
     {
         if (error)
         {
@@ -237,7 +240,7 @@
         return nil;
     }
     
-    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:tokenType];
+    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:tokenType clientId:clientId authority:authority];
     
     NSMutableArray *accountTokens = nil;
     
@@ -255,15 +258,14 @@
 
 - (NSString *)tokenIdentifierForAccount:(MSIDAccount *)account
                               tokenType:(MSIDTokenType)tokenType
+                               clientId:(NSString *)clientId
+                              authority:(NSURL *)authority
 {
-    NSString *userIdentifier = account.userIdentifier;
+    NSString *userIdentifier = account.userIdentifier ? account.userIdentifier : account.legacyUserId;
     
-    if (!userIdentifier)
-    {
-        userIdentifier = account.upn;
-    }
+    NSString *cloudIdentifier = tokenType == MSIDTokenTypeRefreshToken ? authority.msidHostWithPortIfNecessary : authority.absoluteString;
     
-    return [NSString stringWithFormat:@"%@_%@", userIdentifier, [self tokenTypeAsString:tokenType]];
+    return [NSString stringWithFormat:@"%@_%@_%@_%@", userIdentifier, [self tokenTypeAsString:tokenType], clientId, cloudIdentifier];
 }
 
 - (NSString *)tokenTypeAsString:(MSIDTokenType)tokenType
@@ -280,9 +282,18 @@
 
 #pragma mark - Test Utils
 
-- (void)addToken:(MSIDToken *)token forAccount:(MSIDAccount *)account
+- (void)addToken:(MSIDBaseToken *)token forAccount:(MSIDAccount *)account
 {
-    [self saveTokenForAccount:account token:token context:nil error:nil];
+    NSString *clientId = token.clientId;
+    
+    if (token.tokenType == MSIDTokenTypeRefreshToken)
+    {
+        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *)token;
+        NSString *familyId = [NSString stringWithFormat:@"foci-%@", refreshToken.familyId];
+        clientId = [NSString msidIsStringNilOrBlank:refreshToken.familyId] ? token.clientId : familyId;
+    }
+    
+    [self saveTokenForAccount:account token:token clientId:clientId authority:token.authority context:nil error:nil];
 }
 
 - (void)reset
@@ -321,12 +332,13 @@
         // Filter out tokens based on the token type
         for (NSString *key in [_cacheContents allKeys])
         {
-            if ([key hasSuffix:[self tokenTypeAsString:type]]
+            if ([key containsString:[self tokenTypeAsString:type]]
+                && (!clientId || [key containsString:clientId])
                 && _cacheContents[key])
             {
                 if (clientId)
                 {
-                    for (MSIDToken *token in _cacheContents[key])
+                    for (MSIDBaseToken *token in _cacheContents[key])
                     {
                         if ([token.clientId isEqualToString:clientId])
                         {

@@ -22,41 +22,17 @@
 // THE SOFTWARE.
 
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDToken.h"
 #import "MSIDUserInformation.h"
-
-@interface MSIDKeyedArchiverSerializer ()
-{
-    Class _classToSerialize;
-}
-
-@end
+#import "MSIDTokenCacheItem.h"
+#import "MSIDAccountCacheItem.h"
 
 @implementation MSIDKeyedArchiverSerializer
 
-#pragma mark - Init
+#pragma mark - Private
 
-- (instancetype)init
+- (NSData *)serialize:(MSIDCacheItem *)item
 {
-    return [self initWithClassName:MSIDToken.class];
-}
-
-- (instancetype)initWithClassName:(Class)serializedClass
-{
-    self = [super init];
-    
-    if (self)
-    {
-        _classToSerialize = serializedClass;
-    }
-    return self;
-}
-
-#pragma mark - MSIDTokenSerializer
-
-- (NSData *)serialize:(MSIDToken *)token
-{
-    if (!token)
+    if (!item)
     {
         return nil;
     }
@@ -69,14 +45,14 @@
     NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
     // Maintain backward compatibility with ADAL.
     [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
-    [archiver setClassName:@"ADTokenCacheStoreItem" forClass:_classToSerialize];
-    [archiver encodeObject:token forKey:NSKeyedArchiveRootObjectKey];
+    [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDTokenCacheItem.class];
+    [archiver encodeObject:item forKey:NSKeyedArchiveRootObjectKey];
     [archiver finishEncoding];
     
     return data;
 }
 
-- (MSIDToken *)deserialize:(NSData *)data
+- (MSIDCacheItem *)deserialize:(NSData *)data className:(Class)className
 {
     if (!data)
     {
@@ -86,11 +62,35 @@
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     // Maintain backward compatibility with ADAL.
     [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
-    [unarchiver setClass:_classToSerialize forClassName:@"ADTokenCacheStoreItem"];
-    MSIDToken *token = [unarchiver decodeObjectOfClass:_classToSerialize forKey:NSKeyedArchiveRootObjectKey];
+    [unarchiver setClass:MSIDTokenCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
+    MSIDCacheItem *token = [unarchiver decodeObjectOfClass:className forKey:NSKeyedArchiveRootObjectKey];
     [unarchiver finishDecoding];
     
     return token;
+}
+
+#pragma mark - Token
+
+- (NSData *)serializeTokenCacheItem:(MSIDTokenCacheItem *)item
+{
+    return [self serialize:item];
+}
+
+- (MSIDTokenCacheItem *)deserializeTokenCacheItem:(NSData *)data
+{
+    return (MSIDTokenCacheItem *)[self deserialize:data className:MSIDTokenCacheItem.class];
+}
+
+#pragma mark - Account
+
+- (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item
+{
+    return [self serialize:item];
+}
+
+- (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data
+{
+    return (MSIDAccountCacheItem *)[self deserialize:data className:MSIDAccountCacheItem.class];
 }
 
 @end

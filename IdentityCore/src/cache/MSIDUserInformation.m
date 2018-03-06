@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDUserInformation.h"
+#import "MSIDAADV1IdTokenWrapper.h"
 
 @implementation MSIDUserInformation
 
@@ -30,6 +31,18 @@
 + (BOOL)supportsSecureCoding
 {
     return YES;
+}
+
+- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _rawIdToken = rawIdTokenString;
+    }
+    
+    return self;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder
@@ -47,6 +60,15 @@
 - (void)encodeWithCoder:(NSCoder *)coder
 {
     [coder encodeObject:_rawIdToken forKey:@"rawIdToken"];
+    
+#if TARGET_OS_IPHONE
+    // These are needed for back-compat with ADAL 1.x
+    // ADAL 1.2x only supported AAD v1, so use MSIDAADV1IdToken
+    MSIDAADV1IdTokenWrapper *tokenObj = [[MSIDAADV1IdTokenWrapper alloc] initWithRawIdToken:_rawIdToken];
+    [coder encodeObject:tokenObj.jsonDictionary forKey:@"allClaims"];
+    [coder encodeObject:tokenObj.userId forKey:@"userId"];
+    [coder encodeBool:tokenObj.userIdDisplayable forKey:@"userIdDisplayable"];
+#endif
 }
 
 @end

@@ -23,14 +23,22 @@
 
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDTokenCacheKey.h"
-#import "MSIDTokenSerializer.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDJsonSerializer.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDIdToken.h"
+#import "MSIDKeyedArchiverSerializer.h"
+#import "MSIDJsonSerializer.h"
+#import "MSIDAccount.h"
 
 @interface MSIDTestCacheDataSource()
 {
-    NSMutableDictionary<NSString *, NSData *> *_cacheContents;
+    NSMutableDictionary<NSString *, NSString *> *_tokenKeys;
+    NSMutableDictionary<NSString *, NSString *> *_accountKeys;
+    NSMutableDictionary<NSString *, NSData *> *_tokenContents;
+    NSMutableDictionary<NSString *, NSData *> *_accountContents;
     NSDictionary *_wipeInfo;
 }
 
@@ -46,7 +54,10 @@
     
     if (self)
     {
-        _cacheContents = [NSMutableDictionary dictionary];
+        _tokenKeys = [NSMutableDictionary dictionary];
+        _accountKeys = [NSMutableDictionary dictionary];
+        _tokenContents = [NSMutableDictionary dictionary];
+        _accountContents = [NSMutableDictionary dictionary];
     }
     
     return self;
@@ -54,11 +65,11 @@
 
 #pragma mark - MSIDTokenCacheDataSource
 
-- (BOOL)setItem:(MSIDToken *)item
-            key:(MSIDTokenCacheKey *)key
-     serializer:(id<MSIDTokenSerializer>)serializer
-        context:(id<MSIDRequestContext>)context
-          error:(NSError **)error
+- (BOOL)saveToken:(MSIDTokenCacheItem *)item
+              key:(MSIDTokenCacheKey *)key
+       serializer:(id<MSIDTokenItemSerializer>)serializer
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error
 {
     if (!item
         || !key
@@ -72,34 +83,21 @@
         return NO;
     }
     
-    NSData *serializedItem = [serializer serialize:item];
-    
-    if (!serializedItem)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Couldn't serialize the MSIDToken item", nil, nil, nil, nil, nil);
-        }
-        
-        return NO;
-    }
-    
-    NSString *keyString = [self stringFromKey:key];
-    
-    @synchronized (self) {
-        _cacheContents[keyString] = serializedItem;
-    }
-    
-    return YES;
+    NSData *serializedItem = [serializer serializeTokenCacheItem:item];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_tokenKeys
+                 cacheContent:_tokenContents
+                      context:context
+                        error:error];
 }
 
-- (MSIDToken *)itemWithKey:(MSIDTokenCacheKey *)key
-                serializer:(id<MSIDTokenSerializer>)serializer
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (MSIDTokenCacheItem *)tokenWithKey:(MSIDTokenCacheKey *)key
+                          serializer:(id<MSIDTokenItemSerializer>)serializer
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
 {
-    if (!key
-        || !serializer)
+    if (!serializer)
     {
         if (error)
         {
@@ -109,14 +107,13 @@
         return nil;
     }
     
-    NSString *keyString = [self stringFromKey:key];
-    NSData *itemData = nil;
-    
-    @synchronized (self) {
-        itemData = _cacheContents[keyString];
-    }
-    
-    MSIDToken *token = [serializer deserialize:itemData];
+    NSData *itemData = [self itemDataWithKey:key
+                              keysDictionary:_tokenKeys
+                           contentDictionary:_tokenContents
+                                     context:context
+                                       error:error];
+
+    MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:itemData];
     return token;
 }
 
@@ -134,22 +131,36 @@
         return NO;
     }
     
-    NSString *keyString = [self stringFromKey:key];
+    NSString *uniqueKey = [self uniqueIdFromKey:key];
     
     @synchronized (self) {
-        [_cacheContents removeObjectForKey:keyString];
+        
+        NSString *tokenComponentsKey = _tokenKeys[uniqueKey];
+        [_tokenKeys removeObjectForKey:uniqueKey];
+        
+        if (tokenComponentsKey)
+        {
+            [_tokenContents removeObjectForKey:tokenComponentsKey];
+        }
+        
+        NSString *accountComponentsKey = _accountKeys[uniqueKey];
+        [_accountKeys removeObjectForKey:uniqueKey];
+        
+        if (accountComponentsKey)
+        {
+            [_accountContents removeObjectForKey:accountComponentsKey];
+        }
     }
     
     return YES;
 }
 
-- (NSArray<MSIDToken *> *)itemsWithKey:(MSIDTokenCacheKey *)key
-                            serializer:(id<MSIDTokenSerializer>)serializer
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error
+- (NSArray<MSIDTokenCacheItem *> *)tokensWithKey:(MSIDTokenCacheKey *)key
+                                      serializer:(id<MSIDTokenItemSerializer>)serializer
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
 {
-    if (!key
-        || !serializer)
+    if (!serializer)
     {
         if (error)
         {
@@ -161,30 +172,20 @@
     
     NSMutableArray *resultItems = [NSMutableArray array];
     
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:[self regexFromKey:key]
-                                                                           options:NSRegularExpressionCaseInsensitive
-                                                                             error:nil];
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:_tokenKeys
+                                contentDictionary:_tokenContents
+                                          context:context
+                                            error:error];
     
-    @synchronized (self) {
+    for (NSData *itemData in items)
+    {
+        MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:itemData];
         
-        for (NSString *dictKey in [_cacheContents allKeys])
+        if (token)
         {
-            NSUInteger numberOfMatches = [regex numberOfMatchesInString:dictKey
-                                                                options:0
-                                                                  range:NSMakeRange(0, [dictKey length])];
-            
-            if (numberOfMatches > 0)
-            {
-                NSData *object = _cacheContents[dictKey];
-                MSIDToken *token = [serializer deserialize:object];
-                
-                if (token)
-                {
-                    [resultItems addObject:token];
-                }
-            }
+            [resultItems addObject:token];
         }
-        
     }
     
     return resultItems;
@@ -203,11 +204,105 @@
     return _wipeInfo;
 }
 
+- (BOOL)saveAccount:(MSIDAccountCacheItem *)item
+                key:(MSIDTokenCacheKey *)key
+         serializer:(id<MSIDAccountItemSerializer>)serializer
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    if (!item
+        || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    NSData *serializedItem = [serializer serializeAccountCacheItem:item];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_accountKeys
+                 cacheContent:_accountContents
+                      context:context
+                        error:error];
+}
+
+- (MSIDAccountCacheItem *)accountWithKey:(MSIDTokenCacheKey *)key
+                              serializer:(id<MSIDAccountItemSerializer>)serializer
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error
+{
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSData *itemData = [self itemDataWithKey:key
+                              keysDictionary:_accountKeys
+                           contentDictionary:_accountContents
+                                     context:context
+                                       error:error];
+    
+    MSIDAccountCacheItem *token = [serializer deserializeAccountCacheItem:itemData];
+    return token;
+}
+
+- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDTokenCacheKey *)key
+                                          serializer:(id<MSIDAccountItemSerializer>)serializer
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError **)error
+{
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSMutableArray *resultItems = [NSMutableArray array];
+    
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:_accountKeys
+                                contentDictionary:_accountContents
+                                          context:context
+                                            error:error];
+    
+    for (NSData *itemData in items)
+    {
+        MSIDAccountCacheItem *account = [serializer deserializeAccountCacheItem:itemData];
+        
+        if (account)
+        {
+            [resultItems addObject:account];
+        }
+    }
+    
+    return resultItems;
+}
+
 #pragma mark - Helpers
 
-- (NSString *)stringFromKey:(MSIDTokenCacheKey *)key
+- (NSString *)uniqueIdFromKey:(MSIDTokenCacheKey *)key
 {
-    return [NSString stringWithFormat:@"%@_%@_%@", key.account, key.service, key.type];
+    // Simulate keychain behavior by using account and service as unique key
+    return [NSString stringWithFormat:@"%@_%@", key.account, key.service];
+}
+
+- (NSString *)keyComponentsStringFromKey:(MSIDTokenCacheKey *)key
+{
+    NSString *generic = key.generic ? [[NSString alloc] initWithData:key.generic encoding:NSUTF8StringEncoding] : nil;
+    return [NSString stringWithFormat:@"%@_%@_%@_%@", key.account, key.service, key.type, generic];
 }
 
 - (NSString *)regexFromKey:(MSIDTokenCacheKey *)key
@@ -217,8 +312,10 @@
     NSString *serviceStr = key.service ?
         [self absoluteRegexFromString:key.service] : @".*";
     NSString *typeStr = key.type ? key.type.stringValue : @".*";
+    NSString *generic = key.generic ? [[NSString alloc] initWithData:key.generic encoding:NSUTF8StringEncoding] : nil;
+    NSString *genericStr = generic ? [self absoluteRegexFromString:generic] : @".*";
     
-    NSString *regexString = [NSString stringWithFormat:@"%@_%@_%@", accountStr, serviceStr, typeStr];
+    NSString *regexString = [NSString stringWithFormat:@"%@_%@_%@_%@", accountStr, serviceStr, typeStr, genericStr];
     return regexString;
 }
 
@@ -231,20 +328,173 @@
     return string;
 }
 
+#pragma mark - Private
+
+- (NSData *)itemDataWithKey:(MSIDTokenCacheKey *)key
+             keysDictionary:(NSDictionary *)cacheKeys
+          contentDictionary:(NSDictionary *)cacheContent
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    if (!key || !cacheKeys || !cacheContent)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:cacheKeys
+                                contentDictionary:cacheContent
+                                          context:context
+                                            error:error];
+    
+    if ([items count])
+    {
+        NSData *itemData = items[0];
+        return itemData;
+    }
+    
+    return nil;
+}
+
+- (BOOL)saveItemData:(NSData *)serializedItem
+                 key:(MSIDTokenCacheKey *)key
+           cacheKeys:(NSMutableDictionary *)cacheKeys
+        cacheContent:(NSMutableDictionary *)cacheContent
+             context:(id<MSIDRequestContext>)context
+               error:(NSError **)error
+{
+    if (!key || !cacheKeys || !cacheContent)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    if (!serializedItem)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Couldn't serialize the MSIDBaseToken item", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    /*
+     This is trying to simulate keychain behavior for generic password type,
+     where account and service are used as unique key, but both type and generic
+     can be used for queries. So, cache keys will store key to the item in the cacheContent dictionary.
+     That way there can be only one item with unique combination of account and service,
+     but we'll still be able to query by generic and type.
+     */
+    
+    NSString *uniqueIdKey = [self uniqueIdFromKey:key];
+    NSString *componentsKey = [self keyComponentsStringFromKey:key];
+    
+    @synchronized (self) {
+        cacheKeys[uniqueIdKey] = componentsKey;
+    }
+    
+    @synchronized (self) {
+        cacheContent[componentsKey] = serializedItem;
+    }
+    
+    return YES;
+}
+
+- (NSArray<NSData *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+                     keysDictionary:(NSDictionary *)cacheKeys
+                  contentDictionary:(NSDictionary *)cacheContent
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    if (!key
+        || !cacheKeys
+        || !cacheContent)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSData *itemData = nil;
+    
+    if (key.account
+        && key.service
+        && key.generic
+        && key.type)
+    {
+        // If all key attributes are set, look for an exact match
+        NSString *componentsKey = [self keyComponentsStringFromKey:key];
+        itemData = cacheContent[componentsKey];
+    }
+    else if (key.account
+             && key.service)
+    {
+        // If all key attributes that are part of unique id are set, look for an exact match in keys
+        NSString *uniqueId = [self uniqueIdFromKey:key];
+        NSString *itemKey = cacheKeys[uniqueId];
+        itemData = cacheContent[itemKey];
+    }
+    
+    if (itemData)
+    {
+        // Direct match, return without additional lookup
+        return @[itemData];
+    }
+    
+    // If no direct match found, do a partial query
+    NSMutableArray *resultItems = [NSMutableArray array];
+    
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:[self regexFromKey:key]
+                                                                           options:NSRegularExpressionCaseInsensitive
+                                                                             error:nil];
+    
+    @synchronized (self) {
+        
+        for (NSString *dictKey in [cacheContent allKeys])
+        {
+            NSUInteger numberOfMatches = [regex numberOfMatchesInString:dictKey
+                                                                options:0
+                                                                  range:NSMakeRange(0, [dictKey length])];
+            
+            if (numberOfMatches > 0)
+            {
+                NSData *object = cacheContent[dictKey];
+                [resultItems addObject:object];
+            }
+        }
+        
+    }
+    
+    return resultItems;
+}
+
 #pragma mark - Test methods
 
 - (void)reset
 {
     @synchronized (self)  {
-        _cacheContents = [NSMutableDictionary dictionary];
+        _tokenContents = [NSMutableDictionary dictionary];
         _wipeInfo = nil;
     }
 }
 
-- (NSArray *)allLegacyADFSTokens
+- (NSArray *)allLegacySingleResourceTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAdfsUserToken
-                        serializer:[[MSIDKeyedArchiverSerializer alloc] initWithClassName:[MSIDAdfsToken class]]];
+    return [self allTokensWithType:MSIDTokenTypeLegacySingleResourceToken
+                        serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allLegacyAccessTokens
@@ -261,29 +511,68 @@
 
 - (NSArray *)allDefaultAccessTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAccessToken serializer:[[MSIDJsonSerializer alloc] init]];
+    return [self allTokensWithType:MSIDTokenTypeAccessToken
+                        serializer:[[MSIDJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultRefreshTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeRefreshToken serializer:[[MSIDJsonSerializer alloc] init]];
+    return [self allTokensWithType:MSIDTokenTypeRefreshToken
+                        serializer:[[MSIDJsonSerializer alloc] init]];
 }
 
+- (NSArray *)allDefaultIDTokens
+{
+    return [self allTokensWithType:MSIDTokenTypeIDToken
+                        serializer:[[MSIDJsonSerializer alloc] init]];
+}
 
 - (NSArray *)allTokensWithType:(MSIDTokenType)type
-                    serializer:(id<MSIDTokenSerializer>)serializer
+                    serializer:(id<MSIDTokenItemSerializer>)serializer
 {
     NSMutableArray *results = [NSMutableArray array];
     
     @synchronized (self) {
         
-        for (NSData *tokenData in [_cacheContents allValues])
+        for (NSData *tokenData in [_tokenContents allValues])
         {
-            MSIDToken *token = [serializer deserialize:tokenData];
+            MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:tokenData];
             
-            if (token && token.tokenType == type)
+            if (token)
             {
-                [results addObject:token];
+                MSIDBaseToken *baseToken = [token tokenWithType:type];
+                
+                if (baseToken)
+                {
+                    [results addObject:baseToken];
+                }
+            }
+        }
+    }
+    
+    return results;
+}
+
+- (NSArray *)allAccounts
+{
+    NSMutableArray *results = [NSMutableArray array];
+    
+    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    
+    @synchronized (self) {
+        
+        for (NSData *accountData in [_accountContents allValues])
+        {
+            MSIDAccountCacheItem *accountCacheItem = [serializer deserializeAccountCacheItem:accountData];
+            
+            if (accountCacheItem)
+            {
+                MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
+                
+                if (account)
+                {
+                    [results addObject:account];
+                }
             }
         }
     }

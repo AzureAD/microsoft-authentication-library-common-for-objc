@@ -116,4 +116,62 @@
     XCTAssertEqualObjects(url.msidHostWithPortIfNecessary, @"somehost.com:652");
 }
 
+- (void)testMsidTenant_whenNoTenant_shouldReturnNil
+{
+    NSURL *url = [NSURL URLWithString:@"https://contoso.com"];
+    NSString *tenant = [url msidTenant];
+    XCTAssertNil(tenant);
+}
+
+- (void)testMsidTenant_whenNilURL_shouldReturnNil
+{
+    NSURL *url = nil;
+    NSString *tenant = [url msidTenant];
+    XCTAssertNil(tenant);
+}
+
+- (void)testMsidTenant_whenAADV1Tenant_shouldReturnTenant
+{
+    NSURL *url = [NSURL URLWithString:@"https://contoso.com/contoso.com"];
+    NSString *tenant = [url msidTenant];
+    XCTAssertEqualObjects(tenant, @"contoso.com");
+}
+
+- (void)testMsidTenant_whenAADV1Tenant_andURLWithPath_shouldReturnTenant
+{
+    NSURL *url = [NSURL URLWithString:@"https://contoso.com/contoso.com/authorize"];
+    NSString *tenant = [url msidTenant];
+    XCTAssertEqualObjects(tenant, @"contoso.com");
+}
+
+- (void)testMsidTenant_whenAADV2Tenant_shouldReturnTenant
+{
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/organizations"];
+    NSString *tenant = [url msidTenant];
+    XCTAssertEqualObjects(tenant, @"organizations");
+}
+
+- (void)testMsidTenant_whenB2CTenant_shouldReturnTenant
+{
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.onmicrosoft.com/B2C_1_signup_signin/"];
+    NSString *tenant = [url msidTenant];
+    XCTAssertEqualObjects(tenant, @"contoso.onmicrosoft.com");
+}
+
+- (void)testMsidTenant_whenB2CAuthority_andEmptyTenant_shouldReturnNil
+{
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/"];
+    NSString *tenant = [url msidTenant];
+    XCTAssertNil(tenant);
+}
+
+- (void)testMsidTenant_whenB2CTenant_andURLWithPath_shouldReturnTenant
+{
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.onmicrosoft.com/B2C_1_signup_signin/v2.0/authorize"];
+    NSString *tenant = [url msidTenant];
+    XCTAssertEqualObjects(tenant, @"contoso.onmicrosoft.com");
+}
+
+
+
 @end

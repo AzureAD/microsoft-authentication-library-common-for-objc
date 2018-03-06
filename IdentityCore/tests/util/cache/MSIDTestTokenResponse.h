@@ -25,6 +25,7 @@
 
 @class MSIDAADV2TokenResponse;
 @class MSIDAADV1TokenResponse;
+@class MSIDTokenResponse;
 
 @interface MSIDTestTokenResponse : NSObject
 
@@ -41,7 +42,6 @@
                                          familyId:(NSString *)familyId;
 
 
-+ (MSIDAADV2TokenResponse *)v2TokenResponseFromJSON:(NSString *)jsonString;
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponse;
 
 + (MSIDAADV1TokenResponse *)v1TokenResponseWithAT:(NSString *)accessToken
@@ -55,6 +55,13 @@
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithoutClientInfo;
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithFamilyId:(NSString *)familyId;
 + (MSIDAADV1TokenResponse *)v1SingleResourceTokenResponse;
-+ (MSIDAADV1TokenResponse *)v1TokenResponseFromJSON:(NSString *)jsonString;
++ (MSIDAADV1TokenResponse *)v1SingleResourceTokenResponseWithAccessToken:(NSString *)accessToken
+                                                            refreshToken:(NSString *)refreshToken;
+
++ (MSIDTokenResponse *)defaultTokenResponseWithAT:(NSString *)accessToken
+                                               RT:(NSString *)refreshToken
+                                           scopes:(NSOrderedSet<NSString *> *)scopes
+                                         username:(NSString *)username
+                                          subject:(NSString *)subject;
 
 @end

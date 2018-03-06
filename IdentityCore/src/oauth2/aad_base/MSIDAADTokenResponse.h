@@ -30,8 +30,8 @@
 @property (readonly) NSString *correlationId;
 
 // Default properties for an AAD successful response
-@property (readonly) NSString *expiresOn;
-@property (readonly) NSString *extendedExpiresIn;
+@property (readonly) NSInteger expiresOn;
+@property (readonly) NSInteger extendedExpiresIn;
 @property (readonly) MSIDClientInfo *clientInfo;
 @property (readonly) NSString *familyId;
 

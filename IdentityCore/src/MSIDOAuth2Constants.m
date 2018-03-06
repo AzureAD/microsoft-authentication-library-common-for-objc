@@ -74,3 +74,34 @@ NSString *const MSID_OAUTH2_LOGIN_REQ                    = @"login_req";
 
 NSString *const MSID_OAUTH2_ADDITIONAL_SERVER_INFO       = @"additional_server_info";
 NSString *const MSID_OAUTH2_ENVIRONMENT                  = @"environment";
+
+NSString *const MSID_CREDENTIAL_TYPE_CACHE_KEY           = @"credential_type";
+NSString *const MSID_ENVIRONMENT_CACHE_KEY               = @"environment";
+NSString *const MSID_REALM_CACHE_KEY                     = @"realm";
+NSString *const MSID_AUTHORITY_CACHE_KEY                 = @"authority";
+NSString *const MSID_UNIQUE_ID_CACHE_KEY                 = @"unique_id";
+NSString *const MSID_CLIENT_ID_CACHE_KEY                 = @"client_id";
+NSString *const MSID_FAMILY_ID_CACHE_KEY                 = @"family_id";
+NSString *const MSID_TOKEN_CACHE_KEY                     = @"secret";
+NSString *const MSID_USERNAME_CACHE_KEY                  = @"username";
+NSString *const MSID_TARGET_CACHE_KEY                    = @"target";
+NSString *const MSID_CLIENT_INFO_CACHE_KEY               = @"client_info";
+NSString *const MSID_ID_TOKEN_CACHE_KEY                  = @"id_token";
+NSString *const MSID_ADDITIONAL_INFO_CACHE_KEY           = @"additional_info";
+NSString *const MSID_EXPIRES_ON_CACHE_KEY                = @"expires_on";
+NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY          = @"access_token_type";
+NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"extended_expires_on";
+NSString *const MSID_CACHED_AT_CACHE_KEY                 = @"cached_at";
+NSString *const MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY       = @"ext_expires_on";
+NSString *const MSID_SPE_INFO_CACHE_KEY                  = @"spe_info";
+NSString *const MSID_RESOURCE_RT_CACHE_KEY               = @"resource_refresh_token";
+NSString *const MSID_ACCOUNT_ID_CACHE_KEY                = @"authority_account_id";
+NSString *const MSID_ACCOUNT_TYPE_CACHE_KEY              = @"account_type";
+NSString *const MSID_FIRST_NAME_CACHE_KEY                = @"first_name";
+NSString *const MSID_LAST_NAME_CACHE_KEY                 = @"last_name";
+
+NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"AccessToken";
+NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"RefreshToken";
+NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE             = @"LegacySingleResourceToken";
+NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"IdToken";
+NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"Token";
