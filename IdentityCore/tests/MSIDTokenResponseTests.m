@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDTokenResponse.h"
 #import "MSIDTestIdTokenUtil.h"
+#import "MSIDRefreshToken.h"
 
 @interface MSIDTokenResponseTests : XCTestCase
 
@@ -153,6 +154,70 @@
     
     MSIDIdTokenWrapper *idTokenObj = response.idTokenObj;
     XCTAssertNil(idTokenObj);
+}
+
+#pragma mark - Refresh token
+
+- (void)testInitWithJson_andRefreshToken_shouldTakeFieldsFromRefreshToken
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt"};
+    
+    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    [refreshToken setValue:@"id token" forKey:@"idToken"];
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput
+                                                                       refreshToken:refreshToken
+                                                                              error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.idToken, @"id token");
+}
+
+- (void)testInitWithJson_andNilRefreshToken_shouldNotTakeFieldsFromRefreshToken
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput
+                                                                       refreshToken:nil
+                                                                              error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertNil(response.idToken);
+}
+
+- (void)testInitWithJson_andRefreshToken_shouldNotTakeFieldsFromRefreshTokenAndUpdate
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt",
+                                @"id_token": @"id token 2"
+                                };
+    
+    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    [refreshToken setValue:@"id token" forKey:@"idToken"];
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput
+                                                                       refreshToken:refreshToken
+                                                                              error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.idToken, @"id token 2");
 }
 
 @end
