@@ -24,6 +24,9 @@
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccessToken.h"
+#import "MSIDAADV1TokenResponse.h"
+#import "MSIDAADV2TokenResponse.h"
+#import "MSIDRequestParameters.h"
 
 @interface MSIDAccessTokenTests : XCTestCase
 
@@ -280,6 +283,45 @@
     
     MSIDTokenCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
+}
+
+#pragma mark - Token response
+
+- (void)testInitWithTokenResponse_whenV2ResponseAndDotDefaultScopeInRequest_shouldAddDotDefaultScope
+{
+    NSString *scopeInRequest = @"https://contoso.com/.Default";
+    NSString *scopeInResponse = @"user.read";
+    MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
+                                                                                redirectUri:@"fake_redirect_uri"
+                                                                                   clientId:@"fake_client_id"
+                                                                                     target:scopeInRequest];
+    MSIDAADV2TokenResponse *tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
+                                                                                                     @"scope":scopeInResponse
+                                                                                                     }
+                                                                                             error:nil];
+    
+    MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:tokenResponse request:requestParams];
+    
+    XCTAssertTrue([scopeInRequest.scopeSet isSubsetOfOrderedSet:accessToken.scopes]);
+    XCTAssertTrue([scopeInResponse.scopeSet isSubsetOfOrderedSet:accessToken.scopes]);
+}
+
+- (void)testInitWithTokenResponse_whenV1ResponseAndDotDefaultInRequest_shouldNotAddDotDefaultScope
+{
+    NSString *resourceInRequest = @"https://contoso.com/.Default";
+    NSString *resourceInResponse = @"https://contoso.com";
+    MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
+                                                                                redirectUri:@"fake_redirect_uri"
+                                                                                   clientId:@"fake_client_id"
+                                                                                     target:resourceInRequest];
+    MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
+                                                                                                     @"resource":resourceInResponse
+                                                                                                     }
+                                                                                             error:nil];
+    
+    MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:tokenResponse request:requestParams];
+    
+    XCTAssertEqualObjects(accessToken.resource, resourceInResponse);
 }
 
 #pragma mark - Private

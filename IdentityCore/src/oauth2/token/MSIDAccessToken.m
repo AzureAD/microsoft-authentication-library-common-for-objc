@@ -25,6 +25,7 @@
 #import "MSIDAADTokenResponse.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDAADV1TokenResponse.h"
+#import "MSIDAADV2TokenResponse.h"
 #import "MSIDUserInformation.h"
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDRequestParameters.h"
@@ -170,9 +171,7 @@ static uint64_t s_expirationBuffer = 300;
 - (BOOL)fillToken:(MSIDTokenResponse *)response
           request:(MSIDRequestParameters *)requestParams
 {
-    // Because resource/scopes is not always returned in the token response, we rely on the input resource/scopes as a fallback
-    _target = response.target ? response.target : requestParams.target;
-    _accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
+    [self fillTargetFromResponse:response requestParams:requestParams];
     
     if (!_target)
     {
@@ -180,6 +179,7 @@ static uint64_t s_expirationBuffer = 300;
         return NO;
     }
     
+    _accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     _accessToken = response.accessToken;
     
     if (!_accessToken)
@@ -226,6 +226,24 @@ static uint64_t s_expirationBuffer = 300;
         [serverInfo setValue:aadTokenResponse.extendedExpiresOnDate
                       forKey:MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
         _additionalInfo = serverInfo;
+    }
+}
+
+- (void)fillTargetFromResponse:(MSIDTokenResponse *)response
+                 requestParams:(MSIDRequestParameters *)requestParams
+{
+    // Because resource/scopes is not always returned in the token response, we rely on the input resource/scopes as a fallback
+    _target = response.target ? response.target : requestParams.target;
+    
+    // ".default" scope in request should be manually added to access token
+    if ([response isKindOfClass:[MSIDAADV2TokenResponse class]])
+    {
+        if (requestParams.scopes.count == 1 && [requestParams.scopes.firstObject.lowercaseString hasSuffix:@".default"])
+        {
+            NSMutableOrderedSet<NSString *> *targetScopeSet = [_target.scopeSet mutableCopy];
+            [targetScopeSet addObject:requestParams.scopes.firstObject];
+            _target = targetScopeSet.msidToString;
+        }
     }
 }
 
