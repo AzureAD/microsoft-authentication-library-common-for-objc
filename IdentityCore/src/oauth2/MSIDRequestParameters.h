@@ -32,6 +32,7 @@
 
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;
+@property (readonly) NSOrderedSet<NSString *> *additionalScopes;
 
 - (instancetype)initWithAuthority:(NSURL *)authority
                       redirectUri:(NSString *)redirectUri

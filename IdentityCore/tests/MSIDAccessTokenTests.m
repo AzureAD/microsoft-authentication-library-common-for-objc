@@ -302,6 +302,7 @@
     
     MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:tokenResponse request:requestParams];
     
+    XCTAssertEqual(accessToken.scopes.count, 2);
     XCTAssertTrue([scopeInRequest.scopeSet isSubsetOfOrderedSet:accessToken.scopes]);
     XCTAssertTrue([scopeInResponse.scopeSet isSubsetOfOrderedSet:accessToken.scopes]);
 }
@@ -321,6 +322,7 @@
     
     MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:tokenResponse request:requestParams];
     
+    XCTAssertEqual(accessToken.scopes.count, 1);
     XCTAssertEqualObjects(accessToken.resource, resourceInResponse);
 }
 

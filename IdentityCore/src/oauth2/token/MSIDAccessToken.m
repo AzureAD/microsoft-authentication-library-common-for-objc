@@ -235,15 +235,12 @@ static uint64_t s_expirationBuffer = 300;
     // Because resource/scopes is not always returned in the token response, we rely on the input resource/scopes as a fallback
     _target = response.target ? response.target : requestParams.target;
     
-    // ".default" scope in request should be manually added to access token
-    if ([response isKindOfClass:[MSIDAADV2TokenResponse class]])
+    // add additional scopes from request parameters in case they are not returned from server
+    if ([response isKindOfClass:[MSIDAADV2TokenResponse class]] && requestParams.additionalScopes)
     {
-        if (requestParams.scopes.count == 1 && [requestParams.scopes.firstObject.lowercaseString hasSuffix:@".default"])
-        {
-            NSMutableOrderedSet<NSString *> *targetScopeSet = [_target.scopeSet mutableCopy];
-            [targetScopeSet addObject:requestParams.scopes.firstObject];
-            _target = targetScopeSet.msidToString;
-        }
+        NSMutableOrderedSet<NSString *> *targetScopeSet = [_target.scopeSet mutableCopy];
+        [targetScopeSet unionOrderedSet:requestParams.additionalScopes];
+        _target = targetScopeSet.msidToString;
     }
 }
 
