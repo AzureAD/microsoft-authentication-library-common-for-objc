@@ -57,10 +57,13 @@
 // Get additional scopes from request params that may not be returned from server
 - (NSOrderedSet<NSString *> *)additionalScopes
 {
+    NSOrderedSet<NSString *> *reqScopes = self.scopes;
+    
     //.default scope for V1 app will not be returned from server
-    if (self.scopes.count == 1 && [self.scopes.firstObject.lowercaseString hasSuffix:@".default"]){
-        return [_target scopeSet];
+    if (reqScopes.count == 1 && [reqScopes.firstObject.lowercaseString hasSuffix:@".default"]){
+        return reqScopes;
     }
+    
     return nil;
 }
 
