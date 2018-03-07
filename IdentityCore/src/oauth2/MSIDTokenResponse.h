@@ -25,6 +25,9 @@
 #import "MSIDIdTokenWrapper.h"
 #import "MSIDAccountType.h"
 
+@protocol MSIDRefreshableToken;
+@class MSIDBaseToken;
+
 @interface MSIDTokenResponse : MSIDJsonObject
 
 // Default properties for an openid error response
@@ -56,6 +59,10 @@
 
 // Account type for an account generated from this response
 @property (readonly) MSIDAccountType accountType;
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                          refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
+                                 error:(NSError * __autoreleasing *)error;
 
 - (NSError *)getOAuthError:(id<MSIDRequestContext>)context
           fromRefreshToken:(BOOL)fromRefreshToken;

@@ -23,6 +23,9 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDAADTokenResponse.h"
+#import "MSIDRefreshToken.h"
+#import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDTestCacheIdentifiers.h"
 
 @interface MSIDAADTokenResponseTests : XCTestCase
 
@@ -166,6 +169,79 @@
     
     NSDate *expiryDate = [response extendedExpiresOnDate];
     XCTAssertNil(expiryDate);
+}
+
+#pragma mark - Refresh token
+
+- (void)testInitWithJson_andRefreshToken_shouldTakeFieldsFromRefreshToken
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt"};
+    
+    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    
+    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
+    [clientInfo setValue:@"clientinfo" forKey:@"rawClientInfo"];
+    
+    [refreshToken setValue:clientInfo forKey:@"clientInfo"];
+    
+    NSError *error = nil;
+    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:jsonInput
+                                                                             refreshToken:refreshToken
+                                                                                    error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.clientInfo, clientInfo);
+}
+
+- (void)testInitWithJson_andNilRefreshToken_shouldNotTakeFieldsFromRefreshToken
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:jsonInput
+                                                                             refreshToken:nil
+                                                                                    error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertNil(response.clientInfo);
+}
+
+- (void)testInitWithJson_andRefreshToken_shouldNotTakeFieldsFromRefreshTokenAndUpdate
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt",
+                                @"client_info": clientInfoString
+                                };
+    
+    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    
+    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
+    [clientInfo setValue:@"clientinfo" forKey:@"rawClientInfo"];
+    
+    [refreshToken setValue:clientInfo forKey:@"clientInfo"];
+    
+    NSError *error = nil;
+    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:jsonInput
+                                                                             refreshToken:refreshToken
+                                                                                    error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.clientInfo.rawClientInfo, clientInfoString);
 }
 
 @end

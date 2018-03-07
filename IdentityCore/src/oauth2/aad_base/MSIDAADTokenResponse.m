@@ -25,6 +25,8 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAADV1IdTokenWrapper.h"
 #import "MSIDHelpers.h"
+#import "MSIDRefreshableToken.h"
+#import "MSIDBaseToken.h"
 
 @interface MSIDAADTokenResponse ()
 
@@ -39,9 +41,27 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId)
 
 // Default properties for a successful response
 MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
-MSID_JSON_ACCESSOR(MSID_OAUTH2_CLIENT_INFO, rawClientInfo)
+MSID_JSON_RW(MSID_OAUTH2_CLIENT_INFO, rawClientInfo, setRawClientInfo)
 MSID_JSON_ACCESSOR(MSID_FAMILY_ID, familyId)
 MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                          refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
+                                 error:(NSError **)error
+{
+    self = [self initWithJSONDictionary:json error:error];
+    
+    if (self)
+    {
+        if (token && [NSString msidIsStringNilOrBlank:self.rawClientInfo])
+        {
+            self.rawClientInfo = token.clientInfo.rawClientInfo;
+            _clientInfo = token.clientInfo;
+        }
+    }
+    
+    return self;
+}
 
 - (id)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
 {
