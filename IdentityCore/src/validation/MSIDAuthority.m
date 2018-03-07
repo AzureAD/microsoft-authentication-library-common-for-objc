@@ -36,11 +36,15 @@
         return NO;
     }
     
-    return[[self class] isADFSInstanceURL:[NSURL URLWithString:endpoint.lowercaseString]];
+    return [[self class] isADFSInstanceURL:[NSURL URLWithString:endpoint.lowercaseString]];
 }
 
 + (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl
 {
+    if (!endpointUrl)
+    {
+        return NO;
+    }
     
     NSArray *paths = endpointUrl.pathComponents;
     if (paths.count >= 2)
@@ -48,7 +52,50 @@
         NSString *tenant = [paths objectAtIndex:1];
         return [@"adfs" isEqualToString:tenant];
     }
-    return false;
+    return NO;
+}
+
++ (BOOL)isConsumerInstanceURL:(NSURL *)authorityURL
+{
+    if (!authorityURL)
+    {
+        return NO;
+    }
+    
+    NSArray *paths = authorityURL.pathComponents;
+    
+    if ([paths count] >= 2)
+    {
+        NSString *tenantName = [paths[1] lowercaseString];
+        
+        return [tenantName isEqualToString:@"consumers"];
+    }
+    
+    return NO;
+}
+
++ (NSURL *)universalAuthorityURL:(NSURL *)authorityURL
+{
+    if (!authorityURL)
+    {
+        return nil;
+    }
+    
+    NSArray *paths = authorityURL.pathComponents;
+    
+    if ([paths count] >= 2)
+    {
+        NSString *tenantName = [paths[1] lowercaseString];
+        
+        if ([tenantName isEqualToString:@"organizations"])
+        {
+            NSURLComponents *components = [NSURLComponents componentsWithURL:authorityURL resolvingAgainstBaseURL:NO];
+            components.path = @"/common";
+            return [components URL];
+        }
+    }
+    
+    return authorityURL;
 }
 
 @end

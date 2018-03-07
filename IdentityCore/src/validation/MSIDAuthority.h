@@ -29,5 +29,13 @@
 
 + (BOOL)isADFSInstance:(NSString *)endpoint;
 + (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl;
++ (BOOL)isConsumerInstanceURL:(NSURL *)authorityURL;
+
+/* AAD v1 endpoint supports only "common" path.
+   AAD v2 endpoint supports both common and organizations.
+   For legacy cache lookups we need to use common authority for compatibility purposes.
+   This method returns "common" authority if "organizations" authority was passed
+   Otherwise, returns original authority */
++ (NSURL *)universalAuthorityURL:(NSURL *)authorityURL;
 
 @end
