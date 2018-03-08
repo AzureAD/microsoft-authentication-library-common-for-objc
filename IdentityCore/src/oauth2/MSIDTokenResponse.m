@@ -23,6 +23,8 @@
 
 #import "MSIDTokenResponse.h"
 #import "MSIDHelpers.h"
+#import "MSIDRefreshableToken.h"
+#import "MSIDBaseToken.h"
 
 @implementation MSIDTokenResponse
 
@@ -36,7 +38,24 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_TOKEN_TYPE, tokenType)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_REFRESH_TOKEN, refreshToken)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_SCOPE, scope)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_STATE, state)
-MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
+MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                          refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
+                                 error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    
+    if (self)
+    {
+        if (token && [NSString msidIsStringNilOrBlank:self.idToken])
+        {
+            self.idToken = token.idToken;
+        }
+    }
+    
+    return self;
+}
 
 - (NSInteger)expiresIn
 {

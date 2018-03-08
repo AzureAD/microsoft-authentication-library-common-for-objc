@@ -83,7 +83,7 @@
     cacheItem.accountType = MSIDAccountTypeAADV1;
     
     NSDictionary *expectedDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                         @"account_type": @"AAD",
+                                         @"authority_type": @"AAD",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"realm": @"common",
                                          @"authority_account_id": @"legacy-user-id",
@@ -101,7 +101,7 @@
 - (void)testInitWithJSONDictionary_whenAccount_andAllFieldsSet_shouldAccountCacheItem
 {
     NSDictionary *jsonDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                     @"account_type": @"AAD",
+                                     @"authority_type": @"AAD",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"realm": @"common",
                                      @"authority_account_id": @"legacy-user-id",
@@ -142,7 +142,7 @@
     NSDictionary *expectedDictionary = @{@"field1": @"new_value",
                                          @"field2": @"value2",
                                          @"field3": @"value3",
-                                         @"account_type": @"AAD"
+                                         @"authority_type": @"AAD"
                                          };
     
     XCTAssertEqualObjects(jsonDictionary, expectedDictionary);
