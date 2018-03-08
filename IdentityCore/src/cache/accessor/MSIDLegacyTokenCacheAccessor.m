@@ -34,6 +34,7 @@
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
+#import "NSDate+MSIDExtensions.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -205,6 +206,7 @@
     [self stopTelemetryEvent:event
                     withItem:cacheItem
                      success:result
+                 logWipeData:NO
                      context:context];
     
     return result;
@@ -308,7 +310,7 @@
     
     if (!legacyCacheItems)
     {
-        [self stopTelemetryEvent:event withItem:nil success:NO context:context];
+        [self stopTelemetryEvent:event withItem:nil success:NO logWipeData:NO context:context];
         return nil;
     }
     
@@ -328,7 +330,12 @@
         }
     }
     
-    [self stopTelemetryEvent:event withItem:nil success:YES context:context];
+    BOOL success = (resultTokens.count > 0);
+    [self stopTelemetryEvent:event
+                    withItem:nil
+                     success:success
+                 logWipeData:!success && tokenType == MSIDTokenTypeRefreshToken
+                     context:context];
     
     return resultTokens;
 }
@@ -411,6 +418,11 @@
                                                                     legacyUserId:legacyUserId];
         if (!key)
         {
+            [self stopTelemetryEvent:event
+                            withItem:nil
+                             success:NO
+                         logWipeData:NO
+                             context:context];
             return nil;
         }
         
@@ -431,6 +443,7 @@
             [self stopTelemetryEvent:event
                             withItem:nil
                              success:NO
+                         logWipeData:NO
                              context:context];
             
             return nil;
@@ -454,6 +467,7 @@
             [self stopTelemetryEvent:event
                             withItem:cacheItem
                              success:YES
+                         logWipeData:NO
                              context:context];
             
             MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
@@ -465,6 +479,7 @@
     [self stopTelemetryEvent:event
                     withItem:nil
                      success:NO
+                 logWipeData:tokenType==MSIDTokenTypeRefreshToken
                      context:context];
     
     return nil;
@@ -475,6 +490,7 @@
 - (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
                   withItem:(MSIDTokenCacheItem *)tokenCacheItem
                    success:(BOOL)success
+               logWipeData:(BOOL)logWipeData
                    context:(id<MSIDRequestContext>)context
 {
     [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
@@ -482,6 +498,17 @@
     if (tokenCacheItem)
     {
         [event setCacheItem:tokenCacheItem];
+    }
+    
+    if (logWipeData)
+    {
+        NSDictionary *wipeData = [_dataSource wipeInfo:context error:nil];
+        if (wipeData)
+        {
+            [event setCacheWipeApp:wipeData[@"bundleId"]];
+            [event setCacheWipeTime:[(NSDate *)wipeData[@"wipeTime"] msidToString]];
+            
+        }
     }
 
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
