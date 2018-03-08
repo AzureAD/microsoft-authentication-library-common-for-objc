@@ -171,7 +171,7 @@ static uint64_t s_expirationBuffer = 300;
 - (BOOL)fillToken:(MSIDTokenResponse *)response
           request:(MSIDRequestParameters *)requestParams
 {
-    [self fillTargetFromResponse:response requestParams:requestParams];
+    _target = [response targetWithAdditionFromRequest:requestParams];
     
     if (!_target)
     {
@@ -226,21 +226,6 @@ static uint64_t s_expirationBuffer = 300;
         [serverInfo setValue:aadTokenResponse.extendedExpiresOnDate
                       forKey:MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
         _additionalInfo = serverInfo;
-    }
-}
-
-- (void)fillTargetFromResponse:(MSIDTokenResponse *)response
-                 requestParams:(MSIDRequestParameters *)requestParams
-{
-    // Because resource/scopes is not always returned in the token response, we rely on the input resource/scopes as a fallback
-    _target = response.target ? response.target : requestParams.target;
-    
-    // add additional scopes from request parameters in case they are not returned from server
-    if ([response isKindOfClass:[MSIDAADV2TokenResponse class]] && requestParams.additionalScopes)
-    {
-        NSMutableOrderedSet<NSString *> *targetScopeSet = [_target.scopeSet mutableCopy];
-        [targetScopeSet unionOrderedSet:requestParams.additionalScopes];
-        _target = targetScopeSet.msidToString;
     }
 }
 

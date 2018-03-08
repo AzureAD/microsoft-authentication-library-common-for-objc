@@ -103,4 +103,9 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken)
     return YES;
 }
 
+- (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams
+{
+    return self.target;
+}
+
 @end

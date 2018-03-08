@@ -287,6 +287,23 @@
 
 #pragma mark - Token response
 
+- (void)testInitWithTokenResponse_whenV1ResponseAndNoResourceInRequest_shouldUseResourceInRequest
+{
+    NSString *resourceInRequest = @"https://contoso.com";
+    MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
+                                                                                redirectUri:@"fake_redirect_uri"
+                                                                                   clientId:@"fake_client_id"
+                                                                                     target:resourceInRequest];
+    MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
+                                                                                                     }
+                                                                                             error:nil];
+    
+    MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:tokenResponse request:requestParams];
+    
+    XCTAssertEqual(accessToken.scopes.count, 1);
+    XCTAssertEqualObjects(accessToken.resource, resourceInRequest);
+}
+
 - (void)testInitWithTokenResponse_whenV2ResponseAndDotDefaultScopeInRequest_shouldAddDotDefaultScope
 {
     NSString *scopeInRequest = @"https://contoso.com/.Default";
