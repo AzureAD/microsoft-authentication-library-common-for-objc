@@ -85,6 +85,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (MSIDDefaultTokenCacheKey *)queryForAllRefreshTokensWithClientId:(NSString *)clientID;
 
++ (MSIDDefaultTokenCacheKey *)queryForIDTokensWithUniqueUserId:(NSString *)userId
+                                                   environment:(NSString *)environment;
+
 NS_ASSUME_NONNULL_END
 
 @end

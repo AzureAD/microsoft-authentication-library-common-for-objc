@@ -120,6 +120,8 @@
                        context:context
                          error:error])
     {
+        MSID_LOG_ERROR(context, @"Saving access token failed");
+        MSID_LOG_ERROR_PII(context, @"Saving access token %@ failed with error %@", accessToken, *error);
         return NO;
     }
     
@@ -248,9 +250,16 @@
                                             scopes:[cacheItem.target scopeSet]
                                          authority:cacheItem.authority];
     
-    return [_dataSource removeItemsWithKey:key
-                                   context:context
-                                     error:error];
+    BOOL result = [_dataSource removeItemsWithKey:key
+                                          context:context
+                                            error:error];
+    
+    if (result && token.tokenType == MSIDTokenTypeRefreshToken)
+    {
+        return [self removeIDTokensForRefreshToken:token context:context error:error];
+    }
+    
+    return result;
 }
 
 - (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
@@ -647,6 +656,41 @@
 }
 
 #pragma mark - Datasource helpers
+
+- (BOOL)removeIDTokensForRefreshToken:(MSIDBaseToken *)refreshToken
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
+{
+    // Remove all related ID tokens
+    MSIDTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForIDTokensWithUniqueUserId:refreshToken.uniqueUserId
+                                                                            environment:refreshToken.authority.msidHostWithPortIfNecessary];
+    
+    NSArray *tokens = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
+    
+    if (!tokens)
+    {
+        return NO;
+    }
+    
+    for (MSIDTokenCacheItem *cacheItem in tokens)
+    {
+        if ([cacheItem.clientId isEqualToString:cacheItem.clientId])
+        {
+            MSIDDefaultTokenCacheKey *idTokenKey = [MSIDDefaultTokenCacheKey keyForIDTokenWithUniqueUserId:cacheItem.uniqueUserId
+                                                                                                 authority:cacheItem.authority
+                                                                                                  clientId:cacheItem.clientId];
+            
+            BOOL result = [_dataSource removeItemsWithKey:idTokenKey context:context error:error];
+            
+            if (!result)
+            {
+                return NO;
+            }
+        }
+    }
+    
+    return YES;
+}
 
 - (MSIDDefaultTokenCacheKey *)keyForTokenType:(MSIDTokenType)tokenType
                                        userId:(NSString *)userId

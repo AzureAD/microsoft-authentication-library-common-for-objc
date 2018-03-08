@@ -222,4 +222,15 @@ static NSString *keyDelimiter = @"-";
                                                         type:@(MSIDTokenTypeRefreshToken)];
 }
 
++ (MSIDDefaultTokenCacheKey *)queryForIDTokensWithUniqueUserId:(NSString *)userId
+                                                   environment:(NSString *)environment
+{
+    NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
+                                                     service:nil
+                                                     generic:nil
+                                                        type:@(MSIDTokenTypeIDToken)];
+}
+
 @end
