@@ -35,6 +35,7 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
 #import "NSDate+MSIDExtensions.h"
+#import "MSIDAuthority.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -347,6 +348,11 @@
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError **)error
 {
+    if ([MSIDAuthority isConsumerInstanceURL:parameters.authority])
+    {
+        return nil;
+    }
+    
     MSIDBaseToken *resultToken = nil;
     
     if (![NSString msidIsStringNilOrBlank:account.legacyUserId])
@@ -365,15 +371,18 @@
     }
     
     // If no legacy user ID available, or no token found by legacy user ID, try to look by unique user ID
-    if (!resultToken && ![NSString msidIsStringNilOrBlank:account.userIdentifier])
+    if (!resultToken
+        && ![NSString msidIsStringNilOrBlank:account.userIdentifier])
     {
-        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", parameters.clientId, parameters.authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.userIdentifier, parameters.clientId, parameters.authority);
+        NSURL *authority = [MSIDAuthority universalAuthorityURL:parameters.authority];
+        
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", parameters.clientId, authority);
+        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.userIdentifier, parameters.clientId, authority);
         
         resultToken = [self getTokenWithType:MSIDTokenTypeRefreshToken
                                      account:account
                              useLegacyUserId:NO
-                                   authority:parameters.authority
+                                   authority:authority
                                     clientId:parameters.clientId
                                     resource:nil
                                      context:context

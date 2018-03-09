@@ -36,7 +36,7 @@
     
     _legacyUserIdentifier = [coder decodeObjectOfClass:[NSString class] forKey:@"legacy_user_id"];
     
-    _accountType = [MSIDAccountTypeHelpers accountTypeFromString:[coder decodeObjectOfClass:[NSString class] forKey:@"account_type"]];
+    _accountType = [MSIDAccountTypeHelpers accountTypeFromString:[coder decodeObjectOfClass:[NSString class] forKey:@"authority_type"]];
     
     _firstName = [coder decodeObjectOfClass:[NSString class] forKey:@"first_name"];
     _lastName = [coder decodeObjectOfClass:[NSString class] forKey:@"last_name"];
@@ -49,7 +49,7 @@
     [super encodeWithCoder:coder];
     
     [coder encodeObject:_legacyUserIdentifier forKey:@"legacy_user_id"];
-    [coder encodeObject:[MSIDAccountTypeHelpers accountTypeAsString:_accountType] forKey:@"account_type"];
+    [coder encodeObject:[MSIDAccountTypeHelpers accountTypeAsString:_accountType] forKey:@"authority_type"];
     [coder encodeObject:_firstName forKey:@"first_name"];
     [coder encodeObject:_lastName forKey:@"last_name"];
 }
@@ -74,7 +74,7 @@
     _lastName = json[MSID_LAST_NAME_CACHE_KEY];
     
     // Account type
-    _accountType = [MSIDAccountTypeHelpers accountTypeFromString:json[MSID_ACCOUNT_TYPE_CACHE_KEY]];
+    _accountType = [MSIDAccountTypeHelpers accountTypeFromString:json[MSID_AUTHORITY_TYPE_CACHE_KEY]];
     
     // Extensibility
     _additionalAccountFields = json;
@@ -83,7 +83,7 @@
 }
 
 - (NSDictionary *)jsonDictionary
-{
+{    
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
     if (_additionalAccountFields)
@@ -109,7 +109,7 @@
     dictionary[MSID_LAST_NAME_CACHE_KEY] = _lastName;
     
     // Account type
-    dictionary[MSID_ACCOUNT_TYPE_CACHE_KEY] = [MSIDAccountTypeHelpers accountTypeAsString:_accountType];
+    dictionary[MSID_AUTHORITY_TYPE_CACHE_KEY] = [MSIDAccountTypeHelpers accountTypeAsString:_accountType];
     
     return dictionary;
 }
