@@ -196,7 +196,7 @@
     
     [keychainTokenCache removeItemsWithKey:key context:nil error:&error];
     
-    items = [keychainTokenCache tokensWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
+    items = [keychainTokenCache tokensWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
     XCTAssertNil(error);
 }
@@ -206,7 +206,8 @@
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
     token.accessToken = @"some token";
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    token.tokenType = MSIDTokenTypeAccessToken;
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:@(MSIDTokenTypeAccessToken)];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     [keychainTokenCache saveToken:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     
@@ -217,7 +218,7 @@
     
     [keychainTokenCache removeItemsWithKey:key context:nil error:&error];
     
-    items = [keychainTokenCache tokensWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
+    items = [keychainTokenCache tokensWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
     XCTAssertNil(error);
 }

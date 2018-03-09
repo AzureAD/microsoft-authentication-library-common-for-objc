@@ -176,7 +176,7 @@
     
     [self.dataSource removeItemsWithKey:key context:nil error:&error];
     
-    items = [self.dataSource tokensWithKey:[MSIDTokenCacheKey new] serializer:self.serializer context:nil error:nil];
+    items = [self.dataSource tokensWithKey:key serializer:self.serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
     XCTAssertNil(error);
 }
@@ -185,7 +185,8 @@
 {
     MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
     token.accessToken = @"some token";
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    token.tokenType = MSIDTokenTypeAccessToken;
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:@(MSIDTokenTypeAccessToken)];
     [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
     
     NSArray<MSIDTokenCacheItem *> *items = [self.dataSource tokensWithKey:[MSIDTokenCacheKey new] serializer:self.serializer context:nil error:nil];
@@ -195,7 +196,7 @@
     
     [self.dataSource removeItemsWithKey:key context:nil error:&error];
     
-    items = [self.dataSource tokensWithKey:[MSIDTokenCacheKey new] serializer:self.serializer context:nil error:nil];
+    items = [self.dataSource tokensWithKey:key serializer:self.serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
     XCTAssertNil(error);
 }

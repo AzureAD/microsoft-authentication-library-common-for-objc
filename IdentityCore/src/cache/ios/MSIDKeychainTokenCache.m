@@ -447,7 +447,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         wipeQuery = @{(id)kSecClass : (id)kSecClassGenericPassword,
                        (id)kSecAttrGeneric : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
                        (id)kSecAttrAccessGroup : self.keychainGroup,
-                       (id)kSecAttrAccount : @"TokenWipe"};
+                       (id)kSecAttrAccount : @"TokenWipe",
+                       (id)kSecAttrService : @"TokenWipe"
+                      };
     });
     return wipeQuery;
 }
