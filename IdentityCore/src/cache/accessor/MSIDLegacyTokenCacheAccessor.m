@@ -34,6 +34,7 @@
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDTokenFilteringHelper.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -312,25 +313,17 @@
         return nil;
     }
     
-    NSMutableArray *resultTokens = [NSMutableArray array];
-    
-    for (MSIDTokenCacheItem *cacheItem in legacyCacheItems)
-    {
-        if (cacheItem.tokenType == tokenType
-            && [cacheItem.clientId isEqualToString:clientId])
-        {
-            MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
-            
-            if (token)
-            {
-                [resultTokens addObject:token];
-            }
-        }
-    }
+    NSArray *results = [MSIDTokenFilteringHelper filterTokenCacheItems:legacyCacheItems
+                                                             tokenType:tokenType
+                                                           returnFirst:NO
+                                                              filterBy:^BOOL(MSIDTokenCacheItem *cacheItem) {
+                                                                  
+                                                                  return (cacheItem.tokenType == tokenType
+                                                                          && [cacheItem.clientId isEqualToString:clientId]);
+                                                              }];
     
     [self stopTelemetryEvent:event withItem:nil success:YES context:context];
-    
-    return resultTokens;
+    return results;
 }
 
 #pragma mark - Private

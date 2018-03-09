@@ -310,7 +310,7 @@
             return [[MSIDIdToken alloc] initWithTokenCacheItem:self];
         }
         default:
-            return nil;
+            return [[MSIDBaseToken alloc] initWithTokenCacheItem:self];
     }
     
     return nil;

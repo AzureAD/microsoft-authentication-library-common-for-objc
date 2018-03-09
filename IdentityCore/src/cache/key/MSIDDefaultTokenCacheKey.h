@@ -64,6 +64,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                             authority:(NSURL *)authority
                                                              clientId:(NSString *)clientId;
 
++ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
+                                                          environment:(NSString *)environment;
+
 + (MSIDDefaultTokenCacheKey *)queryForAllAccessTokens;
 
 /*!
