@@ -183,6 +183,17 @@ static NSString *keyDelimiter = @"-";
                                                    realm:tenant];
 }
 
++ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
+                                                          environment:(NSString *)environment
+{
+    NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
+                                                     service:nil
+                                                     generic:nil
+                                                        type:@(MSIDTokenTypeAccessToken)];
+}
+
 + (MSIDDefaultTokenCacheKey *)queryForAllAccessTokens
 {
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:nil
@@ -220,6 +231,17 @@ static NSString *keyDelimiter = @"-";
                                                      service:service
                                                      generic:nil
                                                         type:@(MSIDTokenTypeRefreshToken)];
+}
+
++ (MSIDDefaultTokenCacheKey *)queryForIDTokensWithUniqueUserId:(NSString *)userId
+                                                   environment:(NSString *)environment
+{
+    NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
+                                                     service:nil
+                                                     generic:nil
+                                                        type:@(MSIDTokenTypeIDToken)];
 }
 
 @end

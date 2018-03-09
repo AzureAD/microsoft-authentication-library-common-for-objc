@@ -78,6 +78,15 @@ const unichar queryStringSeparator = '?';
         }
     }
     
+    // Check path
+    if (self.path || aURL.path)
+    {
+        if (![self.path isEqual:aURL.path])
+        {
+            return NO;
+        }
+    }
+    
     return YES;
 }
 
