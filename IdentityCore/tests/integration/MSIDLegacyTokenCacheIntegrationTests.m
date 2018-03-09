@@ -683,6 +683,78 @@
     XCTAssertEqualObjects(token, returnedToken);
 }
 
+- (void)testGetSharedRTForAccountAfterSaving_whenAccountWithUidUtidProvided_andOrganizationsAuthority_shouldReturnToken
+{
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
+    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+    
+    // Save token
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveRefreshToken:token
+                                            account:account
+                                            context:nil
+                                              error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    account = [[MSIDAccount alloc] initWithLegacyUserId:nil
+                                           uniqueUserId:@"1.1234-5678-90abcdefg"];
+    
+    MSIDRequestParameters *consumerParameters = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.com/organizations"
+                                                                                  clientId:DEFAULT_TEST_CLIENT_ID
+                                                                               redirectUri:nil
+                                                                                    target:DEFAULT_TEST_SCOPE];
+    
+    // Check that correct token is returned
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+                                                             account:account
+                                                       requestParams:consumerParameters
+                                                             context:nil
+                                                               error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(returnedToken);
+    XCTAssertEqualObjects(token, returnedToken);
+}
+
+- (void)testGetSharedRTForAccountAfterSaving_whenConsumerAuthority_shouldReturnNil
+{
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
+    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+    
+    // Save token
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor saveRefreshToken:token
+                                            account:account
+                                            context:nil
+                                              error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    MSIDRequestParameters *consumerParameters = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.com/consumers"
+                                                                                  clientId:DEFAULT_TEST_CLIENT_ID
+                                                                               redirectUri:nil
+                                                                                    target:DEFAULT_TEST_SCOPE];
+    
+    // Check that correct token is returned
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+                                                             account:account
+                                                       requestParams:consumerParameters
+                                                             context:nil
+                                                               error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNil(returnedToken);
+}
+
 - (void)testGetSharedRTForAccountAfterSaving_whenLegacyItemsInCache_andAccountWithUidUtidProvided_shouldReturnNil
 {
     MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponseWithoutClientInfo]

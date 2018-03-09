@@ -83,7 +83,7 @@
 }
 
 - (NSDictionary *)jsonDictionary
-{
+{    
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
     if (_additionalAccountFields)
