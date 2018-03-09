@@ -23,6 +23,7 @@
 
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDAADV2IdTokenWrapper.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDAADV2TokenResponse
 
@@ -72,6 +73,20 @@
     }
     
     return MSIDErrorInteractionRequired;
+}
+
+- (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams
+{
+    // Add additional scopes from request parameters in case they are not returned from server
+    // .default scope for V1 app will not be returned from server
+    NSMutableOrderedSet<NSString *> *targetScopeSet = [self.scope.scopeSet mutableCopy];
+    NSOrderedSet<NSString *> *reqScopes = requestParams.scopes;
+
+    if (reqScopes.count == 1 && [reqScopes.firstObject.lowercaseString hasSuffix:@".default"]){
+        [targetScopeSet unionOrderedSet:reqScopes];
+    }
+    
+    return [targetScopeSet msidToString];
 }
 
 @end

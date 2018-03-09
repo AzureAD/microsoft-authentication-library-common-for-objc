@@ -70,4 +70,10 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
                            nil);
 }
 
+- (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams
+{
+    // Because resource is not always returned in the token response, we rely on the input resource as a fallback
+    return self.target ? self.target : requestParams.target;
+}
+
 @end
