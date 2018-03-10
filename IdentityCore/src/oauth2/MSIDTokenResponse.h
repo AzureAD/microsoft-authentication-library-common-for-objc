@@ -24,6 +24,7 @@
 #import "MSIDJsonObject.h"
 #import "MSIDIdTokenWrapper.h"
 #import "MSIDAccountType.h"
+#import "MSIDRequestParameters.h"
 
 @protocol MSIDRefreshableToken;
 @class MSIDBaseToken;
@@ -69,5 +70,7 @@
 
 - (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
                            error:(NSError **)error;
+
+- (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams;
 
 @end

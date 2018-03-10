@@ -122,4 +122,9 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
     return YES;
 }
 
+- (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams
+{
+    return self.target;
+}
+
 @end

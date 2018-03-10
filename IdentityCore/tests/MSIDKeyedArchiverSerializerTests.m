@@ -150,6 +150,36 @@
     XCTAssertNil(token);
 }
 
+#pragma mark - Wipe data
+
+- (void)testDeserializeTokenCacheItem_whenWipeData_shouldReturnNil
+{
+    NSDictionary *wipeInfo = @{ @"bundleId" : @"bundleId",
+                                @"wipeTime" : [NSDate date]
+                                };
+    
+    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
+    
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+    MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:wipeData];
+    
+    XCTAssertNil(token);
+}
+
+- (void)testDeserializeAccountCacheItem_whenWipeData_shouldReturnNil
+{
+    NSDictionary *wipeInfo = @{ @"bundleId" : @"bundleId",
+                                @"wipeTime" : [NSDate date]
+                                };
+    
+    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
+    
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+    MSIDAccountCacheItem *account = [serializer deserializeAccountCacheItem:wipeData];
+    
+    XCTAssertNil(account);
+}
+
 #pragma mark - Private
 
 - (MSIDClientInfo *)createClientInfo:(NSDictionary *)clientInfoDict

@@ -124,10 +124,11 @@
     // test if wipe data is logged in telemetry
     for (id<MSIDTelemetryEventInterface> event in receivedEvents)
     {
-        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP])
+        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
+            && [event.propertyMap[@"Microsoft.Test.wipe_app"] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
+            && event.propertyMap[@"Microsoft.Test.wipe_time"])
         {
-            XCTAssertEqualObjects(event.propertyMap[@"Microsoft.Test.wipe_app"], @"com.microsoft.MSIDTestsHostApp");
-            XCTAssertNotNil(event.propertyMap[@"Microsoft.Test.wipe_time"]);
+            XCTAssertTrue(YES);
             return;
         }
     }
@@ -188,10 +189,11 @@
     // test if wipe data is logged in telemetry
     for (id<MSIDTelemetryEventInterface> event in receivedEvents)
     {
-        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP])
+        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
+            && [event.propertyMap[@"Microsoft.Test.wipe_app"] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
+            && event.propertyMap[@"Microsoft.Test.wipe_time"])
         {
-            XCTAssertEqualObjects(event.propertyMap[@"Microsoft.Test.wipe_app"], @"com.microsoft.MSIDTestsHostApp");
-            XCTAssertNotNil(event.propertyMap[@"Microsoft.Test.wipe_time"]);
+            XCTAssertTrue(YES);
             return;
         }
     }
@@ -253,10 +255,11 @@
     // test if wipe data is logged in telemetry
     for (id<MSIDTelemetryEventInterface> event in receivedEvents)
     {
-        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP])
+        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
+            && [event.propertyMap[@"Microsoft.Test.wipe_app"] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
+            && event.propertyMap[@"Microsoft.Test.wipe_time"])
         {
-            XCTAssertEqualObjects(event.propertyMap[@"Microsoft.Test.wipe_app"], @"com.microsoft.MSIDTestsHostApp");
-            XCTAssertNotNil(event.propertyMap[@"Microsoft.Test.wipe_time"]);
+            XCTAssertTrue(YES);
             return;
         }
     }
@@ -317,10 +320,11 @@
     // test if wipe data is logged in telemetry
     for (id<MSIDTelemetryEventInterface> event in receivedEvents)
     {
-        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP])
+        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
+            && [event.propertyMap[@"Microsoft.Test.wipe_app"] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
+            && event.propertyMap[@"Microsoft.Test.wipe_time"])
         {
-            XCTAssertEqualObjects(event.propertyMap[@"Microsoft.Test.wipe_app"], @"com.microsoft.MSIDTestsHostApp");
-            XCTAssertNotNil(event.propertyMap[@"Microsoft.Test.wipe_time"]);
+            XCTAssertTrue(YES);
             return;
         }
     }
