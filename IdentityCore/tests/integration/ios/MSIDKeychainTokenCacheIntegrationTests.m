@@ -206,8 +206,7 @@
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
     token.accessToken = @"some token";
-    token.tokenType = MSIDTokenTypeAccessToken;
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:@(MSIDTokenTypeAccessToken)];
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     [keychainTokenCache saveToken:token key:key serializer:keyedArchiverSerializer context:nil error:nil];
     

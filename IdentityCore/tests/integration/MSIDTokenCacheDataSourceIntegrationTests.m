@@ -185,8 +185,7 @@
 {
     MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
     token.accessToken = @"some token";
-    token.tokenType = MSIDTokenTypeAccessToken;
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:@(MSIDTokenTypeAccessToken)];
+    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
     
     NSArray<MSIDTokenCacheItem *> *items = [self.dataSource tokensWithKey:[MSIDTokenCacheKey new] serializer:self.serializer context:nil error:nil];
