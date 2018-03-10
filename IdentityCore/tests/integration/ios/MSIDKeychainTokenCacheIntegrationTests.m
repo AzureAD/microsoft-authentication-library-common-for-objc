@@ -196,7 +196,7 @@
     
     [keychainTokenCache removeItemsWithKey:key context:nil error:&error];
     
-    items = [keychainTokenCache tokensWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    items = [keychainTokenCache tokensWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
     XCTAssertNil(error);
 }
@@ -218,7 +218,7 @@
     
     [keychainTokenCache removeItemsWithKey:key context:nil error:&error];
     
-    items = [keychainTokenCache tokensWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    items = [keychainTokenCache tokensWithKey:[MSIDTokenCacheKey new] serializer:keyedArchiverSerializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
     XCTAssertNil(error);
 }

@@ -176,7 +176,7 @@
     
     [self.dataSource removeItemsWithKey:key context:nil error:&error];
     
-    items = [self.dataSource tokensWithKey:key serializer:self.serializer context:nil error:nil];
+    items = [self.dataSource tokensWithKey:[MSIDTokenCacheKey new] serializer:self.serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
     XCTAssertNil(error);
 }
@@ -196,7 +196,7 @@
     
     [self.dataSource removeItemsWithKey:key context:nil error:&error];
     
-    items = [self.dataSource tokensWithKey:key serializer:self.serializer context:nil error:nil];
+    items = [self.dataSource tokensWithKey:[MSIDTokenCacheKey new] serializer:self.serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
     XCTAssertNil(error);
 }
