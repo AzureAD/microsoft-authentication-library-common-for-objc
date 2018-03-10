@@ -312,11 +312,7 @@
         
         if (!key)
         {
-            [self stopTelemetryEvent:event
-                            withItem:nil
-                             success:NO
-                         logWipeData:NO
-                             context:context];
+            [self stopTelemetryEvent:event withItem:nil success:NO logWipeData:NO context:context];
             
             return nil;
         }
@@ -332,11 +328,7 @@
         {
             if (error) *error = cacheError;
             
-            [self stopTelemetryEvent:event
-                            withItem:nil
-                             success:NO
-                         logWipeData:NO
-                             context:context];
+            [self stopTelemetryEvent:event withItem:nil success:NO logWipeData:NO context:context];
             
             return nil;
         }
