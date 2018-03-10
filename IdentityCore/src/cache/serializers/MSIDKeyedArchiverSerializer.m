@@ -78,7 +78,16 @@
 
 - (MSIDTokenCacheItem *)deserializeTokenCacheItem:(NSData *)data
 {
-    return (MSIDTokenCacheItem *)[self deserialize:data className:MSIDTokenCacheItem.class];
+    MSIDCacheItem *item = [self deserialize:data className:MSIDTokenCacheItem.class];
+    
+    // Because theoretically any item data can be passed in here for deserialization,
+    // we need to ensure that the correct item got deserialized
+    if ([item isKindOfClass:[MSIDTokenCacheItem class]])
+    {
+        return (MSIDTokenCacheItem *) item;
+    }
+    
+    return nil;
 }
 
 #pragma mark - Account
@@ -90,7 +99,16 @@
 
 - (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data
 {
-    return (MSIDAccountCacheItem *)[self deserialize:data className:MSIDAccountCacheItem.class];
+    MSIDCacheItem *item = [self deserialize:data className:MSIDAccountCacheItem.class];
+    
+    // Because theoretically any item data can be passed in here for deserialization,
+    // we need to ensure that the correct item got deserialized
+    if ([item isKindOfClass:[MSIDAccountCacheItem class]])
+    {
+        return (MSIDAccountCacheItem *) item;
+    }
+    
+    return nil;
 }
 
 @end
