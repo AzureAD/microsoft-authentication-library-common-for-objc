@@ -795,7 +795,7 @@
     
     NSArray *tokens = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
     
-    BOOL success = (tokens!=nil);
+    BOOL success = (tokens!=nil && tokens.count>0);
     [self stopTelemetryEvent:event
                     withItem:nil
                      success:success

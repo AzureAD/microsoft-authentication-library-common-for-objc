@@ -36,6 +36,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 
 @interface MSIDTestRequestContext : NSObject <MSIDRequestContext>
 
@@ -52,7 +53,8 @@
 @interface MSIDWipeDataTelemetryTests : XCTestCase
 {
     MSIDKeychainTokenCache *_dataSource;
-    MSIDLegacyTokenCacheAccessor *_cacheAccessor;
+    MSIDLegacyTokenCacheAccessor *_legacyCacheAccessor;
+    MSIDDefaultTokenCacheAccessor *_defaultCacheAccessor;
 }
 
 @end
@@ -62,12 +64,13 @@
 - (void)setUp
 {
     _dataSource = [[MSIDKeychainTokenCache alloc] init];
-    _cacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource];
+    _legacyCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource];
+    _defaultCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource];
     
     [super setUp];
 }
 
-- (void)testWipeDataTelemetry_whenGetTokenButNone_shouldLogWipeDataInTelemetry
+- (void)testWipeDataTelemetry_whenGetTokenWithTypeButNoneForLegacyCache_shouldLogWipeDataInTelemetry
 {
     // setup telemetry callback
     MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
@@ -92,27 +95,222 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_cacheAccessor saveRefreshToken:token
-                                            account:account
-                                            context:reqContext
-                                              error:&error];
+    BOOL result = [_legacyCacheAccessor saveRefreshToken:token
+                                                 account:account
+                                                 context:reqContext
+                                                   error:&error];
+    XCTAssertNil(error);
     
     // remove the refresh token to trigger wipe data being written
-    result = [_cacheAccessor removeToken:token
-                                  account:account
-                                  context:reqContext
-                                    error:&error];
+    result = [_legacyCacheAccessor removeToken:token
+                                       account:account
+                                       context:reqContext
+                                         error:&error];
+    XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    MSIDBaseToken *returnedToken = [_cacheAccessor getTokenWithType:MSIDTokenTypeRefreshToken
-                                                             account:account
-                                                       requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                             context:reqContext
-                                                               error:&error];
+    MSIDBaseToken *returnedToken = [_legacyCacheAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+                                                                  account:account
+                                                            requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                  context:reqContext
+                                                                    error:&error];
     
     // expect no token because it has been deleted
     XCTAssertNil(error);
     XCTAssertNil(returnedToken);
+    
+    
+    
+    // test if wipe data is logged in telemetry
+    for (id<MSIDTelemetryEventInterface> event in receivedEvents)
+    {
+        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP])
+        {
+            XCTAssertEqualObjects(event.propertyMap[@"Microsoft.Test.wipe_app"], @"com.microsoft.MSIDTestsHostApp");
+            XCTAssertNotNil(event.propertyMap[@"Microsoft.Test.wipe_time"]);
+            return;
+        }
+    }
+    
+    XCTAssertTrue(NO);
+}
+
+- (void)testWipeDataTelemetry_whenGetAllTokensOfTypeButNoneForLegacyCache_shouldLogWipeDataInTelemetry
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+    
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+    
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+    
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    
+    // save a refresh token to keychain token cache
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:nil];
+    MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
+    [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
+    NSError *error = nil;
+    
+    BOOL result = [_legacyCacheAccessor saveRefreshToken:token
+                                                 account:account
+                                                 context:reqContext
+                                                   error:&error];
+    XCTAssertNil(error);
+    
+    // remove the refresh token to trigger wipe data being written
+    result = [_legacyCacheAccessor removeToken:token
+                                       account:account
+                                       context:reqContext
+                                         error:&error];
+    XCTAssertNil(error);
+    
+    // read the refresh token in order to log wipe data in telemetry
+    NSArray *returnedTokens = [_legacyCacheAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+                                                          withClientId:DEFAULT_TEST_CLIENT_ID
+                                                               context:reqContext
+                                                                 error:&error];
+    
+    // expect no token because it has been deleted
+    XCTAssertNil(error);
+    XCTAssertEqual(returnedTokens.count, 0);
+    
+    
+    
+    // test if wipe data is logged in telemetry
+    for (id<MSIDTelemetryEventInterface> event in receivedEvents)
+    {
+        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP])
+        {
+            XCTAssertEqualObjects(event.propertyMap[@"Microsoft.Test.wipe_app"], @"com.microsoft.MSIDTestsHostApp");
+            XCTAssertNotNil(event.propertyMap[@"Microsoft.Test.wipe_time"]);
+            return;
+        }
+    }
+    
+    XCTAssertTrue(NO);
+}
+
+- (void)testWipeDataTelemetry_whenGetTokenWithTypeButNoneForDefaultCache_shouldLogWipeDataInTelemetry
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+    
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+    
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+    
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    
+    // save a refresh token to keychain token cache
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"some_uid.some_utid"];
+    MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
+    [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
+    NSError *error = nil;
+    
+    BOOL result = [_defaultCacheAccessor saveRefreshToken:token
+                                                  account:account
+                                                  context:reqContext
+                                                    error:&error];
+    XCTAssertNil(error);
+    
+    // remove the refresh token to trigger wipe data being written
+    result = [_defaultCacheAccessor removeToken:token
+                                        account:account
+                                        context:reqContext
+                                          error:&error];
+    XCTAssertNil(error);
+    
+    // read the refresh token in order to log wipe data in telemetry
+    MSIDBaseToken *returnedToken = [_defaultCacheAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+                                                                   account:account
+                                                             requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                   context:reqContext
+                                                                     error:&error];
+    
+    // expect no token because it has been deleted
+    XCTAssertNil(error);
+    XCTAssertNil(returnedToken);
+    
+    
+    
+    // test if wipe data is logged in telemetry
+    for (id<MSIDTelemetryEventInterface> event in receivedEvents)
+    {
+        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP])
+        {
+            XCTAssertEqualObjects(event.propertyMap[@"Microsoft.Test.wipe_app"], @"com.microsoft.MSIDTestsHostApp");
+            XCTAssertNotNil(event.propertyMap[@"Microsoft.Test.wipe_time"]);
+            return;
+        }
+    }
+    
+    XCTAssertTrue(NO);
+}
+
+- (void)testWipeDataTelemetry_whenGetAllTokensOfTypeButNoneForDefaultCache_shouldLogWipeDataInTelemetry
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+    
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+    
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+    
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    
+    // save a refresh token to keychain token cache
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"some_uid.some_utid"];
+    MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
+    [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
+    NSError *error = nil;
+    
+    BOOL result = [_defaultCacheAccessor saveRefreshToken:token
+                                                  account:account
+                                                  context:reqContext
+                                                    error:&error];
+    XCTAssertNil(error);
+    
+    // remove the refresh token to trigger wipe data being written
+    result = [_defaultCacheAccessor removeToken:token
+                                        account:account
+                                        context:reqContext
+                                          error:&error];
+    XCTAssertNil(error);
+    
+    // read the refresh token in order to log wipe data in telemetry
+    NSArray *returnedTokens = [_defaultCacheAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+                                                           withClientId:DEFAULT_TEST_CLIENT_ID
+                                                                context:reqContext
+                                                                  error:&error];
+    
+    // expect no token because it has been deleted
+    XCTAssertNil(error);
+    XCTAssertEqual(returnedTokens.count, 0);
     
     
     
