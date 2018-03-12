@@ -360,7 +360,7 @@
     [self stopTelemetryEvent:event
                     withItem:nil
                      success:NO
-                 logWipeData:tokenType==MSIDTokenTypeRefreshToken
+                 logWipeData:tokenType == MSIDTokenTypeRefreshToken
                      context:context];
     return nil;
 }
@@ -696,11 +696,11 @@
     
     NSArray *tokens = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
     
-    BOOL success = (tokens!=nil && tokens.count>0);
+    BOOL success = (tokens != nil && tokens.count > 0);
     [self stopTelemetryEvent:event
                     withItem:nil
                      success:success
-                 logWipeData:(!success && key.type.integerValue==MSIDTokenTypeRefreshToken)
+                 logWipeData:(!success && key.type.integerValue == MSIDTokenTypeRefreshToken)
                      context:context];
     return tokens;
 }

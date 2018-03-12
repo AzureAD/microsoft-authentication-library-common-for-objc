@@ -37,6 +37,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 
 @interface MSIDTestRequestContext : NSObject <MSIDRequestContext>
 
@@ -63,6 +64,7 @@
 
 - (void)setUp
 {
+    [MSIDKeychainTokenCache reset];
     _dataSource = [[MSIDKeychainTokenCache alloc] init];
     _legacyCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource];
     _defaultCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource];

@@ -478,7 +478,7 @@
     [self stopTelemetryEvent:event
                     withItem:nil
                      success:NO
-                 logWipeData:tokenType==MSIDTokenTypeRefreshToken
+                 logWipeData:tokenType == MSIDTokenTypeRefreshToken
                      context:context];
     
     return nil;
