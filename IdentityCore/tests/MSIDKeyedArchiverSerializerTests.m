@@ -47,6 +47,7 @@
     cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
     cacheItem.clientId = @"some clientId";
     cacheItem.tokenType = MSIDTokenTypeRefreshToken;
+    cacheItem.oauthTokenType = @"access token type";
     
     NSData *data = [serializer serializeTokenCacheItem:cacheItem];
     MSIDTokenCacheItem *resultToken = [serializer deserializeTokenCacheItem:data];
