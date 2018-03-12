@@ -86,6 +86,7 @@
     MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
     token.accessToken = @"some token";
     token.tokenType = MSIDTokenTypeAccessToken;
+    token.oauthTokenType = @"token type";
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     
@@ -132,9 +133,11 @@
     MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
     token.accessToken = @"some token";
     token.tokenType = MSIDTokenTypeAccessToken;
+    token.oauthTokenType = @"token type";
     MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
     token2.accessToken = @"some token";
     token2.tokenType = MSIDTokenTypeAccessToken;
+    token2.oauthTokenType = @"token type";
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     
@@ -151,14 +154,17 @@
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     // Item 1.
     MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    token1.oauthTokenType = @"token type";
     MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 2.
     MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
+    token2.oauthTokenType = @"token type";
     MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token2 key:key2 serializer:keyedArchiverSerializer context:nil error:nil];
     // Item 3.
     MSIDTokenCacheItem *token3 = [MSIDTokenCacheItem new];
+    token3.oauthTokenType = @"token type";
     MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token3 key:key3 serializer:keyedArchiverSerializer context:nil error:nil];
     

@@ -95,18 +95,6 @@
     XCTAssertEqualObjects(token, token2);
 }
 
-- (void)testSetItem_whenKeysAccountIsNil_shouldReturnFalseAndError
-{
-    MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
-    MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:nil service:@"test_service" generic:self.generic type:nil];
-    NSError *error;
-    
-    BOOL result = [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:&error];
-    
-    XCTAssertFalse(result);
-    XCTAssertNotNil(error);
-}
-
 - (void)testSetItem_whenKeysServiceIsNil_shouldReturnFalseAndError
 {
     MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
