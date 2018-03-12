@@ -85,6 +85,7 @@
     MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
     token.accessToken = @"some token";
     token.tokenType = MSIDTokenTypeAccessToken;
+    token.oauthTokenType = @"token type";
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     
     BOOL result = [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
@@ -111,8 +112,10 @@
 {
     MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
     token.accessToken = @"some token";
+    token.oauthTokenType = @"token type";
     MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
     token.accessToken = @"some token 2";
+    token2.oauthTokenType = @"token type";
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     
     [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
@@ -126,14 +129,17 @@
 {
     // Item 1.
     MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    token1.oauthTokenType = @"token type";
     MSIDTokenCacheKey *key1 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:self.generic type:nil];
     [self.dataSource saveToken:token1 key:key1 serializer:self.serializer context:nil error:nil];
     // Item 2.
     MSIDTokenCacheItem *token2 = [MSIDTokenCacheItem new];
+    token2.oauthTokenType = @"token type";
     MSIDTokenCacheKey *key2 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:self.generic type:nil];
     [self.dataSource saveToken:token2 key:key2 serializer:self.serializer context:nil error:nil];
     // Item 3.
     MSIDTokenCacheItem *token3 = [MSIDTokenCacheItem new];
+    token3.oauthTokenType = @"token type";
     MSIDTokenCacheKey *key3 = [[MSIDTokenCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" generic:self.generic type:nil];
     [self.dataSource saveToken:token3 key:key3 serializer:self.serializer context:nil error:nil];
     
