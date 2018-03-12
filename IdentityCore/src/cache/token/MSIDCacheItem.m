@@ -127,9 +127,6 @@
     
     [coder encodeObject:self.clientInfo.rawClientInfo forKey:@"clientInfo"];
     [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
-    
-    // Backward compatibility with ADAL.
-    [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
     [coder encodeObject:self.username forKey:@"username"];
 }
 

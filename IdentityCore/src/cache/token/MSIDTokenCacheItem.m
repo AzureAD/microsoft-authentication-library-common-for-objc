@@ -49,6 +49,8 @@
     result &= (!self.expiresOn && !item.expiresOn) || [self.expiresOn isEqualToDate:item.expiresOn];
     result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqualToDate:item.cachedAt];
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
+    result &= (!self.additionalClientInfo && !item.additionalClientInfo) || [self.additionalClientInfo isEqualToDictionary:item.additionalClientInfo];
+    result &= (!self.oauthTokenType && !item.oauthTokenType) || [self.oauthTokenType isEqualToString:item.oauthTokenType];
     
     return result;
 }
@@ -67,6 +69,8 @@
     hash = hash * 31 + self.expiresOn.hash;
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
+    hash = hash * 31 + self.additionalClientInfo.hash;
+    hash = hash * 31 + self.oauthTokenType.hash;
     
     return hash;
 }
@@ -85,6 +89,8 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
+    item.additionalClientInfo = [self.additionalClientInfo copyWithZone:zone];
+    item.oauthTokenType = [self.oauthTokenType copyWithZone:zone];
     
     return item;
 }
@@ -114,21 +120,9 @@
     // Decode id_token from a backward compatible way
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     
-    BOOL rtPresent = ![NSString msidIsStringNilOrBlank:_refreshToken];
-    BOOL atPresent = ![NSString msidIsStringNilOrBlank:_accessToken];
+    _tokenType = [MSIDTokenTypeHelpers tokenTypeWithRefreshToken:_refreshToken accessToken:_accessToken];
     
-    if (rtPresent && atPresent)
-    {
-        _tokenType = MSIDTokenTypeLegacySingleResourceToken;
-    }
-    else if (rtPresent)
-    {
-        _tokenType = MSIDTokenTypeRefreshToken;
-    }
-    else if (atPresent)
-    {
-        _tokenType = MSIDTokenTypeAccessToken;
-    }
+    _additionalClientInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalClient"];
     
     return self;
 }
@@ -154,6 +148,8 @@
     // Encode id_token in backward compatible way with ADAL
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
     [coder encodeObject:userInformation forKey:@"userInformation"];
+    
+    [coder encodeObject:self.additionalClientInfo forKey:@"additionalClient"];
 }
 
 #pragma mark - JSON

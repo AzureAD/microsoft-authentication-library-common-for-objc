@@ -433,7 +433,15 @@ return NO; \
     // Copy the item to make sure it doesn't change under us.
     item = [item copy];
     
-    if (!key.service || !key.account)
+    NSString *account = key.account;
+    
+    if (!account)
+    {
+        // If we don't have one (ADFS case) then use an empty string
+        account = @"";
+    }
+    
+    if (!key.service || !account)
     {
         if (error)
         {
@@ -445,11 +453,11 @@ return NO; \
     
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         // Grab the token dictionary for this user id.
-        NSMutableDictionary *userDict = self.cache[@"tokens"][key.account];
+        NSMutableDictionary *userDict = self.cache[@"tokens"][account];
         if (!userDict)
         {
             userDict = [NSMutableDictionary new];
-            self.cache[@"tokens"][key.account] = userDict;
+            self.cache[@"tokens"][account] = userDict;
         }
         
         userDict[[self legacyKeyWithoutAccount:key]] = item;

@@ -66,4 +66,26 @@ static NSDictionary *sTokenTypes = nil;
     return tokenType ? [tokenType integerValue] : MSIDTokenTypeOther;
 }
 
++ (MSIDTokenType)tokenTypeWithRefreshToken:(NSString *)refreshToken
+                               accessToken:(NSString *)accessToken
+{
+    BOOL rtPresent = ![NSString msidIsStringNilOrBlank:refreshToken];
+    BOOL atPresent = ![NSString msidIsStringNilOrBlank:accessToken];
+    
+    if (rtPresent && atPresent)
+    {
+        return MSIDTokenTypeLegacySingleResourceToken;
+    }
+    else if (rtPresent)
+    {
+        return MSIDTokenTypeRefreshToken;
+    }
+    else if (atPresent)
+    {
+        return MSIDTokenTypeAccessToken;
+    }
+    
+    return MSIDTokenTypeOther;
+}
+
 @end

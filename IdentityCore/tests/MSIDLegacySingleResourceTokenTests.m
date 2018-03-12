@@ -253,7 +253,7 @@
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
-    XCTAssertEqualObjects(token.additionalInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.additionaServerlInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
     XCTAssertEqualObjects(token.username, @"test");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
@@ -276,7 +276,7 @@
     [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
-    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalInfo"];
+    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionaServerlInfo"];
     [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
     [token setValue:@"username" forKey:@"username"];
     [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
