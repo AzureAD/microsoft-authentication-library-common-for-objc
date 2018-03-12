@@ -441,11 +441,11 @@ return NO; \
         account = @"";
     }
     
-    if (!key.service || !account)
+    if (!key.service)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service and account are not nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service is not nil.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
         return NO;
