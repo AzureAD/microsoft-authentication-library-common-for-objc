@@ -63,7 +63,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO(nil, @"Setting default keychain group.");
     MSID_LOG_INFO_PII(nil, @"Setting default keychain group to %@", defaultKeychainGroup);
     
-    if (defaultKeychainGroup == s_defaultKeychainGroup)
+    if ([defaultKeychainGroup isEqualToString:s_defaultKeychainGroup])
     {
         return;
     }
