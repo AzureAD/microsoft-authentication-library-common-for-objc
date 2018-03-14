@@ -98,7 +98,7 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
 
 - (void)setExpiresOn:(NSInteger)expiresOn
 {
-    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", expiresOn];
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)expiresOn];
     _json[MSID_OAUTH2_EXPIRES_ON] = expiresOnString;
 }
 
@@ -117,7 +117,7 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
 
 - (void)setExtendedExpiresIn:(NSInteger)extendedExpiresIn
 {
-    NSString *extExpiresInString = [NSString stringWithFormat:@"%ld", extendedExpiresIn];
+    NSString *extExpiresInString = [NSString stringWithFormat:@"%ld", (long)extendedExpiresIn];
     _json[MSID_OAUTH2_EXT_EXPIRES_IN] = extExpiresInString;
 }
 

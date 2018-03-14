@@ -72,7 +72,7 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
 
 - (void)setExpiresIn:(NSInteger)expiresIn
 {
-    NSString *expiresInString = [NSString stringWithFormat:@"%ld", expiresIn];
+    NSString *expiresInString = [NSString stringWithFormat:@"%ld", (long)expiresIn];
     _json[MSID_OAUTH2_EXPIRES_IN] = expiresInString;
 }
 
