@@ -208,7 +208,6 @@
     [self stopTelemetryEvent:event
                     withItem:cacheItem
                      success:result
-                 logWipeData:NO
                      context:context];
     
     return result;
@@ -312,7 +311,7 @@
     
     if (!legacyCacheItems)
     {
-        [self stopTelemetryEvent:event withItem:nil success:NO logWipeData:NO context:context];
+        [self stopTelemetryEvent:event withItem:nil success:NO context:context];
         return nil;
     }
     
@@ -326,10 +325,13 @@
                                                               }];
     
     BOOL success = (results.count > 0);
+    if(!success && tokenType == MSIDTokenTypeRefreshToken)
+    {
+        [self logWipeDataInEvent:event context:context];
+    }
     [self stopTelemetryEvent:event
                     withItem:nil
                      success:success
-                 logWipeData:!success && tokenType == MSIDTokenTypeRefreshToken
                      context:context];
     
     return results;
@@ -421,7 +423,7 @@
                                                                     legacyUserId:legacyUserId];
         if (!key)
         {
-            [self stopTelemetryEvent:event withItem:nil success:NO logWipeData:NO context:context];
+            [self stopTelemetryEvent:event withItem:nil success:NO context:context];
             return nil;
         }
         
@@ -442,7 +444,6 @@
             [self stopTelemetryEvent:event
                             withItem:nil
                              success:NO
-                         logWipeData:NO
                              context:context];
             
             return nil;
@@ -466,7 +467,6 @@
             [self stopTelemetryEvent:event
                             withItem:cacheItem
                              success:YES
-                         logWipeData:NO
                              context:context];
             
             MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
@@ -475,10 +475,13 @@
         }
     }
     
+    if (tokenType == MSIDTokenTypeRefreshToken)
+    {
+        [self logWipeDataInEvent:event context:context];
+    }
     [self stopTelemetryEvent:event
                     withItem:nil
                      success:NO
-                 logWipeData:tokenType == MSIDTokenTypeRefreshToken
                      context:context];
     
     return nil;
@@ -489,7 +492,6 @@
 - (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
                   withItem:(MSIDTokenCacheItem *)tokenCacheItem
                    success:(BOOL)success
-               logWipeData:(BOOL)logWipeData
                    context:(id<MSIDRequestContext>)context
 {
     [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
@@ -498,20 +500,21 @@
     {
         [event setCacheItem:tokenCacheItem];
     }
-    
-    if (logWipeData)
-    {
-        NSDictionary *wipeData = [_dataSource wipeInfo:context error:nil];
-        if (wipeData)
-        {
-            [event setCacheWipeApp:wipeData[@"bundleId"]];
-            [event setCacheWipeTime:[(NSDate *)wipeData[@"wipeTime"] msidToString]];
-            
-        }
-    }
 
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
                                         event:event];
+}
+
+- (void)logWipeDataInEvent:(MSIDTelemetryCacheEvent *)event
+                   context:(id<MSIDRequestContext>)context
+{
+    NSDictionary *wipeData = [_dataSource wipeInfo:context error:nil];
+    if (wipeData)
+    {
+        [event setCacheWipeApp:wipeData[@"bundleId"]];
+        [event setCacheWipeTime:[(NSDate *)wipeData[@"wipeTime"] msidToString]];
+        
+    }
 }
 
 @end

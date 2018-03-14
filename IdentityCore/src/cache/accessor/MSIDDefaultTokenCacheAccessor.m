@@ -312,7 +312,7 @@
         
         if (!key)
         {
-            [self stopTelemetryEvent:event withItem:nil success:NO logWipeData:NO context:context];
+            [self stopTelemetryEvent:event withItem:nil success:NO context:context];
             
             return nil;
         }
@@ -328,7 +328,7 @@
         {
             if (error) *error = cacheError;
             
-            [self stopTelemetryEvent:event withItem:nil success:NO logWipeData:NO context:context];
+            [self stopTelemetryEvent:event withItem:nil success:NO context:context];
             
             return nil;
         }
@@ -352,15 +352,18 @@
         if (resultToken)
         {
             resultToken.authority = authority;
-            [self stopTelemetryEvent:event withItem:resultToken.tokenCacheItem success:YES logWipeData:NO context:context];
+            [self stopTelemetryEvent:event withItem:resultToken.tokenCacheItem success:YES context:context];
             return resultToken;
         }
     }
     
+    if (tokenType == MSIDTokenTypeRefreshToken)
+    {
+        [self logWipeDataInEvent:event context:context];
+    }
     [self stopTelemetryEvent:event
                     withItem:nil
                      success:NO
-                 logWipeData:tokenType == MSIDTokenTypeRefreshToken
                      context:context];
     return nil;
 }
@@ -669,7 +672,7 @@
     
     if (!key)
     {
-        [self stopTelemetryEvent:event withItem:cacheItem success:NO logWipeData:NO context:context];
+        [self stopTelemetryEvent:event withItem:cacheItem success:NO context:context];
         return NO;
     }
     
@@ -679,7 +682,7 @@
                                  context:context
                                    error:error];
     
-    [self stopTelemetryEvent:event withItem:cacheItem success:result logWipeData:NO context:context];
+    [self stopTelemetryEvent:event withItem:cacheItem success:result context:context];
     
     return result;
 }
@@ -697,10 +700,13 @@
     NSArray *tokens = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
     
     BOOL success = (tokens != nil && tokens.count > 0);
+    if (!success && key.type.integerValue == MSIDTokenTypeRefreshToken)
+    {
+        [self logWipeDataInEvent:event context:context];
+    }
     [self stopTelemetryEvent:event
                     withItem:nil
                      success:success
-                 logWipeData:(!success && key.type.integerValue == MSIDTokenTypeRefreshToken)
                      context:context];
     return tokens;
 }
@@ -731,13 +737,13 @@
             
             if (![_dataSource removeItemsWithKey:key context:context error:error])
             {
-                [self stopTelemetryEvent:event withItem:nil success:NO logWipeData:NO context:context];
+                [self stopTelemetryEvent:event withItem:nil success:NO context:context];
                 return NO;
             }
         }
     }
     
-    [self stopTelemetryEvent:event withItem:nil success:YES logWipeData:NO context:context];
+    [self stopTelemetryEvent:event withItem:nil success:YES context:context];
     return YES;
 }
 
@@ -746,7 +752,6 @@
 - (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
                   withItem:(MSIDTokenCacheItem *)item
                    success:(BOOL)success
-               logWipeData:(BOOL)logWipeData
                    context:(id<MSIDRequestContext>)context
 {
     [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
@@ -754,20 +759,20 @@
     {
         [event setCacheItem:item];
     }
-    
-    if (logWipeData)
-    {
-        NSDictionary *wipeData = [_dataSource wipeInfo:context error:nil];
-        if (wipeData)
-        {
-            [event setCacheWipeApp:wipeData[@"bundleId"]];
-            [event setCacheWipeTime:[(NSDate *)wipeData[@"wipeTime"] msidToString]];
-            
-        }
-    }
-    
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
                                         event:event];
+}
+
+- (void)logWipeDataInEvent:(MSIDTelemetryCacheEvent *)event
+                   context:(id<MSIDRequestContext>)context
+{
+    NSDictionary *wipeData = [_dataSource wipeInfo:context error:nil];
+    if (wipeData)
+    {
+        [event setCacheWipeApp:wipeData[@"bundleId"]];
+        [event setCacheWipeTime:[(NSDate *)wipeData[@"wipeTime"] msidToString]];
+        
+    }
 }
 
 @end
