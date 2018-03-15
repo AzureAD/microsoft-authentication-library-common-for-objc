@@ -36,7 +36,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 
 @interface MSIDKeychainTokenCache ()
 
-@property (nonnull) NSString *keychainGroup;
+@property (readwrite, nonnull) NSString *keychainGroup;
+@property (readwrite, nonnull) NSDictionary *defaultKeychainQuery;
+@property (readwrite, nonnull) NSDictionary *defaultWipeQuery;
 
 @end
 
@@ -61,7 +63,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO(nil, @"Setting default keychain group.");
     MSID_LOG_INFO_PII(nil, @"Setting default keychain group to %@", defaultKeychainGroup);
     
-    if (defaultKeychainGroup == s_defaultKeychainGroup)
+    if ([defaultKeychainGroup isEqualToString:s_defaultKeychainGroup])
     {
         return;
     }
@@ -108,6 +110,14 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         return nil;
     }
+    
+    self.defaultKeychainQuery = [@{(id)kSecClass : (id)kSecClassGenericPassword,
+                                   (id)kSecAttrAccessGroup : self.keychainGroup} mutableCopy];
+    
+    self.defaultWipeQuery = @{(id)kSecClass : (id)kSecClassGenericPassword,
+                              (id)kSecAttrGeneric : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
+                              (id)kSecAttrAccessGroup : self.keychainGroup,
+                              (id)kSecAttrAccount : @"TokenWipe"};
     
     MSID_LOG_INFO(nil, @"Using keychainGroup: %@", _PII_NULLIFY(_keychainGroup));
     MSID_LOG_INFO_PII(nil, @"Using keychainGroup: %@", _keychainGroup);
@@ -318,7 +328,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         return NO;
     }
     
-    NSMutableDictionary *query = [self defaultQuery];
+    NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
     if (key.service)
     {
         [query setObject:key.service forKey:(id)kSecAttrService];
@@ -348,7 +358,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         }
         MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
     }
-    
+        
     return YES;
 }
 
@@ -365,12 +375,12 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
     MSID_LOG_INFO(context, @"Trying to update wipe info...");
-    MSID_LOG_INFO_PII(context, @"Wipe query: %@", [self wipeQuery]);
-    OSStatus status = SecItemUpdate((CFDictionaryRef)[self wipeQuery], (CFDictionaryRef)@{ (id)kSecValueData:wipeData});
+    MSID_LOG_INFO_PII(context, @"Wipe query: %@", self.defaultWipeQuery);
+    OSStatus status = SecItemUpdate((CFDictionaryRef)self.defaultWipeQuery, (CFDictionaryRef)@{ (id)kSecValueData:wipeData});
     MSID_LOG_INFO(context, @"Update wipe info status: %d", (int)status);
     if (status == errSecItemNotFound)
     {
-        NSMutableDictionary *mutableQuery = [[self wipeQuery] mutableCopy];
+        NSMutableDictionary *mutableQuery = [self.defaultWipeQuery mutableCopy];
         [mutableQuery addEntriesFromDictionary: @{(id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                                                   (id)kSecValueData : wipeData}];
         MSID_LOG_INFO(context, @"Trying to add wipe info...");
@@ -394,12 +404,12 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 {
-    NSMutableDictionary *query = [[self wipeQuery] mutableCopy];
+    NSMutableDictionary *query = [self.defaultWipeQuery mutableCopy];
     [query setObject:@YES forKey:(id)kSecReturnData];
     
     CFTypeRef data = nil;
     MSID_LOG_INFO(context, @"Trying to get wipe info...");
-    MSID_LOG_INFO_PII(context, @"Wipe query: %@", [self wipeQuery]);
+    MSID_LOG_INFO_PII(context, @"Wipe query: %@", self.defaultWipeQuery);
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &data);
     MSID_LOG_INFO(context, @"Get wipe info status: %d", (int)status);
     
@@ -428,37 +438,13 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         return;
     }
     
-    NSMutableDictionary *deleteQuery = [self defaultQuery];
+    NSMutableDictionary *deleteQuery = [self.defaultKeychainQuery mutableCopy];
     [deleteQuery setObject:service forKey:(id)kSecAttrService];
     [deleteQuery setObject:account forKey:(id)kSecAttrAccount];
     
     MSID_LOG_INFO(context, @"Trying to delete tombstone item...");
     OSStatus status = SecItemDelete((CFDictionaryRef)deleteQuery);
     MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
-}
-
-- (NSDictionary *)wipeQuery
-{
-    static NSDictionary *wipeQuery;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        wipeQuery = @{(id)kSecClass : (id)kSecClassGenericPassword,
-                       (id)kSecAttrGeneric : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
-                       (id)kSecAttrAccessGroup : self.keychainGroup,
-                       (id)kSecAttrAccount : @"TokenWipe"};
-    });
-    return wipeQuery;
-}
-
-- (NSMutableDictionary *)defaultQuery
-{
-    static NSDictionary *query;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        query = @{(id)kSecClass : (id)kSecClassGenericPassword,
-                  (id)kSecAttrAccessGroup : self.keychainGroup};
-    });
-    return [query mutableCopy];
 }
 
 #pragma mark - Helpers
@@ -470,7 +456,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO(context, @"Get keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Get keychain items, key info (account: %@ service: %@)", key.account, key.service);
     
-    NSMutableDictionary *query = [self defaultQuery];
+    NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
     if (key.service)
     {
         [query setObject:key.service forKey:(id)kSecAttrService];
@@ -525,11 +511,11 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO(context, @"Set keychain item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Set keychain item, key info (account: %@ service: %@)", key.account, key.service);
     
-    if (!key.service || !key.account || !key.generic)
+    if (!key.service || !key.generic)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service, account and generic fields are not nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service and generic fields are not nil.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
         return NO;
@@ -545,9 +531,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         return NO;
     }
     
-    NSMutableDictionary *query = [self defaultQuery];
+    NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
     [query setObject:key.service forKey:(id)kSecAttrService];
-    [query setObject:key.account forKey:(id)kSecAttrAccount];
+    [query setObject:(key.account ? key.account : @"") forKey:(id)kSecAttrAccount];
     [query setObject:key.generic forKey:(id)kSecAttrGeneric];
     
     if (key.type)

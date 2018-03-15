@@ -91,9 +91,15 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
                                        resource:(NSString *)resource
                                    legacyUserId:(NSString *)legacyUserId
 {
-    NSString *service = [self.class serviceWithAuthority:authority
-                                                resource:resource
-                                                clientId:clientId];
+    NSString *service = nil;
+    
+    if (authority
+        && clientId)
+    {
+        service = [self.class serviceWithAuthority:authority
+                                          resource:resource
+                                          clientId:clientId];
+    }
     
     MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:[self adalAccountWithUserId:legacyUserId]
                                                                             service:service
@@ -220,6 +226,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
  */
 + (NSString *)adalAccountWithUserId:(NSString *)userId
 {
+    
 #if TARGET_OS_IPHONE
     return [userId msidBase64UrlEncode];
 #endif
