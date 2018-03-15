@@ -26,6 +26,7 @@
 @interface MSIDAccessToken : MSIDBaseToken
 
 @property (readonly) NSDate *expiresOn;
+@property (readonly) NSDate *extendedExpireTime;
 @property (readonly) NSDate *cachedAt;
 @property (readonly) NSString *accessToken;
 
@@ -41,5 +42,6 @@
 @property (readonly) NSOrderedSet<NSString *> *scopes;
 
 - (BOOL)isExpired;
+- (BOOL)isExtendedLifetimeValid;
 
 @end

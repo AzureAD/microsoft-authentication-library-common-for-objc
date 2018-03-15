@@ -249,6 +249,19 @@ static uint64_t s_expirationBuffer = 300;
     return _additionaServerlInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
 }
 
+- (BOOL)isExtendedLifetimeValid
+{
+    NSDate *extendedExpiresOn = self.extendedExpireTime;
+    
+    //extended lifetime is only valid if it contains an access token
+    if (extendedExpiresOn && ![NSString msidIsStringNilOrBlank:self.accessToken])
+    {
+        return [extendedExpiresOn compare:[NSDate date]] == NSOrderedDescending;
+    }
+    
+    return NO;
+}
+
 #pragma mark - Resource/scopes
 
 - (NSString *)resource

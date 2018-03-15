@@ -101,7 +101,7 @@
     
     XCTAssertFalse(isToken);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+    XCTAssertEqual(error.code, MSIDErrorInvalidGrant);
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
 }
 

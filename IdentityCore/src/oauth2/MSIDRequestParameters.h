@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDRequestParameters : NSObject
+@interface MSIDRequestParameters : NSObject <NSCopying>
 
 @property (readwrite) NSURL *authority;
 @property (readwrite) NSString *redirectUri;
