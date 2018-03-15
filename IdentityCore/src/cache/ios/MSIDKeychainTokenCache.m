@@ -350,7 +350,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
     MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
     
-    if (status != errSecSuccess)
+    if (status != errSecSuccess && status != errSecItemNotFound)
     {
         if (error)
         {
