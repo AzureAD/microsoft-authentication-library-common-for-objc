@@ -104,7 +104,15 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    _keychainGroup = [MSIDKeychainUtil accessGroup:keychainGroup];
+    if (!MSIDKeychainUtil.teamId) return nil;
+    
+    // Add team prefix to keychain group if it is missed.
+    if (![keychainGroup hasPrefix:MSIDKeychainUtil.teamId])
+    {
+        keychainGroup = [MSIDKeychainUtil accessGroup:keychainGroup];
+    }
+    
+    _keychainGroup = keychainGroup;
     
     if (!_keychainGroup)
     {
