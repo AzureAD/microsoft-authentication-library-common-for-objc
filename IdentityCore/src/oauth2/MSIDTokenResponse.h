@@ -25,6 +25,7 @@
 #import "MSIDIdTokenWrapper.h"
 #import "MSIDAccountType.h"
 #import "MSIDRequestParameters.h"
+#import "MSIDError.h"
 
 @protocol MSIDRefreshableToken;
 @class MSIDBaseToken;
@@ -45,6 +46,9 @@
 @property (readonly) NSString *idToken;
 
 /* Derived properties */
+
+// Error code based on oauth error response
+@property (readonly) MSIDErrorCode oauthErrorCode;
 
 // NSDate derived from expiresIn property and time received
 @property (readonly) NSDate *expiryDate;

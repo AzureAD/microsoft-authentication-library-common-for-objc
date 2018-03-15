@@ -357,6 +357,8 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
             *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
+        
+        return NO;
     }
         
     return YES;

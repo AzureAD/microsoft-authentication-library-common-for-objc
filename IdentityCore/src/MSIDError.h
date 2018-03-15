@@ -68,7 +68,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorServerOauth = -51303,
     MSIDErrorInvalidRequest = -51304,
     MSIDErrorInvalidClient = -51305,
-    MSIDErrorInvalidParameter = -51306
+    MSIDErrorInvalidGrant = -51306,
+    MSIDErrorInvalidParameter = -51307
     
 };
 

@@ -26,6 +26,17 @@
 
 @implementation MSIDRequestParameters
 
+- (instancetype)copyWithZone:(NSZone*)zone
+{
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters allocWithZone:zone] init];
+    parameters.authority = [_authority copyWithZone:zone];
+    parameters.redirectUri = [_redirectUri copyWithZone:zone];
+    parameters.target = [_target copyWithZone:zone];
+    parameters.clientId = [_clientId copyWithZone:zone];
+    
+    return parameters;
+}
+
 - (instancetype)initWithAuthority:(NSURL *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
