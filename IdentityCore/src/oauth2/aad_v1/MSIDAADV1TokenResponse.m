@@ -50,6 +50,18 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
     return MSIDAccountTypeAADV1;
 }
 
+- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
+{
+    if (!self.clientInfo)
+    {
+        MSID_LOG_WARN(context, @"Client info was not returned in the server response");
+        MSID_LOG_WARN_PII(context, @"Client info was not returned in the server response");
+    }
+    
+    return [super verifyExtendedProperties:context error:error];
+}
+
 - (NSError *)getOAuthError:(id<MSIDRequestContext>)context
           fromRefreshToken:(BOOL)fromRefreshToken
 {
