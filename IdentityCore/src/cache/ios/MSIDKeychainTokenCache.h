@@ -52,6 +52,7 @@
 
 /*!
  Actual keychain sharing group used for queries.
+ Contains team id (<team id>.<keychain group>)
  */
 @property (readonly, nonnull) NSString *keychainGroup;
 

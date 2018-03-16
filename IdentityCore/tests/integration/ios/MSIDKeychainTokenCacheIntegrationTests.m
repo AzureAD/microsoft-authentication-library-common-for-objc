@@ -65,6 +65,22 @@
     XCTAssertEqualObjects(MSIDKeychainTokenCache.defaultKeychainGroup, @"my.group");
 }
 
+- (void)testInitWithGroup_shoulReturnGroupWithTeamId
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    NSString *expected = [NSString stringWithFormat:@"%@.my.group", MSIDKeychainUtil.teamId];
+    
+    XCTAssertEqualObjects(keychainTokenCache.keychainGroup, expected);
+}
+
+- (void)testInitWithGroup_whenGroupHasTemaIdAsPrefix_shoulReturnSameGroupWithTeamId
+{
+    NSString *group = [NSString stringWithFormat:@"%@.my.group", MSIDKeychainUtil.teamId];
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:group];
+    
+    XCTAssertEqualObjects(keychainTokenCache.keychainGroup, group);
+}
+
 #pragma mark - MSIDTokenCacheDataSource
 
 - (void)test_whenSetItemWithValidParameters_shouldReturnTrue
