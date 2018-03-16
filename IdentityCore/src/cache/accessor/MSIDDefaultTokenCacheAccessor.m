@@ -249,6 +249,7 @@
     
     if (result && token.tokenType == MSIDTokenTypeRefreshToken)
     {
+        [_dataSource saveWipeInfoWithContext:context error:nil];
         return [self removeIDTokensForRefreshToken:token context:context error:error];
     }
     

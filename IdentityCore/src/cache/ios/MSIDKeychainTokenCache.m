@@ -349,8 +349,6 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
     }
     
-    [self saveWipeInfoWithContext:context error:nil];
-    
     return YES;
 }
 

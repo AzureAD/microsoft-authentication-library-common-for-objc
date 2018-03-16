@@ -285,9 +285,14 @@
                                                                     resource:cacheItem.target
                                                                          legacyUserId:account.legacyUserId];
     
-    return [_dataSource removeItemsWithKey:key
-                                   context:context
-                                     error:error];
+    BOOL result =  [_dataSource removeItemsWithKey:key
+                                           context:context
+                                             error:error];
+    if (result && token.tokenType == MSIDTokenTypeRefreshToken)
+    {
+        [_dataSource saveWipeInfoWithContext:context error:nil];
+    }
+    return result;
 }
 
 - (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
