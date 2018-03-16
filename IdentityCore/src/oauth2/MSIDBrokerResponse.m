@@ -53,7 +53,7 @@ MSID_FORM_ACCESSOR(MSID_CLIENT_INFO_CACHE_KEY, clientInfo)
     {
         // Broker only works for AAD for now
         NSMutableDictionary *formDictionary = [form mutableCopy];
-        formDictionary[MSID_OAUTH2_ACCESS_TOKEN] = @"Bearer";
+        formDictionary[MSID_OAUTH2_TOKEN_TYPE] = @"Bearer";
         
         _tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:formDictionary
                                                                           error:error];
