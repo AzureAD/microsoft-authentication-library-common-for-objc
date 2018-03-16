@@ -43,11 +43,11 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorInternal = -51000,
     MSIDErrorInvalidInternalParameter = -51001,
     
-    MSIDErrorInvalidDeveloperParameter = -51100,
-    MSIDErrorAmbiguousAuthority     = -51101,
-    MSIDErrorInteractionRequired    = -51102,
+    MSIDErrorInvalidDeveloperParameter = -51002,
+    MSIDErrorAmbiguousAuthority     = -51003,
+    MSIDErrorInteractionRequired    = -51004,
     
-    MSIDErrorCacheMultipleUsers     = -51200,
+    MSIDErrorCacheMultipleUsers     = -51005,
     
     /*!
      MSID encounted an error when trying to store or retrieve items from
@@ -55,22 +55,23 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      more information about the specific error. Keychain error codes are
      documented in Apple's <Security/SecBase.h> header file
      */
-    MSIDErrorTokenCacheItemFailure  = -51201,
-    MSIDErrorUserNotFound           = -51202,
-    MSIDErrorNoAccessTokensFound    = -51203,
-    MSIDErrorWrapperCacheFailure    = -51204,
-    MSIDErrorCacheBadFormat         = -51205,
-    MSIDErrorCacheVersionMismatch   = -51206,
+    MSIDErrorTokenCacheItemFailure  = -51006,
+    MSIDErrorUserNotFound           = -51007,
+    MSIDErrorNoAccessTokensFound    = -51008,
+    MSIDErrorWrapperCacheFailure    = -51009,
+    MSIDErrorCacheBadFormat         = -51010,
+    MSIDErrorCacheVersionMismatch   = -51011,
     
-    MSIDErrorServerInvalidResponse = -51300,
-    MSIDErrorDeveloperAuthorityValidation = -51301,
-    MSIDErrorServerRefreshTokenRejected = -51302,
-    MSIDErrorServerOauth = -51303,
-    MSIDErrorInvalidRequest = -51304,
-    MSIDErrorInvalidClient = -51305,
-    MSIDErrorInvalidGrant = -51306,
-    MSIDErrorInvalidParameter = -51307
-    
+    MSIDErrorServerInvalidResponse = -51012,
+    MSIDErrorDeveloperAuthorityValidation = -51013,
+    MSIDErrorServerRefreshTokenRejected = -51014,
+    MSIDErrorServerOauth = -51015,
+    MSIDErrorInvalidRequest = -51016,
+    MSIDErrorInvalidClient = -51017,
+    MSIDErrorInvalidGrant = -51018,
+    MSIDErrorInvalidParameter = -51019,
+    MSIDErrorCodeFirst = MSIDErrorInternal,
+    MSIDErrorCodeLast = MSIDErrorInvalidParameter
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
