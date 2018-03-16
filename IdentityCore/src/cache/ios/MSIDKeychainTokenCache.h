@@ -50,6 +50,12 @@
  */
 @property (class, readonly, nonnull) MSIDKeychainTokenCache *defaultKeychainCache;
 
+/*!
+ Actual keychain sharing group used for queries.
+ Contains team id (<team id>.<keychain group>)
+ */
+@property (readonly, nonnull) NSString *keychainGroup;
+
 /*! 
  Initializes with defaultKeychainGroup.
  */

@@ -65,6 +65,22 @@
     XCTAssertEqualObjects(MSIDKeychainTokenCache.defaultKeychainGroup, @"my.group");
 }
 
+- (void)testInitWithGroup_shoulReturnGroupWithTeamId
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    NSString *expected = [NSString stringWithFormat:@"%@.my.group", MSIDKeychainUtil.teamId];
+    
+    XCTAssertEqualObjects(keychainTokenCache.keychainGroup, expected);
+}
+
+- (void)testInitWithGroup_whenGroupHasTemaIdAsPrefix_shoulReturnSameGroupWithTeamId
+{
+    NSString *group = [NSString stringWithFormat:@"%@.my.group", MSIDKeychainUtil.teamId];
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:group];
+    
+    XCTAssertEqualObjects(keychainTokenCache.keychainGroup, group);
+}
+
 #pragma mark - MSIDTokenCacheDataSource
 
 - (void)test_whenSetItemWithValidParameters_shouldReturnTrue
@@ -98,19 +114,24 @@
     XCTAssertEqualObjects(token, token2);
 }
 
-- (void)testSetItem_whenKeysAccountIsNil_shouldReturnFalseAndError
+- (void)testSetItem_whenKeysAccountIsNil_shouldSaveItemWithEmptyAccount
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     
     MSIDTokenCacheItem *token = [MSIDTokenCacheItem new];
+    token.oauthTokenType = @"oauth type";
+    
     MSIDTokenCacheKey *key = [[MSIDTokenCacheKey alloc] initWithAccount:nil service:@"test_service" generic:self.generic type:nil];
     MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
     NSError *error;
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:keyedArchiverSerializer context:nil error:&error];
     
-    XCTAssertFalse(result);
-    XCTAssertNotNil(error);
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    
+    MSIDTokenCacheItem *token2 = [keychainTokenCache tokenWithKey:key serializer:keyedArchiverSerializer context:nil error:nil];
+    XCTAssertEqualObjects(token, token2);
 }
 
 - (void)testSetItem_whenKeysServiceIsNil_shouldReturnFalseAndError

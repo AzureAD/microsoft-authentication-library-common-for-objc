@@ -95,4 +95,9 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
+- (BOOL)removeTokenForAccount:(MSIDAccount *)account
+                        token:(MSIDBaseToken *)token
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error;
+
 @end

@@ -72,7 +72,7 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
 
 - (void)setExpiresIn:(NSInteger)expiresIn
 {
-    NSString *expiresInString = [NSString stringWithFormat:@"%ld", expiresIn];
+    NSString *expiresInString = [NSString stringWithFormat:@"%ld", (long)expiresIn];
     _json[MSID_OAUTH2_EXPIRES_IN] = expiresInString;
 }
 
@@ -125,6 +125,28 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
 - (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams
 {
     return self.target;
+}
+
+- (MSIDErrorCode)oauthErrorCode
+{
+    if ([self.error isEqualToString:@"invalid_request"])
+    {
+        return MSIDErrorInvalidRequest;
+    }
+    if ([self.error isEqualToString:@"invalid_client"])
+    {
+        return MSIDErrorInvalidClient;
+    }
+    if ([self.error isEqualToString:@"invalid_scope"])
+    {
+        return MSIDErrorInvalidParameter;
+    }
+    if ([self.error isEqualToString:@"invalid_grant"])
+    {
+        return MSIDErrorInvalidGrant;
+    }
+    
+    return MSIDErrorInteractionRequired;
 }
 
 @end
