@@ -52,6 +52,13 @@
                                               upn:(NSString *)upn
                                          tenantId:(NSString *)tenantId;
 
++ (MSIDAADV1TokenResponse *)v1TokenResponseWithAT:(NSString *)accessToken
+                                               rt:(NSString *)refreshToken
+                                         resource:(NSString *)resource
+                                              uid:(NSString *)uid
+                                             utid:(NSString *)utid
+                                          idToken:(NSString *)idToken;
+
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithoutClientInfo;
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithFamilyId:(NSString *)familyId;
 + (MSIDAADV1TokenResponse *)v1SingleResourceTokenResponse;

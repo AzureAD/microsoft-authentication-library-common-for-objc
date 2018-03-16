@@ -127,6 +127,11 @@
         return nil;
     }
     
+    if (!response.isMultiResource)
+    {
+        return nil;
+    }
+    
     return self;
 }
 

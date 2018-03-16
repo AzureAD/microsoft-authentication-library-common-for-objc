@@ -164,6 +164,11 @@
     MSID_LOG_VERBOSE(context, @"(Default accessor) Saving refresh token with clientID %@, authority %@", refreshToken.clientId, refreshToken.authority);
     MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving refresh toke with clientID %@, authority %@, userID %@", refreshToken.clientId, refreshToken.authority, account.userIdentifier);
     
+    if (![self checkUserIdentifier:account context:context error:error])
+    {
+        return NO;
+    }
+    
     return [self saveTokenWithPreferredCache:refreshToken
                                      account:account
                                      context:context

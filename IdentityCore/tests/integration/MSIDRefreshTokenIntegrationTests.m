@@ -120,6 +120,23 @@
     XCTAssertEqualObjects(token.familyId, DEFAULT_TEST_FAMILY_ID);
 }
 
+- (void)testInitWithTokenResponse_whenSingleResourceTokenResponse_v1RequestParams_shouldReturnNil
+{
+    MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                 rt:DEFAULT_TEST_REFRESH_TOKEN
+                                                                           resource:nil
+                                                                                uid:DEFAULT_TEST_UID
+                                                                               utid:DEFAULT_TEST_UTID
+                                                                                upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                           tenantId:DEFAULT_TEST_UTID];
+    
+    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:response request:params];
+    
+    XCTAssertNil(token);
+}
+
 - (void)testInitWithTokenResponse_whenAADV1TokenResponse_v2RequestParams_shouldFillToken
 {
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];

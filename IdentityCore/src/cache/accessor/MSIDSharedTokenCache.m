@@ -131,13 +131,17 @@
     // Save RTs in all formats including primary
     for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
+        NSError *cacheError = nil;
+        
         BOOL result = [cache saveRefreshToken:refreshToken
                                       account:account
                                       context:context
-                                        error:error];
+                                        error:&cacheError];
         
-        if (!result)
+        if (!result && [cache isEqual:_primaryAccessor])
         {
+            if (error) *error = cacheError;
+            
             return NO;
         }
     }
