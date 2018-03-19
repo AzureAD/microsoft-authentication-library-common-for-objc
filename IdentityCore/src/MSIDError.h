@@ -56,20 +56,18 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      documented in Apple's <Security/SecBase.h> header file
      */
     MSIDErrorTokenCacheItemFailure  = -51006,
-    MSIDErrorUserNotFound           = -51007,
-    MSIDErrorNoAccessTokensFound    = -51008,
-    MSIDErrorWrapperCacheFailure    = -51009,
-    MSIDErrorCacheBadFormat         = -51010,
-    MSIDErrorCacheVersionMismatch   = -51011,
+    MSIDErrorWrapperCacheFailure    = -51007,
+    MSIDErrorCacheBadFormat         = -51008,
+    MSIDErrorCacheVersionMismatch   = -51009,
     
-    MSIDErrorServerInvalidResponse = -51012,
-    MSIDErrorDeveloperAuthorityValidation = -51013,
-    MSIDErrorServerRefreshTokenRejected = -51014,
-    MSIDErrorServerOauth = -51015,
-    MSIDErrorInvalidRequest = -51016,
-    MSIDErrorInvalidClient = -51017,
-    MSIDErrorInvalidGrant = -51018,
-    MSIDErrorInvalidParameter = -51019,
+    MSIDErrorServerInvalidResponse = -51010,
+    MSIDErrorDeveloperAuthorityValidation = -51011,
+    MSIDErrorServerRefreshTokenRejected = -51012,
+    MSIDErrorServerOauth = -51013,
+    MSIDErrorInvalidRequest = -51014,
+    MSIDErrorInvalidClient = -51015,
+    MSIDErrorInvalidGrant = -51016,
+    MSIDErrorInvalidParameter = -51017,
     MSIDErrorCodeFirst = MSIDErrorInternal,
     MSIDErrorCodeLast = MSIDErrorInvalidParameter
 };
