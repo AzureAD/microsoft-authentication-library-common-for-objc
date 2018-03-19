@@ -37,6 +37,7 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAADV2IdTokenWrapper.h"
 #import "MSIDRequestParameters.h"
+#import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
@@ -265,6 +266,7 @@
     
     if (result && token.tokenType == MSIDTokenTypeRefreshToken)
     {
+        [_dataSource saveWipeInfoWithContext:context error:nil];
         return [self removeIDTokensForRefreshToken:token context:context error:error];
     }
     
@@ -720,7 +722,15 @@
     
     NSArray *tokens = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
     
-    [self stopTelemetryEvent:event withItem:nil success:(tokens != nil) context:context];
+    BOOL success = (tokens != nil && tokens.count > 0);
+    if (!success && key.type.integerValue == MSIDTokenTypeRefreshToken)
+    {
+        [self logWipeDataInEvent:event context:context];
+    }
+    [self stopTelemetryEvent:event
+                    withItem:nil
+                     success:success
+                     context:context];
     return tokens;
 }
 
@@ -774,6 +784,18 @@
     }
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
                                         event:event];
+}
+
+- (void)logWipeDataInEvent:(MSIDTelemetryCacheEvent *)event
+                   context:(id<MSIDRequestContext>)context
+{
+    NSDictionary *wipeData = [_dataSource wipeInfo:context error:nil];
+    if (wipeData)
+    {
+        [event setCacheWipeApp:wipeData[@"bundleId"]];
+        [event setCacheWipeTime:[(NSDate *)wipeData[@"wipeTime"] msidToString]];
+        
+    }
 }
 
 @end

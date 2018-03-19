@@ -416,6 +416,8 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 {
     NSMutableDictionary *query = [self.defaultWipeQuery mutableCopy];
     [query setObject:@YES forKey:(id)kSecReturnData];
+    //For compatibility, remove kSecAttrService to be able to read wipeInfo written by old ADAL
+    [query removeObjectForKey:(id)kSecAttrService];
     
     CFTypeRef data = nil;
     MSID_LOG_INFO(context, @"Trying to get wipe info...");

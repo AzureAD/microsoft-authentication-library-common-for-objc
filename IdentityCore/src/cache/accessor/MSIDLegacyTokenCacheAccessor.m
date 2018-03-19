@@ -34,6 +34,7 @@
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
+#import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDAuthority.h"
 
@@ -292,9 +293,14 @@
                                                                     resource:cacheItem.target
                                                                          legacyUserId:account.legacyUserId];
     
-    return [_dataSource removeItemsWithKey:key
-                                   context:context
-                                     error:error];
+    BOOL result =  [_dataSource removeItemsWithKey:key
+                                           context:context
+                                             error:error];
+    if (result && token.tokenType == MSIDTokenTypeRefreshToken)
+    {
+        [_dataSource saveWipeInfoWithContext:context error:nil];
+    }
+    return result;
 }
 
 - (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
@@ -331,7 +337,16 @@
                                                                           && [cacheItem.clientId isEqualToString:clientId]);
                                                               }];
     
-    [self stopTelemetryEvent:event withItem:nil success:YES context:context];
+    BOOL success = (results.count > 0);
+    if(!success && tokenType == MSIDTokenTypeRefreshToken)
+    {
+        [self logWipeDataInEvent:event context:context];
+    }
+    [self stopTelemetryEvent:event
+                    withItem:nil
+                     success:success
+                     context:context];
+    
     return results;
 }
 
@@ -446,6 +461,7 @@
         
         if (!key)
         {
+            [self stopTelemetryEvent:event withItem:nil success:NO context:context];
             return nil;
         }
         
@@ -494,6 +510,18 @@
 
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
                                         event:event];
+}
+
+- (void)logWipeDataInEvent:(MSIDTelemetryCacheEvent *)event
+                   context:(id<MSIDRequestContext>)context
+{
+    NSDictionary *wipeData = [_dataSource wipeInfo:context error:nil];
+    if (wipeData)
+    {
+        [event setCacheWipeApp:wipeData[@"bundleId"]];
+        [event setCacheWipeTime:[(NSDate *)wipeData[@"wipeTime"] msidToString]];
+        
+    }
 }
 
 @end
