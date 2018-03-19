@@ -215,7 +215,7 @@
         }
     }
     
-    [self stopTelemetryEvent:event withItem:token success:token != nil context:context];
+    [self stopTelemetryLookupEvent:event tokenType:tokenType withToken:token success:token != nil context:context];
     return token;
 }
 
@@ -721,16 +721,8 @@
                                                                            context:context];
     
     NSArray *tokens = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
+    [self stopTelemetryLookupEvent:event tokenType:key.type.integerValue withToken:nil success:(tokens.count > 0) context:context];
     
-    BOOL success = (tokens != nil && tokens.count > 0);
-    if (!success && key.type.integerValue == MSIDTokenTypeRefreshToken)
-    {
-        [self logWipeDataInEvent:event context:context];
-    }
-    [self stopTelemetryEvent:event
-                    withItem:nil
-                     success:success
-                     context:context];
     return tokens;
 }
 
@@ -786,16 +778,21 @@
                                         event:event];
 }
 
-- (void)logWipeDataInEvent:(MSIDTelemetryCacheEvent *)event
-                   context:(id<MSIDRequestContext>)context
+- (void)stopTelemetryLookupEvent:(MSIDTelemetryCacheEvent *)event
+                       tokenType:(MSIDTokenType)tokenType
+                       withToken:(MSIDBaseToken *)token
+                         success:(BOOL)success
+                         context:(id<MSIDRequestContext>)context
 {
-    NSDictionary *wipeData = [_dataSource wipeInfo:context error:nil];
-    if (wipeData)
+    if (!success && tokenType == MSIDTokenTypeRefreshToken)
     {
-        [event setCacheWipeApp:wipeData[@"bundleId"]];
-        [event setCacheWipeTime:[(NSDate *)wipeData[@"wipeTime"] msidToString]];
-        
+        [event setWipeData:[_dataSource wipeInfo:context error:nil]];
     }
+    
+    [self stopTelemetryEvent:event
+                    withItem:token
+                     success:success
+                     context:context];
 }
 
 @end

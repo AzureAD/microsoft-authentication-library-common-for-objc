@@ -25,6 +25,7 @@
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDRefreshToken.h"
+#import "NSDate+MSIDExtensions.h"
 
 @implementation MSIDTelemetryCacheEvent
 
@@ -125,6 +126,15 @@
 - (void)setCacheWipeTime:(NSString *)wipeTime
 {
     [self setProperty:MSID_TELEMETRY_KEY_WIPE_TIME value:wipeTime];
+}
+
+- (void)setWipeData:(NSDictionary *)wipeData
+{
+    if (wipeData)
+    {
+        [self setCacheWipeApp:wipeData[@"bundleId"]];
+        [self setCacheWipeTime:[(NSDate *)wipeData[@"wipeTime"] msidToString]];
+    }
 }
 
 @end

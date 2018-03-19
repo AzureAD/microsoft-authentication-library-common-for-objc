@@ -38,5 +38,6 @@
 - (void)setToken:(MSIDBaseToken *)token;
 - (void)setCacheWipeApp:(NSString *)wipeApp;
 - (void)setCacheWipeTime:(NSString *)wipeTime;
+- (void)setWipeData:(NSDictionary *)wipeData;
 
 @end
