@@ -290,21 +290,33 @@
     XCTAssertNil(token);
 }
 
-- (void)testGetAccessToken_withAccountWithoutUPN_shouldReturnError
+- (void)testGetAccessToken_withAccountWithoutUPN_whenOnlyOneTokenInCache_shouldReturnToken
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil
-                                                       uniqueUserId:@"some id"];
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:@"some id"];
     
+    // Save token
     NSError *error = nil;
-    MSIDBaseToken *token = [_legacyAccessor getTokenWithType:MSIDTokenTypeAccessToken
-                                                     account:account
-                                               requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                     context:nil
-                                                       error:&error];
     
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
-    XCTAssertNil(token);
+    [_legacyAccessor saveTokensWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
+                                         account:account
+                                        response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                         context:nil
+                                           error:&error];
+    XCTAssertNil(error);
+    
+    account.legacyUserId = nil;
+    
+    MSIDAccessToken *token = (MSIDAccessToken *)[_legacyAccessor getTokenWithType:MSIDTokenTypeAccessToken
+                                                                          account:account
+                                                                    requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                          context:nil
+                                                                            error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(token);
+    XCTAssertEqual(token.tokenType, MSIDTokenTypeAccessToken);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
 }
 
 - (void)testGetAccessTokenAfterSaving_withCorrectAccountAndParameters_shouldReturnToken
@@ -755,7 +767,7 @@
     XCTAssertNil(returnedToken);
 }
 
-- (void)testGetSharedRTForAccountAfterSaving_whenLegacyItemsInCache_andAccountWithUidUtidProvided_shouldReturnNil
+- (void)testGetSharedRTForAccountAfterSaving_whenMultipleLegacyItemsInCache_andAccountWithUidUtidProvided_shouldReturnNil
 {
     MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponseWithoutClientInfo]
                                                                       request:[MSIDTestRequestParams v1DefaultParams]];
@@ -763,7 +775,7 @@
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                 uniqueUserId:nil];
     
-    // Save token
+    // Save first token
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
@@ -773,8 +785,18 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
+    account.legacyUserId = @"user Id 2";
+    
+    result = [_legacyAccessor saveRefreshToken:token
+                                       account:account
+                                       context:nil
+                                         error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
     account = [[MSIDAccount alloc] initWithLegacyUserId:nil
-                                                   uniqueUserId:nil];
+                                           uniqueUserId:@"1.1234-5678-90abcdefg"];
     
     // Check that correct token is returned
     MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeRefreshToken
@@ -783,7 +805,6 @@
                                                              context:nil
                                                                error:&error];
     
-    XCTAssertNil(error);
     XCTAssertNil(returnedToken);
 }
 

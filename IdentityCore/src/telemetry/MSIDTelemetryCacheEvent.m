@@ -105,14 +105,15 @@
     [self setProperty:MSID_TELEMETRY_KEY_SPE_INFO value:speInfo];
 }
 
-- (void)setCacheItem:(MSIDTokenCacheItem *)token
+- (void)setToken:(MSIDBaseToken *)token
 {
     [self setTokenType:token.tokenType];
-    [self setSpeInfo:token.additionalInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
+    [self setSpeInfo:token.additionaServerlInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
     
     if (token.tokenType == MSIDTokenTypeRefreshToken)
     {
-        [self setIsFRT:[NSString msidIsStringNilOrBlank:token.familyId] ? MSID_TELEMETRY_VALUE_NO : MSID_TELEMETRY_VALUE_YES];
+        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *)token;
+        [self setIsFRT:[NSString msidIsStringNilOrBlank:refreshToken.familyId] ? MSID_TELEMETRY_VALUE_NO : MSID_TELEMETRY_VALUE_YES];
     }
 }
 

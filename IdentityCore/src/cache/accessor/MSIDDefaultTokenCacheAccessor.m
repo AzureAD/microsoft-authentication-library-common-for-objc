@@ -181,28 +181,41 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
+    
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
+                                                                           context:context];
+    
+    MSIDBaseToken *token = nil;
+    
     switch (tokenType)
     {
         case MSIDTokenTypeAccessToken:
         {
-            return [self getATForAccount:account requestParams:parameters context:context error:error];
+            token = [self getATForAccount:account requestParams:parameters context:context error:error];
+            break;
         }
         case MSIDTokenTypeRefreshToken:
         {
-            return [self getRTForAccount:account requestParams:parameters context:context error:error];
+            token = [self getRTForAccount:account requestParams:parameters context:context error:error];
+            break;
         }
         default:
         {
-            return [self getTokenWithType:tokenType
-                                  account:account
-                          useLegacyUserId:NO
-                                authority:parameters.authority
-                                 clientId:parameters.clientId
-                                   scopes:nil
-                                  context:context
-                                    error:error];
+            token = [self getTokenByUniqueUserId:account.userIdentifier
+                                       tokenType:tokenType
+                                       authority:parameters.authority
+                                        clientId:parameters.clientId
+                                          scopes:nil
+                                         context:context
+                                           error:error];
+            break;
         }
     }
+    
+    [self stopTelemetryEvent:event withItem:token success:token != nil context:context];
+    return token;
 }
 
 - (MSIDBaseToken *)getLatestToken:(MSIDBaseToken *)token
@@ -212,14 +225,13 @@
 {
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
     
-    return [self getTokenWithType:cacheItem.tokenType
-                          account:account
-                  useLegacyUserId:NO
-                        authority:cacheItem.authority
-                         clientId:cacheItem.clientId
-                           scopes:[cacheItem.target scopeSet]
-                          context:context
-                            error:error];
+    return [self getTokenByUniqueUserId:account.userIdentifier
+                              tokenType:cacheItem.tokenType
+                              authority:cacheItem.authority
+                               clientId:cacheItem.clientId
+                                 scopes:[cacheItem.target scopeSet]
+                                context:context
+                                  error:error];
 }
 
 - (BOOL)removeToken:(MSIDBaseToken *)token
@@ -284,81 +296,98 @@
 
 #pragma mark - Private
 
-- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
-                            account:(MSIDAccount *)account
-                    useLegacyUserId:(BOOL)useLegacyUserId
-                          authority:(NSURL *)authority
-                           clientId:(NSString *)clientId
-                             scopes:(NSOrderedSet<NSString *> *)scopes
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
+- (MSIDBaseToken *)getTokenByUniqueUserId:(NSString *)uniqueUserId
+                                tokenType:(MSIDTokenType)tokenType
+                                authority:(NSURL *)authority
+                                 clientId:(NSString *)clientId
+                                   scopes:(NSOrderedSet<NSString *> *)scopes
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
 {
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
-    
-    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
-                                                                           context:context];
-    
     NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
     
     for (NSURL *alias in aliases)
     {
-        NSString *userId = useLegacyUserId ? nil : account.userIdentifier;
-        
         MSIDTokenCacheKey *key = [self keyForTokenType:tokenType
-                                                userId:userId
+                                                userId:uniqueUserId
                                               clientId:clientId
                                                 scopes:scopes
                                              authority:alias];
         
         MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for token with alias %@, clientId %@, scopes %@", alias, clientId, scopes);
-        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for token with alias %@, clientId %@, scopes %@, userId %@", alias, clientId, scopes, userId);
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for token with alias %@, clientId %@, scopes %@, userId %@", alias, clientId, scopes, uniqueUserId);
         
         if (!key)
         {
-            [self stopTelemetryEvent:event withItem:nil success:NO context:context];
             return nil;
         }
         
         NSError *cacheError = nil;
         
-        NSArray<MSIDTokenCacheItem *> *tokens = [_dataSource tokensWithKey:key
-                                                                serializer:_serializer
-                                                                   context:context
-                                                                     error:&cacheError];
+        MSIDTokenCacheItem *cacheItem = [_dataSource tokenWithKey:key serializer:_serializer context:context error:&cacheError];
         
         if (cacheError)
         {
             if (error) *error = cacheError;
-            [self stopTelemetryEvent:event withItem:nil success:NO context:context];
             return nil;
         }
         
-        MSIDBaseToken *resultToken = nil;
-        
-        if (useLegacyUserId)
+        if (cacheItem)
         {
-            NSArray *matchedTokens = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:tokens legacyUserId:account.legacyUserId context:context];
-            
-            if ([matchedTokens count] > 0)
-            {
-                resultToken = matchedTokens[0];
-            }
-        }
-        else if ([tokens count] > 0)
-        {
-            resultToken = [tokens[0] tokenWithType:tokenType];
-        }
-        
-        if (resultToken)
-        {
+            MSIDBaseToken *resultToken = [cacheItem tokenWithType:tokenType];
             resultToken.authority = authority;
-            [self stopTelemetryEvent:event withItem:resultToken.tokenCacheItem success:YES context:context];
             return resultToken;
         }
     }
     
-    [self stopTelemetryEvent:event withItem:nil success:NO context:context];
+    return nil;
+}
+
+- (MSIDBaseToken *)getTokenByLegacyUserId:(NSString *)legacyUserId
+                                tokenType:(MSIDTokenType)tokenType
+                                authority:(NSURL *)authority
+                                 clientId:(NSString *)clientId
+                                   scopes:(NSOrderedSet<NSString *> *)scopes
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
+{
+    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+    
+    for (NSURL *alias in aliases)
+    {
+        MSIDTokenCacheKey *key = [self keyForTokenType:tokenType
+                                                userId:nil
+                                              clientId:clientId
+                                                scopes:scopes
+                                             authority:alias];
+        
+        MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for token with alias %@, clientId %@, scopes %@", alias, clientId, scopes);
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for token with alias %@, clientId %@, scopes %@, legacy userId %@", alias, clientId, scopes, legacyUserId);
+        
+        if (!key)
+        {
+            return nil;
+        }
+        
+        NSError *cacheError = nil;
+        NSArray<MSIDTokenCacheItem *> *cacheItems = [_dataSource tokensWithKey:key serializer:_serializer context:context error:&cacheError];
+        
+        if (cacheError)
+        {
+            if (error) *error = cacheError;
+            return nil;
+        }
+        
+        NSArray<MSIDBaseToken *> *matchedTokens = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:cacheItems legacyUserId:legacyUserId context:context];
+        
+        if ([matchedTokens count] > 0)
+        {
+            MSIDBaseToken *resultToken = matchedTokens[0];
+            resultToken.authority = authority;
+            return resultToken;
+        }
+    }
+    
     return nil;
 }
 
@@ -490,14 +519,13 @@
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with user ID, clientId %@, authority %@", parameters.clientId, parameters.authority);
         MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with user ID %@, clientId %@, authority %@", account.userIdentifier, parameters.clientId, parameters.authority);
         
-        refreshToken = [self getTokenWithType:MSIDTokenTypeRefreshToken
-                                      account:account
-                              useLegacyUserId:NO
-                                    authority:parameters.authority
-                                     clientId:parameters.clientId
-                                       scopes:nil
-                                      context:context
-                                        error:error];
+        refreshToken = [self getTokenByUniqueUserId:account.userIdentifier
+                                          tokenType:MSIDTokenTypeRefreshToken
+                                          authority:parameters.authority
+                                           clientId:parameters.clientId
+                                             scopes:nil
+                                            context:context
+                                              error:error];
     }
     
     // If token wasn't found and legacy user ID is available, try to look by legacy user id
@@ -506,14 +534,13 @@
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", parameters.clientId, parameters.authority);
         MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyUserId, parameters.clientId, parameters.authority);
         
-        refreshToken = [self getTokenWithType:MSIDTokenTypeRefreshToken
-                                      account:account
-                              useLegacyUserId:YES
-                                    authority:parameters.authority
-                                     clientId:parameters.clientId
-                                       scopes:nil
-                                      context:context
-                                        error:error];
+        refreshToken = [self getTokenByLegacyUserId:account.legacyUserId
+                                          tokenType:MSIDTokenTypeRefreshToken
+                                          authority:parameters.authority
+                                           clientId:parameters.clientId
+                                             scopes:nil
+                                            context:context
+                                              error:error];
     }
     
     return (MSIDRefreshToken *)refreshToken;
@@ -666,7 +693,7 @@
     
     if (!key)
     {
-        [self stopTelemetryEvent:event withItem:cacheItem success:NO context:context];
+        [self stopTelemetryEvent:event withItem:token success:NO context:context];
         return NO;
     }
     
@@ -676,7 +703,7 @@
                                  context:context
                                    error:error];
     
-    [self stopTelemetryEvent:event withItem:cacheItem success:result context:context];
+    [self stopTelemetryEvent:event withItem:token success:result context:context];
     
     return result;
 }
@@ -736,14 +763,14 @@
 #pragma mark - Telemetry helpers
 
 - (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
-                  withItem:(MSIDTokenCacheItem *)item
+                  withItem:(MSIDBaseToken *)token
                    success:(BOOL)success
                    context:(id<MSIDRequestContext>)context
 {
     [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
-    if (item)
+    if (token)
     {
-        [event setCacheItem:item];
+        [event setToken:token];
     }
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
                                         event:event];
