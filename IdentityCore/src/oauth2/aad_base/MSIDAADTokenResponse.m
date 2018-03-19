@@ -144,18 +144,6 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
                            error:(NSError **)error
 {
     [self checkCorrelationId:context.correlationId];
-    
-    if (!self.clientInfo)
-    {
-        MSID_LOG_ERROR(context, @"Client info was not returned in the server response");
-        MSID_LOG_ERROR_PII(context, @"Client info was not returned in the server response");
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Client info was not returned in the server response", nil, nil, nil, context.correlationId, nil);
-        }
-        return NO;
-    }
-    
     return YES;
 }
 

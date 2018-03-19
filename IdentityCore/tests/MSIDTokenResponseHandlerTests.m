@@ -125,7 +125,7 @@
 
 - (void)testVerifyResponse_whenNoUserInfo_shouldReturnError
 {
-    MSIDAADTokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
                                                                                               @"refresh_token":@"fake_refresh_token"}
                                                                                       error:nil];
     NSError *error = nil;
