@@ -211,6 +211,73 @@
     XCTAssertEqualObjects(rtsInPrimaryFormat[0], rtsInSecondaryFormat[0]);
 }
 
+- (void)testSaveTokens_withNoLegacyIdForPrimaryFormat_shouldReturnError
+{
+    _primaryAccessor.requireLegacyUserId = YES;
+    
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                      rt:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                resource:DEFAULT_TEST_RESOURCE
+                                                                                     uid:DEFAULT_TEST_UID
+                                                                                    utid:DEFAULT_TEST_UTID
+                                                                                 idToken:nil];
+    
+    NSError *error = nil;
+    // Save tokens
+    BOOL result = [tokenCache saveTokensWithRequestParams:requestParams
+                                                 response:tokenResponse
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testSaveTokens_withNoLegacyIdForSecondaryFormat_shouldSaveTokensInPrimaryCacheOnly
+{
+    _secondaryAccessor.requireLegacyUserId = YES;
+    
+    MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
+                                                                              otherCacheAccessors:@[_secondaryAccessor]];
+    
+    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                      rt:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                resource:DEFAULT_TEST_RESOURCE
+                                                                                     uid:DEFAULT_TEST_UID
+                                                                                    utid:DEFAULT_TEST_UTID
+                                                                                 idToken:nil];
+    
+    NSError *error = nil;
+    // Save tokens
+    BOOL result = [tokenCache saveTokensWithRequestParams:requestParams
+                                                 response:tokenResponse
+                                                  context:nil
+                                                    error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    
+    // Check that access token is only stored to the primary cache
+    NSArray *atsInPrimaryFormat = [_primaryAccessor allAccessTokens];
+    XCTAssertEqual([atsInPrimaryFormat count], 1);
+    
+    NSArray *atsInSecondaryFormat = [_secondaryAccessor allAccessTokens];
+    XCTAssertEqual([atsInSecondaryFormat count], 0);
+    
+    // Check that refresh tokens are stored in both caches
+    NSArray *rtsInPrimaryFormat = [_primaryAccessor allRefreshTokens];
+    NSArray *rtsInSecondaryFormat = [_secondaryAccessor allRefreshTokens];
+    XCTAssertEqual([rtsInPrimaryFormat count], 1);
+    XCTAssertEqual([rtsInSecondaryFormat count], 0);
+}
+
 - (void)testSaveTokens_withFRTToken_savesFRTsToMultipleFormats
 {
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor

@@ -140,32 +140,27 @@
                                               upn:(NSString *)upn
                                          tenantId:(NSString *)tenantId
 {
-    NSString *clientInfoString = (uid && utid) ? [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson] : nil;
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:upn tenantId:tenantId];
+    return [self v1TokenResponseWithAT:accessToken rt:refreshToken resource:resource uid:uid utid:utid idToken:idToken];
+}
+
++ (MSIDAADV1TokenResponse *)v1TokenResponseWithAT:(NSString *)accessToken
+                                               rt:(NSString *)refreshToken
+                                         resource:(NSString *)resource
+                                              uid:(NSString *)uid
+                                             utid:(NSString *)utid
+                                          idToken:(NSString *)idToken
+{
+    NSString *clientInfoString = (uid && utid) ? [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson] : nil;
     
     NSMutableDictionary *jsonDictionary = [@{@"token_type": @"Bearer",
-                                            @"expires_in": @"3600",
-                                            @"resource": resource} mutableCopy];
+                                             @"expires_in": @"3600"} mutableCopy];
     
-    if (accessToken)
-    {
-        jsonDictionary[@"access_token"] = accessToken;
-    }
-    
-    if (refreshToken)
-    {
-        jsonDictionary[@"refresh_token"] = refreshToken;
-    }
-    
-    if (idToken)
-    {
-        jsonDictionary[@"id_token"] = idToken;
-    }
-    
-    if (clientInfoString)
-    {
-        jsonDictionary[@"client_info"] = clientInfoString;
-    }
+    if (resource) jsonDictionary[@"resource"] = resource;
+    if (accessToken) jsonDictionary[@"access_token"] = accessToken;
+    if (refreshToken) jsonDictionary[@"refresh_token"] = refreshToken;
+    if (idToken) jsonDictionary[@"id_token"] = idToken;
+    if (clientInfoString) jsonDictionary[@"client_info"] = clientInfoString;
     
     return [self v1TokenResponseFromJSONDictionary:jsonDictionary];
 }

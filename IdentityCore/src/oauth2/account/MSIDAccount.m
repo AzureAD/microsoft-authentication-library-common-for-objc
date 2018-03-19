@@ -151,6 +151,7 @@
     
     NSString *userId = response.idTokenObj.userId;
     _legacyUserId = userId;
+    
     if (uid && utid)
     {
         _userIdentifier = [NSString stringWithFormat:@"%@.%@", uid, utid];

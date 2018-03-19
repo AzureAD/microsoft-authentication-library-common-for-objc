@@ -200,6 +200,17 @@
         return NO;
     }
     
+    if ((self.requireLegacyUserId && !account.legacyUserId)
+        || (self.requireDefaultUserId && !account.userIdentifier))
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
     NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.tokenType clientId:clientId authority:authority];
     
     NSMutableArray *accountTokens = nil;

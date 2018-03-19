@@ -27,6 +27,9 @@
 
 @interface MSIDTestCacheAccessor : NSObject <MSIDSharedCacheAccessor>
 
+@property (nonatomic) BOOL requireLegacyUserId;
+@property (nonatomic) BOOL requireDefaultUserId;
+
 - (void)addToken:(MSIDBaseToken *)token forAccount:(MSIDAccount *)account;
 - (void)reset;
 - (NSArray *)allAccessTokens;

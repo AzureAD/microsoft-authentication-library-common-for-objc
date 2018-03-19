@@ -353,6 +353,26 @@
     XCTAssertEqualObjects(accessTokensInCache[0], token);
 }
 
+- (void)testSaveRefreshToken_whenNoUserIdentifier_shouldReturnError
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                        uniqueUserId:nil];
+    
+    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                                      request:[MSIDTestRequestParams v2DefaultParams]];
+    
+    NSError *error = nil;
+    
+    BOOL result = [_cacheAccessor saveRefreshToken:token
+                                           account:account
+                                           context:nil
+                                             error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
 #pragma mark - Retrieve
 
 - (void)testGetTokenWithType_whenTypeAccessNoItemsInCache_shouldReturnNil
