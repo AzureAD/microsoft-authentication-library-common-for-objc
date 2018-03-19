@@ -37,6 +37,7 @@
 @property (readonly) NSString *oauthErrorCode;
 @property (readonly) NSString *errorDescription;
 @property (readonly) NSString *resource;
+@property (readonly) NSString *clientInfo;
 
 // Derived properties
 @property (readonly) MSIDTokenResponse *tokenResponse;
