@@ -362,7 +362,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
         
@@ -402,7 +402,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to save wipe token data into keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to save wipe token data into keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to save wipe token data into keychain (status: %d)", (int)status);
         return NO;
@@ -429,7 +429,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to get a wipe data from keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get a wipe data from keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to get a wipe data from keychain (status: %d)", (int)status);
         return nil;
@@ -503,7 +503,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to find keychain item (status: %d)", (int)status);
         return nil;
@@ -570,7 +570,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = MSIDCreateError(NSOSStatusErrorDomain, status, @"Failed to set item into keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to set item into keychain.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to set item into keychain (status: %d)", (int)status);
     }
