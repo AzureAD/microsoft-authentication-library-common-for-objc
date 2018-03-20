@@ -103,7 +103,7 @@
 
 - (BOOL)supportsTokenType:(MSIDTokenType)tokenType
 {
-    return tokenType == MSIDTokenTypeOther || tokenType == self.tokenType;
+    return tokenType == self.tokenType;
 }
 
 #pragma mark - Cache
