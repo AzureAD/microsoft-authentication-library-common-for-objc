@@ -49,7 +49,7 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                  error:(NSError **)error
 {
-    self = [self initWithJSONDictionary:json error:error];
+    self = [super initWithJSONDictionary:json refreshToken:token error:error];
     
     if (self)
     {
@@ -58,6 +58,8 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
             self.rawClientInfo = token.clientInfo.rawClientInfo;
             _clientInfo = token.clientInfo;
         }
+        
+        [self initDerivedProperties];
     }
     
     return self;
@@ -70,17 +72,21 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
         return nil;
     }
     
+    [self initDerivedProperties];
+    return self;
+}
+
+- (void)initDerivedProperties
+{
     if (self.extendedExpiresIn)
     {
         _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSinceNow:self.extendedExpiresIn];
     }
     
-    if (self.rawClientInfo)
+    if (self.rawClientInfo && !_clientInfo)
     {
         _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:self.rawClientInfo error:nil];
     }
-    
-    return self;
 }
 
 - (NSInteger)expiresOn
