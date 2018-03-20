@@ -107,7 +107,7 @@
     XCTAssertEqual([accessTokensInCache count], 0);
 }
 
-- (void)testSaveTokensWithRequestParams_withAccessToken_andAccountWithoutUPN_shouldFail
+- (void)testSaveTokensWithRequestParams_withAccessToken_andAccountWithoutUPN_shouldSaveToken
 {
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil uniqueUserId:@"some id"];
     
@@ -118,12 +118,11 @@
                                                        context:nil
                                                          error:&error];
     
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
-    XCTAssertFalse(result);
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
     
     NSArray *accessTokensInCache = [_dataSource allLegacyAccessTokens];
-    XCTAssertEqual([accessTokensInCache count], 0);
+    XCTAssertEqual([accessTokensInCache count], 1);
 }
 
 - (void)testSaveTokensWithRequestParams_withLegacyTokenAndAccount_shouldSaveToken
@@ -249,7 +248,7 @@
     XCTAssertEqualObjects(refreshTokensInCache[0], secondToken);
 }
 
-- (void)testSaveSharedRTForAccount_withMRRT_andAccountWithoutUPN_shouldFail
+- (void)testSaveSharedRTForAccount_withMRRT_andAccountWithoutUPN_shouldSaveToken
 {
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil
                                                        uniqueUserId:@"some id"];
@@ -264,12 +263,11 @@
                                             context:nil
                                               error:&error];
     
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
-    XCTAssertFalse(result);
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
     
     NSArray *refreshTokensInCache = [_dataSource allLegacyRefreshTokens];
-    XCTAssertEqual([refreshTokensInCache count], 0);
+    XCTAssertEqual([refreshTokensInCache count], 1);
 }
 
 #pragma mark - Retrieve
