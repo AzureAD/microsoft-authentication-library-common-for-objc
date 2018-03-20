@@ -101,6 +101,11 @@
     return MSIDTokenTypeOther;
 }
 
+- (BOOL)supportsTokenType:(MSIDTokenType)tokenType
+{
+    return tokenType == self.tokenType;
+}
+
 #pragma mark - Cache
 
 - (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem
@@ -114,8 +119,7 @@
             return nil;
         }
         
-        if (tokenCacheItem.tokenType != MSIDTokenTypeOther
-            && tokenCacheItem.tokenType != self.tokenType)
+        if (![self supportsTokenType:tokenCacheItem.tokenType])
         {
             MSID_LOG_ERROR(nil, @"Trying to initialize with a wrong token type");
             return nil;

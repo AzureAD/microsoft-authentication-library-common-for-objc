@@ -63,6 +63,7 @@
 
 - (MSIDTokenCacheItem *)tokenCacheItem;
 
+- (BOOL)supportsTokenType:(MSIDTokenType)tokenType;
 - (BOOL)isEqualToItem:(MSIDBaseToken *)item;
 
 @end

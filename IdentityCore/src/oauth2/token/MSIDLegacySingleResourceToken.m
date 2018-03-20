@@ -82,12 +82,6 @@
     if (self)
     {
         _refreshToken = tokenCacheItem.refreshToken;
-        
-        if (!_refreshToken)
-        {
-            MSID_LOG_ERROR(nil, @"Trying to initialize legacy single resource token when missing refresh token field");
-            return nil;
-        }
     }
     
     return self;
@@ -111,13 +105,6 @@
     }
     
     _refreshToken = response.refreshToken;
-    
-    if (!_refreshToken)
-    {
-        MSID_LOG_ERROR(nil, @"Trying to initialize legacy single resource token when missing refresh token field");
-        return nil;
-    }
-    
     return self;
 }
 
@@ -126,6 +113,12 @@
 - (MSIDTokenType)tokenType
 {
     return MSIDTokenTypeLegacySingleResourceToken;
+}
+
+- (BOOL)supportsTokenType:(MSIDTokenType)tokenType
+{
+    // Allow initializing single resource token with access token to support legacy ADAL scenarios
+    return [super supportsTokenType:tokenType] || tokenType == MSIDTokenTypeAccessToken;
 }
 
 #pragma mark - Description
