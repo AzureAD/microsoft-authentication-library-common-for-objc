@@ -171,11 +171,6 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
-    if (![self checkUserIdentifier:account context:context error:error])
-    {
-        return NO;
-    }
-    
     [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
                                      eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
     
