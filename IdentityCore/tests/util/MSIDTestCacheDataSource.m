@@ -352,7 +352,7 @@
                                           context:context
                                             error:error];
     
-    if ([items count])
+    if ([items count] == 1)
     {
         NSData *itemData = items[0];
         return itemData;

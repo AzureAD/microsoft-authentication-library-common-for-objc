@@ -35,8 +35,9 @@
 - (void)setMRRTStatus:(NSString *)status;
 - (void)setFRTStatus:(NSString *)status;
 - (void)setSpeInfo:(NSString  *)speInfo;
-- (void)setCacheItem:(MSIDTokenCacheItem *)token;
+- (void)setToken:(MSIDBaseToken *)token;
 - (void)setCacheWipeApp:(NSString *)wipeApp;
 - (void)setCacheWipeTime:(NSString *)wipeTime;
+- (void)setWipeData:(NSDictionary *)wipeData;
 
 @end
