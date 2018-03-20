@@ -210,23 +210,6 @@
     XCTAssertNil(token);
 }
 
-- (void)testInitWithTokenCacheItem_whenNoRefreshToken_shouldReturnNil
-{
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeAccessToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
-    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
-    cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.username = @"test";
-    cacheItem.uniqueUserId = @"uid.utid";
-    cacheItem.clientId = @"client id";
-    cacheItem.target = @"target";
-    cacheItem.accessToken = @"token";
-    
-    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:cacheItem];
-    XCTAssertNil(token);
-}
-
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
     MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];

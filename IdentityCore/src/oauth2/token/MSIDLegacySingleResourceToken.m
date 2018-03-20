@@ -82,12 +82,6 @@
     if (self)
     {
         _refreshToken = tokenCacheItem.refreshToken;
-        
-        if (!_refreshToken)
-        {
-            MSID_LOG_ERROR(nil, @"Trying to initialize legacy single resource token when missing refresh token field");
-            return nil;
-        }
     }
     
     return self;
@@ -111,13 +105,6 @@
     }
     
     _refreshToken = response.refreshToken;
-    
-    if (!_refreshToken)
-    {
-        MSID_LOG_ERROR(nil, @"Trying to initialize legacy single resource token when missing refresh token field");
-        return nil;
-    }
-    
     return self;
 }
 
