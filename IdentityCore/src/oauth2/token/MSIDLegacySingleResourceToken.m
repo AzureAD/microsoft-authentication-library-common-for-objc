@@ -128,6 +128,12 @@
     return MSIDTokenTypeLegacySingleResourceToken;
 }
 
+- (BOOL)supportsTokenType:(MSIDTokenType)tokenType
+{
+    // Allow initializing single resource token with access token to support legacy ADAL scenarios
+    return [super supportsTokenType:tokenType] || tokenType == MSIDTokenTypeAccessToken;
+}
+
 #pragma mark - Description
 
 - (NSString *)description
