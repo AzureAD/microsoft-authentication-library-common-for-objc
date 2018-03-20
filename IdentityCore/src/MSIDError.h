@@ -37,6 +37,7 @@ extern NSString *MSIDHTTPResponseCodeKey;
  */
 extern NSString *MSIDErrorDomain;
 extern NSString *MSIDOAuthErrorDomain;
+extern NSString *MSIDKeychainErrorDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
