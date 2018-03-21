@@ -50,7 +50,7 @@
 {
     MSIDAccessToken *accessToken = [MSIDAccessToken new];
     NSDictionary *serverInfo = @{@"spe_info" : @"I"};
-    [accessToken setValue:serverInfo forKey:@"additionaServerlInfo"];
+    [accessToken setValue:serverInfo forKey:@"additionalServerInfo"];
     
     MSIDTelemetryCacheEvent *cacheEvent = [[MSIDTelemetryCacheEvent alloc] initWithName:@"test" context:nil];
     [cacheEvent setToken:accessToken];
@@ -65,7 +65,7 @@
 {
     MSIDLegacySingleResourceToken *token = [MSIDLegacySingleResourceToken new];
     NSDictionary *serverInfo = @{@"spe_info" : @"I"};
-    [token setValue:serverInfo forKey:@"additionaServerlInfo"];
+    [token setValue:serverInfo forKey:@"additionalServerInfo"];
     
     MSIDTelemetryCacheEvent *cacheEvent = [[MSIDTelemetryCacheEvent alloc] initWithName:@"test" context:nil];
     [cacheEvent setToken:token];
@@ -82,7 +82,7 @@
 {
     MSIDRefreshToken *token = [MSIDRefreshToken new];
     NSDictionary *serverInfo = @{@"spe_info" : @"I"};
-    [token setValue:serverInfo forKey:@"additionaServerlInfo"];
+    [token setValue:serverInfo forKey:@"additionalServerInfo"];
     [token setValue:@"client" forKey:@"clientId"];
     [token setValue:@"1" forKey:@"familyId"];
     
@@ -101,7 +101,7 @@
 {
     MSIDRefreshToken *token = [MSIDRefreshToken new];
     NSDictionary *serverInfo = @{@"spe_info" : @"I"};
-    [token setValue:serverInfo forKey:@"additionaServerlInfo"];
+    [token setValue:serverInfo forKey:@"additionalServerInfo"];
     [token setValue:@"foci-1" forKey:@"clientId"];
     [token setValue:@"1" forKey:@"familyId"];
     

@@ -50,9 +50,6 @@
 // Family ID
 @property (readwrite, nullable) NSString *familyId;
 
-// Additional client info <--> legacy ADAL compatibility
-@property (readwrite, nullable) NSDictionary *additionalClientInfo;
-
 - (nullable MSIDBaseToken *)tokenWithType:(MSIDTokenType)tokenType;
 
 @end

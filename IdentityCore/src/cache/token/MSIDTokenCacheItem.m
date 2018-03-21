@@ -49,7 +49,6 @@
     result &= (!self.expiresOn && !item.expiresOn) || [self.expiresOn isEqualToDate:item.expiresOn];
     result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqualToDate:item.cachedAt];
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
-    result &= (!self.additionalClientInfo && !item.additionalClientInfo) || [self.additionalClientInfo isEqualToDictionary:item.additionalClientInfo];
     result &= (!self.oauthTokenType && !item.oauthTokenType) || [self.oauthTokenType isEqualToString:item.oauthTokenType];
     
     return result;
@@ -69,7 +68,6 @@
     hash = hash * 31 + self.expiresOn.hash;
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
-    hash = hash * 31 + self.additionalClientInfo.hash;
     hash = hash * 31 + self.oauthTokenType.hash;
     
     return hash;
@@ -89,7 +87,6 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
-    item.additionalClientInfo = [self.additionalClientInfo copyWithZone:zone];
     item.oauthTokenType = [self.oauthTokenType copyWithZone:zone];
     
     return item;
@@ -121,9 +118,7 @@
     _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
     
     _tokenType = [MSIDTokenTypeHelpers tokenTypeWithRefreshToken:_refreshToken accessToken:_accessToken];
-    
-    _additionalClientInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalClient"];
-    
+        
     return self;
 }
 
@@ -149,7 +144,7 @@
     MSIDUserInformation *userInformation = [[MSIDUserInformation alloc] initWithRawIdToken:self.idToken];
     [coder encodeObject:userInformation forKey:@"userInformation"];
     
-    [coder encodeObject:self.additionalClientInfo forKey:@"additionalClient"];
+    [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
 }
 
 #pragma mark - JSON
