@@ -256,13 +256,20 @@
     
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
     
-    MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
-                                            userId:account.userIdentifier
-                                          clientId:cacheItem.clientId
-                                            scopes:[cacheItem.target scopeSet]
-                                         authority:cacheItem.authority];
-    
-    BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
+    BOOL result = NO;
+    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:token.authority];
+    for (NSURL *alias in aliases)
+    {
+        MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
+                                                userId:account.userIdentifier
+                                              clientId:cacheItem.clientId
+                                                scopes:[cacheItem.target scopeSet]
+                                             authority:alias];
+        
+        result = [_dataSource removeItemsWithKey:key context:context error:error];
+        
+        if (result || error != nil) break;
+    }
     
     if (result && token.tokenType == MSIDTokenTypeRefreshToken)
     {

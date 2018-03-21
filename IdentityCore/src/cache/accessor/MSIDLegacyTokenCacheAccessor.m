@@ -283,14 +283,22 @@
     
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
     
-    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:cacheItem.authority
-                                                                    clientId:cacheItem.clientId
-                                                                    resource:cacheItem.target
-                                                                         legacyUserId:account.legacyUserId];
-    
-    BOOL result =  [_dataSource removeItemsWithKey:key
-                                           context:context
-                                             error:error];
+    BOOL result = NO;
+    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:token.authority];
+    for (NSURL *alias in aliases)
+    {
+        MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:alias
+                                                                        clientId:cacheItem.clientId
+                                                                        resource:cacheItem.target
+                                                                    legacyUserId:account.legacyUserId];
+        
+        result =  [_dataSource removeItemsWithKey:key
+                                          context:context
+                                            error:error];
+        
+        if (result || error != nil) break;
+    }
+
     if (result && token.tokenType == MSIDTokenTypeRefreshToken)
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
