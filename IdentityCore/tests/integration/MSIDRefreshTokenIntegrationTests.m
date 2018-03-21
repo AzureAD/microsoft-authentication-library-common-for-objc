@@ -56,7 +56,7 @@
     XCTAssertEqualObjects(token.clientId, params.clientId);
     XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
-    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
@@ -82,7 +82,7 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
-    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
@@ -109,7 +109,7 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
-    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
@@ -153,7 +153,7 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
-    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
@@ -180,7 +180,7 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
-    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     
     NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
@@ -207,7 +207,7 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
-    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     
     NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
