@@ -170,7 +170,7 @@
     NSDictionary *expectedAdditionalInfo = @{@"additional_key1": @"additional_value1",
                                              @"additional_key2": @"additional_value2"};
     
-    XCTAssertEqualObjects(token.additionaServerInfo, expectedAdditionalInfo);
+    XCTAssertEqualObjects(token.additionalServerInfo, expectedAdditionalInfo);
 }
 
 @end
