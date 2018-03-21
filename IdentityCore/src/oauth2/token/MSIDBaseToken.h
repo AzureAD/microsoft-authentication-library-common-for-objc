@@ -40,7 +40,7 @@
     NSString *_clientId;
     NSString *_uniqueUserId;
     MSIDClientInfo *_clientInfo;
-    NSDictionary *_additionaServerInfo;
+    NSDictionary *_additionalServerInfo;
     NSString *_username;
 }
 
@@ -49,7 +49,7 @@
 @property (readwrite) NSString *clientId;
 
 @property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSDictionary *additionaServerInfo;
+@property (readonly) NSDictionary *additionalServerInfo;
 
 // User info
 @property (readonly) NSString *uniqueUserId;

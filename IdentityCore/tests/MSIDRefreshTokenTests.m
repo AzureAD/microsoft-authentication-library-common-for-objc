@@ -164,7 +164,7 @@
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
-    XCTAssertEqualObjects(token.additionaServerInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
     XCTAssertEqualObjects(token.username, @"test");
     XCTAssertEqualObjects(token.idToken, @"ID TOKEN");
@@ -182,7 +182,7 @@
     [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
-    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionaServerInfo"];
+    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
     [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
     [token setValue:@"username" forKey:@"username"];
     [token setValue:@"refreshToken" forKey:@"refreshToken"];
