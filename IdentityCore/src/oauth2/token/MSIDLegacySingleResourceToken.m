@@ -23,6 +23,7 @@
 
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDAADTokenResponse.h"
 
 @implementation MSIDLegacySingleResourceToken
 
@@ -32,6 +33,7 @@
 {
     MSIDLegacySingleResourceToken *item = [super copyWithZone:zone];
     item->_refreshToken = [_refreshToken copyWithZone:zone];
+    item->_familyId = [_familyId copyWithZone:zone];
     
     return item;
 }
@@ -57,6 +59,7 @@
 {
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.refreshToken.hash;
+    hash = hash * 31 + self.familyId.hash;
     return hash;
 }
 
@@ -69,6 +72,7 @@
     
     BOOL result = [super isEqualToItem:token];
     result &= (!self.refreshToken && !token.refreshToken) || [self.refreshToken isEqualToString:token.refreshToken];
+    result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
     
     return result;
 }
@@ -82,6 +86,7 @@
     if (self)
     {
         _refreshToken = tokenCacheItem.refreshToken;
+        _familyId = tokenCacheItem.familyId;
     }
     
     return self;
@@ -91,6 +96,7 @@
 {
     MSIDTokenCacheItem *cacheItem = [super tokenCacheItem];
     cacheItem.refreshToken = self.refreshToken;
+    cacheItem.familyId = self.familyId;
     return cacheItem;
 }
 
@@ -105,6 +111,13 @@
     }
     
     _refreshToken = response.refreshToken;
+    
+    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
+    {
+        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
+        _familyId = aadTokenResponse.familyId;
+    }
+    
     return self;
 }
 
