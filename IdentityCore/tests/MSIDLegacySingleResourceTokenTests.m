@@ -193,6 +193,26 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
+- (void)testLegacyTokenIsEqual_whenFamilyIDIsNotEqual_shouldReturnFalse
+{
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
+    [lhs setValue:@"value 1" forKey:@"familyId"];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
+    [rhs setValue:@"value 2" forKey:@"familyId"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testLegacyTokenIsEqual_whenFamilyIDIsEqual_shouldReturnTrue
+{
+    MSIDLegacySingleResourceToken *lhs = [MSIDLegacySingleResourceToken new];
+    [lhs setValue:@"value 1" forKey:@"familyId"];
+    MSIDLegacySingleResourceToken *rhs = [MSIDLegacySingleResourceToken new];
+    [rhs setValue:@"value 1" forKey:@"familyId"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
 #pragma mark - Token cache item
 
 - (void)testInitWithTokenCacheItem_whenNilCacheItem_shouldReturnNil
@@ -230,6 +250,7 @@
     cacheItem.idToken = @"ID TOKEN";
     cacheItem.target = @"target";
     cacheItem.refreshToken = @"refresh token";
+    cacheItem.familyId = @"1";
     
     MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
@@ -245,6 +266,7 @@
     XCTAssertEqualObjects(token.resource, @"target");
     XCTAssertEqualObjects(token.refreshToken, @"refresh token");
     XCTAssertEqualObjects(token.accessToken, @"token");
+    XCTAssertEqualObjects(token.familyId, @"1");
     
     MSIDTokenCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
@@ -269,6 +291,7 @@
     [token setValue:@"resource" forKey:@"target"];
     [token setValue:@"scopes" forKey:@"target"];
     [token setValue:@"refreshToken" forKey:@"refreshToken"];
+    [token setValue:@"1" forKey:@"familyId"];
     
     return token;
 }
