@@ -39,7 +39,7 @@
     item->_clientId = _clientId;
     item->_uniqueUserId = _uniqueUserId;
     item->_clientInfo = _clientInfo;
-    item->_additionaServerlInfo = _additionaServerlInfo;
+    item->_additionaServerInfo = _additionaServerInfo;
     item->_username = _username;
     
     return item;
@@ -69,7 +69,7 @@
     hash = hash * 31 + self.clientId.hash;
     hash = hash * 31 + self.uniqueUserId.hash;
     hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
-    hash = hash * 31 + self.additionaServerlInfo.hash;
+    hash = hash * 31 + self.additionaServerInfo.hash;
     hash = hash * 31 + self.username.hash;
     hash = hash * 31 + self.tokenType;
     return hash;
@@ -87,7 +87,7 @@
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= (!self.uniqueUserId && !item.uniqueUserId) || [self.uniqueUserId isEqualToString:item.uniqueUserId];
     result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
-    result &= (!self.additionaServerlInfo && !item.additionaServerlInfo) || [self.additionaServerlInfo isEqualToDictionary:item.additionaServerlInfo];
+    result &= (!self.additionaServerInfo && !item.additionaServerInfo) || [self.additionaServerInfo isEqualToDictionary:item.additionaServerInfo];
     result &= (!self.username && !item.username) || [self.username isEqualToString:item.username];
     result &= (self.tokenType == item.tokenType);
     
@@ -142,10 +142,9 @@
         }
         
         _clientInfo = tokenCacheItem.clientInfo;
-        _additionaServerlInfo = tokenCacheItem.additionalInfo;
+        _additionaServerInfo = tokenCacheItem.additionalInfo;
         _username = tokenCacheItem.username;
         _uniqueUserId = tokenCacheItem.uniqueUserId;
-        _additionalClientInfo = tokenCacheItem.additionalClientInfo;
     }
     
     return self;
@@ -158,10 +157,9 @@
     cacheItem.authority = self.authority;
     cacheItem.clientId = self.clientId;
     cacheItem.clientInfo = self.clientInfo;
-    cacheItem.additionalInfo = self.additionaServerlInfo;
+    cacheItem.additionalInfo = self.additionaServerInfo;
     cacheItem.username = self.username;
     cacheItem.uniqueUserId = self.uniqueUserId;
-    cacheItem.additionalClientInfo = self.additionalClientInfo;
     return cacheItem;
 }
 
@@ -195,7 +193,7 @@
     // Fill from request
     _authority = requestParams.authority;
     _clientId = requestParams.clientId;
-    _additionaServerlInfo = [NSMutableDictionary dictionary];
+    _additionaServerInfo = [NSMutableDictionary dictionary];
     _username = response.idTokenObj.username;
     
     // Fill in client info and spe info
@@ -204,7 +202,7 @@
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         _clientInfo = aadTokenResponse.clientInfo;
         _uniqueUserId = _clientInfo.userIdentifier;
-        [_additionaServerlInfo setValue:aadTokenResponse.speInfo
+        [_additionaServerInfo setValue:aadTokenResponse.speInfo
                            forKey:MSID_SPE_INFO_CACHE_KEY];
     }
     else

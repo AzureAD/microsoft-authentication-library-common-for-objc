@@ -222,10 +222,10 @@ static uint64_t s_expirationBuffer = 300;
             return;
         }
         
-        NSMutableDictionary *serverInfo = [_additionaServerlInfo mutableCopy];
+        NSMutableDictionary *serverInfo = [_additionaServerInfo mutableCopy];
         [serverInfo setValue:aadTokenResponse.extendedExpiresOnDate
                       forKey:MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
-        _additionaServerlInfo = serverInfo;
+        _additionaServerInfo = serverInfo;
     }
 }
 
@@ -246,7 +246,7 @@ static uint64_t s_expirationBuffer = 300;
 
 - (NSDate *)extendedExpireTime
 {
-    return _additionaServerlInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
+    return _additionaServerInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
 }
 
 - (BOOL)isExtendedLifetimeValid

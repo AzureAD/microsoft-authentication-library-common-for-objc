@@ -55,7 +55,7 @@
     XCTAssertEqualObjects(token.clientId, params.clientId);
     XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
-    XCTAssertEqualObjects(token.additionaServerlInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
@@ -75,7 +75,7 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
-    XCTAssertEqualObjects(token.additionaServerlInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
@@ -95,7 +95,7 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
-    XCTAssertEqualObjects(token.additionaServerlInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
@@ -115,7 +115,7 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
-    XCTAssertEqualObjects(token.additionaServerlInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
@@ -135,7 +135,7 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
-    XCTAssertEqualObjects(token.additionaServerlInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.additionaServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 

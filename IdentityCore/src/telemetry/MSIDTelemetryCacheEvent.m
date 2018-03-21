@@ -115,7 +115,7 @@
     }
     
     [self setTokenType:token.tokenType];
-    [self setSpeInfo:token.additionaServerlInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
+    [self setSpeInfo:token.additionaServerInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
     
     if (token.tokenType == MSIDTokenTypeLegacySingleResourceToken)
     {

@@ -74,9 +74,9 @@
 - (void)testBaseTokenIsEqual_whenAdditionalInfoIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@{@"key1" : @"value1"} forKey:@"additionaServerlInfo"];
+    [lhs setValue:@{@"key1" : @"value1"} forKey:@"additionaServerInfo"];
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@{@"key2" : @"value2"} forKey:@"additionaServerlInfo"];
+    [rhs setValue:@{@"key2" : @"value2"} forKey:@"additionaServerInfo"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
@@ -84,9 +84,9 @@
 - (void)testBaseTokenIsEqual_whenAdditionalInfoIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@{@"key" : @"value"} forKey:@"additionaServerlInfo"];
+    [lhs setValue:@{@"key" : @"value"} forKey:@"additionaServerInfo"];
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@{@"key" : @"value"} forKey:@"additionaServerlInfo"];
+    [rhs setValue:@{@"key" : @"value"} forKey:@"additionaServerInfo"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
@@ -223,7 +223,7 @@
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
-    XCTAssertEqualObjects(token.additionaServerlInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.additionaServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
     XCTAssertEqualObjects(token.username, @"test");
     
@@ -239,7 +239,7 @@
     [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
-    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionaServerlInfo"];
+    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionaServerInfo"];
     [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
     [token setValue:@"username" forKey:@"username"];
     
