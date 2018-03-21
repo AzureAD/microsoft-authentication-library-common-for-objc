@@ -277,15 +277,18 @@
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Removing token %@ with account %@", token, account);
     
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
+ 
+    NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
     
-    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:cacheItem.authority
+    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:authority
                                                                     clientId:cacheItem.clientId
                                                                     resource:cacheItem.target
-                                                                         legacyUserId:account.legacyUserId];
+                                                                legacyUserId:account.legacyUserId];
     
-    BOOL result =  [_dataSource removeItemsWithKey:key
-                                           context:context
-                                             error:error];
+    BOOL result = [_dataSource removeItemsWithKey:key
+                                          context:context
+                                            error:error];
+
     if (result && token.tokenType == MSIDTokenTypeRefreshToken)
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
@@ -413,6 +416,7 @@
         if (cacheItem)
         {
             MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
+            token.storageAuthority = token.authority;
             token.authority = authority;
             return token;
         }
@@ -467,6 +471,7 @@
         if ([matchedTokens count])
         {
             MSIDBaseToken *token = matchedTokens[0];
+            token.storageAuthority = token.authority;
             token.authority = authority;
             return token;
         }

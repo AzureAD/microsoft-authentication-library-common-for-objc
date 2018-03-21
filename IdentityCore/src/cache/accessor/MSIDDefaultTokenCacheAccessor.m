@@ -256,11 +256,13 @@
     
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
     
+    NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
+    
     MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
                                             userId:account.userIdentifier
                                           clientId:cacheItem.clientId
                                             scopes:[cacheItem.target scopeSet]
-                                         authority:cacheItem.authority];
+                                         authority:authority];
     
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
     
@@ -337,6 +339,7 @@
         if (cacheItem)
         {
             MSIDBaseToken *resultToken = [cacheItem tokenWithType:tokenType];
+            resultToken.storageAuthority = resultToken.authority;
             resultToken.authority = authority;
             return resultToken;
         }
@@ -385,6 +388,7 @@
         if ([matchedTokens count] > 0)
         {
             MSIDBaseToken *resultToken = matchedTokens[0];
+            resultToken.storageAuthority = resultToken.authority;
             resultToken.authority = authority;
             return resultToken;
         }
