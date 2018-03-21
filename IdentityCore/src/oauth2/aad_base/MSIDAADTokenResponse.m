@@ -175,4 +175,19 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
     }
 }
 
+- (NSDictionary *)additionalServerInfo
+{
+    NSDictionary *additionalInfo = [super additionalServerInfo];
+    
+    NSArray *knownFields = @[MSID_OAUTH2_CORRELATION_ID_RESPONSE,
+                             MSID_OAUTH2_RESOURCE,
+                             MSID_OAUTH2_CLIENT_INFO,
+                             MSID_FAMILY_ID,
+                             MSID_TELEMETRY_KEY_SPE_INFO,
+                             MSID_OAUTH2_EXPIRES_ON,
+                             MSID_OAUTH2_EXT_EXPIRES_IN];
+    
+    return [additionalInfo dictionaryByRemovingFields:knownFields];
+}
+
 @end

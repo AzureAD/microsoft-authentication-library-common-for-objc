@@ -139,4 +139,38 @@
     XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
+- (void)testInitWithTokenResponse_whenAADV2TokenResponseWithAdditionalServerInfo_v2RequestParams_shouldFillTokenWithAdditionalInfo
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *responseDict = @{@"access_token": @"at",
+                                   @"token_type": @"Bearer",
+                                   @"expires_in": @"xyz",
+                                   @"expires_on": @"xyz",
+                                   @"refresh_token": @"rt",
+                                   @"scope": @"user.read",
+                                   @"client_info": clientInfoString,
+                                   @"additional_key1": @"additional_value1",
+                                   @"additional_key2": @"additional_value2"
+                                   };
+    
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:responseDict refreshToken:nil error:nil];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+    
+    MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenResponse:response request:params];
+    
+    XCTAssertEqualObjects(token.authority, params.authority);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+    
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    
+    NSDictionary *expectedAdditionalInfo = @{@"additional_key1": @"additional_value1",
+                                             @"additional_key2": @"additional_value2"};
+    
+    XCTAssertEqualObjects(token.additionaServerInfo, expectedAdditionalInfo);
+}
+
 @end
