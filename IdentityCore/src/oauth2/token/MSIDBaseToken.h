@@ -46,6 +46,12 @@
 
 @property (readonly) MSIDTokenType tokenType;
 @property (readwrite) NSURL *authority;
+/*
+ 'storageAuthority' is used only for latter token deletion.
+ We can not use 'authority' because cache item could be saved with
+'preferred authority' and it might not be equal to provided 'authority'.
+ */
+@property (readwrite) NSURL *storageAuthority;
 @property (readwrite) NSString *clientId;
 
 @property (readonly) MSIDClientInfo *clientInfo;

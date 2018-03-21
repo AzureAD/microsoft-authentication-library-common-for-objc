@@ -282,22 +282,17 @@
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Removing token %@ with account %@", token, account);
     
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
+ 
+    NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
     
-    BOOL result = NO;
-    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:token.authority];
-    for (NSURL *alias in aliases)
-    {
-        MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:alias
-                                                                        clientId:cacheItem.clientId
-                                                                        resource:cacheItem.target
-                                                                    legacyUserId:account.legacyUserId];
-        
-        result =  [_dataSource removeItemsWithKey:key
+    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:authority
+                                                                    clientId:cacheItem.clientId
+                                                                    resource:cacheItem.target
+                                                                legacyUserId:account.legacyUserId];
+    
+    BOOL result = [_dataSource removeItemsWithKey:key
                                           context:context
                                             error:error];
-        
-        if (result || error != nil) break;
-    }
 
     if (result && token.tokenType == MSIDTokenTypeRefreshToken)
     {
@@ -426,6 +421,7 @@
         if (cacheItem)
         {
             MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
+            token.storageAuthority = token.authority;
             token.authority = authority;
             return token;
         }
@@ -480,6 +476,7 @@
         if ([matchedTokens count])
         {
             MSIDBaseToken *token = matchedTokens[0];
+            token.storageAuthority = token.authority;
             token.authority = authority;
             return token;
         }
