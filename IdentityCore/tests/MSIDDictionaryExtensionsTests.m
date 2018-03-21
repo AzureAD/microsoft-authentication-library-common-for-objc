@@ -58,4 +58,37 @@
     XCTAssertEqualObjects(result, @"key=E621E1F8-C36C-495A-93FC-0C247A3E6E5F");
 }
 
+- (void)testDictionaryByRemovingFields_whenNilKeysArray_shouldNotRemoveFields
+{
+    NSDictionary *inputDictionary = @{@"key1": @"value1",
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:nil];
+    XCTAssertEqualObjects(inputDictionary, resultDictionary);
+}
+
+- (void)testDictionaryByRemovingFields_whenEmptyKeysArray_shouldNotRemoveFields
+{
+    NSDictionary *inputDictionary = @{@"key1": @"value1",
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:@[]];
+    XCTAssertEqualObjects(inputDictionary, resultDictionary);
+}
+
+- (void)testDictionaryByRemovingFields_whenDictionaryWithFields_shouldRemoveFields
+{
+    NSDictionary *inputDictionary = @{@"key1": @"value1",
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSArray *keysArray = @[@"key2", @"key1"];
+    NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:keysArray];
+    
+    NSDictionary *expectedDictionary = @{@"key3": @"value3"};
+    XCTAssertEqualObjects(resultDictionary, expectedDictionary);
+}
+
 @end

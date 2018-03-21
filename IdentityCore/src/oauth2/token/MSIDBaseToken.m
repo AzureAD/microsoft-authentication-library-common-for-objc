@@ -193,7 +193,7 @@
     // Fill from request
     _authority = requestParams.authority;
     _clientId = requestParams.clientId;
-    _additionalServerInfo = [NSMutableDictionary dictionary];
+    _additionalServerInfo = response.additionalServerInfo;
     _username = response.idTokenObj.username;
     
     // Fill in client info and spe info

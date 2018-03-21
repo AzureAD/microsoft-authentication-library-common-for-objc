@@ -25,5 +25,6 @@
 
 + (NSDictionary *)msidURLFormDecode:(NSString *)string;
 - (NSString *)msidURLFormEncode;
+- (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
 
 @end

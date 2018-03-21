@@ -87,4 +87,11 @@
     return parameters;
 }
 
+- (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove
+{
+    NSMutableDictionary *mutableDict = [self mutableCopy];
+    [mutableDict removeObjectsForKeys:fieldsToRemove];
+    return mutableDict;
+}
+
 @end

@@ -65,6 +65,9 @@
 // Account type for an account generated from this response
 @property (readonly) MSIDAccountType accountType;
 
+// Additional properties that server sends
+@property (readonly) NSDictionary *additionalServerInfo;
+
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                  error:(NSError * __autoreleasing *)error;

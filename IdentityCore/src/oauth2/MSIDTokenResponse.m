@@ -25,6 +25,7 @@
 #import "MSIDHelpers.h"
 #import "MSIDRefreshableToken.h"
 #import "MSIDBaseToken.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @implementation MSIDTokenResponse
 
@@ -147,6 +148,21 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
     }
     
     return MSIDErrorInteractionRequired;
+}
+
+- (NSDictionary *)additionalServerInfo
+{
+    NSArray *knownFields = @[MSID_OAUTH2_ERROR,
+                             MSID_OAUTH2_ERROR_DESCRIPTION,
+                             MSID_OAUTH2_ACCESS_TOKEN,
+                             MSID_OAUTH2_TOKEN_TYPE,
+                             MSID_OAUTH2_REFRESH_TOKEN,
+                             MSID_OAUTH2_SCOPE,
+                             MSID_OAUTH2_STATE,
+                             MSID_OAUTH2_ID_TOKEN,
+                             MSID_OAUTH2_EXPIRES_IN];
+    
+    return [_json dictionaryByRemovingFields:knownFields];
 }
 
 @end
