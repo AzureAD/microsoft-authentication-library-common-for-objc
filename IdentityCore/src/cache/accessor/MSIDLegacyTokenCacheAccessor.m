@@ -263,11 +263,6 @@
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
-    if (![self checkUserIdentifier:account context:context error:error])
-    {
-        return NO;
-    }
-    
     if (!token)
     {
         if (error)
