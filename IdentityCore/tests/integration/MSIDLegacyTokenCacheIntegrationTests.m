@@ -935,7 +935,7 @@
     XCTAssertTrue(result);
 }
 
-- (void)testRemovedSharedRTForAccount_whenNoItemsInCache_andAccountWithoutUPNProvided_shouldFail
+- (void)testRemovedSharedRTForAccount_whenNoItemsInCache_andAccountWithoutUPNProvided_shouldSucceed
 {
     MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponseWithoutClientInfo]
                                                                       request:[MSIDTestRequestParams v1DefaultParams]];
@@ -950,9 +950,8 @@
                                        context:nil
                                          error:&error];
     
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
-    XCTAssertFalse(result);
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
 }
 
 - (void)testRemovedSharedRTForAccount_whenNoItemsInCacheNilTokenProvided_shouldReturnFalseAndFillError
