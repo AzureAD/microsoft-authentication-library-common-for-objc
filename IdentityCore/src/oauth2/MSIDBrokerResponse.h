@@ -42,4 +42,6 @@
 // Derived properties
 @property (readonly) MSIDTokenResponse *tokenResponse;
 
+- (BOOL)isAccessTokenCompromised;
+
 @end

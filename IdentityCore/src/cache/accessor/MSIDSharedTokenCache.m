@@ -71,82 +71,11 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithTokenResponse:response
-                                                              request:requestParams];
-    
-    MSID_LOG_VERBOSE(context, @"Saving tokens with authority %@, clientId %@, resource %@", requestParams.authority, requestParams.clientId, requestParams.resource);
-    MSID_LOG_VERBOSE_PII(context, @"Saving tokens with authority %@, clientId %@, resource %@, user ID: %@, legacy user ID: %@", requestParams.authority, requestParams.clientId, requestParams.resource, account.userIdentifier, account.legacyUserId);
-    
-    BOOL result = [_primaryAccessor saveTokensWithRequestParams:requestParams
-                                                        account:account
-                                                       response:response
-                                                        context:context
-                                                          error:error];
-    
-    if (!result) return NO;
-    
-    // Create a refresh token item
-    MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenResponse:response
-                                                                             request:requestParams];
-
-    if (!refreshToken)
-    {
-        MSID_LOG_INFO(context, @"No refresh token returned in the token response, not updating cache");
-        return YES;
-    }
-    
-    MSID_LOG_VERBOSE(context, @"Saving refresh token in all caches");
-    MSID_LOG_VERBOSE_PII(context, @"Saving refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
-    
-    // Save RTs in all formats
-    result = [self saveRefreshTokenInAllCaches:refreshToken
-                                   withAccount:account
-                                       context:context
-                                         error:error];
-    
-    if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
-    {
-        // If saving failed or it's not an FRT, we're done
-        return result;
-    }
-    
-    MSID_LOG_VERBOSE(context, @"Saving family refresh token in all caches");
-    MSID_LOG_VERBOSE_PII(context, @"Saving family refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
-    
-    // If it's an FRT, save it separately and update the clientId of the token item
-    MSIDRefreshToken *familyRefreshToken = [refreshToken copy];
-    familyRefreshToken.clientId = [MSIDTokenCacheKey familyClientId:refreshToken.familyId];
-    
-    return [self saveRefreshTokenInAllCaches:familyRefreshToken
-                                 withAccount:account
+    return [self saveTokensWithRequestParams:requestParams
+                                    response:response
+                        saveRefreshTokenOnly:NO
                                      context:context
                                        error:error];
-}
-
-- (BOOL)saveRefreshTokenInAllCaches:(MSIDRefreshToken *)refreshToken
-                        withAccount:(MSIDAccount *)account
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
-{
-    // Save RTs in all formats including primary
-    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
-    {
-        NSError *cacheError = nil;
-        
-        BOOL result = [cache saveRefreshToken:refreshToken
-                                      account:account
-                                      context:context
-                                        error:&cacheError];
-        
-        if (!result && [cache isEqual:_primaryAccessor])
-        {
-            if (error) *error = cacheError;
-            
-            return NO;
-        }
-    }
-    
-    return YES;
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
@@ -157,9 +86,9 @@
                                                                          redirectUri:nil
                                                                             clientId:response.clientId
                                                                               target:response.resource];
-    
     return [self saveTokensWithRequestParams:params
                                     response:response.tokenResponse
+                        saveRefreshTokenOnly:response.isAccessTokenCompromised
                                      context:context
                                        error:error];
 }
@@ -275,6 +204,8 @@
     return resultRTs;
 }
 
+#pragma mark - Remove tokens
+
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
                      token:(MSIDBaseToken<MSIDRefreshableToken> *)token
                    context:(id<MSIDRequestContext>)context
@@ -332,6 +263,107 @@
                                  account:account
                                  context:context
                                    error:error];
+}
+
+#pragma mark - Private
+
+- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
+              forAccount:(MSIDAccount *)account
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
+{
+    MSID_LOG_VERBOSE(context, @"Saving refresh token in all caches");
+    MSID_LOG_VERBOSE_PII(context, @"Saving refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
+    
+    // Save RTs in all formats
+    BOOL result = [self saveRefreshTokenInAllCaches:refreshToken
+                                        withAccount:account
+                                            context:context
+                                              error:error];
+    
+    if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
+    {
+        // If saving failed or it's not an FRT, we're done
+        return result;
+    }
+    
+    MSID_LOG_VERBOSE(context, @"Saving family refresh token in all caches");
+    MSID_LOG_VERBOSE_PII(context, @"Saving family refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
+    
+    // If it's an FRT, save it separately and update the clientId of the token item
+    MSIDRefreshToken *familyRefreshToken = [refreshToken copy];
+    familyRefreshToken.clientId = [MSIDTokenCacheKey familyClientId:refreshToken.familyId];
+    
+    return [self saveRefreshTokenInAllCaches:familyRefreshToken
+                                 withAccount:account
+                                     context:context
+                                       error:error];
+}
+
+- (BOOL)saveRefreshTokenInAllCaches:(MSIDRefreshToken *)refreshToken
+                        withAccount:(MSIDAccount *)account
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    // Save RTs in all formats including primary
+    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
+    {
+        NSError *cacheError = nil;
+        
+        BOOL result = [cache saveRefreshToken:refreshToken
+                                      account:account
+                                      context:context
+                                        error:&cacheError];
+        
+        if (!result && [cache isEqual:_primaryAccessor])
+        {
+            if (error) *error = cacheError;
+            
+            return NO;
+        }
+    }
+    
+    return YES;
+}
+
+- (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)requestParams
+                           response:(MSIDTokenResponse *)response
+                         saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    MSIDAccount *account = [[MSIDAccount alloc] initWithTokenResponse:response
+                                                              request:requestParams];
+    
+    MSID_LOG_VERBOSE(context, @"Saving tokens with authority %@, clientId %@, resource %@", requestParams.authority, requestParams.clientId, requestParams.resource);
+    MSID_LOG_VERBOSE_PII(context, @"Saving tokens with authority %@, clientId %@, resource %@, user ID: %@, legacy user ID: %@", requestParams.authority, requestParams.clientId, requestParams.resource, account.userIdentifier, account.legacyUserId);
+    
+    
+    
+    BOOL result = YES;
+    
+    if (!saveRefreshTokenOnly)
+    {
+        result = [_primaryAccessor saveTokensWithRequestParams:requestParams
+                                                       account:account
+                                                      response:response
+                                                       context:context
+                                                         error:error];
+        
+        if (!result) return NO;
+    }
+    
+    // Create a refresh token item
+    MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] initWithTokenResponse:response
+                                                                             request:requestParams];
+    
+    if (!refreshToken)
+    {
+        MSID_LOG_INFO(context, @"No refresh token returned in the token response, not updating cache");
+        return YES;
+    }
+    
+    return [self saveRefreshToken:refreshToken forAccount:account context:context error:error];
 }
 
 @end
