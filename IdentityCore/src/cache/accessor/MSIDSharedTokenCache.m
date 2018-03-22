@@ -79,6 +79,7 @@
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
+                saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
@@ -88,7 +89,7 @@
                                                                               target:response.resource];
     return [self saveTokensWithRequestParams:params
                                     response:response.tokenResponse
-                        saveRefreshTokenOnly:response.isAccessTokenCompromised
+                        saveRefreshTokenOnly:saveRefreshTokenOnly
                                      context:context
                                        error:error];
 }

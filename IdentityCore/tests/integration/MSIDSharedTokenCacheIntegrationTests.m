@@ -907,7 +907,7 @@ static NSString * extracted() {
     
     NSError *error = nil;
     // Save tokens
-    BOOL result = [tokenCache saveTokensWithBrokerResponse:brokerResponse context:nil error:&error];
+    BOOL result = [tokenCache saveTokensWithBrokerResponse:brokerResponse saveRefreshTokenOnly:NO context:nil error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
