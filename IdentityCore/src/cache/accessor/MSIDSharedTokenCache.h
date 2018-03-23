@@ -46,6 +46,7 @@
                               error:(NSError **)error;
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
+                saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
