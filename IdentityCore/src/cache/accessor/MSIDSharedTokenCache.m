@@ -329,7 +329,7 @@
 
 - (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)requestParams
                            response:(MSIDTokenResponse *)response
-                         saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
+               saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
