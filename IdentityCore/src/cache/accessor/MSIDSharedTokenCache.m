@@ -205,6 +205,22 @@
     return resultRTs;
 }
 
+#pragma mark - Get Accounts
+
+- (NSArray<MSIDAccount *> *)getAllAccountsWithClientId:(NSString *)clientId
+                                               context:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error
+{
+    NSMutableSet *result = [NSMutableSet new];
+    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
+    {
+        NSArray<MSIDAccount *> *accounts = [cache getAllAccountsWithClientId:clientId context:context error:error];
+        [result addObjectsFromArray:accounts];
+    }
+    
+    return [result allObjects];
+}
+
 #pragma mark - Remove tokens
 
 - (BOOL)removeRTForAccount:(MSIDAccount *)account

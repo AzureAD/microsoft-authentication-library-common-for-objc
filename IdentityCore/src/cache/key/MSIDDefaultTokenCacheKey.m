@@ -146,9 +146,10 @@ static NSString *keyDelimiter = @"-";
     NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
     NSString *service = authority.msidTenant;
     
+    // TODO: A generic
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
-                                                     generic:nil
+                                                     generic:[service dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:@(accountType)];
 }
 

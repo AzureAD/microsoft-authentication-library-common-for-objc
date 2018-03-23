@@ -335,6 +335,14 @@
     return results;
 }
 
+- (NSArray<MSIDAccount *> *)getAllAccountsWithClientId:(NSString *)clientId
+                                               context:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error
+{
+    // TODO: A
+    return nil;
+}
+
 #pragma mark - Private
 
 - (MSIDBaseToken *)getRefreshTokenWithAccount:(MSIDAccount *)account

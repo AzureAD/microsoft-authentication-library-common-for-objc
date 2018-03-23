@@ -101,4 +101,8 @@
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error;
 
+- (NSArray<MSIDAccount *> *)getAllAccountsWithClientId:(NSString *)clientId
+                                               context:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error;
+
 @end

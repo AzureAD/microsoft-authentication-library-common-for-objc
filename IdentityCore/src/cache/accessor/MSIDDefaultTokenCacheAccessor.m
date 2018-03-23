@@ -298,6 +298,24 @@
                                                   filterBy:filterBlock];
 }
 
+- (NSArray<MSIDAccount *> *)getAllAccountsWithClientId:(NSString *)clientId
+                                               context:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error
+{
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
+    
+    NSArray<MSIDAccountCacheItem *> *items = [_dataSource accountsWithKey:key serializer:_serializer context:context error:error];
+    
+    NSMutableArray<MSIDAccount *> *result = [NSMutableArray new];
+    for (MSIDAccountCacheItem *item in items)
+    {
+        MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:item];
+        [result addObject:account];
+    }
+    
+    return result;
+}
+
 #pragma mark - Private
 
 - (MSIDBaseToken *)getTokenByUniqueUserId:(NSString *)uniqueUserId
