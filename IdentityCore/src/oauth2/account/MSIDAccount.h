@@ -36,7 +36,7 @@
 @property (readonly) MSIDClientInfo *clientInfo;
 
 // Primary user identifier
-@property (readonly) NSString *userIdentifier;
+@property (readonly) NSString *uniqueUserId;
 
 @property (readonly) MSIDAccountType accountType;
 

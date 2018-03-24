@@ -89,7 +89,7 @@
     result &= (!self.firstName && !account.firstName) || [self.firstName isEqualToString:account.firstName];
     result &= (!self.lastName && !account.lastName) || [self.lastName isEqualToString:account.lastName];
     result &= (!self.username && !account.username) || [self.username isEqualToString:account.username];
-    result &= (!self.userIdentifier && !account.userIdentifier) || [self.userIdentifier isEqualToString:account.userIdentifier];
+    result &= (!self.uniqueUserId && !account.uniqueUserId) || [self.uniqueUserId isEqualToString:account.uniqueUserId];
     result &= self.accountType == account.accountType;
     
     return result;
@@ -120,7 +120,7 @@
     }
     
     _legacyUserId = legacyUserId;
-    _userIdentifier = userIdentifier;
+    _uniqueUserId = userIdentifier;
     
     return self;
 }
@@ -133,33 +133,22 @@
         return nil;
     }
     
-    NSString *uid = nil;
-    NSString *utid = nil;
-    
     if ([response isKindOfClass:[MSIDAADTokenResponse class]])
     {
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
-        uid = aadTokenResponse.clientInfo.uid;
-        utid = aadTokenResponse.clientInfo.utid;
         _clientInfo = aadTokenResponse.clientInfo;
+        _uniqueUserId = _clientInfo.userIdentifier ? _clientInfo.userIdentifier : response.idTokenObj.userId;
     }
     else
     {
-        uid = response.idTokenObj.subject;
-        utid = @"";
+        _uniqueUserId = response.idTokenObj.userId;
     }
     
-    NSString *userId = response.idTokenObj.userId;
-    _legacyUserId = userId;
-    
-    if (uid && utid)
-    {
-        _userIdentifier = [NSString stringWithFormat:@"%@.%@", uid, utid];
-    }
+    _legacyUserId = response.idTokenObj.userId;
     _username = response.idTokenObj.username;
     _firstName = response.idTokenObj.givenName;
     _lastName = response.idTokenObj.familyName;
-    _authority = requestParams.authority;
+    _authority = [response cacheAuthorityURLFromAuthority:requestParams.authority];
     _accountType = response.accountType;
     
     return self;
@@ -184,7 +173,7 @@
         _lastName = cacheItem.lastName;
         _authority = cacheItem.authority;
         _username = cacheItem.username;
-        _userIdentifier = cacheItem.uniqueUserId;
+        _uniqueUserId = cacheItem.uniqueUserId;
         _clientInfo = cacheItem.clientInfo;
     }
     
@@ -196,7 +185,7 @@
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
     cacheItem.authority = self.authority;
     cacheItem.username = self.username;
-    cacheItem.uniqueUserId = self.userIdentifier;
+    cacheItem.uniqueUserId = self.uniqueUserId;
     cacheItem.legacyUserIdentifier = self.legacyUserId;
     cacheItem.accountType = self.accountType;
     cacheItem.firstName = self.firstName;
@@ -211,7 +200,7 @@
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"(authority=%@ username=%@ uniqueUserId=%@ clientInfo=%@ accountType=%@ legacyUserId=%@)",
-            _authority, _username, _userIdentifier, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _legacyUserId];
+            _authority, _username, _uniqueUserId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _legacyUserId];
 }
 
 @end

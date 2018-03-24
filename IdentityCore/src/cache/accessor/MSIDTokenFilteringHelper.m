@@ -98,7 +98,7 @@
     
     BOOL (^filterBlock)(MSIDTokenCacheItem *tokenCacheItem) = ^BOOL(MSIDTokenCacheItem *token) {
         
-        if ([token.uniqueUserId isEqualToString:account.userIdentifier]
+        if ([token.uniqueUserId isEqualToString:account.uniqueUserId]
             && [token.clientId isEqualToString:parameters.clientId]
             && [parameters.scopes isSubsetOfOrderedSet:[token.target scopeSet]])
         {

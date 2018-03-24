@@ -191,7 +191,7 @@
                       request:(MSIDRequestParameters *)requestParams
 {
     // Fill from request
-    _authority = requestParams.authority;
+    _authority = [response cacheAuthorityURLFromAuthority:requestParams.authority];
     _clientId = requestParams.clientId;
     _additionalServerInfo = response.additionalServerInfo;
     _username = response.idTokenObj.username;
@@ -201,7 +201,7 @@
     {
         MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
         _clientInfo = aadTokenResponse.clientInfo;
-        _uniqueUserId = _clientInfo.userIdentifier;
+        _uniqueUserId = _clientInfo.userIdentifier ? _clientInfo.userIdentifier : response.idTokenObj.userId;
         [_additionalServerInfo setValue:aadTokenResponse.speInfo
                            forKey:MSID_SPE_INFO_CACHE_KEY];
     }
