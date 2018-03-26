@@ -368,14 +368,14 @@
     
     // If no legacy user ID available, or no token found by legacy user ID, try to look by unique user ID
     if (!resultToken
-        && ![NSString msidIsStringNilOrBlank:account.userIdentifier])
+        && ![NSString msidIsStringNilOrBlank:account.uniqueUserId])
     {
         NSURL *authority = [MSIDAuthority universalAuthorityURL:parameters.authority];
         
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", parameters.clientId, authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.userIdentifier, parameters.clientId, authority);
+        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.uniqueUserId, parameters.clientId, authority);
         
-        return [self getTokenByUniqueUserId:account.userIdentifier
+        return [self getTokenByUniqueUserId:account.uniqueUserId
                                   tokenType:MSIDTokenTypeRefreshToken
                                   authority:authority
                                    clientId:parameters.clientId

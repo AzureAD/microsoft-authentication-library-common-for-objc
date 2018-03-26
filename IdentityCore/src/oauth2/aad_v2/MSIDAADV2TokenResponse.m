@@ -24,10 +24,11 @@
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDAADV2IdTokenWrapper.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDAADV2TokenResponse
 
-- (MSIDIdTokenWrapper *)idTokenObj
+- (MSIDAADV2IdTokenWrapper *)idTokenObj
 {
     return [[MSIDAADV2IdTokenWrapper alloc] initWithRawIdToken:self.idToken];
 }
@@ -84,6 +85,12 @@
     }
     
     return [targetScopeSet msidToString];
+}
+
+- (NSURL *)cacheAuthorityURLFromAuthority:(NSURL *)authority
+{
+    MSIDAADV2IdTokenWrapper *idToken = (MSIDAADV2IdTokenWrapper *)self.idTokenObj;
+    return [MSIDAuthority cacheUrlForAuthority:authority tenantId:idToken.tenantId];
 }
 
 @end

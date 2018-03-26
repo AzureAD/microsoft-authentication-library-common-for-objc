@@ -115,7 +115,10 @@
     _oauthTokenType = [coder decodeObjectOfClass:[NSString class] forKey:@"accessTokenType"];
     
     // Decode id_token from a backward compatible way
-    _idToken = [[coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"] rawIdToken];
+    MSIDUserInformation *userInfo = [coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"];
+    _idToken = userInfo.rawIdToken;
+    
+    if (!_uniqueUserId) _uniqueUserId = userInfo.userId;
     
     _tokenType = [MSIDTokenTypeHelpers tokenTypeWithRefreshToken:_refreshToken accessToken:_accessToken];
         

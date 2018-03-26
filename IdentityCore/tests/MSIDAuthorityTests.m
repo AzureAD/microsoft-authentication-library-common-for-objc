@@ -185,4 +185,45 @@
     XCTAssertEqualObjects(result, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
 }
 
+- (void)testCacheURLAuthority_whenNilTenant_shouldReturnURL
+{
+    NSURL *url = [MSIDAuthority cacheUrlForAuthority:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] tenantId:nil];
+    
+    XCTAssertNotNil(url);
+    XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+}
+
+- (void)testCacheURLAuthority_whenCommon_shouldReturnURL
+{
+    NSURL *url = [MSIDAuthority cacheUrlForAuthority:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] tenantId:@"tenant"];
+    
+    XCTAssertNotNil(url);
+    XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com/tenant"]);
+}
+
+- (void)testCacheURLAuthority_whenCommonWithPort_shouldReturnURLWithPort
+{
+    NSURL *url = [MSIDAuthority cacheUrlForAuthority:[NSURL URLWithString:@"https://login.microsoftonline.com:8080/common"] tenantId:@"tenant"];
+    
+    XCTAssertNotNil(url);
+    XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com:8080/tenant"]);
+}
+
+- (void)testCacheURLAuthority_whenTenantSpecified_shouldReturnURL
+{
+    NSURL *url = [MSIDAuthority cacheUrlForAuthority:[NSURL URLWithString:@"https://login.microsoftonline.com/tenant2"] tenantId:@"tenant1"];
+    
+    XCTAssertNotNil(url);
+    XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com/tenant2"]);
+}
+
+- (void)testCacheURLAuthority_whenTenantSpecifiedWithPort_shouldReturnURLWithPort
+{
+    NSURL *url = [MSIDAuthority cacheUrlForAuthority:[NSURL URLWithString:@"https://login.microsoftonline.com:8080/tenant2"] tenantId:@"tenant1"];
+    
+    XCTAssertNotNil(url);
+    XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com:8080/tenant2"]);
+}
+
+
 @end

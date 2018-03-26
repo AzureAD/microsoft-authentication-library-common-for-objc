@@ -98,4 +98,43 @@
     return authorityURL;
 }
 
++ (BOOL)isTenantless:(NSURL *)authority
+{
+    NSArray *authorityURLPaths = authority.pathComponents;
+    
+    if ([authorityURLPaths count] >= 2)
+    {
+        NSString *tenantName = [authorityURLPaths[1] lowercaseString];
+        
+        if ([tenantName isEqualToString:@"common"] ||
+            [tenantName isEqualToString:@"organizations"])
+        {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
++ (NSURL *)cacheUrlForAuthority:(NSURL *)authority
+                       tenantId:(NSString *)tenantId
+{
+    if (!tenantId)
+    {
+        return authority;
+    }
+    
+    if ([self isADFSInstanceURL:authority])
+    {
+        return authority;
+    }
+    
+    if (![self isTenantless:authority])
+    {
+        return authority;
+    }
+    
+    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authority msidHostWithPortIfNecessary], tenantId]];
+}
+
 @end

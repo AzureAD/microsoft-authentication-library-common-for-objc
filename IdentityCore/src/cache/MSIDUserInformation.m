@@ -54,6 +54,9 @@
     
     _rawIdToken = [coder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
     
+    MSIDAADV1IdTokenWrapper *tokenObj = [[MSIDAADV1IdTokenWrapper alloc] initWithRawIdToken:_rawIdToken];
+    _userId = tokenObj.userId;
+    
     return self;
 }
 

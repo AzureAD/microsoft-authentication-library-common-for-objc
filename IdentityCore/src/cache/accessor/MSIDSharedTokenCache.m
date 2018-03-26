@@ -239,7 +239,7 @@
     }
     
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
-    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, legacy userId %@, token %@", token.clientId, token.authority, account.userIdentifier, account.legacyUserId, _PII_NULLIFY(token.refreshToken));
+    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, legacy userId %@, token %@", token.clientId, token.authority, account.uniqueUserId, account.legacyUserId, _PII_NULLIFY(token.refreshToken));
     
     NSError *cacheError = nil;
     
@@ -353,7 +353,7 @@
                                                               request:requestParams];
     
     MSID_LOG_VERBOSE(context, @"Saving tokens with authority %@, clientId %@, resource %@", requestParams.authority, requestParams.clientId, requestParams.resource);
-    MSID_LOG_VERBOSE_PII(context, @"Saving tokens with authority %@, clientId %@, resource %@, user ID: %@, legacy user ID: %@", requestParams.authority, requestParams.clientId, requestParams.resource, account.userIdentifier, account.legacyUserId);
+    MSID_LOG_VERBOSE_PII(context, @"Saving tokens with authority %@, clientId %@, resource %@, user ID: %@, legacy user ID: %@", requestParams.authority, requestParams.clientId, requestParams.resource, account.uniqueUserId, account.legacyUserId);
     
     
     
