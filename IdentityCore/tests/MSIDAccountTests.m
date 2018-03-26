@@ -57,7 +57,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
-    XCTAssertEqualObjects(account.userIdentifier, @"some id");
+    XCTAssertEqualObjects(account.uniqueUserId, @"some id");
     XCTAssertNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertNil(account.username);
@@ -76,7 +76,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
-    XCTAssertEqualObjects(account.userIdentifier, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(account.clientInfo, clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertNil(account.username);
@@ -95,7 +95,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
-    XCTAssertEqualObjects(account.userIdentifier, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(account.clientInfo, clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertNil(account.username);
@@ -120,7 +120,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"eric999");
-    XCTAssertEqualObjects(account.userIdentifier, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
     XCTAssertNotNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeAADV2);
     XCTAssertEqualObjects(account.username, @"eric999");
@@ -145,7 +145,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"subject");
-    XCTAssertEqualObjects(account.userIdentifier, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
     XCTAssertNotNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeAADV1);
     XCTAssertEqualObjects(account.username, @"eric999");
@@ -170,7 +170,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"subject");
-    XCTAssertEqualObjects(account.userIdentifier, @"subject.");
+    XCTAssertEqualObjects(account.uniqueUserId, @"subject");
     XCTAssertNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertEqualObjects(account.username, @"eric999");
@@ -217,7 +217,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
-    XCTAssertEqualObjects(account.userIdentifier, @"uid.utid");
+    XCTAssertEqualObjects(account.uniqueUserId, @"uid.utid");
     XCTAssertNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeMSA);
     XCTAssertEqualObjects(account.username, @"eric999");

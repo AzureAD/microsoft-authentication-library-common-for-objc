@@ -79,5 +79,6 @@
                            error:(NSError **)error;
 
 - (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams;
+- (NSURL *)cacheAuthorityURLFromAuthority:(NSURL *)authority;
 
 @end

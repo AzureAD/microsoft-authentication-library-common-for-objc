@@ -51,6 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (MSIDDefaultTokenCacheKey *)keyForAccountWithUniqueUserId:(NSString *)userId
                                                   authority:(NSURL *)authority
                                                    clientId:(NSString *)clientId
+                                                   username:(NSString *)username
                                                 accountType:(MSIDAccountType)accountType;
 /*!
  Key for getting all MSAL access tokens for a user, environment and clientId

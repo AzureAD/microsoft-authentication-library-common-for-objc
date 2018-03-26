@@ -165,4 +165,9 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
     return [_json dictionaryByRemovingFields:knownFields];
 }
 
+- (NSURL *)cacheAuthorityURLFromAuthority:(NSURL *)authority
+{
+    return authority;
+}
+
 @end

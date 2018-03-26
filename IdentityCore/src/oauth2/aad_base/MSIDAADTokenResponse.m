@@ -185,7 +185,7 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
                              MSID_FAMILY_ID,
                              MSID_TELEMETRY_KEY_SPE_INFO,
                              MSID_OAUTH2_EXPIRES_ON,
-                             MSID_OAUTH2_EXT_EXPIRES_IN];
+                             MSID_OAUTH2_EXT_EXPIRES_IN, @"url"];
     
     return [additionalInfo dictionaryByRemovingFields:knownFields];
 }

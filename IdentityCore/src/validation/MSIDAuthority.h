@@ -38,4 +38,8 @@
    Otherwise, returns original authority */
 + (NSURL *)universalAuthorityURL:(NSURL *)authorityURL;
 
++ (BOOL)isTenantless:(NSURL *)authority;
++ (NSURL *)cacheUrlForAuthority:(NSURL *)authority
+                       tenantId:(NSString *)tenantId;
+
 @end

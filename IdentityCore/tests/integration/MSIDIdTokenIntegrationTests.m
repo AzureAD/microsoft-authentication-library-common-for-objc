@@ -113,7 +113,7 @@
     
     MSIDIdToken *token = [[MSIDIdToken alloc] initWithTokenResponse:response request:params];
     
-    XCTAssertEqualObjects(token.authority, params.authority);
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
     XCTAssertEqualObjects(token.clientId, params.clientId);
     
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -135,7 +135,7 @@
     
     MSIDIdToken *token = [[MSIDIdToken alloc] initWithTokenResponse:response request:params];
     
-    XCTAssertEqualObjects(token.authority, params.authority);
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
     XCTAssertEqualObjects(token.clientId, params.clientId);
     
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];

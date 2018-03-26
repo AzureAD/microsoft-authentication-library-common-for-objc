@@ -201,7 +201,7 @@
     }
     
     if ((self.requireLegacyUserId && !account.legacyUserId)
-        || (self.requireDefaultUserId && !account.userIdentifier))
+        || (self.requireDefaultUserId && !account.uniqueUserId))
     {
         if (error)
         {
@@ -272,7 +272,7 @@
                                clientId:(NSString *)clientId
                               authority:(NSURL *)authority
 {
-    NSString *userIdentifier = account.userIdentifier ? account.userIdentifier : account.legacyUserId;
+    NSString *userIdentifier = account.uniqueUserId ? account.uniqueUserId : account.legacyUserId;
     
     NSString *cloudIdentifier = tokenType == MSIDTokenTypeRefreshToken ? authority.msidHostWithPortIfNecessary : authority.absoluteString;
     

@@ -478,11 +478,14 @@
     NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
     XCTAssertEqual([accessTokensInCache count], 4);
     
+    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v2DefaultParams];
+    requestParams.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+    
     // retrieve first at
     NSError *error = nil;
     MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
                                                                                  account:account
-                                                                           requestParams:[MSIDTestRequestParams v2DefaultParams]
+                                                                           requestParams:requestParams
                                                                                  context:nil
                                                                                    error:&error];
 
@@ -504,11 +507,14 @@
                                        response:tokenResponse
                                         context:nil
                                           error:nil];
+    
+    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v2DefaultParams];
+    requestParams.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
 
     NSError *error = nil;
     MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
                                                                                  account:account
-                                                                           requestParams:[MSIDTestRequestParams v2DefaultParams]
+                                                                           requestParams:requestParams
                                                                                  context:nil
                                                                                    error:&error];
 
@@ -610,11 +616,14 @@
     // Retrieve token
     MSIDRequestParameters *param = [MSIDTestRequestParams v2DefaultParams];
     param.authority = nil;
+    
+    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v2DefaultParams];
+    requestParams.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
 
     NSError *error = nil;
     MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
                                                                                  account:account
-                                                                           requestParams:[MSIDTestRequestParams v2DefaultParams]
+                                                                           requestParams:requestParams
                                                                                  context:nil
                                                                                    error:&error];
 
