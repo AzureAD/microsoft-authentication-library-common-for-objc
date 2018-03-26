@@ -50,7 +50,7 @@
 
 - (NSUInteger)hash
 {
-    NSUInteger hash = [super hash];
+    NSUInteger hash = 0;
     hash = hash * 31 + self.authority.hash;
     hash = hash * 31 + self.username.hash;
     hash = hash * 31 + self.uniqueUserId.hash;
