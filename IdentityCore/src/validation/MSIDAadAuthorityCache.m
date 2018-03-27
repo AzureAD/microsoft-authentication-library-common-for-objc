@@ -341,6 +341,8 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
 {
+    if (!authority) return @[];
+    
     if ([MSIDAuthority isADFSInstanceURL:authority])
     {
         return @[ authority ];
