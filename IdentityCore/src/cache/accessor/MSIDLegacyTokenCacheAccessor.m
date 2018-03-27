@@ -350,6 +350,14 @@
     return NO;
 }
 
+- (NSArray<MSIDBaseToken *> *)allTokensForAccount:(MSIDAccount *)account
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error
+{
+    // Not implemented.
+    return nil;
+}
+
 #pragma mark - Private
 
 - (MSIDBaseToken *)getRefreshTokenWithAccount:(MSIDAccount *)account

@@ -298,6 +298,45 @@
                                                   filterBy:filterBlock];
 }
 
+- (NSArray<MSIDBaseToken *> *)allTokensForAccount:(MSIDAccount *)account
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error
+{
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllTokensWithUniqueUserId:account.uniqueUserId environment:account.authority.msidHostWithPortIfNecessary];
+    NSArray<MSIDTokenCacheItem *> *cacheItems = [self getAllTokensWithKey:key context:context error:error];
+
+    NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];
+    
+    for (MSIDTokenCacheItem *item in cacheItems)
+    {
+        MSIDBaseToken *token = nil;
+        switch (item.tokenType)
+        {
+            case MSIDTokenTypeAccessToken:
+                token = [[MSIDAccessToken alloc] initWithTokenCacheItem:item];
+                break;
+                
+            case MSIDTokenTypeRefreshToken:
+                token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:item];
+                break;
+                
+            case MSIDTokenTypeIDToken:
+                token = [[MSIDIdToken alloc] initWithTokenCacheItem:item];
+                break;
+                
+            default:
+                break;
+        }
+        
+        if (token)
+        {
+            [tokens addObject:token];
+        }
+    }
+    
+    return tokens;
+}
+
 - (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error;
 {

@@ -50,6 +50,10 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
 
+- (NSArray<MSIDBaseToken *> *)allTokensForAccount:(MSIDAccount *)account
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error;
+
 - (MSIDBaseToken *)getLatestToken:(MSIDBaseToken *)token
                           account:(MSIDAccount *)account
                           context:(id<MSIDRequestContext>)context

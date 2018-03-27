@@ -220,12 +220,11 @@
     return [result allObjects];
 }
 
-- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+- (NSArray<MSIDBaseToken *> *)allTokensForAccount:(MSIDAccount *)account
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error
 {
-    // TODO: A
-    return NO;
+    return [_primaryAccessor allTokensForAccount:account context:context error:error];
 }
 
 - (BOOL)removeAccount:(MSIDAccount *)account
