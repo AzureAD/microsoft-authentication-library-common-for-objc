@@ -335,12 +335,19 @@
     return results;
 }
 
-- (NSArray<MSIDAccount *> *)getAllAccountsWithClientId:(NSString *)clientId
-                                               context:(id<MSIDRequestContext>)context
-                                                 error:(NSError **)error
+- (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error;
 {
-    // TODO: A
+    // We don't suppport account in legacy cache.
     return nil;
+}
+
+- (BOOL)removeAccount:(MSIDAccount *)account
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error
+{
+    // We don't suppport account in legacy cache.
+    return NO;
 }
 
 #pragma mark - Private

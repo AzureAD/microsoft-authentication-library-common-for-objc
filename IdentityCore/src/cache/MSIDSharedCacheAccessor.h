@@ -65,7 +65,10 @@
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
 
-- (NSArray<MSIDAccount *> *)getAllAccountsWithClientId:(NSString *)clientId
-                                               context:(id<MSIDRequestContext>)context
-                                                 error:(NSError **)error;
+- (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error;
+
+- (BOOL)removeAccount:(MSIDAccount *)account
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error;
 @end

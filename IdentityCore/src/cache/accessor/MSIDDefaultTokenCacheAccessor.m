@@ -298,14 +298,12 @@
                                                   filterBy:filterBlock];
 }
 
-- (NSArray<MSIDAccount *> *)getAllAccountsWithClientId:(NSString *)clientId
-                                               context:(id<MSIDRequestContext>)context
-                                                 error:(NSError **)error
+- (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error;
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
+    MSIDTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccounts];
     
     NSArray<MSIDAccountCacheItem *> *items = [_dataSource accountsWithKey:key serializer:_serializer context:context error:error];
-    
     NSMutableArray<MSIDAccount *> *result = [NSMutableArray new];
     for (MSIDAccountCacheItem *item in items)
     {
@@ -314,6 +312,18 @@
     }
     
     return result;
+}
+
+- (BOOL)removeAccount:(MSIDAccount *)account
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error
+{
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:account.uniqueUserId
+                                                                                  authority:account.authority
+                                                                                   username:account.username
+                                                                                accountType:account.accountType];
+    
+    return [_dataSource removeItemsWithKey:key context:context error:error];
 }
 
 #pragma mark - Private
@@ -428,9 +438,9 @@
     }
     
     // Get previous account, so we don't loose any fields
+    // TODO: why don't we use account.authority here?
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:account.uniqueUserId
                                                                                   authority:parameters.authority
-                                                                                   clientId:parameters.clientId
                                                                                    username:account.username
                                                                                 accountType:account.accountType];
     

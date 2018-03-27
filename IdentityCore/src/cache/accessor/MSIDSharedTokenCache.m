@@ -205,20 +205,34 @@
     return resultRTs;
 }
 
-#pragma mark - Get Accounts
+#pragma mark - Account
 
-- (NSArray<MSIDAccount *> *)getAllAccountsWithClientId:(NSString *)clientId
-                                               context:(id<MSIDRequestContext>)context
-                                                 error:(NSError **)error
+- (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
     NSMutableSet *result = [NSMutableSet new];
     for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
-        NSArray<MSIDAccount *> *accounts = [cache getAllAccountsWithClientId:clientId context:context error:error];
+        NSArray<MSIDAccount *> *accounts = [cache getAllAccountsWithContext:context error:error];
         [result addObjectsFromArray:accounts];
     }
     
     return [result allObjects];
+}
+
+- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    // TODO: A
+    return NO;
+}
+
+- (BOOL)removeAccount:(MSIDAccount *)account
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error
+{
+    return [_primaryAccessor removeAccount:account context:context error:error];
 }
 
 #pragma mark - Remove tokens

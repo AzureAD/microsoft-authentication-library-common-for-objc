@@ -139,7 +139,6 @@ static NSString *keyDelimiter = @"-";
 
 + (MSIDDefaultTokenCacheKey *)keyForAccountWithUniqueUserId:(NSString *)userId
                                                   authority:(NSURL *)authority
-                                                   clientId:(NSString *)clientId
                                                    username:(NSString *)username
                                                 accountType:(MSIDAccountType)accountType
 {
@@ -150,7 +149,7 @@ static NSString *keyDelimiter = @"-";
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
                                                      generic:[username dataUsingEncoding:NSUTF8StringEncoding]
-                                                        type:@(accountType)];
+                                                        type:@(MSIDTokenTypeAccount)];
 }
 
 + (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
@@ -201,6 +200,14 @@ static NSString *keyDelimiter = @"-";
                                                      service:nil
                                                      generic:nil
                                                         type:@(MSIDTokenTypeAccessToken)];
+}
+
++ (MSIDDefaultTokenCacheKey *)queryForAllAccounts
+{
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:nil
+                                                     service:nil
+                                                     generic:nil
+                                                        type:@(MSIDTokenTypeAccount)];
 }
 
 // rt with uid and utid
