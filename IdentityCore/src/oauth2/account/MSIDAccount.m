@@ -66,7 +66,7 @@
 
 - (NSUInteger)hash
 {
-    NSUInteger hash = [super hash];
+    NSUInteger hash = 0;
     hash = hash * 31 + self.legacyUserId.hash;
     hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
     hash = hash * 31 + self.firstName.hash;
