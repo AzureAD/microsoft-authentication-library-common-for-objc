@@ -477,9 +477,8 @@
     }
     
     // Get previous account, so we don't loose any fields
-    // TODO: why don't we use account.authority here?
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:account.uniqueUserId
-                                                                                  authority:parameters.authority
+                                                                                  authority:account.authority
                                                                                    username:account.username
                                                                                 accountType:account.accountType];
     
