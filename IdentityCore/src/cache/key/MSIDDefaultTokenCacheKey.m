@@ -139,7 +139,6 @@ static NSString *keyDelimiter = @"-";
 
 + (MSIDDefaultTokenCacheKey *)keyForAccountWithUniqueUserId:(NSString *)userId
                                                   authority:(NSURL *)authority
-                                                   clientId:(NSString *)clientId
                                                    username:(NSString *)username
                                                 accountType:(MSIDAccountType)accountType
 {

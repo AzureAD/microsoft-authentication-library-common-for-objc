@@ -71,7 +71,7 @@
 - (void)testKeyForAccount_withAllParameters_shouldReturnKey
 {
     NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:@"uid" authority:url clientId:@"client" username:@"username" accountType:MSIDAccountTypeAADV1];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:@"uid" authority:url username:@"username" accountType:MSIDAccountTypeAADV1];
     
     XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
     XCTAssertEqualObjects(key.service, @"contoso.com");
