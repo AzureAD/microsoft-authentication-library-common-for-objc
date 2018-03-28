@@ -574,11 +574,14 @@
     }
     
     MSIDAccessToken *tokenToReturn = matchedTokens[0];
-    tokenToReturn.authority = parameters.authority;
+    
+    if (parameters.authority)
+    {
+        tokenToReturn.authority = parameters.authority;
+    }
     
     return tokenToReturn;
 }
-
 
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
                         requestParams:(MSIDRequestParameters *)parameters
