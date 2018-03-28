@@ -317,8 +317,6 @@
     XCTAssertNil(error);
     XCTAssertEqual(returnedTokens.count, 0);
     
-    
-    
     // test if wipe data is logged in telemetry
     for (id<MSIDTelemetryEventInterface> event in receivedEvents)
     {
