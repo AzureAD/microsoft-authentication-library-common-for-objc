@@ -204,6 +204,7 @@
     dictionary[MSID_CLIENT_INFO_CACHE_KEY] = _clientInfo.rawClientInfo;
     
     // Additional info
+    // TODO: A fix
     dictionary[MSID_ADDITIONAL_INFO_CACHE_KEY] = _additionalInfo;
     
     // Username

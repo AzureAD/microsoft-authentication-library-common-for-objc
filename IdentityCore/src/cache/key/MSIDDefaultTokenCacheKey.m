@@ -232,12 +232,14 @@ static NSInteger kTokenTypePrefix = 2000;
                                                         type:type];
 }
 
-+ (MSIDDefaultTokenCacheKey *)queryForAllAccounts
++ (MSIDDefaultTokenCacheKey *)queryForAllAccountsWithType:(MSIDAccountType)accountType
 {
+    NSNumber *type = [self accountType:accountType];
+    
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:nil
                                                      service:nil
                                                      generic:nil
-                                                        type:@(MSIDTokenTypeAccount)];
+                                                        type:type];
 }
 
 // rt with uid and utid

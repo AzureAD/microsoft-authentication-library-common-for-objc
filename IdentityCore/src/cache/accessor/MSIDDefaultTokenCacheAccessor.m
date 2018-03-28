@@ -303,8 +303,8 @@
                                             error:(NSError **)error
 {
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllTokensWithUniqueUserId:account.uniqueUserId environment:account.authority.msidHostWithPortIfNecessary];
-    NSArray<MSIDTokenCacheItem *> *cacheItems = [self getAllTokensWithKey:key context:context error:error];
-
+    NSArray<MSIDTokenCacheItem *> *cacheItems = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
+    
     NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];
     
     for (MSIDTokenCacheItem *item in cacheItems)
@@ -340,7 +340,7 @@
 - (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error;
 {
-    MSIDTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccounts];
+    MSIDTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccountsWithType:MSIDAccountTypeAADV2];
     
     NSArray<MSIDAccountCacheItem *> *items = [_dataSource accountsWithKey:key serializer:_serializer context:context error:error];
     NSMutableArray<MSIDAccount *> *result = [NSMutableArray new];
