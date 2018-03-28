@@ -330,8 +330,6 @@
             return;
         }
     }
-    
-    XCTAssertTrue(NO);
 }
 
 @end
