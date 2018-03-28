@@ -36,7 +36,7 @@
     
     XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
     XCTAssertEqualObjects(key.service, @"AccessToken-client-contoso.com-user.read user.write");
-    XCTAssertEqualObjects(key.type, @1);
+    XCTAssertEqualObjects(key.type, @2001);
     
     NSData *genericData = [@"AccessToken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(key.generic, genericData);
@@ -49,7 +49,7 @@
     
     XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
     XCTAssertEqualObjects(key.service, @"AccessToken-client-contoso.com-user.read user.write");
-    XCTAssertEqualObjects(key.type, @1);
+    XCTAssertEqualObjects(key.type, @2001);
     
     NSData *genericData = [@"AccessToken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(key.generic, genericData);
@@ -62,7 +62,7 @@
     
     XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
     XCTAssertEqualObjects(key.service, @"IdToken-client-contoso.com");
-    XCTAssertEqualObjects(key.type, @3);
+    XCTAssertEqualObjects(key.type, @2003);
     
     NSData *genericData = [@"IdToken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(key.generic, genericData);
@@ -76,7 +76,7 @@
     XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
     XCTAssertEqualObjects(key.service, @"contoso.com");
     XCTAssertEqualObjects(key.generic, [@"username" dataUsingEncoding:NSUTF8StringEncoding]);
-    XCTAssertEqualObjects(key.type, @1);
+    XCTAssertEqualObjects(key.type, @1001);
 }
 
 - (void)testQueryForAllAccessTokens_withRealm_shouldReturnKey
@@ -89,7 +89,7 @@
     NSData *genericData = [@"AccessToken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
     
     XCTAssertEqualObjects(key.generic, genericData);
-    XCTAssertEqualObjects(key.type, @1);
+    XCTAssertEqualObjects(key.type, @2001);
 }
 
 - (void)testQueryForAllAccessTokens_withAuthority_shouldReturnKey
@@ -104,14 +104,14 @@
     NSData *genericData = [@"AccessToken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
     
     XCTAssertEqualObjects(key.generic, genericData);
-    XCTAssertEqualObjects(key.type, @1);
+    XCTAssertEqualObjects(key.type, @2001);
 }
 
 - (void)testQueryForAllAccessTokens_shouldReturnKey
 {
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccessTokens];
     
-    XCTAssertEqualObjects(key.type, @1);
+    XCTAssertEqualObjects(key.type, @2001);
     XCTAssertNil(key.service);
     XCTAssertNil(key.generic);
     XCTAssertNil(key.account);
@@ -126,7 +126,7 @@
     
     NSData *genericData = [@"RefreshToken-client" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(key.generic, genericData);
-    XCTAssertEqualObjects(key.type, @2);
+    XCTAssertEqualObjects(key.type, @2002);
 }
 
 - (void)testQueryForAllTokensWithType_withRefreshTokenType_shouldReturnKey
@@ -136,7 +136,7 @@
     XCTAssertNil(key.account);
     XCTAssertNil(key.service);
     XCTAssertNil(key.generic);
-    XCTAssertEqualObjects(key.type, @2);
+    XCTAssertEqualObjects(key.type, @2002);
 }
 
 - (void)testQueryForAllRefreshTokensWithClientId_shouldReturnKey
@@ -145,7 +145,7 @@
     
     XCTAssertNil(key.account);
     XCTAssertNil(key.generic);
-    XCTAssertEqualObjects(key.type, @2);
+    XCTAssertEqualObjects(key.type, @2002);
     XCTAssertEqualObjects(key.service, @"RefreshToken-client");
 }
 
