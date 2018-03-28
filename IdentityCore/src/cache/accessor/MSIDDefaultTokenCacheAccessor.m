@@ -284,7 +284,7 @@
     MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Get all tokens of type %@ with clientId %@", [MSIDTokenTypeHelpers tokenTypeAsString:tokenType], clientId);
     
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllTokensWithType:tokenType];
-    NSArray<MSIDTokenCacheItem *> *cacheItems = [self getAllTokensWithKey:key context:context error:error];
+    NSArray<MSIDTokenCacheItem *> *cacheItems = [self getAllTokensWithType:tokenType key:key context:context error:error];
     
     BOOL (^filterBlock)(MSIDTokenCacheItem *tokenCacheItem) = ^BOOL(MSIDTokenCacheItem *token) {
         
@@ -465,7 +465,8 @@
                                                                                                 authority:parameters.authority
                                                                                                  clientId:parameters.clientId];
         
-        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithKey:key
+        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithType:MSIDTokenTypeAccessToken
+                                                                         key:key
                                                                     context:context
                                                                       error:error];
         
@@ -488,7 +489,8 @@
             key = [MSIDDefaultTokenCacheKey queryForAllAccessTokens];
         }
         
-        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithKey:key
+        NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithType:MSIDTokenTypeAccessToken
+                                                                         key:key
                                                                     context:context
                                                                       error:error];
         
@@ -563,7 +565,7 @@
     MSIDTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForIDTokensWithUniqueUserId:refreshToken.uniqueUserId
                                                                             environment:refreshToken.authority.msidHostWithPortIfNecessary];
     
-    NSArray *tokens = [self getAllTokensWithKey:key context:context error:error];
+    NSArray *tokens = [self getAllTokensWithType:MSIDTokenTypeAccessToken key:key context:context error:error];
     
     if (!tokens)
     {
@@ -628,7 +630,7 @@
                                                                                             authority:accessToken.authority
                                                                                              clientId:accessToken.clientId];
     
-    NSArray<MSIDTokenCacheItem *> *allCacheItems = [self getAllTokensWithKey:key context:context error:error];
+    NSArray<MSIDTokenCacheItem *> *allCacheItems = [self getAllTokensWithType:MSIDTokenTypeAccessToken key:key context:context error:error];
     
     if (!allCacheItems)
     {
@@ -715,7 +717,8 @@
     return result;
 }
 
-- (NSArray<MSIDTokenCacheItem *> *)getAllTokensWithKey:(MSIDTokenCacheKey *)key
+- (NSArray<MSIDTokenCacheItem *> *)getAllTokensWithType:(MSIDTokenType)tokenType
+                                                    key:(MSIDTokenCacheKey *)key
                                                context:(id<MSIDRequestContext>)context
                                                  error:(NSError *__autoreleasing *)error
 {
@@ -726,7 +729,7 @@
                                                                            context:context];
     
     NSArray *tokens = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
-    [self stopTelemetryLookupEvent:event tokenType:key.type.integerValue withToken:nil success:(tokens.count > 0) context:context];
+    [self stopTelemetryLookupEvent:event tokenType:tokenType withToken:nil success:(tokens.count > 0) context:context];
     
     return tokens;
 }
