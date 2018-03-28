@@ -180,6 +180,21 @@
     return  resultTokens;
 }
 
+- (NSArray<MSIDBaseToken *> *)allTokensForAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return nil;
+}
+
+- (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return nil;
+}
+
+- (BOOL)removeAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return NO;
+}
+
 #pragma mark - Helpers
 
 - (BOOL)saveTokenForAccount:(MSIDAccount *)account
