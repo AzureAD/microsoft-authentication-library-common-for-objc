@@ -96,11 +96,10 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
-// TODO: Rename
-- (BOOL)removeTokenForAccount:(MSIDAccount *)account
-                        token:(MSIDBaseToken *)token
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
+- (BOOL)removeToken:(MSIDBaseToken *)token
+         forAccount:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error;
 
 - (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error;

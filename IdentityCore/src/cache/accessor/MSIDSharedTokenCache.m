@@ -284,10 +284,10 @@
     return YES;
 }
 
-- (BOOL)removeTokenForAccount:(MSIDAccount *)account
-                        token:(MSIDBaseToken *)token
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+- (BOOL)removeToken:(MSIDBaseToken *)token
+         forAccount:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
 {
     return [_primaryAccessor removeToken:token
                                  account:account
