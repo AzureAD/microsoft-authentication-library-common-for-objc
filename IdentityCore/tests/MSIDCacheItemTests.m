@@ -44,7 +44,6 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfoString error:nil];
     cacheItem.clientInfo = clientInfo;
-    cacheItem.additionalInfo = @{@"test": @"2"};
     
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
     
@@ -56,7 +55,6 @@
     
     XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
     XCTAssertEqualObjects(newItem.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
-    XCTAssertEqualObjects(newItem.additionalInfo, @{@"test": @"2"});
     XCTAssertEqualObjects(newItem.clientInfo, clientInfo);
     
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -93,7 +91,6 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfoString error:nil];
     cacheItem.clientInfo = clientInfo;
-    cacheItem.additionalInfo = @{@"test": @"2"};
     
     NSDictionary *jsonDict = [cacheItem jsonDictionary];
     
@@ -104,7 +101,6 @@
     NSDictionary *expectedDict = @{@"unique_id" : uniqueUserId,
                                    @"environment" : @"login.microsoftonline.com",
                                    @"client_info": clientInfoString,
-                                   @"additional_info": @{@"test": @"2"},
                                    @"username": DEFAULT_TEST_ID_TOKEN_USERNAME,
                                    @"authority":DEFAULT_TEST_AUTHORITY
                                    };
@@ -190,7 +186,6 @@
     
     XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
     XCTAssertEqualObjects(newItem.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
-    XCTAssertEqualObjects(newItem.additionalInfo, @{@"test": @"2"});
     XCTAssertEqualObjects(newItem.clientInfo, clientInfo);
     
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];

@@ -31,7 +31,6 @@
     NSString *_username;
     NSString *_uniqueUserId;
     MSIDClientInfo *_clientInfo;
-    NSDictionary *_additionalInfo;
 }
 
 @property (readwrite, nonnull) NSURL *authority;
@@ -39,7 +38,6 @@
 
 @property (readwrite, nullable) NSString *username;
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
-@property (readwrite, nullable) NSDictionary *additionalInfo;
 
 - (BOOL)isEqualToItem:(nonnull MSIDCacheItem *)item;
 

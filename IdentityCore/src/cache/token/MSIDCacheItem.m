@@ -55,7 +55,6 @@
     hash = hash * 31 + self.username.hash;
     hash = hash * 31 + self.uniqueUserId.hash;
     hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
-    hash = hash * 31 + self.additionalInfo.hash;
 
     return hash;
 }
@@ -72,7 +71,6 @@
     result &= (!self.username && !item.username) || [self.username isEqualToString:item.username];
     result &= (!self.uniqueUserId && !item.uniqueUserId) || [self.uniqueUserId isEqualToString:item.uniqueUserId];
     result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
-    result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqualToDictionary:item.additionalInfo];
     
     return result;
 }
@@ -86,7 +84,6 @@
     item.username = [self.username copyWithZone:zone];
     item.uniqueUserId = [self.uniqueUserId copyWithZone:zone];
     item.clientInfo = [self.clientInfo copyWithZone:zone];
-    item.additionalInfo = [self.additionalInfo copyWithZone:zone];
     
     return item;
 }
@@ -112,7 +109,6 @@
         _authority = [NSURL URLWithString:authorityString];
     }
     
-    _additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
     _username = [coder decodeObjectOfClass:[NSString class] forKey:@"username"];
     
     NSString *rawClientInfo = [coder decodeObjectOfClass:[NSString class] forKey:@"clientInfo"];
@@ -126,7 +122,6 @@
     [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
     
     [coder encodeObject:self.clientInfo.rawClientInfo forKey:@"clientInfo"];
-    [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
     [coder encodeObject:self.username forKey:@"username"];
 }
 
@@ -150,9 +145,6 @@
     /* Optional fields */
     NSString *rawClientInfo = json[MSID_OAUTH2_CLIENT_INFO];
     [self fillClientInfo:rawClientInfo];
-    
-    // Additional info
-    _additionalInfo = json[MSID_ADDITIONAL_INFO_CACHE_KEY];
     
     // Username
     _username = json[MSID_USERNAME_CACHE_KEY];
@@ -202,9 +194,6 @@
     
     // Client info
     dictionary[MSID_CLIENT_INFO_CACHE_KEY] = _clientInfo.rawClientInfo;
-    
-    // Additional info
-    dictionary[MSID_ADDITIONAL_INFO_CACHE_KEY] = _additionalInfo;
     
     // Username
     dictionary[MSID_USERNAME_CACHE_KEY] = _username;
