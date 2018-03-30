@@ -560,6 +560,11 @@
                                                                     context:context
                                                                       error:error];
         
+        if (allItems.count == 1 && parameters.authority == nil)
+        {
+            parameters.authority = allItems.firstObject.authority;
+        }
+        
         matchedTokens = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:allItems
                                                                   withParameters:parameters
                                                                          account:account
