@@ -125,35 +125,6 @@
     return self;
 }
 
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams
-{
-    if (!(self = [self init]))
-    {
-        return nil;
-    }
-    
-    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
-    {
-        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
-        _clientInfo = aadTokenResponse.clientInfo;
-        _uniqueUserId = _clientInfo.userIdentifier ? _clientInfo.userIdentifier : response.idTokenObj.userId;
-    }
-    else
-    {
-        _uniqueUserId = response.idTokenObj.userId;
-    }
-    
-    _legacyUserId = response.idTokenObj.userId;
-    _username = response.idTokenObj.username;
-    _firstName = response.idTokenObj.givenName;
-    _lastName = response.idTokenObj.familyName;
-    _authority = [response cacheAuthorityURLFromAuthority:requestParams.authority];
-    _accountType = response.accountType;
-    
-    return self;
-}
-
 #pragma mark - Cache
 
 - (instancetype)initWithAccountCacheItem:(MSIDAccountCacheItem *)cacheItem

@@ -100,27 +100,6 @@
     return cacheItem;
 }
 
-#pragma mark - Response
-
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams
-{
-    if (!(self = [super initWithTokenResponse:response request:requestParams]))
-    {
-        return nil;
-    }
-    
-    _rawIdToken = response.idToken;
-    
-    if (!_rawIdToken)
-    {
-        MSID_LOG_ERROR(nil, @"Trying to initialize ID token when missing ID token field");
-        return nil;
-    }
-    
-    return self;
-}
-
 #pragma mark - Token type
 
 - (MSIDTokenType)tokenType

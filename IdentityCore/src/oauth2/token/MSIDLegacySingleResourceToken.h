@@ -26,7 +26,7 @@
 
 @interface MSIDLegacySingleResourceToken : MSIDAccessToken <MSIDRefreshableToken>
 
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *familyId;
+@property (readwrite) NSString *refreshToken;
+@property (readwrite) NSString *familyId;
 
 @end

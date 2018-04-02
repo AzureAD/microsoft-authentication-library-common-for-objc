@@ -21,13 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBaseToken.h"
-#import "MSIDRefreshableToken.h"
+#import "MSIDAADOauth2Strategy.h"
 
-@interface MSIDRefreshToken : MSIDBaseToken <MSIDRefreshableToken>
+@class MSIDTokenResponse;
+@class MSIDLegacySingleResourceToken;
+@protocol MSIDRequestContext;
 
-@property (readwrite) NSString *refreshToken;
-@property (readwrite) NSString *familyId;
-@property (readwrite) NSString *idToken;
+@interface MSIDAADV1Oauth2Strategy : MSIDAADOauth2Strategy
+
+- (BOOL)verifyResponse:(MSIDTokenResponse *)response
+      fromRefreshToken:(BOOL)fromRefreshToken
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError * __autoreleasing *)error;
 
 @end

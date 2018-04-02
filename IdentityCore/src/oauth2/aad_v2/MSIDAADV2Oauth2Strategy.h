@@ -21,13 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBaseToken.h"
-#import "MSIDRefreshableToken.h"
+#import "MSIDAADOauth2Strategy.h"
 
-@interface MSIDRefreshToken : MSIDBaseToken <MSIDRefreshableToken>
-
-@property (readwrite) NSString *refreshToken;
-@property (readwrite) NSString *familyId;
-@property (readwrite) NSString *idToken;
+@interface MSIDAADV2Oauth2Strategy : MSIDAADOauth2Strategy
 
 @end

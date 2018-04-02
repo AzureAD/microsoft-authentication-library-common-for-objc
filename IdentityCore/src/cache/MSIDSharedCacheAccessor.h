@@ -29,14 +29,16 @@
 @class MSIDBaseToken;
 @class MSIDTokenResponse;
 @class MSIDRefreshToken;
+@class MSIDOauth2Strategy;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 
-- (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)requestParams
-                            account:(MSIDAccount *)account
-                           response:(MSIDTokenResponse *)response
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error;
+- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategt
+                 requestParams:(MSIDRequestParameters *)requestParams
+                       account:(MSIDAccount *)account
+                      response:(MSIDTokenResponse *)response
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error;
 
 - (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
                  account:(MSIDAccount *)account
