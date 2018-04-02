@@ -30,7 +30,16 @@
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDBaseToken.h"
+#import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDIdToken.h"
+#import "MSIDLegacySingleResourceToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDTestTokenResponse.h"
+#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestRequestParams.h"
+#import "MSIDTestIdTokenUtil.h"
 
 @interface MSIDAADV2Oauth2StartegyTests : XCTestCase
 
@@ -156,6 +165,151 @@
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDErrorDomain);
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Client info was not returned in the server response");
+}
+
+#pragma mark - Tokens
+
+- (void)testBaseTokenFromResponse_whenAADV2TokenResponse_shouldReturnToken
+{
+    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+
+    MSIDBaseToken *token = [strategy baseTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
+}
+
+- (void)testAccessTokenFromResponse_whenAADV2TokenResponse_shouldReturnToken
+{
+    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+
+    MSIDAccessToken *token = [strategy accessTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
+
+    XCTAssertNotNil(token.cachedAt);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+
+    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
+
+    XCTAssertEqualObjects(token.idToken, idToken);
+
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
+
+    XCTAssertEqualObjects(token.scopes, scopes);
+    XCTAssertNotNil(token.expiresOn);
+}
+
+- (void)testRefreshTokenFromResponse_whenAADV2TokenResponse_shouldReturnToken
+{
+    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+
+    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+
+    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
+
+    XCTAssertEqualObjects(token.idToken, idToken);
+
+    XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
+    XCTAssertNil(token.familyId);
+}
+
+- (void)testIDTokenFromResponse_whenAADV2TokenResponse_shouldReturnToken
+{
+    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+
+    MSIDIdToken *token = [strategy idTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+
+    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
+    XCTAssertEqualObjects(token.rawIdToken, idToken);
+}
+
+- (void)testLegacyTokenFromResponse_whenAADV2TokenResponse_shouldReturnToken
+{
+    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+
+    MSIDLegacySingleResourceToken *token = [strategy legacyTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+
+    XCTAssertNotNil(token.cachedAt);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+
+    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
+
+    XCTAssertEqualObjects(token.idToken, idToken);
+
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
+
+    XCTAssertEqualObjects(token.scopes, scopes);
+    XCTAssertNotNil(token.expiresOn);
 }
 
 @end

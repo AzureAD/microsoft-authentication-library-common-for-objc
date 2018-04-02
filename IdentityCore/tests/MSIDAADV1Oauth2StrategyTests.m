@@ -29,7 +29,16 @@
 #import "MSIDAADV1Oauth2Strategy.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDBaseToken.h"
+#import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDIdToken.h"
+#import "MSIDLegacySingleResourceToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDTestTokenResponse.h"
+#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestRequestParams.h"
+#import "MSIDTestIdTokenUtil.h"
 
 @interface MSIDAADV1Oauth2StrategyTests : XCTestCase
 
@@ -155,6 +164,164 @@
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerOauth);
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
+}
+
+#pragma mark - Tokens
+
+- (void)testBaseTokenFromResponse_whenAADV1TokenResponse_shouldReturnToken
+{
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+    MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+
+    MSIDBaseToken *token = [strategy baseTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, params.authority);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
+}
+
+- (void)testAccessTokenFromResponse_whenAADV1TokenResponse_shouldReturnToken
+{
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+    MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+
+    MSIDAccessToken *token = [strategy accessTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, params.authority);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+
+    XCTAssertNotNil(token.cachedAt);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
+
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
+
+    XCTAssertEqualObjects(token.idToken, idToken);
+    XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
+    XCTAssertNotNil(token.expiresOn);
+}
+
+- (void)testRefreshTokenFromResponse_whenAADV1TokenResponse_shouldReturnToken
+{
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+    MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+
+    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, params.authority);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
+
+    XCTAssertEqualObjects(token.idToken, idToken);
+
+    XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
+    XCTAssertNil(token.familyId);
+}
+
+- (void)testRefreshTokenFromResponse_whenSingleResourceToken_shouldReturnNil
+{
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+    MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                 rt:DEFAULT_TEST_REFRESH_TOKEN
+                                                                           resource:nil
+                                                                                uid:DEFAULT_TEST_UID
+                                                                               utid:DEFAULT_TEST_UTID
+                                                                                upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                           tenantId:DEFAULT_TEST_UTID];
+
+    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+
+    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:response request:params];
+
+    XCTAssertNil(token);
+}
+
+- (void)testIDTokenFromResponse_whenAADV1TokenResponse_shouldReturnToken
+{
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+    MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+
+    MSIDIdToken *token = [strategy idTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, params.authority);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.rawIdToken, idToken);
+}
+
+- (void)testLegacyTokenFromResponse_whenAADV1TokenResponse_shouldReturnToken
+{
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+    MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
+    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+
+    MSIDLegacySingleResourceToken *token = [strategy legacyTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, params.authority);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+
+    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+
+    XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+
+    XCTAssertNotNil(token.cachedAt);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
+
+    XCTAssertEqualObjects(token.idToken, idToken);
+    XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
+    XCTAssertNotNil(token.expiresOn);
 }
 
 @end
