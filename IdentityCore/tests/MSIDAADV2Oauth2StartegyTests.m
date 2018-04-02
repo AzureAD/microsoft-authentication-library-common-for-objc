@@ -312,4 +312,96 @@
     XCTAssertNotNil(token.expiresOn);
 }
 
+#pragma mark - .default scope
+
+- (void)testAccessTokenFromResponse_withAdditionFromRequest_whenMultipleScopesInRequest_shouldNotAddDefaultScope
+{
+    NSString *scopeInRequest = @"user.write abc://abc/.default";
+    NSString *scopeInResposne = @"user.read";
+
+    // construct request parameters
+    MSIDRequestParameters *reqParams = [MSIDRequestParameters new];
+    [reqParams setTarget:scopeInRequest];
+
+    // construct response
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"xyz",
+                                @"expires_on": @"xyz",
+                                @"refresh_token": @"rt",
+                                @"scope": scopeInResposne
+                                };
+    NSError *error = nil;
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+
+    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:reqParams];
+
+    // scope should be the same as it is in response
+    XCTAssertEqualObjects(accessToken.scopes, scopeInResposne);
+}
+
+- (void)testAccessTokenFromResponse_withAdditionFromRequest_whenNoDefaultScopeInRequest_shouldNotAddDefaultScope
+{
+    NSString *scopeInRequest = @"user.write";
+    NSString *scopeInResposne = @"user.read";
+
+    // construct request parameters
+    MSIDRequestParameters *reqParams = [MSIDRequestParameters new];
+    [reqParams setTarget:scopeInRequest];
+
+    // construct response
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"xyz",
+                                @"expires_on": @"xyz",
+                                @"refresh_token": @"rt",
+                                @"scope": scopeInResposne
+                                };
+    NSError *error = nil;
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+
+    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:reqParams];
+
+    // scope should be the same as it is in response
+    XCTAssertEqualObjects(accessToken.scopes, scopeInResposne);
+}
+
+- (void)testAccessTokenFromResponse_withAdditionFromRequest_whenOnlyDefaultScopeInRequest_shouldAddDefaultScope
+{
+    NSString *scopeInRequest = @"abc://abc/.default";
+    NSString *scopeInResposne = @"user.read";
+
+    // construct request parameters
+    MSIDRequestParameters *reqParams = [MSIDRequestParameters new];
+    [reqParams setTarget:scopeInRequest];
+
+    // construct response
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"xyz",
+                                @"expires_on": @"xyz",
+                                @"refresh_token": @"rt",
+                                @"scope": scopeInResposne
+                                };
+    NSError *error = nil;
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+
+    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:reqParams];
+
+    // both scopes in request and response should be included
+    NSOrderedSet<NSString *> *scopeWithAddition = accessToken.scopes;
+    XCTAssertEqual(scopeWithAddition.count, 2);
+    XCTAssertTrue([scopeInRequest.scopeSet isSubsetOfOrderedSet:scopeWithAddition]);
+    XCTAssertTrue([scopeInResposne.scopeSet isSubsetOfOrderedSet:scopeWithAddition]);
+}
+
 @end
