@@ -40,6 +40,7 @@
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDTestRequestParams.h"
 #import "MSIDTestIdTokenUtil.h"
+#import "MSIDAccount.h"
 
 @interface MSIDAADV2Oauth2StartegyTests : XCTestCase
 
@@ -402,6 +403,33 @@
     XCTAssertEqual(scopeWithAddition.count, 2);
     XCTAssertTrue([scopeInRequest.scopeSet isSubsetOfOrderedSet:scopeWithAddition]);
     XCTAssertTrue([scopeInResposne.scopeSet isSubsetOfOrderedSet:scopeWithAddition]);
+}
+
+- (void)testAccountFromTokenResponse_whenAADV2TokenResponse_shouldInitAccountAndSetProperties
+{
+    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+
+    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman"];
+    NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
+    MSIDRequestParameters *requestParameters =
+    [[MSIDRequestParameters alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
+                                         redirectUri:@"redirect uri"
+                                            clientId:@"client id"
+                                              target:@"target"];
+    MSIDAADV2TokenResponse *tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:nil];
+
+    MSIDAccount *account = [strategy accountFromResponse:tokenResponse request:requestParameters];
+
+    XCTAssertNotNil(account);
+    XCTAssertEqualObjects(account.legacyUserId, @"eric999");
+    XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
+    XCTAssertNotNil(account.clientInfo);
+    XCTAssertEqual(account.accountType, MSIDAccountTypeAADV2);
+    XCTAssertEqualObjects(account.username, @"eric999");
+    XCTAssertEqualObjects(account.firstName, @"Eric");
+    XCTAssertEqualObjects(account.lastName, @"Cartman");
+    XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
 
 @end

@@ -27,6 +27,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDRequestParameters.h"
+#import "MSIDOauth2Strategy.h"
 
 @interface MSIDTestCacheAccessor()
 {
@@ -50,11 +51,12 @@
 }
 
 
-- (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)parameters
-                            account:(MSIDAccount *)account
-                           response:(MSIDTokenResponse *)response
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
+- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+                 requestParams:(MSIDRequestParameters *)parameters
+                       account:(MSIDAccount *)account
+                      response:(MSIDTokenResponse *)response
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
     if (!parameters)
     {
@@ -66,7 +68,7 @@
         return NO;
     }
     
-    MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response request:parameters];
+    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:parameters];
     
     return [self saveTokenForAccount:account token:accessToken clientId:parameters.clientId authority:parameters.authority context:context error:error];
 }

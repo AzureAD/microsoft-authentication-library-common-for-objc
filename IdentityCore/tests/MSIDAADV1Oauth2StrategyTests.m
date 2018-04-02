@@ -39,6 +39,8 @@
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDTestRequestParams.h"
 #import "MSIDTestIdTokenUtil.h"
+#import "MSIDAccount.h"
+#import "MSIDAADV2TokenResponse.h"
 
 @interface MSIDAADV1Oauth2StrategyTests : XCTestCase
 
@@ -322,6 +324,95 @@
     XCTAssertEqualObjects(token.idToken, idToken);
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
     XCTAssertNotNil(token.expiresOn);
+}
+
+- (void)testAccountFromTokenResponse_whenAADV1TokenResponse_shouldInitAccountAndSetProperties
+{
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman"];
+    NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
+    MSIDRequestParameters *requestParameters =
+    [[MSIDRequestParameters alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
+                                         redirectUri:@"redirect uri"
+                                            clientId:@"client id"
+                                              target:@"target"];
+    MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:json error:nil];
+
+    MSIDAccount *account = [strategy accountFromResponse:tokenResponse request:requestParameters];
+
+    XCTAssertNotNil(account);
+    XCTAssertEqualObjects(account.legacyUserId, @"subject");
+    XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
+    XCTAssertNotNil(account.clientInfo);
+    XCTAssertEqual(account.accountType, MSIDAccountTypeAADV1);
+    XCTAssertEqualObjects(account.username, @"eric999");
+    XCTAssertEqualObjects(account.firstName, @"Eric");
+    XCTAssertEqualObjects(account.lastName, @"Cartman");
+    XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
+}
+
+- (void)testAccessTokenFromResponse_whenV1ResponseAndNoResourceInRequest_shouldUseResourceInRequest
+{
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+    NSString *resourceInRequest = @"https://contoso.com";
+    MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
+                                                                                redirectUri:@"fake_redirect_uri"
+                                                                                   clientId:@"fake_client_id"
+                                                                                     target:resourceInRequest];
+    MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
+                                                                                                     }
+                                                                                             error:nil];
+
+    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:tokenResponse request:requestParams];
+
+    XCTAssertEqual(accessToken.scopes.count, 1);
+    XCTAssertEqualObjects(accessToken.resource, resourceInRequest);
+}
+
+- (void)testAccessTokenFromResponse_whenV2ResponseAndDotDefaultScopeInRequest_shouldAddDotDefaultScope
+{
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+    NSString *scopeInRequest = @"https://contoso.com/.Default";
+    NSString *scopeInResponse = @"user.read";
+    MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
+                                                                                redirectUri:@"fake_redirect_uri"
+                                                                                   clientId:@"fake_client_id"
+                                                                                     target:scopeInRequest];
+    MSIDAADV2TokenResponse *tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
+                                                                                                     @"scope":scopeInResponse
+                                                                                                     }
+                                                                                             error:nil];
+
+    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:tokenResponse request:requestParams];
+
+    XCTAssertEqual(accessToken.scopes.count, 2);
+    XCTAssertTrue([scopeInRequest.scopeSet isSubsetOfOrderedSet:accessToken.scopes]);
+    XCTAssertTrue([scopeInResponse.scopeSet isSubsetOfOrderedSet:accessToken.scopes]);
+}
+
+- (void)testAccessTokenFromResponse_whenV1ResponseAndDotDefaultInRequest_shouldNotAddDotDefaultScope
+{
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+    NSString *resourceInRequest = @"https://contoso.com/.Default";
+    NSString *resourceInResponse = @"https://contoso.com";
+    MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
+                                                                                redirectUri:@"fake_redirect_uri"
+                                                                                   clientId:@"fake_client_id"
+                                                                                     target:resourceInRequest];
+    MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
+                                                                                                     @"resource":resourceInResponse
+                                                                                                     }
+                                                                                             error:nil];
+
+    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:tokenResponse request:requestParams];
+
+    XCTAssertEqual(accessToken.scopes.count, 1);
+    XCTAssertEqualObjects(accessToken.resource, resourceInResponse);
 }
 
 @end

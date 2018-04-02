@@ -38,6 +38,7 @@
 #import "MSIDTestRequestParams.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDAccount.h"
 
 @interface MSIDOauth2StrategyTest : XCTestCase
 
@@ -337,6 +338,33 @@
                                              @"additional_key2": @"additional_value2"};
 
     XCTAssertEqualObjects(token.additionalServerInfo, expectedAdditionalInfo);
+}
+
+- (void)testAccountFromResponse_whenOIDCTokenResponse_shouldInitAccountAndSetProperties
+{
+    MSIDOauth2Strategy *strategy = [MSIDOauth2Strategy new];
+
+    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman"];
+    NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
+    MSIDRequestParameters *requestParameters =
+    [[MSIDRequestParameters alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
+                                         redirectUri:@"redirect uri"
+                                            clientId:@"client id"
+                                              target:@"target"];
+    MSIDTokenResponse *tokenResponse = [[MSIDTokenResponse alloc] initWithJSONDictionary:json error:nil];
+
+    MSIDAccount *account = [strategy accountFromResponse:tokenResponse request:requestParameters];
+
+    XCTAssertNotNil(account);
+    XCTAssertEqualObjects(account.legacyUserId, @"subject");
+    XCTAssertEqualObjects(account.uniqueUserId, @"subject");
+    XCTAssertNil(account.clientInfo);
+    XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
+    XCTAssertEqualObjects(account.username, @"eric999");
+    XCTAssertEqualObjects(account.firstName, @"Eric");
+    XCTAssertEqualObjects(account.lastName, @"Cartman");
+    XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
 
 @end
