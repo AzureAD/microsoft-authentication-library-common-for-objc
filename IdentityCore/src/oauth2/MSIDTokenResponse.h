@@ -72,18 +72,4 @@
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                  error:(NSError * __autoreleasing *)error;
 
-// TODO: remove me!
-- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
-          fromRefreshToken:(BOOL)fromRefreshToken;
-
-// TODO: remove me!
-- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
-                           error:(NSError **)error;
-
-// TODO: remove me!
-- (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams;
-
-// TODO: remove me!
-- (NSURL *)cacheAuthorityURLFromAuthority:(NSURL *)authority;
-
 @end

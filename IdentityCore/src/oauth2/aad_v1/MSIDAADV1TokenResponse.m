@@ -50,42 +50,4 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
     return MSIDAccountTypeAADV1;
 }
 
-- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
-                           error:(NSError **)error
-{
-    if (!self.clientInfo)
-    {
-        MSID_LOG_WARN(context, @"Client info was not returned in the server response");
-        MSID_LOG_WARN_PII(context, @"Client info was not returned in the server response");
-    }
-    
-    return [super verifyExtendedProperties:context error:error];
-}
-
-- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
-          fromRefreshToken:(BOOL)fromRefreshToken
-{
-    if (!self.error)
-    {
-        return nil;
-    }
-    
-    MSIDErrorCode errorCode = fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
-
-    return MSIDCreateError(MSIDOAuthErrorDomain,
-                           errorCode,
-                           self.errorDescription,
-                           self.error,
-                           nil,
-                           nil,
-                           context.correlationId,
-                           nil);
-}
-
-- (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams
-{
-    // Because resource is not always returned in the token response, we rely on the input resource as a fallback
-    return self.target ? self.target : requestParams.target;
-}
-
 @end
