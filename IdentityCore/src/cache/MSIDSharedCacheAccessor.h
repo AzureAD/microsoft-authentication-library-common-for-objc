@@ -33,7 +33,7 @@
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategt
+- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
                  requestParams:(MSIDRequestParameters *)requestParams
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response

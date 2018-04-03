@@ -82,7 +82,7 @@
 }
 
 - (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
-                      response:(MSIDBrokerResponse *)response
+                brokerResponse:(MSIDBrokerResponse *)response
           saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
