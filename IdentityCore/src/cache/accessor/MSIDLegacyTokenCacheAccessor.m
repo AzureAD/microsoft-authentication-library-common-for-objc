@@ -276,6 +276,11 @@
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Removing token with clientId %@, authority %@", token.clientId, token.authority);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Removing token %@ with account %@", token, account);
     
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE];
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE
+                                                                           context:context];
+    
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
  
     NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
@@ -293,6 +298,8 @@
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
+    
+    [self stopTelemetryEvent:event withItem:nil success:result context:context];
     return result;
 }
 
