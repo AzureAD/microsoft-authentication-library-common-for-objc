@@ -358,6 +358,13 @@
     return nil;
 }
 
+- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    // Not implemented.
+    
+    return NO;
+}
+
 #pragma mark - Private
 
 - (MSIDBaseToken *)getRefreshTokenWithAccount:(MSIDAccount *)account

@@ -295,6 +295,13 @@
                                    error:error];
 }
 
+- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    return [_primaryAccessor removeAllTokensForAccount:account context:context error:error];
+}
+
 #pragma mark - Private
 
 - (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken

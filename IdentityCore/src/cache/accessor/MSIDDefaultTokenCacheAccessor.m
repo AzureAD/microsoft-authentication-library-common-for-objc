@@ -365,6 +365,13 @@
     return [_dataSource removeItemsWithKey:key context:context error:error];
 }
 
+- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllTokensWithUniqueUserId:account.uniqueUserId environment:account.authority.msidHostWithPortIfNecessary];
+    
+    return [_dataSource removeItemsWithKey:key context:context error:error];
+}
+
 #pragma mark - Private
 
 - (MSIDBaseToken *)getTokenByUniqueUserId:(NSString *)uniqueUserId
