@@ -41,6 +41,7 @@
 #import "MSIDTestRequestParams.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccount.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @interface MSIDAADV2Oauth2StartegyTests : XCTestCase
 
@@ -341,7 +342,7 @@
     MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:reqParams];
 
     // scope should be the same as it is in response
-    XCTAssertEqualObjects(accessToken.scopes, scopeInResposne);
+    XCTAssertEqualObjects(accessToken.scopes.msidToString, scopeInResposne);
 }
 
 - (void)testAccessTokenFromResponse_withAdditionFromRequest_whenNoDefaultScopeInRequest_shouldNotAddDefaultScope
@@ -370,7 +371,7 @@
     MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:reqParams];
 
     // scope should be the same as it is in response
-    XCTAssertEqualObjects(accessToken.scopes, scopeInResposne);
+    XCTAssertEqualObjects(accessToken.scopes.msidToString, scopeInResposne);
 }
 
 - (void)testAccessTokenFromResponse_withAdditionFromRequest_whenOnlyDefaultScopeInRequest_shouldAddDefaultScope

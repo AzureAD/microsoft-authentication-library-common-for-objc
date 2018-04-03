@@ -145,7 +145,7 @@
     MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_grant"}
                                                                                       error:nil];
     NSError *error = nil;
-    BOOL result = [strategy verifyResponse:response context:nil error:&error];
+    BOOL result = [strategy verifyResponse:response fromRefreshToken:YES context:nil error:&error];
 
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
@@ -368,30 +368,7 @@
 
     MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:tokenResponse request:requestParams];
 
-    XCTAssertEqual(accessToken.scopes.count, 1);
     XCTAssertEqualObjects(accessToken.resource, resourceInRequest);
-}
-
-- (void)testAccessTokenFromResponse_whenV2ResponseAndDotDefaultScopeInRequest_shouldAddDotDefaultScope
-{
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
-
-    NSString *scopeInRequest = @"https://contoso.com/.Default";
-    NSString *scopeInResponse = @"user.read";
-    MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
-                                                                                redirectUri:@"fake_redirect_uri"
-                                                                                   clientId:@"fake_client_id"
-                                                                                     target:scopeInRequest];
-    MSIDAADV2TokenResponse *tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
-                                                                                                     @"scope":scopeInResponse
-                                                                                                     }
-                                                                                             error:nil];
-
-    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:tokenResponse request:requestParams];
-
-    XCTAssertEqual(accessToken.scopes.count, 2);
-    XCTAssertTrue([scopeInRequest.scopeSet isSubsetOfOrderedSet:accessToken.scopes]);
-    XCTAssertTrue([scopeInResponse.scopeSet isSubsetOfOrderedSet:accessToken.scopes]);
 }
 
 - (void)testAccessTokenFromResponse_whenV1ResponseAndDotDefaultInRequest_shouldNotAddDotDefaultScope

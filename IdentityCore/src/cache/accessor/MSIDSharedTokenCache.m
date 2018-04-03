@@ -76,6 +76,7 @@
     return [self saveTokensWithStrategy:strategy
                           requestParams:requestParams
                                response:response
+                   saveRefreshTokenOnly:NO
                                 context:context
                                   error:error];
 }
@@ -94,6 +95,7 @@
     return [self saveTokensWithStrategy:strategy
                           requestParams:params
                                response:response.tokenResponse
+                   saveRefreshTokenOnly:saveRefreshTokenOnly
                                 context:context
                                   error:error];
 }

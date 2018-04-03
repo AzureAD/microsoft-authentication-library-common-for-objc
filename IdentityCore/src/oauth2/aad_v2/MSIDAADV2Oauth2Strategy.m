@@ -30,6 +30,7 @@
 #import "MSIDAADV2IdTokenWrapper.h"
 #import "MSIDAuthority.h"
 #import "MSIDAccount.h"
+#import "MSIDIdToken.h"
 
 @implementation MSIDAADV2Oauth2Strategy
 
@@ -112,10 +113,7 @@
     }
 
     MSIDBaseToken *baseToken = [super baseTokenFromResponse:response request:requestParams];
-    MSIDAADV2IdTokenWrapper *idToken = (MSIDAADV2IdTokenWrapper *) response.idTokenObj;
-
-    baseToken.authority = [MSIDAuthority cacheUrlForAuthority:baseToken.authority tenantId:idToken.tenantId];
-    return baseToken;
+    return [self fillAADV2BaseToken:baseToken fromResponse:response request:requestParams];
 }
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV2TokenResponse *)response
@@ -128,6 +126,12 @@
 
     MSIDAccessToken *accessToken = [super accessTokenFromResponse:response request:requestParams];
 
+    if (!accessToken.scopes)
+    {
+        MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing scopes field");
+        return nil;
+    }
+
     NSOrderedSet<NSString *> *reqScopes = requestParams.scopes;
 
     if (reqScopes.count == 1 && [reqScopes.firstObject.lowercaseString hasSuffix:@".default"])
@@ -137,7 +141,43 @@
         accessToken.scopes = targetScopeSet;
     }
 
-    return accessToken;
+    return (MSIDAccessToken *) [self fillAADV2BaseToken:accessToken fromResponse:response request:requestParams];
+}
+
+- (MSIDIdToken *)idTokenFromResponse:(MSIDAADTokenResponse *)response
+                             request:(MSIDRequestParameters *)requestParams
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return nil;
+    }
+
+    MSIDIdToken *idToken = [super idTokenFromResponse:response request:requestParams];
+    return (MSIDIdToken *) [self fillAADV2BaseToken:idToken fromResponse:response request:requestParams];
+}
+
+- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDAADTokenResponse *)response
+                                       request:(MSIDRequestParameters *)requestParams
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return nil;
+    }
+
+    MSIDRefreshToken *token = [super refreshTokenFromResponse:response request:requestParams];
+    return (MSIDRefreshToken *) [self fillAADV2BaseToken:token fromResponse:response request:requestParams];
+}
+
+- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDAADTokenResponse *)response
+                                                   request:(MSIDRequestParameters *)requestParams
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return nil;
+    }
+
+    MSIDLegacySingleResourceToken *token = [super legacyTokenFromResponse:response request:requestParams];
+    return (MSIDLegacySingleResourceToken *) [self fillAADV2BaseToken:token fromResponse:response request:requestParams];
 }
 
 - (MSIDAccount *)accountFromResponse:(MSIDAADV2TokenResponse *)response
@@ -148,10 +188,22 @@
         return nil;
     }
 
-    MSIDAccount *account = [[MSIDAccount alloc] init];
+    MSIDAccount *account = [super accountFromResponse:response request:requestParams];
     MSIDAADV2IdTokenWrapper *idToken = (MSIDAADV2IdTokenWrapper *) response.idTokenObj;
     account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
     return account;
+}
+
+#pragma mark - Fill token
+
+- (MSIDBaseToken *)fillAADV2BaseToken:(MSIDBaseToken *)baseToken
+                         fromResponse:(MSIDAADTokenResponse *)response
+                              request:(MSIDRequestParameters *)requestParams
+{
+    MSIDAADV2IdTokenWrapper *idToken = (MSIDAADV2IdTokenWrapper *) response.idTokenObj;
+    baseToken.authority = [MSIDAuthority cacheUrlForAuthority:baseToken.authority tenantId:idToken.tenantId];
+
+    return baseToken;
 }
 
 @end

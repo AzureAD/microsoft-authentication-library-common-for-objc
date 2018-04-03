@@ -161,12 +161,6 @@
 
     token.scopes = [response.target scopeSet];
 
-    if (!token.scopes)
-    {
-        MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing target field");
-        return nil;
-    }
-
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     token.accessToken = response.accessToken;
 
@@ -268,6 +262,7 @@
     account.lastName = response.idTokenObj.familyName;
     account.authority = requestParams.authority;
     account.accountType = response.accountType;
+    account.legacyUserId = response.idTokenObj.userId;
     return account;
 }
 

@@ -135,4 +135,17 @@
     return accessToken;
 }
 
+- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
+                                                   request:(MSIDRequestParameters *)requestParams
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return nil;
+    }
+
+    MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response request:requestParams];
+    legacyToken.resource = response.target ? response.target : requestParams.target;
+    return legacyToken;
+}
+
 @end
