@@ -44,7 +44,7 @@
 @property (readonly) NSString *firstName;
 @property (readonly) NSString *lastName;
 
-@property (readonly) NSURL *authority;
+@property (readwrite) NSURL *authority;
 
 - (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
                         clientInfo:(MSIDClientInfo *)clientInfo;

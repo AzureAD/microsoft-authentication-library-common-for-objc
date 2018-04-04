@@ -350,9 +350,8 @@
     return NO;
 }
 
-- (NSArray<MSIDBaseToken *> *)allTokensForAccount:(MSIDAccount *)account
-                                          context:(id<MSIDRequestContext>)context
-                                            error:(NSError **)error
+- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
+                                             error:(NSError **)error
 {
     // Not implemented.
     return nil;

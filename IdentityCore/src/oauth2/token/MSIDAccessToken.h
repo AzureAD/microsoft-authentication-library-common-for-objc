@@ -25,7 +25,7 @@
 
 @interface MSIDAccessToken : MSIDBaseToken
 
-@property (readonly) NSDate *expiresOn;
+@property (readwrite) NSDate *expiresOn;
 @property (readonly) NSDate *extendedExpireTime;
 @property (readonly) NSDate *cachedAt;
 @property (readonly) NSString *accessToken;

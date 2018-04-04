@@ -26,7 +26,7 @@
 
 @interface MSIDRefreshToken : MSIDBaseToken <MSIDRefreshableToken>
 
-@property (readonly) NSString *refreshToken;
+@property (readwrite) NSString *refreshToken;
 @property (readonly) NSString *familyId;
 @property (readonly) NSString *idToken;
 

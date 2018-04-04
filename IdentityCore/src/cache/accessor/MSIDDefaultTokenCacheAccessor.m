@@ -298,11 +298,11 @@
                                                   filterBy:filterBlock];
 }
 
-- (NSArray<MSIDBaseToken *> *)allTokensForAccount:(MSIDAccount *)account
-                                          context:(id<MSIDRequestContext>)context
-                                            error:(NSError **)error
+- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
+                                             error:(NSError **)error
 {
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllTokensWithUniqueUserId:account.uniqueUserId environment:account.authority.msidHostWithPortIfNecessary];
+    
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
     NSArray<MSIDTokenCacheItem *> *cacheItems = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
     
     NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];

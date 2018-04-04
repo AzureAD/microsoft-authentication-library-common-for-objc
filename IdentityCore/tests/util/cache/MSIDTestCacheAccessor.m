@@ -180,7 +180,8 @@
     return  resultTokens;
 }
 
-- (NSArray<MSIDBaseToken *> *)allTokensForAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
+                                             error:(NSError **)error
 {
     return nil;
 }
