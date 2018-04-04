@@ -132,14 +132,25 @@
         return nil;
     }
 
-    NSOrderedSet<NSString *> *reqScopes = requestParams.scopes;
+    NSOrderedSet *responseScopes = response.scope.scopeSet;
 
-    if (reqScopes.count == 1 && [reqScopes.firstObject.lowercaseString hasSuffix:@".default"])
+    if (!response.scope)
     {
-        NSMutableOrderedSet<NSString *> *targetScopeSet = [response.scope.scopeSet mutableCopy];
-        [targetScopeSet unionOrderedSet:reqScopes];
-        accessToken.scopes = targetScopeSet;
+        responseScopes = requestParams.scopes;
     }
+    else
+    {
+        NSOrderedSet<NSString *> *reqScopes = requestParams.scopes;
+
+        if (reqScopes.count == 1 && [reqScopes.firstObject.lowercaseString hasSuffix:@".default"])
+        {
+            NSMutableOrderedSet<NSString *> *targetScopeSet = [responseScopes mutableCopy];
+            [targetScopeSet unionOrderedSet:reqScopes];
+            responseScopes = targetScopeSet;
+        }
+    }
+
+    accessToken.scopes = responseScopes;
 
     return (MSIDAccessToken *) [self fillAADV2BaseToken:accessToken fromResponse:response request:requestParams];
 }
