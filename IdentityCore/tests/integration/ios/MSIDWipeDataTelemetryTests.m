@@ -38,6 +38,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
+#import "MSIDAADV1Oauth2Strategy.h"
 
 @interface MSIDTestRequestContext : NSObject <MSIDRequestContext>
 
@@ -89,8 +90,8 @@
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
     
     // save a refresh token to keychain token cache
-    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:nil];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
@@ -155,8 +156,8 @@
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
     
     // save a refresh token to keychain token cache
-    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:nil];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
@@ -220,8 +221,8 @@
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
     
     // save a refresh token to keychain token cache
-    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"some_uid.some_utid"];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
@@ -286,8 +287,8 @@
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
     
     // save a refresh token to keychain token cache
-    MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenResponse:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                                      request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"some_uid.some_utid"];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];

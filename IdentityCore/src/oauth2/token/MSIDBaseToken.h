@@ -54,18 +54,14 @@
 @property (readwrite) NSURL *storageAuthority;
 @property (readwrite) NSString *clientId;
 
-@property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSDictionary *additionalServerInfo;
+@property (readwrite) MSIDClientInfo *clientInfo;
+@property (readwrite) NSDictionary *additionalServerInfo;
 
 // User info
-@property (readonly) NSString *uniqueUserId;
-@property (readonly) NSString *username;
+@property (readwrite) NSString *uniqueUserId;
+@property (readwrite) NSString *username;
 
 - (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem;
-
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams;
-
 - (MSIDTokenCacheItem *)tokenCacheItem;
 
 - (BOOL)supportsTokenType:(MSIDTokenType)tokenType;

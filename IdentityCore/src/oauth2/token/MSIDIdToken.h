@@ -25,6 +25,6 @@
 
 @interface MSIDIdToken : MSIDBaseToken
 
-@property (readonly) NSString *rawIdToken;
+@property (readwrite) NSString *rawIdToken;
 
 @end

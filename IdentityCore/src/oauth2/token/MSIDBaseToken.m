@@ -163,54 +163,6 @@
     return cacheItem;
 }
 
-#pragma mark - Token response
-
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams
-{
-    if (!response
-        || !requestParams)
-    {
-        return nil;
-    }
-    
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    [self fillTokenFromResponse:response
-                        request:requestParams];
-    
-    return self;
-}
-
-#pragma mark - Fill item
-
-- (void)fillTokenFromResponse:(MSIDTokenResponse *)response
-                      request:(MSIDRequestParameters *)requestParams
-{
-    // Fill from request
-    _authority = [response cacheAuthorityURLFromAuthority:requestParams.authority];
-    _clientId = requestParams.clientId;
-    _additionalServerInfo = response.additionalServerInfo;
-    _username = response.idTokenObj.username;
-    
-    // Fill in client info and spe info
-    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
-    {
-        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
-        _clientInfo = aadTokenResponse.clientInfo;
-        _uniqueUserId = _clientInfo.userIdentifier ? _clientInfo.userIdentifier : response.idTokenObj.userId;
-        [_additionalServerInfo setValue:aadTokenResponse.speInfo
-                           forKey:MSID_SPE_INFO_CACHE_KEY];
-    }
-    else
-    {
-        _uniqueUserId = response.idTokenObj.userId;
-    }
-}
-
 #pragma mark - Description
 
 - (NSString *)description

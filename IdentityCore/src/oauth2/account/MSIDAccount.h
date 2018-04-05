@@ -33,16 +33,16 @@
 
 // Legacy user identifier
 @property (readwrite) NSString *legacyUserId;
-@property (readonly) MSIDClientInfo *clientInfo;
+@property (readwrite) MSIDClientInfo *clientInfo;
 
 // Primary user identifier
-@property (readonly) NSString *uniqueUserId;
+@property (readwrite) NSString *uniqueUserId;
 
-@property (readonly) MSIDAccountType accountType;
+@property (readwrite) MSIDAccountType accountType;
 
-@property (readonly) NSString *username;
-@property (readonly) NSString *firstName;
-@property (readonly) NSString *lastName;
+@property (readwrite) NSString *username;
+@property (readwrite) NSString *firstName;
+@property (readwrite) NSString *lastName;
 
 @property (readwrite) NSURL *authority;
 
@@ -51,9 +51,6 @@
 
 - (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
                         uniqueUserId:(NSString *)userIdentifier;
-
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams;
 
 - (instancetype)initWithAccountCacheItem:(MSIDAccountCacheItem *)cacheItem;
 

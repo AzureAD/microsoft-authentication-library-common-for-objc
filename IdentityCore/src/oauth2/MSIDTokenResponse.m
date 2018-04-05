@@ -109,25 +109,6 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
     return MSIDAccountTypeOther;
 }
 
-- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
-          fromRefreshToken:(BOOL)fromRefreshToken;
-{
-    // Method should be implemented in subclasses
-    return nil;
-}
-
-- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
-                           error:(NSError **)error
-{
-    // Method should be implemented in subclasses
-    return YES;
-}
-
-- (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams
-{
-    return self.target;
-}
-
 - (MSIDErrorCode)oauthErrorCode
 {
     if ([self.error isEqualToString:@"invalid_request"])
@@ -163,11 +144,6 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
                              MSID_OAUTH2_EXPIRES_IN];
     
     return [_json dictionaryByRemovingFields:knownFields];
-}
-
-- (NSURL *)cacheAuthorityURLFromAuthority:(NSURL *)authority
-{
-    return authority;
 }
 
 @end

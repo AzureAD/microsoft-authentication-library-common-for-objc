@@ -39,6 +39,7 @@
 #import "MSIDRequestParameters.h"
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"
+#import "MSIDOauth2Strategy.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -96,11 +97,12 @@
 
 #pragma mark - MSIDSharedCacheAccessor
 
-- (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)requestParams
-                            account:(MSIDAccount *)account
-                           response:(MSIDTokenResponse *)response
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
+- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+                 requestParams:(MSIDRequestParameters *)requestParams
+                       account:(MSIDAccount *)account
+                      response:(MSIDTokenResponse *)response
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
     if (![self checkUserIdentifier:account context:context error:error])
     {
@@ -108,8 +110,7 @@
     }
     
     // Save access token item in the primary format
-    MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response
-                                                                          request:requestParams];
+    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:requestParams];
     
     if (!accessToken)
     {
@@ -131,8 +132,8 @@
     }
     
     // Save ID token
-    MSIDIdToken *idToken = [[MSIDIdToken alloc] initWithTokenResponse:response
-                                                              request:requestParams];
+    MSIDIdToken *idToken = [strategy idTokenFromResponse:response request:requestParams];
+    
     if (idToken)
     {
         MSID_LOG_INFO(context, @"(Default accessor) Saving ID token");

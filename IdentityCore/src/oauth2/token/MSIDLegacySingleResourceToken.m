@@ -100,27 +100,6 @@
     return cacheItem;
 }
 
-#pragma mark - Response
-
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams
-{
-    if (!(self = [super initWithTokenResponse:response request:requestParams]))
-    {
-        return nil;
-    }
-    
-    _refreshToken = response.refreshToken;
-    
-    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
-    {
-        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
-        _familyId = aadTokenResponse.familyId;
-    }
-    
-    return self;
-}
-
 #pragma mark - Token type
 
 - (MSIDTokenType)tokenType

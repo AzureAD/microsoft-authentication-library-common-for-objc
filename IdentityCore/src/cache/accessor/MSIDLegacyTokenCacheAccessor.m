@@ -37,6 +37,7 @@
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDAuthority.h"
+#import "MSIDOauth2Strategy.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -86,17 +87,17 @@
 
 #pragma mark - MSIDSharedCacheAccessor
 
-- (BOOL)saveTokensWithRequestParams:(MSIDRequestParameters *)requestParams
-                            account:(MSIDAccount *)account
-                           response:(MSIDTokenResponse *)response
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
+- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+                 requestParams:(MSIDRequestParameters *)requestParams
+                       account:(MSIDAccount *)account
+                      response:(MSIDTokenResponse *)response
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
     if (response.isMultiResource)
     {
         // Save access token item in the primary format
-        MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] initWithTokenResponse:response
-                                                                              request:requestParams];
+        MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:requestParams];
         
         MSID_LOG_INFO(context, @"(Legacy accessor) Saving multi resource tokens in legacy accessor");
         MSID_LOG_INFO_PII(context, @"(Legacy accessor) Saving multi resource tokens in legacy accessor %@", accessToken);
@@ -122,8 +123,7 @@
     }
     else
     {
-        MSIDLegacySingleResourceToken *legacyToken = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:response
-                                                                                                          request:requestParams];
+        MSIDLegacySingleResourceToken *legacyToken = [strategy legacyTokenFromResponse:response request:requestParams];
         
         if (!legacyToken)
         {
@@ -276,6 +276,11 @@
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Removing token with clientId %@, authority %@", token.clientId, token.authority);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Removing token %@ with account %@", token, account);
     
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE];
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE
+                                                                           context:context];
+    
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
  
     NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
@@ -293,6 +298,8 @@
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
+    
+    [self stopTelemetryEvent:event withItem:nil success:result context:context];
     return result;
 }
 

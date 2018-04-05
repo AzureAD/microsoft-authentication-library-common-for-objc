@@ -112,52 +112,6 @@
     return cacheItem;
 }
 
-#pragma mark - Response
-
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams
-{
-    if (!(self = [super initWithTokenResponse:response request:requestParams]))
-    {
-        return nil;
-    }
-    
-    if (![self fillToken:response])
-    {
-        return nil;
-    }
-    
-    if (!response.isMultiResource)
-    {
-        return nil;
-    }
-    
-    return self;
-}
-
-#pragma mark - Fill item
-
-- (BOOL)fillToken:(MSIDTokenResponse *)response
-{
-    _refreshToken = response.refreshToken;
-    
-    if (!_refreshToken)
-    {
-        MSID_LOG_ERROR(nil, @"Trying to initialize refresh token when missing refresh token field");
-        return NO;
-    }
-    
-    _idToken = response.idToken;
-    
-    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
-    {
-        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
-        _familyId = aadTokenResponse.familyId;
-    }
-    
-    return YES;
-}
-
 #pragma mark - Token type
 
 - (MSIDTokenType)tokenType
