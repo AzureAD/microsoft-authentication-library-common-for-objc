@@ -72,13 +72,4 @@
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                  error:(NSError * __autoreleasing *)error;
 
-- (NSError *)getOAuthError:(id<MSIDRequestContext>)context
-          fromRefreshToken:(BOOL)fromRefreshToken;
-
-- (BOOL)verifyExtendedProperties:(id<MSIDRequestContext>)context
-                           error:(NSError **)error;
-
-- (NSString *)targetWithAdditionFromRequest:(MSIDRequestParameters *)requestParams;
-- (NSURL *)cacheAuthorityURLFromAuthority:(NSURL *)authority;
-
 @end

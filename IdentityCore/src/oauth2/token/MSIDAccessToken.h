@@ -25,21 +25,21 @@
 
 @interface MSIDAccessToken : MSIDBaseToken
 
-@property (readonly) NSDate *expiresOn;
+@property (readwrite) NSDate *expiresOn;
 @property (readonly) NSDate *extendedExpireTime;
-@property (readonly) NSDate *cachedAt;
-@property (readonly) NSString *accessToken;
+@property (readwrite) NSDate *cachedAt;
+@property (readwrite) NSString *accessToken;
 
-@property (readonly) NSString *accessTokenType;
+@property (readwrite) NSString *accessTokenType;
 
 // Id token is necessary for backward ADAL compatibility
-@property (readonly) NSString *idToken;
+@property (readwrite) NSString *idToken;
 
 // v1 access tokens are scoped down to resources
-@property (readonly) NSString *resource;
+@property (readwrite) NSString *resource;
 
 // v2 access tokens are scoped down to resources
-@property (readonly) NSOrderedSet<NSString *> *scopes;
+@property (readwrite) NSOrderedSet<NSString *> *scopes;
 
 - (BOOL)isExpired;
 - (BOOL)isExtendedLifetimeValid;

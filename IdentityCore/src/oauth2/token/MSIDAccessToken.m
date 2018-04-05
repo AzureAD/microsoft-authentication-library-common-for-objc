@@ -148,87 +148,6 @@ static uint64_t s_expirationBuffer = 300;
     return cacheItem;
 }
 
-#pragma mark - Response
-
-- (instancetype)initWithTokenResponse:(MSIDTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams
-{
-    if (!(self = [super initWithTokenResponse:response request:requestParams]))
-    {
-        return nil;
-    }
-    
-    if (![self fillToken:response request:requestParams])
-    {
-        return nil;
-    }
-    
-    return self;
-}
-
-#pragma mark - Fill item
-
-- (BOOL)fillToken:(MSIDTokenResponse *)response
-          request:(MSIDRequestParameters *)requestParams
-{
-    _target = [response targetWithAdditionFromRequest:requestParams];
-    
-    if (!_target)
-    {
-        MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing target field");
-        return NO;
-    }
-    
-    _accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
-    _accessToken = response.accessToken;
-    
-    if (!_accessToken)
-    {
-        MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
-        return NO;
-    }
-    
-    _idToken = response.idToken;
-    
-    [self fillExpiryFromResponse:response];
-    [self fillExtendedExpiryFromResponse:response];
-    
-    return YES;
-}
-
-- (void)fillExpiryFromResponse:(MSIDTokenResponse *)response
-{
-    NSDate *expiresOn = response.expiryDate;
-    
-    if (!expiresOn)
-    {
-        MSID_LOG_WARN(nil, @"The server did not return the expiration time for the access token.");
-        expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
-    }
-    
-    _expiresOn = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[expiresOn timeIntervalSince1970]];
-    
-    _cachedAt = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[[NSDate date] timeIntervalSince1970]];
-}
-
-- (void)fillExtendedExpiryFromResponse:(MSIDTokenResponse *)response
-{
-    if ([response isKindOfClass:[MSIDAADTokenResponse class]])
-    {
-        MSIDAADTokenResponse *aadTokenResponse = (MSIDAADTokenResponse *)response;
-        
-        if (!aadTokenResponse.extendedExpiresOnDate)
-        {
-            return;
-        }
-        
-        NSMutableDictionary *serverInfo = [_additionalServerInfo mutableCopy];
-        [serverInfo setValue:aadTokenResponse.extendedExpiresOnDate
-                      forKey:MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
-        _additionalServerInfo = serverInfo;
-    }
-}
-
 #pragma mark - Token type
 
 - (MSIDTokenType)tokenType
@@ -269,9 +188,19 @@ static uint64_t s_expirationBuffer = 300;
     return _target;
 }
 
+- (void)setResource:(NSString *)resource
+{
+    _target = resource;
+}
+
 - (NSOrderedSet<NSString *> *)scopes
 {
     return [_target scopeSet];
+}
+
+- (void)setScopes:(NSOrderedSet<NSString *> *)scopes
+{
+    _target = [scopes msidToString];
 }
 
 #pragma mark - Description
