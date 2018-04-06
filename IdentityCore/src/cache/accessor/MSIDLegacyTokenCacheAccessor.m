@@ -371,6 +371,11 @@
     return NO;
 }
 
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
+{
+    return [_dataSource removeItemsWithKey:[MSIDTokenCacheKey keyForAllItems] context:nil error:error];
+}
+
 #pragma mark - Private
 
 - (MSIDBaseToken *)getRefreshTokenWithAccount:(MSIDAccount *)account

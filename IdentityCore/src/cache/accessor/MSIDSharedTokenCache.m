@@ -339,6 +339,17 @@
     return [_primaryAccessor removeAllTokensForAccount:account context:context error:error];
 }
 
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
+{
+    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
+    {
+        BOOL result = [cache clearWithContext:context error:error];
+        if (!result) return NO;
+    }
+    
+    return YES;
+}
+
 #pragma mark - Private
 
 - (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken

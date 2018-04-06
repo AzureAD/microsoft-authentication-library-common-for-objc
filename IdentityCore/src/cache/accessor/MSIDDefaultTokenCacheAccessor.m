@@ -341,6 +341,11 @@
     return [_dataSource removeItemsWithKey:key context:context error:error];
 }
 
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
+{
+    return [_dataSource removeItemsWithKey:[MSIDTokenCacheKey keyForAllItems] context:nil error:error];
+}
+
 #pragma mark - Private
 
 - (MSIDBaseToken *)getTokenByUniqueUserId:(NSString *)uniqueUserId
