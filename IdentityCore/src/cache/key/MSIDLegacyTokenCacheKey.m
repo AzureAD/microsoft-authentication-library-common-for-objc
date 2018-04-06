@@ -93,8 +93,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 {
     NSString *service = nil;
     
-    if (authority
-        && clientId)
+    if (authority && clientId)
     {
         service = [self.class serviceWithAuthority:authority
                                           resource:resource

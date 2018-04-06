@@ -299,11 +299,24 @@
                                                   filterBy:filterBlock];
 }
 
-- (NSArray<MSIDTokenCacheItem *> *)allItemsWithContext:(id<MSIDRequestContext>)context
-                                                 error:(NSError **)error
+- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
+                                             error:(NSError **)error;
 {
     MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
-    return [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
+    __auto_type items = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
+    
+    NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];
+    
+    for (MSIDTokenCacheItem *item in items)
+    {
+        MSIDBaseToken *token = [item tokenWithType:item.tokenType];
+        if (token)
+        {
+            [tokens addObject:token];
+        }
+    }
+    
+    return tokens;
 }
 
 - (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
