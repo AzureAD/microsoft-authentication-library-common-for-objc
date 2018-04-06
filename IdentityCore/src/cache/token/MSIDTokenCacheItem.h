@@ -50,6 +50,9 @@
 // Family ID
 @property (readwrite, nullable) NSString *familyId;
 
+// Additional info
+@property (readwrite, nullable) NSDictionary *additionalInfo;
+
 - (nullable MSIDBaseToken *)tokenWithType:(MSIDTokenType)tokenType;
 
 @end

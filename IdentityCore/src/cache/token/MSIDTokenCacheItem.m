@@ -50,6 +50,7 @@
     result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqualToDate:item.cachedAt];
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
     result &= (!self.oauthTokenType && !item.oauthTokenType) || [self.oauthTokenType isEqualToString:item.oauthTokenType];
+    result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqualToDictionary:item.additionalInfo];
     
     return result;
 }
@@ -69,6 +70,7 @@
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.oauthTokenType.hash;
+    hash = hash * 31 + self.additionalInfo.hash;
     
     return hash;
 }
@@ -88,6 +90,7 @@
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
     item.oauthTokenType = [self.oauthTokenType copyWithZone:zone];
+    item.additionalInfo = [self.additionalInfo copyWithZone:zone];
     
     return item;
 }
@@ -121,6 +124,7 @@
     if (!_uniqueUserId) _uniqueUserId = userInfo.userId;
     
     _tokenType = [MSIDTokenTypeHelpers tokenTypeWithRefreshToken:_refreshToken accessToken:_accessToken];
+    _additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
         
     return self;
 }
@@ -148,6 +152,7 @@
     [coder encodeObject:userInformation forKey:@"userInformation"];
     
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
+    [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
 }
 
 #pragma mark - JSON
@@ -183,6 +188,15 @@
     
     // Access token type
     _oauthTokenType = json[MSID_OAUTH_TOKEN_TYPE_CACHE_KEY];
+    
+    // Additional Info
+    NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
+    NSDate *extendedExpiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
+    
+    NSMutableDictionary *additionalInfo = [NSMutableDictionary dictionary];
+    additionalInfo[MSID_SPE_INFO_CACHE_KEY] = speInfo;
+    additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = extendedExpiresOn;
+    _additionalInfo = additionalInfo;
     
     switch (_tokenType) {
         case MSIDTokenTypeRefreshToken:
@@ -242,6 +256,12 @@
     
     // Oauth token type
     dictionary[MSID_OAUTH_TOKEN_TYPE_CACHE_KEY] = _oauthTokenType;
+    
+    // Spe info
+    dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
+    
+    // Extended expires on
+    dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = [_additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] msidDateToTimestamp];
     
     switch (_tokenType) {
         case MSIDTokenTypeRefreshToken:
