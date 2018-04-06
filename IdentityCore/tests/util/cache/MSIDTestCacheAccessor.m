@@ -182,8 +182,8 @@
     return  resultTokens;
 }
 
-- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
-                                             error:(NSError **)error
+- (NSArray<MSIDTokenCacheItem *> *)allItemsWithContext:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error
 {
     return nil;
 }

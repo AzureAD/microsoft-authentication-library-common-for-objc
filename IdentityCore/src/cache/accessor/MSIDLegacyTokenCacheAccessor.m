@@ -357,11 +357,11 @@
     return NO;
 }
 
-- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
-                                             error:(NSError **)error
+- (NSArray<MSIDTokenCacheItem *> *)allItemsWithContext:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error
 {
-    // Not implemented.
-    return nil;
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
+    return [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
 }
 
 - (BOOL)removeAllTokensForAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error

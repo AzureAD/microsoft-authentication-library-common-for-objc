@@ -214,6 +214,11 @@ static NSInteger kTokenTypePrefix = 2000;
 + (MSIDDefaultTokenCacheKey *)queryForAllTokensWithUniqueUserId:(NSString *)userId
                                                     environment:(NSString *)environment
 {
+    assert(userId);
+    assert(environment);
+    
+    if (!userId || !environment) return nil;
+    
     NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account

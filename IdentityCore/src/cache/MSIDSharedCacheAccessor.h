@@ -30,6 +30,7 @@
 @class MSIDTokenResponse;
 @class MSIDRefreshToken;
 @class MSIDOauth2Strategy;
+@class MSIDTokenCacheItem;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 
@@ -52,8 +53,8 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
 
-- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
-                                            error:(NSError **)error;
+- (NSArray<MSIDTokenCacheItem *> *)allItemsWithContext:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error;
 
 - (MSIDBaseToken *)getLatestToken:(MSIDBaseToken *)token
                           account:(MSIDAccount *)account
