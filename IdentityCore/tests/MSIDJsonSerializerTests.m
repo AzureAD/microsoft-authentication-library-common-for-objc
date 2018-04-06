@@ -101,7 +101,6 @@
     
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
-    cacheItem.additionalInfo = @{@"spe_info" : @"test"};
     cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
     cacheItem.lastName = @"last name";
     cacheItem.legacyUserIdentifier = @"upn";

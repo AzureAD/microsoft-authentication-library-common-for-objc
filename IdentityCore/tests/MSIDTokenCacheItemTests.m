@@ -44,7 +44,6 @@
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfoString error:nil];
     cacheItem.clientInfo = clientInfo;
-    cacheItem.additionalInfo = @{@"test": @"2"};
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.tokenType = MSIDTokenTypeAccessToken;
     cacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
@@ -54,11 +53,17 @@
     
     NSDate *expiresOn = [NSDate date];
     NSDate *cachedAt = [NSDate date];
+    NSDate *extExpiresOn = [NSDate date];
     
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
     cacheItem.oauthTokenType = @"token type";
+    
+    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
+                                     @"spe_info": @"2", @"test": @"test"};
+    
+    cacheItem.additionalInfo = additionalInfo;
     
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
     
@@ -70,7 +75,7 @@
     
     XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
     XCTAssertEqualObjects(newItem.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
-    XCTAssertEqualObjects(newItem.additionalInfo, @{@"test": @"2"});
+    XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
     XCTAssertEqualObjects(newItem.clientInfo, clientInfo);
     
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -84,6 +89,7 @@
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, DEFAULT_TEST_FAMILY_ID);
     XCTAssertEqualObjects(newItem.oauthTokenType, @"token type");
+    XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }
 
 #pragma mark - JSON serialization
@@ -99,6 +105,7 @@
     
     NSDate *expiresOn = [NSDate date];
     NSDate *cachedAt = [NSDate date];
+    NSDate *extExpiresOn = [NSDate date];
     
     cacheItem.cachedAt = cachedAt;
     cacheItem.expiresOn = expiresOn;
@@ -106,8 +113,14 @@
     cacheItem.target = DEFAULT_TEST_RESOURCE;
     cacheItem.oauthTokenType = @"token type";
     
+    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
+                                     @"spe_info": @"2"};
+    
+    cacheItem.additionalInfo = additionalInfo;
+    
     NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
+    NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
     
     NSDictionary *expectedDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
                                          @"credential_type": @"AccessToken",
@@ -119,7 +132,9 @@
                                          @"realm": @"common",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"id_token": DEFAULT_TEST_ID_TOKEN,
-                                         @"access_token_type": @"token type"
+                                         @"access_token_type": @"token type",
+                                         @"extended_expires_on": extExpiresOnString,
+                                         @"spe_info": @"2"
                                          };
     
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
@@ -210,9 +225,11 @@
 {
     NSDate *expiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
     NSDate *cachedAt = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
+    NSDate *extExpiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
     
     NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
+    NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
     
     NSDictionary *jsonDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
                                      @"credential_type": @"AccessToken",
@@ -224,7 +241,9 @@
                                      @"realm": @"common",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"id_token": DEFAULT_TEST_ID_TOKEN,
-                                     @"access_token_type": @"Bearer"
+                                     @"access_token_type": @"Bearer",
+                                     @"extended_expires_on": extExpiresOnString,
+                                     @"spe_info": @"2"
                                      };
     
     NSError *error = nil;
@@ -241,6 +260,8 @@
     XCTAssertEqualObjects(cacheItem.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(cacheItem.idToken, DEFAULT_TEST_ID_TOKEN);
     XCTAssertEqualObjects(cacheItem.oauthTokenType, @"Bearer");
+    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"extended_expires_on": extExpiresOn};
+    XCTAssertEqualObjects(cacheItem.additionalInfo, additionalInfo);
 }
 
 - (void)testInitWithJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnRefreshTokenCacheItem
