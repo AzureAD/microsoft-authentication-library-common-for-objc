@@ -55,6 +55,19 @@
     XCTAssertNil(legacyKey.type);
 }
 
+- (void)testLegacyTokenCacheKey_withAllParametersUpperCase_shouldReturnKeyLowerCase
+{
+    NSURL *authority = [NSURL URLWithString:@"https://loGin.microsoftonline.com/common"];
+    MSIDLegacyTokenCacheKey *legacyKey = [MSIDLegacyTokenCacheKey keyWithAuthority:authority
+                                                                          clientId:@"cliEnt"
+                                                                          resource:@"reSource"
+                                                                      legacyUserId:@"Eric_cartman@contoso.com"];
+    XCTAssertEqualObjects(legacyKey.account, self.expectedUpn);
+    XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
+    XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertNil(legacyKey.type);
+}
+
 - (void)testLegacyTokenCacheKey_whenNoResource_shouldReturnKey
 {
     NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];

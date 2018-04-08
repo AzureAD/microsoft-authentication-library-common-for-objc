@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV2IdTokenWrapper.h"
+#import "MSIDHelpers.h"
 
 #define ID_TOKEN_ISSUER              @"iss"
 #define ID_TOKEN_OBJECT_ID           @"oid"
@@ -51,8 +52,8 @@ MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
             uniqueId = self.subject;
         }
         
-        _uniqueId = [MSIDIdTokenWrapper normalizeUserId:uniqueId];
-        _userId = [MSIDIdTokenWrapper normalizeUserId:self.preferredUsername];
+        _uniqueId = [MSIDHelpers normalizeUserId:uniqueId];
+        _userId = [MSIDHelpers normalizeUserId:self.preferredUsername];
         _userIdDisplayable = YES;
     }
     
