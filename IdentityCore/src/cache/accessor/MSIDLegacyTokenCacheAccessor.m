@@ -342,13 +342,6 @@
     return results;
 }
 
-- (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error;
-{
-    // We don't suppport account in legacy cache.
-    return nil;
-}
-
 - (BOOL)removeAccount:(MSIDAccount *)account
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error

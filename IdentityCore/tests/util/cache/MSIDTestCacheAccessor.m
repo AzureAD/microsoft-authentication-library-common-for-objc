@@ -188,11 +188,6 @@
     return nil;
 }
 
-- (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
-{
-    return nil;
-}
-
 - (BOOL)removeAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
     return NO;

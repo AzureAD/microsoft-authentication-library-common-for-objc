@@ -213,57 +213,6 @@
 
 #pragma mark - Account
 
-- (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
-{
-    NSMutableSet *result = [NSMutableSet new];
-    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
-    {
-        NSArray<MSIDAccount *> *accounts = [cache getAllAccountsWithContext:context error:error];
-        [result addObjectsFromArray:accounts];
-    }
-    
-    return [result allObjects];
-}
-
-//- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
-//                                             error:(NSError **)error
-//{
-//    NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];
-//    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
-//    {
-//        NSArray<MSIDTokenCacheItem *> *items = [cache allItemsWithContext:context error:error];
-//        for (MSIDTokenCacheItem *item in items)
-//        {
-//            MSIDBaseToken *token = nil;
-//            switch (item.tokenType)
-//            {
-//                case MSIDTokenTypeAccessToken:
-//                    token = [[MSIDAccessToken alloc] initWithTokenCacheItem:item];
-//                    break;
-//                    
-//                case MSIDTokenTypeRefreshToken:
-//                    token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:item];
-//                    break;
-//                    
-//                case MSIDTokenTypeIDToken:
-//                    token = [[MSIDIdToken alloc] initWithTokenCacheItem:item];
-//                    break;
-//                    
-//                default:
-//                    break;
-//            }
-//            
-//            if (token)
-//            {
-//                [tokens addObject:token];
-//            }
-//        }
-//    }
-//    
-//    return tokens;
-//}
-
 - (BOOL)removeAccount:(MSIDAccount *)account
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error

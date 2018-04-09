@@ -319,22 +319,6 @@
     return tokens;
 }
 
-- (NSArray<MSIDAccount *> *)getAllAccountsWithContext:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error;
-{
-    MSIDTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccountsWithType:MSIDAccountTypeAADV2];
-    
-    NSArray<MSIDAccountCacheItem *> *items = [_dataSource accountsWithKey:key serializer:_serializer context:context error:error];
-    NSMutableArray<MSIDAccount *> *result = [NSMutableArray new];
-    for (MSIDAccountCacheItem *item in items)
-    {
-        MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:item];
-        [result addObject:account];
-    }
-    
-    return result;
-}
-
 - (BOOL)removeAccount:(MSIDAccount *)account
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error
