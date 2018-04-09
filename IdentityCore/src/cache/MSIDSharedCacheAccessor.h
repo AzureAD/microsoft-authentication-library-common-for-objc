@@ -30,7 +30,6 @@
 @class MSIDTokenResponse;
 @class MSIDRefreshToken;
 @class MSIDOauth2Strategy;
-@class MSIDTokenCacheItem;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 

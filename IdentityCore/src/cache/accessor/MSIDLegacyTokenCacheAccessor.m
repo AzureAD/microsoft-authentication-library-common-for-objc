@@ -347,7 +347,7 @@
                 error:(NSError **)error
 {
     // We don't suppport account in legacy cache.
-    return NO;
+    return YES;
 }
 
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
