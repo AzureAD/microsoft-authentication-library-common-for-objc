@@ -203,6 +203,24 @@
     return NO;
 }
 
+- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return nil;
+}
+
+
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return NO;
+}
+
+
+- (BOOL)saveToken:(MSIDBaseToken *)token account:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return NO;
+}
+
+
 #pragma mark - Helpers
 
 - (BOOL)saveTokenForAccount:(MSIDAccount *)account

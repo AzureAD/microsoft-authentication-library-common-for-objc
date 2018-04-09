@@ -46,6 +46,10 @@
                  context:(id<MSIDRequestContext>)context
                    error:(NSError **)error;
 
+- (BOOL)saveToken:(MSIDBaseToken *)token
+          account:(MSIDAccount *)account
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error;
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account

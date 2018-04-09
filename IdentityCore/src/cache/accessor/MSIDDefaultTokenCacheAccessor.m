@@ -719,8 +719,7 @@
     }
     
     return [self saveToken:accessToken
-                    userId:account.uniqueUserId
-                 authority:accessToken.authority
+                    account:account
                    context:context
                      error:error];
 }
@@ -733,16 +732,19 @@
     // All other tokens have the same handling
     NSURL *authority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
     
+    // The authority used to retrieve the item over the network can differ from the preferred authority used to
+    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
+    // it with we switch it out before saving it to cache.
+    token.authority = authority;
+    
     return [self saveToken:token
-                    userId:account.uniqueUserId
-                 authority:authority
+                    account:account
                    context:context
                      error:error];
 }
 
 - (BOOL)saveToken:(MSIDBaseToken *)token
-           userId:(NSString *)userId
-        authority:(NSURL *)authority
+          account:(MSIDAccount *)account
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
@@ -752,21 +754,16 @@
     MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
     
-    // The authority used to retrieve the item over the network can differ from the preferred authority used to
-    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
-    // it with we switch it out before saving it to cache.
-    token.authority = authority;
-    
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
     
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving token %@ with authority %@", [MSIDTokenTypeHelpers tokenTypeAsString:token.tokenType], authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving token %@ for userID %@ with authority %@", token, userId, authority);
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving token %@ with authority %@", [MSIDTokenTypeHelpers tokenTypeAsString:token.tokenType], token.authority);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving token %@ for userID %@ with authority %@", token, account.uniqueUserId, token.authority);
     
     MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
-                                            userId:userId
+                                            userId:account.uniqueUserId
                                           clientId:cacheItem.clientId
                                             scopes:[cacheItem.target scopeSet]
-                                         authority:authority];
+                                         authority:token.authority];
     
     if (!key)
     {
