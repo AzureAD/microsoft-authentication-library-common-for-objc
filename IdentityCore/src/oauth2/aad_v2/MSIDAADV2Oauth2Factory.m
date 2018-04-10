@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV2Oauth2Strategy.h"
+#import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDAccessToken.h"
 #import "MSIDBaseToken.h"
@@ -32,7 +32,7 @@
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
 
-@implementation MSIDAADV2Oauth2Strategy
+@implementation MSIDAADV2Oauth2Factory
 
 #pragma mark - Helpers
 
@@ -44,7 +44,7 @@
     {
         if (error)
         {
-            NSString *errorMessage = [NSString stringWithFormat:@"Wrong token response type passed, which means wrong strategy is being used (expected MSIDAADV2TokenResponse, passed %@", response.class];
+            NSString *errorMessage = [NSString stringWithFormat:@"Wrong token response type passed, which means wrong factory is being used (expected MSIDAADV2TokenResponse, passed %@", response.class];
 
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
         }

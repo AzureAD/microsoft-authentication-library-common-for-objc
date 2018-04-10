@@ -35,7 +35,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDRequestParameters.h"
-#import "MSIDAADV2Oauth2Strategy.h"
+#import "MSIDAADV2Oauth2Factory.h"
 
 @interface MSIDDefaultTokenCacheIntegrationTests : XCTestCase
 {
@@ -65,14 +65,14 @@
 
 - (void)testSaveTokensWithRequestParams_whenUniqueUserIdNil_shouldReturnError
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:nil];
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithStrategy:strategy
+    BOOL result = [_cacheAccessor saveTokensWithFactory:factory
                                            requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                        account:account
                                                       response:tokenResponse
@@ -86,14 +86,14 @@
 
 - (void)testSaveTokensWithRequestParams_withAccessToken_shouldSaveToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithStrategy:strategy
+    BOOL result = [_cacheAccessor saveTokensWithFactory:factory
                                            requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                       account:account
                                                      response:tokenResponse
@@ -110,7 +110,7 @@
 
 - (void)testSaveTokensWithRequestParams_withNilAccessToken_shouldNotSaveToken_returnError
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -124,7 +124,7 @@
                                                                            familyId:@"family_id"];
     
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithStrategy:strategy
+    BOOL result = [_cacheAccessor saveTokensWithFactory:factory
                                            requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                       account:account
                                                      response:tokenResponse
@@ -141,7 +141,7 @@
 
 - (void)testSaveTokensWithRequestParams_withAccessTokenSameEverythingWithScopesIntersect_shouldOverwriteToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -149,7 +149,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     // save 1st token with default test scope
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                       account:account
                                                      response:tokenResponse
@@ -162,7 +162,7 @@
     MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2DefaultTokenResponseWithScopes:scopes];
     
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithStrategy:strategy
+    BOOL result = [_cacheAccessor saveTokensWithFactory:factory
                                            requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                       account:account
                                                      response:tokenResponse2
@@ -179,7 +179,7 @@
 
 - (void)testSaveTokensWithRequestParams_withAccessTokenSameEverythingWithScopesDontIntersect_shouldWriteNewToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -187,7 +187,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     // save 1st token with default test scope
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:tokenResponse
@@ -200,7 +200,7 @@
     MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2DefaultTokenResponseWithScopes:scopes];
 
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithStrategy:strategy
+    BOOL result = [_cacheAccessor saveTokensWithFactory:factory
                                            requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                       account:account
                                                      response:tokenResponse2
@@ -216,7 +216,7 @@
 
 - (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentAuthorities_shouldSave2Tokens
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -224,7 +224,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     // save 1st token with default test scope
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:tokenResponse
@@ -239,7 +239,7 @@
                                                                             target:DEFAULT_TEST_SCOPE];
     
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithStrategy:strategy
+    BOOL result = [_cacheAccessor saveTokensWithFactory:factory
                                            requestParams:requestParams
                                                       account:account
                                                      response:tokenResponse2
@@ -255,7 +255,7 @@
 
 - (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentUsers_shouldSave2Tokens
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -263,7 +263,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     // save 1st token with default test scope
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:tokenResponse
@@ -282,7 +282,7 @@
                                                                             familyId:nil];
 
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithStrategy:strategy
+    BOOL result = [_cacheAccessor saveTokensWithFactory:factory
                                            requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                       account:account2
                                                      response:tokenResponse2
@@ -298,7 +298,7 @@
 
 - (void)testSaveTokensWithRequestParams_withNilIDToken_shouldNotSaveIDToken_andSaveAccessToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -312,7 +312,7 @@
                                                                            familyId:@"family_id"];
     
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithStrategy:strategy
+    BOOL result = [_cacheAccessor saveTokensWithFactory:factory
                                            requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                       account:account
                                                      response:tokenResponse
@@ -331,7 +331,7 @@
 
 - (void)testSaveTokensWithRequestParams_withIDToken_shouldSaveIDToken_andSaveAccessToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -345,7 +345,7 @@
                                                                            familyId:@"family_id"];
     
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithStrategy:strategy
+    BOOL result = [_cacheAccessor saveTokensWithFactory:factory
                                            requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                       account:account
                                                      response:tokenResponse
@@ -364,12 +364,12 @@
 
 - (void)testSaveRefreshToken_withRTAndAccount_shouldSaveOneEntry
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
     
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
     
     NSError *error = nil;
     
@@ -388,12 +388,12 @@
 
 - (void)testSaveRefreshToken_whenNoUserIdentifier_shouldReturnError
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:nil];
     
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
 
     NSError *error = nil;
     
@@ -445,7 +445,7 @@
 
 - (void)testGetTokenWithType_whenTypeAccessMultipleAccessTokensInCache_shouldReturnRightToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -453,7 +453,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     // save 1st token with default test scope
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:tokenResponse
@@ -471,7 +471,7 @@
                                                                                 utid:@"1234-5678-90abcdefg"
                                                                             familyId:nil];
 
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParamsWithScopes:scopes]
                                         account:account
                                        response:tokenResponse2
@@ -487,7 +487,7 @@
                                                                                     utid:DEFAULT_TEST_UTID
                                                                                 familyId:nil];
     
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams paramsWithAuthority:@"https://contoso2.com/common"
                                                                                   clientId:DEFAULT_TEST_CLIENT_ID
                                                                                redirectUri:nil
@@ -506,9 +506,9 @@
                                                                                utid:@"UTID2"
                                                                            familyId:nil];
 
-    MSIDAccount *account2 = [strategy accountFromResponse:tokenResponse4 request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDAccount *account2 = [factory accountFromResponse:tokenResponse4 request:[MSIDTestRequestParams v2DefaultParams]];
 
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account2
                                        response:tokenResponse4
@@ -536,7 +536,7 @@
 
 - (void)testGetTokenWithType_whenTypeAccessCorrectAccountAndParameters_shouldReturnToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -544,7 +544,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     // Save token
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:tokenResponse
@@ -568,7 +568,7 @@
 
 - (void)testGetTokenWithType_whenTypeAccessCorrectAccount_andNoAuthority_shouldReturnToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -576,7 +576,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
     // Save token
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:tokenResponse
@@ -602,7 +602,7 @@
 
 - (void)testGetTokenWithType_whenTypeAccessCorrectAccount_noAuthorityAndMultipleAccessTokensInCache_shouldReturnError
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -610,7 +610,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
     // Save first token
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:tokenResponse
@@ -623,7 +623,7 @@
                                                                              redirectUri:nil
                                                                                   target:DEFAULT_TEST_SCOPE];
     
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:secondParameters
                                         account:account
                                        response:tokenResponse
@@ -651,7 +651,7 @@
 
 - (void)testGetTokenWithType_whenTypeAccessCorrectAccountAndParametersWithNoAuthority_shouldReturnToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
@@ -659,7 +659,7 @@
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
 
     // Save token
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:tokenResponse
@@ -687,7 +687,7 @@
 
 - (void)testGetTokenWithType_whenTypeAccessNoAuthority_andMultipleAuthoritiesFound_shouldReturnError
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -696,7 +696,7 @@
     MSIDRequestParameters *param = [MSIDTestRequestParams v2DefaultParams];
     param.authority = [NSURL URLWithString:@"https://authority1.contoso.com"];
 
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:param
                                         account:account
                                        response:[MSIDTestTokenResponse v2DefaultTokenResponse]
@@ -705,7 +705,7 @@
 
     // save token 2
     param.authority = [NSURL URLWithString:@"https://authority2.contoso.com"];
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:param
                                         account:account
                                        response:[MSIDTestTokenResponse v2DefaultTokenResponse]
@@ -746,12 +746,12 @@
 
 - (void)testGetTokenWithType_whenTypeRefreshAccountWithUtidAndUidProvided_shouldReturnToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
 
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
                                                          request:[MSIDTestRequestParams v2DefaultParams]];
 
     [_cacheAccessor saveRefreshToken:token
@@ -773,11 +773,11 @@
 
 - (void)testGetTokenWithType_whenTypeRefreshAccountWithLegacyIDProvided_shouldReturnToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
     
     [_cacheAccessor saveRefreshToken:token
                              account:account
@@ -802,14 +802,14 @@
 
 - (void)testGetTokenWithType_whenTypeRefreshAccountWithUtidAndUidProvided_andOnlyAT_shouldReturnNil
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
 
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:response
@@ -841,7 +841,7 @@
 
 - (void)testGetAllTokensOfType_whenTypeRefreshOnlyAccessTokenItemsInCache_shouldNotReturnToken
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
@@ -849,7 +849,7 @@
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
     
     // Save token
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:response
@@ -868,12 +868,12 @@
 
 - (void)testGetAllTokensOfType_whenTypeRefreshItemsInCacheAccountWithUtidUidProvided_shouldReturnItems
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
 
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
 
     // Save token
     [_cacheAccessor saveRefreshToken:token
@@ -896,7 +896,7 @@
 
 - (void)testGetAllTokensOfType_whenTypeRefreshBothATandRTinCache_andAccountWithUtidUidProvided_shouldReturnItems
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -904,14 +904,14 @@
     // Save an access token & refresh token
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:response
                                         context:nil
                                           error:nil];
 
-    MSIDRefreshToken *refreshToken = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
 
     [_cacheAccessor saveRefreshToken:refreshToken
                              account:account
@@ -934,7 +934,7 @@
 
 - (void)testRemoveToken_whenItemInCache_andAccountWithUidUtidProvided_shouldRemoveOnlyRTItems
 {
-    MSIDAADV2Oauth2Strategy *strategy = [MSIDAADV2Oauth2Strategy new];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -942,7 +942,7 @@
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     // Save an access token
-    [_cacheAccessor saveTokensWithStrategy:strategy
+    [_cacheAccessor saveTokensWithFactory:factory
                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                         account:account
                                        response:response
@@ -950,7 +950,7 @@
                                           error:nil];
 
     // Save a refresh token
-    MSIDRefreshToken *refreshToken = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
 
     [_cacheAccessor saveRefreshToken:refreshToken
                              account:account

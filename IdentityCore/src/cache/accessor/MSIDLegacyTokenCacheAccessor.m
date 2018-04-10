@@ -37,7 +37,7 @@
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDAuthority.h"
-#import "MSIDOauth2Strategy.h"
+#import "MSIDOauth2Factory.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -87,7 +87,7 @@
 
 #pragma mark - MSIDSharedCacheAccessor
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                  requestParams:(MSIDRequestParameters *)requestParams
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
@@ -97,7 +97,7 @@
     if (response.isMultiResource)
     {
         // Save access token item in the primary format
-        MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:requestParams];
+        MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:requestParams];
         
         MSID_LOG_INFO(context, @"(Legacy accessor) Saving multi resource tokens in legacy accessor");
         MSID_LOG_INFO_PII(context, @"(Legacy accessor) Saving multi resource tokens in legacy accessor %@", accessToken);
@@ -123,7 +123,7 @@
     }
     else
     {
-        MSIDLegacySingleResourceToken *legacyToken = [strategy legacyTokenFromResponse:response request:requestParams];
+        MSIDLegacySingleResourceToken *legacyToken = [factory legacyTokenFromResponse:response request:requestParams];
         
         if (!legacyToken)
         {

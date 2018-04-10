@@ -27,7 +27,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDRequestParameters.h"
-#import "MSIDOauth2Strategy.h"
+#import "MSIDOauth2Factory.h"
 
 @interface MSIDTestCacheAccessor()
 {
@@ -51,7 +51,7 @@
 }
 
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                  requestParams:(MSIDRequestParameters *)parameters
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
@@ -68,7 +68,7 @@
         return NO;
     }
     
-    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:parameters];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:parameters];
     
     return [self saveTokenForAccount:account token:accessToken clientId:parameters.clientId authority:parameters.authority context:context error:error];
 }

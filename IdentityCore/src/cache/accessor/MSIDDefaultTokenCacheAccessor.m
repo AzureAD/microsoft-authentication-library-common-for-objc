@@ -39,7 +39,7 @@
 #import "MSIDRequestParameters.h"
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"
-#import "MSIDOauth2Strategy.h"
+#import "MSIDOauth2Factory.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -97,7 +97,7 @@
 
 #pragma mark - MSIDSharedCacheAccessor
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                  requestParams:(MSIDRequestParameters *)requestParams
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
@@ -110,7 +110,7 @@
     }
     
     // Save access token item in the primary format
-    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:requestParams];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:requestParams];
     
     if (!accessToken)
     {
@@ -132,7 +132,7 @@
     }
     
     // Save ID token
-    MSIDIdToken *idToken = [strategy idTokenFromResponse:response request:requestParams];
+    MSIDIdToken *idToken = [factory idTokenFromResponse:response request:requestParams];
     
     if (idToken)
     {

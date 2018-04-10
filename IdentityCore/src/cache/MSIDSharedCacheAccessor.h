@@ -29,11 +29,11 @@
 @class MSIDBaseToken;
 @class MSIDTokenResponse;
 @class MSIDRefreshToken;
-@class MSIDOauth2Strategy;
+@class MSIDOauth2Factory;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                  requestParams:(MSIDRequestParameters *)requestParams
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response

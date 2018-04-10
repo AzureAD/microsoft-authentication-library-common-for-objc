@@ -33,7 +33,7 @@
 @class MSIDRefreshToken;
 @class MSIDLegacySingleResourceToken;
 @class MSIDBaseToken;
-@class MSIDOauth2Strategy;
+@class MSIDOauth2Factory;
 
 @interface MSIDSharedTokenCache : NSObject
 
@@ -41,13 +41,13 @@
                          otherCacheAccessors:(NSArray<id<MSIDSharedCacheAccessor>> *)otherAccessors;
 
 // Save operations
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                  requestParams:(MSIDRequestParameters *)requestParams
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error;
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                 brokerResponse:(MSIDBrokerResponse *)response
           saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
                        context:(id<MSIDRequestContext>)context

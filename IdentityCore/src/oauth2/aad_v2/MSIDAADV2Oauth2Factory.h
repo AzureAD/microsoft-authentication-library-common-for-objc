@@ -21,17 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADOauth2Strategy.h"
+#import "MSIDAADOauth2Factory.h"
 
-@class MSIDTokenResponse;
-@class MSIDLegacySingleResourceToken;
-@protocol MSIDRequestContext;
-
-@interface MSIDAADV1Oauth2Strategy : MSIDAADOauth2Strategy
-
-- (BOOL)verifyResponse:(MSIDTokenResponse *)response
-      fromRefreshToken:(BOOL)fromRefreshToken
-               context:(id<MSIDRequestContext>)context
-                 error:(NSError * __autoreleasing *)error;
+@interface MSIDAADV2Oauth2Factory : MSIDAADOauth2Factory
 
 @end
