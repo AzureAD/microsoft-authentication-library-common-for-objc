@@ -372,8 +372,6 @@
     MSID_LOG_VERBOSE(context, @"Saving tokens with authority %@, clientId %@, resource %@", requestParams.authority, requestParams.clientId, requestParams.resource);
     MSID_LOG_VERBOSE_PII(context, @"Saving tokens with authority %@, clientId %@, resource %@, user ID: %@, legacy user ID: %@", requestParams.authority, requestParams.clientId, requestParams.resource, account.uniqueUserId, account.legacyUserId);
     
-    
-    
     BOOL result = YES;
     
     if (!saveRefreshTokenOnly)

@@ -17,6 +17,9 @@
 		04930F961FEDB2E100FC4DCD /* MSIDAuthority.m in Sources */ = {isa = PBXBuildFile; fileRef = 04930F941FEDB2E000FC4DCD /* MSIDAuthority.m */; };
 		04D32CB21FD62141000B123E /* MSIDError.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D32CB11FD62141000B123E /* MSIDError.m */; };
 		04D32CB31FD62141000B123E /* MSIDError.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D32CB11FD62141000B123E /* MSIDError.m */; };
+		2308476B207D6D500024CE7C /* NSData+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 23084769207D6D500024CE7C /* NSData+MSIDExtensions.h */; };
+		2308476C207D6D500024CE7C /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2308476A207D6D500024CE7C /* NSData+MSIDExtensions.m */; };
+		2308476D207D6D500024CE7C /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2308476A207D6D500024CE7C /* NSData+MSIDExtensions.m */; };
 		23185366206D8B080024DCA4 /* MSIDTestRequestParams.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFF1FF306110015FC1D /* MSIDTestRequestParams.m */; };
 		23185367206D8B090024DCA4 /* MSIDTestRequestParams.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFF1FF306110015FC1D /* MSIDTestRequestParams.m */; };
 		23185368206D8B1D0024DCA4 /* MSIDTestTokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFB1FF304250015FC1D /* MSIDTestTokenResponse.m */; };
@@ -407,6 +410,8 @@
 		04930F941FEDB2E000FC4DCD /* MSIDAuthority.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthority.m; sourceTree = "<group>"; };
 		04D32CB01FD6212F000B123E /* MSIDError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDError.h; sourceTree = "<group>"; };
 		04D32CB11FD62141000B123E /* MSIDError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDError.m; sourceTree = "<group>"; };
+		23084769207D6D500024CE7C /* NSData+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MSIDExtensions.h"; sourceTree = "<group>"; };
+		2308476A207D6D500024CE7C /* NSData+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MSIDExtensions.m"; sourceTree = "<group>"; };
 		231CE99D1FE86EA300E95D3E /* MSIDTestsHostApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MSIDTestsHostApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		231CE9A01FE86EA300E95D3E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		231CE9A21FE86EA300E95D3E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1086,6 +1091,8 @@
 				B20657DE1FCA208C00412B7D /* NSDate+MSIDExtensions.m */,
 				B2807FF5204CAFDF00944D89 /* MSIDHelpers.h */,
 				B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */,
+				23084769207D6D500024CE7C /* NSData+MSIDExtensions.h */,
+				2308476A207D6D500024CE7C /* NSData+MSIDExtensions.m */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -1331,6 +1338,7 @@
 				B251CC49204105A7005E0179 /* MSIDIdToken.h in Headers */,
 				B20657A51FC91C1600412B7D /* MSIDTelemetryDispatcher.h in Headers */,
 				B251CC3F2041058D005E0179 /* MSIDLegacySingleResourceToken.h in Headers */,
+				2308476B207D6D500024CE7C /* NSData+MSIDExtensions.h in Headers */,
 				B210F44D1FDDF5AA005A8F76 /* MSIDClientInfo.h in Headers */,
 				B20657DF1FCA208C00412B7D /* NSDate+MSIDExtensions.h in Headers */,
 				B251CC3B2041058D005E0179 /* MSIDRefreshToken.h in Headers */,
@@ -1648,6 +1656,7 @@
 			files = (
 				B251CC3A2041058D005E0179 /* MSIDLegacySingleResourceToken.m in Sources */,
 				B20657A91FC91ECC00412B7D /* MSIDTelemetry.m in Sources */,
+				2308476D207D6D500024CE7C /* NSData+MSIDExtensions.m in Sources */,
 				B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				B210F44C1FDDF5A7005A8F76 /* MSIDClientInfo.m in Sources */,
 				B20657BB1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */,
@@ -1806,6 +1815,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B251CC392041058D005E0179 /* MSIDLegacySingleResourceToken.m in Sources */,
+				2308476C207D6D500024CE7C /* NSData+MSIDExtensions.m in Sources */,
 				9641B52A1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */,
 				23BDA66E1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m in Sources */,
 				B210F44B1FDDF5A6005A8F76 /* MSIDClientInfo.m in Sources */,
