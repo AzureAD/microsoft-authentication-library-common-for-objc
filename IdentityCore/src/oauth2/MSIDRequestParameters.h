@@ -39,6 +39,6 @@
                            target:(NSString *)target;
 
 @property NSString *loginHint;
-
+@property NSString *extraQueryParameters;
 
 @end

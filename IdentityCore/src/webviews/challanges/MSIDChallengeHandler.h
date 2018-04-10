@@ -13,7 +13,7 @@
 typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential);
 
 
-@protocol ChallangeHandler
+@protocol MSIDChallangeHandler
 
 - (void)handleChallenge:(NSURLAuthenticationChallenge *)challenge
       completionHandler:(ChallengeCompletionHandler)completionHandler;

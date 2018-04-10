@@ -451,7 +451,7 @@
 		96235F98207D72A6007EAB36 /* MSIDWebAADAuthResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebAADAuthResponse.m; sourceTree = "<group>"; };
 		96235F9A207D72CE007EAB36 /* MSIDWebWPJAuthResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebWPJAuthResponse.h; sourceTree = "<group>"; };
 		96235F9B207D72CE007EAB36 /* MSIDWebWPJAuthResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebWPJAuthResponse.m; sourceTree = "<group>"; };
-		96235FA1207D78E9007EAB36 /* ChallengeHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChallengeHandler.h; sourceTree = "<group>"; };
+		96235FA1207D78E9007EAB36 /* MSIDChallengeHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDChallengeHandler.h; sourceTree = "<group>"; };
 		96235FA2207D79C8007EAB36 /* MSIDAADV1RequestParameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADV1RequestParameter.h; sourceTree = "<group>"; };
 		96235FA3207D79C8007EAB36 /* MSIDAADV1RequestParameter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV1RequestParameter.m; sourceTree = "<group>"; };
 		96235FA5207D79D7007EAB36 /* MSIDAADV2RequestParameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADV2RequestParameter.h; sourceTree = "<group>"; };
@@ -842,7 +842,7 @@
 		96235FA0207D786A007EAB36 /* challanges */ = {
 			isa = PBXGroup;
 			children = (
-				96235FA1207D78E9007EAB36 /* ChallengeHandler.h */,
+				96235FA1207D78E9007EAB36 /* MSIDChallengeHandler.h */,
 			);
 			path = challanges;
 			sourceTree = "<group>";

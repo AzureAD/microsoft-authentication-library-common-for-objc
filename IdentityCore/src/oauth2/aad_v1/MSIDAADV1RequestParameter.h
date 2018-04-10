@@ -10,5 +10,6 @@
 
 @interface MSIDAADV1RequestParameter : MSIDRequestParameters
 
+@property NSString *loginHint;
 
 @end
