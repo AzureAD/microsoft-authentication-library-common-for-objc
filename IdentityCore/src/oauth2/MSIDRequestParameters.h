@@ -38,4 +38,7 @@
                          clientId:(NSString *)clientId
                            target:(NSString *)target;
 
+@property NSString *loginHint;
+
+
 @end
