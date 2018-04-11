@@ -129,7 +129,7 @@
     if (!accessToken.scopes)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing scopes field");
-        return nil;
+//        return nil;
     }
 
     NSOrderedSet *responseScopes = response.scope.scopeSet;
