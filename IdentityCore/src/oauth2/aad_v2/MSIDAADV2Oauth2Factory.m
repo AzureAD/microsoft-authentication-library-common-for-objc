@@ -126,12 +126,6 @@
 
     MSIDAccessToken *accessToken = [super accessTokenFromResponse:response request:requestParams];
 
-    if (!accessToken.scopes)
-    {
-        MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing scopes field");
-//        return nil;
-    }
-
     NSOrderedSet *responseScopes = response.scope.scopeSet;
 
     if (!response.scope)
