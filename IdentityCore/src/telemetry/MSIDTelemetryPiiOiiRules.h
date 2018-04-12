@@ -23,8 +23,9 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDTelemetryPiiRules : NSObject
+@interface MSIDTelemetryPiiOiiRules : NSObject
 
 + (BOOL)isPii:(NSString *)propertyName;
++ (BOOL)isOii:(NSString *)propertyName;
 
 @end

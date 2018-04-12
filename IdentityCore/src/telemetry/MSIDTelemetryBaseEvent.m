@@ -24,7 +24,7 @@
 #import "MSIDTelemetryBaseEvent.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
-#import "MSIDTelemetryPiiRules.h"
+#import "MSIDTelemetryPiiOiiRules.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDVersion.h"
 
@@ -70,12 +70,12 @@
         return;
     }
     
-    if ([MSIDTelemetryPiiRules isPii:name])
+    if ([MSIDTelemetryPiiOiiRules isPii:name])
     {
         value = [value msidComputeSHA256];
     }
     
-    [_propertyMap setValue:value forKey:TELEMETRY_KEY(name)];
+    [_propertyMap setValue:value forKey:name];
 }
 
 - (NSString *)propertyWithName:(NSString *)name
@@ -85,7 +85,7 @@
         return nil;
     }
     
-    return _propertyMap[TELEMETRY_KEY(name)];
+    return _propertyMap[name];
 }
 
 - (void)deleteProperty:(NSString  *)name
@@ -95,7 +95,7 @@
         return;
     }
     
-    [_propertyMap removeObjectForKey:TELEMETRY_KEY(name)];
+    [_propertyMap removeObjectForKey:name];
 }
 
 - (NSDictionary *)getProperties
@@ -148,17 +148,17 @@
         NSString *applicationVersion = [MSIDDeviceId applicationVersion];
         
         [s_defaultParameters msidSetObjectIfNotNil:deviceId
-                                            forKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_DEVICE_ID)];
+                                            forKey:MSID_TELEMETRY_KEY_DEVICE_ID];
         [s_defaultParameters msidSetObjectIfNotNil:applicationName
-                                            forKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_APPLICATION_NAME)];
+                                            forKey:MSID_TELEMETRY_KEY_APPLICATION_NAME];
         [s_defaultParameters msidSetObjectIfNotNil:applicationVersion
-                                            forKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_APPLICATION_VERSION)];
+                                            forKey:MSID_TELEMETRY_KEY_APPLICATION_VERSION];
         
         NSDictionary *adalId = [MSIDDeviceId deviceId];
         
         for (NSString *key in adalId)
         {
-            NSString *propertyName = TELEMETRY_KEY([[key lowercaseString] stringByReplacingOccurrencesOfString:@"-" withString:@"_"]);
+            NSString *propertyName = [[key lowercaseString] stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
             [s_defaultParameters msidSetObjectIfNotNil:[adalId objectForKey:key] forKey:propertyName];
         }
     });
