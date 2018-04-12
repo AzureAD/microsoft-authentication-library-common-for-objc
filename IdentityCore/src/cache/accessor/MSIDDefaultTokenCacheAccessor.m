@@ -294,7 +294,7 @@
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
                                              error:(NSError **)error;
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey queryForAllItems];
     __auto_type items = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
     
     NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];
@@ -372,7 +372,7 @@
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
 {
-    return [_dataSource removeItemsWithKey:[MSIDTokenCacheKey keyForAllItems] context:nil error:error];
+    return [_dataSource removeItemsWithKey:[MSIDTokenCacheKey queryForAllItems] context:nil error:error];
 }
 
 #pragma mark - Private

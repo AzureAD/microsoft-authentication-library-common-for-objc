@@ -44,7 +44,7 @@
     return self;
 }
 
-+ (MSIDTokenCacheKey *)keyForAllItems
++ (MSIDTokenCacheKey *)queryForAllItems
 {
     return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil generic:nil type:nil];
 }
