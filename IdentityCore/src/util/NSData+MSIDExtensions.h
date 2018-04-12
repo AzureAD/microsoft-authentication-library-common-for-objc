@@ -25,6 +25,6 @@
 
 @interface NSData (MSIDExtensions)
 
-- (NSDictionary *)msidToJson:(NSError **)error;
+- (NSDictionary *)msidToJsonDictionary:(NSError **)error;
 
 @end

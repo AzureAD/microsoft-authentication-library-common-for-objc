@@ -25,7 +25,7 @@
 
 @implementation NSData (MSIDExtensions)
 
-- (NSDictionary *)msidToJson:(NSError **)error
+- (NSDictionary *)msidToJsonDictionary:(NSError **)error
 {
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:self
                                                          options:NSJSONReadingMutableContainers
