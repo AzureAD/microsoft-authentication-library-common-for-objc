@@ -51,23 +51,23 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
 
-- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
-                                             error:(NSError **)error;
-
 - (MSIDBaseToken *)getLatestToken:(MSIDBaseToken *)token
                           account:(MSIDAccount *)account
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error;
 
-- (BOOL)removeToken:(MSIDBaseToken *)token
-            account:(MSIDAccount *)account
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error;
+- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
+                                             error:(NSError **)error;
 
 - (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
                    withClientId:(NSString *)clientId
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
+
+- (BOOL)removeToken:(MSIDBaseToken *)token
+            account:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error;
 
 - (BOOL)removeAccount:(MSIDAccount *)account
               context:(id<MSIDRequestContext>)context

@@ -244,6 +244,65 @@
                                   error:error];
 }
 
+- (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
+                   withClientId:(NSString *)clientId
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get all tokens of type %@ with clientId %@", [MSIDTokenTypeHelpers tokenTypeAsString:tokenType], clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Get all tokens of type %@ with clientId %@", [MSIDTokenTypeHelpers tokenTypeAsString:tokenType], clientId);
+    
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
+    
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
+                                                                           context:context];
+    
+    NSArray<MSIDTokenCacheItem *> *legacyCacheItems = [_dataSource tokensWithKey:[MSIDLegacyTokenCacheKey keyForAllItems]
+                                                                      serializer:_serializer
+                                                                         context:context
+                                                                           error:error];
+    
+    if (!legacyCacheItems)
+    {
+        [self stopTelemetryEvent:event withItem:nil success:NO context:context];
+        return nil;
+    }
+    
+    NSArray *results = [MSIDTokenFilteringHelper filterTokenCacheItems:legacyCacheItems
+                                                             tokenType:tokenType
+                                                           returnFirst:NO
+                                                              filterBy:^BOOL(MSIDTokenCacheItem *cacheItem) {
+                                                                  
+                                                                  return (cacheItem.tokenType == tokenType
+                                                                          && [cacheItem.clientId isEqualToString:clientId]);
+                                                              }];
+    
+    [self stopTelemetryLookupEvent:event tokenType:tokenType withToken:nil success:(results.count > 0) context:context];
+    
+    return results;
+}
+
+- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
+                                             error:(NSError **)error
+{
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
+    __auto_type items = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
+    
+    NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];
+    
+    for (MSIDTokenCacheItem *item in items)
+    {
+        MSIDBaseToken *token = [item tokenWithType:item.tokenType];
+        if (token)
+        {
+            [tokens addObject:token];
+        }
+    }
+    
+    return tokens;
+}
+
 - (BOOL)removeToken:(MSIDBaseToken *)token
             account:(MSIDAccount *)account
             context:(id<MSIDRequestContext>)context
@@ -289,71 +348,12 @@
     return result;
 }
 
-- (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
-                   withClientId:(NSString *)clientId
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
-{
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get all tokens of type %@ with clientId %@", [MSIDTokenTypeHelpers tokenTypeAsString:tokenType], clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Get all tokens of type %@ with clientId %@", [MSIDTokenTypeHelpers tokenTypeAsString:tokenType], clientId);
-    
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
-    
-    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
-                                                                           context:context];
-    
-    NSArray<MSIDTokenCacheItem *> *legacyCacheItems = [_dataSource tokensWithKey:[MSIDLegacyTokenCacheKey keyForAllItems]
-                                                                      serializer:_serializer
-                                                                         context:context
-                                                                           error:error];
-    
-    if (!legacyCacheItems)
-    {
-        [self stopTelemetryEvent:event withItem:nil success:NO context:context];
-        return nil;
-    }
-    
-    NSArray *results = [MSIDTokenFilteringHelper filterTokenCacheItems:legacyCacheItems
-                                                             tokenType:tokenType
-                                                           returnFirst:NO
-                                                              filterBy:^BOOL(MSIDTokenCacheItem *cacheItem) {
-                                                                  
-                                                                  return (cacheItem.tokenType == tokenType
-                                                                          && [cacheItem.clientId isEqualToString:clientId]);
-                                                              }];
-    
-    [self stopTelemetryLookupEvent:event tokenType:tokenType withToken:nil success:(results.count > 0) context:context];
-    
-    return results;
-}
-
 - (BOOL)removeAccount:(MSIDAccount *)account
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error
 {
     // We don't suppport account in legacy cache.
     return YES;
-}
-
-- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
-                                             error:(NSError **)error
-{
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
-    __auto_type items = [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
-    
-    NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];
-    
-    for (MSIDTokenCacheItem *item in items)
-    {
-        MSIDBaseToken *token = [item tokenWithType:item.tokenType];
-        if (token)
-        {
-            [tokens addObject:token];
-        }
-    }
-    
-    return tokens;
 }
 
 - (BOOL)removeAllTokensForAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error

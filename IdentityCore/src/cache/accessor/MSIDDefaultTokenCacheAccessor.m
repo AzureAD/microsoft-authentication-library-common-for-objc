@@ -158,6 +158,57 @@
                        error:error];
 }
 
+- (BOOL)saveToken:(MSIDBaseToken *)token
+          account:(MSIDAccount *)account
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error
+{
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving token %@ with authority %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:token.tokenType], token.authority, token.clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving token %@ for userID %@ with authority %@, clientID %@,", token, account.uniqueUserId, token.authority, token.clientId);
+    
+    if (![self checkUserIdentifier:account context:context error:error])
+    {
+        return NO;
+    }
+    
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
+    
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
+                                                                           context:context];
+    
+    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
+    
+    // The authority used to retrieve the item over the network can differ from the preferred authority used to
+    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
+    // it with we switch it out before saving it to cache.
+    token.authority = newAuthority;
+    
+    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
+    
+    MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
+                                            userId:account.uniqueUserId
+                                          clientId:cacheItem.clientId
+                                            scopes:[cacheItem.target scopeSet]
+                                         authority:token.authority];
+    
+    if (!key)
+    {
+        [self stopTelemetryEvent:event withItem:token success:NO context:context];
+        return NO;
+    }
+    
+    BOOL result = [_dataSource saveToken:cacheItem
+                                     key:key
+                              serializer:_serializer
+                                 context:context
+                                   error:error];
+    
+    [self stopTelemetryEvent:event withItem:token success:result context:context];
+    
+    return result;
+}
+
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
                       requestParams:(MSIDRequestParameters *)parameters
@@ -217,46 +268,6 @@
                                   error:error];
 }
 
-- (BOOL)removeToken:(MSIDBaseToken *)token
-            account:(MSIDAccount *)account
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
-{
-    if (![self checkUserIdentifier:account context:context error:error])
-    {
-        return NO;
-    }
-    
-    if (!token)
-    {
-        [self fillInternalErrorWithMessage:@"Token not provided, cannot remove" context:context error:error];
-        return NO;
-    }
-    
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Removing token with clientId %@, authority %@", token.clientId, token.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Removing token %@ with account %@", token, account);
-    
-    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
-    
-    NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
-    
-    MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
-                                            userId:account.uniqueUserId
-                                          clientId:cacheItem.clientId
-                                            scopes:[cacheItem.target scopeSet]
-                                         authority:authority];
-    
-    BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
-    
-    if (result && token.tokenType == MSIDTokenTypeRefreshToken)
-    {
-        [_dataSource saveWipeInfoWithContext:context error:nil];
-        return [self removeIDTokensForRefreshToken:token context:context error:error];
-    }
-    
-    return result;
-}
-
 - (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
                    withClientId:(NSString *)clientId
                         context:(id<MSIDRequestContext>)context
@@ -298,6 +309,46 @@
     }
     
     return tokens;
+}
+
+- (BOOL)removeToken:(MSIDBaseToken *)token
+            account:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    if (![self checkUserIdentifier:account context:context error:error])
+    {
+        return NO;
+    }
+    
+    if (!token)
+    {
+        [self fillInternalErrorWithMessage:@"Token not provided, cannot remove" context:context error:error];
+        return NO;
+    }
+    
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Removing token with clientId %@, authority %@", token.clientId, token.authority);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Removing token %@ with account %@", token, account);
+    
+    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
+    
+    NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
+    
+    MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
+                                            userId:account.uniqueUserId
+                                          clientId:cacheItem.clientId
+                                            scopes:[cacheItem.target scopeSet]
+                                         authority:authority];
+    
+    BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
+    
+    if (result && token.tokenType == MSIDTokenTypeRefreshToken)
+    {
+        [_dataSource saveWipeInfoWithContext:context error:nil];
+        return [self removeIDTokensForRefreshToken:token context:context error:error];
+    }
+    
+    return result;
 }
 
 - (BOOL)removeAccount:(MSIDAccount *)account
@@ -687,57 +738,6 @@
                     account:account
                    context:context
                      error:error];
-}
-
-- (BOOL)saveToken:(MSIDBaseToken *)token
-          account:(MSIDAccount *)account
-          context:(id<MSIDRequestContext>)context
-            error:(NSError **)error
-{
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving token %@ with authority %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:token.tokenType], token.authority, token.clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving token %@ for userID %@ with authority %@, clientID %@,", token, account.uniqueUserId, token.authority, token.clientId);
-    
-    if (![self checkUserIdentifier:account context:context error:error])
-    {
-        return NO;
-    }
-    
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
-    
-    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
-                                                                           context:context];
-    
-    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
-    
-    // The authority used to retrieve the item over the network can differ from the preferred authority used to
-    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
-    // it with we switch it out before saving it to cache.
-    token.authority = newAuthority;
-    
-    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
-    
-    MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
-                                            userId:account.uniqueUserId
-                                          clientId:cacheItem.clientId
-                                            scopes:[cacheItem.target scopeSet]
-                                         authority:token.authority];
-    
-    if (!key)
-    {
-        [self stopTelemetryEvent:event withItem:token success:NO context:context];
-        return NO;
-    }
-    
-    BOOL result = [_dataSource saveToken:cacheItem
-                                     key:key
-                              serializer:_serializer
-                                 context:context
-                                   error:error];
-    
-    [self stopTelemetryEvent:event withItem:token success:result context:context];
-    
-    return result;
 }
 
 - (NSArray<MSIDTokenCacheItem *> *)getAllTokensWithType:(MSIDTokenType)tokenType
