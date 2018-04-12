@@ -42,10 +42,10 @@
 
 // Save operations
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
-                      response:(MSIDTokenResponse *)response
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error;
+                requestParams:(MSIDRequestParameters *)requestParams
+                     response:(MSIDTokenResponse *)response
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error;
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                 brokerResponse:(MSIDBrokerResponse *)response
