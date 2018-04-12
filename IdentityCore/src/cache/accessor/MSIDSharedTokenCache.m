@@ -301,7 +301,7 @@
 
 #pragma mark - Private
 
-- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
+- (BOOL)saveToken:(MSIDRefreshToken *)refreshToken
               forAccount:(MSIDAccount *)account
                  context:(id<MSIDRequestContext>)context
                    error:(NSError **)error
@@ -344,10 +344,10 @@
     {
         NSError *cacheError = nil;
         
-        BOOL result = [cache saveRefreshToken:refreshToken
-                                      account:account
-                                      context:context
-                                        error:&cacheError];
+        BOOL result = [cache saveToken:refreshToken
+                               account:account
+                               context:context
+                                 error:&cacheError];
         
         if (!result && [cache isEqual:_primaryAccessor])
         {
@@ -395,7 +395,7 @@
         return YES;
     }
     
-    return [self saveRefreshToken:refreshToken forAccount:account context:context error:error];
+    return [self saveToken:refreshToken forAccount:account context:context error:error];
 }
 
 @end

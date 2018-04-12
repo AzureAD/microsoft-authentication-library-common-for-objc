@@ -73,7 +73,7 @@
     return [self saveTokenForAccount:account token:accessToken clientId:parameters.clientId authority:parameters.authority context:context error:error];
 }
 
-- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
+- (BOOL)saveToken:(MSIDRefreshToken *)refreshToken
                  account:(MSIDAccount *)account
                  context:(id<MSIDRequestContext>)context
                    error:(NSError **)error
@@ -208,13 +208,6 @@
 {
     return NO;
 }
-
-
-- (BOOL)saveToken:(MSIDBaseToken *)token account:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
-{
-    return NO;
-}
-
 
 #pragma mark - Helpers
 

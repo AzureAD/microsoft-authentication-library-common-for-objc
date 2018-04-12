@@ -373,7 +373,7 @@
     
     NSError *error = nil;
     
-    BOOL result = [_cacheAccessor saveRefreshToken:token
+    BOOL result = [_cacheAccessor saveToken:token
                                            account:account
                                            context:nil
                                              error:nil];
@@ -397,7 +397,7 @@
 
     NSError *error = nil;
     
-    BOOL result = [_cacheAccessor saveRefreshToken:token
+    BOOL result = [_cacheAccessor saveToken:token
                                            account:account
                                            context:nil
                                              error:&error];
@@ -754,7 +754,7 @@
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse]
                                                          request:[MSIDTestRequestParams v2DefaultParams]];
 
-    [_cacheAccessor saveRefreshToken:token
+    [_cacheAccessor saveToken:token
                              account:account
                              context:nil
                                error:nil];
@@ -779,7 +779,7 @@
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
     
-    [_cacheAccessor saveRefreshToken:token
+    [_cacheAccessor saveToken:token
                              account:account
                              context:nil
                                error:nil];
@@ -876,7 +876,7 @@
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
 
     // Save token
-    [_cacheAccessor saveRefreshToken:token
+    [_cacheAccessor saveToken:token
                              account:account
                              context:nil
                                error:nil];
@@ -913,7 +913,7 @@
 
     MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
 
-    [_cacheAccessor saveRefreshToken:refreshToken
+    [_cacheAccessor saveToken:refreshToken
                              account:account
                              context:nil
                                error:nil];
@@ -952,7 +952,7 @@
     // Save a refresh token
     MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
 
-    [_cacheAccessor saveRefreshToken:refreshToken
+    [_cacheAccessor saveToken:refreshToken
                              account:account
                              context:nil
                                error:nil];

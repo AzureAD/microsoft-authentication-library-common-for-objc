@@ -40,11 +40,6 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error;
 
-- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
-                 account:(MSIDAccount *)account
-                 context:(id<MSIDRequestContext>)context
-                   error:(NSError **)error;
-
 - (BOOL)saveToken:(MSIDBaseToken *)token
           account:(MSIDAccount *)account
           context:(id<MSIDRequestContext>)context

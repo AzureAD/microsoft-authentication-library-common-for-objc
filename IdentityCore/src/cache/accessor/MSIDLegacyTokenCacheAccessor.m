@@ -152,20 +152,6 @@
     return YES;
 }
 
-- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
-                 account:(MSIDAccount *)account
-                 context:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
-{
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving refresh token in legacy accessor with clientID %@, authority %@", refreshToken.clientId, refreshToken.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving refresh token in legacy accessor with clientID %@, authority %@, legacy userID %@", refreshToken.clientId, refreshToken.authority, account.legacyUserId);
-    
-    return [self saveToken:refreshToken
-                   account:account
-                   context:context
-                     error:error];
-}
-
 - (BOOL)saveToken:(MSIDBaseToken *)token
           account:(MSIDAccount *)account
           context:(id<MSIDRequestContext>)context
@@ -179,8 +165,8 @@
     
     NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
     
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving token %@ with authority %@", [MSIDTokenTypeHelpers tokenTypeAsString:token.tokenType], newAuthority);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving token %@ for account %@ with authority %@", token, account, newAuthority);
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving token %@ with authority %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:token.tokenType], newAuthority, token.clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving token %@ for account %@ with authority %@, clientID %@", token, account, newAuthority, token.clientId);
     
     // The authority used to retrieve the item over the network can differ from the preferred authority used to
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store
