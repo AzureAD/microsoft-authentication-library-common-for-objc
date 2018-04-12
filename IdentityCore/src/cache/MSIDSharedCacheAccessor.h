@@ -77,6 +77,9 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error;
 
+/*
+ It is supposed to be used in test apps only.
+ */
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error;
 
 @end
