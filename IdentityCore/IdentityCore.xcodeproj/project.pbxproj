@@ -249,6 +249,13 @@
 		B2C17AF11FC7A1C00070A514 /* MSIDLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */; };
 		B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */; };
 		B2C17AF51FC7A6BD0070A514 /* MSIDTestLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */; };
+		B2C7590D207EE9A400C1FE74 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
+		B2C7590E207EE9A400C1FE74 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
+		B2C75911207EEA9A00C1FE74 /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75910207EEA9A00C1FE74 /* NSData+MSIDExtensions.m */; };
+		B2C75912207EEA9A00C1FE74 /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75910207EEA9A00C1FE74 /* NSData+MSIDExtensions.m */; };
+		B2C75918207EEC9100C1FE74 /* MSIDClientCredentialHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */; };
+		B2C75919207EEC9400C1FE74 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
+		B2C7591A207EEC9400C1FE74 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
 		B2CDB56D1FE2F42B003A4B5C /* MSIDJsonSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB56C1FE2F427003A4B5C /* MSIDJsonSerializer.m */; };
 		B2CDB56E1FE2F42B003A4B5C /* MSIDJsonSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB56C1FE2F427003A4B5C /* MSIDJsonSerializer.m */; };
 		B2CDB5741FE2F4DF003A4B5C /* NSOrderedSet+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5731FE2F4DB003A4B5C /* NSOrderedSet+MSIDExtensions.m */; };
@@ -600,6 +607,12 @@
 		B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLoggerTests.m; sourceTree = "<group>"; };
 		B2C17AF21FC7A56C0070A514 /* MSIDTestLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestLogger.h; sourceTree = "<group>"; };
 		B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestLogger.m; sourceTree = "<group>"; };
+		B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDClientCredentialHelper.h; sourceTree = "<group>"; };
+		B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDClientCredentialHelper.m; sourceTree = "<group>"; };
+		B2C7590B207EE9A400C1FE74 /* MSIDJWTHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJWTHelper.h; sourceTree = "<group>"; };
+		B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJWTHelper.m; sourceTree = "<group>"; };
+		B2C7590F207EEA9A00C1FE74 /* NSData+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MSIDExtensions.h"; sourceTree = "<group>"; };
+		B2C75910207EEA9A00C1FE74 /* NSData+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MSIDExtensions.m"; sourceTree = "<group>"; };
 		B2CDB56B1FE2F427003A4B5C /* MSIDJsonSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJsonSerializer.h; sourceTree = "<group>"; };
 		B2CDB56C1FE2F427003A4B5C /* MSIDJsonSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializer.m; sourceTree = "<group>"; };
 		B2CDB56F1FE2F491003A4B5C /* MSIDAccount.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccount.h; sourceTree = "<group>"; };
@@ -1056,6 +1069,15 @@
 			path = account;
 			sourceTree = "<group>";
 		};
+		B2C758FE207EE58200C1FE74 /* automation */ = {
+			isa = PBXGroup;
+			children = (
+				B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */,
+				B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */,
+			);
+			path = automation;
+			sourceTree = "<group>";
+		};
 		D62600091FBD305800EE4487 /* util */ = {
 			isa = PBXGroup;
 			children = (
@@ -1086,6 +1108,10 @@
 				B20657DE1FCA208C00412B7D /* NSDate+MSIDExtensions.m */,
 				B2807FF5204CAFDF00944D89 /* MSIDHelpers.h */,
 				B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */,
+				B2C7590B207EE9A400C1FE74 /* MSIDJWTHelper.h */,
+				B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */,
+				B2C7590F207EEA9A00C1FE74 /* NSData+MSIDExtensions.h */,
+				B2C75910207EEA9A00C1FE74 /* NSData+MSIDExtensions.m */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -1216,6 +1242,7 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				B2C758FE207EE58200C1FE74 /* automation */,
 				04930F861FEC8E8800FC4DCD /* MSIDAadAuthorityCacheTests.m */,
 				231CE9BD1FE8710A00E95D3E /* integration */,
 				B210F44E1FDDF5D2005A8F76 /* MSIDClientInfoTests.m */,
@@ -1344,6 +1371,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2C75918207EEC9100C1FE74 /* MSIDClientCredentialHelper.h in Headers */,
 				D6D9A4561FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h in Headers */,
 				B23ECF031FF30BB90015FC1D /* MSIDTestCacheIdentifiers.h in Headers */,
 				D626FFF61FBD200A00EE4487 /* MSIDTestURLResponse.h in Headers */,
@@ -1501,6 +1529,7 @@
 					};
 					D626FF491FBA6DFC00EE4487 = {
 						CreatedOnToolsVersion = 9.1;
+						LastSwiftMigration = 0930;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 231CE99C1FE86EA300E95D3E;
 					};
@@ -1510,6 +1539,7 @@
 					};
 					D626FF671FBA6EDF00EE4487 = {
 						CreatedOnToolsVersion = 9.1;
+						LastSwiftMigration = 0930;
 						ProvisioningStyle = Automatic;
 					};
 					D626FFD21FBD1F2B00EE4487 = {
@@ -1596,6 +1626,7 @@
 				234858E020490F00004FBC3C /* MSIDDefaultTokenCacheIntegrationTests.m in Sources */,
 				B2808004204CB2A700944D89 /* MSIDAADV1TokenResponseTests.m in Sources */,
 				B210F4651FDF1CB8005A8F76 /* MSIDURLFormObjectTests.m in Sources */,
+				B2C75911207EEA9A00C1FE74 /* NSData+MSIDExtensions.m in Sources */,
 				23CC944A20465CF100AA0551 /* MSIDTokenCacheDataSourceIntegrationTests.m in Sources */,
 				23BDA6691FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */,
 				B2DD5BC220479D9C0084313F /* MSIDKeyedArchiverSerializerTests.m in Sources */,
@@ -1610,6 +1641,7 @@
 				B23ECF001FF306110015FC1D /* MSIDTestRequestParams.m in Sources */,
 				B2DD5BBC204794F80084313F /* MSIDSharedTokenCacheIntegrationTests.m in Sources */,
 				B2DD5B942047564C0084313F /* MSIDTokenTypeTests.m in Sources */,
+				B2C7590D207EE9A400C1FE74 /* MSIDJWTHelper.m in Sources */,
 				B20657C61FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */,
 				B2807FFB204CB16B00944D89 /* MSIDHelperTests.m in Sources */,
 				60BF06042051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */,
@@ -1724,6 +1756,7 @@
 				23CC944920465CEC00AA0551 /* MSIDTokenCacheDataSourceIntegrationTests.m in Sources */,
 				B23ECF011FF306110015FC1D /* MSIDTestRequestParams.m in Sources */,
 				B2808002204CB29900944D89 /* MSIDAADTokenResponseTests.m in Sources */,
+				B2C75912207EEA9A00C1FE74 /* NSData+MSIDExtensions.m in Sources */,
 				B2DD5B7520461F410084313F /* MSIDCacheItemTests.m in Sources */,
 				B2DD5B98204756580084313F /* MSIDAccountTypeTests.m in Sources */,
 				B210F4661FDF1CB8005A8F76 /* MSIDURLFormObjectTests.m in Sources */,
@@ -1738,6 +1771,7 @@
 				B2807FFF204CB25E00944D89 /* MSIDTokenResponseTests.m in Sources */,
 				B20657C71FC9265800412B7D /* MSIDTelemetryExtensionsTests.m in Sources */,
 				B2E7698F206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m in Sources */,
+				B2C7590E207EE9A400C1FE74 /* MSIDJWTHelper.m in Sources */,
 				234858DF20490EF8004FBC3C /* MSIDDefaultTokenCacheIntegrationTests.m in Sources */,
 				B2807FFC204CB16B00944D89 /* MSIDHelperTests.m in Sources */,
 				B26A0B9A2072BABE006BD95A /* MSIDAADV2Oauth2StrategyTests.m in Sources */,
@@ -1779,6 +1813,7 @@
 			files = (
 				23F32F251FFDAF1900B2905E /* MSIDTestBrokerResponse.m in Sources */,
 				D6D9A4571FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
+				B2C7591A207EEC9400C1FE74 /* MSIDClientCredentialHelper.m in Sources */,
 				23F32F191FFD635500B2905E /* MSIDTestIdTokenUtil.m in Sources */,
 				D626FFF11FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
 				231CE9C31FE871FA00E95D3E /* MSIDKeychainTokenCache+MSIDTestsUtil.m in Sources */,
@@ -1797,6 +1832,7 @@
 				D626FFF81FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
 				23F32F261FFDAF1A00B2905E /* MSIDTestBrokerResponse.m in Sources */,
 				D626FFF51FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
+				B2C75919207EEC9400C1FE74 /* MSIDClientCredentialHelper.m in Sources */,
 				D6D9A44E1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2031,7 +2067,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
 			name = Debug;
@@ -2040,6 +2080,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
 			name = Release;
@@ -2071,7 +2114,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -2079,6 +2126,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
