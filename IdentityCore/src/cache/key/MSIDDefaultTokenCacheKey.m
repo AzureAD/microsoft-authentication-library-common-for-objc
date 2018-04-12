@@ -41,6 +41,10 @@ static NSInteger kTokenTypePrefix = 2000;
                         realm:(NSString *)realm
                        target:(NSString *)target
 {
+    realm = realm.msidTrimmedString.lowercaseString;
+    clientId = clientId.msidTrimmedString.lowercaseString;
+    target = target.msidTrimmedString.lowercaseString;
+
     NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm];
     NSString *service = [NSString stringWithFormat:@"%@%@%@",
                          credentialId,
@@ -54,6 +58,9 @@ static NSInteger kTokenTypePrefix = 2000;
                           clientId:(NSString *)clientId
                              realm:(NSString *)realm
 {
+    realm = realm.msidTrimmedString.lowercaseString;
+    clientId = clientId.msidTrimmedString.lowercaseString;
+
     NSString *credentialType = [MSIDTokenTypeHelpers tokenTypeAsString:type];
     
     return [NSString stringWithFormat:@"%@%@%@%@%@",
@@ -66,6 +73,8 @@ static NSInteger kTokenTypePrefix = 2000;
 + (NSString *)accountIdWithUniqueUserId:(NSString *)uniqueId
                             environment:(NSString *)environment
 {
+    uniqueId = uniqueId.msidTrimmedString.lowercaseString;
+
     return [NSString stringWithFormat:@"%@%@%@",
             uniqueId, keyDelimiter, environment];
 }
@@ -163,7 +172,7 @@ static NSInteger kTokenTypePrefix = 2000;
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
-                                                     generic:[username dataUsingEncoding:NSUTF8StringEncoding]
+                                                     generic:[username.msidTrimmedString.lowercaseString dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:type];
 }
 

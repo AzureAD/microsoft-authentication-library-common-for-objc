@@ -55,6 +55,19 @@
     XCTAssertEqualObjects(key.generic, genericData);
 }
 
+- (void)testDefaultKeyForAccessTokens_withAuthorityUpperCase_shouldReturnKeyLowerCase
+{
+    NSURL *url = [NSURL URLWithString:@"https://Login.microsoftonline.com/contoso.com"];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccessTokenWithUniqueUserId:@"Uid " authority:url clientId:@"Client" scopes:[NSOrderedSet orderedSetWithObjects:@"User.read", @"User.write", nil]];
+
+    XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
+    XCTAssertEqualObjects(key.service, @"AccessToken-client-contoso.com-user.read user.write");
+    XCTAssertEqualObjects(key.type, @2001);
+
+    NSData *genericData = [@"AccessToken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(key.generic, genericData);
+}
+
 - (void)testKeyForIDToken_withAllParameters_shouldReturnKey
 {
     NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
@@ -68,11 +81,35 @@
     XCTAssertEqualObjects(key.generic, genericData);
 }
 
+- (void)testKeyForIDToken_withAllParametersUpperCase_shouldReturnKeyLowerCase
+{
+    NSURL *url = [NSURL URLWithString:@"https://Login.microsoftonline.com/contoso.com"];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForIDTokenWithUniqueUserId:@"Uid" authority:url clientId:@"Client"];
+
+    XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
+    XCTAssertEqualObjects(key.service, @"IdToken-client-contoso.com");
+    XCTAssertEqualObjects(key.type, @2003);
+
+    NSData *genericData = [@"IdToken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(key.generic, genericData);
+}
+
 - (void)testKeyForAccount_withAllParameters_shouldReturnKey
 {
     NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:@"uid" authority:url username:@"username" accountType:MSIDAccountTypeAADV1];
     
+    XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
+    XCTAssertEqualObjects(key.service, @"contoso.com");
+    XCTAssertEqualObjects(key.generic, [@"username" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertEqualObjects(key.type, @1001);
+}
+
+- (void)testKeyForAccount_withAllParametersUpperCase_shouldReturnKeyLowerCase
+{
+    NSURL *url = [NSURL URLWithString:@"https://loGin.microsoftonline.com/contoso.com"];
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:@" Uid" authority:url username:@" Username" accountType:MSIDAccountTypeAADV1];
+
     XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
     XCTAssertEqualObjects(key.service, @"contoso.com");
     XCTAssertEqualObjects(key.generic, [@"username" dataUsingEncoding:NSUTF8StringEncoding]);
