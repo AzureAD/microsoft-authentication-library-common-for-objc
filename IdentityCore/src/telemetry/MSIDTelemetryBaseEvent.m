@@ -26,10 +26,9 @@
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDTelemetryPiiOiiRules.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDVersion.h"
-
 #import "MSIDDeviceId.h"
 #import "MSIDVersion.h"
+#import "MSIDTelemetry.h"
 
 @implementation MSIDTelemetryBaseEvent
 
@@ -136,6 +135,33 @@
 
 + (NSDictionary *)defaultParameters
 {
+    NSMutableDictionary *defaultParameters = [NSMutableDictionary new];
+    
+    NSDictionary *rawParameters = [[self class] rawDefaultParameters];
+    for (NSString *key in [rawParameters allKeys])
+    {
+        // filter Pii and Oii
+        if (([MSIDTelemetryPiiOiiRules isPii:key] || [MSIDTelemetryPiiOiiRules isOii:key])
+            && ![MSIDTelemetry sharedInstance].piiEnabled)
+        {
+            continue;
+        }
+        
+        // hash Pii
+        NSString *value = rawParameters[key];
+        if ([MSIDTelemetryPiiOiiRules isPii:key])
+        {
+            value = [value msidComputeSHA256];
+        }
+        
+        [defaultParameters setValue:value forKey:key];
+    }
+    
+    return defaultParameters;
+}
+
++ (NSDictionary *)rawDefaultParameters
+{
     static NSMutableDictionary *s_defaultParameters;
     static dispatch_once_t s_parametersOnce;
     
@@ -143,7 +169,7 @@
         
         s_defaultParameters = [NSMutableDictionary new];
         
-        NSString *deviceId = [[MSIDDeviceId deviceTelemetryId] msidComputeSHA256];
+        NSString *deviceId = [MSIDDeviceId deviceTelemetryId];
         NSString *applicationName = [MSIDDeviceId applicationName];
         NSString *applicationVersion = [MSIDDeviceId applicationVersion];
         

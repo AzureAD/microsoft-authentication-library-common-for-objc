@@ -31,14 +31,14 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryAPIEvent.h"
 
-@interface MSIDTelemetryTests : XCTestCase
+@interface MSIDTelemetryIntegrationTests : XCTestCase
 {
     NSMutableArray *_receivedEvents;
 }
 
 @end
 
-@implementation MSIDTelemetryTests
+@implementation MSIDTelemetryIntegrationTests
 
 - (void)setUp
 {
