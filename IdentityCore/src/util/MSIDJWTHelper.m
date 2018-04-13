@@ -62,7 +62,7 @@
                            [bits mutableBytes],
                            &keyBufferSize);
 #else // !TARGET_OS_IPHONE
-    (void)decrpytionKey;
+    (void)decryptionKey;
     // TODO: SecKeyDecrypt is not available on OS X
 #endif // TARGET_OS_IPHONE
     if(status != errSecSuccess)

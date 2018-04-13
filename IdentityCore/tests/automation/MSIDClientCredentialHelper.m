@@ -73,6 +73,17 @@
                                                       certificateData:certificateData
                                                              password:password];
 
+    if (!assertion)
+    {
+        if (completionHandler)
+        {
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Couldn't create assertion.", nil, nil, nil, nil, nil);
+            completionHandler(nil, error);
+        }
+
+        return;
+    }
+
     NSDictionary *postParams = @{@"client_id": clientId,
                                  @"grant_type": @"client_credentials",
                                  @"client_assertion_type": @"urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
