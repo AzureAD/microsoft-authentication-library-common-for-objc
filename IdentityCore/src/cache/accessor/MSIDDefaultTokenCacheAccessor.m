@@ -158,55 +158,73 @@
                        error:error];
 }
 
-- (BOOL)saveToken:(MSIDBaseToken *)token
-          account:(MSIDAccount *)account
-          context:(id<MSIDRequestContext>)context
-            error:(NSError **)error
+- (BOOL)saveTokenWithPreferredCache:(MSIDBaseToken *)token
+                            account:(MSIDAccount *)account
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving token %@ with authority %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:token.tokenType], token.authority, token.clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving token %@ for userID %@ with authority %@, clientID %@,", token, account.uniqueUserId, token.authority, token.clientId);
+    // All other tokens have the same handling
+    NSURL *authority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
+    token.authority = authority;
+    
+    return [self saveToken:token
+                   account:account
+                   context:context
+                     error:error];
+}
+
+- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
+                 account:(MSIDAccount *)account
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
+{
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving refresh token with clientID %@, authority %@", refreshToken.clientId, refreshToken.authority);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving refresh toke with clientID %@, authority %@, userID %@", refreshToken.clientId, refreshToken.authority, account.uniqueUserId);
     
     if (![self checkUserIdentifier:account context:context error:error])
     {
         return NO;
     }
     
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
+    return [self saveTokenWithPreferredCache:refreshToken
+                                     account:account
+                                     context:context
+                                       error:error];
+}
+
+- (BOOL)saveAccessToken:(MSIDAccessToken *)accessToken
+                account:(MSIDAccount *)account
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
+{
+    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccessTokensWithUniqueUserId:account.uniqueUserId
+                                                                                            authority:accessToken.authority
+                                                                                             clientId:accessToken.clientId];
     
-    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
-                                                                           context:context];
+    NSArray<MSIDTokenCacheItem *> *allCacheItems = [self getAllTokensWithType:MSIDTokenTypeAccessToken key:key context:context error:error];
     
-    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:token.authority context:context];
-    
-    // The authority used to retrieve the item over the network can differ from the preferred authority used to
-    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
-    // it with we switch it out before saving it to cache.
-    token.authority = newAuthority;
-    
-    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
-    
-    MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
-                                            userId:account.uniqueUserId
-                                          clientId:cacheItem.clientId
-                                            scopes:[cacheItem.target scopeSet]
-                                         authority:token.authority];
-    
-    if (!key)
+    if (!allCacheItems)
     {
-        [self stopTelemetryEvent:event withItem:token success:NO context:context];
         return NO;
     }
     
-    BOOL result = [_dataSource saveToken:cacheItem
-                                     key:key
-                              serializer:_serializer
-                                 context:context
-                                   error:error];
+    BOOL result = [self deleteTokenCacheItems:allCacheItems
+                                      context:context
+                                        error:error
+                                     filterBy:^BOOL(MSIDTokenCacheItem *tokenCacheItem) {
+                                         
+                                         return [[tokenCacheItem.target scopeSet] intersectsOrderedSet:accessToken.scopes];
+                                     }];
     
-    [self stopTelemetryEvent:event withItem:token success:result context:context];
+    if (!result)
+    {
+        return NO;
+    }
     
-    return result;
+    return [self saveToken:accessToken
+                   account:account
+                   context:context
+                     error:error];
 }
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
@@ -474,6 +492,50 @@
     return nil;
 }
 
+- (BOOL)saveToken:(MSIDBaseToken *)token
+          account:(MSIDAccount *)account
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error
+{
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving token %@ with authority %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:token.tokenType], token.authority, token.clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving token %@ for userID %@ with authority %@, clientID %@,", token, account.uniqueUserId, token.authority, token.clientId);
+    
+    if (![self checkUserIdentifier:account context:context error:error])
+    {
+        return NO;
+    }
+    
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
+                                     eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
+    
+    MSIDTelemetryCacheEvent *event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
+                                                                           context:context];
+    
+    MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
+    
+    MSIDTokenCacheKey *key = [self keyForTokenType:cacheItem.tokenType
+                                            userId:account.uniqueUserId
+                                          clientId:cacheItem.clientId
+                                            scopes:[cacheItem.target scopeSet]
+                                         authority:token.authority];
+    
+    if (!key)
+    {
+        [self stopTelemetryEvent:event withItem:token success:NO context:context];
+        return NO;
+    }
+    
+    BOOL result = [_dataSource saveToken:cacheItem
+                                     key:key
+                              serializer:_serializer
+                                 context:context
+                                   error:error];
+    
+    [self stopTelemetryEvent:event withItem:token success:result context:context];
+    
+    return result;
+}
+
 #pragma mark - Account
 
 - (BOOL)saveAccount:(MSIDAccount *)account
@@ -703,41 +765,6 @@
         default:
             return nil;
     }
-}
-
-- (BOOL)saveAccessToken:(MSIDAccessToken *)accessToken
-                account:(MSIDAccount *)account
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
-{
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccessTokensWithUniqueUserId:account.uniqueUserId
-                                                                                            authority:accessToken.authority
-                                                                                             clientId:accessToken.clientId];
-    
-    NSArray<MSIDTokenCacheItem *> *allCacheItems = [self getAllTokensWithType:MSIDTokenTypeAccessToken key:key context:context error:error];
-    
-    if (!allCacheItems)
-    {
-        return NO;
-    }
-    
-    BOOL result = [self deleteTokenCacheItems:allCacheItems
-                                      context:context
-                                        error:error
-                                     filterBy:^BOOL(MSIDTokenCacheItem *tokenCacheItem) {
-                                         
-                                         return [[tokenCacheItem.target scopeSet] intersectsOrderedSet:accessToken.scopes];
-                                     }];
-    
-    if (!result)
-    {
-        return NO;
-    }
-    
-    return [self saveToken:accessToken
-                    account:account
-                   context:context
-                     error:error];
 }
 
 - (NSArray<MSIDTokenCacheItem *> *)getAllTokensWithType:(MSIDTokenType)tokenType

@@ -73,7 +73,7 @@
     return [self saveTokenForAccount:account token:accessToken clientId:parameters.clientId authority:parameters.authority context:context error:error];
 }
 
-- (BOOL)saveToken:(MSIDRefreshToken *)refreshToken
+- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
                  account:(MSIDAccount *)account
                  context:(id<MSIDRequestContext>)context
                    error:(NSError **)error
@@ -81,6 +81,10 @@
     return [self saveTokenForAccount:account token:refreshToken clientId:refreshToken.clientId authority:refreshToken.authority context:context error:error];
 }
 
+- (BOOL)saveAccessToken:(MSIDAccessToken *)accessToken account:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return [self saveTokenForAccount:account token:accessToken clientId:accessToken.clientId authority:accessToken.authority context:context error:error];
+}
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account

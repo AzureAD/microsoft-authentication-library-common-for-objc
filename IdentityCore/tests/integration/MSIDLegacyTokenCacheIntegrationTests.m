@@ -196,7 +196,7 @@
     
     NSError *error = nil;
     
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];
@@ -220,7 +220,7 @@
     
     NSError *error = nil;
     
-    BOOL result = [_legacyAccessor saveToken:firstToken
+    BOOL result = [_legacyAccessor saveRefreshToken:firstToken
                                             account:account
                                             context:nil
                                               error:&error];
@@ -244,7 +244,7 @@
 
     MSIDRefreshToken *secondToken = [factory refreshTokenFromResponse:secondResponse request:secondParams];
     
-    result = [_legacyAccessor saveToken:secondToken
+    result = [_legacyAccessor saveRefreshToken:secondToken
                                        account:account
                                        context:nil
                                          error:&error];
@@ -268,7 +268,7 @@
     
     NSError *error = nil;
     
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];
@@ -618,7 +618,7 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];
@@ -648,7 +648,7 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveToken:firstToken
+    BOOL result = [_legacyAccessor saveRefreshToken:firstToken
                                             account:account
                                             context:nil
                                               error:&error];
@@ -664,7 +664,7 @@
 
     MSIDRefreshToken *secondToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:secondParams];
 
-    result = [_legacyAccessor saveToken:secondToken
+    result = [_legacyAccessor saveRefreshToken:secondToken
                                        account:account
                                        context:nil
                                          error:&error];
@@ -697,7 +697,7 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];
@@ -730,7 +730,7 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];
@@ -768,7 +768,7 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];
@@ -803,7 +803,7 @@
     
     // Save first token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];
@@ -813,7 +813,7 @@
     
     account.legacyUserId = @"user Id 2";
     
-    result = [_legacyAccessor saveToken:token
+    result = [_legacyAccessor saveRefreshToken:token
                                        account:account
                                        context:nil
                                          error:&error];
@@ -857,7 +857,7 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];
@@ -897,7 +897,7 @@
     MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     
     // Save token
-    result = [_legacyAccessor saveToken:refreshToken
+    result = [_legacyAccessor saveRefreshToken:refreshToken
                                        account:account
                                        context:nil
                                          error:&error];
@@ -925,7 +925,7 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];
@@ -1009,7 +1009,7 @@
     
     // Save token
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];
@@ -1039,7 +1039,7 @@
                                                        uniqueUserId:@"some id"];
     
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveToken:token
+    BOOL result = [_legacyAccessor saveRefreshToken:token
                                             account:account
                                             context:nil
                                               error:&error];

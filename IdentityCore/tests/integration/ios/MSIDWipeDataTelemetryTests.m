@@ -98,7 +98,7 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_legacyCacheAccessor saveToken:token
+    BOOL result = [_legacyCacheAccessor saveRefreshToken:token
                                                  account:account
                                                  context:reqContext
                                                    error:&error];
@@ -164,7 +164,7 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_legacyCacheAccessor saveToken:token
+    BOOL result = [_legacyCacheAccessor saveRefreshToken:token
                                                  account:account
                                                  context:reqContext
                                                    error:&error];
@@ -229,7 +229,7 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_defaultCacheAccessor saveToken:token
+    BOOL result = [_defaultCacheAccessor saveRefreshToken:token
                                                   account:account
                                                   context:reqContext
                                                     error:&error];
@@ -295,7 +295,7 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_defaultCacheAccessor saveToken:token
+    BOOL result = [_defaultCacheAccessor saveRefreshToken:token
                                                   account:account
                                                   context:reqContext
                                                     error:&error];
