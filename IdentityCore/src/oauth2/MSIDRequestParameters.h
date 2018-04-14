@@ -41,9 +41,4 @@
 @property (readwrite) NSString *loginHint;
 @property (readwrite) NSString *extraQueryParameters;
 
-// WebUI
-@property (readonly) NSURL *webRequestStartURL;
-@property (readonly) NSURL *webRequestEndURL;
-@property (readonly) NSDictionary *webRequestHeaders;
-
 @end
