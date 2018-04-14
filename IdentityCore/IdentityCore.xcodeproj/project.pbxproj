@@ -206,6 +206,30 @@
 		B27551DE20817A5E00AA7A38 /* MSIDClientCredentialHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */; };
 		B27551DF20817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
 		B27551E020817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
+		B27551EA20817CD400AA7A38 /* MSIDTestConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E420817CD300AA7A38 /* MSIDTestConfiguration.h */; };
+		B27551EB20817CD400AA7A38 /* MSIDTestAccountsProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */; };
+		B27551EC20817CD400AA7A38 /* MSIDTestAccountsProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */; };
+		B27551ED20817CD400AA7A38 /* MSIDTestAccountsProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E620817CD400AA7A38 /* MSIDTestAccountsProvider.h */; };
+		B27551EE20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestConfiguration.m */; };
+		B27551EF20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestConfiguration.m */; };
+		B27551F020817CD400AA7A38 /* MSIDTestConfigurationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E820817CD400AA7A38 /* MSIDTestConfigurationRequest.h */; };
+		B27551F120817CD400AA7A38 /* MSIDTestConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E920817CD400AA7A38 /* MSIDTestConfigurationRequest.m */; };
+		B27551F220817CD400AA7A38 /* MSIDTestConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E920817CD400AA7A38 /* MSIDTestConfigurationRequest.m */; };
+		B27551FE208182BE00AA7A38 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F8208182BE00AA7A38 /* Authentication.swift */; };
+		B27551FF208182BE00AA7A38 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F8208182BE00AA7A38 /* Authentication.swift */; };
+		B2755200208182BE00AA7A38 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F9208182BE00AA7A38 /* Result.swift */; };
+		B2755201208182BE00AA7A38 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F9208182BE00AA7A38 /* Result.swift */; };
+		B2755202208182BE00AA7A38 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FA208182BE00AA7A38 /* Network.swift */; };
+		B2755203208182BE00AA7A38 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FA208182BE00AA7A38 /* Network.swift */; };
+		B2755204208182BE00AA7A38 /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FB208182BE00AA7A38 /* Secret.swift */; };
+		B2755205208182BE00AA7A38 /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FB208182BE00AA7A38 /* Secret.swift */; };
+		B2755206208182BE00AA7A38 /* KeyVaultError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FC208182BE00AA7A38 /* KeyVaultError.swift */; };
+		B2755207208182BE00AA7A38 /* KeyVaultError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FC208182BE00AA7A38 /* KeyVaultError.swift */; };
+		B2755208208182BE00AA7A38 /* AuthHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FD208182BE00AA7A38 /* AuthHeader.swift */; };
+		B2755209208182BE00AA7A38 /* AuthHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FD208182BE00AA7A38 /* AuthHeader.swift */; };
+		B275520B208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */; };
+		B275520C208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */; };
+		B275520E208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */; };
 		B2807FF7204CAFDF00944D89 /* MSIDHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = B2807FF5204CAFDF00944D89 /* MSIDHelpers.h */; };
 		B2807FF8204CAFDF00944D89 /* MSIDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */; };
 		B2807FF9204CAFDF00944D89 /* MSIDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */; };
@@ -592,6 +616,20 @@
 		B27551E120817AF400AA7A38 /* identitycore__automation__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__common.xcconfig; sourceTree = "<group>"; };
 		B27551E220817AF400AA7A38 /* identitycore__automation__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__mac.xcconfig; sourceTree = "<group>"; };
 		B27551E320817AF400AA7A38 /* identitycore__automation__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__ios.xcconfig; sourceTree = "<group>"; };
+		B27551E420817CD300AA7A38 /* MSIDTestConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestConfiguration.h; sourceTree = "<group>"; };
+		B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestAccountsProvider.m; sourceTree = "<group>"; };
+		B27551E620817CD400AA7A38 /* MSIDTestAccountsProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestAccountsProvider.h; sourceTree = "<group>"; };
+		B27551E720817CD400AA7A38 /* MSIDTestConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestConfiguration.m; sourceTree = "<group>"; };
+		B27551E820817CD400AA7A38 /* MSIDTestConfigurationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestConfigurationRequest.h; sourceTree = "<group>"; };
+		B27551E920817CD400AA7A38 /* MSIDTestConfigurationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestConfigurationRequest.m; sourceTree = "<group>"; };
+		B27551F8208182BE00AA7A38 /* Authentication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
+		B27551F9208182BE00AA7A38 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
+		B27551FA208182BE00AA7A38 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
+		B27551FB208182BE00AA7A38 /* Secret.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Secret.swift; sourceTree = "<group>"; };
+		B27551FC208182BE00AA7A38 /* KeyVaultError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyVaultError.swift; sourceTree = "<group>"; };
+		B27551FD208182BE00AA7A38 /* AuthHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthHeader.swift; sourceTree = "<group>"; };
+		B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyvaultAuthentication.swift; sourceTree = "<group>"; };
+		B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDAutomation-Bridging-Header.h"; sourceTree = "<group>"; };
 		B2807FF5204CAFDF00944D89 /* MSIDHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDHelpers.h; sourceTree = "<group>"; };
 		B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHelpers.m; sourceTree = "<group>"; };
 		B2807FFA204CB16B00944D89 /* MSIDHelperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHelperTests.m; sourceTree = "<group>"; };
@@ -1076,6 +1114,19 @@
 			path = logger;
 			sourceTree = "<group>";
 		};
+		B27551F7208182BE00AA7A38 /* keyvault */ = {
+			isa = PBXGroup;
+			children = (
+				B27551F8208182BE00AA7A38 /* Authentication.swift */,
+				B27551F9208182BE00AA7A38 /* Result.swift */,
+				B27551FA208182BE00AA7A38 /* Network.swift */,
+				B27551FB208182BE00AA7A38 /* Secret.swift */,
+				B27551FC208182BE00AA7A38 /* KeyVaultError.swift */,
+				B27551FD208182BE00AA7A38 /* AuthHeader.swift */,
+			);
+			path = keyvault;
+			sourceTree = "<group>";
+		};
 		B29CB6D11FEC9B4D00F880ED /* aad_v2 */ = {
 			isa = PBXGroup;
 			children = (
@@ -1103,8 +1154,17 @@
 		B2C758FE207EE58200C1FE74 /* automation */ = {
 			isa = PBXGroup;
 			children = (
+				B27551F7208182BE00AA7A38 /* keyvault */,
+				B27551E620817CD400AA7A38 /* MSIDTestAccountsProvider.h */,
+				B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */,
+				B27551E420817CD300AA7A38 /* MSIDTestConfiguration.h */,
+				B27551E720817CD400AA7A38 /* MSIDTestConfiguration.m */,
+				B27551E820817CD400AA7A38 /* MSIDTestConfigurationRequest.h */,
+				B27551E920817CD400AA7A38 /* MSIDTestConfigurationRequest.m */,
 				B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */,
 				B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */,
+				B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */,
+				B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */,
 			);
 			path = automation;
 			sourceTree = "<group>";
@@ -1331,7 +1391,11 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B27551F020817CD400AA7A38 /* MSIDTestConfigurationRequest.h in Headers */,
+				B275520E208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h in Headers */,
+				B27551EA20817CD400AA7A38 /* MSIDTestConfiguration.h in Headers */,
 				B27551DE20817A5E00AA7A38 /* MSIDClientCredentialHelper.h in Headers */,
+				B27551ED20817CD400AA7A38 /* MSIDTestAccountsProvider.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1710,7 +1774,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2755200208182BE00AA7A38 /* Result.swift in Sources */,
 				B27551DF20817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */,
+				B2755208208182BE00AA7A38 /* AuthHeader.swift in Sources */,
+				B27551F120817CD400AA7A38 /* MSIDTestConfigurationRequest.m in Sources */,
+				B27551EE20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */,
+				B27551FE208182BE00AA7A38 /* Authentication.swift in Sources */,
+				B2755204208182BE00AA7A38 /* Secret.swift in Sources */,
+				B275520B208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */,
+				B2755202208182BE00AA7A38 /* Network.swift in Sources */,
+				B2755206208182BE00AA7A38 /* KeyVaultError.swift in Sources */,
+				B27551EB20817CD400AA7A38 /* MSIDTestAccountsProvider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1718,7 +1792,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2755201208182BE00AA7A38 /* Result.swift in Sources */,
 				B27551E020817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */,
+				B2755209208182BE00AA7A38 /* AuthHeader.swift in Sources */,
+				B27551F220817CD400AA7A38 /* MSIDTestConfigurationRequest.m in Sources */,
+				B27551EF20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */,
+				B27551FF208182BE00AA7A38 /* Authentication.swift in Sources */,
+				B2755205208182BE00AA7A38 /* Secret.swift in Sources */,
+				B275520C208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */,
+				B2755203208182BE00AA7A38 /* Network.swift in Sources */,
+				B2755207208182BE00AA7A38 /* KeyVaultError.swift in Sources */,
+				B27551EC20817CD400AA7A38 /* MSIDTestAccountsProvider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2167,6 +2251,7 @@
 		};
 		B27551CF208179EF00AA7A38 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B27551E320817AF400AA7A38 /* identitycore__automation__ios.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2231,6 +2316,7 @@
 		};
 		B27551D0208179EF00AA7A38 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B27551E320817AF400AA7A38 /* identitycore__automation__ios.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2289,6 +2375,7 @@
 		};
 		B27551DC20817A1E00AA7A38 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B27551E220817AF400AA7A38 /* identitycore__automation__mac.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2354,6 +2441,7 @@
 		};
 		B27551DD20817A1E00AA7A38 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B27551E220817AF400AA7A38 /* identitycore__automation__mac.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
