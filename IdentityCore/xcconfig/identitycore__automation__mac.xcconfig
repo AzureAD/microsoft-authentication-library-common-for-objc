@@ -1,0 +1,5 @@
+#include "identitycore__automation__common.xcconfig"
+#include "identitycore__common__mac.xcconfig"
+
+INFOPLIST_FILE = tests/mac/Info.plist
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks @loader_path/../Frameworks

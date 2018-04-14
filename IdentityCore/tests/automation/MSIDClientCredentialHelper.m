@@ -28,6 +28,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV1Oauth2Strategy.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @implementation MSIDClientCredentialHelper
 
