@@ -107,6 +107,7 @@ MSIDAppVersion MSIDAppVersionV2 = @"V2";
 
     BOOL result = YES;
     result &= (!self.accountProvider && !request.accountProvider) || [self.accountProvider isEqualToString:request.accountProvider];
+    result &= (!self.appVersion && !request.appVersion) || [self.appVersion isEqualToString:request.appVersion];
     result &= (!self.accountFeatures && !request.accountFeatures) || [self.accountFeatures isEqualToArray:request.accountFeatures];
     result &= self.needsMultipleUsers == request.needsMultipleUsers;
 
@@ -135,6 +136,7 @@ MSIDAppVersion MSIDAppVersionV2 = @"V2";
     NSUInteger hash = self.needsMultipleUsers;
     hash ^= self.accountProvider.hash;
     hash ^= self.accountFeatures.hash;
+    hash ^= self.appVersion.hash;
 
     return hash;
 }
@@ -193,6 +195,17 @@ MSIDAppVersion MSIDAppVersionV2 = @"V2";
     request->_accountFeatures = _accountFeatures;
     request->_accountProvider = _accountProvider;
     request->_needsMultipleUsers = _needsMultipleUsers;
+    request->_appVersion = _appVersion;
+    return request;
+}
+
++ (MSIDTestConfigurationRequest *)requestWithDictionary:(NSDictionary *)dictionary
+{
+    MSIDTestConfigurationRequest *request = [MSIDTestConfigurationRequest new];
+    request.accountProvider = dictionary[@"account_provider"];
+    request.accountFeatures = dictionary[@"account_features"];
+    request.needsMultipleUsers = [dictionary[@"needs_multiple"] boolValue];
+    request.appVersion = dictionary[@"app_version"];
     return request;
 }
 

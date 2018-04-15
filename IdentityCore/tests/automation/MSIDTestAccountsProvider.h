@@ -29,10 +29,12 @@
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithClientCertificatePath:(NSString *)certificatePath
-                          certificatePassword:(NSString *)password
-                     additionalConfigurations:(NSDictionary *)additionalConfigurations
-                                      apiPath:(NSString *)apiPath;
+- (instancetype)initWithClientCertificateContents:(NSString *)certificate
+                              certificatePassword:(NSString *)password
+                         additionalConfigurations:(NSDictionary *)additionalConfigurations
+                                          apiPath:(NSString *)apiPath;
+
+- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
 
 - (void)configurationWithRequest:(MSIDTestConfigurationRequest *)request
                completionHandler:(void (^)(MSIDTestConfiguration *configuration))completionHandler;

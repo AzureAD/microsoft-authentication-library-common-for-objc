@@ -25,16 +25,16 @@ import Foundation
 
 @objc public class KeyvaultAuthentication : NSObject {
 
-    private var certificatePath : String
-    private var certificateData : NSData?
+    private var certificateContents : String
+    private var certificateData : Data?
     private var certificatePassword : String
     private let clientId = "f62c5ae3-bf3a-4af5-afa8-a68b800396e9"
 
-    @objc public init?(certPath: String, certPassword: String) {
+    @objc public init?(certContents: String, certPassword: String) {
 
-        self.certificatePath = certPath
+        self.certificateContents = certContents
         self.certificatePassword = certPassword
-        self.certificateData = try? NSData(contentsOfFile: self.certificatePath)
+        self.certificateData = Data(base64Encoded: certContents)
 
         guard let _ = self.certificateData else {
             print("Couldn't fetch certificate data, make sure certificate path is correct")
@@ -49,7 +49,7 @@ import Foundation
 
         Authentication.authCallback = { (authority, resource, callback) in
 
-            MSIDClientCredentialHelper.getAccessToken(forAuthority: authority, resource: resource, clientId: self.clientId, certificate: self.certificateData! as Data?, certificatePassword: self.certificatePassword, completionHandler: { (accessToken, error) in
+            MSIDClientCredentialHelper.getAccessToken(forAuthority: authority, resource: resource, clientId: self.clientId, certificate: self.certificateData!, certificatePassword: self.certificatePassword, completionHandler: { (accessToken, error) in
 
                 guard let _ = accessToken else {
                     print("Got an error, can't continue \(String(describing: error))")

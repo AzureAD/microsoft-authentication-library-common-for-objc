@@ -91,7 +91,8 @@
         NSString *federationProvider = response[@"federationProvider"];
 
         // TODO: server should return a username instead
-        if (federationProvider && ([federationProvider isEqualToString:@"Shibboleth"] || [federationProvider containsString:@"PingFederate"]))
+        if (federationProvider && ([federationProvider isEqualToString:@"Shibboleth"]
+                                   || [federationProvider containsString:@"PingFederate"]))
         {
             NSRange range = [_username rangeOfString:@"@"];
 
@@ -169,40 +170,20 @@
     return hash;
 }
 
-- (instancetype)initWithJSONResponseData:(NSData *)response
+- (instancetype)initWithJSONDictionary:(NSDictionary *)responseDict
 {
     self = [super init];
 
     if (self)
     {
-        id responseObj = [NSJSONSerialization JSONObjectWithData:response options:0 error:nil];
-
-        if (!responseObj)
-        {
-            return nil;
-        }
-
-        NSDictionary *responseDict = nil;
-
-        // TODO: fix this hack on server side
-        if ([responseObj isKindOfClass:[NSArray class]])
-        {
-            NSArray *responseArray = (NSArray *) responseObj;
-            responseDict = responseArray[0];
-        }
-        else if ([responseObj isKindOfClass:[NSDictionary class]])
-        {
-            responseDict = responseObj;
-        }
-
         _clientId = responseDict[@"AppID"];
         _redirectUri = [self redirectURIFromArray:responseDict[@"RedirectURI"]];
 
         // TODO: why are there multiple resources?
         _resource = responseDict[@"Resource_ids"][0];
 
-        // TODO: fix this hack on server side
-        _authority = [responseDict[@"Authority"][0] stringByAppendingString:@"common"];
+        // TODO: fix this hack on server side, only one authority should be returned
+        _authority = responseDict[@"Authority"][0];
 
         NSMutableArray *accounts = [NSMutableArray array];
 
@@ -234,6 +215,31 @@
     return self;
 }
 
+- (instancetype)initWithJSONResponseData:(NSData *)response
+{
+    id responseObj = [NSJSONSerialization JSONObjectWithData:response options:0 error:nil];
+
+    if (!responseObj)
+    {
+        return nil;
+    }
+
+    NSDictionary *responseDict = nil;
+
+    // TODO: fix this hack on the server side!
+    if ([responseObj isKindOfClass:[NSArray class]])
+    {
+        NSArray *responseArray = (NSArray *) responseObj;
+        responseDict = responseArray[0];
+    }
+    else if ([responseObj isKindOfClass:[NSDictionary class]])
+    {
+        responseDict = responseObj;
+    }
+
+    return [self initWithJSONDictionary:responseDict];
+}
+
 - (NSString *)redirectURIFromArray:(NSArray *)redirectUris
 {
     for (NSString *uri in redirectUris)
@@ -249,7 +255,28 @@
 
 - (NSDictionary *)configParameters
 {
-    return @{@"authority" : _authority,
+    return [self configParametersForAccount:nil];
+}
+
+- (NSDictionary *)configParametersForAccount:(MSIDTestAccount *)account
+{
+    NSString *authority = _authority;
+
+    // TODO: lab is fixing this hack on the server side and should be returning the full authority
+    if (account.homeTenantId || (![authority containsString:@"common"]
+                                 && ![authority containsString:@"adfs"]))
+    {
+        if (account.homeTenantId)
+        {
+            authority = [_authority stringByAppendingPathComponent:account.targetTenantId];
+        }
+        else
+        {
+            authority = [_authority stringByAppendingPathComponent:@"common"];
+        }
+    }
+
+    return @{@"authority" : authority,
              @"client_id" : _clientId,
              @"redirect_uri" : _redirectUri,
              @"resource" : _resource};

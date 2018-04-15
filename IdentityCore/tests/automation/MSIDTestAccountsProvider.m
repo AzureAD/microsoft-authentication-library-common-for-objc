@@ -34,22 +34,64 @@
 
 @implementation MSIDTestAccountsProvider
 
-- (instancetype)initWithClientCertificatePath:(NSString *)certificatePath
-                          certificatePassword:(NSString *)password
-                     additionalConfigurations:(NSDictionary *)additionalConfigurations
-                                      apiPath:(NSString *)apiPath
+- (instancetype)initWithClientCertificateContents:(NSString *)certificate
+                              certificatePassword:(NSString *)password
+                         additionalConfigurations:(NSDictionary *)additionalConfigurations
+                                          apiPath:(NSString *)apiPath
 {
     self = [super init];
 
     if (self)
     {
         _cachedConfigurations = [NSMutableDictionary dictionary];
-        _keyvaultAuthentication = [[KeyvaultAuthentication alloc] initWithCertPath:certificatePath certPassword:password];
+        _keyvaultAuthentication = [[KeyvaultAuthentication alloc] initWithCertContents:certificate certPassword:password];
         _apiPath = apiPath;
         [_cachedConfigurations addEntriesFromDictionary:additionalConfigurations];
     }
 
     return self;
+}
+
+- (instancetype)initWithConfigurationPath:(NSString *)configurationPath
+{
+    NSData *configurationData = [NSData dataWithContentsOfFile:configurationPath];
+
+    if (!configurationData)
+    {
+        return nil;
+    }
+
+    NSError *jsonError = nil;
+    NSDictionary *configurationDictionary = [NSJSONSerialization JSONObjectWithData:configurationData options:0 error:&jsonError];
+
+    if (jsonError || !configurationDictionary)
+    {
+        return nil;
+    }
+
+    NSString *apiPath = configurationDictionary[@"api_path"];
+    NSString *certificatePassword = configurationDictionary[@"certificate_password"];
+    NSString *encodedCertificate = configurationDictionary[@"certificate_data"];
+
+    NSArray *additionalConfs = configurationDictionary[@"additional_confs"];
+
+    NSMutableDictionary *additionalConfsDictionary = [NSMutableDictionary dictionary];
+
+    for (NSDictionary *additionalConf in additionalConfs)
+    {
+        NSDictionary *requestDict = additionalConf[@"request"];
+        NSDictionary *configurationDict = additionalConf[@"configuration"];
+
+        MSIDTestConfigurationRequest *request = [MSIDTestConfigurationRequest requestWithDictionary:requestDict];
+        MSIDTestConfiguration *configuration = [[MSIDTestConfiguration alloc] initWithJSONDictionary:configurationDict];
+        additionalConfsDictionary[request] = configuration;
+    }
+
+    return [self initWithClientCertificateContents:encodedCertificate
+                               certificatePassword:certificatePassword
+                          additionalConfigurations:additionalConfsDictionary
+                                           apiPath:apiPath];
+
 }
 
 - (void)configurationWithRequest:(MSIDTestConfigurationRequest *)request

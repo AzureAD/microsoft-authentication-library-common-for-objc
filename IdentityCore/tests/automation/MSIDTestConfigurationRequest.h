@@ -68,5 +68,6 @@ extern MSIDAppVersion MSIDAppVersionV2;
 @property (nonatomic) NSDictionary *additionalQueryParameters;
 
 - (NSURL *)requestURLWithAPIPath:(NSString *)apiPath;
++ (MSIDTestConfigurationRequest *)requestWithDictionary:(NSDictionary *)dictionary;
 
 @end

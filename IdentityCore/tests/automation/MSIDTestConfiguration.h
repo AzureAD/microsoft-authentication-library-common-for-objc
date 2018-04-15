@@ -46,6 +46,7 @@
 @property (nonatomic) NSString *resource;
 @property (nonatomic) NSArray<MSIDTestAccount *> *accounts;
 
+- (instancetype)initWithJSONDictionary:(NSDictionary *)response;
 - (instancetype)initWithJSONResponseData:(NSData *)response;
 - (NSDictionary *)configParameters;
 - (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams;
