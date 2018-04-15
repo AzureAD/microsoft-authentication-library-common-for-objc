@@ -295,6 +295,8 @@
 		B2CDB5851FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2CDB5831FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.h */; };
 		B2CDB5861FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m */; };
 		B2CDB5871FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m */; };
+		B2D1841E2083CDE90001D445 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
+		B2D1841F2083CDEA0001D445 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
 		B2D81BC01FF5C7520093859A /* MSIDTestBrokerResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D81BBC1FF5C7460093859A /* MSIDTestBrokerResponse.h */; };
 		B2DD5B7420461F410084313F /* MSIDCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B7320461F410084313F /* MSIDCacheItemTests.m */; };
 		B2DD5B7520461F410084313F /* MSIDCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B7320461F410084313F /* MSIDCacheItemTests.m */; };
@@ -1777,6 +1779,7 @@
 				B2755200208182BE00AA7A38 /* Result.swift in Sources */,
 				B27551DF20817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */,
 				B2755208208182BE00AA7A38 /* AuthHeader.swift in Sources */,
+				B2D1841E2083CDE90001D445 /* MSIDVersion.m in Sources */,
 				B27551F120817CD400AA7A38 /* MSIDTestConfigurationRequest.m in Sources */,
 				B27551EE20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */,
 				B27551FE208182BE00AA7A38 /* Authentication.swift in Sources */,
@@ -1795,6 +1798,7 @@
 				B2755201208182BE00AA7A38 /* Result.swift in Sources */,
 				B27551E020817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */,
 				B2755209208182BE00AA7A38 /* AuthHeader.swift in Sources */,
+				B2D1841F2083CDEA0001D445 /* MSIDVersion.m in Sources */,
 				B27551F220817CD400AA7A38 /* MSIDTestConfigurationRequest.m in Sources */,
 				B27551EF20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */,
 				B27551FF208182BE00AA7A38 /* Authentication.swift in Sources */,
