@@ -28,11 +28,11 @@ MSIDTestAccountProvider MSIDTestAccountProviderWW = @"AzureCloud";
 /*! Black Forest is an AMSID account hosted in the Black Forest sovereign cloud (.de) */
 MSIDTestAccountProvider MSIDTestAccountProviderBlackForest = @"AzureGermanyCloud";
 /*! A WW account federated using MSIDFSv2 (these accounts can also be used for on-prem tests) */
-MSIDTestAccountProvider MSIDTestAccountProviderMSIDfsv2 = @"MSIDFSv2";
+MSIDTestAccountProvider MSIDTestAccountProviderADfsv2 = @"ADFSv2";
 /*! A WW account federated using MSIDFSv3 (these accounts can also be used for on-prem tests) */
-MSIDTestAccountProvider MSIDTestAccountProviderMSIDfsv3 = @"MSIDFSv3";
+MSIDTestAccountProvider MSIDTestAccountProviderADfsv3 = @"ADFSv3";
 /*! A WW account federated using MSIDFSv4 (these accounts can also be used for on-prem tests) */
-MSIDTestAccountProvider MSIDTestAccountProviderMSIDfsv4 = @"MSIDFSv4";
+MSIDTestAccountProvider MSIDTestAccountProviderADfsv4 = @"ADFSv4";
 /*! A WW account federated using Shibboleth */
 MSIDTestAccountProvider MSIDTestAccountProviderShibboleth = @"Shib";
 /*! A WW account federated using Ping */
