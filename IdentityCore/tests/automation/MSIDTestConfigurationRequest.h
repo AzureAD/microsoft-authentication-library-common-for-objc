@@ -40,6 +40,8 @@ extern MSIDTestAccountProvider MSIDTestAccountProviderADfsv4;
 extern MSIDTestAccountProvider MSIDTestAccountProviderShibboleth;
 /*! A WW account federated using Ping */
 extern MSIDTestAccountProvider MSIDTestAccountProviderPing;
+/*! A NTLM account using test adfs environment */
+extern MSIDTestAccountProvider MSIDTestAccountProviderNTLM;
 
 /*! MSIDTestAccountFeatures are things that can be enabled for a given account, multiple of these can
  be enabled at a time */
@@ -54,6 +56,8 @@ extern MSIDTestAccountFeature MSIDTestAccountFeatureDeviceAuth;
 extern MSIDTestAccountFeature MSIDTestAccountFeatureMFAEnabled;
 /*! The account is a guest user */
 extern MSIDTestAccountFeature MSIDTestAccountFeatureGuestUser;
+/*! The account is a guest user */
+extern MSIDTestAccountFeature MSIDTestAccountFeatureNTLM;
 
 typedef NSString *MSIDAppVersion;
 extern MSIDAppVersion MSIDAppVersionV1;

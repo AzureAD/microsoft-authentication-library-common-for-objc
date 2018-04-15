@@ -37,12 +37,15 @@ MSIDTestAccountProvider MSIDTestAccountProviderADfsv4 = @"ADFSv4";
 MSIDTestAccountProvider MSIDTestAccountProviderShibboleth = @"Shib";
 /*! A WW account federated using Ping */
 MSIDTestAccountProvider MSIDTestAccountProviderPing = @"Ping";
+/*! A NTLM account using test adfs environment */
+MSIDTestAccountProvider MSIDTestAccountProviderNTLM = @"NTLM";
 
 MSIDTestAccountFeature MSIDTestAccountFeatureMDMEnabled = @"mam";
 MSIDTestAccountFeature MSIDTestAccountFeatureMAMEnabled = @"mdm";
 MSIDTestAccountFeature MSIDTestAccountFeatureDeviceAuth = @"device";
 MSIDTestAccountFeature MSIDTestAccountFeatureMFAEnabled = @"mfa";
 MSIDTestAccountFeature MSIDTestAccountFeatureGuestUser = @"Guest";
+extern MSIDTestAccountFeature MSIDTestAccountFeatureNTLM = @"NTLM";
 
 MSIDAppVersion MSIDAppVersionV1 = @"V1";
 MSIDAppVersion MSIDAppVersionV2 = @"V2";

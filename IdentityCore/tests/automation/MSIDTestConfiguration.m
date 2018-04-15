@@ -36,6 +36,8 @@
     result &= (!self.account && !accountInfo.account) || [self.account isEqualToString:accountInfo.account];
     result &= (!self.username && !accountInfo.username) || [self.username isEqualToString:accountInfo.username];
     result &= (!self.keyvaultName && !accountInfo.keyvaultName) || [self.keyvaultName isEqualToString:accountInfo.keyvaultName];
+    result &= (!self.homeTenantId && !accountInfo.homeTenantId) || [self.homeTenantId isEqualToString:accountInfo.homeTenantId];
+    result &= (!self.targetTenantId && !accountInfo.targetTenantId) || [self.targetTenantId isEqualToString:accountInfo.targetTenantId];
 
     return result;
 }
@@ -62,6 +64,8 @@
     NSUInteger hash = self.account.hash;
     hash ^= self.username.hash;
     hash ^= self.keyvaultName.hash;
+    hash ^= self.homeTenantId.hash;
+    hash ^= self.targetTenantId.hash;
 
     return hash;
 }
@@ -104,6 +108,7 @@
 
         _homeTenantId = response[@"hometenantId"];
         _targetTenantId = response[@"tenantId"];
+        _password = response[@"password"];
     }
 
     return self;
