@@ -45,7 +45,7 @@ MSIDTestAccountFeature MSIDTestAccountFeatureMAMEnabled = @"mdm";
 MSIDTestAccountFeature MSIDTestAccountFeatureDeviceAuth = @"device";
 MSIDTestAccountFeature MSIDTestAccountFeatureMFAEnabled = @"mfa";
 MSIDTestAccountFeature MSIDTestAccountFeatureGuestUser = @"Guest";
-extern MSIDTestAccountFeature MSIDTestAccountFeatureNTLM = @"NTLM";
+MSIDTestAccountFeature MSIDTestAccountFeatureNTLM = @"NTLM";
 
 MSIDAppVersion MSIDAppVersionV1 = @"V1";
 MSIDAppVersion MSIDAppVersionV2 = @"V2";
