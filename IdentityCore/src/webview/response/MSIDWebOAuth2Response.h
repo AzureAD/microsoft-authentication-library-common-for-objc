@@ -29,7 +29,9 @@
 
 @interface MSIDWebOAuth2Response : NSObject
 
-@property NSError *error;
 @property NSString *code;
+@property NSError *oauthError;
+// TODO: We might need to expand/change this to include other information.
+// As a note, Network errors and such can be returned as a parameter in the completionHandler.
 
 @end
