@@ -29,7 +29,7 @@
 
 @implementation MSIDSystemWebviewRequest
 
-- (id)initWithRequestParameter:(MSIDRequestParameters *)requestParameter
+- (id)initWithRequestParameters:(MSIDRequestParameters *)requestParameter
 {
     return nil;
 }

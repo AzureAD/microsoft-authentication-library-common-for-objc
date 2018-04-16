@@ -32,7 +32,7 @@ typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition 
 
 @protocol MSIDChallengeHandling
 
-- (void)handleChallenge:(NSURLAuthenticationChallenge *)challenge
+- (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
       completionHandler:(ChallengeCompletionHandler)completionHandler;
 
 @end

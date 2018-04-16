@@ -30,6 +30,6 @@
 @interface MSIDWebWPJAuthResponse : MSIDWebOAuth2Response
 
 @property NSString *upn;
-@property NSString *appLink;
+@property NSString *appInstallLink;
 
 @end

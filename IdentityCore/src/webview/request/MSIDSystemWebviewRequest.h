@@ -26,11 +26,12 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDWebviewRequest.h"
 
 @class MSIDRequestParameters;
 
-@interface MSIDSystemWebviewRequest : NSObject
+@interface MSIDSystemWebviewRequest : MSIDWebviewRequest
 
-- (id)initWithRequestParameter:(MSIDRequestParameters *)requestParameter;
+- (id)initWithRequestParameters:(MSIDRequestParameters *)requestParameter;
 
 @end

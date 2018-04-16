@@ -29,10 +29,10 @@
 
 @implementation MSIDNTLMHandler
 
-- (void)handleChallenge:(NSURLAuthenticationChallenge *)challenge
+- (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    
+    return NO;
 }
 
 @end
