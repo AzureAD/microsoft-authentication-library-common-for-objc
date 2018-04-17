@@ -283,11 +283,11 @@
     {
         if (account.homeTenantId)
         {
-            authority = [authorityHost stringByAppendingPathComponent:account.targetTenantId];
+            authority = [authorityHost stringByAppendingString:account.targetTenantId];
         }
         else
         {
-            authority = [authorityHost stringByAppendingPathComponent:@"common"];
+            authority = [authorityHost stringByAppendingString:@"common"];
         }
     }
 
