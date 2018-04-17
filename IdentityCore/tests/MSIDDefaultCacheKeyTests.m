@@ -74,7 +74,7 @@
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForIDTokenWithUniqueUserId:@"uid" authority:url clientId:@"client"];
     
     XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
-    XCTAssertEqualObjects(key.service, @"IdToken-client-contoso.com");
+    XCTAssertEqualObjects(key.service, @"IdToken-client-contoso.com-");
     XCTAssertEqualObjects(key.type, @2003);
     
     NSData *genericData = [@"IdToken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
@@ -87,7 +87,7 @@
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForIDTokenWithUniqueUserId:@"Uid" authority:url clientId:@"Client"];
 
     XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
-    XCTAssertEqualObjects(key.service, @"IdToken-client-contoso.com");
+    XCTAssertEqualObjects(key.service, @"IdToken-client-contoso.com-");
     XCTAssertEqualObjects(key.type, @2003);
 
     NSData *genericData = [@"IdToken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
@@ -159,9 +159,9 @@
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForRefreshTokenWithUniqueUserId:@"uid" environment:@"login.microsoftonline.com" clientId:@"client"];
     
     XCTAssertEqualObjects(key.account, @"uid-login.microsoftonline.com");
-    XCTAssertEqualObjects(key.service, @"RefreshToken-client");
+    XCTAssertEqualObjects(key.service, @"RefreshToken-client--");
     
-    NSData *genericData = [@"RefreshToken-client" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *genericData = [@"RefreshToken-client-" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(key.generic, genericData);
     XCTAssertEqualObjects(key.type, @2002);
 }
@@ -183,7 +183,7 @@
     XCTAssertNil(key.account);
     XCTAssertNil(key.generic);
     XCTAssertEqualObjects(key.type, @2002);
-    XCTAssertEqualObjects(key.service, @"RefreshToken-client");
+    XCTAssertEqualObjects(key.service, @"RefreshToken-client--");
 }
 
 @end
