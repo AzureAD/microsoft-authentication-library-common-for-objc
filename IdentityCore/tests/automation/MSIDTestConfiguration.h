@@ -40,7 +40,8 @@
 
 @interface MSIDTestConfiguration : NSObject
 
-@property (nonatomic) NSString *authority;
+@property (readonly) NSString *authority;
+@property (nonatomic) NSString *authorityHost;
 @property (nonatomic) NSString *clientId;
 @property (nonatomic) NSString *redirectUri;
 @property (nonatomic) NSString *resource;

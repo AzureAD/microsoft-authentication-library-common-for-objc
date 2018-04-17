@@ -188,7 +188,7 @@
         _resource = responseDict[@"Resource_ids"][0];
 
         // TODO: fix this hack on server side, only one authority should be returned
-        _authority = responseDict[@"Authority"][0];
+        _authorityHost = responseDict[@"Authority"][0];
 
         NSMutableArray *accounts = [NSMutableArray array];
 
@@ -265,26 +265,33 @@
 
 - (NSDictionary *)configParametersForAccount:(MSIDTestAccount *)account
 {
-    NSString *authority = _authority;
+    return @{@"authority" : self.authority,
+             @"client_id" : self.clientId,
+             @"redirect_uri" : self.redirectUri,
+             @"resource" : self.resource};
+}
 
-    // TODO: lab is fixing this hack on the server side and should be returning the full authority
-    if (account.homeTenantId || (![authority containsString:@"common"]
-                                 && ![authority containsString:@"adfs"]))
+- (NSString *)authority
+{
+    NSString *authorityHost = _authorityHost;
+    NSString *authority = _authorityHost;
+
+    // TODO: lab is fixing this hack on the server side and should be returning the full authority or just always the host
+    if (account.homeTenantId || (![authorityHost containsString:@"common"]
+                                 && ![authorityHost containsString:@"adfs"]
+                                 && ![authorityHost containsString:account.targetTenantId]))
     {
         if (account.homeTenantId)
         {
-            authority = [_authority stringByAppendingPathComponent:account.targetTenantId];
+            authority = [authorityHost stringByAppendingPathComponent:account.targetTenantId];
         }
         else
         {
-            authority = [_authority stringByAppendingPathComponent:@"common"];
+            authority = [authorityHost stringByAppendingPathComponent:@"common"];
         }
     }
 
-    return @{@"authority" : authority,
-             @"client_id" : _clientId,
-             @"redirect_uri" : _redirectUri,
-             @"resource" : _resource};
+    return authority;
 }
 
 - (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
