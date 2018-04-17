@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,30 +17,17 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDWebViewInteracting.h"
 
-@interface MSIDRequestParameters : NSObject <NSCopying>
-
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readwrite) NSString *target;
-
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target;
-
-@property (readwrite) NSString *loginHint;
-@property (readwrite) NSString *extraQueryParameters;
+@interface MSIDOAuth2WebviewController : NSObject <MSIDWebviewInteracting>
 
 @end
