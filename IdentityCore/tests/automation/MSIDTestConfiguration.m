@@ -265,10 +265,20 @@
 
 - (NSDictionary *)configParametersForAccount:(MSIDTestAccount *)account
 {
-    return @{@"authority" : self.authority,
+    return @{@"authority" : [self authorityWithAccount:account],
              @"client_id" : self.clientId,
              @"redirect_uri" : self.redirectUri,
              @"resource" : self.resource};
+}
+
+- (NSString *)authority
+{
+    if ([self.accounts count])
+    {
+        return [self authorityWithAccount:self.accounts[0]];
+    }
+
+    return [self authorityWithAccount:nil];
 }
 
 - (NSString *)authorityWithAccount:(MSIDTestAccount *)account
