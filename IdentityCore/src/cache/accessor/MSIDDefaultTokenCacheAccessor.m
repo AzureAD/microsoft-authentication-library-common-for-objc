@@ -390,7 +390,7 @@
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
 {
-    return [_dataSource removeItemsWithKey:[MSIDTokenCacheKey queryForAllItems] context:nil error:error];
+    return [_dataSource removeItemsWithKey:[MSIDTokenCacheKey queryForAllItems] context:context error:error];
 }
 
 #pragma mark - Private
