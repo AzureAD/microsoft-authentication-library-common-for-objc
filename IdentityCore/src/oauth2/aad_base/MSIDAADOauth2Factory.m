@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDAADOauth2Strategy.h"
+#import "MSIDAADOauth2Factory.h"
 #import "MSIDAADTokenResponse.h"
 #import "MSIDAccessToken.h"
 #import "MSIDBaseToken.h"
@@ -34,7 +34,7 @@
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
 
-@implementation MSIDAADOauth2Strategy
+@implementation MSIDAADOauth2Factory
 
 #pragma mark - Helpers
 
@@ -46,7 +46,7 @@
     {
         if (error)
         {
-            NSString *errorMessage = [NSString stringWithFormat:@"Wrong token response type passed, which means wrong strategy is being used (expected MSIDAADTokenResponse, passed %@", response.class];
+            NSString *errorMessage = [NSString stringWithFormat:@"Wrong token response type passed, which means wrong factory is being used (expected MSIDAADTokenResponse, passed %@", response.class];
 
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
         }

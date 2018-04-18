@@ -21,42 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheKey.h"
-#import "MSIDTokenType.h"
+#import "NSData+MSIDExtensions.h"
 
-@implementation MSIDTokenCacheKey
+@implementation NSData (MSIDExtensions)
 
-- (id)initWithAccount:(NSString *)account
-              service:(NSString *)service
-              generic:(NSData *)generic
-                 type:(NSNumber *)type
+- (NSDictionary *)msidToJsonDictionary:(NSError **)error
 {
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:self
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:error];
     
-    self.account = account;
-    self.service = service;
-    self.type = type;
-    self.generic = generic;
-    
-    return self;
-}
-
-+ (MSIDTokenCacheKey *)queryForAllItems
-{
-    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil generic:nil type:nil];
-}
-
-+ (NSString *)familyClientId:(NSString *)familyId
-{
-    if (!familyId)
-    {
-        familyId = @"1";
-    }
-    
-    return [NSString stringWithFormat:@"foci-%@", familyId];
+    return json;
 }
 
 @end

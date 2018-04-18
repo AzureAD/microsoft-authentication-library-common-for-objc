@@ -21,42 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheKey.h"
-#import "MSIDTokenType.h"
+#import "MSIDAADOauth2Factory.h"
 
-@implementation MSIDTokenCacheKey
+@class MSIDTokenResponse;
+@class MSIDLegacySingleResourceToken;
+@protocol MSIDRequestContext;
 
-- (id)initWithAccount:(NSString *)account
-              service:(NSString *)service
-              generic:(NSData *)generic
-                 type:(NSNumber *)type
-{
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    self.account = account;
-    self.service = service;
-    self.type = type;
-    self.generic = generic;
-    
-    return self;
-}
+@interface MSIDAADV1Oauth2Factory : MSIDAADOauth2Factory
 
-+ (MSIDTokenCacheKey *)queryForAllItems
-{
-    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil generic:nil type:nil];
-}
-
-+ (NSString *)familyClientId:(NSString *)familyId
-{
-    if (!familyId)
-    {
-        familyId = @"1";
-    }
-    
-    return [NSString stringWithFormat:@"foci-%@", familyId];
-}
+- (BOOL)verifyResponse:(MSIDTokenResponse *)response
+      fromRefreshToken:(BOOL)fromRefreshToken
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError * __autoreleasing *)error;
 
 @end

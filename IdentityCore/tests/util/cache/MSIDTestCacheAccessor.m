@@ -27,7 +27,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDRequestParameters.h"
-#import "MSIDOauth2Strategy.h"
+#import "MSIDOauth2Factory.h"
 
 @interface MSIDTestCacheAccessor()
 {
@@ -51,7 +51,7 @@
 }
 
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                  requestParams:(MSIDRequestParameters *)parameters
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
@@ -68,7 +68,7 @@
         return NO;
     }
     
-    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:response request:parameters];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:parameters];
     
     return [self saveTokenForAccount:account token:accessToken clientId:parameters.clientId authority:parameters.authority context:context error:error];
 }
@@ -81,6 +81,10 @@
     return [self saveTokenForAccount:account token:refreshToken clientId:refreshToken.clientId authority:refreshToken.authority context:context error:error];
 }
 
+- (BOOL)saveAccessToken:(MSIDAccessToken *)accessToken account:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return [self saveTokenForAccount:account token:accessToken clientId:accessToken.clientId authority:accessToken.authority context:context error:error];
+}
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
@@ -180,6 +184,33 @@
     }
     
     return  resultTokens;
+}
+
+- (NSArray<MSIDTokenCacheItem *> *)allItemsWithContext:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error
+{
+    return nil;
+}
+
+- (BOOL)removeAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return NO;
+}
+
+- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return NO;
+}
+
+- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return nil;
+}
+
+
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return NO;
 }
 
 #pragma mark - Helpers

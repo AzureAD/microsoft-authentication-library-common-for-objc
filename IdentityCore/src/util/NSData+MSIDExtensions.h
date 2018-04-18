@@ -21,8 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADOauth2Strategy.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDAADV2Oauth2Strategy : MSIDAADOauth2Strategy
+@interface NSData (MSIDExtensions)
+
+- (NSDictionary *)msidToJsonDictionary:(NSError **)error;
 
 @end

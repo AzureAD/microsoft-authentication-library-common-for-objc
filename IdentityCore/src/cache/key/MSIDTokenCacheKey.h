@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  Key for all items in the keychain
  */
-+ (MSIDTokenCacheKey *)keyForAllItems;
++ (MSIDTokenCacheKey *)queryForAllItems;
 
 /*!
  Helper method to get the clientId from the provided familyId

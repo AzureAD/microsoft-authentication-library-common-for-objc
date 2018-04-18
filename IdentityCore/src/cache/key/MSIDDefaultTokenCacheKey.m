@@ -220,9 +220,35 @@ static NSInteger kTokenTypePrefix = 2000;
                                                         type:type];
 }
 
++ (MSIDDefaultTokenCacheKey *)queryForAllTokensWithUniqueUserId:(NSString *)userId
+                                                    environment:(NSString *)environment
+{
+    assert(userId);
+    assert(environment);
+    
+    if (!userId || !environment) return nil;
+    
+    NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
+                                                     service:nil
+                                                     generic:nil
+                                                        type:nil];
+}
+
 + (MSIDDefaultTokenCacheKey *)queryForAllAccessTokens
 {
     NSNumber *type = [self tokenType:MSIDTokenTypeAccessToken];
+    
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:nil
+                                                     service:nil
+                                                     generic:nil
+                                                        type:type];
+}
+
++ (MSIDDefaultTokenCacheKey *)queryForAllAccountsWithType:(MSIDAccountType)accountType
+{
+    NSNumber *type = [self accountType:accountType];
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:nil
                                                      service:nil

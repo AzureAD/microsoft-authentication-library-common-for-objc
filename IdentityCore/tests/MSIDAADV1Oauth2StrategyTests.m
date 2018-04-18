@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import <XCTest/XCTest.h>
-#import "MSIDAADV1Oauth2Strategy.h"
+#import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDBaseToken.h"
@@ -42,20 +42,20 @@
 #import "MSIDAccount.h"
 #import "MSIDAADV2TokenResponse.h"
 
-@interface MSIDAADV1Oauth2StrategyTests : XCTestCase
+@interface MSIDAADV1Oauth2FactoryTests : XCTestCase
 
 @end
 
-@implementation MSIDAADV1Oauth2StrategyTests
+@implementation MSIDAADV1Oauth2FactoryTests
 
 #pragma mark - Token response
 
 - (void)testTokenResponseFromJSON_whenNilJSON_shouldReturnError
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     NSError *error = nil;
-    MSIDTokenResponse *response = [strategy tokenResponseFromJSON:nil context:nil error:&error];
+    MSIDTokenResponse *response = [factory tokenResponseFromJSON:nil context:nil error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -68,10 +68,10 @@
                                     @"refresh_token": @"refresh token"
                                     };
 
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     NSError *error = nil;
-    MSIDTokenResponse *response = [strategy tokenResponseFromJSON:tokenResponse context:nil error:&error];
+    MSIDTokenResponse *response = [factory tokenResponseFromJSON:tokenResponse context:nil error:&error];
 
     XCTAssertNotNil(response);
     XCTAssertNil(error);
@@ -88,13 +88,13 @@
                                     @"refresh_token": @"refresh token"
                                     };
 
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
     refreshToken.idToken = @"id token";
 
     NSError *error = nil;
-    MSIDTokenResponse *response = [strategy tokenResponseFromJSON:tokenResponse refreshToken:refreshToken context:nil error:&error];
+    MSIDTokenResponse *response = [factory tokenResponseFromJSON:tokenResponse refreshToken:refreshToken context:nil error:&error];
 
     XCTAssertNotNil(response);
     XCTAssertNil(error);
@@ -110,11 +110,11 @@
 
 - (void)testVerifyResponse_whenWrongResponseProvided_shouldReturnError
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDTokenResponse *response = [MSIDTokenResponse new];
 
     NSError *error = nil;
-    BOOL result = [strategy verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
 
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -123,7 +123,7 @@
 
 - (void)testVerifyResponse_whenValidResponseWithTokens_shouldReturnNoError
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     NSString *rawClientInfo = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
@@ -132,7 +132,7 @@
                                                                                             }
                                                                                     error:nil];
     NSError *error = nil;
-    BOOL result = [strategy verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -140,12 +140,12 @@
 
 - (void)testVerifyResponse_whenOAuthErrorViaRefreshToken_shouldReturnError
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_grant"}
                                                                                       error:nil];
     NSError *error = nil;
-    BOOL result = [strategy verifyResponse:response fromRefreshToken:YES context:nil error:&error];
+    BOOL result = [factory verifyResponse:response fromRefreshToken:YES context:nil error:&error];
 
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
@@ -155,12 +155,12 @@
 
 - (void)testVerifyResponse_whenOAuthErrorViaAuthCode_shouldReturnError
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_grant"}
                                                                                       error:nil];
     NSError *error = nil;
-    BOOL result = [strategy verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
 
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
@@ -172,12 +172,12 @@
 
 - (void)testBaseTokenFromResponse_whenAADV1TokenResponse_shouldReturnToken
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
     MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
 
-    MSIDBaseToken *token = [strategy baseTokenFromResponse:response request:params];
+    MSIDBaseToken *token = [factory baseTokenFromResponse:response request:params];
 
     XCTAssertEqualObjects(token.authority, params.authority);
     XCTAssertEqualObjects(token.clientId, params.clientId);
@@ -194,12 +194,12 @@
 
 - (void)testAccessTokenFromResponse_whenAADV1TokenResponse_shouldReturnToken
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
     MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
 
-    MSIDAccessToken *token = [strategy accessTokenFromResponse:response request:params];
+    MSIDAccessToken *token = [factory accessTokenFromResponse:response request:params];
 
     XCTAssertEqualObjects(token.authority, params.authority);
     XCTAssertEqualObjects(token.clientId, params.clientId);
@@ -225,12 +225,12 @@
 
 - (void)testRefreshTokenFromResponse_whenAADV1TokenResponse_shouldReturnToken
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
     MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
 
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:response request:params];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:response request:params];
 
     XCTAssertEqualObjects(token.authority, params.authority);
     XCTAssertEqualObjects(token.clientId, params.clientId);
@@ -254,7 +254,7 @@
 
 - (void)testRefreshTokenFromResponse_whenSingleResourceToken_shouldReturnNil
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
                                                                                  rt:DEFAULT_TEST_REFRESH_TOKEN
@@ -266,19 +266,19 @@
 
     MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
 
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:response request:params];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:response request:params];
 
     XCTAssertNil(token);
 }
 
 - (void)testIDTokenFromResponse_whenAADV1TokenResponse_shouldReturnToken
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
     MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
 
-    MSIDIdToken *token = [strategy idTokenFromResponse:response request:params];
+    MSIDIdToken *token = [factory idTokenFromResponse:response request:params];
 
     XCTAssertEqualObjects(token.authority, params.authority);
     XCTAssertEqualObjects(token.clientId, params.clientId);
@@ -297,12 +297,12 @@
 
 - (void)testLegacyTokenFromResponse_whenAADV1TokenResponse_shouldReturnToken
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
     MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
 
-    MSIDLegacySingleResourceToken *token = [strategy legacyTokenFromResponse:response request:params];
+    MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response request:params];
 
     XCTAssertEqualObjects(token.authority, params.authority);
     XCTAssertEqualObjects(token.clientId, params.clientId);
@@ -328,7 +328,7 @@
 
 - (void)testAccountFromTokenResponse_whenAADV1TokenResponse_shouldInitAccountAndSetProperties
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman"];
@@ -340,7 +340,7 @@
                                               target:@"target"];
     MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:json error:nil];
 
-    MSIDAccount *account = [strategy accountFromResponse:tokenResponse request:requestParameters];
+    MSIDAccount *account = [factory accountFromResponse:tokenResponse request:requestParameters];
 
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"subject");
@@ -355,7 +355,7 @@
 
 - (void)testAccessTokenFromResponse_whenV1ResponseAndNoResourceInRequest_shouldUseResourceInRequest
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     NSString *resourceInRequest = @"https://contoso.com";
     MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
@@ -366,14 +366,14 @@
                                                                                                      }
                                                                                              error:nil];
 
-    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:tokenResponse request:requestParams];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse request:requestParams];
 
     XCTAssertEqualObjects(accessToken.resource, resourceInRequest);
 }
 
 - (void)testAccessTokenFromResponse_whenV1ResponseAndDotDefaultInRequest_shouldNotAddDotDefaultScope
 {
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     NSString *resourceInRequest = @"https://contoso.com/.Default";
     NSString *resourceInResponse = @"https://contoso.com";
@@ -386,7 +386,7 @@
                                                                                                      }
                                                                                              error:nil];
 
-    MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:tokenResponse request:requestParams];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse request:requestParams];
 
     XCTAssertEqual(accessToken.scopes.count, 1);
     XCTAssertEqualObjects(accessToken.resource, resourceInResponse);

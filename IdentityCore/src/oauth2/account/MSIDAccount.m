@@ -43,6 +43,7 @@
     item->_lastName = [_lastName copyWithZone:zone];
     item->_username = [_username copyWithZone:zone];
     item->_accountType = _accountType;
+    item->_authority = [_authority copyWithZone:zone];
     
     return item;
 }
@@ -73,6 +74,7 @@
     hash = hash * 31 + self.lastName.hash;
     hash = hash * 31 + self.accountType;
     hash = hash * 31 + self.username.hash;
+    hash = hash * 31 + self.authority.hash;
     return hash;
 }
 
@@ -90,6 +92,7 @@
     result &= (!self.lastName && !account.lastName) || [self.lastName isEqualToString:account.lastName];
     result &= (!self.username && !account.username) || [self.username isEqualToString:account.username];
     result &= (!self.uniqueUserId && !account.uniqueUserId) || [self.uniqueUserId isEqualToString:account.uniqueUserId];
+    result &= (!self.authority && !account.authority) || [self.authority isEqual:account.authority];
     result &= self.accountType == account.accountType;
     
     return result;
