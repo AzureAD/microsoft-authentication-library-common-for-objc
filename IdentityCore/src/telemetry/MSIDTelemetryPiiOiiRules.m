@@ -21,31 +21,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryPiiRules.h"
+#import "MSIDTelemetryPiiOiiRules.h"
 #import "MSIDTelemetryEventStrings.h"
 
 static NSSet *_piiFields;
+static NSSet *_oiiFields;
 
-@implementation MSIDTelemetryPiiRules
+@implementation MSIDTelemetryPiiOiiRules
 
 + (void)initialize
 {
-    _piiFields = [[NSSet alloc] initWithArray:@[MSID_TELEMETRY_KEY_TENANT_ID,
-                                               MSID_TELEMETRY_KEY_USER_ID,
+    _piiFields = [[NSSet alloc] initWithArray:@[MSID_TELEMETRY_KEY_USER_ID,
                                                MSID_TELEMETRY_KEY_DEVICE_ID,
                                                MSID_TELEMETRY_KEY_LOGIN_HINT,
-                                               MSID_TELEMETRY_KEY_CLIENT_ID,
                                                MSID_TELEMETRY_KEY_ERROR_DESCRIPTION,
-                                               MSID_TELEMETRY_KEY_HTTP_PATH,
-                                               MSID_TELEMETRY_KEY_REQUEST_QUERY_PARAMS,
-                                               MSID_TELEMETRY_KEY_AUTHORITY]];
+                                               MSID_TELEMETRY_KEY_REQUEST_QUERY_PARAMS]];
+    
+    _oiiFields = [[NSSet alloc] initWithArray:@[MSID_TELEMETRY_KEY_TENANT_ID,
+                                                MSID_TELEMETRY_KEY_CLIENT_ID,
+                                                MSID_TELEMETRY_KEY_HTTP_PATH,
+                                                MSID_TELEMETRY_KEY_AUTHORITY,
+                                                MSID_TELEMETRY_KEY_IDP,
+                                                MSID_TELEMETRY_KEY_APPLICATION_NAME,
+                                                MSID_TELEMETRY_KEY_APPLICATION_VERSION]];
 }
 
 #pragma mark - Public
 
 + (BOOL)isPii:(NSString *)propertyName
 {
+    if (!propertyName)
+    {
+        return NO;
+    }
+    
     return [_piiFields containsObject:propertyName];
+}
+
++ (BOOL)isOii:(NSString *)propertyName
+{
+    if (!propertyName)
+    {
+        return NO;
+    }
+    
+    return [_oiiFields containsObject:propertyName];
+}
+
++ (BOOL)isPiiOrOii:(NSString *)propertyName
+{
+    return [self isPii:propertyName] || [self isOii:propertyName];
 }
 
 @end

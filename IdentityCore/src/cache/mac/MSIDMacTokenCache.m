@@ -128,7 +128,7 @@ return NO; \
         cache = [unarchiver decodeObjectOfClass:NSDictionary.class forKey:NSKeyedArchiveRootObjectKey];
         [unarchiver finishDecoding];
     }
-    @catch (id expection)
+    @catch (id exception)
     {
         if (error) {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheBadFormat, @"Failed to unarchive data blob from -deserialize!", nil, nil, nil, nil, nil);
