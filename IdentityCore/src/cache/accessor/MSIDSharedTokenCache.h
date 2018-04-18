@@ -33,7 +33,7 @@
 @class MSIDRefreshToken;
 @class MSIDLegacySingleResourceToken;
 @class MSIDBaseToken;
-@class MSIDOauth2Strategy;
+@class MSIDOauth2Factory;
 
 @interface MSIDSharedTokenCache : NSObject
 
@@ -41,13 +41,13 @@
                          otherCacheAccessors:(NSArray<id<MSIDSharedCacheAccessor>> *)otherAccessors;
 
 // Save operations
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
-                 requestParams:(MSIDRequestParameters *)requestParams
-                      response:(MSIDTokenResponse *)response
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error;
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
+                requestParams:(MSIDRequestParameters *)requestParams
+                     response:(MSIDTokenResponse *)response
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error;
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                 brokerResponse:(MSIDBrokerResponse *)response
           saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
                        context:(id<MSIDRequestContext>)context
@@ -99,9 +99,19 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
-- (BOOL)removeTokenForAccount:(MSIDAccount *)account
-                        token:(MSIDBaseToken *)token
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
+- (BOOL)removeToken:(MSIDBaseToken *)token
+         forAccount:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error;
+
+- (BOOL)removeAccount:(MSIDAccount *)account
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error;
+
+- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error;
+
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error;
 
 @end

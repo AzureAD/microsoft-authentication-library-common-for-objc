@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDAADV1IdTokenWrapper.h"
+#import "MSIDHelpers.h"
 
 #define ID_TOKEN_UPN                @"upn"
 #define ID_TOKEN_IDP                @"idp"
@@ -57,7 +58,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
             uniqueId = self.subject;
         }
         
-        _uniqueId = [MSIDIdTokenWrapper normalizeUserId:uniqueId];
+        _uniqueId = [MSIDHelpers normalizeUserId:uniqueId];
         
         // Set userId (ADAL fallbacks)
         if (![NSString msidIsStringNilOrBlank:self.upn])
@@ -91,7 +92,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
             _userIdDisplayable = NO;
         }
         
-        _userId = [MSIDIdTokenWrapper normalizeUserId:_userId];
+        _userId = [MSIDHelpers normalizeUserId:_userId];
     }
     
     return self;

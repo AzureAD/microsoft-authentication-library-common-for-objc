@@ -190,7 +190,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    NSArray *items = [self itemsWithWithKey:key context:context error:error];
+    NSArray *items = [self itemsWithKey:key context:context error:error];
     
     if (!items)
     {
@@ -287,7 +287,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error
 {
-    NSArray *items = [self itemsWithWithKey:key context:context error:error];
+    NSArray *items = [self itemsWithKey:key context:context error:error];
     
     if (!items)
     {
@@ -461,9 +461,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 
 #pragma mark - Helpers
 
-- (NSArray *)itemsWithWithKey:(MSIDTokenCacheKey *)key
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+- (NSArray *)itemsWithKey:(MSIDTokenCacheKey *)key
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error
 {    
     MSID_LOG_INFO(context, @"Get keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Get keychain items, key info (account: %@ service: %@)", key.account, key.service);

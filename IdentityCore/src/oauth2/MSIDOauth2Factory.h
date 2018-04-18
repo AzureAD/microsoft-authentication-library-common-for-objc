@@ -34,7 +34,7 @@
 
 @protocol MSIDRequestContext;
 
-@interface MSIDOauth2Strategy : NSObject
+@interface MSIDOauth2Factory : NSObject
 
 // Response handling
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json

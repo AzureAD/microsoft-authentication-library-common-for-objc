@@ -30,6 +30,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @interface MSIDTelemetryCacheEventTests : XCTestCase
 
@@ -57,8 +58,8 @@
     
     NSDictionary *properties = [cacheEvent getProperties];
     XCTAssertEqual([[properties allKeys] count], 6);
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.spe_info"], @"I");
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.token_type"], @"access_token");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_SPE_INFO], @"I");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_TOKEN_TYPE], @"access_token");
 }
 
 - (void)testSetToken_withLegacySingleResourceToken_shouldSaveTokenTypeSPEInfoAndRTStatus
@@ -72,10 +73,10 @@
     
     NSDictionary *properties = [cacheEvent getProperties];
     XCTAssertEqual([[properties allKeys] count], 7);
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.spe_info"], @"I");
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.token_type"], @"ADFS_access_token_refresh_token");
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.is_rt"], @"yes");
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.token_rt_status"], @"tried");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_SPE_INFO], @"I");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_TOKEN_TYPE], @"ADFS_access_token_refresh_token");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_IS_RT], @"yes");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_RT_STATUS], @"tried");
 }
 
 - (void)testSetToken_withMRRTToken_shouldSaveTokenTypeSPEInfoAndMRRTStatus
@@ -91,10 +92,10 @@
     
     NSDictionary *properties = [cacheEvent getProperties];
     XCTAssertEqual([[properties allKeys] count], 7);
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.spe_info"], @"I");
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.token_type"], @"refresh_token");
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.is_mrrt"], @"yes");
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.token_mrrt_status"], @"tried");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_SPE_INFO], @"I");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_TOKEN_TYPE], @"refresh_token");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_IS_MRRT], @"yes");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_MRRT_STATUS], @"tried");
 }
 
 - (void)testSetToken_withFRTToken_shouldSaveTokenTypeSPEInfoAndFRTStatus
@@ -110,10 +111,10 @@
     
     NSDictionary *properties = [cacheEvent getProperties];
     XCTAssertEqual([[properties allKeys] count], 7);
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.spe_info"], @"I");
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.token_type"], @"refresh_token");
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.is_frt"], @"yes");
-    XCTAssertEqualObjects(properties[@"Microsoft.Test.token_frt_status"], @"tried");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_SPE_INFO], @"I");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_TOKEN_TYPE], @"refresh_token");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_IS_FRT], @"yes");
+    XCTAssertEqualObjects(properties[MSID_TELEMETRY_KEY_FRT_STATUS], @"tried");
 }
 
 @end

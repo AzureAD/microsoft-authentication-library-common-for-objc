@@ -22,12 +22,12 @@
 // THE SOFTWARE.
 
 #import "MSIDClientCredentialHelper.h"
-#import "NSData+MSIDHashExtensions.h"
+#import "NSData+MSIDExtensions.h"
 #import "MSIDJWTHelper.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDAccessToken.h"
 #import "MSIDAADV1TokenResponse.h"
-#import "MSIDAADV1Oauth2Strategy.h"
+#import "MSIDAADV1Oauth2Factory.h"
 #import "NSDictionary+MSIDExtensions.h"
 
 @implementation MSIDClientCredentialHelper
@@ -134,9 +134,9 @@
           params.clientId = clientId;
           params.target = resource;
 
-          MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+          MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
-          BOOL checkResult = [strategy verifyResponse:tokenResponse context:nil error:&msidError];
+          BOOL checkResult = [factory verifyResponse:tokenResponse context:nil error:&msidError];
 
           if (!checkResult)
           {
@@ -146,7 +146,7 @@
               }
           }
 
-          MSIDAccessToken *accessToken = [strategy accessTokenFromResponse:tokenResponse request:params];
+          MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse request:params];
           self.accessTokenCache[cacheKey] = accessToken;
 
           if (completionHandler)

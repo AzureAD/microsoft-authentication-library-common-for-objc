@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDOauth2Strategy.h"
+#import "MSIDOauth2Factory.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestContext.h"
 #import "MSIDAccessToken.h"
@@ -31,7 +31,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
 
-@implementation MSIDOauth2Strategy
+@implementation MSIDOauth2Factory
 
 #pragma mark - Response
 

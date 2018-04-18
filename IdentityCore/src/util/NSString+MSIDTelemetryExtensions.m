@@ -30,14 +30,14 @@
 #define CHECK_AND_SET_OBJ(_DICT, _OBJECT, _KEY) \
     if (![NSString msidIsStringNilOrBlank:_OBJECT]) \
     { \
-        NSString *key = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], _KEY]; \
+        NSString *key = [NSString stringWithFormat:@"%@",_KEY]; \
         [_DICT setObject:_OBJECT forKey:key]; \
     } \
 
 #define CHECK_AND_SET_OBJ_IF_NOT_ZERO(_DICT, _OBJECT, _KEY) \
     if (![NSString msidIsStringNilOrBlank:_OBJECT] && ![_OBJECT isEqualToString:@"0"]) \
     { \
-        NSString *key = [NSString stringWithFormat:@"%@%@", [MSIDVersion telemetryEventPrefix], _KEY]; \
+        NSString *key = [NSString stringWithFormat:@"%@", _KEY]; \
         [_DICT setObject:_OBJECT forKey:key]; \
     } \
 

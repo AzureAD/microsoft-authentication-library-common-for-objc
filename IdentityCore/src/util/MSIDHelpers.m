@@ -35,4 +35,15 @@
     return 0;
 }
 
++ (NSString *)normalizeUserId:(NSString *)userId
+{
+    if (!userId)
+    {
+        return nil;
+    }
+    NSString *normalized = [userId msidTrimmedString].lowercaseString;
+
+    return normalized.length ? normalized : nil;
+}
+
 @end

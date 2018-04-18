@@ -38,7 +38,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
-#import "MSIDAADV1Oauth2Strategy.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 @interface MSIDTestRequestContext : NSObject <MSIDRequestContext>
 
@@ -90,8 +90,8 @@
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
     
     // save a refresh token to keychain token cache
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:nil];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
@@ -125,18 +125,18 @@
     
     
     // test if wipe data is logged in telemetry
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Find wipe data in telemetry."];
     for (id<MSIDTelemetryEventInterface> event in receivedEvents)
     {
-        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
-            && [event.propertyMap[@"Microsoft.Test.wipe_app"] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
-            && event.propertyMap[@"Microsoft.Test.wipe_time"])
+        if ([event.propertyMap[MSID_TELEMETRY_KEY_EVENT_NAME] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
+            && [event.propertyMap[MSID_TELEMETRY_KEY_WIPE_APP] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
+            && event.propertyMap[MSID_TELEMETRY_KEY_WIPE_TIME])
         {
-            XCTAssertTrue(YES);
-            return;
+            [expectation fulfill];
         }
     }
     
-    XCTAssertTrue(NO);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testWipeDataTelemetry_whenGetAllTokensOfTypeButNoneForLegacyCache_shouldLogWipeDataInTelemetry
@@ -156,8 +156,8 @@
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
     
     // save a refresh token to keychain token cache
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:nil];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
@@ -190,18 +190,18 @@
     
     
     // test if wipe data is logged in telemetry
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Find wipe data in telemetry."];
     for (id<MSIDTelemetryEventInterface> event in receivedEvents)
     {
-        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
-            && [event.propertyMap[@"Microsoft.Test.wipe_app"] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
-            && event.propertyMap[@"Microsoft.Test.wipe_time"])
+        if ([event.propertyMap[MSID_TELEMETRY_KEY_EVENT_NAME] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
+            && [event.propertyMap[MSID_TELEMETRY_KEY_WIPE_APP] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
+            && event.propertyMap[MSID_TELEMETRY_KEY_WIPE_TIME])
         {
-            XCTAssertTrue(YES);
-            return;
+            [expectation fulfill];
         }
     }
     
-    XCTAssertTrue(NO);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testWipeDataTelemetry_whenGetTokenWithTypeButNoneForDefaultCache_shouldLogWipeDataInTelemetry
@@ -221,8 +221,8 @@
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
     
     // save a refresh token to keychain token cache
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"some_uid.some_utid"];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
@@ -256,18 +256,18 @@
     
     
     // test if wipe data is logged in telemetry
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Find wipe data in telemetry."];
     for (id<MSIDTelemetryEventInterface> event in receivedEvents)
     {
-        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
-            && [event.propertyMap[@"Microsoft.Test.wipe_app"] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
-            && event.propertyMap[@"Microsoft.Test.wipe_time"])
+        if ([event.propertyMap[MSID_TELEMETRY_KEY_EVENT_NAME] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
+            && [event.propertyMap[MSID_TELEMETRY_KEY_WIPE_APP] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
+            && event.propertyMap[MSID_TELEMETRY_KEY_WIPE_TIME])
         {
-            XCTAssertTrue(YES);
-            return;
+            [expectation fulfill];
         }
     }
     
-    XCTAssertTrue(NO);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testWipeDataTelemetry_whenGetAllTokensOfTypeButNoneForDefaultCache_shouldLogWipeDataInTelemetry
@@ -287,8 +287,8 @@
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
     
     // save a refresh token to keychain token cache
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
-    MSIDRefreshToken *token = [strategy refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"some_uid.some_utid"];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
@@ -319,18 +319,18 @@
     XCTAssertEqual(returnedTokens.count, 0);
     
     // test if wipe data is logged in telemetry
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Find wipe data in telemetry."];
     for (id<MSIDTelemetryEventInterface> event in receivedEvents)
     {
-        if ([event.propertyMap[@"Microsoft.Test.event_name"] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
-            && [event.propertyMap[@"Microsoft.Test.wipe_app"] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
-            && event.propertyMap[@"Microsoft.Test.wipe_time"])
+        if ([event.propertyMap[MSID_TELEMETRY_KEY_EVENT_NAME] isEqualToString:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP]
+            && [event.propertyMap[MSID_TELEMETRY_KEY_WIPE_APP] isEqualToString:@"com.microsoft.MSIDTestsHostApp"]
+            && event.propertyMap[MSID_TELEMETRY_KEY_WIPE_TIME])
         {
-            XCTAssertTrue(YES);
-            return;
+            [expectation fulfill];
         }
     }
     
-    XCTAssertTrue(NO);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 @end

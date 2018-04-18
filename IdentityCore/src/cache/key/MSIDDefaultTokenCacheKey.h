@@ -67,7 +67,12 @@ NS_ASSUME_NONNULL_BEGIN
 + (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
                                                           environment:(NSString *)environment;
 
++ (MSIDDefaultTokenCacheKey *)queryForAllTokensWithUniqueUserId:(NSString *)userId
+                                                          environment:(NSString *)environment;
+
 + (MSIDDefaultTokenCacheKey *)queryForAllAccessTokens;
+
++ (MSIDDefaultTokenCacheKey *)queryForAllAccountsWithType:(MSIDAccountType)accountType;
 
 /*!
  Key for MSAL refresh tokens - one user, one clientId, and one environment

@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "NSData+MSIDHashExtensions.h"
+#import "NSData+MSIDExtensions.h"
 #import <CommonCrypto/CommonDigest.h>
 
-@implementation NSData (MSIDHashExtensions)
+@implementation NSData (MSIDExtensions)
 
 - (NSString *)msidComputeSHA256
 {
@@ -55,6 +55,15 @@
     NSMutableData *hashData = [NSMutableData dataWithLength:CC_SHA1_DIGEST_LENGTH];
     CC_SHA1(self.bytes, (CC_LONG)self.length, [hashData mutableBytes]);
     return [hashData base64EncodedStringWithOptions:0];
+}
+
+- (NSDictionary *)msidToJsonDictionary:(NSError **)error
+{
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:self
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:error];
+    
+    return json;
 }
 
 @end

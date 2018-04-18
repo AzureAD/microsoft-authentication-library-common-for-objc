@@ -29,6 +29,7 @@
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDTokenCacheItem.h"
+#import "MSIDLegacyTokenCacheKey.h"
 
 @interface MSIDKeychainTokenCacheIntegrationTests : XCTestCase
 
@@ -469,6 +470,44 @@
     
     XCTAssertEqual(items.count, 1);
     XCTAssertEqualObjects(items[0].refreshToken, @"rt");
+}
+
+- (void)testTokensWithKey_whenLegacyCacheKey_differentCaseUserIDs_shouldReturnCorrectItem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
+
+    MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    token1.tokenType = MSIDTokenTypeAccessToken;
+    token1.accessToken = @"at";
+
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDLegacyTokenCacheKey *key1 = [MSIDLegacyTokenCacheKey keyWithAuthority:authority clientId:@"clientID" resource:@"resource" legacyUserId:@"test_account"];
+    [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+
+    MSIDLegacyTokenCacheKey *key2 = [MSIDLegacyTokenCacheKey keyWithAuthority:authority clientId:@"clientID" resource:@"resource" legacyUserId:@"Test_account"];
+    NSArray<MSIDTokenCacheItem *> *items = [keychainTokenCache tokensWithKey:key2 serializer:keyedArchiverSerializer context:nil error:nil];
+
+    XCTAssertEqual(items.count, 1);
+}
+
+- (void)testTokensWithKey_whenLegacyCacheKey_differentCaseClientIDsAndResource_shouldReturnCorrectItem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDKeyedArchiverSerializer *keyedArchiverSerializer = [MSIDKeyedArchiverSerializer new];
+
+    MSIDTokenCacheItem *token1 = [MSIDTokenCacheItem new];
+    token1.tokenType = MSIDTokenTypeAccessToken;
+    token1.accessToken = @"at";
+
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDLegacyTokenCacheKey *key1 = [MSIDLegacyTokenCacheKey keyWithAuthority:authority clientId:@"clientID" resource:@"resource" legacyUserId:@"test_account"];
+    [keychainTokenCache saveToken:token1 key:key1 serializer:keyedArchiverSerializer context:nil error:nil];
+
+    MSIDLegacyTokenCacheKey *key2 = [MSIDLegacyTokenCacheKey keyWithAuthority:authority clientId:@"ClientID" resource:@"Resource" legacyUserId:@"test_account"];
+    NSArray<MSIDTokenCacheItem *> *items = [keychainTokenCache tokensWithKey:key2 serializer:keyedArchiverSerializer context:nil error:nil];
+
+    XCTAssertEqual(items.count, 1);
 }
 
 @end

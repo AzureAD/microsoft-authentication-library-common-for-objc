@@ -31,7 +31,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDBaseToken.h"
 #import "MSIDIdToken.h"
-#import "MSIDOauth2Strategy.h"
+#import "MSIDOauth2Factory.h"
 
 @interface MSIDSharedTokenCache()
 {
@@ -67,13 +67,13 @@
 
 #pragma mark - Save tokens
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                  requestParams:(MSIDRequestParameters *)requestParams
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    return [self saveTokensWithStrategy:strategy
+    return [self saveTokensWithFactory:factory
                           requestParams:requestParams
                                response:response
                    saveRefreshTokenOnly:NO
@@ -81,7 +81,7 @@
                                   error:error];
 }
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                 brokerResponse:(MSIDBrokerResponse *)response
           saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
                        context:(id<MSIDRequestContext>)context
@@ -92,7 +92,7 @@
                                                                             clientId:response.clientId
                                                                               target:response.resource];
 
-    return [self saveTokensWithStrategy:strategy
+    return [self saveTokensWithFactory:factory
                           requestParams:params
                                response:response.tokenResponse
                    saveRefreshTokenOnly:saveRefreshTokenOnly
@@ -211,6 +211,15 @@
     return resultRTs;
 }
 
+#pragma mark - Account
+
+- (BOOL)removeAccount:(MSIDAccount *)account
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error
+{
+    return [_primaryAccessor removeAccount:account context:context error:error];
+}
+
 #pragma mark - Remove tokens
 
 - (BOOL)removeRTForAccount:(MSIDAccount *)account
@@ -261,15 +270,33 @@
     return YES;
 }
 
-- (BOOL)removeTokenForAccount:(MSIDAccount *)account
-                        token:(MSIDBaseToken *)token
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+- (BOOL)removeToken:(MSIDBaseToken *)token
+         forAccount:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
 {
     return [_primaryAccessor removeToken:token
                                  account:account
                                  context:context
                                    error:error];
+}
+
+- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    return [_primaryAccessor removeAllTokensForAccount:account context:context error:error];
+}
+
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
+{
+    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
+    {
+        BOOL result = [cache clearWithContext:context error:error];
+        if (!result) return NO;
+    }
+    
+    return YES;
 }
 
 #pragma mark - Private
@@ -333,25 +360,23 @@
     return YES;
 }
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                  requestParams:(MSIDRequestParameters *)requestParams
                       response:(MSIDTokenResponse *)response
           saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    MSIDAccount *account = [strategy accountFromResponse:response request:requestParams];
+    MSIDAccount *account = [factory accountFromResponse:response request:requestParams];
 
     MSID_LOG_VERBOSE(context, @"Saving tokens with authority %@, clientId %@, resource %@", requestParams.authority, requestParams.clientId, requestParams.resource);
     MSID_LOG_VERBOSE_PII(context, @"Saving tokens with authority %@, clientId %@, resource %@, user ID: %@, legacy user ID: %@", requestParams.authority, requestParams.clientId, requestParams.resource, account.uniqueUserId, account.legacyUserId);
-    
-    
     
     BOOL result = YES;
     
     if (!saveRefreshTokenOnly)
     {
-        result = [_primaryAccessor saveTokensWithStrategy:strategy
+        result = [_primaryAccessor saveTokensWithFactory:factory
                                             requestParams:requestParams
                                                   account:account
                                                  response:response
@@ -361,7 +386,7 @@
     }
     
     // Create a refresh token item
-    MSIDRefreshToken *refreshToken = [strategy refreshTokenFromResponse:response
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response
                                                                 request:requestParams];
     
     if (!refreshToken)

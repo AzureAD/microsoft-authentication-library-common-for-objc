@@ -29,11 +29,12 @@
 @class MSIDBaseToken;
 @class MSIDTokenResponse;
 @class MSIDRefreshToken;
-@class MSIDOauth2Strategy;
+@class MSIDOauth2Factory;
+@class MSIDAccessToken;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 
-- (BOOL)saveTokensWithStrategy:(MSIDOauth2Strategy *)strategy
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                  requestParams:(MSIDRequestParameters *)requestParams
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
@@ -45,6 +46,10 @@
                  context:(id<MSIDRequestContext>)context
                    error:(NSError **)error;
 
+- (BOOL)saveAccessToken:(MSIDAccessToken *)accessToken
+                account:(MSIDAccount *)account
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error;
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
@@ -57,15 +62,30 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error;
 
-- (BOOL)removeToken:(MSIDBaseToken *)token
-            account:(MSIDAccount *)account
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error;
+- (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
+                                             error:(NSError **)error;
 
 - (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
                    withClientId:(NSString *)clientId
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
 
+- (BOOL)removeToken:(MSIDBaseToken *)token
+            account:(MSIDAccount *)account
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error;
+
+- (BOOL)removeAccount:(MSIDAccount *)account
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error;
+
+- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error;
+
+/*
+ It is supposed to be used in test apps only.
+ */
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error;
 
 @end

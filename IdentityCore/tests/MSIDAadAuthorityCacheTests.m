@@ -38,15 +38,17 @@
 
 @implementation MSIDAadAuthorityCacheTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+- (void)tearDown
+{
     [super tearDown];
 }
+
+#pragma mark - Tests
 
 // Test cases testing the test utilities! It's test-ception!
 - (void)testCheckCache_whenNilNoCache_shouldReturnNil
@@ -364,6 +366,15 @@
 
 #pragma mark -
 #pragma mark Cache Aliases tests
+
+- (void)testCacheAliasesForAuthority_whenNilAuhority_shouldReturnEmptyArray
+{
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache new];
+    
+    NSArray *aliases = [cache cacheAliasesForAuthority:nil];
+    
+    XCTAssertEqualObjects(aliases, @[]);
+}
 
 - (void)testCacheAliasesForAuthority_whenNilCache_shouldReturnArrayWithAuthority
 {
