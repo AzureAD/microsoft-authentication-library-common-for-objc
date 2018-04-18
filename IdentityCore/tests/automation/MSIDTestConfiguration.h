@@ -51,9 +51,6 @@
 - (instancetype)initWithJSONResponseData:(NSData *)response;
 - (NSDictionary *)configParameters;
 - (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams;
-- (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
-                                               account:(MSIDTestAccount *)account;
-
 - (void)addAdditionalAccount:(MSIDTestAccount *)additionalAccount;
 
 @end

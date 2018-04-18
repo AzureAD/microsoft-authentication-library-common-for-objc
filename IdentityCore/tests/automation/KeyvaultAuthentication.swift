@@ -26,21 +26,21 @@ import Foundation
 @objc public class KeyvaultAuthentication : NSObject {
 
     private var certificateContents : String
-    private var certificateData : Data?
+    private var certificateData : Data
     private var certificatePassword : String
-    private let clientId = "f62c5ae3-bf3a-4af5-afa8-a68b800396e9"
-    //private let clientId = "b71232ea-9ba1-4974-b9a6-e4682dd0ab6c"
+    private let clientId = "b71232ea-9ba1-4974-b9a6-e4682dd0ab6c"
 
     @objc public init?(certContents: String, certPassword: String) {
 
         self.certificateContents = certContents
         self.certificatePassword = certPassword
-        self.certificateData = Data(base64Encoded: certContents)
 
-        guard let _ = self.certificateData else {
+        guard let certData = Data(base64Encoded: certContents) else {
             print("Couldn't fetch certificate data, make sure certificate path is correct")
             return nil
         }
+
+        self.certificateData = certData
 
         super.init()
         self.setupKeyvaultCallback()
@@ -50,9 +50,9 @@ import Foundation
 
         Authentication.authCallback = { (authority, resource, callback) in
 
-            MSIDClientCredentialHelper.getAccessToken(forAuthority: authority, resource: resource, clientId: self.clientId, certificate: self.certificateData!, certificatePassword: self.certificatePassword, completionHandler: { (accessToken, error) in
+            MSIDClientCredentialHelper.getAccessToken(forAuthority: authority, resource: resource, clientId: self.clientId, certificate: self.certificateData, certificatePassword: self.certificatePassword, completionHandler: { (optionalAccessToken, error) in
 
-                guard let _ = accessToken else {
+                guard let accessToken = optionalAccessToken else {
                     print("Got an error, can't continue \(String(describing: error))")
                     callback(.Failure(error!))
                     return
@@ -61,7 +61,7 @@ import Foundation
                 print("Successfully received an access token, returning the keyvault callback")
 
                 DispatchQueue.global().async {
-                    callback(.Success(accessToken!))
+                    callback(.Success(accessToken))
                 }
             })
 

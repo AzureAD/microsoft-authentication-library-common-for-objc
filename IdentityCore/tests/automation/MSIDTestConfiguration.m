@@ -271,7 +271,7 @@
              @"resource" : self.resource};
 }
 
-- (NSString *)authority
+- (NSString *)authorityWithAccount:(MSIDTestAccount *)account
 {
     NSString *authorityHost = _authorityHost;
     NSString *authority = _authorityHost;
@@ -298,13 +298,6 @@
 {
     NSMutableDictionary *configParams = [[self configParameters] mutableCopy];
     [configParams addEntriesFromDictionary:additionalParams];
-    return configParams;
-}
-
-- (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
-                                               account:(MSIDTestAccount *)account
-{
-    NSMutableDictionary *configParams = [[self configParametersWithAdditionalParams:additionalParams] mutableCopy];
     return configParams;
 }
 
