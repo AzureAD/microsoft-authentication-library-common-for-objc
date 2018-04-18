@@ -284,24 +284,20 @@
 - (NSString *)authorityWithAccount:(MSIDTestAccount *)account
 {
     NSString *authorityHost = _authorityHost;
-    NSString *authority = _authorityHost;
 
     // TODO: lab is fixing this hack on the server side and should be returning the full authority or just always the host
-    if (account.homeTenantId || (![authorityHost containsString:@"common"]
-                                 && ![authorityHost containsString:@"adfs"]
-                                 && ![authorityHost containsString:account.targetTenantId]))
+    if (account.homeTenantId)
     {
-        if (account.homeTenantId)
-        {
-            authority = [authorityHost stringByAppendingString:account.targetTenantId];
-        }
-        else
-        {
-            authority = [authorityHost stringByAppendingString:@"common"];
-        }
+        return [authorityHost stringByAppendingString:account.targetTenantId];
+    }
+    else if (![authorityHost containsString:@"common"]
+             && ![authorityHost containsString:@"adfs"]
+             && (!account.targetTenantId || ![authorityHost containsString:account.targetTenantId]))
+    {
+        return [authorityHost stringByAppendingString:@"common"];
     }
 
-    return authority;
+    return _authorityHost;
 }
 
 - (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
