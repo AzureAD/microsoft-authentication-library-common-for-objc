@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDClientCredentialHelper.h"
-#import "NSData+MSIDExtensions.h"
+#import "NSData+MSIDHashExtensions.h"
 #import "MSIDJWTHelper.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDAccessToken.h"

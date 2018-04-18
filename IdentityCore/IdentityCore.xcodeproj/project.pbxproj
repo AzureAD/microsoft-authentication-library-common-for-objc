@@ -279,8 +279,8 @@
 		B2C17AF11FC7A1C00070A514 /* MSIDLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */; };
 		B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */; };
 		B2C17AF51FC7A6BD0070A514 /* MSIDTestLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AF31FC7A56C0070A514 /* MSIDTestLogger.m */; };
-		B2C75911207EEA9A00C1FE74 /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75910207EEA9A00C1FE74 /* NSData+MSIDExtensions.m */; };
-		B2C75912207EEA9A00C1FE74 /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75910207EEA9A00C1FE74 /* NSData+MSIDExtensions.m */; };
+		B2C75911207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75910207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.m */; };
+		B2C75912207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75910207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.m */; };
 		B2CDB56D1FE2F42B003A4B5C /* MSIDJsonSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB56C1FE2F427003A4B5C /* MSIDJsonSerializer.m */; };
 		B2CDB56E1FE2F42B003A4B5C /* MSIDJsonSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB56C1FE2F427003A4B5C /* MSIDJsonSerializer.m */; };
 		B2CDB5741FE2F4DF003A4B5C /* NSOrderedSet+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5731FE2F4DB003A4B5C /* NSOrderedSet+MSIDExtensions.m */; };
@@ -297,8 +297,8 @@
 		B2CDB5871FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m */; };
 		B2D1841E2083CDE90001D445 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
 		B2D1841F2083CDEA0001D445 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
-		B2D184242083DD520001D445 /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75910207EEA9A00C1FE74 /* NSData+MSIDExtensions.m */; };
-		B2D184252083DD520001D445 /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75910207EEA9A00C1FE74 /* NSData+MSIDExtensions.m */; };
+		B2D184242083DD520001D445 /* NSData+MSIDHashExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75910207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.m */; };
+		B2D184252083DD520001D445 /* NSData+MSIDHashExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75910207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.m */; };
 		B2D81BC01FF5C7520093859A /* MSIDTestBrokerResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D81BBC1FF5C7460093859A /* MSIDTestBrokerResponse.h */; };
 		B2DD5B7420461F410084313F /* MSIDCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B7320461F410084313F /* MSIDCacheItemTests.m */; };
 		B2DD5B7520461F410084313F /* MSIDCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B7320461F410084313F /* MSIDCacheItemTests.m */; };
@@ -669,8 +669,8 @@
 		B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDClientCredentialHelper.m; sourceTree = "<group>"; };
 		B2C7590B207EE9A400C1FE74 /* MSIDJWTHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJWTHelper.h; sourceTree = "<group>"; };
 		B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJWTHelper.m; sourceTree = "<group>"; };
-		B2C7590F207EEA9A00C1FE74 /* NSData+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MSIDExtensions.h"; sourceTree = "<group>"; };
-		B2C75910207EEA9A00C1FE74 /* NSData+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MSIDExtensions.m"; sourceTree = "<group>"; };
+		B2C7590F207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MSIDHashExtensions.h"; sourceTree = "<group>"; };
+		B2C75910207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MSIDHashExtensions.m"; sourceTree = "<group>"; };
 		B2CDB56B1FE2F427003A4B5C /* MSIDJsonSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJsonSerializer.h; sourceTree = "<group>"; };
 		B2CDB56C1FE2F427003A4B5C /* MSIDJsonSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializer.m; sourceTree = "<group>"; };
 		B2CDB56F1FE2F491003A4B5C /* MSIDAccount.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccount.h; sourceTree = "<group>"; };
@@ -1205,8 +1205,8 @@
 				B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */,
 				B2C7590B207EE9A400C1FE74 /* MSIDJWTHelper.h */,
 				B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */,
-				B2C7590F207EEA9A00C1FE74 /* NSData+MSIDExtensions.h */,
-				B2C75910207EEA9A00C1FE74 /* NSData+MSIDExtensions.m */,
+				B2C7590F207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.h */,
+				B2C75910207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.m */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -1786,7 +1786,7 @@
 				B27551EE20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */,
 				B27551FE208182BE00AA7A38 /* Authentication.swift in Sources */,
 				B2755204208182BE00AA7A38 /* Secret.swift in Sources */,
-				B2D184242083DD520001D445 /* NSData+MSIDExtensions.m in Sources */,
+				B2D184242083DD520001D445 /* NSData+MSIDHashExtensions.m in Sources */,
 				B275520B208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */,
 				B2755202208182BE00AA7A38 /* Network.swift in Sources */,
 				B2755206208182BE00AA7A38 /* KeyVaultError.swift in Sources */,
@@ -1806,7 +1806,7 @@
 				B27551EF20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */,
 				B27551FF208182BE00AA7A38 /* Authentication.swift in Sources */,
 				B2755205208182BE00AA7A38 /* Secret.swift in Sources */,
-				B2D184252083DD520001D445 /* NSData+MSIDExtensions.m in Sources */,
+				B2D184252083DD520001D445 /* NSData+MSIDHashExtensions.m in Sources */,
 				B275520C208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */,
 				B2755203208182BE00AA7A38 /* Network.swift in Sources */,
 				B2755207208182BE00AA7A38 /* KeyVaultError.swift in Sources */,
@@ -1822,7 +1822,7 @@
 				234858E020490F00004FBC3C /* MSIDDefaultTokenCacheIntegrationTests.m in Sources */,
 				B2808004204CB2A700944D89 /* MSIDAADV1TokenResponseTests.m in Sources */,
 				B210F4651FDF1CB8005A8F76 /* MSIDURLFormObjectTests.m in Sources */,
-				B2C75911207EEA9A00C1FE74 /* NSData+MSIDExtensions.m in Sources */,
+				B2C75911207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.m in Sources */,
 				23CC944A20465CF100AA0551 /* MSIDTokenCacheDataSourceIntegrationTests.m in Sources */,
 				23BDA6691FC7775200FE14BE /* MSIDDictionaryExtensionsTests.m in Sources */,
 				B2DD5BC220479D9C0084313F /* MSIDKeyedArchiverSerializerTests.m in Sources */,
@@ -1952,7 +1952,7 @@
 				23CC944920465CEC00AA0551 /* MSIDTokenCacheDataSourceIntegrationTests.m in Sources */,
 				B23ECF011FF306110015FC1D /* MSIDTestRequestParams.m in Sources */,
 				B2808002204CB29900944D89 /* MSIDAADTokenResponseTests.m in Sources */,
-				B2C75912207EEA9A00C1FE74 /* NSData+MSIDExtensions.m in Sources */,
+				B2C75912207EEA9A00C1FE74 /* NSData+MSIDHashExtensions.m in Sources */,
 				B2DD5B7520461F410084313F /* MSIDCacheItemTests.m in Sources */,
 				B2DD5B98204756580084313F /* MSIDAccountTypeTests.m in Sources */,
 				B210F4661FDF1CB8005A8F76 /* MSIDURLFormObjectTests.m in Sources */,
