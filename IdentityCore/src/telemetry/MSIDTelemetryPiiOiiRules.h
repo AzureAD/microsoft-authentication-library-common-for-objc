@@ -27,5 +27,6 @@
 
 + (BOOL)isPii:(NSString *)propertyName;
 + (BOOL)isOii:(NSString *)propertyName;
++ (BOOL)isPiiOrOii:(NSString *)propertyName;
 
 @end

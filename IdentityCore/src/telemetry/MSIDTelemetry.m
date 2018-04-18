@@ -182,10 +182,9 @@ static NSString* const s_delimiter = @"|";
         {
             for (NSString *propertyName in [event.propertyMap allKeys])
             {
-                BOOL isPii = [MSIDTelemetryPiiOiiRules isPii:propertyName];
-                BOOL isOii = [MSIDTelemetryPiiOiiRules isOii:propertyName];
+                BOOL isPiiOrOii = [MSIDTelemetryPiiOiiRules isPiiOrOii:propertyName];
                 
-                if ((isPii || isOii) && !self.piiEnabled)
+                if (isPiiOrOii && !self.piiEnabled)
                 {
                     [event deleteProperty:propertyName];
                 }

@@ -50,12 +50,27 @@ static NSSet *_oiiFields;
 
 + (BOOL)isPii:(NSString *)propertyName
 {
+    if (!propertyName)
+    {
+        return NO;
+    }
+    
     return [_piiFields containsObject:propertyName];
 }
 
 + (BOOL)isOii:(NSString *)propertyName
 {
+    if (!propertyName)
+    {
+        return NO;
+    }
+    
     return [_oiiFields containsObject:propertyName];
+}
+
++ (BOOL)isPiiOrOii:(NSString *)propertyName
+{
+    return [self isPii:propertyName] || [self isOii:propertyName];
 }
 
 @end
