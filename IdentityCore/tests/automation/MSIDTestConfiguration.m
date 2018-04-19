@@ -273,11 +273,6 @@
 
 - (NSString *)authority
 {
-    if ([self.accounts count])
-    {
-        return [self authorityWithAccount:self.accounts[0]];
-    }
-
     return [self authorityWithAccount:nil];
 }
 
@@ -303,6 +298,14 @@
 - (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
 {
     NSMutableDictionary *configParams = [[self configParameters] mutableCopy];
+    [configParams addEntriesFromDictionary:additionalParams];
+    return configParams;
+}
+
+- (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
+                                               account:(MSIDTestAccount *)account
+{
+    NSMutableDictionary *configParams = [[self configParametersForAccount:account] mutableCopy];
     [configParams addEntriesFromDictionary:additionalParams];
     return configParams;
 }
