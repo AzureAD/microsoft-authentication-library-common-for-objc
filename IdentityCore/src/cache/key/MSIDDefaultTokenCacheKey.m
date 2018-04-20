@@ -48,7 +48,7 @@ static NSInteger kTokenTypePrefix = 2000;
     NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm];
     NSString *service = [NSString stringWithFormat:@"%@%@%@",
                          credentialId,
-                         (target ? keyDelimiter : @""),
+                         keyDelimiter,
                          (target ? target : @"")];
     return service;
 }
@@ -65,7 +65,7 @@ static NSInteger kTokenTypePrefix = 2000;
     
     return [NSString stringWithFormat:@"%@%@%@%@%@",
             credentialType, keyDelimiter, clientId,
-            (realm ? keyDelimiter : @""),
+            keyDelimiter,
             (realm ? realm : @"")];
 }
 
@@ -153,10 +153,11 @@ static NSInteger kTokenTypePrefix = 2000;
     NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
     NSString *service = [self.class serviceWithType:MSIDTokenTypeIDToken clientID:clientId realm:tenant target:nil];
     NSNumber *type = [self tokenType:MSIDTokenTypeIDToken];
+    NSString *generic = [self credentialIdWithType:MSIDTokenTypeIDToken clientId:clientId realm:tenant];
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
-                                                     generic:[service dataUsingEncoding:NSUTF8StringEncoding]
+                                                     generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:type];
 }
 
@@ -264,10 +265,11 @@ static NSInteger kTokenTypePrefix = 2000;
     NSString *service = [self.class serviceWithType:MSIDTokenTypeRefreshToken clientID:clientId realm:nil target:nil];
     NSString *account = [self accountIdWithUniqueUserId:userId environment:environment];
     NSNumber *type = [self tokenType:MSIDTokenTypeRefreshToken];
+    NSString *generic = [self credentialIdWithType:MSIDTokenTypeRefreshToken clientId:clientId realm:nil];
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
-                                                     generic:[service dataUsingEncoding:NSUTF8StringEncoding]
+                                                     generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:type];
 }
 
