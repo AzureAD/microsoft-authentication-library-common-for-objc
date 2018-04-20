@@ -268,15 +268,15 @@
 
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
-                                                           Webview:(WKWebView *)webview
+                                                     customWebview:(WKWebView *)webview
 {
-    // TODO: decide returning nil or default V1
+    // TODO: return default
     return nil;
 }
 
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
 {
-    // TODO: decide returning nil or default V2
+    // TODO: return default
     return nil;
 }
 

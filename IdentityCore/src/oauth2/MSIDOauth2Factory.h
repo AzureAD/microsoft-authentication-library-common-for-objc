@@ -55,11 +55,9 @@
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
 
-// Those methods will come with webview work...
-// - (MSIDWebAuthHandler *)webAuthHandler;
-// - (MSIDAuthorizationResponse *)authorizationResponse;
+// Webviews
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
-                                                           Webview:(WKWebView *)webview;
+                                                     customWebview:(WKWebView *)webview;
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams;
 
 @end

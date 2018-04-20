@@ -25,9 +25,21 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebViewInteracting.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
-@interface MSIDOAuth2WebviewController : NSObject <MSIDWebviewInteracting>
+@implementation MSIDOAuth2EmbeddedWebviewController
+
+@synthesize parentViewController;
+
+
+- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+{
+    
+}
+
+- (void)cancel
+{
+    
+}
 
 @end

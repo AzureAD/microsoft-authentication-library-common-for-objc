@@ -44,4 +44,5 @@
 + (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                    factory:(MSIDOAuth2Factory *)factory;
 
++ (BOOL)handleURLResponse:(NSURL *)url;
 @end

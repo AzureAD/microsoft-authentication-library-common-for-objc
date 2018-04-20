@@ -50,8 +50,9 @@
     return nil;
 }
 
-
-
-
++ (BOOL)handleURLResponse:(NSURL *)url
+{
+    return NO;
+}
 
 @end
