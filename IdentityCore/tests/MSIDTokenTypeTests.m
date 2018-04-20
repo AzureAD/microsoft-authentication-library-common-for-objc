@@ -33,60 +33,60 @@
 - (void)testTokenTypeAsString_whenAccessTokenType_shouldReturnAccessTokenString
 {
     NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeAccessToken];
-    XCTAssertEqualObjects(result, @"AccessToken");
+    XCTAssertEqualObjects(result, @"accesstoken");
 }
 
 - (void)testTokenTypeAsString_whenRefreshTokenType_shouldReturnRefreshTokenString
 {
     NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeRefreshToken];
-    XCTAssertEqualObjects(result, @"RefreshToken");
+    XCTAssertEqualObjects(result, @"refreshtoken");
 }
 
 - (void)testTokenTypeAsString_whenIDTokenType_shouldReturnIDTokenString
 {
     NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeIDToken];
-    XCTAssertEqualObjects(result, @"IdToken");
+    XCTAssertEqualObjects(result, @"idtoken");
 }
 
 - (void)testTokenTypeAsString_whenLegacyTokenType_shouldReturnLegacyTokenString
 {
     NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeLegacySingleResourceToken];
-    XCTAssertEqualObjects(result, @"LegacySingleResourceToken");
+    XCTAssertEqualObjects(result, @"legacysingleresourcetoken");
 }
 
 - (void)testTokenTypeAsString_whenOtherTokenType_shouldReturnOtherTokenString
 {
     NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeOther];
-    XCTAssertEqualObjects(result, @"Token");
+    XCTAssertEqualObjects(result, @"token");
 }
 
 - (void)testTokenTypeFromString_whenAccessTokenString_shouldReturnAccessTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"AccessToken"];
+    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"accesstoken"];
     XCTAssertEqual(result, MSIDTokenTypeAccessToken);
 }
 
 - (void)testTokenTypeFromString_whenRefreshTokenString_shouldReturnRefreshTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"RefreshToken"];
+    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"refreshtoken"];
     XCTAssertEqual(result, MSIDTokenTypeRefreshToken);
 }
 
 - (void)testTokenTypeFromString_whenIDTokenString_shouldReturnIDTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"IdToken"];
+    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"idtoken"];
     XCTAssertEqual(result, MSIDTokenTypeIDToken);
 }
 
 - (void)testTokenTypeFromString_whenLegacyTokenString_shouldReturnLegacyTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"LegacySingleResourceToken"];
+    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"legacysingleresourcetoken"];
     XCTAssertEqual(result, MSIDTokenTypeLegacySingleResourceToken);
 }
 
 - (void)testTokenTypeFromString_whenOtherTokenString_shouldReturnOtherTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"Token"];
+    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"token"];
     XCTAssertEqual(result, MSIDTokenTypeOther);
 }
 
