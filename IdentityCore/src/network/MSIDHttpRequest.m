@@ -24,6 +24,7 @@
 #import "MSIDHttpRequest.h"
 #import "MSIDJsonResponseSerializer.h"
 #import "MSIDUrlRequestSerializer.h"
+#import "MSIDHttpRequestTelemetryProtocol.h"
 
 @interface MSIDHttpRequest () <NSURLSessionDelegate>
 
@@ -69,15 +70,23 @@
     return _urlRequest;
 }
 
-- (void)sendWithContext:(id <MSIDRequestContext>)context
-      completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable )completionBlock;
 {
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
     
+    [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
+    
     [[self.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
       {
-          MSID_LOG_VERBOSE(context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
-          MSID_LOG_VERBOSE_PII(context, @"Received network response: %@, error %@", response, error);
+          MSID_LOG_VERBOSE(self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
+          MSID_LOG_VERBOSE_PII(self.context, @"Received network response: %@, error %@", response, error);
+          
+          [self.telemetry responseReceivedEventWithId:self.context.telemetryRequestId
+                                        correlationId:self.context.correlationId
+                                           urlRequest:self.urlRequest
+                                          urlResponse:response
+                                                 data:data
+                                                error:error];
           
           if (error)
           {
@@ -90,12 +99,12 @@
               {
                   self.retryOnErrorCounter--;
                   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                      [self sendWithContext:context completionBlock:completionBlock];
+                      [self sendWithBlock:completionBlock];
                   });
               }
               else
               {
-                  completionBlock(nil, error, context);
+                  completionBlock(nil, error, self.context);
               }
           }
           else
@@ -105,7 +114,7 @@
               id responseObject = [self.responseSerializer responseObjectForResponse:response data:data error:&error];
               
               dispatch_async(dispatch_get_main_queue(), ^{
-                  completionBlock(error ? nil : responseObject, error, context);
+                  completionBlock(error ? nil : responseObject, error, self.context);
               });
           }
       }] resume];

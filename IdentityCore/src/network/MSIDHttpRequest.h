@@ -26,6 +26,7 @@
 @protocol MSIDRequestSerialization;
 @protocol MSIDResponseSerialization;
 @protocol MSIDRequestContext;
+@protocol MSIDHttpRequestTelemetryProtocol;
 
 typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *_Nullable error, _Nullable id <MSIDRequestContext> context);
 
@@ -39,10 +40,13 @@ typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *
 
 @property (nonatomic, nonnull) id <MSIDResponseSerialization> responseSerializer;
 
+@property (nonatomic, nullable) id <MSIDHttpRequestTelemetryProtocol> telemetry;
+
 @property (nonatomic) NSInteger retryOnErrorCounter;
 
-- (void)sendWithContext:(id <MSIDRequestContext> _Nullable)context
-      completionBlock:(MSIDHttpRequestDidCompleteBlock _Nullable )completionBlock;
+@property (nonatomic, nullable) id <MSIDRequestContext> context;
+
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable )completionBlock;
 
 - (void)cancel;
 

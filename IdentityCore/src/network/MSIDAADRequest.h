@@ -21,20 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAADRequest.h"
+#import "MSIDHttpRequest.h"
 
-/**
- Authorization code request.
- 
- @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#request-an-authorization-code
- */
-@interface MSIDAuthorizationCodeRequest : MSIDAADRequest
+@interface MSIDAADRequest : MSIDHttpRequest
 
-@property (nonatomic) NSString *clientId;
-@property (nonatomic) NSString *redirectUri;
-@property (nonatomic) NSString *resource;
-@property (nonatomic) NSString *scope;
-@property (nonatomic) NSString *loginHint;
+@property (nonatomic) NSURL *authority;
 
 @end

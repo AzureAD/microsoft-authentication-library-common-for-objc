@@ -21,8 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonResponseSerializer.h"
+#import "MSIDAADRequest.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDDeviceId.h"
 
-@interface MSIDResponseSerializer : MSIDJsonResponseSerializer
+@implementation MSIDAADRequest
+
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+{
+    __auto_type requestUrl = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:self.urlRequest.URL context:self.context];
+    NSMutableURLRequest *mutableUrlRequest = [self.urlRequest mutableCopy];
+    mutableUrlRequest.URL = requestUrl;
+    
+    // TODO:
+//    __auto_type requestUrl = [ADHelpers addClientVersionToURL:_requestURL];
+    
+    NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
+    [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+
+    if (self.context.correlationId)
+    {
+        headers[MSID_OAUTH2_CORRELATION_ID_REQUEST] = @"true";
+        headers[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] = [self.context.correlationId UUIDString];
+    }
+    
+    mutableUrlRequest.allHTTPHeaderFields = headers;
+    self.urlRequest = mutableUrlRequest;
+    
+    [super sendWithBlock:completionBlock];
+}
 
 @end

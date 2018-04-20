@@ -22,19 +22,16 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAADRequest.h"
 
-/**
- Authorization code request.
- 
- @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#request-an-authorization-code
- */
-@interface MSIDAuthorizationCodeRequest : MSIDAADRequest
+@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
 
-@property (nonatomic) NSString *clientId;
-@property (nonatomic) NSString *redirectUri;
-@property (nonatomic) NSString *resource;
-@property (nonatomic) NSString *scope;
-@property (nonatomic) NSString *loginHint;
+- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
+
+- (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
+                      correlationId:(NSUUID *)correlationId
+                         urlRequest:(NSURLRequest *)urlRequest
+                        urlResponse:(NSURLResponse *)urlResponse
+                               data:(NSData *)data
+                              error:(NSError *)error;
 
 @end

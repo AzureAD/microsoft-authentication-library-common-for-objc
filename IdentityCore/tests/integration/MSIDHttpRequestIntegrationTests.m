@@ -96,18 +96,19 @@
 - (void)testSendWithContext_whenGetRequest_shouldEncodeParametersInUrl
 {
     __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
+    __auto_type passedContext = [MSIDTestContext new];
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
     self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
-    __auto_type passedContext = [MSIDTestContext new];
-    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
+    self.request.context = passedContext;
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
                                                          reponse:[NSHTTPURLResponse new]];
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request"];
-    [self.request sendWithContext:passedContext completionBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
+    [self.request sendWithBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
      {
          XCTAssertNil(response);
          XCTAssertNil(error);
@@ -122,17 +123,17 @@
 - (void)testSendWithContext_whenGetRequestWithNilParameters_shouldReturnNilError
 {
     __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type passedContext = [MSIDTestContext new];
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
-    __auto_type passedContext = [MSIDTestContext new];
-    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url"];
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
+    self.request.context = passedContext;
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:baseUrl
                                                          reponse:[NSHTTPURLResponse new]];
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request"];
-    [self.request sendWithContext:passedContext completionBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
+    [self.request sendWithBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
      {
          XCTAssertNil(response);
          XCTAssertNil(error);
@@ -148,18 +149,20 @@
 {
     __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
     __auto_type parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
+    __auto_type passedContext = [MSIDTestContext new];
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"POST";
     self.request.urlRequest = urlRequest;
     self.request.parameters = parameters;
-    __auto_type passedContext = [MSIDTestContext new];
+    self.request.context = passedContext;
+    
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:baseUrl
                                                          reponse:[NSHTTPURLResponse new]];
     [response setUrlFormEncodedBody:parameters];
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"POST Request"];
-    [self.request sendWithContext:passedContext completionBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
+    [self.request sendWithBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
      {
          XCTAssertNil(response);
          XCTAssertNil(error);
@@ -174,19 +177,20 @@
 - (void)testSendWithContext_whenGetRequestWithError_shouldReturnError
 {
     __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
+    __auto_type passedContext = [MSIDTestContext new];
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
     self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
-    __auto_type passedContext = [MSIDTestContext new];
-    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
+    self.request.context = passedContext;
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
                                                          reponse:[NSHTTPURLResponse new]];
     response->_error = [NSError new];
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request With Error"];
-    [self.request sendWithContext:passedContext completionBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
+    [self.request sendWithBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
      {
          XCTAssertNil(response);
          XCTAssertNotNil(error);
@@ -201,20 +205,21 @@
 - (void)testSendWithContext_whenGetRequestWithServerError_shouldDecrementErrorCounterAndRetry
 {
     __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
+    __auto_type passedContext = [MSIDTestContext new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:500 HTTPVersion:nil headerFields:nil];
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
     self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
-    __auto_type passedContext = [MSIDTestContext new];
-    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
-    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:500 HTTPVersion:nil headerFields:nil];
+    self.request.context = passedContext;
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
                                                          reponse:httpResponse];
     response->_error = [NSError new];
     [MSIDTestURLSession addResponses:@[response, response]];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request With Error"];
-    [self.request sendWithContext:passedContext completionBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
+    [self.request sendWithBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
      {
          XCTAssertNil(response);
          XCTAssertNotNil(error);
@@ -231,13 +236,15 @@
 - (void)testSendWithContext_whenGetRequestResponseHasData_shouldParseResponse
 {
     __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
+    __auto_type passedContext = [MSIDTestContext new];
+    __auto_type httpResponse = [NSHTTPURLResponse new];
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
     self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
-    __auto_type passedContext = [MSIDTestContext new];
-    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
-    __auto_type httpResponse = [NSHTTPURLResponse new];
+    self.request.context = passedContext;
+    
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
                                                          reponse:httpResponse];
     __auto_type responseJson = @{@"p" : @"v"};
@@ -245,7 +252,7 @@
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request"];
-    [self.request sendWithContext:passedContext completionBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
+    [self.request sendWithBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
      {
          XCTAssertNotNil(response);
          XCTAssertEqualObjects(responseJson, response);

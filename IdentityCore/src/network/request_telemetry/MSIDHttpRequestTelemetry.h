@@ -21,37 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDResponseSerializer.h"
-#import "MSIDTelemetryEventStrings.h"
-#import "NSString+MSIDTelemetryExtensions.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDResponseSerializer
-
-- (id)responseObjectForResponse:(NSURLResponse *)response data:(NSData *)data error:(NSError **)error
-{
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:response data:data error:error] mutableCopy];
-    
-    if (error) return nil;
-    
-    if ([response isKindOfClass:NSHTTPURLResponse.class])
-    {
-        __auto_type httpResponse = (NSHTTPURLResponse *)response;
-        
-        jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-
-        NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
-        if (![NSString msidIsStringNilOrBlank:clientTelemetry])
-        {
-            NSString *speInfo = [clientTelemetry parsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
-
-            if (![NSString msidIsStringNilOrBlank:speInfo])
-            {
-                jsonObject[MSID_TELEMETRY_KEY_SPE_INFO] = speInfo;
-            }
-        }
-    }
-
-    return jsonObject;
-}
+@interface MSIDHttpRequestTelemetry : NSObject
 
 @end

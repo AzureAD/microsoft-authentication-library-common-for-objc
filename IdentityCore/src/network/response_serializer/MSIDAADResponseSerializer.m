@@ -21,20 +21,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAADRequest.h"
+#import "MSIDAADResponseSerializer.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "NSString+MSIDTelemetryExtensions.h"
 
-/**
- Authorization code request.
- 
- @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#request-an-authorization-code
- */
-@interface MSIDAuthorizationCodeRequest : MSIDAADRequest
+@implementation MSIDAADResponseSerializer
 
-@property (nonatomic) NSString *clientId;
-@property (nonatomic) NSString *redirectUri;
-@property (nonatomic) NSString *resource;
-@property (nonatomic) NSString *scope;
-@property (nonatomic) NSString *loginHint;
+- (id)responseObjectForResponse:(NSURLResponse *)response data:(NSData *)data error:(NSError **)error
+{
+    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:response data:data error:error] mutableCopy];
+    
+    if (error) return nil;
+    
+    if ([response isKindOfClass:NSHTTPURLResponse.class])
+    {
+        __auto_type httpResponse = (NSHTTPURLResponse *)response;
+        
+        jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
+
+        NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
+        if (![NSString msidIsStringNilOrBlank:clientTelemetry])
+        {
+            NSString *speInfo = [clientTelemetry parsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
+
+            if (![NSString msidIsStringNilOrBlank:speInfo])
+            {
+                jsonObject[MSID_TELEMETRY_KEY_SPE_INFO] = speInfo;
+            }
+        }
+    }
+
+    return jsonObject;
+}
 
 @end

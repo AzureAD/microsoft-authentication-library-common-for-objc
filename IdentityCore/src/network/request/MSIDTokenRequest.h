@@ -22,14 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDHttpRequest.h"
+#import "MSIDAADRequest.h"
 
 /**
  @abstract Represents abstract request to '/{tenant}/oauth2/token' endpoint.
  */
-@interface MSIDTokenRequest : MSIDHttpRequest
+@interface MSIDTokenRequest : MSIDAADRequest
 
-@property (nonatomic) NSURL *authority;
 @property (nonatomic) NSString *clientId;
 @property (nonatomic) NSString *scope;
 
