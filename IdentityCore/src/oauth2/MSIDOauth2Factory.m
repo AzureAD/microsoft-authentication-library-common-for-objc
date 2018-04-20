@@ -266,4 +266,18 @@
     return account;
 }
 
+#pragma mark - Webview controllers
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                                           Webview:(WKWebView *)webview
+{
+    // TODO: decide returning nil or default V1
+    return nil;
+}
+
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+{
+    // TODO: decide returning nil or default V2
+    return nil;
+}
+
 @end

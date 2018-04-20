@@ -29,7 +29,15 @@
 
 @implementation MSIDOAuth2WebviewController
 
+@synthesize  parentViewController;
+
+
 - (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+{
+    
+}
+
+- (void)cancel
 {
     
 }

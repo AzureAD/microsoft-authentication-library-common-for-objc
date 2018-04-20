@@ -69,6 +69,11 @@
 		9641B5291FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9641B5271FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.h */; };
 		9641B52A1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5281FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m */; };
 		9641B52B1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5281FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m */; };
+		96A3E9B9208941D700BE5262 /* MSIDSystemWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96A3E9B8208941D700BE5262 /* MSIDSystemWebviewController.m */; };
+		96A3E9BD2089478500BE5262 /* MSIDWebviewAuthorization.h in Headers */ = {isa = PBXBuildFile; fileRef = 96A3E9BB2089478500BE5262 /* MSIDWebviewAuthorization.h */; };
+		96A3E9BE2089478500BE5262 /* MSIDWebviewAuthorization.m in Sources */ = {isa = PBXBuildFile; fileRef = 96A3E9BC2089478500BE5262 /* MSIDWebviewAuthorization.m */; };
+		96A3E9BF2089478500BE5262 /* MSIDWebviewAuthorization.m in Sources */ = {isa = PBXBuildFile; fileRef = 96A3E9BC2089478500BE5262 /* MSIDWebviewAuthorization.m */; };
+		96A3E9C120895CCE00BE5262 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96A3E9C020895CCE00BE5262 /* WebKit.framework */; };
 		96B25DD31FE29F11007B21F7 /* MSIDAdfsToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 96B25DD11FE29F11007B21F7 /* MSIDAdfsToken.h */; };
 		96CD69461FE849C800D41938 /* MSIDAADTokenResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 96CD693C1FE849C800D41938 /* MSIDAADTokenResponse.h */; };
 		96CD69491FE849C800D41938 /* MSIDClientInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 96CD693E1FE849C800D41938 /* MSIDClientInfo.h */; };
@@ -484,6 +489,11 @@
 		9641B5281FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyedArchiverSerializer.m; sourceTree = "<group>"; };
 		96474C0C1FD688EA00DC3CE9 /* MSIDJsonSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializer.m; sourceTree = "<group>"; };
 		965981041FF4C9B400E31CDE /* MSIDDefaultTokenCacheIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultTokenCacheIntegrationTests.m; sourceTree = "<group>"; };
+		96A3E9B7208941D700BE5262 /* MSIDSystemWebviewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSystemWebviewController.h; sourceTree = "<group>"; };
+		96A3E9B8208941D700BE5262 /* MSIDSystemWebviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSystemWebviewController.m; sourceTree = "<group>"; };
+		96A3E9BB2089478500BE5262 /* MSIDWebviewAuthorization.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebviewAuthorization.h; sourceTree = "<group>"; };
+		96A3E9BC2089478500BE5262 /* MSIDWebviewAuthorization.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewAuthorization.m; sourceTree = "<group>"; };
+		96A3E9C020895CCE00BE5262 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.3.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		96B25DD11FE29F11007B21F7 /* MSIDAdfsToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAdfsToken.h; sourceTree = "<group>"; };
 		96CD693C1FE849C800D41938 /* MSIDAADTokenResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAADTokenResponse.h; sourceTree = "<group>"; };
 		96CD693D1FE849C800D41938 /* MSIDAADTokenResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAADTokenResponse.m; sourceTree = "<group>"; };
@@ -771,6 +781,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96A3E9C120895CCE00BE5262 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -852,6 +863,8 @@
 				96F94A2C20816BA70034676C /* request */,
 				96235F93207D723F007EAB36 /* response */,
 				96235F90207D7150007EAB36 /* MSIDWebviewInteracting.h */,
+				96A3E9BB2089478500BE5262 /* MSIDWebviewAuthorization.h */,
+				96A3E9BC2089478500BE5262 /* MSIDWebviewAuthorization.m */,
 			);
 			path = webview;
 			sourceTree = "<group>";
@@ -940,6 +953,8 @@
 		96F94A2420816B2F0034676C /* systemWebview */ = {
 			isa = PBXGroup;
 			children = (
+				96A3E9B7208941D700BE5262 /* MSIDSystemWebviewController.h */,
+				96A3E9B8208941D700BE5262 /* MSIDSystemWebviewController.m */,
 			);
 			path = systemWebview;
 			sourceTree = "<group>";
@@ -1292,6 +1307,7 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				96A3E9C020895CCE00BE5262 /* WebKit.framework */,
 				B2893CAE1FCF68B200E348E9 /* Security.framework */,
 				B20657D81FC92D7600412B7D /* libswiftIOKit.tbd */,
 				B20657D61FC92D2700412B7D /* IOKit.framework */,
@@ -1442,6 +1458,7 @@
 				D61AFAB41FD8B6C600DABBE5 /* MSIDContants.h in Headers */,
 				B251CC5A20410E54005E0179 /* MSIDCacheItem.h in Headers */,
 				B26A0B8C2071B763006BD95A /* MSIDAADV1Oauth2Factory.h in Headers */,
+				96A3E9BD2089478500BE5262 /* MSIDWebviewAuthorization.h in Headers */,
 				B2CDB5791FE33A46003A4B5C /* MSIDAccount.h in Headers */,
 				B251CC49204105A7005E0179 /* MSIDIdToken.h in Headers */,
 				B20657A51FC91C1600412B7D /* MSIDTelemetryDispatcher.h in Headers */,
@@ -1806,6 +1823,7 @@
 				B2EF143B1FF2F228005DC1C0 /* MSIDAADV2TokenResponse.m in Sources */,
 				B20657BF1FC9254900412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				B2115827202BD5F3005CE586 /* MSIDTokenCacheKey.m in Sources */,
+				96A3E9BF2089478500BE5262 /* MSIDWebviewAuthorization.m in Sources */,
 				B2908C091FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m in Sources */,
 				B29CB6B81FEC6F4700F880ED /* MSIDSharedTokenCache.m in Sources */,
 				D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
@@ -1964,6 +1982,7 @@
 				23BDA67A1FCE693800FE14BE /* MSIDKeychainUtil.m in Sources */,
 				B2CDB5781FE33A3E003A4B5C /* MSIDAccount.m in Sources */,
 				B2CDB5861FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m in Sources */,
+				96A3E9BE2089478500BE5262 /* MSIDWebviewAuthorization.m in Sources */,
 				B2C17AED1FC796FE0070A514 /* MSIDOAuth2Constants.m in Sources */,
 				04D32CB21FD62141000B123E /* MSIDError.m in Sources */,
 				B20657B01FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
@@ -1974,6 +1993,7 @@
 				B251CC56204109A4005E0179 /* MSIDTokenCacheItem.m in Sources */,
 				B26A0B7E2071ADCE006BD95A /* MSIDOauth2Factory.m in Sources */,
 				B20657E01FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
+				96A3E9B9208941D700BE5262 /* MSIDSystemWebviewController.m in Sources */,
 				D61AFAB51FD8B6C600DABBE5 /* MSIDContants.m in Sources */,
 				96F94A3420817C1A0034676C /* MSIDNTLMHandler.m in Sources */,
 				B251CC4A204105A7005E0179 /* MSIDBaseToken.m in Sources */,

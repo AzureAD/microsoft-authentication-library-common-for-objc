@@ -25,17 +25,33 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import "MSIDWebviewAuthorization.h"
 
-@class MSIDWebOAuth2Response;
+@implementation MSIDWebviewAuthorization
 
-typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
 
-@protocol MSIDWebviewInteracting
 
-- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                     factory:(MSIDOAuth2Factory *)factory;
+{
+    return nil;
+}
 
-@property UIViewController *parentViewController;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                     webview:(WKWebView *)webview
+                                                                     factory:(MSIDOAuth2Factory *)factory;
+{
+    return nil;
+}
+
++ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                   factory:(MSIDOAuth2Factory *)factory;
+{
+    return nil;
+}
+
+
+
+
 
 @end

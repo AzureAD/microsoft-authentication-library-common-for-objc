@@ -25,17 +25,20 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import "MSIDSystemWebviewController.h"
 
-@class MSIDWebOAuth2Response;
+@implementation MSIDSystemWebviewController
 
-typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
+@synthesize parentViewController;
 
-@protocol MSIDWebviewInteracting
+- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+{
+    
+}
 
-- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
-
-@property UIViewController *parentViewController;
+- (void)cancel
+{
+    
+}
 
 @end
