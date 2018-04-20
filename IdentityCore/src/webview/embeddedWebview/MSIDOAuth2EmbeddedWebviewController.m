@@ -29,8 +29,10 @@
 
 @implementation MSIDOAuth2EmbeddedWebviewController
 
-@synthesize parentViewController;
-
+#if TARGET_OS_IPHONE
+@synthesize  parentViewController;
+#endif
+>>>>>>> 6ce8eedaaa2bc05c85ddc34b4279c868de608398:IdentityCore/src/webview/embeddedWebview/MSIDOAuth2WebviewController.m
 
 - (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {

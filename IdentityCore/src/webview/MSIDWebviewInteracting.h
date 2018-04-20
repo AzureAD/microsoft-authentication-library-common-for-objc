@@ -36,6 +36,8 @@ typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSEr
 - (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
 - (void)cancel;
 
+#if TARGET_OS_IPHONE
 @property UIViewController *parentViewController;
+#endif
 
 @end
