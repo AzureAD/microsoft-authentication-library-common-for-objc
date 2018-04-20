@@ -26,8 +26,8 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebViewInteracting.h"
+#import "MSIDWebviewInteracting.h"
 
-@interface MSIDOAuth2WebviewController : NSObject <MSIDWebviewInteracting>
+@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
 
 @end

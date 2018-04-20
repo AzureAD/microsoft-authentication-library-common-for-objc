@@ -26,18 +26,8 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDWebViewInteracting.h"
 
-@class MSIDWebOAuth2Response;
-
-typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
-
-@protocol MSIDWebviewInteracting
-
-- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
-
-#if TARGET_OS_IPHONE
-@property UIViewController *parentViewController;
-#endif
+@interface MSIDOAuth2EmbeddedWebviewController : NSObject <MSIDWebviewInteracting>
 
 @end

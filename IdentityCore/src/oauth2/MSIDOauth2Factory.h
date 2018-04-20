@@ -31,8 +31,10 @@
 @class MSIDLegacySingleResourceToken;
 @class MSIDAccount;
 @class MSIDRequestParameters;
+@class WKWebView;
 
 @protocol MSIDRequestContext;
+@protocol MSIDWebviewInteracting;
 
 @interface MSIDOauth2Factory : NSObject
 
@@ -53,8 +55,9 @@
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
 
-// Those methods will come with webview work...
-// - (MSIDWebAuthHandler *)webAuthHandler;
-// - (MSIDAuthorizationResponse *)authorizationResponse;
+// Webviews
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                                     customWebview:(WKWebView *)webview;
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams;
 
 @end

@@ -25,11 +25,18 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDOAuth2WebviewController.h"
+#import "MSIDSystemWebviewController.h"
 
-@implementation MSIDOAuth2WebviewController
+@implementation MSIDSystemWebviewController
+
+@synthesize parentViewController;
 
 - (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+{
+    
+}
+
+- (void)cancel
 {
     
 }
