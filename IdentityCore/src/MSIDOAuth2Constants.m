@@ -100,8 +100,8 @@ NSString *const MSID_AUTHORITY_TYPE_CACHE_KEY            = @"authority_type";
 NSString *const MSID_FIRST_NAME_CACHE_KEY                = @"first_name";
 NSString *const MSID_LAST_NAME_CACHE_KEY                 = @"last_name";
 
-NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"AccessToken";
-NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"RefreshToken";
-NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE             = @"LegacySingleResourceToken";
-NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"IdToken";
-NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"Token";
+NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"accesstoken";
+NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"refreshtoken";
+NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE             = @"legacysingleresourcetoken";
+NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"idtoken";
+NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"token";
