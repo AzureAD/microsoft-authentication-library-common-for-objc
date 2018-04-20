@@ -24,6 +24,9 @@
 #import <Foundation/Foundation.h>
 #import "MSIDHttpRequest.h"
 
+/**
+ @abstract Represents abstract request to '/{tenant}/oauth2/token' endpoint.
+ */
 @interface MSIDTokenRequest : MSIDHttpRequest
 
 @property (nonatomic) NSURL *authority;

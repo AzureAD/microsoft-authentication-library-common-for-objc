@@ -23,7 +23,12 @@
 
 #import "MSIDTokenRequest.h"
 
-@interface MSIDRefreshTokenRequest : MSIDTokenRequest
+/**
+ Refreshing the access token.
+ 
+ @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#refreshing-the-access-tokens
+ */
+@interface MSIDRefreshAccessTokenRequest : MSIDTokenRequest
 
 @property (nonatomic) NSString *refreshToken;
 @property (nonatomic) NSString *resource;
