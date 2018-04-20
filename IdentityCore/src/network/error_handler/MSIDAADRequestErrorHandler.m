@@ -21,12 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADRequest.h"
-#import "MSIDAadAuthorityCache.h"
-#import "MSIDDeviceId.h"
-#import "MSIDAADRequestErrorHandler.h"
 
-@implementation MSIDAADRequest
+#import "MSIDAADRequestErrorHandler.h"
+#import "MSIDJsonResponseSerializer.h"
+
+@implementation MSIDAADRequestErrorHandler
 
 - (instancetype)init
 {
@@ -34,33 +33,36 @@
     
     if (!self) return nil;
     
-    self.errorHandler = [MSIDAADRequestErrorHandler new];
+    _retryCounter = 1;
     
     return self;
 }
 
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+- (void)handleError:(NSError * )error
+       httpResponse:(NSHTTPURLResponse *)httpResponse
+               data:(NSData *)data
+        httpRequest:(id <MSIDHttpRequestProtocol>)httpRequest
+            context:(id <MSIDRequestContext>)context
+    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    __auto_type requestUrl = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:self.urlRequest.URL context:self.context];
-    NSMutableURLRequest *mutableUrlRequest = [self.urlRequest mutableCopy];
-    mutableUrlRequest.URL = requestUrl;
-    
-    // TODO:
-//    __auto_type requestUrl = [ADHelpers addClientVersionToURL:_requestURL];
-    
-    NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
-    [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+    BOOL shouldRetry = YES;
+    shouldRetry &= self.retryCounter > 0;
+    shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
 
-    if (self.context.correlationId)
+    if (shouldRetry)
     {
-        headers[MSID_OAUTH2_CORRELATION_ID_REQUEST] = @"true";
-        headers[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] = [self.context.correlationId UUIDString];
+        self.retryCounter--;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [httpRequest sendWithBlock:completionBlock];
+        });
     }
-    
-    mutableUrlRequest.allHTTPHeaderFields = headers;
-    self.urlRequest = mutableUrlRequest;
-    
-    [super sendWithBlock:completionBlock];
+    else
+    {
+        id responseSerializer = [MSIDJsonResponseSerializer new];
+        id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data error:nil];
+        
+        if (completionBlock) completionBlock(responseObject, error, context);
+    }
 }
 
 @end

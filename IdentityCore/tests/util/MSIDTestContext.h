@@ -21,21 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRefreshAccessTokenRequest.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDRefreshAccessTokenRequest
+@interface MSIDTestContext : NSObject <MSIDRequestContext>
 
-- (NSDictionary *)parameters
-{
-    NSParameterAssert(self.refreshToken);
-    NSParameterAssert(self.clientId);
-    
-    NSMutableDictionary *parameters = [[super parameters] mutableCopy];
-    parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;
-    parameters[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
-    parameters[MSID_OAUTH2_RESOURCE] = self.resource;
-    
-    return parameters;
-}
+@property (nonatomic) NSUUID *correlationId;
+@property (nonatomic) NSString *logComponent;
+@property (nonatomic) NSString *telemetryRequestId;
 
 @end

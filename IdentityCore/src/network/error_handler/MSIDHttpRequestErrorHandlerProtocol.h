@@ -22,16 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDHttpRequestProtocol.h"
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
+@protocol MSIDHttpRequestErrorHandlerProtocol <NSObject>
 
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
-
-- (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
-                      correlationId:(NSUUID *)correlationId
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
+- (void)handleError:(NSError * )error
+       httpResponse:(NSHTTPURLResponse *)httpResponse
+               data:(NSData *)data
+        httpRequest:(id <MSIDHttpRequestProtocol>)httpRequest
+            context:(id <MSIDRequestContext>)context
+    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
 
 @end

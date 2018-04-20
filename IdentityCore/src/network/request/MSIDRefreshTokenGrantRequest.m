@@ -21,17 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDRefreshTokenGrantRequest.h"
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
+@implementation MSIDRefreshTokenGrantRequest
 
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
-
-- (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
-                      correlationId:(NSUUID *)correlationId
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
+- (NSDictionary *)parameters
+{
+    NSParameterAssert(self.refreshToken);
+    NSParameterAssert(self.clientId);
+    
+    NSMutableDictionary *parameters = [[super parameters] mutableCopy];
+    parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;
+    parameters[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
+    parameters[MSID_OAUTH2_RESOURCE] = self.resource;
+    
+    return parameters;
+}
 
 @end

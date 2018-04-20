@@ -27,16 +27,49 @@
 #import "MSIDUrlRequestSerializer.h"
 #import "MSIDTestURLSession.h"
 #import "MSIDTestURLResponse.h"
+#import "MSIDTestContext.h"
+#import "MSIDHttpRequestErrorHandlerProtocol.h"
 
-@interface MSIDTestContext : NSObject <MSIDRequestContext>
+@interface MSIDTestErrorHandler : NSObject <MSIDHttpRequestErrorHandlerProtocol>
 
-@property (nonatomic) NSUUID *correlationId;
-@property (nonatomic) NSString *logComponent;
-@property (nonatomic) NSString *telemetryRequestId;
+@property (nonatomic) int handleErrorInvokedCounts;
+@property (nonatomic) NSError *passedError;
+@property (nonatomic) NSHTTPURLResponse *passedHttpResponse;
+@property (nonatomic) NSData *passedData;
+@property (nonatomic) id<MSIDHttpRequestProtocol> passedHttpRequest;
+@property (nonatomic) id<MSIDRequestContext> passedContext;
+@property (nonatomic, copy) MSIDHttpRequestDidCompleteBlock passedBlock;
 
 @end
 
-@implementation MSIDTestContext
+@implementation MSIDTestErrorHandler
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _handleErrorInvokedCounts = 0;
+    }
+    return self;
+}
+
+- (void)handleError:(NSError *)error
+       httpResponse:(NSHTTPURLResponse *)httpResponse
+               data:(NSData *)data
+        httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+            context:(id<MSIDRequestContext>)context
+    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
+{
+    self.handleErrorInvokedCounts++;
+    self.passedError = error;
+    self.passedHttpResponse = httpResponse;
+    self.passedData = data;
+    self.passedHttpRequest = httpRequest;
+    self.passedContext = context;
+    self.passedBlock = completionBlock;
+}
+
 @end
 
 @interface MSIDHttpRequestIntegrationTests : XCTestCase
@@ -86,9 +119,9 @@
     XCTAssertTrue([self.request.requestSerializer isKindOfClass:MSIDUrlRequestSerializer.class]);
 }
 
-- (void)testRequest_byDefaultRetryOnErrorCounterIsOne
+- (void)testErrorHandler_byDefaultIsNil
 {
-    XCTAssertEqual(self.request.retryOnErrorCounter, 1);
+    XCTAssertNil(self.request.errorHandler);
 }
 
 #pragma mark - Test sendWithContext:completionBlock:
@@ -202,35 +235,33 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testSendWithContext_whenGetRequestWithServerError_shouldDecrementErrorCounterAndRetry
+- (void)testSendWithContext_whenGetRequestWithServerErrorAndErrorHandlerIsNotNil_shouldInvokeErrorHandler
 {
     __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
     __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
     __auto_type passedContext = [MSIDTestContext new];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:500 HTTPVersion:nil headerFields:nil];
+    __auto_type testErrorHandler = [MSIDTestErrorHandler new];
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
     self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
     self.request.context = passedContext;
+    self.request.errorHandler = testErrorHandler;
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
                                                          reponse:httpResponse];
     response->_error = [NSError new];
-    [MSIDTestURLSession addResponses:@[response, response]];
+    [MSIDTestURLSession addResponses:@[response]];
+    [self keyValueObservingExpectationForObject:testErrorHandler keyPath:@"handleErrorInvokedCounts" expectedValue:@1];
     
-    XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request With Error"];
-    [self.request sendWithBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
-     {
-         XCTAssertNil(response);
-         XCTAssertNotNil(error);
-         XCTAssertEqualObjects(passedContext, context);
-
-         [expectation fulfill];
-     }];
+    [self.request sendWithBlock:^(id response, NSError *error, id<MSIDRequestContext> context) {}];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    
-    XCTAssertEqual(0, self.request.retryOnErrorCounter);
+    XCTAssertEqualObjects(testErrorHandler.passedError, response->_error);
+    XCTAssertEqualObjects(testErrorHandler.passedHttpResponse, response->_response);
+    XCTAssertEqualObjects(testErrorHandler.passedHttpRequest, self.request);
+    XCTAssertEqualObjects(testErrorHandler.passedContext, passedContext);
+    XCTAssertNotNil(testErrorHandler.passedBlock);
 }
 
 - (void)testSendWithContext_whenGetRequestResponseHasData_shouldParseResponse

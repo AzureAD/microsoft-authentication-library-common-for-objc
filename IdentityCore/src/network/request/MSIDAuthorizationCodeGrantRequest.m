@@ -21,17 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAuthorizationCodeGrantRequest.h"
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
+@implementation MSIDAuthorizationCodeGrantRequest
 
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
-
-- (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
-                      correlationId:(NSUUID *)correlationId
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
+- (NSDictionary *)parameters
+{
+    NSParameterAssert(self.redirectUri);
+    NSParameterAssert(self.code);
+    
+    NSMutableDictionary *parameters = [[super parameters] mutableCopy];
+    parameters[MSID_OAUTH2_REDIRECT_URI] = self.redirectUri;
+    parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_AUTHORIZATION_CODE;
+    parameters[MSID_OAUTH2_CODE] = self.code;
+    
+    return parameters;
+}
 
 @end

@@ -25,6 +25,7 @@
 #import "MSIDJsonResponseSerializer.h"
 #import "MSIDUrlRequestSerializer.h"
 #import "MSIDHttpRequestTelemetryProtocol.h"
+#import "MSIDHttpRequestErrorHandlerProtocol.h"
 
 @interface MSIDHttpRequest () <NSURLSessionDelegate>
 
@@ -50,8 +51,6 @@
     _session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:self.operationQueue];
     _responseSerializer = [MSIDJsonResponseSerializer new];
     _requestSerializer = [MSIDUrlRequestSerializer new];
-    
-    _retryOnErrorCounter = 1;
     
     return self;
 }
@@ -81,26 +80,30 @@
           MSID_LOG_VERBOSE(self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
           MSID_LOG_VERBOSE_PII(self.context, @"Received network response: %@, error %@", response, error);
           
+          if (![response isKindOfClass:NSHTTPURLResponse.class])
+          {
+              if (completionBlock) completionBlock(response, error, self.context);
+              return;
+          }
+          
+          __auto_type httpResponse = (NSHTTPURLResponse *)response;
+          
           [self.telemetry responseReceivedEventWithId:self.context.telemetryRequestId
                                         correlationId:self.context.correlationId
                                            urlRequest:self.urlRequest
-                                          urlResponse:response
+                                         httpResponse:httpResponse
                                                  data:data
                                                 error:error];
-          
           if (error)
           {
-              __auto_type httpResponse = (NSHTTPURLResponse *)response;
-              BOOL shouldRetry = [httpResponse isKindOfClass:NSHTTPURLResponse.class];
-              shouldRetry &= self.retryOnErrorCounter > 0;
-              shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
-              
-              if (shouldRetry)
+              if (self.errorHandler)
               {
-                  self.retryOnErrorCounter--;
-                  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                      [self sendWithBlock:completionBlock];
-                  });
+                  [self.errorHandler handleError:error
+                                    httpResponse:httpResponse
+                                            data:data
+                                     httpRequest:self
+                                         context:self.context
+                                 completionBlock:completionBlock];
               }
               else
               {
@@ -111,7 +114,7 @@
           {
               if (!completionBlock) return;
               
-              id responseObject = [self.responseSerializer responseObjectForResponse:response data:data error:&error];
+              id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
               
               dispatch_async(dispatch_get_main_queue(), ^{
                   completionBlock(error ? nil : responseObject, error, self.context);

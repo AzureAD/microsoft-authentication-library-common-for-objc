@@ -24,13 +24,13 @@
 #import "MSIDTokenRequest.h"
 
 /**
- Refreshing the access token.
+ Redeem code request.
  
- @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#refreshing-the-access-tokens
+ @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#use-the-authorization-code-to-request-an-access-token
  */
-@interface MSIDRefreshAccessTokenRequest : MSIDTokenRequest
+@interface MSIDAuthorizationCodeGrantRequest : MSIDTokenRequest
 
-@property (nonatomic) NSString *refreshToken;
-@property (nonatomic) NSString *resource;
+@property (nonatomic) NSString *redirectUri;
+@property (nonatomic) NSString *code;
 
 @end

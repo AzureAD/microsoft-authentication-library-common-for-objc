@@ -21,17 +21,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
+#import "MSIDTestContext.h"
+#import "MSIDAADRequest.h"
+#import "MSIDAADRequestErrorHandler.h"
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
+@interface MSIDAADRequestIntegrationTests : XCTestCase
 
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
+@property (nonatomic) MSIDAADRequest *request;
 
-- (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
-                      correlationId:(NSUUID *)correlationId
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
+@end
+
+@implementation MSIDAADRequestIntegrationTests
+
+- (void)setUp
+{
+    [super setUp];
+
+    self.request = [MSIDAADRequest new];
+}
+
+- (void)tearDown
+{
+    [super tearDown];
+}
+
+#pragma mark - Test Default Settings
+
+- (void)testErrorHandler_byDefaultIsNotNil
+{
+    XCTAssertNotNil(self.request.errorHandler);
+    XCTAssertTrue([self.request.errorHandler isKindOfClass:MSIDAADRequestErrorHandler.class]);
+}
 
 @end

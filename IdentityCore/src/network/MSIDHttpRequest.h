@@ -22,15 +22,17 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDHttpRequestProtocol.h"
 
 @protocol MSIDRequestSerialization;
 @protocol MSIDResponseSerialization;
 @protocol MSIDRequestContext;
 @protocol MSIDHttpRequestTelemetryProtocol;
+@protocol MSIDHttpRequestErrorHandlerProtocol;
 
 typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *_Nullable error, _Nullable id <MSIDRequestContext> context);
 
-@interface MSIDHttpRequest : NSObject
+@interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
 
 @property (nonatomic, nullable) NSDictionary *parameters;
 
@@ -42,11 +44,11 @@ typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *
 
 @property (nonatomic, nullable) id <MSIDHttpRequestTelemetryProtocol> telemetry;
 
-@property (nonatomic) NSInteger retryOnErrorCounter;
+@property (nonatomic, nullable) id <MSIDHttpRequestErrorHandlerProtocol> errorHandler;
 
 @property (nonatomic, nullable) id <MSIDRequestContext> context;
 
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable )completionBlock;
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable)completionBlock;
 
 - (void)cancel;
 

@@ -25,7 +25,7 @@
 
 @protocol MSIDResponseSerialization <NSObject>
 
-- (nullable id)responseObjectForResponse:(nullable NSURLResponse *)response
+- (nullable id)responseObjectForResponse:(nullable NSHTTPURLResponse *)httpResponse
                                     data:(nullable NSData *)data
                                    error:(NSError * _Nullable __autoreleasing *_Nullable)error;
 

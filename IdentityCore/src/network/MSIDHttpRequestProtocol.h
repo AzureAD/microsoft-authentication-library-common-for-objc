@@ -23,15 +23,12 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
+typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *_Nullable error, _Nullable id <MSIDRequestContext> context);
 
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
+@protocol MSIDHttpRequestProtocol <NSObject>
 
-- (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
-                      correlationId:(NSUUID *)correlationId
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable)completionBlock;
+
+- (void)cancel;
 
 @end

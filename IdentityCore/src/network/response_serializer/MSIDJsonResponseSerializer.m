@@ -25,7 +25,7 @@
 
 @implementation MSIDJsonResponseSerializer
 
-- (id)responseObjectForResponse:(NSURLResponse *)response data:(NSData *)data error:(NSError **)error
+- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse data:(NSData *)data error:(NSError **)error
 {
     id jsonObject;
     if (data)

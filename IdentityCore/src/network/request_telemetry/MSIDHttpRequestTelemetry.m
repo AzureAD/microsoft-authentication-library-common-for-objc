@@ -36,7 +36,7 @@
 - (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
                       correlationId:(NSUUID *)correlationId
                          urlRequest:(NSURLRequest *)urlRequest
-                        urlResponse:(NSURLResponse *)urlResponse
+                       httpResponse:(NSHTTPURLResponse *)httpResponse
                                data:(NSData *)data
                               error:(NSError *)error
 {
@@ -47,22 +47,17 @@
     [event setHttpMethod:urlRequest.HTTPMethod];
     [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", urlRequest.URL.scheme, urlRequest.URL.host, urlRequest.URL.path]];
     
-    if ([urlResponse isKindOfClass:NSHTTPURLResponse.class])
-    {
-        __auto_type httpResponse = (NSHTTPURLResponse *)urlResponse;
-        [event setHttpRequestIdHeader:httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
-        [event setClientTelemetry:httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY]];
-        [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)httpResponse.statusCode]];
-    }
+    [event setHttpRequestIdHeader:httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
+    [event setClientTelemetry:httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY]];
+    [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)httpResponse.statusCode]];
+    [event setOAuthErrorCodeFromResponseData:data];
+    [event setHttpRequestQueryParams:urlRequest.URL.query];
     
     if (error)
     {
         [event setHttpErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
         [event setHttpErrorDomain:[error domain]];
     }
-    
-    [event setOAuthErrorCodeFromResponseData:data];
-    [event setHttpRequestQueryParams:urlRequest.URL.query];
     
     [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
 }

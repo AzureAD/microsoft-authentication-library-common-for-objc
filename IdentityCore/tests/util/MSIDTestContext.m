@@ -21,17 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTestContext.h"
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
-
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
-
-- (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
-                      correlationId:(NSUUID *)correlationId
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
-
+@implementation MSIDTestContext
 @end
