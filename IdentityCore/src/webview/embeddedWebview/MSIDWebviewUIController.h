@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,22 +15,39 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDWebviewDelegate.h"
+@protocol MSIDWebviewDelegate;
+@class WKWebView;
 
-@class MSIDEmbeddedWebviewRequest;
+@interface MSIDWebviewUIController :
+#if TARGET_OS_IPHONE
+UIViewController
+#else
+//TODO: for mac
+#endif
 
-@interface MSIDOAuth2WebviewController : NSObject <MSIDWebviewInteracting, MSIDWebviewDelegate>
+@property (weak, nonatomic) id<MSIDWebviewDelegate> delegate;
+#if TARGET_OS_IPHONE
+@property (nonatomic) WKWebView *webView;
+@property (weak, nonatomic) UIViewController * parentController;
+@property BOOL fullScreen;
+#else
+//TODO: for mac
+#endif
 
-- (id)initWithRequest:(MSIDEmbeddedWebviewRequest *)request;
+- (BOOL)loadView:(NSError *)error;
+
+- (void)startRequest:(NSURLRequest *)request;
+- (void)loadRequest:(NSURLRequest *)request;
+- (void)stop:(void (^)(void))completion;
+
+- (void)startSpinner;
+- (void)stopSpinner;
 
 @end
+

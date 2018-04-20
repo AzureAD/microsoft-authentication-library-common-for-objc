@@ -69,6 +69,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorInvalidClient = -51015,
     MSIDErrorInvalidGrant = -51016,
     MSIDErrorInvalidParameter = -51017,
+    
+    MSIDErrorUserCancel = -51018,
+    
     MSIDErrorCodeFirst = MSIDErrorInternal,
     MSIDErrorCodeLast = MSIDErrorInvalidParameter
 };
