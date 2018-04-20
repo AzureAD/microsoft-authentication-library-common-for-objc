@@ -29,8 +29,9 @@
 
 @implementation MSIDOAuth2WebviewController
 
+#if TARGET_OS_IPHONE
 @synthesize  parentViewController;
-
+#endif
 
 - (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
