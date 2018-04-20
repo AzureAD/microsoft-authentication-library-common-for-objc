@@ -41,6 +41,8 @@
 		234858E020490F00004FBC3C /* MSIDDefaultTokenCacheIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 965981041FF4C9B400E31CDE /* MSIDDefaultTokenCacheIntegrationTests.m */; };
 		2361DE8B2048B6F8005FD48A /* MSIDAccountTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2361DE8A2048B6F8005FD48A /* MSIDAccountTests.m */; };
 		2361DE8C2048B6F8005FD48A /* MSIDAccountTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2361DE8A2048B6F8005FD48A /* MSIDAccountTests.m */; };
+		238A04792088561100989EE0 /* MSIDHttpRequestIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 238A04782088561100989EE0 /* MSIDHttpRequestIntegrationTests.m */; };
+		238A047A2088561100989EE0 /* MSIDHttpRequestIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 238A04782088561100989EE0 /* MSIDHttpRequestIntegrationTests.m */; };
 		238E19C02086FC38004DF483 /* MSIDHttpResponseSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 238E19BB2086FC38004DF483 /* MSIDHttpResponseSerializer.h */; };
 		238E19C12086FC38004DF483 /* MSIDJsonResponseSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 238E19BC2086FC38004DF483 /* MSIDJsonResponseSerializer.m */; };
 		238E19C22086FC38004DF483 /* MSIDJsonResponseSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 238E19BC2086FC38004DF483 /* MSIDJsonResponseSerializer.m */; };
@@ -461,6 +463,7 @@
 		2335EFB3203BB07600C342D0 /* MSIDMacTokenCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacTokenCacheTests.m; sourceTree = "<group>"; };
 		2361DE8A2048B6F8005FD48A /* MSIDAccountTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountTests.m; sourceTree = "<group>"; };
 		237A6D61203269740084E15F /* MSIDJsonSerializable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJsonSerializable.h; sourceTree = "<group>"; };
+		238A04782088561100989EE0 /* MSIDHttpRequestIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHttpRequestIntegrationTests.m; sourceTree = "<group>"; };
 		238E19BB2086FC38004DF483 /* MSIDHttpResponseSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDHttpResponseSerializer.h; sourceTree = "<group>"; };
 		238E19BC2086FC38004DF483 /* MSIDJsonResponseSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonResponseSerializer.m; sourceTree = "<group>"; };
 		238E19BD2086FC38004DF483 /* MSIDResponseSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDResponseSerialization.h; sourceTree = "<group>"; };
@@ -838,6 +841,7 @@
 				23F32F141FF72CE400B2905E /* mac */,
 				231CE9BE1FE8710A00E95D3E /* ios */,
 				23F32F221FFDAB9D00B2905E /* MSIDTokenCacheDataSourceIntegrationTests.m */,
+				238A04782088561100989EE0 /* MSIDHttpRequestIntegrationTests.m */,
 			);
 			path = integration;
 			sourceTree = "<group>";
@@ -1729,6 +1733,7 @@
 				B2DD5B7420461F410084313F /* MSIDCacheItemTests.m in Sources */,
 				B2DD5BB320478D3B0084313F /* MSIDTestCacheDataSource.m in Sources */,
 				B26A0B902072B562006BD95A /* MSIDOauth2StrategyTests.m in Sources */,
+				238A04792088561100989EE0 /* MSIDHttpRequestIntegrationTests.m in Sources */,
 				04930F8C1FEC8EC200FC4DCD /* MSIDAadAuthorityCache+TestUtil.m in Sources */,
 				04930F901FEC8EE200FC4DCD /* MSIDAadAuthorityCacheTests.m in Sources */,
 				B2964BE520521D790000BC95 /* MSIDTokenFilteringHelperTests.m in Sources */,
@@ -1863,6 +1868,7 @@
 				B2808005204CB2A700944D89 /* MSIDAADV1TokenResponseTests.m in Sources */,
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
 				B26A0B912072B562006BD95A /* MSIDOauth2StrategyTests.m in Sources */,
+				238A047A2088561100989EE0 /* MSIDHttpRequestIntegrationTests.m in Sources */,
 				B2C17AF51FC7A6BD0070A514 /* MSIDTestLogger.m in Sources */,
 				B280800E204CD82100944D89 /* MSIDDefaultCacheKeyTests.m in Sources */,
 				23CC94482046507D00AA0551 /* MSIDMacTokenCacheIntegrationTests.m in Sources */,

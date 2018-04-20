@@ -27,7 +27,11 @@
 
 - (id)responseObjectForResponse:(NSURLResponse *)response data:(NSData *)data error:(NSError **)error
 {
-    id jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:error];
+    id jsonObject;
+    if (data)
+    {
+        jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:error];
+    }
     
     return jsonObject;
 }

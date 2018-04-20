@@ -39,8 +39,6 @@ typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *
 
 @property (nonatomic, nonnull) id <MSIDResponseSerialization> responseSerializer;
 
-@property (nonatomic) NSInteger timeoutInterval;
-
 @property (nonatomic) NSInteger retryOnErrorCounter;
 
 - (void)sendWithContext:(id <MSIDRequestContext> _Nullable)context

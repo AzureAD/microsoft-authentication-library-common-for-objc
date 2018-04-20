@@ -27,8 +27,9 @@
 
 - (NSURLRequest *)serializeWithRequest:(NSURLRequest *)request parameters:(NSDictionary *)parameters
 {
-    NSParameterAssert(request);
-    NSParameterAssert(parameters);
+    assert(request);
+    
+    if (!parameters) return request;
     
     NSMutableURLRequest *mutableRequest = [request mutableCopy];
     
@@ -36,7 +37,7 @@
     {
         NSAssert(mutableRequest.URL, NULL);
         
-        // Use components here.
+        // TODO: Use components here.
         __auto_type urlString = [NSString stringWithFormat:@"%@?%@", mutableRequest.URL.absoluteString, [parameters msidURLFormEncode]];
         mutableRequest.URL = [[NSURL alloc] initWithString:urlString];
     }
@@ -44,6 +45,7 @@
     {
         mutableRequest.HTTPBody = [[parameters msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
         [mutableRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+        [mutableRequest setValue:[NSString stringWithFormat:@"%ld", (unsigned long)mutableRequest.HTTPBody.length] forHTTPHeaderField:@"Content-Length"];
     }
     
     return mutableRequest;
@@ -53,7 +55,7 @@
 {
     __auto_type urlMethods = @[@"GET", @"HEAD", @"DELETE"];
     
-    return [urlMethods containsObject:request.URL.absoluteString.uppercaseString];
+    return [urlMethods containsObject:request.HTTPMethod.uppercaseString];
 }
 
 @end

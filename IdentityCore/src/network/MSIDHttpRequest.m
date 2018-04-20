@@ -60,6 +60,7 @@
     if (!_urlRequest)
     {
         __auto_type request = [NSMutableURLRequest new];
+        request.timeoutInterval = 300;
         [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
         
         _urlRequest = request;
@@ -81,14 +82,20 @@
           if (error)
           {
               __auto_type httpResponse = (NSHTTPURLResponse *)response;
+              BOOL shouldRetry = [httpResponse isKindOfClass:NSHTTPURLResponse.class];
+              shouldRetry &= self.retryOnErrorCounter > 0;
+              shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
               
-              if (self.retryOnErrorCounter > 0 && httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599)
+              if (shouldRetry)
               {
                   self.retryOnErrorCounter--;
                   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                       [self sendWithContext:context completionBlock:completionBlock];
                   });
-                  return;
+              }
+              else
+              {
+                  completionBlock(nil, error, context);
               }
           }
           else
