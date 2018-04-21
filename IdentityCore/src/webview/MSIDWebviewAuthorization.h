@@ -44,5 +44,7 @@
 + (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                    factory:(MSIDOAuth2Factory *)factory;
 
++ (BOOL)cancelCurrentWebAuthSession;
+
 + (BOOL)handleURLResponse:(NSURL *)url;
 @end

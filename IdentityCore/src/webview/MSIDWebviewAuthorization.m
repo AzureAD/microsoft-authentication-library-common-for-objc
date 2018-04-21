@@ -29,7 +29,7 @@
 
 @implementation MSIDWebviewAuthorization
 
-
+static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 
 + (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                      factory:(MSIDOAuth2Factory *)factory;
@@ -51,6 +51,11 @@
 }
 
 + (BOOL)handleURLResponse:(NSURL *)url
+{
+    return NO;
+}
+
++ (BOOL)cancelCurrentWebAuthSession
 {
     return NO;
 }
