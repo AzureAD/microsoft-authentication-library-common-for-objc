@@ -49,7 +49,7 @@
     // hijack the delegate on the webview.
     if (_webView)
     {
-        //_webView.UIDelegate = self;
+        _webView.navigationDelegate = self;
         return YES;
     }
     
@@ -106,7 +106,7 @@
  is deallocated, or it might crash ADAL. */
 -(void)dealloc
 {
-    //[_webView setUIDelegate:nil];
+    [_webView setNavigationDelegate:nil];
     _webView = nil;
 }
 

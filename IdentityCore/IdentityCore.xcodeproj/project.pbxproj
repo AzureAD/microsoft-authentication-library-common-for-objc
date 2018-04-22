@@ -61,6 +61,7 @@
 		60CABE302087FA10005154A2 /* MSIDWebviewUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 60CABE2F2087FA10005154A2 /* MSIDWebviewUIController.m */; };
 		60CABE332087FE8F005154A2 /* UIApplication+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 60CABE322087FE8F005154A2 /* UIApplication+MSIDExtensions.m */; };
 		60E434272088F79200802D59 /* MSIDAppExtensionUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 60E434262088F79200802D59 /* MSIDAppExtensionUtil.m */; };
+		60E4343B208A79EB00802D59 /* MSIDWebviewUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 60E4343A208A79EB00802D59 /* MSIDWebviewUIController.m */; };
 		96235F96207D7286007EAB36 /* MSIDWebOAuth2Response.m in Sources */ = {isa = PBXBuildFile; fileRef = 96235F95207D7286007EAB36 /* MSIDWebOAuth2Response.m */; };
 		96235F99207D72A6007EAB36 /* MSIDWebAADAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 96235F98207D72A6007EAB36 /* MSIDWebAADAuthResponse.m */; };
 		96235F9C207D72CE007EAB36 /* MSIDWebWPJAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 96235F9B207D72CE007EAB36 /* MSIDWebWPJAuthResponse.m */; };
@@ -478,6 +479,7 @@
 		60E434252088F78000802D59 /* MSIDAppExtensionUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAppExtensionUtil.h; sourceTree = "<group>"; };
 		60E434262088F79200802D59 /* MSIDAppExtensionUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAppExtensionUtil.m; sourceTree = "<group>"; };
 		60E434282089381700802D59 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
+		60E4343A208A79EB00802D59 /* MSIDWebviewUIController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewUIController.m; sourceTree = "<group>"; };
 		96235F90207D7150007EAB36 /* MSIDWebviewInteracting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebviewInteracting.h; sourceTree = "<group>"; };
 		96235F94207D7286007EAB36 /* MSIDWebOAuth2Response.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebOAuth2Response.h; sourceTree = "<group>"; };
 		96235F95207D7286007EAB36 /* MSIDWebOAuth2Response.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebOAuth2Response.m; sourceTree = "<group>"; };
@@ -876,6 +878,14 @@
 			path = ios;
 			sourceTree = "<group>";
 		};
+		60E43439208A79C400802D59 /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				60E4343A208A79EB00802D59 /* MSIDWebviewUIController.m */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
 		96235F8F207D7128007EAB36 /* webview */ = {
 			isa = PBXGroup;
 			children = (
@@ -968,6 +978,7 @@
 				60CABE2D2087F979005154A2 /* MSIDWebviewUIController.h */,
 				96235FA0207D786A007EAB36 /* challangeHandlers */,
 				60CABE212087F34D005154A2 /* ios */,
+				60E43439208A79C400802D59 /* mac */,
 			);
 			path = embeddedWebview;
 			sourceTree = "<group>";
@@ -1827,6 +1838,7 @@
 				B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */,
 				96F94A3520817C1A0034676C /* MSIDNTLMHandler.m in Sources */,
 				23F32F1A1FFD635600B2905E /* MSIDTestIdTokenUtil.m in Sources */,
+				60E4343B208A79EB00802D59 /* MSIDWebviewUIController.m in Sources */,
 				B26A0B8E2071B763006BD95A /* MSIDAADV1Oauth2Factory.m in Sources */,
 				B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */,
 				B2807FF9204CAFDF00944D89 /* MSIDHelpers.m in Sources */,

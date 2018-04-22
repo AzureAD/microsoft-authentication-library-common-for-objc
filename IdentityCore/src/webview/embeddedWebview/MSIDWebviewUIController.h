@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <AppKit/NSWindowController.h>
+
 @protocol MSIDWebviewDelegate;
 @class WKWebView;
 
@@ -28,16 +30,14 @@
 #if TARGET_OS_IPHONE
 UIViewController
 #else
-//TODO: for mac
+NSWindowController
 #endif
 
 @property (weak, nonatomic) id<MSIDWebviewDelegate> delegate;
-#if TARGET_OS_IPHONE
 @property (nonatomic) WKWebView *webView;
+#if TARGET_OS_IPHONE
 @property (weak, nonatomic) UIViewController * parentController;
 @property BOOL fullScreen;
-#else
-//TODO: for mac
 #endif
 
 - (BOOL)loadView:(NSError *)error;
@@ -48,6 +48,10 @@ UIViewController
 
 - (void)startSpinner;
 - (void)stopSpinner;
+
+#if !TARGET_OS_IPHONE
+- (NSWindow *)webviewWindow;
+#endif
 
 @end
 
