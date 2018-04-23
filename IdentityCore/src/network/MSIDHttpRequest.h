@@ -38,6 +38,8 @@ typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *
 
 @property (nonatomic, nullable) NSURLRequest *urlRequest;
 
+@property (nonatomic) NSTimeInterval defaultTimeoutInterval;
+
 @property (nonatomic, nonnull) id <MSIDRequestSerialization> requestSerializer;
 
 @property (nonatomic, nonnull) id <MSIDResponseSerialization> responseSerializer;

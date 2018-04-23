@@ -51,6 +51,7 @@
     _session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:self.operationQueue];
     _responseSerializer = [MSIDJsonResponseSerializer new];
     _requestSerializer = [MSIDUrlRequestSerializer new];
+    _defaultTimeoutInterval = 300;
     
     return self;
 }
@@ -60,7 +61,7 @@
     if (!_urlRequest)
     {
         __auto_type request = [NSMutableURLRequest new];
-        request.timeoutInterval = 300;
+        request.timeoutInterval = self.defaultTimeoutInterval;
         [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
         
         _urlRequest = request;
