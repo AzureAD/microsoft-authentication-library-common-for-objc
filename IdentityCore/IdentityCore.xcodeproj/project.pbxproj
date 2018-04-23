@@ -75,6 +75,7 @@
 		96A3E9BF2089478500BE5262 /* MSIDWebviewAuthorization.m in Sources */ = {isa = PBXBuildFile; fileRef = 96A3E9BC2089478500BE5262 /* MSIDWebviewAuthorization.m */; };
 		96A3E9C120895CCE00BE5262 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96A3E9C020895CCE00BE5262 /* WebKit.framework */; };
 		96B25DD31FE29F11007B21F7 /* MSIDAdfsToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 96B25DD11FE29F11007B21F7 /* MSIDAdfsToken.h */; };
+		96B82B6F208DD88F00CAB843 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B82B6E208DD88F00CAB843 /* SafariServices.framework */; };
 		96CD69461FE849C800D41938 /* MSIDAADTokenResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 96CD693C1FE849C800D41938 /* MSIDAADTokenResponse.h */; };
 		96CD69491FE849C800D41938 /* MSIDClientInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 96CD693E1FE849C800D41938 /* MSIDClientInfo.h */; };
 		96CD694C1FE849C800D41938 /* MSIDBrokerResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 96CD69401FE849C800D41938 /* MSIDBrokerResponse.h */; };
@@ -495,6 +496,7 @@
 		96A3E9BC2089478500BE5262 /* MSIDWebviewAuthorization.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewAuthorization.m; sourceTree = "<group>"; };
 		96A3E9C020895CCE00BE5262 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.3.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		96B25DD11FE29F11007B21F7 /* MSIDAdfsToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAdfsToken.h; sourceTree = "<group>"; };
+		96B82B6E208DD88F00CAB843 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.2.sdk/System/Library/Frameworks/SafariServices.framework; sourceTree = DEVELOPER_DIR; };
 		96CD693C1FE849C800D41938 /* MSIDAADTokenResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAADTokenResponse.h; sourceTree = "<group>"; };
 		96CD693D1FE849C800D41938 /* MSIDAADTokenResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAADTokenResponse.m; sourceTree = "<group>"; };
 		96CD693E1FE849C800D41938 /* MSIDClientInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDClientInfo.h; sourceTree = "<group>"; };
@@ -781,6 +783,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96B82B6F208DD88F00CAB843 /* SafariServices.framework in Frameworks */,
 				96A3E9C120895CCE00BE5262 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1307,6 +1310,7 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				96B82B6E208DD88F00CAB843 /* SafariServices.framework */,
 				96A3E9C020895CCE00BE5262 /* WebKit.framework */,
 				B2893CAE1FCF68B200E348E9 /* Security.framework */,
 				B20657D81FC92D7600412B7D /* libswiftIOKit.tbd */,

@@ -28,6 +28,15 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
 
+@class MSIDSystemWebviewRequest;
+
 @interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
+
+- (id)initWithStartURL:(NSURL *)startURL
+     callbackURLScheme:(NSString *)callbackURLScheme
+               context:(id<MSIDRequestContext>)context;
+
+@property (readonly) NSURL *startURL;
+@property (readonly) NSString *callbackURLScheme;
 
 @end

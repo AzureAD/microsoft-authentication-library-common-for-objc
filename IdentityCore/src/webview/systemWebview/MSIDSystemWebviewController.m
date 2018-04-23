@@ -26,14 +26,51 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDSystemWebviewController.h"
+#import "MSIDSystemWebviewRequest.h"
+#import <SafariServices/SafariServices.h>
 
 @implementation MSIDSystemWebviewController
+{
+    id<MSIDRequestContext> _context;
+    
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+    SFAuthenticationSession *_authSession;
+#endif
+}
 
 @synthesize parentViewController;
 
+- (id)initWithStartURL:(NSURL *)startURL
+     callbackURLScheme:(NSString *)callbackURLScheme
+               context:(id<MSIDRequestContext>)context;
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _startURL = startURL;
+        _context = context;
+        _callbackURLScheme = callbackURLScheme;
+    }
+    
+    return self;
+}
+
 - (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
+#ifdef __IPHONE_11_0
+    if (@available(iOS 11.0, *)) {
+        _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
+                                                  callbackURLScheme:_callbackURLScheme
+                                                  completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error)
+        {
+            
+            
+        }];
+        
+    }
     
+#endif
 }
 
 - (void)cancel

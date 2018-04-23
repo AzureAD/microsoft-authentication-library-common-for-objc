@@ -26,28 +26,45 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebviewAuthorization.h"
+#import "MSIDWebviewInteracting.h"
 
 @implementation MSIDWebviewAuthorization
 
 static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                     factory:(MSIDOAuth2Factory *)factory;
++ (void)startEmbeddedWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                              factory:(MSIDOAuth2Factory *)factory
 {
-    return nil;
+    
 }
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                     webview:(WKWebView *)webview
-                                                                     factory:(MSIDOAuth2Factory *)factory;
++ (void)startEmbeddedWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                     webview:(WKWebView *)webview
+                                                     factory:(MSIDOAuth2Factory *)factory
 {
-    return nil;
+    
 }
 
-+ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                   factory:(MSIDOAuth2Factory *)factory;
++ (void)startSystemWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                   factory:(MSIDOAuth2Factory *)factory
 {
-    return nil;
+    
+}
+
++ (BOOL)setCurrentWebSession:(id<MSIDWebviewInteracting>)newWebSession
+{
+    if (!s_currentWebSession)
+    {
+        @synchronized([MSIDWebviewAuthorization class])
+        {
+            s_currentWebSession = newWebSession;
+        }
+        return YES;
+    }
+    
+    return NO;
+    
+    
 }
 
 + (BOOL)handleURLResponse:(NSURL *)url

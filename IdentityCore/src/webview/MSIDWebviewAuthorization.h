@@ -31,20 +31,19 @@
 @class WKWebView;
 @class MSIDOAuth2Factory;
 
-@protocol MSIDWebviewInteracting;
-
 @interface MSIDWebviewAuthorization : NSObject
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                     factory:(MSIDOAuth2Factory *)factory;
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                     webview:(WKWebView *)webview
-                                                                     factory:(MSIDOAuth2Factory *)factory;
++ (void)startEmbeddedWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                              factory:(MSIDOAuth2Factory *)factory;
++ (void)startEmbeddedWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                     webview:(WKWebView *)webview
+                                                     factory:(MSIDOAuth2Factory *)factory;
 
-+ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                   factory:(MSIDOAuth2Factory *)factory;
++ (void)startSystemWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                   factory:(MSIDOAuth2Factory *)factory;
 
 + (BOOL)cancelCurrentWebAuthSession;
 
 + (BOOL)handleURLResponse:(NSURL *)url;
+
 @end
