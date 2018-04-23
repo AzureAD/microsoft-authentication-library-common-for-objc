@@ -122,10 +122,13 @@
               });
           }
       }] resume];
+    
+    [self.session finishTasksAndInvalidate];
 }
 
 - (void)cancel
 {
+    [self.session invalidateAndCancel];
     [self.session finishTasksAndInvalidate];
 }
 
