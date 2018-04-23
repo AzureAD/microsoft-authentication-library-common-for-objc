@@ -26,19 +26,28 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDRequestParameters.h"
+#import "MSIDWebviewInteracting.h"
 
-@class MSIDWebOAuth2Response;
+@class WKWebView;
+@class MSIDOauth2Factory;
 
-typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
+@protocol MSIDWebviewInteracting;
 
-@protocol MSIDWebviewInteracting
+@interface MSIDWebviewAuthorization : NSObject
 
-- (void)startWithURL:(NSURL *)startURL
-          completion:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                     factory:(MSIDOauth2Factory *)factory;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                     webview:(WKWebView *)webview
+                                                                     factory:(MSIDOauth2Factory *)factory;
 
-#if TARGET_OS_IPHONE
-@property UIViewController *parentViewController;
-#endif
++ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                   factory:(MSIDOauth2Factory *)factory;
 
++ (BOOL)handleURLResponse:(NSURL *)url;
+
++ (void)startWebviewSession:(MSIDRequestParameters *)parameters
+                    factory:(MSIDOauth2Factory *)factory
+          completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 @end

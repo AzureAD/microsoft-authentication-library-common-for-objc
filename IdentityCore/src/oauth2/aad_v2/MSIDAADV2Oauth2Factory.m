@@ -211,4 +211,18 @@
     return baseToken;
 }
 
+#pragma mark - Webview controllers
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                                           Webview:(WKWebView *)webview
+{
+    // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
+    return nil;
+}
+
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+{
+    // Create MSIDSystemWebviewRequest and create SystemWebviewController
+    return nil;
+}
+
 @end

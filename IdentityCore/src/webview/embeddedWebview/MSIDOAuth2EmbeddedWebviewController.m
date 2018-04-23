@@ -25,8 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDOAuth2WebviewController.h"
-#import "MSIDEmbeddedWebviewRequest.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -35,42 +34,26 @@
 #import "MSIDError.h"
 #import "MSIDWebOAuth2Response.h"
 
-@implementation MSIDOAuth2WebviewController
+@implementation MSIDOAuth2EmbeddedWebviewController
 {
-    MSIDEmbeddedWebviewRequest *_webviewRequest;
     MSIDWebviewUIController *_webviewUIController;
     NSLock *_completionLock;
     void (^_completionHandler)(MSIDWebOAuth2Response *response, NSError *error);
 }
 
-- (id)init
-{
-    //Ensure that the appropriate init function is called. This will cause the runtime to throw.
-    [super doesNotRecognizeSelector:_cmd];
-    return nil;
-}
+#if TARGET_OS_IPHONE
+@synthesize  parentViewController;
+#endif
 
-- (id)initWithRequest:(MSIDEmbeddedWebviewRequest *)request
-{
-    self = [super init];
-    
-    if (self)
-    {
-        _webviewRequest = request;
-        _completionLock = [[NSLock alloc] init];
-    }
-    
-    return self;
-}
-
-- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+- (void)startWithURL:(NSURL *)startURL
+          completion:(MSIDWebUICompletionHandler)completionHandler
 {
     // If we're not on the main thread when trying to kick up the UI then
     // dispatch over to the main thread.
     if (![NSThread isMainThread])
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self startRequestWithCompletionHandler:completionHandler];
+            [self startWithURL:startURL completion:completionHandler];
         });
         return;
     }
@@ -80,7 +63,12 @@
     
     _webviewUIController = [MSIDWebviewUIController new];
     [_webviewUIController loadView:nil];
-    [_webviewUIController startRequest:[[NSMutableURLRequest alloc] initWithURL:_webviewRequest.startURL]];
+    [_webviewUIController startRequest:[[NSMutableURLRequest alloc] initWithURL:startURL]];
+}
+
+- (void)cancel
+{
+    //TODO
 }
 
 - (BOOL)endWebAuthenticationWithError:(NSError *) error
@@ -208,3 +196,4 @@
 }
 
 @end
+

@@ -27,12 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
-#import "MSIDWebviewDelegate.h"
 
-@class MSIDEmbeddedWebviewRequest;
-
-@interface MSIDOAuth2WebviewController : NSObject <MSIDWebviewInteracting, MSIDWebviewDelegate>
-
-- (id)initWithRequest:(MSIDEmbeddedWebviewRequest *)request;
+@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
 
 @end

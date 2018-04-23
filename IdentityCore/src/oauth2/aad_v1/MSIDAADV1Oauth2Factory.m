@@ -148,4 +148,70 @@
     return legacyToken;
 }
 
+#pragma mark - Webview controllers
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                                           Webview:(WKWebView *)webview
+{
+    // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
+    return nil;
+}
+
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+{
+    // Create MSIDSystemWebviewRequest and create SystemWebviewController
+    return nil;
+}
+
+- (NSURL *)generateStartURL:(MSIDRequestParameters *)requestParams
+{
+    NSString* state = [self encodeProtocolState];
+    NSString* queryParams = nil;
+    // Start the web navigation process for the Implicit grant profile.
+    NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
+                                 [_context.authority stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX],
+                                 MSID_OAUTH2_RESPONSE_TYPE, requestType,
+                                 MSID_OAUTH2_CLIENT_ID, [[_requestParams clientId] msidUrlFormEncode],
+                                 MSID_OAUTH2_RESOURCE, [[_requestParams resource] msidUrlFormEncode],
+                                 MSID_OAUTH2_REDIRECT_URI, [[_requestParams redirectUri] msidUrlFormEncode],
+                                 MSID_OAUTH2_STATE, state];
+    
+    [startUrl appendFormat:@"&%@", [[MSIDDeviceId deviceId] msidURLFormEncode]];
+    
+    if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString msidIsStringNilOrBlank:[_requestParams identifier].userId])
+    {
+        [startUrl appendFormat:@"&%@=%@", MSID_OAUTH2_LOGIN_HINT, [[_requestParams identifier].userId msidUrlFormEncode]];
+    }
+    NSString* promptParam = [ADAuthenticationContext getPromptParameter:_promptBehavior];
+    if (promptParam)
+    {
+        //Force the server to ignore cookies, by specifying explicitly the prompt behavior:
+        [startUrl appendString:[NSString stringWithFormat:@"&prompt=%@", promptParam]];
+    }
+    
+    [startUrl appendString:@"&haschrome=1"]; //to hide back button in UI
+    
+    if (![NSString msidIsStringNilOrBlank:_queryParams])
+    {//Append the additional query parameters if specified:
+        queryParams = _queryParams.msidTrimmedString;
+        
+        //Add the '&' for the additional params if not there already:
+        if ([queryParams hasPrefix:@"&"])
+        {
+            [startUrl appendString:queryParams];
+        }
+        else
+        {
+            [startUrl appendFormat:@"&%@", queryParams];
+        }
+    }
+    
+    if (![NSString msidIsStringNilOrBlank:_claims])
+    {
+        NSString *claimsParam = _claims.msidTrimmedString;
+        [startUrl appendFormat:@"&claims=%@", claimsParam];
+    }
+    
+    return startUrl;
+}
+
 @end

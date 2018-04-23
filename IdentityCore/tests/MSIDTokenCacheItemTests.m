@@ -123,7 +123,7 @@
     NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
     
     NSDictionary *expectedDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                         @"credential_type": @"AccessToken",
+                                         @"credential_type": @"accesstoken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"target": DEFAULT_TEST_RESOURCE,
                                          @"cached_at": cachedAtString,
@@ -152,7 +152,7 @@
     cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
     
     NSDictionary *expectedDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                         @"credential_type": @"RefreshToken",
+                                         @"credential_type": @"refreshtoken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"secret": DEFAULT_TEST_REFRESH_TOKEN,
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
@@ -172,7 +172,7 @@
     cacheItem.idToken = DEFAULT_TEST_ID_TOKEN;
     
     NSDictionary *expectedDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                         @"credential_type": @"IdToken",
+                                         @"credential_type": @"idtoken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"secret": DEFAULT_TEST_ID_TOKEN,
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
@@ -204,7 +204,7 @@
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
     
     NSDictionary *expectedDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                         @"credential_type": @"LegacySingleResourceToken",
+                                         @"credential_type": @"legacysingleresourcetoken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"target": DEFAULT_TEST_RESOURCE,
                                          @"cached_at": cachedAtString,
@@ -232,7 +232,7 @@
     NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
     
     NSDictionary *jsonDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                     @"credential_type": @"AccessToken",
+                                     @"credential_type": @"accesstoken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"target": DEFAULT_TEST_RESOURCE,
                                      @"cached_at": cachedAtString,
@@ -267,7 +267,7 @@
 - (void)testInitWithJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnRefreshTokenCacheItem
 {
     NSDictionary *jsonDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                     @"credential_type": @"RefreshToken",
+                                     @"credential_type": @"refreshtoken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"secret": DEFAULT_TEST_REFRESH_TOKEN,
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
@@ -297,7 +297,7 @@
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
     
     NSDictionary *jsonDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                     @"credential_type": @"LegacySingleResourceToken",
+                                     @"credential_type": @"legacysingleresourcetoken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"target": DEFAULT_TEST_RESOURCE,
                                      @"cached_at": cachedAtString,
@@ -327,7 +327,7 @@
 
 - (void)testInitWithJSONDictionary_whenIDToken_andAllFieldsSet_shouldReturnIDTokenCacheItem
 {
-    NSDictionary *jsonDictionary = @{@"credential_type": @"IdToken",
+    NSDictionary *jsonDictionary = @{@"credential_type": @"idtoken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"secret": DEFAULT_TEST_ID_TOKEN,
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,

@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,45 +17,28 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#if !TARGET_OS_IPHONE
-#import <AppKit/NSWindowController.h>
-#endif
+#import "MSIDSystemWebviewController.h"
 
-@protocol MSIDWebviewDelegate;
-@class WKWebView;
+@implementation MSIDSystemWebviewController
 
-@interface MSIDWebviewUIController :
-#if TARGET_OS_IPHONE
-UIViewController
-#else
-NSWindowController
-#endif
+@synthesize parentViewController;
 
-@property (weak, nonatomic) id<MSIDWebviewDelegate> delegate;
-@property (nonatomic) WKWebView *webView;
-#if TARGET_OS_IPHONE
-@property (weak, nonatomic) UIViewController * parentController;
-@property BOOL fullScreen;
-#endif
+- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+{
+    
+}
 
-- (BOOL)loadView:(NSError *)error;
-
-- (void)startRequest:(NSURLRequest *)request;
-- (void)loadRequest:(NSURLRequest *)request;
-- (void)stop:(void (^)(void))completion;
-
-- (void)startSpinner;
-- (void)stopSpinner;
-
-#if !TARGET_OS_IPHONE
-- (NSWindow *)webviewWindow;
-#endif
+- (void)cancel
+{
+    
+}
 
 @end
-

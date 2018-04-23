@@ -266,4 +266,24 @@
     return account;
 }
 
+#pragma mark - Webview controllers
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                                     customWebview:(WKWebView *)webview
+{
+    // TODO: return default
+    return nil;
+}
+
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+{
+    // TODO: return default
+    return nil;
+}
+
+- (NSURL *)generateStartURL:(MSIDRequestParameters *)requestParams
+{
+    // TODO: generate start url for OAuth 2
+    return nil;
+}
+
 @end
