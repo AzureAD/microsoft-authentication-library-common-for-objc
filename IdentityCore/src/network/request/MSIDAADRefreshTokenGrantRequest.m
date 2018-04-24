@@ -21,16 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDHttpRequest.h"
+#import "MSIDAADRefreshTokenGrantRequest.h"
+#import "MSIDAADRequestConfigurator.h"
 
-/**
- @abstract Represents abstract request to oauth 2.0 '/token' endpoint.
- */
-@interface MSIDTokenRequest : MSIDHttpRequest
+@implementation MSIDAADRefreshTokenGrantRequest
 
-@property (nonatomic) NSString *clientId;
-@property (nonatomic) NSString *scope;
-@property (nonatomic) NSURL *endpoint;
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        self.requestConfigurator = [MSIDAADRequestConfigurator new];
+    }
+    return self;
+}
+
+- (NSDictionary *)parameters
+{
+    NSMutableDictionary *parameters = [[super parameters] mutableCopy];
+    parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
+    
+    return parameters;
+}
 
 @end

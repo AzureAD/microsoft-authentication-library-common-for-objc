@@ -31,7 +31,6 @@
     
     NSMutableDictionary *parameters = [NSMutableDictionary new];
     parameters[MSID_OAUTH2_CLIENT_ID] = self.clientId;
-    parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
     parameters[MSID_OAUTH2_SCOPE] = self.scope;
     
     return parameters;
@@ -39,11 +38,8 @@
 
 - (NSURLRequest *)urlRequest
 {
-    NSParameterAssert(self.authority);
-
-    NSMutableURLRequest *urlRequest = [[super urlRequest] mutableCopy];
-    
-    urlRequest.URL = [NSURL URLWithString:[self.authority.absoluteString stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]];
+    NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
+    urlRequest.URL = [NSURL URLWithString:[self.endpoint.absoluteString stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]];
     urlRequest.HTTPMethod = @"POST";
 
     return urlRequest;

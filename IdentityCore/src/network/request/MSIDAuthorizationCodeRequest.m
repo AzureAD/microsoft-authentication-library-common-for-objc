@@ -23,8 +23,19 @@
 
 #import "MSIDAuthorizationCodeRequest.h"
 #import "MSIDHttpRequest.h"
+#import "MSIDAADRequestConfigurator.h"
 
 @implementation MSIDAuthorizationCodeRequest
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        self.requestConfigurator = [MSIDAADRequestConfigurator new];
+    }
+    return self;
+}
 
 - (NSDictionary *)parameters
 {
@@ -38,7 +49,6 @@
     parameters[MSID_OAUTH2_RESOURCE] = self.resource;
     parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
     parameters[MSID_OAUTH2_RESPONSE_TYPE] = self.loginHint;
-    parameters[@"nux"] = @"1";
     parameters[@"prompt"] = @"none";
     parameters[MSID_OAUTH2_SCOPE] = self.scope;
     
@@ -47,11 +57,11 @@
 
 - (NSURLRequest *)urlRequest
 {
-    NSParameterAssert(self.authority);
+    NSParameterAssert(self.endpoint);
     
     NSMutableURLRequest *urlRequest = [[super urlRequest] mutableCopy];
     
-    __auto_type urlString = [self.authority.absoluteString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX];
+    __auto_type urlString = [self.endpoint.absoluteString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX];
     urlRequest.URL = [NSURL URLWithString:urlString];
     urlRequest.HTTPMethod = @"GET";
     

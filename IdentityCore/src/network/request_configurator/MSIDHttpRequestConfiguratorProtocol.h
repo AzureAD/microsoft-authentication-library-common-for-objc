@@ -21,10 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDHttpRequest.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDAADRequest : MSIDHttpRequest
+@class MSIDHttpRequest;
 
-@property (nonatomic) NSURL *authority;
+@protocol MSIDHttpRequestConfiguratorProtocol <NSObject>
+
+- (void)configure:(MSIDHttpRequest *)request;
 
 @end

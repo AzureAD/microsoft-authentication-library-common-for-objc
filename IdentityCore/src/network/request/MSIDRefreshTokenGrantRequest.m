@@ -33,7 +33,6 @@
     NSMutableDictionary *parameters = [[super parameters] mutableCopy];
     parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;
     parameters[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
-    parameters[MSID_OAUTH2_RESOURCE] = self.resource;
     
     return parameters;
 }

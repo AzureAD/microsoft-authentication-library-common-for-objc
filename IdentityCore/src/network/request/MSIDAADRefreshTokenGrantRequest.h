@@ -21,16 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDHttpRequest.h"
+#import "MSIDRefreshTokenGrantRequest.h"
 
 /**
- @abstract Represents abstract request to oauth 2.0 '/token' endpoint.
+ Refreshing the access token.
+ 
+ @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#refreshing-the-access-tokens
  */
-@interface MSIDTokenRequest : MSIDHttpRequest
-
-@property (nonatomic) NSString *clientId;
-@property (nonatomic) NSString *scope;
-@property (nonatomic) NSURL *endpoint;
+@interface MSIDAADRefreshTokenGrantRequest : MSIDRefreshTokenGrantRequest
 
 @end

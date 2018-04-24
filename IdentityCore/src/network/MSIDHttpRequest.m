@@ -26,11 +26,11 @@
 #import "MSIDUrlRequestSerializer.h"
 #import "MSIDHttpRequestTelemetryProtocol.h"
 #import "MSIDHttpRequestErrorHandlerProtocol.h"
+#import "MSIDHttpRequestConfiguratorProtocol.h"
 
 @interface MSIDHttpRequest () <NSURLSessionDelegate>
 
 @property (nonatomic) NSURLSessionConfiguration *sessionConfiguration;
-@property (nonatomic) NSOperationQueue *operationQueue;
 @property (nonatomic) NSURLSession *session;
 
 @end
@@ -43,40 +43,25 @@
     
     if (!self) return nil;
     
-    // TODO: can we remove queue?
-    _operationQueue = [NSOperationQueue new];
-    _operationQueue.maxConcurrentOperationCount = 1;
-    
     _sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    _session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:self.operationQueue];
+    _session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
     _responseSerializer = [MSIDJsonResponseSerializer new];
     _requestSerializer = [MSIDUrlRequestSerializer new];
-    _defaultTimeoutInterval = 300;
     
     return self;
 }
 
-- (NSURLRequest *)urlRequest
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
 {
-    if (!_urlRequest)
-    {
-        __auto_type request = [NSMutableURLRequest new];
-        request.timeoutInterval = self.defaultTimeoutInterval;
-        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-        
-        _urlRequest = request;
-    }
+    NSParameterAssert(self.urlRequest);
     
-    return _urlRequest;
-}
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable )completionBlock;
-{
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
+    
+    if (self.requestConfigurator) [self.requestConfigurator configure:self];
     
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
     
-    [[self.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
+    [[self.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
       {
           MSID_LOG_VERBOSE(self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
           MSID_LOG_VERBOSE_PII(self.context, @"Received network response: %@, error %@", response, error);
@@ -129,7 +114,6 @@
 - (void)cancel
 {
     [self.session invalidateAndCancel];
-    [self.session finishTasksAndInvalidate];
 }
 
 @end

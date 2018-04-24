@@ -94,19 +94,9 @@
 
 #pragma mark - Test Default Settings
 
-- (void)testUrlRequest_byDefaultIsNotNil
+- (void)testUrlRequest_byDefaultIsNil
 {
-    XCTAssertNotNil(self.request.urlRequest);
-}
-
-- (void)testUrlRequest_byDefaultAcceptJson
-{
-    XCTAssertEqualObjects(self.request.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/json");
-}
-
-- (void)testUrlRequest_byDefaultIntervalIs60Seconds
-{
-    XCTAssertEqual(self.request.urlRequest.timeoutInterval, 300);
+    XCTAssertNil(self.request.urlRequest);
 }
 
 - (void)testRequest_byDefaultUseMSIDJsonResponseSerializer

@@ -29,6 +29,7 @@
 @protocol MSIDRequestContext;
 @protocol MSIDHttpRequestTelemetryProtocol;
 @protocol MSIDHttpRequestErrorHandlerProtocol;
+@protocol MSIDHttpRequestConfiguratorProtocol;
 
 typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *_Nullable error, _Nullable id <MSIDRequestContext> context);
 
@@ -36,13 +37,13 @@ typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *
 
 @property (nonatomic, nullable) NSDictionary *parameters;
 
-@property (nonatomic, nullable) NSURLRequest *urlRequest;
-
-@property (nonatomic) NSTimeInterval defaultTimeoutInterval;
+@property (nonatomic, nonnull) NSURLRequest *urlRequest;
 
 @property (nonatomic, nonnull) id <MSIDRequestSerialization> requestSerializer;
 
 @property (nonatomic, nonnull) id <MSIDResponseSerialization> responseSerializer;
+
+@property (nonatomic, nullable) id <MSIDHttpRequestConfiguratorProtocol> requestConfigurator;
 
 @property (nonatomic, nullable) id <MSIDHttpRequestTelemetryProtocol> telemetry;
 

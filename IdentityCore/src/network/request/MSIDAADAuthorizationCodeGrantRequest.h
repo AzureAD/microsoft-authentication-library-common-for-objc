@@ -21,43 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
-#import "MSIDTestContext.h"
-#import "MSIDAADRequest.h"
-#import "MSIDAADRequestErrorHandler.h"
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDAuthorizationCodeGrantRequest.h"
 
-@interface MSIDAADRequestIntegrationTests : XCTestCase
-
-@property (nonatomic) MSIDAADRequest *request;
-
-@end
-
-@implementation MSIDAADRequestIntegrationTests
-
-- (void)setUp
-{
-    [super setUp];
-
-    self.request = [MSIDAADRequest new];
-}
-
-- (void)tearDown
-{
-    [super tearDown];
-}
-
-#pragma mark - Test Default Settings
-
-- (void)testErrorHandler_byDefaultIsNotNil
-{
-    XCTAssertNotNil(self.request.errorHandler);
-    XCTAssertTrue([self.request.errorHandler isKindOfClass:MSIDAADRequestErrorHandler.class]);
-}
-
-- (void)testRequest_byDefaultUseMSIDJsonResponseSerializer
-{
-    XCTAssertTrue([self.request.responseSerializer isKindOfClass:MSIDAADResponseSerializer.class]);
-}
+/**
+ Redeem code request.
+ 
+ @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#use-the-authorization-code-to-request-an-access-token
+ */
+@interface MSIDAADAuthorizationCodeGrantRequest : MSIDAuthorizationCodeGrantRequest
 
 @end

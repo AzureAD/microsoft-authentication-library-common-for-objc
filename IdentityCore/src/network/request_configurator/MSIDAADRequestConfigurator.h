@@ -22,15 +22,12 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDHttpRequest.h"
+#import "MSIDHttpRequestConfiguratorProtocol.h"
 
-/**
- @abstract Represents abstract request to oauth 2.0 '/token' endpoint.
- */
-@interface MSIDTokenRequest : MSIDHttpRequest
+@class MSIDHttpRequest;
 
-@property (nonatomic) NSString *clientId;
-@property (nonatomic) NSString *scope;
-@property (nonatomic) NSURL *endpoint;
+@interface MSIDAADRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
+
+@property (nonatomic) NSTimeInterval timeoutInterval;
 
 @end
