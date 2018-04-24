@@ -174,7 +174,7 @@
     SecKeyRef privateKey = nil;
     OSStatus result = SecIdentityCopyPrivateKey(identity, &privateKey);
 
-    if (result != errSecSuccess || !privateKey)
+    if (result != errSecSuccess)
     {
         NSLog(@"Couldn't copy private key");
         return nil;
@@ -184,7 +184,7 @@
     result = SecIdentityCopyCertificate(identity, &certificate);
     CFRelease(identity);
 
-    if (result != errSecSuccess || !certificate)
+    if (result != errSecSuccess)
     {
         NSLog(@"Couldn't copy certificate");
         return nil;
