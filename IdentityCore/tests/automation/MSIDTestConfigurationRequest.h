@@ -58,10 +58,15 @@ extern MSIDTestAccountFeature MSIDTestAccountFeatureMFAEnabled;
 extern MSIDTestAccountFeature MSIDTestAccountFeatureGuestUser;
 /*! The account is a guest user */
 extern MSIDTestAccountFeature MSIDTestAccountFeatureNTLM;
+/*! The account supports optional claims */
+extern MSIDTestAccountFeature MSIDTestAccountMAMCAClaims;
+/*! The account supports optional claims */
+extern MSIDTestAccountFeature MSIDTestAccountMFAClaims;
 
 typedef NSString *MSIDAppVersion;
 extern MSIDAppVersion MSIDAppVersionV1;
 extern MSIDAppVersion MSIDAppVersionV2;
+extern MSIDAppVersion MSIDAppVersionOnPrem;
 
 @interface MSIDTestConfigurationRequest : NSObject <NSCopying>
 

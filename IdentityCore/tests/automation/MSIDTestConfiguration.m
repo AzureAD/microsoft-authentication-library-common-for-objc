@@ -98,12 +98,7 @@
         if (federationProvider && ([federationProvider isEqualToString:@"Shibboleth"]
                                    || [federationProvider containsString:@"PingFederate"]))
         {
-            NSRange range = [_username rangeOfString:@"@"];
-
-            if (range.location != NSNotFound)
-            {
-                _username = [_username substringToIndex:range.location];
-            }
+            _username = response[@"DomainAccount"];
         }
 
         _homeTenantId = response[@"hometenantId"];

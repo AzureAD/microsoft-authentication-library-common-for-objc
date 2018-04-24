@@ -46,9 +46,12 @@ MSIDTestAccountFeature MSIDTestAccountFeatureDeviceAuth = @"device";
 MSIDTestAccountFeature MSIDTestAccountFeatureMFAEnabled = @"mfa";
 MSIDTestAccountFeature MSIDTestAccountFeatureGuestUser = @"Guest";
 MSIDTestAccountFeature MSIDTestAccountFeatureNTLM = @"NTLM";
+MSIDTestAccountFeature MSIDTestAccountMAMCAClaims = @"MAMCAClaims";
+MSIDTestAccountFeature MSIDTestAccountMFAClaims = @"MFAClaims";
 
 MSIDAppVersion MSIDAppVersionV1 = @"V1";
 MSIDAppVersion MSIDAppVersionV2 = @"V2";
+MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
 
 @implementation MSIDTestConfigurationRequest
 
@@ -149,7 +152,7 @@ MSIDAppVersion MSIDAppVersionV2 = @"V2";
     NSURLComponents *components = [[NSURLComponents alloc] initWithString:apiPath];;
 
     NSMutableArray *queryItems = [NSMutableArray array];
-    
+
     [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"isFederated" value:self.federatedValue]];
 
     NSString *caValue = self.caValue;
