@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV2IdTokenWrapper.h"
+#import "MSIDAADV2IdTokenClaims.h"
 #import "MSIDHelpers.h"
 
 #define ID_TOKEN_ISSUER              @"iss"
@@ -30,7 +30,7 @@
 #define ID_TOKEN_VERSION             @"ver"
 #define ID_TOKEN_HOME_OBJECT_ID      @"home_oid"
 
-@implementation MSIDAADV2IdTokenWrapper
+@implementation MSIDAADV2IdTokenClaims
 
 MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 MSID_JSON_ACCESSOR(ID_TOKEN_OBJECT_ID, objectId)
@@ -38,26 +38,21 @@ MSID_JSON_ACCESSOR(ID_TOKEN_TENANT_ID, tenantId)
 MSID_JSON_ACCESSOR(ID_TOKEN_VERSION, version)
 MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
 
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString
+- (void)initDerivedProperties
 {
-    self = [super initWithRawIdToken:rawIdTokenString];
-    
-    if (self)
+    [super initDerivedProperties];
+
+    // Set uniqueId
+    NSString *uniqueId = self.objectId;
+
+    if ([NSString msidIsStringNilOrBlank:uniqueId])
     {
-        // Set uniqueId
-        NSString *uniqueId = self.objectId;
-        
-        if ([NSString msidIsStringNilOrBlank:uniqueId])
-        {
-            uniqueId = self.subject;
-        }
-        
-        _uniqueId = [MSIDHelpers normalizeUserId:uniqueId];
-        _userId = [MSIDHelpers normalizeUserId:self.preferredUsername];
-        _userIdDisplayable = YES;
+        uniqueId = self.subject;
     }
-    
-    return self;
+
+    _uniqueId = [MSIDHelpers normalizeUserId:uniqueId];
+    _userId = [MSIDHelpers normalizeUserId:self.preferredUsername];
+    _userIdDisplayable = YES;
 }
 
 - (BOOL)matchesLegacyUserId:(NSString *)legacyUserId

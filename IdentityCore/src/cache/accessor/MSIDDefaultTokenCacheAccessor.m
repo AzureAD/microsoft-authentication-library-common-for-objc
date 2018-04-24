@@ -35,7 +35,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDDefaultTokenCacheKey.h"
 #import "MSIDAccountCacheItem.h"
-#import "MSIDAADV2IdTokenWrapper.h"
+#import "MSIDAADV2IdTokenClaims.h"
 #import "MSIDRequestParameters.h"
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"
@@ -481,7 +481,7 @@
             return nil;
         }
         
-        NSArray<MSIDBaseToken *> *matchedTokens = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:cacheItems legacyUserId:legacyUserId context:context];
+        NSArray<MSIDBaseToken *> *matchedTokens = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:cacheItems legacyUserId:legacyUserId environment:alias.msidHostWithPortIfNecessary context:context];
         
         if ([matchedTokens count] > 0)
         {

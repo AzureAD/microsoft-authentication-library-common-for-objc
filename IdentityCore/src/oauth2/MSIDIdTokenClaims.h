@@ -27,7 +27,7 @@
 
 #import "MSIDJsonObject.h"
 
-@interface MSIDIdTokenWrapper : MSIDJsonObject
+@interface MSIDIdTokenClaims : MSIDJsonObject
 {
     NSString *_uniqueId;
     NSString *_userId;
@@ -54,5 +54,6 @@
 - (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
 - (BOOL)matchesLegacyUserId:(NSString *)legacyUserId;
 - (NSString *)username;
+- (void)initDerivedProperties;
 
 @end

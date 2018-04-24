@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDAADV1IdTokenWrapper.h"
+#import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDHelpers.h"
 
 #define ID_TOKEN_UPN                @"upn"
@@ -35,7 +35,7 @@
 #define ID_TOKEN_GUEST_ID           @"altsecid"
 #define ID_TOKEN_UNIQUE_NAME        @"unique_name"
 
-@implementation MSIDAADV1IdTokenWrapper
+@implementation MSIDAADV1IdTokenClaims
 
 MSID_JSON_ACCESSOR(ID_TOKEN_UPN, upn)
 MSID_JSON_ACCESSOR(ID_TOKEN_IDP, identityProvider)
@@ -44,58 +44,59 @@ MSID_JSON_ACCESSOR(ID_TOKEN_TID, tenantId)
 MSID_JSON_ACCESSOR(ID_TOKEN_GUEST_ID, guestId)
 MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
 
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString
+- (void)initDerivedProperties
 {
-    self = [super initWithRawIdToken:rawIdTokenString];
-    
-    if (self)
+    [super initDerivedProperties];
+
+    // Set uniqueId
+    NSString *uniqueId = self.objectId;
+
+    if ([NSString msidIsStringNilOrBlank:uniqueId])
     {
-        // Set uniqueId
-        NSString *uniqueId = self.objectId;
-        
-        if ([NSString msidIsStringNilOrBlank:uniqueId])
-        {
-            uniqueId = self.subject;
-        }
-        
-        _uniqueId = [MSIDHelpers normalizeUserId:uniqueId];
-        
-        // Set userId (ADAL fallbacks)
-        if (![NSString msidIsStringNilOrBlank:self.upn])
-        {
-            _userId = self.upn;
-            _userIdDisplayable = YES;
-        }
-        else if (![NSString msidIsStringNilOrBlank:self.email])
-        {
-            _userId = self.email;
-            _userIdDisplayable = YES;
-        }
-        else if (![NSString msidIsStringNilOrBlank:self.subject])
-        {
-            _userId = self.subject;
-            _userIdDisplayable = NO;
-        }
-        else if (![NSString msidIsStringNilOrBlank:self.objectId])
-        {
-            _userId = self.objectId;
-            _userIdDisplayable = NO;
-        }
-        else if (![NSString msidIsStringNilOrBlank:self.uniqueName])
-        {
-            _userId = self.uniqueName;
-            _userIdDisplayable = YES;
-        }
-        else if (![NSString msidIsStringNilOrBlank:self.guestId])
-        {
-            _userId = self.guestId;
-            _userIdDisplayable = NO;
-        }
-        
-        _userId = [MSIDHelpers normalizeUserId:_userId];
+        uniqueId = self.subject;
     }
-    
-    return self;
+
+    _uniqueId = [MSIDHelpers normalizeUserId:uniqueId];
+
+    // Set userId (ADAL fallbacks)
+    if (![NSString msidIsStringNilOrBlank:self.upn])
+    {
+        _userId = self.upn;
+        _userIdDisplayable = YES;
+    }
+    else if (![NSString msidIsStringNilOrBlank:self.email])
+    {
+        _userId = self.email;
+        _userIdDisplayable = YES;
+    }
+    else if (![NSString msidIsStringNilOrBlank:self.subject])
+    {
+        _userId = self.subject;
+        _userIdDisplayable = NO;
+    }
+    else if (![NSString msidIsStringNilOrBlank:self.objectId])
+    {
+        _userId = self.objectId;
+        _userIdDisplayable = NO;
+    }
+    else if (![NSString msidIsStringNilOrBlank:self.uniqueName])
+    {
+        _userId = self.uniqueName;
+        _userIdDisplayable = YES;
+    }
+    else if (![NSString msidIsStringNilOrBlank:self.guestId])
+    {
+        _userId = self.guestId;
+        _userIdDisplayable = NO;
+    }
+
+    _userId = [MSIDHelpers normalizeUserId:_userId];
+}
+
+- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId
+{
+    return [super matchesLegacyUserId:legacyUserId]
+    || [self.userId isEqualToString:legacyUserId];
 }
 
 @end
