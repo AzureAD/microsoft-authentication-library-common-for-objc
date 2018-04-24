@@ -25,6 +25,7 @@
 #import "MSIDTestContext.h"
 #import "MSIDAADRequest.h"
 #import "MSIDAADRequestErrorHandler.h"
+#import "MSIDAADResponseSerializer.h"
 
 @interface MSIDAADRequestIntegrationTests : XCTestCase
 
@@ -52,6 +53,11 @@
 {
     XCTAssertNotNil(self.request.errorHandler);
     XCTAssertTrue([self.request.errorHandler isKindOfClass:MSIDAADRequestErrorHandler.class]);
+}
+
+- (void)testRequest_byDefaultUseMSIDJsonResponseSerializer
+{
+    XCTAssertTrue([self.request.responseSerializer isKindOfClass:MSIDAADResponseSerializer.class]);
 }
 
 @end

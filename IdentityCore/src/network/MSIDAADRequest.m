@@ -25,6 +25,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAADRequestErrorHandler.h"
+#import "MSIDAADResponseSerializer.h"
 
 @implementation MSIDAADRequest
 
@@ -34,6 +35,7 @@
     
     if (!self) return nil;
     
+    self.responseSerializer = [MSIDAADResponseSerializer new];
     self.errorHandler = [MSIDAADRequestErrorHandler new];
     
     return self;
@@ -48,6 +50,11 @@
     // TODO:
 //    __auto_type requestUrl = [ADHelpers addClientVersionToURL:_requestURL];
     
+    // TODO:
+//    [mutableUrlRequest.allHTTPHeaderFields mutableCopy]
+//    requestUrl
+//    [[ADClientMetrics getInstance] addClientMetrics:_requestHeaders endpoint:[_requestURL absoluteString]];
+    
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
     [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];
 
@@ -60,7 +67,24 @@
     mutableUrlRequest.allHTTPHeaderFields = headers;
     self.urlRequest = mutableUrlRequest;
     
-    [super sendWithBlock:completionBlock];
+//    [[ADClientMetrics getInstance] endClientMetricsRecord:[[_request URL] absoluteString]
+//                                                startTime:[_request startTime]
+//                                            correlationId:_request.correlationId
+//                                             errorDetails:[adError errorDetails]];
+    
+//    [super sendWithBlock:completionBlock];
+    
+    [super sendWithBlock:^(id response, NSError *error, id<MSIDRequestContext> context)
+     {
+         if (error)
+         {
+             completionBlock(response, error, context);
+         }
+         else
+         {
+             completionBlock(response, error, context);
+         }
+     }];
 }
 
 @end
