@@ -35,7 +35,7 @@ typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *
 
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
 
-@property (nonatomic, nullable) NSDictionary *parameters;
+@property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *parameters;
 
 @property (nonatomic, nonnull) NSURLRequest *urlRequest;
 
