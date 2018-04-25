@@ -27,7 +27,7 @@
 
 + (BOOL)isExecutingInAppExtension
 {
-    NSString* mainBundlePath = [[NSBundle mainBundle] bundlePath];
+    NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
     
     if (mainBundlePath.length == 0)
     {

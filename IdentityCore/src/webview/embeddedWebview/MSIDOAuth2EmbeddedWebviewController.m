@@ -30,7 +30,6 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDWebviewUIController.h"
 #import "MSIDError.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebviewAuthorization.h"
@@ -322,7 +321,7 @@
         return YES;
     }
 
-    _parentController = [UIApplication msalCurrentViewController];
+    _parentController = [UIApplication msidCurrentViewController];
     
     return (_parentController != nil);
 }

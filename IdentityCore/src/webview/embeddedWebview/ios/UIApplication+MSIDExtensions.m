@@ -28,33 +28,33 @@
 
 @implementation UIApplication ( internal )
 
-+ (UIViewController*)msalCurrentViewController
++ (UIViewController*)msidCurrentViewController
 {
     if (![MSIDAppExtensionUtil isExecutingInAppExtension])
     {
-        return [self msalCurrentViewControllerWithRootViewController:[MSIDAppExtensionUtil sharedApplication].keyWindow.rootViewController];
+        return [self msidCurrentViewControllerWithRootViewController:[MSIDAppExtensionUtil sharedApplication].keyWindow.rootViewController];
     }
     else {
         return nil;
     }
 }
 
-+ (UIViewController*)msalCurrentViewControllerWithRootViewController:(UIViewController*)rootViewController
++ (UIViewController*)msidCurrentViewControllerWithRootViewController:(UIViewController*)rootViewController
 {
     if ([rootViewController isKindOfClass:[UITabBarController class]])
     {
         UITabBarController *tabBarController = (UITabBarController*)rootViewController;
-        return [self msalCurrentViewControllerWithRootViewController:tabBarController.selectedViewController];
+        return [self msidCurrentViewControllerWithRootViewController:tabBarController.selectedViewController];
     }
     else if ([rootViewController isKindOfClass:[UINavigationController class]])
     {
         UINavigationController *navigationController = (UINavigationController*)rootViewController;
-        return [self msalCurrentViewControllerWithRootViewController:navigationController.visibleViewController];
+        return [self msidCurrentViewControllerWithRootViewController:navigationController.visibleViewController];
     }
     else if (rootViewController.presentedViewController)
     {
         UIViewController *presentedViewController = rootViewController.presentedViewController;
-        return [self msalCurrentViewControllerWithRootViewController:presentedViewController];
+        return [self msidCurrentViewControllerWithRootViewController:presentedViewController];
     }
     else
     {
