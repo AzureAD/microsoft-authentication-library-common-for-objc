@@ -33,8 +33,7 @@ typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSEr
 
 @protocol MSIDWebviewInteracting
 
-- (void)startWithURL:(NSURL *)startURL
-          completion:(MSIDWebUICompletionHandler)completionHandler;
+- (void)start;
 - (void)cancel;
 
 #if TARGET_OS_IPHONE

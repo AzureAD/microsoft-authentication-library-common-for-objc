@@ -47,7 +47,14 @@
 
 + (BOOL)handleURLResponse:(NSURL *)url;
 
-+ (void)startWebviewSession:(MSIDRequestParameters *)parameters
-                    factory:(MSIDOauth2Factory *)factory
-          completionHandler:(MSIDWebUICompletionHandler)completionHandler;
++ (void)startEmbeddedWebviewSession:(MSIDRequestParameters *)parameters
+                            webview:(WKWebView *)webview
+                            factory:(MSIDOauth2Factory *)factory
+                            context:(id<MSIDRequestContext>)context
+                  completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+
++ (MSIDWebOAuth2Response *)parseUrlResponse:(NSURL *)url
+                                    context:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error;
+
 @end

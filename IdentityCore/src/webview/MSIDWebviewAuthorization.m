@@ -27,10 +27,13 @@
 
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDWebAADAuthResponse.h"
+#import "MSIDError.h"
+
+id<MSIDWebviewInteracting> s_webviewController;
 
 @implementation MSIDWebviewAuthorization
-
-
 
 + (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                      factory:(MSIDOauth2Factory *)factory;
@@ -56,15 +59,99 @@
     return NO;
 }
 
-+ (void)startWebviewSession:(MSIDRequestParameters *)parameters
-                    factory:(MSIDOauth2Factory *)factory
-          completionHandler:(MSIDWebUICompletionHandler)completionHandler
++ (void)startEmbeddedWebviewSession:(MSIDRequestParameters *)parameters
+                            webview:(WKWebView *)webview
+                            factory:(MSIDOauth2Factory *)factory
+                            context:(id<MSIDRequestContext>)context
+                  completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     //TODO: make sure only one webview session is going on at the same time
     
     NSURL *startURL = [factory generateStartURL:parameters];
-    MSIDOAuth2EmbeddedWebviewController *webviewController = [MSIDOAuth2EmbeddedWebviewController new];
-    [webviewController startWithURL:startURL completion:completionHandler];
+    s_webviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartUrl:startURL
+                                                                                 endURL:[NSURL URLWithString:[parameters redirectUri]]
+                                                                                webview:webview
+                                                                                context:context
+                                                                             completion:completionHandler];
+    [s_webviewController start];
+}
+
++ (MSIDWebOAuth2Response *)parseUrlResponse:(NSURL *)url
+                                     context:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error
+{
+    //Try both the URL and the fragment parameters:
+    NSDictionary *parameters = [url msidFragmentParameters];
+    if ( parameters.count == 0 )
+    {
+        parameters = [url msidQueryParameters];
+    }
+    
+    NSString *code = nil;
+    NSString *cloudHostName = nil;
+    NSError *oauthError = [self oauthErrorFromDictionary:parameters];
+    if (!oauthError)
+    {
+        //Note that we do not enforce the state, just log it:
+        [self verifyStateFromDictionary:parameters context:context];
+        
+        code = [parameters objectForKey:MSID_OAUTH2_CODE];
+        if ([NSString msidIsStringNilOrBlank:code])
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorizationCode, @"The authorization server did not return a valid authorization code.", nil, nil, nil, context.correlationId, nil);
+                return nil;
+            }
+        }
+        
+        cloudHostName = [parameters objectForKey:MSID_AUTH_CLOUD_INSTANCE_HOST_NAME];
+    }
+    
+    MSIDWebAADAuthResponse *response = [MSIDWebAADAuthResponse new];
+    [response setCode:code];
+    [response setOauthError:oauthError];
+    [response setCloudHostName:cloudHostName];
+    return response;
+}
+
++ (NSError *)oauthErrorFromDictionary:(NSDictionary *)dictionary
+{
+    NSString *serverOAuth2Error = [dictionary objectForKey:MSID_OAUTH2_ERROR];
+    
+    if (![NSString msidIsStringNilOrBlank:serverOAuth2Error])
+    {
+        NSString *errorDetails = [dictionary objectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
+        NSUUID *correlationId = [dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
+        [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:
+        nil;
+        
+        return MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorAuthorizationCode, errorDetails, serverOAuth2Error, nil, nil, correlationId, nil);
+    }
+    
+    return nil;
+}
+
+// TODO: check if we have it in MSAL
++ (BOOL)verifyStateFromDictionary: (NSDictionary*) dictionary
+                          context:(id<MSIDRequestContext>)context
+{
+    NSDictionary *state = [NSDictionary msidURLFormDecode:[[dictionary objectForKey:MSID_OAUTH2_STATE] msidBase64UrlDecode]];
+    if (state.count != 0)
+    {
+        NSString *authorizationServer = [state objectForKey:@"a"];
+        NSString *resource            = [state objectForKey:@"r"];
+        
+        if (![NSString msidIsStringNilOrBlank:authorizationServer] && ![NSString msidIsStringNilOrBlank:resource])
+        {
+            MSID_LOG_VERBOSE_PII(context, @"The authorization server returned the following state: %@", state);
+            return YES;
+        }
+    }
+    
+    MSID_LOG_WARN(context, @"Missing or invalid state returned");
+    MSID_LOG_WARN_PII(context, @"Missing or invalid state returned state: %@", state);
+    return NO;
 }
 
 @end

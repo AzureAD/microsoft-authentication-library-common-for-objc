@@ -43,17 +43,17 @@
 {
     if ([rootViewController isKindOfClass:[UITabBarController class]])
     {
-        UITabBarController* tabBarController = (UITabBarController*)rootViewController;
+        UITabBarController *tabBarController = (UITabBarController*)rootViewController;
         return [self msalCurrentViewControllerWithRootViewController:tabBarController.selectedViewController];
     }
     else if ([rootViewController isKindOfClass:[UINavigationController class]])
     {
-        UINavigationController* navigationController = (UINavigationController*)rootViewController;
+        UINavigationController *navigationController = (UINavigationController*)rootViewController;
         return [self msalCurrentViewControllerWithRootViewController:navigationController.visibleViewController];
     }
     else if (rootViewController.presentedViewController)
     {
-        UIViewController* presentedViewController = rootViewController.presentedViewController;
+        UIViewController *presentedViewController = rootViewController.presentedViewController;
         return [self msalCurrentViewControllerWithRootViewController:presentedViewController];
     }
     else

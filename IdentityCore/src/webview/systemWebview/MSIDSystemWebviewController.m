@@ -36,9 +36,19 @@
     
 }
 
+- (void)start
+{
+    
+}
+
 - (void)cancel
 {
     
 }
+
+- (void)startWithURL:(NSURL *)startURL completion:(MSIDWebUICompletionHandler)completionHandler {
+    
+}
+
 
 @end

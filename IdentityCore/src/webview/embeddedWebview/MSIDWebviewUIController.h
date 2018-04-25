@@ -35,7 +35,7 @@ UIViewController
 NSWindowController
 #endif
 
-@property (weak, nonatomic) id<MSIDWebviewDelegate> delegate;
+@property (nonatomic) id<MSIDWebviewDelegate> delegate;
 @property (nonatomic) WKWebView *webView;
 #if TARGET_OS_IPHONE
 @property (weak, nonatomic) UIViewController * parentController;

@@ -26,9 +26,29 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import <WebKit/WebKit.h>
 #import "MSIDWebviewInteracting.h"
-#import "MSIDWebviewDelegate.h"
 
-@interface MSIDOAuth2EmbeddedWebviewController : NSObject <MSIDWebviewInteracting, MSIDWebviewDelegate>
+@interface MSIDOAuth2EmbeddedWebviewController :
+#if TARGET_OS_IPHONE
+UIViewController <MSIDWebviewInteracting, WKNavigationDelegate>
+#else
+NSWindowController <MSIDWebviewInteracting, WKNavigationDelegate, NSWindowDelegate>
+#endif
+
+@property (weak, nonatomic) WKWebView *webView;
+#if TARGET_OS_IPHONE
+@property (weak, nonatomic) UIViewController *parentController;
+@property BOOL fullScreen;
+#endif
+
+- (id)init NS_UNAVAILABLE;
+- (id)initWithStartUrl:(NSURL *)startUrl
+                endURL:(NSURL *)endUrl
+               webview:(WKWebView *)webview
+               context:(id<MSIDRequestContext>)context
+            completion:(MSIDWebUICompletionHandler)completionHandler;
+
+- (void)start;
 
 @end

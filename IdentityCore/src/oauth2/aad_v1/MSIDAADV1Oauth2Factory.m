@@ -28,6 +28,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
+#import "MSIDDeviceId.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -164,54 +165,53 @@
 
 - (NSURL *)generateStartURL:(MSIDRequestParameters *)requestParams
 {
-    NSString* state = [self encodeProtocolState];
-    NSString* queryParams = nil;
-    // Start the web navigation process for the Implicit grant profile.
-    NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
-                                 [_context.authority stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX],
-                                 MSID_OAUTH2_RESPONSE_TYPE, requestType,
-                                 MSID_OAUTH2_CLIENT_ID, [[_requestParams clientId] msidUrlFormEncode],
-                                 MSID_OAUTH2_RESOURCE, [[_requestParams resource] msidUrlFormEncode],
-                                 MSID_OAUTH2_REDIRECT_URI, [[_requestParams redirectUri] msidUrlFormEncode],
-                                 MSID_OAUTH2_STATE, state];
+    NSString* state = [self encodeProtocolState:requestParams];
     
-    [startUrl appendFormat:@"&%@", [[MSIDDeviceId deviceId] msidURLFormEncode]];
+    // if value is nil, it won't appear in the dictionary
+    NSMutableDictionary *queryParams = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                        MSID_OAUTH2_CODE, MSID_OAUTH2_RESPONSE_TYPE,
+                                        [requestParams clientId], MSID_OAUTH2_CLIENT_ID,
+                                        [requestParams resource], MSID_OAUTH2_RESOURCE,
+                                        [requestParams redirectUri], MSID_OAUTH2_REDIRECT_URI,
+                                        state, MSID_OAUTH2_STATE,
+                                        requestParams.promptBehavior, @"prompt",
+                                        @"1", @"hashchrome", //to hide back button in UI
+                                        [NSString msidIsStringNilOrBlank:requestParams.loginHint] ? nil : requestParams.loginHint, MSID_OAUTH2_LOGIN_HINT, 
+                                        nil];
     
-    if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString msidIsStringNilOrBlank:[_requestParams identifier].userId])
+    [queryParams addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+    
+    NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@",
+                                 [requestParams.authority.absoluteString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX], [queryParams msidURLFormEncode]];
+    
+    // we expect extraQueryParameters to be URL form encoded
+    if (![NSString msidIsStringNilOrBlank:requestParams.extraQueryParameters])
     {
-        [startUrl appendFormat:@"&%@=%@", MSID_OAUTH2_LOGIN_HINT, [[_requestParams identifier].userId msidUrlFormEncode]];
-    }
-    NSString* promptParam = [ADAuthenticationContext getPromptParameter:_promptBehavior];
-    if (promptParam)
-    {
-        //Force the server to ignore cookies, by specifying explicitly the prompt behavior:
-        [startUrl appendString:[NSString stringWithFormat:@"&prompt=%@", promptParam]];
-    }
-    
-    [startUrl appendString:@"&haschrome=1"]; //to hide back button in UI
-    
-    if (![NSString msidIsStringNilOrBlank:_queryParams])
-    {//Append the additional query parameters if specified:
-        queryParams = _queryParams.msidTrimmedString;
-        
         //Add the '&' for the additional params if not there already:
-        if ([queryParams hasPrefix:@"&"])
+        if ([requestParams.extraQueryParameters hasPrefix:@"&"])
         {
-            [startUrl appendString:queryParams];
+            [startUrl appendString:requestParams.extraQueryParameters.msidTrimmedString];
         }
         else
         {
-            [startUrl appendFormat:@"&%@", queryParams];
+            [startUrl appendFormat:@"&%@", requestParams.extraQueryParameters.msidTrimmedString];
         }
     }
     
-    if (![NSString msidIsStringNilOrBlank:_claims])
+    // we expect claims to be URL form encoded
+    if (![NSString msidIsStringNilOrBlank:requestParams.claims])
     {
-        NSString *claimsParam = _claims.msidTrimmedString;
-        [startUrl appendFormat:@"&claims=%@", claimsParam];
+        [startUrl appendFormat:@"&claims=%@", requestParams.claims];
     }
     
-    return startUrl;
+    return [NSURL URLWithString:startUrl];
+}
+
+// Encodes the state parameter for a protocol message
+- (NSString *)encodeProtocolState:(MSIDRequestParameters *)requestParams
+{
+    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[requestParams authority], @"a", [requestParams resource], @"r", nil]
+             msidURLFormEncode] msidBase64UrlEncode];
 }
 
 @end

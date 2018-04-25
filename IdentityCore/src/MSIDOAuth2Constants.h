@@ -58,6 +58,7 @@ extern NSString *const MSID_OAUTH2_ASSERTION;
 extern NSString *const MSID_OAUTH2_EXPIRES_ON;
 extern NSString *const MSID_OAUTH2_EXT_EXPIRES_IN;
 extern NSString *const MSID_FAMILY_ID;
+extern NSString *const MSID_AUTH_CLOUD_INSTANCE_HOST_NAME;
 
 // Used for PKCE support
 extern NSString *const MSID_OAUTH2_CODE_CHALLENGE;
