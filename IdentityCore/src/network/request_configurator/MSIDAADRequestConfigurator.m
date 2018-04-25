@@ -27,6 +27,9 @@
 #import "MSIDAADResponseSerializer.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDDeviceId.h"
+#import "NSDictionary+MSIDExtensions.h"
+#import "MSIDVersion.h"
+#import "MSIDContants.h"
 
 @implementation MSIDAADRequestConfigurator
 
@@ -51,8 +54,7 @@
     mutableUrlRequest.timeoutInterval = self.timeoutInterval;
     [mutableUrlRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
-    // TODO:
-    //    __auto_type requestUrl = [ADHelpers addClientVersionToURL:_requestURL];
+    requestUrl = [NSURL msidAddParameters:@{MSID_VERSION_KEY : MSIDVersion.sdkVersion} toUrl:requestUrl];
     
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
     [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];

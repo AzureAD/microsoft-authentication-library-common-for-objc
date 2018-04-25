@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDUrlRequestSerializer.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @implementation MSIDUrlRequestSerializer
 
@@ -37,29 +38,7 @@
     {
         NSAssert(mutableRequest.URL, NULL);
         
-        __auto_type urlComponents = [[NSURLComponents alloc] initWithURL:request.URL resolvingAgainstBaseURL:YES];
-        NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray new];
-        
-        for (id key in parameters)
-        {
-            id value = parameters[key];
-            
-            NSAssert([value isKindOfClass:NSString.class], NULL);
-            NSAssert([key isKindOfClass:NSString.class], NULL);
-            
-            if (![key isKindOfClass:NSString.class] || ![value isKindOfClass:NSString.class])
-            {
-                MSID_LOG_WARN(nil, @"Ignoring key/value.");
-                MSID_LOG_WARN_PII(nil, @"Ignoring key: %@ value: %@", key, value);
-                continue;
-            }
-            __auto_type item = [[NSURLQueryItem alloc] initWithName:key value:value];
-            [queryItems addObject:item];
-        }
-        
-        urlComponents.queryItems = queryItems;
-        
-        mutableRequest.URL = urlComponents.URL;
+        mutableRequest.URL = [NSURL msidAddParameters:parameters toUrl:mutableRequest.URL];
     }
     else
     {
