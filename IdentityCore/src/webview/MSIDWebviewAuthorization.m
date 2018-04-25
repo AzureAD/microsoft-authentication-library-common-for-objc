@@ -30,6 +30,7 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDError.h"
+#import "MSIDWebWPJAuthResponse.h"
 
 id<MSIDWebviewInteracting> s_webviewController;
 
@@ -65,7 +66,7 @@ id<MSIDWebviewInteracting> s_webviewController;
                             context:(id<MSIDRequestContext>)context
                   completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    //TODO: make sure only one webview session is going on at the same time
+    //TODO: rewrite the following to fit JK's work
     
     NSURL *startURL = [factory generateStartURL:parameters];
     s_webviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartUrl:startURL
@@ -80,7 +81,20 @@ id<MSIDWebviewInteracting> s_webviewController;
                                      context:(id<MSIDRequestContext>)context
                                       error:(NSError **)error
 {
-    //Try both the URL and the fragment parameters:
+    // Check for WPJ response
+    if([url.absoluteString hasPrefix:@"msauth://"])
+    {
+        NSString* query = [url query];
+        NSDictionary* queryParams = [NSDictionary msidURLFormDecode:query];
+        NSString* appURLString = [queryParams objectForKey:@"app_link"];
+        
+        MSIDWebWPJAuthResponse *response = [MSIDWebWPJAuthResponse new];
+        [response setAppInstallLink:appURLString];
+        return response;
+    }
+    
+    // Check for auth response
+    // Try both the URL and the fragment parameters:
     NSDictionary *parameters = [url msidFragmentParameters];
     if ( parameters.count == 0 )
     {

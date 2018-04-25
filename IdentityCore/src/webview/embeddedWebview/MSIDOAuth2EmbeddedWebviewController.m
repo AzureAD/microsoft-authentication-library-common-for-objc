@@ -258,10 +258,11 @@
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-    NSString *requestUrl = [navigationAction.request.URL absoluteString];
+    NSURL *requestUrl = navigationAction.request.URL;
     
     // Stop at the end URL.
-    if ([[requestUrl lowercaseString] hasPrefix:[_endUrl.absoluteString lowercaseString]])
+    if ([[requestUrl.absoluteString lowercaseString] hasPrefix:[_endUrl.absoluteString lowercaseString]] ||
+        [[[requestUrl scheme] lowercaseString] isEqualToString:@"msauth"])
     {
         NSURL *url = navigationAction.request.URL;
         [self webAuthCompleteWithURL:url];
@@ -343,9 +344,10 @@
 
 - (UIActivityIndicatorView *)prepareLoadingIndicator:(UIView *)rootView
 {
-    UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    [_laodingIndicator setColor:[UIColor blackColor]];
-    [_laodingIndicator setCenter:rootView.center];
+    UIActivityIndicatorView *loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [loadingIndicator setColor:[UIColor blackColor]];
+    [loadingIndicator setCenter:rootView.center];
+    return loadingIndicator;
 }
 #endif
 

@@ -52,6 +52,13 @@
 		23F32F251FFDAF1900B2905E /* MSIDTestBrokerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D81BBD1FF5C7460093859A /* MSIDTestBrokerResponse.m */; };
 		23F32F261FFDAF1A00B2905E /* MSIDTestBrokerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D81BBD1FF5C7460093859A /* MSIDTestBrokerResponse.m */; };
 		600E0EE9208E629700BCD67D /* MSIDWebviewAuthorization.h in Headers */ = {isa = PBXBuildFile; fileRef = 96A3E9BB2089478500BE5262 /* MSIDWebviewAuthorization.h */; };
+		600E0EEF209125FA00BCD67D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EEE209125FA00BCD67D /* WebKit.framework */; };
+		600E0EF12091260000BCD67D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EF02091260000BCD67D /* WebKit.framework */; };
+		600E0EF22091260700BCD67D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EF02091260000BCD67D /* WebKit.framework */; };
+		600E0EF32091264400BCD67D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EEE209125FA00BCD67D /* WebKit.framework */; };
+		600E0EF42091264900BCD67D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EF02091260000BCD67D /* WebKit.framework */; };
+		600E0EF6209126FC00BCD67D /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EF5209126FC00BCD67D /* AppKit.framework */; };
+		600E0EF72091270300BCD67D /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EF5209126FC00BCD67D /* AppKit.framework */; };
 		6035CD8C207EA67300369E69 /* MSIDTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6035CD8B207EA67300369E69 /* MSIDTelemetryIntegrationTests.m */; };
 		6035CD8D207EA67300369E69 /* MSIDTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6035CD8B207EA67300369E69 /* MSIDTelemetryIntegrationTests.m */; };
 		60BF06042051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */; };
@@ -469,6 +476,9 @@
 		23BDA6791FCE693800FE14BE /* MSIDKeychainUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDKeychainUtil.m; sourceTree = "<group>"; };
 		23F32F151FF72CE400B2905E /* MSIDMacTokenCacheIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDMacTokenCacheIntegrationTests.m; sourceTree = "<group>"; };
 		23F32F221FFDAB9D00B2905E /* MSIDTokenCacheDataSourceIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenCacheDataSourceIntegrationTests.m; sourceTree = "<group>"; };
+		600E0EEE209125FA00BCD67D /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
+		600E0EF02091260000BCD67D /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		600E0EF5209126FC00BCD67D /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6035CD8B207EA67300369E69 /* MSIDTelemetryIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryIntegrationTests.m; sourceTree = "<group>"; };
 		60BF06022051F95B00DE7C1C /* MSIDTelemetryTestDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryTestDispatcher.h; sourceTree = "<group>"; };
 		60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryTestDispatcher.m; sourceTree = "<group>"; };
@@ -747,6 +757,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				600E0EF32091264400BCD67D /* WebKit.framework in Frameworks */,
 				B2893CAF1FCF68B200E348E9 /* Security.framework in Frameworks */,
 				B2C17AEA1FC790420070A514 /* UIKit.framework in Frameworks */,
 				D6D9A4C31FBE718C00EFA430 /* libIdentityTest.a in Frameworks */,
@@ -758,6 +769,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				600E0EF22091260700BCD67D /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -765,6 +777,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				600E0EF72091270300BCD67D /* AppKit.framework in Frameworks */,
+				600E0EF42091264900BCD67D /* WebKit.framework in Frameworks */,
 				B20657DC1FC92EC600412B7D /* IOKit.framework in Frameworks */,
 				D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */,
 				D6D9A4C81FBE71A100EFA430 /* libIdentityTest.a in Frameworks */,
@@ -775,6 +789,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				600E0EEF209125FA00BCD67D /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -782,6 +797,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				600E0EF6209126FC00BCD67D /* AppKit.framework in Frameworks */,
+				600E0EF12091260000BCD67D /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1336,7 +1353,10 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				600E0EF5209126FC00BCD67D /* AppKit.framework */,
 				96A3E9C020895CCE00BE5262 /* WebKit.framework */,
+				600E0EEE209125FA00BCD67D /* WebKit.framework */,
+				600E0EF02091260000BCD67D /* WebKit.framework */,
 				B2893CAE1FCF68B200E348E9 /* Security.framework */,
 				B20657D81FC92D7600412B7D /* libswiftIOKit.tbd */,
 				B20657D61FC92D2700412B7D /* IOKit.framework */,
