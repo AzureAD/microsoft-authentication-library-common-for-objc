@@ -26,7 +26,7 @@
 #import "MSIDTelemetryEventInterface.h"
 #import "MSIDTelemetryDispatcher.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDTelemetryPiiRules.h"
+#import "MSIDTelemetryPiiOiiRules.h"
 
 static NSString* const s_delimiter = @"|";
 
@@ -182,9 +182,9 @@ static NSString* const s_delimiter = @"|";
         {
             for (NSString *propertyName in [event.propertyMap allKeys])
             {
-                BOOL isPii = [MSIDTelemetryPiiRules isPii:propertyName];
+                BOOL isPiiOrOii = [MSIDTelemetryPiiOiiRules isPiiOrOii:propertyName];
                 
-                if (isPii && !self.piiEnabled)
+                if (isPiiOrOii && !self.piiEnabled)
                 {
                     [event deleteProperty:propertyName];
                 }

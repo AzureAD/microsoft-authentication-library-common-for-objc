@@ -21,29 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDHelpers.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDHelpers
+@interface MSIDTelemetryPiiOiiRules : NSObject
 
-+ (NSInteger)msidIntegerValue:(id)value
-{
-    if (value && [value respondsToSelector:@selector(integerValue)])
-    {
-        return [value integerValue];
-    }
-    
-    return 0;
-}
-
-+ (NSString *)normalizeUserId:(NSString *)userId
-{
-    if (!userId)
-    {
-        return nil;
-    }
-    NSString *normalized = [userId msidTrimmedString].lowercaseString;
-
-    return normalized.length ? normalized : nil;
-}
++ (BOOL)isPii:(NSString *)propertyName;
++ (BOOL)isOii:(NSString *)propertyName;
++ (BOOL)isPiiOrOii:(NSString *)propertyName;
 
 @end

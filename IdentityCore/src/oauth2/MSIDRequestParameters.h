@@ -38,4 +38,7 @@
                          clientId:(NSString *)clientId
                            target:(NSString *)target;
 
+@property (readwrite) NSString *loginHint;
+@property (readwrite) NSString *extraQueryParameters;
+
 @end

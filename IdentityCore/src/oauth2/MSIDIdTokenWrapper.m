@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDIdTokenWrapper.h"
+#import "MSIDHelpers.h"
 
 #define ID_TOKEN_SUBJECT             @"sub"
 #define ID_TOKEN_PERFERRED_USERNAME  @"preferred_username"
@@ -72,22 +73,11 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
         return nil;
     }
     
-    _uniqueId = [MSIDIdTokenWrapper normalizeUserId:self.subject];
-    _userId = [MSIDIdTokenWrapper normalizeUserId:self.subject];
+    _uniqueId = [MSIDHelpers normalizeUserId:self.subject];
+    _userId = [MSIDHelpers normalizeUserId:self.subject];
     _userIdDisplayable = NO;
     
     return self;
-}
-
-+ (NSString *)normalizeUserId:(NSString *)userId
-{
-    if (!userId)
-    {
-        return nil;
-    }
-    NSString *normalized = [userId msidTrimmedString].lowercaseString;
-    
-    return normalized.length ? normalized : nil;
 }
 
 - (BOOL)matchesLegacyUserId:(NSString *)legacyUserId

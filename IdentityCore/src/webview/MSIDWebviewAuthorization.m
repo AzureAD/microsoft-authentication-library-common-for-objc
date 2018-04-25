@@ -25,34 +25,34 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDJsonObject.h"
+#import "MSIDWebviewAuthorization.h"
 
-@interface MSIDIdTokenWrapper : MSIDJsonObject
+@implementation MSIDWebviewAuthorization
+
+
+
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                     factory:(MSIDOAuth2Factory *)factory;
 {
-    NSString *_uniqueId;
-    NSString *_userId;
-    BOOL _userIdDisplayable;
+    return nil;
 }
 
-// Default properties
-@property (readonly) NSString *subject;
-@property (readonly) NSString *preferredUsername;
-@property (readonly) NSString *name;
-@property (readonly) NSString *givenName;
-@property (readonly) NSString *middleName;
-@property (readonly) NSString *familyName;
-@property (readonly) NSString *email;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                     webview:(WKWebView *)webview
+                                                                     factory:(MSIDOAuth2Factory *)factory;
+{
+    return nil;
+}
 
-// Derived properties
-@property (readonly) NSString *uniqueId;
-@property (readonly) NSString *userId;
-@property (readonly) BOOL userIdDisplayable;
++ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                   factory:(MSIDOAuth2Factory *)factory;
+{
+    return nil;
+}
 
-// Convinience properties
-@property (readonly) NSString *rawIdToken;
-
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
-- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId;
-- (NSString *)username;
++ (BOOL)handleURLResponse:(NSURL *)url
+{
+    return NO;
+}
 
 @end

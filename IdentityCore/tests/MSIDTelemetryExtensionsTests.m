@@ -25,6 +25,7 @@
 #import "NSString+MSIDTelemetryExtensions.h"
 #import "MSIDTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @interface MSIDTelemetryExtensionsTests : XCTestCase
 
@@ -79,10 +80,10 @@
     NSDictionary *parsedTelemetry = [clientTelemetry parsedClientTelemetry];
     
     XCTAssertNotNil(parsedTelemetry);
-    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.Test.spe_info"]);
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.server_error_code"], @"123");
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.server_sub_error_code"], @"1234");
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.rt_age"], @"255.0643");
+    XCTAssertNil([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SPE_INFO]);
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SERVER_ERROR_CODE], @"123");
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE], @"1234");
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_RT_AGE], @"255.0643");
 }
 
 - (void)testParsedClientTelemetry_whenAllComponentsNoSPEInfoNoRTAge_shouldReturnAllOtherPropertiesNilSPEInfoNilRTAge
@@ -92,8 +93,8 @@
     NSDictionary *parsedTelemetry = [clientTelemetry parsedClientTelemetry];
     
     XCTAssertNotNil(parsedTelemetry);
-    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.Test.spe_info"]);
-    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.Test.rt_age"]);
+    XCTAssertNil([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SPE_INFO]);
+    XCTAssertNil([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_RT_AGE]);
 }
 
 - (void)testParsedClientTelemetry_whenAllComponentsWithSPEInfo_shouldReturnAllProperties
@@ -103,10 +104,10 @@
     NSDictionary *parsedTelemetry = [clientTelemetry parsedClientTelemetry];
     
     XCTAssertNotNil(parsedTelemetry);
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.server_error_code"], @"123");
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.server_sub_error_code"], @"1234");
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.rt_age"], @"255.0643");
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.spe_info"], @"I");
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SERVER_ERROR_CODE], @"123");
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE], @"1234");
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_RT_AGE], @"255.0643");
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SPE_INFO], @"I");
 }
 
 - (void)testParsedClientTelemetry_whenErrorSubErrorHaveZeroesRtAgeEmpty_shouldReturnOnlySpeInfo
@@ -116,10 +117,10 @@
     NSDictionary *parsedTelemetry = [clientTelemetry parsedClientTelemetry];
     
     XCTAssertNotNil(parsedTelemetry);
-    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.Test.server_error_code"]);
-    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.Test.server_sub_error_code"]);
-    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.Test.rt_age"]);
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.spe_info"], @"I");
+    XCTAssertNil([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SERVER_ERROR_CODE]);
+    XCTAssertNil([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE]);
+    XCTAssertNil([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_RT_AGE]);
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SPE_INFO], @"I");
 }
 
 - (void)testParsedClientTelemetry_whenErrorHasZeroes_shouldReturnAllPropertiesButErrorCode
@@ -129,10 +130,10 @@
     NSDictionary *parsedTelemetry = [clientTelemetry parsedClientTelemetry];
     
     XCTAssertNotNil(parsedTelemetry);
-    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.Test.server_error_code"]);
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.server_sub_error_code"], @"5");
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.rt_age"], @"200.5");
-    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.Test.spe_info"], @"I");
+    XCTAssertNil([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SERVER_ERROR_CODE]);
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE], @"5");
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_RT_AGE], @"200.5");
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SPE_INFO], @"I");
 }
 
 @end

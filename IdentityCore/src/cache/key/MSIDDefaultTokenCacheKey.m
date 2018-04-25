@@ -41,10 +41,14 @@ static NSInteger kTokenTypePrefix = 2000;
                         realm:(NSString *)realm
                        target:(NSString *)target
 {
+    realm = realm.msidTrimmedString.lowercaseString;
+    clientId = clientId.msidTrimmedString.lowercaseString;
+    target = target.msidTrimmedString.lowercaseString;
+
     NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm];
     NSString *service = [NSString stringWithFormat:@"%@%@%@",
                          credentialId,
-                         (target ? keyDelimiter : @""),
+                         keyDelimiter,
                          (target ? target : @"")];
     return service;
 }
@@ -54,11 +58,14 @@ static NSInteger kTokenTypePrefix = 2000;
                           clientId:(NSString *)clientId
                              realm:(NSString *)realm
 {
+    realm = realm.msidTrimmedString.lowercaseString;
+    clientId = clientId.msidTrimmedString.lowercaseString;
+
     NSString *credentialType = [MSIDTokenTypeHelpers tokenTypeAsString:type];
     
     return [NSString stringWithFormat:@"%@%@%@%@%@",
             credentialType, keyDelimiter, clientId,
-            (realm ? keyDelimiter : @""),
+            keyDelimiter,
             (realm ? realm : @"")];
 }
 
@@ -66,6 +73,8 @@ static NSInteger kTokenTypePrefix = 2000;
 + (NSString *)accountIdWithUniqueUserId:(NSString *)uniqueId
                             environment:(NSString *)environment
 {
+    uniqueId = uniqueId.msidTrimmedString.lowercaseString;
+
     return [NSString stringWithFormat:@"%@%@%@",
             uniqueId, keyDelimiter, environment];
 }
@@ -144,10 +153,11 @@ static NSInteger kTokenTypePrefix = 2000;
     NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
     NSString *service = [self.class serviceWithType:MSIDTokenTypeIDToken clientID:clientId realm:tenant target:nil];
     NSNumber *type = [self tokenType:MSIDTokenTypeIDToken];
+    NSString *generic = [self credentialIdWithType:MSIDTokenTypeIDToken clientId:clientId realm:tenant];
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
-                                                     generic:[service dataUsingEncoding:NSUTF8StringEncoding]
+                                                     generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:type];
 }
 
@@ -163,7 +173,7 @@ static NSInteger kTokenTypePrefix = 2000;
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
-                                                     generic:[username dataUsingEncoding:NSUTF8StringEncoding]
+                                                     generic:[username.msidTrimmedString.lowercaseString dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:type];
 }
 
@@ -255,10 +265,11 @@ static NSInteger kTokenTypePrefix = 2000;
     NSString *service = [self.class serviceWithType:MSIDTokenTypeRefreshToken clientID:clientId realm:nil target:nil];
     NSString *account = [self accountIdWithUniqueUserId:userId environment:environment];
     NSNumber *type = [self tokenType:MSIDTokenTypeRefreshToken];
+    NSString *generic = [self credentialIdWithType:MSIDTokenTypeRefreshToken clientId:clientId realm:nil];
     
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
-                                                     generic:[service dataUsingEncoding:NSUTF8StringEncoding]
+                                                     generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:type];
 }
 

@@ -157,9 +157,6 @@
                  context:(id<MSIDRequestContext>)context
                    error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving refresh token in legacy accessor with clientID %@, authority %@", refreshToken.clientId, refreshToken.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving refresh token in legacy accessor with clientID %@, authority %@, legacy userID %@", refreshToken.clientId, refreshToken.authority, account.legacyUserId);
-    
     return [self saveToken:refreshToken
                    account:account
                    context:context
@@ -171,9 +168,6 @@
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving access token in legacy accessor with clientID %@, authority %@", accessToken.clientId, accessToken.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving access token in legacy accessor with clientID %@, authority %@, legacy userID %@", accessToken.clientId, accessToken.authority, account.legacyUserId);
-    
     return [self saveToken:accessToken
                    account:account
                    context:context

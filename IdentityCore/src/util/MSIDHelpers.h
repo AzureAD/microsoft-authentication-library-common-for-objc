@@ -27,5 +27,6 @@
 
 /*! Returns integer value if the passed object can be converted to integer, 0 otherwise */
 + (NSInteger)msidIntegerValue:(id)value;
++ (NSString *)normalizeUserId:(NSString *)userId;
 
 @end

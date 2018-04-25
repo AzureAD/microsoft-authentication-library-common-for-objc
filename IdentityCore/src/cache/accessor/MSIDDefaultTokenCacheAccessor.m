@@ -179,7 +179,7 @@
                    error:(NSError **)error
 {
     MSID_LOG_VERBOSE(context, @"(Default accessor) Saving refresh token with clientID %@, authority %@", refreshToken.clientId, refreshToken.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving refresh toke with clientID %@, authority %@, userID %@", refreshToken.clientId, refreshToken.authority, account.uniqueUserId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving refresh token with clientID %@, authority %@, userID %@", refreshToken.clientId, refreshToken.authority, account.uniqueUserId);
     
     if (![self checkUserIdentifier:account context:context error:error])
     {
@@ -197,6 +197,9 @@
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error
 {
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving access token with clientID %@, authority %@", accessToken.clientId, accessToken.authority);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving access token with clientID %@, authority %@, userID %@", accessToken.clientId, accessToken.authority, account.uniqueUserId);
+    
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccessTokensWithUniqueUserId:account.uniqueUserId
                                                                                             authority:accessToken.authority
                                                                                              clientId:accessToken.clientId];
@@ -390,7 +393,7 @@
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
 {
-    return [_dataSource removeItemsWithKey:[MSIDTokenCacheKey queryForAllItems] context:nil error:error];
+    return [_dataSource removeItemsWithKey:[MSIDTokenCacheKey queryForAllItems] context:context error:error];
 }
 
 #pragma mark - Private

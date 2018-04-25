@@ -25,34 +25,24 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDJsonObject.h"
+#import <Foundation/Foundation.h>
+#import "MSIDRequestParameters.h"
 
-@interface MSIDIdTokenWrapper : MSIDJsonObject
-{
-    NSString *_uniqueId;
-    NSString *_userId;
-    BOOL _userIdDisplayable;
-}
+@class WKWebView;
+@class MSIDOAuth2Factory;
 
-// Default properties
-@property (readonly) NSString *subject;
-@property (readonly) NSString *preferredUsername;
-@property (readonly) NSString *name;
-@property (readonly) NSString *givenName;
-@property (readonly) NSString *middleName;
-@property (readonly) NSString *familyName;
-@property (readonly) NSString *email;
+@protocol MSIDWebviewInteracting;
 
-// Derived properties
-@property (readonly) NSString *uniqueId;
-@property (readonly) NSString *userId;
-@property (readonly) BOOL userIdDisplayable;
+@interface MSIDWebviewAuthorization : NSObject
 
-// Convinience properties
-@property (readonly) NSString *rawIdToken;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                     factory:(MSIDOAuth2Factory *)factory;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                     webview:(WKWebView *)webview
+                                                                     factory:(MSIDOAuth2Factory *)factory;
 
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
-- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId;
-- (NSString *)username;
++ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                   factory:(MSIDOAuth2Factory *)factory;
 
++ (BOOL)handleURLResponse:(NSURL *)url;
 @end

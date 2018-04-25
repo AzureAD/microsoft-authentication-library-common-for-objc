@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,37 +17,21 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import "MSIDTelemetryPiiRules.h"
-#import "MSIDTelemetryEventStrings.h"
+#import <Foundation/Foundation.h>
 
-static NSSet *_piiFields;
+@interface MSIDWebOAuth2Response : NSObject
 
-@implementation MSIDTelemetryPiiRules
-
-+ (void)initialize
-{
-    _piiFields = [[NSSet alloc] initWithArray:@[MSID_TELEMETRY_KEY_TENANT_ID,
-                                               MSID_TELEMETRY_KEY_USER_ID,
-                                               MSID_TELEMETRY_KEY_DEVICE_ID,
-                                               MSID_TELEMETRY_KEY_LOGIN_HINT,
-                                               MSID_TELEMETRY_KEY_CLIENT_ID,
-                                               MSID_TELEMETRY_KEY_ERROR_DESCRIPTION,
-                                               MSID_TELEMETRY_KEY_HTTP_PATH,
-                                               MSID_TELEMETRY_KEY_REQUEST_QUERY_PARAMS,
-                                               MSID_TELEMETRY_KEY_AUTHORITY]];
-}
-
-#pragma mark - Public
-
-+ (BOOL)isPii:(NSString *)propertyName
-{
-    return [_piiFields containsObject:propertyName];
-}
+@property NSString *code;
+@property NSError *oauthError;
+// TODO: We might need to expand/change this to include other information.
+// As a note, Network errors and such can be returned as a parameter in the completionHandler.
 
 @end

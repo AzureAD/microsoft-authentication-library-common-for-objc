@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDLegacyTokenCacheKey.h"
+#import "MSIDHelpers.h"
 
 //A special attribute to write, instead of nil/empty one.
 static NSString *const s_nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
@@ -46,10 +47,16 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
                           resource:(NSString *)resource
                           clientId:(NSString *)clientId
 {
-    
+    // Trim first for faster nil or empty checks. Also lowercase and trimming is
+    // needed to ensure that the cache handles correctly same items with different
+    // character case:
+    NSString *authorityString = authority.absoluteString.msidTrimmedString.lowercaseString;
+    resource = resource.msidTrimmedString.lowercaseString;
+    clientId = clientId.msidTrimmedString.lowercaseString;
+
     return [NSString stringWithFormat:s_adalServiceFormat,
             s_adalLibraryString,
-            authority.absoluteString.msidBase64UrlEncode,
+            authorityString.msidBase64UrlEncode,
             [self.class getAttributeName:resource],
             clientId.msidBase64UrlEncode];
 }
@@ -225,6 +232,10 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
  */
 + (NSString *)adalAccountWithUserId:(NSString *)userId
 {
+    if ([userId length])
+    {
+        userId = [MSIDHelpers normalizeUserId:userId];
+    }
     
 #if TARGET_OS_IPHONE
     return [userId msidBase64UrlEncode];
