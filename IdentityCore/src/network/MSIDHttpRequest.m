@@ -68,7 +68,9 @@
           
           if (![response isKindOfClass:NSHTTPURLResponse.class])
           {
-              if (completionBlock) completionBlock(response, error, self.context);
+              dispatch_async(dispatch_get_main_queue(), ^{
+                  if (completionBlock) completionBlock(response, error, self.context);
+              });
               return;
           }
           
@@ -93,17 +95,17 @@
               }
               else
               {
-                  completionBlock(nil, error, self.context);
+                  dispatch_async(dispatch_get_main_queue(), ^{
+                      if (completionBlock) completionBlock(nil, error, self.context);
+                  });
               }
           }
           else
           {
-              if (!completionBlock) return;
-              
               id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
               
               dispatch_async(dispatch_get_main_queue(), ^{
-                  completionBlock(error ? nil : responseObject, error, self.context);
+                  if (completionBlock) completionBlock(error ? nil : responseObject, error, self.context);
               });
           }
       }] resume];
