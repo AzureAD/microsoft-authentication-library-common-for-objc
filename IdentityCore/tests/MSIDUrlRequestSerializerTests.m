@@ -56,6 +56,9 @@
     
     XCTAssertEqualObjects(expectedBody, newUrlRequest.HTTPBody);
     XCTAssertEqualObjects(baseUrl, newUrlRequest.URL);
+    __auto_type headers = newUrlRequest.allHTTPHeaderFields;
+    XCTAssertEqualObjects(headers[@"Content-Type"], @"application/x-www-form-urlencoded");
+    XCTAssertEqualObjects(headers[@"Content-Length"], @"11");
 }
 
 - (void)testSerializeWithRequest_whenGetRequest_shouldEncodeParametersInUrl

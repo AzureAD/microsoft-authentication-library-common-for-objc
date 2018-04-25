@@ -66,13 +66,7 @@
           MSID_LOG_VERBOSE(self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
           MSID_LOG_VERBOSE_PII(self.context, @"Received network response: %@, error %@", response, error);
           
-          if (![response isKindOfClass:NSHTTPURLResponse.class])
-          {
-              dispatch_async(dispatch_get_main_queue(), ^{
-                  if (completionBlock) completionBlock(response, error, self.context);
-              });
-              return;
-          }
+          NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
           
           __auto_type httpResponse = (NSHTTPURLResponse *)response;
           

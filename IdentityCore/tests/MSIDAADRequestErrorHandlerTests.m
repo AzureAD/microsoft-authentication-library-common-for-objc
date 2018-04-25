@@ -155,9 +155,12 @@
                                                          headerFields:nil];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
+    
     __block id jsonResponse;
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
     __auto_type block = ^(id response, NSError *error, id<MSIDRequestContext> context) {
         jsonResponse = response;
+        [expectation fulfill];
     };
     __auto_type jsonErrorPayload = @{@"p1" : @"v1"};
     id data = [NSJSONSerialization dataWithJSONObject:jsonErrorPayload options:0 error:nil];
@@ -168,6 +171,8 @@
                        httpRequest:httpRequest
                            context:context
                    completionBlock:block];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertEqualObjects(jsonErrorPayload, jsonResponse);
 }

@@ -61,7 +61,9 @@
         id responseSerializer = [MSIDJsonResponseSerializer new];
         id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data error:nil];
         
-        if (completionBlock) completionBlock(responseObject, error, context);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionBlock) completionBlock(responseObject, error, context);
+        });
     }
 }
 

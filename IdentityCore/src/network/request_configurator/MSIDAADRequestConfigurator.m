@@ -39,22 +39,27 @@
     if (self)
     {
         _timeoutInterval = 300;
+        _authorityCache = [MSIDAadAuthorityCache sharedInstance];
     }
     return self;
 }
 
 - (void)configure:(MSIDHttpRequest *)request
 {
+    NSParameterAssert(request.urlRequest);
+    NSParameterAssert(request.urlRequest.URL);
+    
     request.responseSerializer = [MSIDAADResponseSerializer new];
     request.errorHandler = [MSIDAADRequestErrorHandler new];
     
-    __auto_type requestUrl = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:request.urlRequest.URL context:request.context];
+    __auto_type requestUrl = [self.authorityCache networkUrlForAuthority:request.urlRequest.URL context:request.context];
     NSMutableURLRequest *mutableUrlRequest = [request.urlRequest mutableCopy];
     mutableUrlRequest.URL = requestUrl;
     mutableUrlRequest.timeoutInterval = self.timeoutInterval;
+    mutableUrlRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
     [mutableUrlRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
-    requestUrl = [NSURL msidAddParameters:@{MSID_VERSION_KEY : MSIDVersion.sdkVersion} toUrl:requestUrl];
+    mutableUrlRequest.URL = [NSURL msidAddParameters:@{MSID_VERSION_KEY : MSIDVersion.sdkVersion} toUrl:requestUrl];
     
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
     [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];
