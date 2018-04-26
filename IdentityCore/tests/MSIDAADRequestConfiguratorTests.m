@@ -75,10 +75,12 @@
     XCTAssertEqualObjects(headers[MSID_OAUTH2_CORRELATION_ID_REQUEST], @"true");
     XCTAssertEqualObjects(headers[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE], @"E621E1F8-C36C-495A-93FC-0C247A3E6E5F");
     XCTAssertNotNil(headers[@"x-client-CPU"]);
-    XCTAssertNotNil(headers[@"x-client-DM"]);
     XCTAssertNotNil(headers[@"x-client-OS"]);
     XCTAssertNotNil(headers[@"x-client-SKU"]);
     XCTAssertNotNil(headers[@"x-client-Ver"]);
+#if TARGET_OS_IPHONE
+    XCTAssertNotNil(headers[@"x-client-DM"]);
+#endif
 }
 
 @end
