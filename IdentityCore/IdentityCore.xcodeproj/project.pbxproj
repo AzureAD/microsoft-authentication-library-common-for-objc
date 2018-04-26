@@ -878,18 +878,11 @@
 			path = mac;
 			sourceTree = "<group>";
 		};
-		60CABE212087F34D005154A2 /* ios */ = {
+		60E434242088F72000802D59 /* ios */ = {
 			isa = PBXGroup;
 			children = (
 				60CABE312087FE31005154A2 /* UIApplication+MSIDExtensions.h */,
 				60CABE322087FE8F005154A2 /* UIApplication+MSIDExtensions.m */,
-			);
-			path = ios;
-			sourceTree = "<group>";
-		};
-		60E434242088F72000802D59 /* ios */ = {
-			isa = PBXGroup;
-			children = (
 				60E434252088F78000802D59 /* MSIDAppExtensionUtil.h */,
 				60E434262088F79200802D59 /* MSIDAppExtensionUtil.m */,
 			);
@@ -986,7 +979,6 @@
 			children = (
 				96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */,
 				96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */,
-				60CABE212087F34D005154A2 /* ios */,
 				96235FA0207D786A007EAB36 /* challangeHandlers */,
 			);
 			path = embeddedWebview;

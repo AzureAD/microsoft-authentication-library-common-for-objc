@@ -307,6 +307,13 @@
     {
         return;
     }
+    
+    // TODO: stop loading indicator
+    
+    if([error.domain isEqual:@"WebKitErrorDomain"])
+    {
+        return;
+    }
 
     dispatch_async(dispatch_get_main_queue(), ^{ [self endWebAuthenticationWithError:error orURL:nil]; });
 }
