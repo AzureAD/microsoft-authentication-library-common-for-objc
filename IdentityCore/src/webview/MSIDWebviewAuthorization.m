@@ -68,7 +68,7 @@ id<MSIDWebviewInteracting> s_webviewController;
 {
     //TODO: rewrite the following to fit JK's work
     
-    NSURL *startURL = [factory generateStartURL:parameters];
+    NSURL *startURL = [factory startURLFrom:parameters];
     s_webviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartUrl:startURL
                                                                                  endURL:[NSURL URLWithString:[parameters redirectUri]]
                                                                                 webview:webview
