@@ -49,6 +49,7 @@
     void (^_completionHandler)(MSIDWebOAuth2Response *response, NSError *error);
     
     NSLock *_completionLock;
+    BOOL _complete;
     
 #if TARGET_OS_IPHONE
     UIActivityIndicatorView *_laodingIndicator;
@@ -76,6 +77,7 @@
         _completionHandler = [completionHandler copy];
         
         _completionLock = [[NSLock alloc] init];
+        _complete = NO;
     }
     
     return self;
@@ -263,6 +265,8 @@
     if ([[requestUrl.absoluteString lowercaseString] hasPrefix:[_endUrl.absoluteString lowercaseString]] ||
         [[[requestUrl scheme] lowercaseString] isEqualToString:@"msauth"])
     {
+        _complete = YES;
+        
         NSURL *url = navigationAction.request.URL;
         [self webAuthCompleteWithURL:url];
         
@@ -302,6 +306,11 @@
 // Authentication failed somewhere
 - (void)webAuthFailWithError:(NSError *)error
 {
+    if (_complete)
+    {
+        return;
+    }
+    
     // Ignore WebKitError 102 for OAuth 2.0 flow.
     if ([error.domain isEqualToString:@"WebKitErrorDomain"] && error.code == 102)
     {
@@ -405,6 +414,12 @@
 {
     (void)notification;
     
+    // If window is closed by us because web auth is completed, we simply return;
+    // otherwise cancel the webauth because it is closed by users.
+    if (_complete)
+    {
+        return;
+    }
     [self cancelWebAuth];
 }
 
