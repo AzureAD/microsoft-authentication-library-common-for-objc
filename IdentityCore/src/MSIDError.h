@@ -69,6 +69,24 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorInvalidClient = -51015,
     MSIDErrorInvalidGrant = -51016,
     MSIDErrorInvalidParameter = -51017,
+    MSIDErrorAuthorizationCode = -51018,
+    
+    MSIDErrorUserCancel = -51019,
+    /*!
+     The authentication request was cancelled programmatically.
+     */
+    MSIDErrorSessionCanceled = -51020,
+    /*!
+     An interactive authentication session is already running with the
+     SafariViewController visible. Another authentication session can not be
+     launched yet.
+     */
+    MSIDErrorInteractiveSessionAlreadyRunning = -51021,
+    /*!
+     An interactive authentication session failed to start.
+     */
+    MSIDErrorInteractiveSessionStartFailure = -51022,
+    
     MSIDErrorCodeFirst = MSIDErrorInternal,
     MSIDErrorCodeLast = MSIDErrorInvalidParameter
 };

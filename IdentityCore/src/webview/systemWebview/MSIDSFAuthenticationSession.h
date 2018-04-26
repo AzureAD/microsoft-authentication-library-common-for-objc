@@ -26,15 +26,17 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewRequest.h"
+#import "MSIDSystemWebviewController.h"
 
-@class MSIDRequestParameters;
+@interface MSIDSFAuthenticationSession : NSObject
 
-@interface MSIDEmbeddedWebviewRequest : MSIDWebviewRequest
+- (id)initWithURL:(NSURL *)url
+callbackURLScheme:(NSString *)callbackURLScheme
+          context:(id<MSIDRequestContext>)context
+completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
-- (id)initWithRequestParameters:(MSIDRequestParameters *)requestParameter;
-
-@property NSURL *endURL;
-@property NSDictionary *headers;
+- (BOOL)start;
+- (void)cancel;
 
 @end
+

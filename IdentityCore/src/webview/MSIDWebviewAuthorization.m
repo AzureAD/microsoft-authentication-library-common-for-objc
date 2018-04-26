@@ -27,29 +27,74 @@
 
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDWebviewInteracting.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDSystemWebviewController.h"
 
 @implementation MSIDWebviewAuthorization
 
 static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 
 + (void)startEmbeddedWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                              factory:(MSIDOAuth2Factory *)factory
+                                              factory:(MSIDOauth2Factory *)factory
+                                              context:(id<MSIDRequestContext>)context
+                                    completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    
+    id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithRequest:parameters
+                                                                                           customWebview:nil
+                                                                                       completionHandler:completionHandler];
+    [self startWebviewAuth:embeddedWebviewController
+                   context:context
+         completionHandler:completionHandler];
 }
 
 + (void)startEmbeddedWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
                                                      webview:(WKWebView *)webview
-                                                     factory:(MSIDOAuth2Factory *)factory
+                                                     factory:(MSIDOauth2Factory *)factory
+                                                     context:(id<MSIDRequestContext>)context
+                                           completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    
+    id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithRequest:parameters
+                                                                                           customWebview:webview
+                                                                                       completionHandler:completionHandler];
+    [self startWebviewAuth:embeddedWebviewController
+                   context:context
+         completionHandler:completionHandler];
 }
 
 + (void)startSystemWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                   factory:(MSIDOAuth2Factory *)factory
+                                                   factory:(MSIDOauth2Factory *)factory
+                                                   context:(id<MSIDRequestContext>)context
+                                         completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    
+    id<MSIDWebviewInteracting> systemWebviewController = [factory systemWebviewControllerWithRequest:parameters
+                                                                                   completionHandler:completionHandler];
+    [self startWebviewAuth:systemWebviewController
+                   context:context
+         completionHandler:completionHandler];
 }
+
++ (void)startWebviewAuth:(id<MSIDWebviewInteracting>)webviewController
+                 context:(id<MSIDRequestContext>)context
+       completionHandler:(MSIDWebUICompletionHandler)completionHandler
+{
+    if (![self setCurrentWebSession:webviewController])
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Only one interactive session is allowed at a time.", nil, nil, nil, context.correlationId, nil);
+        
+        completionHandler(nil, error);
+        return;
+    }
+    
+    if (![s_currentWebSession start])
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, context.correlationId, nil);
+        
+        completionHandler(nil, error);
+    }
+}
+
 
 + (BOOL)setCurrentWebSession:(id<MSIDWebviewInteracting>)newWebSession
 {
@@ -63,18 +108,30 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     }
     
     return NO;
-    
-    
 }
 
-+ (BOOL)handleURLResponse:(NSURL *)url
++ (void)cancelCurrentWebAuthSession
 {
+    if (s_currentWebSession)
+    {
+        [s_currentWebSession cancel];
+        
+        @synchronized([MSIDWebviewAuthorization class])
+        {
+            s_currentWebSession = nil;
+        }
+    }
+}
+
++ (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
+{
+    if (s_currentWebSession &&
+        [(NSObject *)s_currentWebSession isKindOfClass:MSIDSystemWebviewController.class])
+    {
+        return [((MSIDSystemWebviewController *)s_currentWebSession) handleURLResponseForSafariViewController:url];
+    }
     return NO;
 }
 
-+ (BOOL)cancelCurrentWebAuthSession
-{
-    return NO;
-}
 
 @end

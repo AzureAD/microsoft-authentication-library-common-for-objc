@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDWebviewInteracting.h"
 
 @class MSIDTokenResponse;
 @class MSIDBaseToken;
@@ -57,7 +58,11 @@
 
 // Webviews
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
-                                                     customWebview:(WKWebView *)webview;
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams;
+                                                     customWebview:(WKWebView *)webview
+                                                 completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                               completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+
+- (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams;
 
 @end

@@ -26,23 +26,28 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDSystemWebviewController.h"
-#import "MSIDSystemWebviewRequest.h"
-#import <SafariServices/SafariServices.h>
+#import "MSIDSFAuthenticationSession.h"
+#import "MSIDSafariViewController.h"
 
 @implementation MSIDSystemWebviewController
 {
     id<MSIDRequestContext> _context;
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-    SFAuthenticationSession *_authSession;
+    MSIDWebUICompletionHandler _completionHandler;
+
+#ifdef __IPHONE_11_0
+    MSIDSFAuthenticationSession *_authSession;
+#else
+    MSIDSafariViewController *_authSession;
 #endif
+    
 }
 
 @synthesize parentViewController;
 
 - (id)initWithStartURL:(NSURL *)startURL
      callbackURLScheme:(NSString *)callbackURLScheme
-               context:(id<MSIDRequestContext>)context;
+               context:(id<MSIDRequestContext>)context
+    completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 {
     self = [super init];
     
@@ -51,31 +56,59 @@
         _startURL = startURL;
         _context = context;
         _callbackURLScheme = callbackURLScheme;
+        _completionHandler = completionHandler;
     }
     
     return self;
 }
 
-- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+- (BOOL)start
 {
-#ifdef __IPHONE_11_0
-    if (@available(iOS 11.0, *)) {
-        _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
-                                                  callbackURLScheme:_callbackURLScheme
-                                                  completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error)
-        {
-            
-            
-        }];
-        
+    // check startURL exist
+    if (!_startURL)
+    {
+        // Log error: @"Attemped to start with nil URL"
+        return NO;
     }
     
-#endif
+    if (@available(iOS 11.0, *))
+    {
+        MSIDSFAuthenticationSession *authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:_startURL
+                                                                                  callbackURLScheme:_callbackURLScheme
+                                                                                            context:_context
+                                                                                  completionHandler:_completionHandler];
+        if (!authSession)
+        {
+            // Log error
+            return NO;
+        }
+        
+        return [authSession start];
+    }
+    else
+    {
+        MSIDSafariViewController *safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                                                               context:_context
+                                                                                     completionHandler:_completionHandler];
+        if (!safariViewController)
+        {
+            return NO;
+        }
+        
+        return [safariViewController start];
+    }
+    return NO;
 }
 
 - (void)cancel
 {
-    
+    [_authSession cancel];
 }
+
+- (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
+{
+    return NO;
+}
+
 
 @end

@@ -26,8 +26,16 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebOAuth2Response.h"
+#import "MSIDWebAADAuthResponse.h"
 
 @implementation MSIDWebOAuth2Response
 
++ (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
+
+{
+    return nil;
+}
 
 @end

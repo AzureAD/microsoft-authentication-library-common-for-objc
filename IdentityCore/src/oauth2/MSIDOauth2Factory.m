@@ -271,14 +271,22 @@
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
                                                      customWebview:(WKWebView *)webview
+                                                 completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // TODO: return default
     return nil;
 }
 
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                               completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // TODO: return default
+    return nil;
+}
+
+- (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
+{
+    // Default URL from authority
     return nil;
 }
 

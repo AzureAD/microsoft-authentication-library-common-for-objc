@@ -28,6 +28,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
+#import "MSIDDeviceId.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -151,15 +152,69 @@
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
                                                            Webview:(WKWebView *)webview
+                                                 completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
     return nil;
 }
 
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                               completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController
     return nil;
+}
+
+- (NSURL *)startURLFrom:(MSIDRequestParameters *)requestParams
+{
+    NSString *state = [self encodeProtocolState:requestParams];
+    
+    // if value is nil, it won't appear in the dictionary
+    NSMutableDictionary *queryParams = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                        MSID_OAUTH2_CODE, MSID_OAUTH2_RESPONSE_TYPE,
+                                        [requestParams clientId], MSID_OAUTH2_CLIENT_ID,
+                                        [requestParams resource], MSID_OAUTH2_RESOURCE,
+                                        [requestParams redirectUri], MSID_OAUTH2_REDIRECT_URI,
+                                        state, MSID_OAUTH2_STATE,
+                                        requestParams.promptBehavior, @"prompt",
+                                        @"1", @"hashchrome", //to hide back button in UI
+                                        [NSString msidIsStringNilOrBlank:requestParams.loginHint] ? nil : requestParams.loginHint, MSID_OAUTH2_LOGIN_HINT,
+                                        nil];
+    
+    [queryParams addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+    
+    NSMutableString *startUrl = [NSMutableString stringWithFormat:@"%@?%@",
+                                 [requestParams.authority.absoluteString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX], [queryParams msidURLFormEncode]];
+    
+    // we expect extraQueryParameters to be URL form encoded
+    if (![NSString msidIsStringNilOrBlank:requestParams.extraQueryParameters])
+    {
+        //Add the '&' for the additional params if not there already:
+        if ([requestParams.extraQueryParameters hasPrefix:@"&"])
+        {
+            [startUrl appendString:requestParams.extraQueryParameters.msidTrimmedString];
+        }
+        else
+        {
+            [startUrl appendFormat:@"&%@", requestParams.extraQueryParameters.msidTrimmedString];
+        }
+    }
+    
+    // we expect claims to be URL form encoded
+    if (![NSString msidIsStringNilOrBlank:requestParams.claims])
+    {
+        [startUrl appendFormat:@"&claims=%@", requestParams.claims];
+    }
+    
+    return [NSURL URLWithString:startUrl];
+}
+
+// TODO: if same in MSAL, move to common logic
+// Encodes the state parameter for a protocol message
+- (NSString *)encodeProtocolState:(MSIDRequestParameters *)requestParams
+{
+    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[requestParams authority], @"a", [requestParams resource], @"r", nil]
+             msidURLFormEncode] msidBase64UrlEncode];
 }
 
 @end

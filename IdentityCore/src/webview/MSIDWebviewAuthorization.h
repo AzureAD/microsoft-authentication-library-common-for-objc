@@ -27,23 +27,35 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDRequestParameters.h"
+#import "MSIDWebviewInteracting.h"
 
 @class WKWebView;
-@class MSIDOAuth2Factory;
+@class MSIDOauth2Factory;
+@class MSIDWebOAuth2Response;
+
+@protocol MSIDRequestContext;
 
 @interface MSIDWebviewAuthorization : NSObject
 
 + (void)startEmbeddedWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                              factory:(MSIDOAuth2Factory *)factory;
+                                              factory:(MSIDOauth2Factory *)factory
+                                              context:(id<MSIDRequestContext>)context
+                                    completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+
 + (void)startEmbeddedWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
                                                      webview:(WKWebView *)webview
-                                                     factory:(MSIDOAuth2Factory *)factory;
+                                                     factory:(MSIDOauth2Factory *)factory
+                                                     context:(id<MSIDRequestContext>)context
+                                           completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
 + (void)startSystemWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                   factory:(MSIDOAuth2Factory *)factory;
+                                                   factory:(MSIDOauth2Factory *)factory
+                                                   context:(id<MSIDRequestContext>)context
+                                         completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
-+ (BOOL)cancelCurrentWebAuthSession;
++ (void)cancelCurrentWebAuthSession;
 
-+ (BOOL)handleURLResponse:(NSURL *)url;
+// This is for system webview auth session on iOS 10 - Thus, a SafariViewController
++ (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 
 @end

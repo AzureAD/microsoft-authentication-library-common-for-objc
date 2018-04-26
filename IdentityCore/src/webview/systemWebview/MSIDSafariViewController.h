@@ -25,8 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebviewRequest.h"
+#import <Foundation/Foundation.h>
+#import "MSIDSystemWebviewController.h"
 
-@implementation MSIDWebviewRequest
+@interface MSIDSafariViewController : NSObject
 
+- (id)initWithURL:(NSURL *)url
+          context:(id<MSIDRequestContext>)context
+completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+
+- (BOOL)handleURLResponse:(NSURL *)url;
+- (BOOL)start;
 @end
