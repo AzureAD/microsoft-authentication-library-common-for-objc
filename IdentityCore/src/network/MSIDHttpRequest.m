@@ -27,6 +27,7 @@
 #import "MSIDHttpRequestTelemetryProtocol.h"
 #import "MSIDHttpRequestErrorHandlerProtocol.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
+#import "MSIDHttpRequestTelemetry.h"
 
 @interface MSIDHttpRequest () <NSURLSessionDelegate>
 
@@ -47,6 +48,7 @@
     _session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
     _responseSerializer = [MSIDJsonResponseSerializer new];
     _requestSerializer = [MSIDUrlRequestSerializer new];
+    _telemetry = [MSIDHttpRequestTelemetry new];
     
     return self;
 }

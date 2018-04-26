@@ -28,9 +28,19 @@
 
 @implementation MSIDHttpRequestTelemetry
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _telemetry = [MSIDTelemetry sharedInstance];
+    }
+    return self;
+}
+
 - (void)sendRequestEventWithId:(NSString *)telemetryRequestId
 {
-    [[MSIDTelemetry sharedInstance] startEvent:telemetryRequestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
+    [self.telemetry startEvent:telemetryRequestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
 }
 
 - (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
@@ -59,7 +69,7 @@
         [event setHttpErrorDomain:[error domain]];
     }
     
-    [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+    [self.telemetry stopEvent:telemetryRequestId event:event];
 }
 
 @end

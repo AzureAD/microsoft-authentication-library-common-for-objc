@@ -30,6 +30,7 @@
 #import "MSIDTestContext.h"
 #import "MSIDHttpRequestErrorHandlerProtocol.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
+#import "MSIDHttpRequestTelemetry.h"
 
 @interface MSIDTestRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
 
@@ -125,6 +126,11 @@
 - (void)testRequestConfigurator_byDefaultIsNil
 {
     XCTAssertNil(self.request.requestConfigurator);
+}
+
+- (void)testRequestTelemtry_byDefaultIsNotNil
+{
+    XCTAssertTrue([self.request.telemetry isKindOfClass:MSIDHttpRequestTelemetry.class]);
 }
 
 #pragma mark - Test sendWithContext:completionBlock:
