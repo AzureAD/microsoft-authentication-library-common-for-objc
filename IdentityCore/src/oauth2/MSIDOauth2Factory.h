@@ -61,6 +61,7 @@
                                                      customWebview:(WKWebView *)webview
                                                  completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                               callbackURLScheme:(NSString *)callbackURLScheme
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
 - (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams;

@@ -48,6 +48,8 @@ static byte rgbDecodeTable[128] = {                         // character code
     41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, NA, NA, NA, NA, NA,  // 112-127
 };
 
+#define RANDOM_STRING_MAX_SIZE 1024
+
 //Checks that all bytes inside the format are valid base64 characters:
 static BOOL validBase64Characters(const byte* data, const int size)
 {
@@ -365,6 +367,24 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
         }
     }
     return scope;
+}
+
++ (NSString *)randomUrlSafeStringOfSize:(NSUInteger)size
+{
+    if (size > RANDOM_STRING_MAX_SIZE)
+    {
+        return nil;
+    }
+    
+    NSMutableData *data = [NSMutableData dataWithLength:size];
+    int result = SecRandomCopyBytes(kSecRandomDefault, data.length, data.mutableBytes);
+    
+    if (result != 0)
+    {
+        return nil;
+    }
+    
+    return [NSString msidBase64UrlEncodeData:data];
 }
 
 @end

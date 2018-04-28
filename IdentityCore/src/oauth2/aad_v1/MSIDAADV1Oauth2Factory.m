@@ -159,6 +159,7 @@
 }
 
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                               callbackURLScheme:(NSString *)callbackURLScheme
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController

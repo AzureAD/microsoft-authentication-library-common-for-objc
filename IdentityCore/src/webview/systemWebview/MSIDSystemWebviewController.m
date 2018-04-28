@@ -64,10 +64,9 @@
 
 - (BOOL)start
 {
-    // check startURL exist
     if (!_startURL)
     {
-        // Log error: @"Attemped to start with nil URL"
+        MSID_LOG_ERROR(_context, @"Attemped to start with nil URL");
         return NO;
     }
     
@@ -78,7 +77,7 @@
                                                                                             context:_context];
         if (!authSession)
         {
-            // Log error
+            MSID_LOG_ERROR(_context, @"Failed to create an auth session");
             return NO;
         }
         
@@ -90,6 +89,7 @@
                                                                                                context:_context];
         if (!safariViewController)
         {
+            MSID_LOG_ERROR(_context, @"Failed to create an auth session");
             return NO;
         }
         

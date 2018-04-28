@@ -59,4 +59,7 @@
 
 - (NSOrderedSet<NSString *> *)scopeSet;
 
+/*! Generate a URL-safe string of random data */
++ (NSString *)randomUrlSafeStringOfSize:(NSUInteger)size;
+
 @end

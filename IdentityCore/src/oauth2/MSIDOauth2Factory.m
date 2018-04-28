@@ -277,6 +277,7 @@
 }
 
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                               callbackURLScheme:(NSString *)callbackURLScheme
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // TODO: return default

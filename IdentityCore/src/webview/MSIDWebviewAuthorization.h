@@ -49,6 +49,7 @@
                                            completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
 + (void)startSystemWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                         callbackURLScheme:(NSString *)callbackURLScheme
                                                    factory:(MSIDOauth2Factory *)factory
                                                    context:(id<MSIDRequestContext>)context
                                          completionHandler:(MSIDWebUICompletionHandler)completionHandler;

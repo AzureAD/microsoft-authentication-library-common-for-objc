@@ -224,14 +224,23 @@
 }
 
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+                                               callbackURLScheme:(NSString *)callbackURLScheme
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
+    // TODO: get authorization endpoint from authority validation cache.
+    
 //    MSIDWebUIStateVerifier stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState)
 //    {
 //        return NO;
 //    };
 //    
 //    
+    return nil;
+}
+
+- (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
+{
+
     return nil;
 }
 

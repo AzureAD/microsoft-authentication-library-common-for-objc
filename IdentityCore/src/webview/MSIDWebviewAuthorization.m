@@ -64,11 +64,13 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 }
 
 + (void)startSystemWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                         callbackURLScheme:(NSString *)callbackURLScheme
                                                    factory:(MSIDOauth2Factory *)factory
                                                    context:(id<MSIDRequestContext>)context
                                          completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     id<MSIDWebviewInteracting> systemWebviewController = [factory systemWebviewControllerWithRequest:parameters
+                                                                                   callbackURLScheme:callbackURLScheme
                                                                                    completionHandler:completionHandler];
     [self startWebviewAuth:systemWebviewController
                    context:context
