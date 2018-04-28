@@ -39,20 +39,17 @@
     SFSafariViewController *_safariViewController;
     
     NSURL *_url;
-    MSIDWebUICompletionHandler _completionHandler;
-    
+
     id<MSIDRequestContext> _context;
 }
 
 - (id)initWithURL:(NSURL *)url
           context:(id<MSIDRequestContext>)context
-completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     self = [super init];
     if (self)
     {
         _url = url;
-        _completionHandler = completionHandler;
         _context = context;
         
         _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
@@ -77,7 +74,6 @@ completionHandler:(MSIDWebUICompletionHandler)completionHandler
     }
     
     [viewController presentViewController:_safariViewController animated:YES completion:nil];
-
     return YES;
 }
 
@@ -108,33 +104,15 @@ completionHandler:(MSIDWebUICompletionHandler)completionHandler
         });
     }
     
-    MSIDWebUICompletionHandler completionHandler = nil;
-    @synchronized (self)
-    {
-        completionHandler = _completionHandler;
-        _completionHandler = nil;
-    }
-    
     _safariViewController = nil;
-    
-    if (!completionHandler)
-    {
-        // MSAL response received but no completion block saved
-        return NO;
-    }
-    
+
     if (error)
     {
-        completionHandler(nil, error);
+        [self.webviewDelegate handleAuthResponse:nil error:error];
         return YES;
     }
     
-    NSError *otherError = nil;
-    MSIDWebOAuth2Response *response = [MSIDWebOAuth2Response responseWithURL:url
-                                                                     context:context
-                                                                       error:&otherError];
-    
-    completionHandler(response, otherError);
+    [self.webviewDelegate handleAuthResponse:url error:nil];
     return YES;
 }
 

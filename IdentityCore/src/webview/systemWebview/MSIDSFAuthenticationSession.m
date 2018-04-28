@@ -40,7 +40,6 @@
 - (id)initWithURL:(NSURL *)url
 callbackURLScheme:(NSString *)callbackURLScheme
           context:(id<MSIDRequestContext>)context
-completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     if (@available(iOS 11.0, *))
     {
@@ -55,23 +54,11 @@ completionHandler:(MSIDWebUICompletionHandler)completionHandler
                                     error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, context.correlationId, nil);
                                 }
                                 
-                                completionHandler(nil, error);
+                                [self.webviewDelegate handleAuthResponse:nil error:error];
                                 return;
                             }
                             
-                            NSError *otherError = nil;
-                            MSIDWebOAuth2Response *response = [MSIDWebOAuth2Response responseWithURL:callbackURL
-                                                                                             context:context
-                                                                                               error:&otherError];
-                            
-                            if (otherError)
-                            {
-                                completionHandler(nil, otherError);
-                                return;
-                            }
-                            
-                            completionHandler(response, nil);
-                            return;
+                            [self.webviewDelegate handleAuthResponse:callbackURL error:nil];
                         }];
         return self;
     }

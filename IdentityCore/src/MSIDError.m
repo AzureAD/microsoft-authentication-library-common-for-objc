@@ -49,3 +49,20 @@ NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescri
 }
 
 
+MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode)
+{
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame)
+    {
+        return MSIDErrorInvalidRequest;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_client"] == NSOrderedSame)
+    {
+        return MSIDErrorInvalidClient;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_scope"] == NSOrderedSame)
+    {
+        return MSIDErrorInvalidParameter;
+    }
+    
+    return defaultCode;
+}

@@ -32,11 +32,12 @@
 
 - (id)initWithURL:(NSURL *)url
 callbackURLScheme:(NSString *)callbackURLScheme
-          context:(id<MSIDRequestContext>)context
-completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+          context:(id<MSIDRequestContext>)context;
 
 - (BOOL)start;
 - (void)cancel;
+
+@property id<MSIDSystemWebviewResponseDelegate> webviewDelegate;
 
 @end
 

@@ -26,15 +26,21 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDWebviewInteracting.h"
 
 @interface MSIDWebOAuth2Response : NSObject
 
 @property NSString *authorizationCode;
 @property NSError *oauthError;
+
+@property NSURL *url;
+
 // TODO: We might need to expand/change this to include other information.
 // As a note, Network errors and such can be returned as a parameter in the completionHandler.
 
 + (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
+                              requestState:(NSString *)requestState
+                             stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error;
 

@@ -30,7 +30,6 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
-#import "MSIDSystemWebviewRequest.h"
 #import "MSIDSystemWebviewController.h"
 
 @implementation MSIDOauth2Factory

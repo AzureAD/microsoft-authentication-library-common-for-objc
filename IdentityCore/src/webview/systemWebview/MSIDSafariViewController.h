@@ -31,9 +31,11 @@
 @interface MSIDSafariViewController : NSObject
 
 - (id)initWithURL:(NSURL *)url
-          context:(id<MSIDRequestContext>)context
-completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+          context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponse:(NSURL *)url;
 - (BOOL)start;
+
+@property id<MSIDSystemWebviewResponseDelegate> webviewDelegate;
+
 @end

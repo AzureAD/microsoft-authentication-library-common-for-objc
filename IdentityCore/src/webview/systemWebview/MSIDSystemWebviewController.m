@@ -75,8 +75,7 @@
     {
         MSIDSFAuthenticationSession *authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:_startURL
                                                                                   callbackURLScheme:_callbackURLScheme
-                                                                                            context:_context
-                                                                                  completionHandler:_completionHandler];
+                                                                                            context:_context];
         if (!authSession)
         {
             // Log error
@@ -88,8 +87,7 @@
     else
     {
         MSIDSafariViewController *safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
-                                                                                               context:_context
-                                                                                     completionHandler:_completionHandler];
+                                                                                               context:_context];
         if (!safariViewController)
         {
             return NO;
@@ -110,5 +108,9 @@
     return NO;
 }
 
-
+- (void)handleAuthResponse:(NSURL *)url
+                     error:(NSError *)error
+{
+    
+}
 @end

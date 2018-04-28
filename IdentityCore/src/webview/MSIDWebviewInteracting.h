@@ -31,6 +31,8 @@
 
 typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
 
+typedef BOOL (^MSIDWebUIStateVerifier)(NSDictionary *dictionary, NSString *requestState);
+
 @protocol MSIDWebviewInteracting
 
 - (BOOL)start;

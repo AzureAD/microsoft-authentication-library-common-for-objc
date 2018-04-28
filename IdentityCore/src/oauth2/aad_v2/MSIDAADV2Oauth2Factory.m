@@ -31,7 +31,6 @@
 #import "MSIDAuthority.h"
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
-#import "MSIDSystemWebviewRequest.h"
 #import "MSIDSystemWebviewController.h"
 
 @implementation MSIDAADV2Oauth2Factory
@@ -227,6 +226,12 @@
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
+//    MSIDWebUIStateVerifier stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState)
+//    {
+//        return NO;
+//    };
+//    
+//    
     return nil;
 }
 

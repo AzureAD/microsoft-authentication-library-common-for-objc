@@ -28,7 +28,14 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
 
-@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
+@protocol MSIDSystemWebviewResponseDelegate
+
+- (void)handleAuthResponse:(NSURL *)url
+                     error:(NSError *)error;
+
+@end
+
+@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting, MSIDSystemWebviewResponseDelegate>
 
 - (id)initWithStartURL:(NSURL *)startURL
      callbackURLScheme:(NSString *)callbackURLScheme
@@ -39,5 +46,8 @@
 
 @property (readonly) NSURL *startURL;
 @property (readonly) NSString *callbackURLScheme;
+
+@property MSIDWebUIStateVerifier stateVerifier;
+@property NSString *requestState;
 
 @end
