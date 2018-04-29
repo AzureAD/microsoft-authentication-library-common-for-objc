@@ -29,6 +29,8 @@
 
 @interface MSIDWebWPJAuthResponse : MSIDWebOAuth2Response
 
+- (instancetype)initWithURL:(NSURL *)url;
+
 @property NSString *upn;
 @property NSString *appInstallLink;
 

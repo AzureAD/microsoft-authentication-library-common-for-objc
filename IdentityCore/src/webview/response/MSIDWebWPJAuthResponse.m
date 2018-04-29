@@ -29,4 +29,25 @@
 
 @implementation MSIDWebWPJAuthResponse
 
+- (instancetype)initWithURL:(NSURL *)url
+{
+    if (![url.absoluteString hasPrefix:@"msauth://"])
+    {
+        return nil;
+    }
+
+    self = [super initWithURL:url authorizationCode:nil oauthError:nil];
+    if (self)
+    {
+        NSString *query = [url query];
+        NSDictionary *queryParams = [NSDictionary msidURLFormDecode:query];
+        
+        _appInstallLink = queryParams[@"app_link"];
+        _upn = queryParams[@"upn"];
+    }
+    
+    return self;
+}
+
+
 @end

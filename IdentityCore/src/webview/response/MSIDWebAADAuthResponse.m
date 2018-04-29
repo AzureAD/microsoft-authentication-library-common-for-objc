@@ -30,4 +30,37 @@
 @implementation MSIDWebAADAuthResponse
 
 
+- (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    NSDictionary *parameters = [self.class queryParams:url];
+    
+    // Verify state
+    BOOL stateVerified = stateVerifier(parameters, requestState);
+    if (!stateVerified)
+    {
+        if (error){
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSALErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
+    NSString *code = parameters[MSID_OAUTH2_CODE];
+    
+    if (code)
+    {
+        self = [super initWithURL:url authorizationCode:code oauthError:nil];
+        if (self)
+        {
+            _cloudHostName = parameters[MSID_AUTH_CLOUD_INSTANCE_HOST_NAME];
+        }
+        return self;
+    }
+    
+    return nil;
+}
+
 @end
