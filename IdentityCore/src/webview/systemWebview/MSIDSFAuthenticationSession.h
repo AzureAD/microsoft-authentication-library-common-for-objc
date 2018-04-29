@@ -30,14 +30,14 @@
 
 @interface MSIDSFAuthenticationSession : NSObject
 
-- (id)initWithURL:(NSURL *)url
-callbackURLScheme:(NSString *)callbackURLScheme
-          context:(id<MSIDRequestContext>)context;
+- (instancetype)initWithURL:(NSURL *)url
+          callbackURLScheme:(NSString *)callbackURLScheme
+                    context:(id<MSIDRequestContext>)context;
 
 - (BOOL)start;
 - (void)cancel;
 
-@property id<MSIDSystemWebviewResponseDelegate> webviewDelegate;
+@property(weak) id<MSIDSystemWebviewResponseDelegate> webviewDelegate;
 
 @end
 

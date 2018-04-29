@@ -37,9 +37,9 @@
 }
 
 
-- (id)initWithURL:(NSURL *)url
-callbackURLScheme:(NSString *)callbackURLScheme
-          context:(id<MSIDRequestContext>)context
+- (instancetype)initWithURL:(NSURL *)url
+          callbackURLScheme:(NSString *)callbackURLScheme
+                    context:(id<MSIDRequestContext>)context
 {
     if (@available(iOS 11.0, *))
     {

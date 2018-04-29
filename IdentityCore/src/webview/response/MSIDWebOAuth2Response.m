@@ -48,7 +48,7 @@
     }
     
     // Check for WPJ response
-    if([url.absoluteString hasPrefix:@"msauth://"])
+    if ([url.absoluteString hasPrefix:@"msauth://"])
     {
         NSString *query = [url query];
         NSDictionary *queryParams = [NSDictionary msidURLFormDecode:query];

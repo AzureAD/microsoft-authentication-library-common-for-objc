@@ -27,7 +27,6 @@
 
 #import "MSIDPkce.h"
 #import "NSString+MSIDExtensions.h"
-#import "MSIDCryptoHelper.h"
 
 #define CHALLENGE_SHA256    @"S256"
 
@@ -55,7 +54,7 @@ static NSUInteger const s_kCodeVerifierByteSize = 32;
 
 + (NSString *)createChallangeFromCodeVerifier:(NSString *)codeVerifier
 {
-    return [NSString msidBase64UrlEncodeData:[MSIDCryptoHelper msidSHA256fromString:codeVerifier]];
+    return [codeVerifier msidComputeSHA256];
 }
 
 - (NSString *)codeChallengeMethod

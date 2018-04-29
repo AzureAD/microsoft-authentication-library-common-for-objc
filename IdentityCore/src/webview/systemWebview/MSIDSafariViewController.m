@@ -43,8 +43,8 @@
     id<MSIDRequestContext> _context;
 }
 
-- (id)initWithURL:(NSURL *)url
-          context:(id<MSIDRequestContext>)context
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)

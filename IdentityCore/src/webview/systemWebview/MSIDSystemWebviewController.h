@@ -37,10 +37,10 @@
 
 @interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting, MSIDSystemWebviewResponseDelegate>
 
-- (id)initWithStartURL:(NSURL *)startURL
-     callbackURLScheme:(NSString *)callbackURLScheme
-               context:(id<MSIDRequestContext>)context
-     completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+- (instancetype)initWithStartURL:(NSURL *)startURL
+               callbackURLScheme:(NSString *)callbackURLScheme
+                         context:(id<MSIDRequestContext>)context
+               completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;
 

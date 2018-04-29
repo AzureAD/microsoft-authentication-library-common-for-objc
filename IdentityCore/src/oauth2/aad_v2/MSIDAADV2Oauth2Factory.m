@@ -240,7 +240,100 @@
 
 - (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
 {
+    
+    NSURLComponents *urlComponents = [NSURLComponents new];
+    urlComponents.scheme = @"https";
+    
+    // get this from cache: authorizationendpoint if possible
+    urlComponents.host = requestParams.authority.absoluteString;
+    
+    urlComponents.path = MSID_OAUTH2_V2_AUTHORIZE_SUFFIX;
 
+    
+    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray new];
+    
+    for (NSString *key in requestParams.extraQueryParameters)
+    {
+        [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:requestParams.extraQueryParameters[key]]];
+    }
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:MSID_OAUTH2_CLIENT_ID value:requestParams.clientId]];
+    
+    urlComponents.queryItems = queryItems;
+    
+    return urlComponents.URL;
+    
+//
+//    if (requestParams.extraQueryParameters)
+//    {
+//        for
+//
+//    }
+    
+    /*
+     
+     1. get auth endpoint from cache
+     2. if not 1, append su
+     
+     NSURLComponents *urlComponents =
+     [[NSURLComponents alloc] initWithURL:_authority.authorizationEndpoint
+     resolvingAgainstBaseURL:NO];
+     
+     NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
+     if (_parameters.extraQueryParameters)
+     {
+     [parameters addEntriesFromDictionary:_parameters.extraQueryParameters];
+     }
+     MSALScopes *allScopes = [self requestScopes:_extraScopesToConsent];
+     parameters[OAUTH2_CLIENT_ID] = _parameters.clientId;
+     parameters[OAUTH2_SCOPE] = [allScopes msalToString];
+     parameters[OAUTH2_RESPONSE_TYPE] = OAUTH2_CODE;
+     parameters[OAUTH2_REDIRECT_URI] = [_parameters.redirectUri absoluteString];
+     parameters[OAUTH2_CORRELATION_ID_REQUEST] = [_parameters.correlationId UUIDString];
+     parameters[OAUTH2_LOGIN_HINT] = _parameters.loginHint;
+     
+     // PKCE:
+     parameters[OAUTH2_CODE_CHALLENGE] = _pkce.codeChallenge;
+     parameters[OAUTH2_CODE_CHALLENGE_METHOD] = _pkce.codeChallengeMethod;
+     
+     NSDictionary *msalId = [MSALLogger msalId];
+     [parameters addEntriesFromDictionary:msalId];
+     [parameters addEntriesFromDictionary:MSALParametersForBehavior(_uiBehavior)];
+     
+     // Query parameters can come through from the OIDC discovery on the authorization endpoint as well
+     // and we need to retain them when constructing our authorization uri
+     NSMutableDictionary <NSString *, NSString *> *parameters = [self authorizationParameters];
+     if (urlComponents.percentEncodedQuery)
+     {
+     NSDictionary *authorizationQueryParams = [NSDictionary msalURLFormDecode:urlComponents.percentEncodedQuery];
+     if (authorizationQueryParams)
+     {
+     [parameters addEntriesFromDictionary:authorizationQueryParams];
+     }
+     }
+     
+     if (_parameters.sliceParameters)
+     {
+     [parameters addEntriesFromDictionary:_parameters.sliceParameters];
+     }
+     
+     MSALUser *user = _parameters.user;
+     if (user)
+     {
+     parameters[OAUTH2_LOGIN_HINT] = user.displayableId;
+     parameters[OAUTH2_LOGIN_REQ] = user.uid;
+     parameters[OAUTH2_DOMAIN_REQ] = user.utid;
+     }
+     
+     _state = [[NSUUID UUID] UUIDString];
+     parameters[OAUTH2_STATE] = _state;
+     
+     urlComponents.percentEncodedQuery = [parameters msalURLFormEncode];
+     */
+    
+    
+    
+    
+    
     return nil;
 }
 

@@ -39,7 +39,7 @@
                            target:(NSString *)target;
 
 @property (readwrite) NSString *loginHint;
-@property (readwrite) NSString *extraQueryParameters;
+@property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
 

@@ -37,17 +37,17 @@
 #ifdef __IPHONE_11_0
     MSIDSFAuthenticationSession *_authSession;
 #else
-    MSIDSafariViewController *_authSession;
+    MSIDSafariViewController *_safariViewController;
 #endif
     
 }
 
 @synthesize parentViewController;
 
-- (id)initWithStartURL:(NSURL *)startURL
-     callbackURLScheme:(NSString *)callbackURLScheme
-               context:(id<MSIDRequestContext>)context
-    completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+- (instancetype)initWithStartURL:(NSURL *)startURL
+               callbackURLScheme:(NSString *)callbackURLScheme
+                         context:(id<MSIDRequestContext>)context
+               completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 {
     self = [super init];
     
@@ -70,37 +70,44 @@
         return NO;
     }
     
+#ifdef __IPHONE_11_0
     if (@available(iOS 11.0, *))
     {
-        MSIDSFAuthenticationSession *authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:_startURL
-                                                                                  callbackURLScheme:_callbackURLScheme
-                                                                                            context:_context];
-        if (!authSession)
+        _authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:_startURL
+                                                      callbackURLScheme:_callbackURLScheme
+                                                                context:_context];
+        if (!_authSession)
         {
             MSID_LOG_ERROR(_context, @"Failed to create an auth session");
             return NO;
         }
         
-        return [authSession start];
+        return [_authSession start];
     }
-    else
+#else
     {
-        MSIDSafariViewController *safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
-                                                                                               context:_context];
-        if (!safariViewController)
+        _safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                             context:_context];
+        if (!_safariViewController)
         {
             MSID_LOG_ERROR(_context, @"Failed to create an auth session");
             return NO;
         }
         
-        return [safariViewController start];
+        return [_safariViewController start];
     }
+    #endif
     return NO;
 }
 
 - (void)cancel
 {
+#ifdef __IPHONE_11_0
     [_authSession cancel];
+#else
+    [_safariViewController cancel];
+#endif
+    
 }
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
