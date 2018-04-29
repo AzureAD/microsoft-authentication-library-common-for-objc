@@ -68,7 +68,7 @@
 - (BOOL)start
 {
     UIViewController *viewController; // TODO: Get current view controller
-    if (!viewController)
+    if (!viewController || ![NSThread isMainThread])
     {
         return NO;
     }
