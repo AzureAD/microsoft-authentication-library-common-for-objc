@@ -43,16 +43,15 @@
     [self.telemetry startEvent:telemetryRequestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
 }
 
-- (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
-                      correlationId:(NSUUID *)correlationId
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error
+- (void)responseReceivedEventWithContext:(id <MSIDRequestContext>)context
+                              urlRequest:(NSURLRequest *)urlRequest
+                            httpResponse:(NSHTTPURLResponse *)httpResponse
+                                    data:(NSData *)data
+                                   error:(NSError *)error
 {
     MSIDTelemetryHttpEvent *event = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
-                                                                       requestId:telemetryRequestId
-                                                                   correlationId:correlationId];
+                                                                       requestId:context.telemetryRequestId
+                                                                   correlationId:context.correlationId];
     
     [event setHttpMethod:urlRequest.HTTPMethod];
     [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", urlRequest.URL.scheme, urlRequest.URL.host, urlRequest.URL.path]];
@@ -69,7 +68,7 @@
         [event setHttpErrorDomain:[error domain]];
     }
     
-    [self.telemetry stopEvent:telemetryRequestId event:event];
+    [self.telemetry stopEvent:context.telemetryRequestId event:event];
 }
 
 @end

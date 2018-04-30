@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDHttpRequestTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
+#import "MSIDTestContext.h"
 
 @interface MSIDTelemetry (Tests)
 
@@ -98,7 +99,6 @@
 - (void)testResponseReceivedEventWithId_shouldInvokeTelemtryStopEventWithConfiguredEvent
 {
     __auto_type telemetry = [[MSIDTestTelemetry alloc] initInternal];
-    __auto_type correlationId = [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"];
     __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
     __auto_type urlRequest = [[NSURLRequest alloc] initWithURL:baseUrl];
     __auto_type headers = @{@"client-request-id" : @"client request id"};
@@ -106,14 +106,16 @@
     __auto_type data = [NSJSONSerialization dataWithJSONObject:jsonData options:0 error:nil];
     __auto_type response = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:0 HTTPVersion:nil headerFields:headers];
     __auto_type error = [[NSError alloc] initWithDomain:@"Test Domain" code:1 userInfo:nil];
+    __auto_type context = [MSIDTestContext new];
+    context.telemetryRequestId = @"some id";
+    context.correlationId = [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"];
     self.requestTelemetry.telemetry = telemetry;
     
-    [self.requestTelemetry responseReceivedEventWithId:@"some id"
-                                         correlationId:correlationId
-                                            urlRequest:urlRequest
-                                          httpResponse:response
-                                                  data:data
-                                                 error:error];
+    [self.requestTelemetry responseReceivedEventWithContext:context
+                                                 urlRequest:urlRequest
+                                               httpResponse:response
+                                                       data:data
+                                                      error:error];
     
     XCTAssertEqual(telemetry.stopEventCounter, 1);
     __auto_type eventProperties = [telemetry.passedEvent getProperties];

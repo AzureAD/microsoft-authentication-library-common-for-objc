@@ -27,8 +27,7 @@
 
 - (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
 
-- (void)responseReceivedEventWithId:(NSString *)telemetryRequestId
-                      correlationId:(NSUUID *)correlationId
+- (void)responseReceivedEventWithContext:(id <MSIDRequestContext>)context
                          urlRequest:(NSURLRequest *)urlRequest
                        httpResponse:(NSHTTPURLResponse *)httpResponse
                                data:(NSData *)data

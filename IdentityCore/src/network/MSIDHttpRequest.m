@@ -53,7 +53,7 @@
     return self;
 }
 
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     NSParameterAssert(self.urlRequest);
     
@@ -72,12 +72,11 @@
           
           __auto_type httpResponse = (NSHTTPURLResponse *)response;
           
-          [self.telemetry responseReceivedEventWithId:self.context.telemetryRequestId
-                                        correlationId:self.context.correlationId
-                                           urlRequest:self.urlRequest
-                                         httpResponse:httpResponse
-                                                 data:data
-                                                error:error];
+          [self.telemetry responseReceivedEventWithContext:self.context
+                                                urlRequest:self.urlRequest
+                                              httpResponse:httpResponse
+                                                      data:data
+                                                     error:error];
           if (error)
           {
               if (self.errorHandler)

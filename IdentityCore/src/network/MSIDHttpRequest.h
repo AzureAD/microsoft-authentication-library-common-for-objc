@@ -31,8 +31,6 @@
 @protocol MSIDHttpRequestErrorHandlerProtocol;
 @protocol MSIDHttpRequestConfiguratorProtocol;
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *_Nullable error, _Nullable id <MSIDRequestContext> context);
-
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
 
 @property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *parameters;
