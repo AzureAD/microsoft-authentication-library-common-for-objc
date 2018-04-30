@@ -39,7 +39,7 @@
 - (NSURLRequest *)urlRequest
 {
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
-    urlRequest.URL = [NSURL URLWithString:[self.endpoint.absoluteString stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]];
+    urlRequest.URL = self.endpoint;
     urlRequest.HTTPMethod = @"POST";
 
     return urlRequest;

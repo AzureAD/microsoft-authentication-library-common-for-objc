@@ -59,8 +59,7 @@
     
     NSMutableURLRequest *urlRequest = [[super urlRequest] mutableCopy];
     
-    __auto_type urlString = [self.endpoint.absoluteString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX];
-    urlRequest.URL = [NSURL URLWithString:urlString];
+    urlRequest.URL = self.endpoint;
     urlRequest.HTTPMethod = @"GET";
     
     return urlRequest;
