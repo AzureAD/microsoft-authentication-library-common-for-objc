@@ -46,7 +46,13 @@
             context:(id <MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    // If error -- skip json parsing (we don't have it anyway)
+    if (!httpResponse)
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionBlock) completionBlock(nil, error);
+        });
+        return;
+    }
     
     BOOL shouldRetry = YES;
     shouldRetry &= self.retryCounter > 0;
@@ -61,6 +67,7 @@
     }
     else
     {
+        // Parse error response.
         id responseSerializer = [MSIDJsonResponseSerializer new];
         id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data error:nil];
         
