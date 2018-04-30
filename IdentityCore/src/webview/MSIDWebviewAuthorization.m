@@ -30,10 +30,11 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDAADV2Oauth2Factory.h"
-#import "MSIDSystemWebviewController.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDWebWPJAuthResponse.h"
+#import <SafariServices/SafariServices.h>
+#import "MSIDSystemWebviewController.h"
 
 @implementation MSIDWebviewAuthorization
 
@@ -72,6 +73,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
                                                    context:(id<MSIDRequestContext>)context
                                          completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
+
     id<MSIDWebviewInteracting> systemWebviewController = [factory systemWebviewControllerWithRequest:parameters
                                                                                    callbackURLScheme:callbackURLScheme
                                                                                    completionHandler:completionHandler];
@@ -227,11 +229,13 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 {
+#if TARGET_OS_IPHONE
     if (s_currentWebSession &&
         [(NSObject *)s_currentWebSession isKindOfClass:MSIDSystemWebviewController.class])
     {
         return [((MSIDSystemWebviewController *)s_currentWebSession) handleURLResponseForSafariViewController:url];
     }
+#endif
     return NO;
 }
 

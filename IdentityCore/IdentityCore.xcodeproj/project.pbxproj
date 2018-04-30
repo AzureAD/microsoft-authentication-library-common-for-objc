@@ -68,13 +68,28 @@
 		9641B5291FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9641B5271FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.h */; };
 		9641B52A1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5281FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m */; };
 		9641B52B1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5281FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m */; };
+		96996AB62097D56B0085E528 /* MSIDPkce.m in Sources */ = {isa = PBXBuildFile; fileRef = 96B8D57920946D2600E3F4A6 /* MSIDPkce.m */; };
+		96996AB72097D56B0085E528 /* MSIDPkce.m in Sources */ = {isa = PBXBuildFile; fileRef = 96B8D57920946D2600E3F4A6 /* MSIDPkce.m */; };
+		96996ABA2097D6D50085E528 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96996AB92097D6D50085E528 /* WebKit.framework */; };
+		96996ABC2097D6E20085E528 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96996ABB2097D6E20085E528 /* SafariServices.framework */; };
+		96996ABF2097D9A20085E528 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96996ABB2097D6E20085E528 /* SafariServices.framework */; };
+		96996AC12097D9E60085E528 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96A3E9C020895CCE00BE5262 /* WebKit.framework */; };
+		96996AC62097DA510085E528 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96996ABB2097D6E20085E528 /* SafariServices.framework */; };
+		96996AC72097DA550085E528 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96A3E9C020895CCE00BE5262 /* WebKit.framework */; };
+		96996ACA2097DAC10085E528 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D68FB4871FBA698A005308BB /* libIdentityCore.a */; };
+		96996ACB2097DACA0085E528 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */; };
+		96996ACC2097DACE0085E528 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96996AB92097D6D50085E528 /* WebKit.framework */; };
+		96996ACE2097DAFD0085E528 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */; };
+		96996AD02097DCA30085E528 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */; };
+		96996AD22097DCBA0085E528 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96996AD12097DCBA0085E528 /* Security.framework */; };
+		96996AD32097DCC10085E528 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96996AD12097DCBA0085E528 /* Security.framework */; };
+		96996AD42097DCC90085E528 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96996AD12097DCBA0085E528 /* Security.framework */; };
 		96A3E9B9208941D700BE5262 /* MSIDSystemWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96A3E9B8208941D700BE5262 /* MSIDSystemWebviewController.m */; };
 		96A3E9BD2089478500BE5262 /* MSIDWebviewAuthorization.h in Headers */ = {isa = PBXBuildFile; fileRef = 96A3E9BB2089478500BE5262 /* MSIDWebviewAuthorization.h */; };
 		96A3E9BE2089478500BE5262 /* MSIDWebviewAuthorization.m in Sources */ = {isa = PBXBuildFile; fileRef = 96A3E9BC2089478500BE5262 /* MSIDWebviewAuthorization.m */; };
 		96A3E9BF2089478500BE5262 /* MSIDWebviewAuthorization.m in Sources */ = {isa = PBXBuildFile; fileRef = 96A3E9BC2089478500BE5262 /* MSIDWebviewAuthorization.m */; };
 		96A3E9C120895CCE00BE5262 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96A3E9C020895CCE00BE5262 /* WebKit.framework */; };
 		96B25DD31FE29F11007B21F7 /* MSIDAdfsToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 96B25DD11FE29F11007B21F7 /* MSIDAdfsToken.h */; };
-		96B82B6F208DD88F00CAB843 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B82B6E208DD88F00CAB843 /* SafariServices.framework */; };
 		96B8D57B20946D2600E3F4A6 /* MSIDPkce.m in Sources */ = {isa = PBXBuildFile; fileRef = 96B8D57920946D2600E3F4A6 /* MSIDPkce.m */; };
 		96B8D57C20946D2600E3F4A6 /* MSIDPkce.m in Sources */ = {isa = PBXBuildFile; fileRef = 96B8D57920946D2600E3F4A6 /* MSIDPkce.m */; };
 		96B8D57D20946D2600E3F4A6 /* MSIDPkce.h in Headers */ = {isa = PBXBuildFile; fileRef = 96B8D57A20946D2600E3F4A6 /* MSIDPkce.h */; };
@@ -337,8 +352,6 @@
 		D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */; };
 		D62600171FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */; };
 		D62600181FBD380500EE4487 /* NSString+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D62600121FBD380500EE4487 /* NSString+MSIDExtensions.h */; };
-		D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D68FB4871FBA698A005308BB /* libIdentityCore.a */; };
-		D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */; };
 		D626FFF11FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FFEB1FBD200A00EE4487 /* MSIDTestURLResponse.m */; };
 		D626FFF21FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D626FFEB1FBD200A00EE4487 /* MSIDTestURLResponse.m */; };
 		D626FFF31FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D626FFEC1FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h */; };
@@ -362,8 +375,6 @@
 		D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */; };
 		D6D9A4BE1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */; };
 		D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */; };
-		D6D9A4C31FBE718C00EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */; };
-		D6D9A4C81FBE71A100EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -491,6 +502,9 @@
 		9641B5281FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyedArchiverSerializer.m; sourceTree = "<group>"; };
 		96474C0C1FD688EA00DC3CE9 /* MSIDJsonSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializer.m; sourceTree = "<group>"; };
 		965981041FF4C9B400E31CDE /* MSIDDefaultTokenCacheIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultTokenCacheIntegrationTests.m; sourceTree = "<group>"; };
+		96996AB92097D6D50085E528 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		96996ABB2097D6E20085E528 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.3.sdk/System/Library/Frameworks/SafariServices.framework; sourceTree = DEVELOPER_DIR; };
+		96996AD12097DCBA0085E528 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		96A3E9B7208941D700BE5262 /* MSIDSystemWebviewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSystemWebviewController.h; sourceTree = "<group>"; };
 		96A3E9B8208941D700BE5262 /* MSIDSystemWebviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSystemWebviewController.m; sourceTree = "<group>"; };
 		96A3E9BB2089478500BE5262 /* MSIDWebviewAuthorization.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebviewAuthorization.h; sourceTree = "<group>"; };
@@ -740,10 +754,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96996ACE2097DAFD0085E528 /* libIdentityTest.a in Frameworks */,
+				96996AC72097DA550085E528 /* WebKit.framework in Frameworks */,
+				96996AC62097DA510085E528 /* SafariServices.framework in Frameworks */,
 				B2893CAF1FCF68B200E348E9 /* Security.framework in Frameworks */,
 				B2C17AEA1FC790420070A514 /* UIKit.framework in Frameworks */,
-				D6D9A4C31FBE718C00EFA430 /* libIdentityTest.a in Frameworks */,
-				D626FF4F1FBA6DFD00EE4487 /* libIdentityCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -751,6 +766,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96996AD22097DCBA0085E528 /* Security.framework in Frameworks */,
+				96996ABA2097D6D50085E528 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -758,9 +775,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96996AD42097DCC90085E528 /* Security.framework in Frameworks */,
+				96996AD02097DCA30085E528 /* libIdentityTest.a in Frameworks */,
 				B20657DC1FC92EC600412B7D /* IOKit.framework in Frameworks */,
-				D626FF6D1FBA6EDF00EE4487 /* libIdentityCore.a in Frameworks */,
-				D6D9A4C81FBE71A100EFA430 /* libIdentityTest.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -768,6 +785,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96996ACA2097DAC10085E528 /* libIdentityCore.a in Frameworks */,
+				96996AC12097D9E60085E528 /* WebKit.framework in Frameworks */,
+				96996ABF2097D9A20085E528 /* SafariServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -775,6 +795,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96996AD32097DCC10085E528 /* Security.framework in Frameworks */,
+				96996ACC2097DACE0085E528 /* WebKit.framework in Frameworks */,
+				96996ACB2097DACA0085E528 /* libIdentityCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -782,7 +805,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				96B82B6F208DD88F00CAB843 /* SafariServices.framework in Frameworks */,
+				96996ABC2097D6E20085E528 /* SafariServices.framework in Frameworks */,
 				96A3E9C120895CCE00BE5262 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1309,6 +1332,9 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				96996AD12097DCBA0085E528 /* Security.framework */,
+				96996ABB2097D6E20085E528 /* SafariServices.framework */,
+				96996AB92097D6D50085E528 /* WebKit.framework */,
 				96B82B6E208DD88F00CAB843 /* SafariServices.framework */,
 				96A3E9C020895CCE00BE5262 /* WebKit.framework */,
 				B2893CAE1FCF68B200E348E9 /* Security.framework */,
@@ -1677,8 +1703,8 @@
 			projectRoot = "";
 			targets = (
 				D68FB4861FBA698A005308BB /* IdentityCore iOS */,
-				D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */,
 				D626FFD21FBD1F2B00EE4487 /* IdentityTest iOS */,
+				D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */,
 				D626FFDF1FBD1F5700EE4487 /* IdentityTest Mac */,
 				D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */,
 				D626FF671FBA6EDF00EE4487 /* IdentityCoreTests Mac */,
@@ -1919,6 +1945,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23185367206D8B090024DCA4 /* MSIDTestRequestParams.m in Sources */,
+				96996AB62097D56B0085E528 /* MSIDPkce.m in Sources */,
 				23F32F251FFDAF1900B2905E /* MSIDTestBrokerResponse.m in Sources */,
 				D6D9A4571FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
 				23F32F191FFD635500B2905E /* MSIDTestIdTokenUtil.m in Sources */,
@@ -1937,6 +1964,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6D9A4581FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
+				96996AB72097D56B0085E528 /* MSIDPkce.m in Sources */,
 				D626FFF21FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
 				D626FFF81FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
 				23185366206D8B080024DCA4 /* MSIDTestRequestParams.m in Sources */,
@@ -2126,7 +2154,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = MSIDTestsHostApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2175,7 +2203,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = MSIDTestsHostApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.MSIDTestsHostApp;
