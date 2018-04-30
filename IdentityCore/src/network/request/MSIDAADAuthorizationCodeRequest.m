@@ -21,11 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAuthorizationCodeRequest.h"
+#import "MSIDAADAuthorizationCodeRequest.h"
 #import "MSIDHttpRequest.h"
 #import "MSIDAADRequestConfigurator.h"
 
-@implementation MSIDAuthorizationCodeRequest
+@implementation MSIDAADAuthorizationCodeRequest
 
 - (instancetype)init
 {
@@ -41,12 +41,10 @@
 {
     NSParameterAssert(self.clientId);
     NSParameterAssert(self.redirectUri);
-    NSParameterAssert(self.resource);
     
     NSMutableDictionary *parameters = [NSMutableDictionary new];
     parameters[MSID_OAUTH2_CLIENT_ID] = self.clientId;
     parameters[MSID_OAUTH2_REDIRECT_URI] = self.redirectUri;
-    parameters[MSID_OAUTH2_RESOURCE] = self.resource;
     parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
     parameters[MSID_OAUTH2_RESPONSE_TYPE] = self.loginHint;
     parameters[@"prompt"] = @"none";
