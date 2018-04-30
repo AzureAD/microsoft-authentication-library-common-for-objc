@@ -58,7 +58,6 @@
     
     XCTAssertEqualObjects(serializedResponse[@"spe_info"], @"I");
     XCTAssertEqualObjects(serializedResponse[@"correlation_id"], @"correlation_id_value");
-    XCTAssertEqualObjects(serializedResponse[@"url"], baseUrl);
     XCTAssertEqualObjects(serializedResponse[@"p"], @"v");
 }
 

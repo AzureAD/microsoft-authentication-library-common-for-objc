@@ -45,8 +45,6 @@
             jsonObject[MSID_TELEMETRY_KEY_SPE_INFO] = speInfo;
         }
     }
-    
-    jsonObject[@"url"] = httpResponse.URL;
 
     return jsonObject;
 }
