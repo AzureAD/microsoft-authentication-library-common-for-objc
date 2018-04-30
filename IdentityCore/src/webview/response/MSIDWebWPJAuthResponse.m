@@ -29,25 +29,34 @@
 
 @implementation MSIDWebWPJAuthResponse
 
-- (instancetype)initWithURL:(NSURL *)url
+- (instancetype)initWithScheme:(NSString *)scheme
+                    parameters:(NSDictionary *)parameters
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
-    if (![url.absoluteString hasPrefix:@"msauth://"])
+    // Check for WPJ response
+    if (![scheme isEqualToString:@"msauth://"])
     {
         return nil;
     }
-
-    self = [super initWithURL:url authorizationCode:nil oauthError:nil];
+    
+    NSString *appInstallLink = parameters[@"app_link"];
+    if (!appInstallLink)
+    {
+        if (error){
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"Parameters is missing app_link", nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
+    self = [super init];
     if (self)
     {
-        NSString *query = [url query];
-        NSDictionary *queryParams = [NSDictionary msidURLFormDecode:query];
-        
-        _appInstallLink = queryParams[@"app_link"];
-        _upn = queryParams[@"upn"];
+        _appInstallLink = appInstallLink;
+        _upn = parameters[@"upn"];
     }
     
     return self;
 }
-
 
 @end

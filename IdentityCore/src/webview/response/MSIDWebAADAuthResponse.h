@@ -29,11 +29,11 @@
 
 @interface MSIDWebAADAuthResponse : MSIDWebOAuth2Response
 
-- (instancetype)initWithURL:(NSURL *)url
-               requestState:(NSString *)requestState
-              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
+- (instancetype)initWithParameters:(NSDictionary *)parameters
+                      requestState:(NSString *)requestState
+                     stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error;
 
 @property NSString *cloudHostName;
 

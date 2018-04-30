@@ -29,15 +29,12 @@
 
 @implementation MSIDWebAADAuthResponse
 
-
-- (instancetype)initWithURL:(NSURL *)url
-               requestState:(NSString *)requestState
-              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+- (instancetype)initWithParameters:(NSDictionary *)parameters
+                      requestState:(NSString *)requestState
+                     stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
 {
-    NSDictionary *parameters = [self.class queryParams:url];
-    
     // Verify state
     BOOL stateVerified = stateVerifier(parameters, requestState);
     if (!stateVerified)
@@ -47,20 +44,14 @@
         }
         return nil;
     }
-    
-    NSString *code = parameters[MSID_OAUTH2_CODE];
-    
-    if (code)
+
+    self = [super initWithParameters:parameters context:context error:error];
+    if (self)
     {
-        self = [super initWithURL:url authorizationCode:code oauthError:nil];
-        if (self)
-        {
-            _cloudHostName = parameters[MSID_AUTH_CLOUD_INSTANCE_HOST_NAME];
-        }
-        return self;
+        _cloudHostName = parameters[MSID_AUTH_CLOUD_INSTANCE_HOST_NAME];
     }
     
-    return nil;
+    return self;
 }
 
 @end

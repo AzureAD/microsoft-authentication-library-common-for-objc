@@ -35,21 +35,9 @@
 
 @property NSURL *url;
 
-- (instancetype)initWithURL:(NSURL *)url
-          authorizationCode:(NSString *)authorizationCode
-                 oauthError:(NSError *)oauthError;
+- (instancetype)initWithParameters:(NSDictionary *)parameters
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error;
 
-// TODO: We might need to expand/change this to include other information.
-// As a note, Network errors and such can be returned as a parameter in the completionHandler.
-
-+ (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
-                              requestState:(NSString *)requestState
-                             stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error;
-
-
-// Helper methods
-+ (NSDictionary *)queryParams:(NSURL *)url;
 
 @end

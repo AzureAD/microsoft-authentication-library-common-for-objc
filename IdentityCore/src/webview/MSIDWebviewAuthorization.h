@@ -32,7 +32,7 @@
 @class WKWebView;
 @class MSIDOauth2Factory;
 @class MSIDWebOAuth2Response;
-
+@class MSIDWebOAuth2Response;
 @protocol MSIDRequestContext;
 
 @interface MSIDWebviewAuthorization : NSObject
@@ -53,6 +53,12 @@
                                                    factory:(MSIDOauth2Factory *)factory
                                                    context:(id<MSIDRequestContext>)context
                                          completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+
++ (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
+                              requestState:(NSString *)requestState
+                             stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
 
 + (void)cancelCurrentWebAuthSession;
 

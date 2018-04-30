@@ -31,6 +31,9 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDSystemWebviewController.h"
+#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebWPJAuthResponse.h"
 
 @implementation MSIDWebviewAuthorization
 
@@ -111,6 +114,103 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     
     return NO;
 }
+
+
+// Helper methods
++ (NSDictionary *)queryParametersFromURL:(NSURL *)url
+{
+    // Check for auth response
+    // Try both the URL and the fragment parameters:
+    NSDictionary *parameters = [url msidFragmentParameters];
+    if (parameters.count == 0)
+    {
+        parameters = [url msidQueryParameters];
+    }
+    return parameters;
+}
+
++ (NSError *)oauthErrorFromURL:(NSURL *)url
+{
+    NSDictionary *dictionary = [self.class queryParametersFromURL:url];
+    
+    NSUUID *correlationId = [dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
+    [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
+    
+    NSString *serverOAuth2Error = [dictionary objectForKey:MSID_OAUTH2_ERROR];
+    
+    if (serverOAuth2Error)
+    {
+        NSString *errorDescription = dictionary[MSID_OAUTH2_ERROR_DESCRIPTION];
+        NSString *subError = dictionary[MSID_OAUTH2_SUB_ERROR];
+        
+        MSIDErrorCode errorCode = MSIDErrorCodeForOAuthError(errorDescription, MSIDErrorAuthorizationFailed);
+        
+        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, nil);
+    }
+    
+    return nil;
+}
+
++ (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
+                              requestState:(NSString *)requestState
+                             stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
+{
+    // This error case *really* shouldn't occur. If we're seeing it it's almost certainly a developer bug
+    if ([NSString msidIsStringNilOrBlank:url.absoluteString])
+    {
+        if (error){
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorNoAuthorizationResponse, @"No authorization response received from server.", nil, nil, nil, context.correlationId, nil);
+            return nil;
+        }
+    }
+    
+    NSDictionary *parameters = [self.class queryParametersFromURL:url];
+    
+    // Check if this is a WPJ response
+    MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithScheme:url.scheme
+                                                                              parameters:parameters
+                                                                                 context:context
+                                                                                   error:error];
+    if (wpjResponse)
+    {
+        wpjResponse.url = url;
+        return wpjResponse;
+    }
+    
+    // Check for AAD response
+    MSIDWebAADAuthResponse *aadResponse = [[MSIDWebAADAuthResponse alloc] initWithParameters:parameters
+                                                                                requestState:requestState
+                                                                               stateVerifier:stateVerifier
+                                                                                     context:context
+                                                                                       error:error];
+    if (aadResponse)
+    {
+        aadResponse.url = url;
+        return aadResponse;
+    }
+    
+    // It is then, a standard OAuth2 response
+    MSIDWebOAuth2Response *oauth2Response = [[MSIDWebOAuth2Response alloc] initWithParameters:parameters
+                                                                                      context:context
+                                                                                        error:error];
+    if (oauth2Response)
+    {
+        oauth2Response.url = url;
+        return oauth2Response;
+        
+    }
+    
+    // Any other errors are caught here
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorBadAuthorizationResponse, @"No code or error in server response.", nil, nil, nil, context.correlationId, nil);
+        
+    }
+    return nil;
+}
+
 
 + (void)cancelCurrentWebAuthSession
 {

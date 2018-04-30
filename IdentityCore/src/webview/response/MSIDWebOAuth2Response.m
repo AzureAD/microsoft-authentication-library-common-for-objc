@@ -31,92 +31,33 @@
 
 @implementation MSIDWebOAuth2Response
 
-- (instancetype)initWithURL:(NSURL *)url
-          authorizationCode:(NSString *)authorizationCode
-                 oauthError:(NSError *)oauthError
+- (instancetype)initWithParameters:(NSDictionary *)parameters
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
 {
     self = [super init];
     if (self)
     {
-        _url = url;
-        _authorizationCode = authorizationCode;
-        _oauthError = oauthError;
+        // populate auth code
+        _authorizationCode = parameters[MSID_OAUTH2_CODE];
+        
+        // populate oauth error
+        _oauthError = [self.class oauthErrorFromParameters:parameters];
     }
     return self;
 }
 
-+ (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
-                              requestState:(NSString *)requestState
-                             stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error;
-
++ (NSError *)oauthErrorFromParameters:(NSDictionary *)parameters
 {
-    // This error case *really* shouldn't occur. If we're seeing it it's almost certainly a developer bug
-    if ([NSString msidIsStringNilOrBlank:url.absoluteString])
-    {
-        if (error){
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorNoAuthorizationResponse, @"No authorization response received from server.", nil, nil, nil, context.correlationId, nil);
-            return nil;
-        }
-    }
+    NSUUID *correlationId = [parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
+    [[NSUUID alloc] initWithUUIDString:[parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
     
-    // Check for WPJ response
-    MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithURL:url];
-    if (wpjResponse)
-    {
-        return wpjResponse;
-    }
-    
-    // Check for AAD response
-    MSIDWebAADAuthResponse *aadResponse = [[MSIDWebAADAuthResponse alloc] initWithURL:url
-                                                                         requestState:requestState
-                                                                        stateVerifier:stateVerifier
-                                                                              context:context
-                                                                                error:error];
-    
-    if (aadResponse)
-    {
-        return aadResponse;
-    }
-    
-    NSError *oauthError = [self.class oauthErrorFromURL:url];
-    if (!oauthError)
-    {
-        oauthError = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorBadAuthorizationResponse, @"No code or error in server response.", nil, nil, nil, context.correlationId, nil);
-    }
-    
-    
-    return [[MSIDWebOAuth2Response alloc] initWithURL:url
-                                    authorizationCode:nil
-                                           oauthError:oauthError];
-}
-
-+ (NSDictionary *)queryParams:(NSURL *)url
-{
-    // Check for auth response
-    // Try both the URL and the fragment parameters:
-    NSDictionary *parameters = [url msidFragmentParameters];
-    if (parameters.count == 0)
-    {
-        parameters = [url msidQueryParameters];
-    }
-    return parameters;
-}
-
-+ (NSError *)oauthErrorFromURL:(NSURL *)url
-{
-    NSDictionary *dictionary = [self.class queryParams:url];
-    
-    NSUUID *correlationId = [dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
-    [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
-    
-    NSString *serverOAuth2Error = [dictionary objectForKey:MSID_OAUTH2_ERROR];
+    NSString *serverOAuth2Error = [parameters objectForKey:MSID_OAUTH2_ERROR];
     
     if (serverOAuth2Error)
     {
-        NSString *errorDescription = dictionary[MSID_OAUTH2_ERROR_DESCRIPTION];
-        NSString *subError = dictionary[MSID_OAUTH2_SUB_ERROR];
+        NSString *errorDescription = parameters[MSID_OAUTH2_ERROR_DESCRIPTION];
+        NSString *subError = parameters[MSID_OAUTH2_SUB_ERROR];
         
         MSIDErrorCode errorCode = MSIDErrorCodeForOAuthError(errorDescription, MSIDErrorAuthorizationFailed);
         
@@ -127,3 +68,4 @@
 }
 
 @end
+
