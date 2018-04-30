@@ -91,7 +91,7 @@
               else
               {
                   dispatch_async(dispatch_get_main_queue(), ^{
-                      if (completionBlock) completionBlock(nil, error, self.context);
+                      if (completionBlock) completionBlock(nil, error);
                   });
               }
           }
@@ -100,7 +100,7 @@
               id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
               
               dispatch_async(dispatch_get_main_queue(), ^{
-                  if (completionBlock) completionBlock(error ? nil : responseObject, error, self.context);
+                  if (completionBlock) completionBlock(error ? nil : responseObject, error);
               });
           }
       }] resume];

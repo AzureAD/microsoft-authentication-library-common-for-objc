@@ -46,6 +46,8 @@
             context:(id <MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
+    // If error -- skip json parsing (we don't have it anyway)
+    
     BOOL shouldRetry = YES;
     shouldRetry &= self.retryCounter > 0;
     shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
@@ -63,7 +65,7 @@
         id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data error:nil];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) completionBlock(responseObject, error, context);
+            if (completionBlock) completionBlock(responseObject, error);
         });
     }
 }

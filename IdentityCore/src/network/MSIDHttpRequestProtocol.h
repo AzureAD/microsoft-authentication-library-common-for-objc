@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *_Nullable error, _Nullable id <MSIDRequestContext> context);
+typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *_Nullable error);
 
 @protocol MSIDHttpRequestProtocol <NSObject>
 

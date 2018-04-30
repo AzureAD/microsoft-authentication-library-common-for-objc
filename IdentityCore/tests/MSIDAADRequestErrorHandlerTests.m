@@ -100,7 +100,7 @@
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
     __block BOOL isBlockInvoked = NO;
-    __auto_type block = ^(id response, NSError *error, id<MSIDRequestContext> context) {
+    __auto_type block = ^(id response, NSError *error) {
         isBlockInvoked = YES;
     };
     
@@ -130,7 +130,7 @@
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
     __block BOOL isBlockInvoked = NO;
-    __auto_type block = ^(id response, NSError *error, id<MSIDRequestContext> context) {
+    __auto_type block = ^(id response, NSError *error) {
         isBlockInvoked = YES;
     };
     
@@ -163,7 +163,7 @@
     
     __block id jsonResponse;
     XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
-    __auto_type block = ^(id response, NSError *error, id<MSIDRequestContext> context) {
+    __auto_type block = ^(id response, NSError *error) {
         jsonResponse = response;
         [expectation fulfill];
     };
