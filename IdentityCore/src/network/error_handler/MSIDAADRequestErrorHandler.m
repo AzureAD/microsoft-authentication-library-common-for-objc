@@ -34,6 +34,7 @@
     if (!self) return nil;
     
     _retryCounter = 1;
+    _retryInterval = 0.5;
     
     return self;
 }
@@ -52,7 +53,7 @@
     if (shouldRetry)
     {
         self.retryCounter--;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.retryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [httpRequest sendWithBlock:completionBlock];
         });
     }

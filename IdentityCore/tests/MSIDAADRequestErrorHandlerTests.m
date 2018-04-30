@@ -83,6 +83,11 @@
     XCTAssertEqual(self.errorHandler.retryCounter, 1);
 }
 
+- (void)testByDefaultRetryIntervalIsHalfOfSecond
+{
+    XCTAssertEqual(self.errorHandler.retryInterval, 0.5);
+}
+
 #pragma mark -
 
 - (void)testHandleError_whenItIsServerError_shouldRetryRequestAndDecreseRetryCounter
