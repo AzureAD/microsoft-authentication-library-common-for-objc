@@ -72,7 +72,7 @@
     {
         // Parse error response.
         id responseSerializer = [MSIDJsonResponseSerializer new];
-        id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data error:nil];
+        id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:nil];
         
         MSID_LOG_VERBOSE(context, @"Parsed error response: %@", _PII_NULLIFY(responseObject));
         

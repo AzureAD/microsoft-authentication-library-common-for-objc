@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -21,35 +20,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADResponseSerializer.h"
-#import "MSIDTelemetryEventStrings.h"
-#import "NSString+MSIDTelemetryExtensions.h"
+#import "MSIDWebFingerRequest.h"
 
-@implementation MSIDAADResponseSerializer
+@implementation MSIDWebFingerRequest
 
-- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
-                           data:(NSData *)data
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
+- (instancetype)initWithIssuer:(NSURL *)issuer
+                     authority:(NSURL *)authority;
 {
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:error] mutableCopy];
-    
-    if (error) return nil;
-    
-    jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-    
-    NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
-    if (![NSString msidIsStringNilOrBlank:clientTelemetry])
+    self = [super init];
+    if (self)
     {
-        NSString *speInfo = [clientTelemetry parsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
+        NSParameterAssert(issuer);
+        NSParameterAssert(authority);
         
-        if (![NSString msidIsStringNilOrBlank:speInfo])
-        {
-            jsonObject[MSID_TELEMETRY_KEY_SPE_INFO] = speInfo;
-        }
+        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        parameters[@"resource"] = authority.absoluteString;
+        
+        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
+        urlRequest.URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/.well-known/webfinger", issuer.host]];
+        urlRequest.HTTPMethod = @"GET";
+        _urlRequest = urlRequest;
     }
-
-    return jsonObject;
+    
+    return self;
 }
 
 @end

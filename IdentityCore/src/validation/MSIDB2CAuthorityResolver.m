@@ -21,35 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADResponseSerializer.h"
-#import "MSIDTelemetryEventStrings.h"
-#import "NSString+MSIDTelemetryExtensions.h"
+#import "MSIDB2CAuthorityResolver.h"
+#import "MSIDAuthority.h"
 
-@implementation MSIDAADResponseSerializer
+@implementation MSIDB2CAuthorityResolver
 
-- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
-                           data:(NSData *)data
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
+- (void)discoverAuthority:(NSURL *)authority
+        userPrincipalName:(NSString *)upn
+                 validate:(BOOL)validate
+                  context:(id<MSIDRequestContext>)context
+          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:error] mutableCopy];
-    
-    if (error) return nil;
-    
-    jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-    
-    NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
-    if (![NSString msidIsStringNilOrBlank:clientTelemetry])
+    if (validate && ![MSIDAuthority isKnownHost:authority])
     {
-        NSString *speInfo = [clientTelemetry parsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
-        
-        if (![NSString msidIsStringNilOrBlank:speInfo])
-        {
-            jsonObject[MSID_TELEMETRY_KEY_SPE_INFO] = speInfo;
-        }
+        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidRequest, @"Authority validation is not supported for this type of authority", nil, nil, nil, context.correlationId, nil);
+        completionBlock(nil, nil, NO, error);
+        return;
     }
-
-    return jsonObject;
+    
+    completionBlock(authority, [self defaultOpenIdConfigurationEndpointForAuthority:authority], validate, nil);
 }
 
 @end

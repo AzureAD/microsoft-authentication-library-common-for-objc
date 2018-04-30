@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -21,11 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDOpenIdConfigurationInfoRequest.h"
+#import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDAADResponseSerializer.h"
-#import "MSIDTelemetryEventStrings.h"
-#import "NSString+MSIDTelemetryExtensions.h"
 
-@implementation MSIDAADResponseSerializer
+@interface MSIDOpenIdConfigurationInfoResponseSerializer : MSIDAADResponseSerializer
+@end
+
+@implementation MSIDOpenIdConfigurationInfoResponseSerializer
 
 - (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
                            data:(NSData *)data
@@ -36,20 +38,32 @@
     
     if (error) return nil;
     
-    jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
+    __auto_type metadata = [MSIDOpenIdProviderMetadata new];
+    metadata.authorizationEndpoint = [NSURL URLWithString:jsonObject[@"authorization_endpoint"]];
+    metadata.tokenEndpoint = [NSURL URLWithString:jsonObject[@"token_endpoint"]];
+    metadata.issuer = [NSURL URLWithString:jsonObject[@"issuer"]];
     
-    NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
-    if (![NSString msidIsStringNilOrBlank:clientTelemetry])
-    {
-        NSString *speInfo = [clientTelemetry parsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
-        
-        if (![NSString msidIsStringNilOrBlank:speInfo])
-        {
-            jsonObject[MSID_TELEMETRY_KEY_SPE_INFO] = speInfo;
-        }
-    }
+    return metadata;
+}
 
-    return jsonObject;
+@end
+
+@implementation MSIDOpenIdConfigurationInfoRequest
+
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+{
+    self = [super init];
+    if (self)
+    {
+        NSParameterAssert(endpoint);
+        
+        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
+        urlRequest.URL = endpoint;
+        urlRequest.HTTPMethod = @"GET";
+        _urlRequest = urlRequest;
+    }
+    
+    return self;
 }
 
 @end

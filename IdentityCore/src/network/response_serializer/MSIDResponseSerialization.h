@@ -23,10 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol MSIDRequestContext;
+
 @protocol MSIDResponseSerialization <NSObject>
 
 - (nullable id)responseObjectForResponse:(nullable NSHTTPURLResponse *)httpResponse
                                     data:(nullable NSData *)data
+                                 context:(nullable id <MSIDRequestContext>)context
                                    error:(NSError * _Nullable __autoreleasing *_Nullable)error;
 
 @end

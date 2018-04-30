@@ -99,7 +99,7 @@
           }
           else
           {
-              id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
+              id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data context:self.context error:&error];
               
               MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@", _PII_NULLIFY(responseObject), _PII_NULLIFY(error));
               

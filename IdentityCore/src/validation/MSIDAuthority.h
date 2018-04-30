@@ -25,6 +25,13 @@
 //
 //------------------------------------------------------------------------------
 
+#import <Foundation/Foundation.h>
+#import "MSIDAuthorityResolverProtocol.h"
+
+@class MSIDOpenIdProviderMetadata;
+
+typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata *metadata, NSError *error);
+
 @interface MSIDAuthority : NSObject
 
 + (BOOL)isADFSInstance:(NSString *)endpoint;
@@ -41,5 +48,21 @@
 + (BOOL)isTenantless:(NSURL *)authority;
 + (NSURL *)cacheUrlForAuthority:(NSURL *)authority
                        tenantId:(NSString *)tenantId;
+
++ (void)discoverAuthority:(NSURL *)authority
+        userPrincipalName:(NSString *)upn
+                 validate:(BOOL)validate
+                  context:(id<MSIDRequestContext>)context
+          completionBlock:(MSIDAuthorityInfoBlock)completionBlock;
+
++ (void)loadOpenIdConfigurationInfo:(NSURL *)openIdConfigurationEndpoint
+                            context:(id<MSIDRequestContext>)context
+                    completionBlock:(MSIDOpenIdConfigurationInfoBlock)completionBlock;
+
++ (NSURL *)normalizeAuthority:(NSURL *)authority
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError * __autoreleasing *)error;
+
++ (BOOL)isKnownHost:(NSURL *)url;
 
 @end
