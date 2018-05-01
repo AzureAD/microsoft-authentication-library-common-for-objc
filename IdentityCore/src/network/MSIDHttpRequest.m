@@ -45,7 +45,6 @@
     if (!self) return nil;
     
     _sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    _session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
     _responseSerializer = [MSIDJsonResponseSerializer new];
     _requestSerializer = [MSIDUrlRequestSerializer new];
     _telemetry = [MSIDHttpRequestTelemetry new];
@@ -63,12 +62,13 @@
     
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
     
+    self.session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
     [[self.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
       {
           MSID_LOG_VERBOSE(self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
           MSID_LOG_VERBOSE_PII(self.context, @"Received network response: %@, error %@", response, error);
           
-          NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
+          if (response) NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
           
           __auto_type httpResponse = (NSHTTPURLResponse *)response;
           
