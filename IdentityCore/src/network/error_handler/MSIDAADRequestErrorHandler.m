@@ -61,6 +61,9 @@
     if (shouldRetry)
     {
         self.retryCounter--;
+        
+        MSID_LOG_VERBOSE(context, @"Retrying network request, retryCounter: %ld", (long)self.retryCounter);
+        
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.retryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [httpRequest sendWithBlock:completionBlock];
         });
@@ -70,6 +73,8 @@
         // Parse error response.
         id responseSerializer = [MSIDJsonResponseSerializer new];
         id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data error:nil];
+        
+        MSID_LOG_VERBOSE(context, @"Parsed error response: %@", _PII_NULLIFY(responseObject));
         
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completionBlock) completionBlock(responseObject, error);

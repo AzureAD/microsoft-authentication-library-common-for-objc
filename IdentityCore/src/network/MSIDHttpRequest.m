@@ -63,10 +63,12 @@
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
     
     self.session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
+    
+    MSID_LOG_VERBOSE(self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));
+    
     [[self.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
       {
           MSID_LOG_VERBOSE(self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
-          MSID_LOG_VERBOSE_PII(self.context, @"Received network response: %@, error %@", response, error);
           
           if (response) NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
           
@@ -98,6 +100,8 @@
           else
           {
               id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
+              
+              MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@", _PII_NULLIFY(responseObject), _PII_NULLIFY(error));
               
               dispatch_async(dispatch_get_main_queue(), ^{
                   if (completionBlock) completionBlock(error ? nil : responseObject, error);
