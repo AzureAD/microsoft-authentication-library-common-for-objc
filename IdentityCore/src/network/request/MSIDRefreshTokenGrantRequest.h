@@ -25,6 +25,13 @@
 
 @interface MSIDRefreshTokenGrantRequest : MSIDTokenRequest
 
-@property (nonatomic) NSString *refreshToken;
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope
+                    refreshToken:(NSString *)refreshToken NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope NS_UNAVAILABLE;
 
 @end

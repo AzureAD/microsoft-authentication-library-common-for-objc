@@ -24,6 +24,17 @@
 
 @interface MSIDAADV1AuthorizationCodeRequest : MSIDAADAuthorizationCodeRequest
 
-@property (nonatomic) NSString *resource;
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSString *)redirectUri
+                           scope:(NSString *)scope
+                       loginHint:(NSString *)loginHint
+                        resource:(NSString *)resource NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSString *)redirectUri
+                           scope:(NSString *)scope
+                       loginHint:(NSString *)loginHint NS_UNAVAILABLE;
 
 @end

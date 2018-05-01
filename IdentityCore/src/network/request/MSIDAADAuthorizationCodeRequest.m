@@ -27,41 +27,37 @@
 
 @implementation MSIDAADAuthorizationCodeRequest
 
-- (instancetype)init
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSString *)redirectUri
+                           scope:(NSString *)scope
+                       loginHint:(NSString *)loginHint
 {
     self = [super init];
     if (self)
     {
-        self.requestConfigurator = [MSIDAADRequestConfigurator new];
+        NSParameterAssert(endpoint);
+        NSParameterAssert(clientId);
+        NSParameterAssert(redirectUri);
+        
+        NSMutableDictionary *parameters = [NSMutableDictionary new];
+        parameters[MSID_OAUTH2_CLIENT_ID] = clientId;
+        parameters[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
+        parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
+        parameters[MSID_OAUTH2_RESPONSE_TYPE] = loginHint;
+        parameters[@"prompt"] = @"none";
+        parameters[MSID_OAUTH2_SCOPE] = scope;
+        _parameters = parameters;
+        
+        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];;
+        urlRequest.URL = endpoint;
+        urlRequest.HTTPMethod = @"GET";
+        _urlRequest = urlRequest;
+        
+        _requestConfigurator = [MSIDAADRequestConfigurator new];
     }
+    
     return self;
 }
 
-- (NSDictionary *)parameters
-{
-    NSParameterAssert(self.clientId);
-    NSParameterAssert(self.redirectUri);
-    
-    NSMutableDictionary *parameters = [NSMutableDictionary new];
-    parameters[MSID_OAUTH2_CLIENT_ID] = self.clientId;
-    parameters[MSID_OAUTH2_REDIRECT_URI] = self.redirectUri;
-    parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
-    parameters[MSID_OAUTH2_RESPONSE_TYPE] = self.loginHint;
-    parameters[@"prompt"] = @"none";
-    parameters[MSID_OAUTH2_SCOPE] = self.scope;
-    
-    return parameters;
-}
-
-- (NSURLRequest *)urlRequest
-{
-    NSParameterAssert(self.endpoint);
-    
-    NSMutableURLRequest *urlRequest = [[super urlRequest] mutableCopy];
-    
-    urlRequest.URL = self.endpoint;
-    urlRequest.HTTPMethod = @"GET";
-    
-    return urlRequest;
-}
 @end

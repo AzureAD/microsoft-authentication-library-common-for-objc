@@ -25,12 +25,20 @@
 
 @implementation MSIDAADV1RefreshTokenGrantRequest
 
-- (NSDictionary *)parameters
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope
+                    refreshToken:(NSString *)refreshToken
+                        resource:(NSString *)resource
 {
-    NSMutableDictionary *parameters = [[super parameters] mutableCopy];
-    parameters[MSID_OAUTH2_RESOURCE] = self.resource;
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken];
+    if (self)
+    {
+        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        parameters[MSID_OAUTH2_RESOURCE] = resource;
+        _parameters = parameters;
+    }
     
-    return parameters;
+    return self;
 }
-
 @end

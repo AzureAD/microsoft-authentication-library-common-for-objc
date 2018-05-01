@@ -25,16 +25,24 @@
 
 @implementation MSIDRefreshTokenGrantRequest
 
-- (NSDictionary *)parameters
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope
+                    refreshToken:(NSString *)refreshToken
 {
-    NSParameterAssert(self.refreshToken);
-    NSParameterAssert(self.clientId);
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope];
+    if (self)
+    {
+        NSParameterAssert(refreshToken);
+        NSParameterAssert(clientId);
+        
+        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;
+        parameters[MSID_OAUTH2_REFRESH_TOKEN] = refreshToken;
+        _parameters = parameters;
+    }
     
-    NSMutableDictionary *parameters = [[super parameters] mutableCopy];
-    parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;
-    parameters[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
-    
-    return parameters;
+    return self;
 }
 
 @end

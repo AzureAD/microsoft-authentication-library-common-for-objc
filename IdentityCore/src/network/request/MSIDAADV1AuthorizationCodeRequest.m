@@ -24,14 +24,28 @@
 
 @implementation MSIDAADV1AuthorizationCodeRequest
 
-- (NSDictionary *)parameters
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSString *)redirectUri
+                           scope:(NSString *)scope
+                       loginHint:(NSString *)loginHint
+                        resource:(NSString *)resource
 {
-    NSParameterAssert(self.resource);
+    self = [super initWithEndpoint:endpoint
+                          clientId:clientId
+                       redirectUri:redirectUri
+                             scope:scope
+                         loginHint:loginHint];
+    if (self)
+    {
+        NSParameterAssert(resource);
+        
+        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        parameters[MSID_OAUTH2_RESOURCE] = resource;
+        _parameters = parameters;
+    }
     
-    NSMutableDictionary *parameters = [[super parameters] mutableCopy];
-    parameters[MSID_OAUTH2_RESOURCE] = self.resource;
-    
-    return parameters;
+    return self;
 }
 
 @end

@@ -25,24 +25,27 @@
 
 @implementation MSIDTokenRequest
 
-- (NSDictionary *)parameters
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope
 {
-    NSParameterAssert(self.clientId);
+    self = [super init];
+    if (self)
+    {
+        NSParameterAssert(clientId);
+        
+        NSMutableDictionary *parameters = [NSMutableDictionary new];
+        parameters[MSID_OAUTH2_CLIENT_ID] = clientId;
+        parameters[MSID_OAUTH2_SCOPE] = scope;
+        _parameters = parameters;
+        
+        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
+        urlRequest.URL = endpoint;
+        urlRequest.HTTPMethod = @"POST";
+        _urlRequest = urlRequest;
+    }
     
-    NSMutableDictionary *parameters = [NSMutableDictionary new];
-    parameters[MSID_OAUTH2_CLIENT_ID] = self.clientId;
-    parameters[MSID_OAUTH2_SCOPE] = self.scope;
-    
-    return parameters;
-}
-
-- (NSURLRequest *)urlRequest
-{
-    NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
-    urlRequest.URL = self.endpoint;
-    urlRequest.HTTPMethod = @"POST";
-
-    return urlRequest;
+    return self;
 }
 
 @end

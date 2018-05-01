@@ -26,22 +26,23 @@
 
 @implementation MSIDAADAuthorizationCodeGrantRequest
 
-- (instancetype)init
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope
+                     redirectUri:(NSString *)redirectUri
+                            code:(NSString *)code
 {
-    self = [super init];
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope redirectUri:redirectUri code:code];
     if (self)
     {
-        self.requestConfigurator = [MSIDAADRequestConfigurator new];
+        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
+        _parameters = parameters;
+        
+        _requestConfigurator = [MSIDAADRequestConfigurator new];
     }
-    return self;
-}
-
-- (NSDictionary *)parameters
-{
-    NSMutableDictionary *parameters = [[super parameters] mutableCopy];
-    parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
     
-    return parameters;
+    return self;
 }
 
 @end

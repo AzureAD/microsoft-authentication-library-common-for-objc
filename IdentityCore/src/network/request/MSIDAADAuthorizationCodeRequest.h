@@ -31,10 +31,13 @@
  */
 @interface MSIDAADAuthorizationCodeRequest : MSIDHttpRequest
 
-@property (nonatomic) NSURL *endpoint;
-@property (nonatomic) NSString *clientId;
-@property (nonatomic) NSString *redirectUri;
-@property (nonatomic) NSString *scope;
-@property (nonatomic) NSString *loginHint;
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSString *)redirectUri
+                           scope:(NSString *)scope
+                       loginHint:(NSString *)loginHint NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end

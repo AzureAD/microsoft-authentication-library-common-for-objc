@@ -26,6 +26,15 @@
 
 @interface MSIDAADV1RefreshTokenGrantRequest : MSIDAADRefreshTokenGrantRequest
 
-@property (nonatomic) NSString *resource;
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope
+                    refreshToken:(NSString *)refreshToken
+                        resource:(NSString *)resource NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope
+                    refreshToken:(NSString *)refreshToken NS_UNAVAILABLE;
 
 @end

@@ -25,7 +25,14 @@
 
 @interface MSIDAuthorizationCodeGrantRequest : MSIDTokenRequest
 
-@property (nonatomic) NSString *redirectUri;
-@property (nonatomic) NSString *code;
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope
+                     redirectUri:(NSString *)redirectUri
+                            code:(NSString *)code NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope NS_UNAVAILABLE;
 
 @end
