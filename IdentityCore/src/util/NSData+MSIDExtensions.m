@@ -22,8 +22,40 @@
 // THE SOFTWARE.
 
 #import "NSData+MSIDExtensions.h"
+#import <CommonCrypto/CommonDigest.h>
 
 @implementation NSData (MSIDExtensions)
+
+- (NSString *)msidComputeSHA256
+{
+    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(self.bytes, (CC_LONG)self.length, hash);
+    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
+    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
+    {
+        [toReturn appendFormat:@"%02x", hash[i]];
+    }
+    return toReturn;
+}
+
+- (NSString *)msidComputeSHA1
+{
+    unsigned char hash[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(self.bytes, (CC_LONG)self.length, hash);
+    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA1_DIGEST_LENGTH*2];
+    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
+    {
+        [toReturn appendFormat:@"%02x", hash[i]];
+    }
+    return toReturn;
+}
+
+- (NSString *)msidComputeSHA1Base64Encoded
+{
+    NSMutableData *hashData = [NSMutableData dataWithLength:CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(self.bytes, (CC_LONG)self.length, [hashData mutableBytes]);
+    return [hashData base64EncodedStringWithOptions:0];
+}
 
 - (NSDictionary *)msidToJsonDictionary:(NSError **)error
 {

@@ -23,11 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSData (MSIDExtensions)
+@interface MSIDJWTHelper : NSObject
 
-- (NSDictionary *)msidToJsonDictionary:(NSError **)error;
-- (NSString *)msidComputeSHA256;
-- (NSString *)msidComputeSHA1;
-- (NSString *)msidComputeSHA1Base64Encoded;
++ (NSString *)createSignedJWTforHeader:(NSDictionary *)header
+                               payload:(NSDictionary *)payload
+                            signingKey:(SecKeyRef)signingKey;
+
++ (NSString *)decryptJWT:(NSData *)jwtData
+           decryptionKey:(SecKeyRef)decryptionKey;
 
 @end

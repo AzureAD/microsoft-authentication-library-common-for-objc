@@ -1,0 +1,7 @@
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.IdentityCoreAutomation
+PRODUCT_NAME = IdentityCoreAutomation
+ENABLE_TESTING = YES
+GCC_PREFIX_HEADER = src/IdentityCore.pch
+GCC_PRECOMPILE_PREFIX_HEADER = YES
+PRODUCT_MODULE_NAME = MSIDAutomation
+SWIFT_OBJC_BRIDGING_HEADER = tests/automation/MSIDAutomation-Bridging-Header.h
