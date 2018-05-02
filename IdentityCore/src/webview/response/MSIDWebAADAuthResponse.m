@@ -40,7 +40,7 @@
     if (!stateVerified)
     {
         if (error){
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSALErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, context.correlationId, nil);
         }
         return nil;
     }

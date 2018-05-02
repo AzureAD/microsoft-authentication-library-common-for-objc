@@ -81,7 +81,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      The state returned by the server does not match the state that was sent to
      the server at the beginning of the authorization attempt.
      */
-    MSALErrorInvalidState = -52501,
+    MSIDErrorInvalidState = -52501,
     /*!
      Interaction required errors occur because of a wide variety of errors
      returned by the authentication service.
