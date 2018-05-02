@@ -23,6 +23,9 @@
 
 #import <Foundation/Foundation.h>
 
+@class MSIDPkce;
+@class MSIDClientInfo;
+
 @interface MSIDRequestParameters : NSObject <NSCopying>
 
 @property (readwrite) NSURL *authority;
@@ -42,5 +45,15 @@
 @property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
+
+@property (readwrite) NSUUID *correlationId;
+
+// Is this only for V2?
+@property (readonly) MSIDPkce *pkce;
+@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
+@property (readwrite) MSIDClientInfo *clientInfo;
+@property (readwrite) NSString *rawIdTokenString;
+
+@property (readwrite) NSURL *explicitStartURL;
 
 @end

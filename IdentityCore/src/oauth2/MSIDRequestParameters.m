@@ -23,6 +23,7 @@
 
 #import "MSIDRequestParameters.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDPkce.h"
 
 @implementation MSIDRequestParameters
 
@@ -33,6 +34,20 @@
     parameters.redirectUri = [_redirectUri copyWithZone:zone];
     parameters.target = [_target copyWithZone:zone];
     parameters.clientId = [_clientId copyWithZone:zone];
+
+    parameters.loginHint = [_loginHint copyWithZone:zone];
+    parameters.extraQueryParameters = [_extraQueryParameters copyWithZone:zone];
+    parameters.promptBehavior = [_promptBehavior copyWithZone:zone];
+    parameters.claims = [_claims copyWithZone:zone];
+
+    parameters.correlationId = [_correlationId copyWithZone:zone];
+    
+    parameters->_pkce = [_pkce copyWithZone:zone];
+    parameters.sliceParameters = [_sliceParameters copyWithZone:zone];
+    parameters.clientId = [_clientId copyWithZone:zone];
+    parameters.rawIdTokenString = [_rawIdTokenString copyWithZone:zone];
+    
+    parameters.explicitStartURL = [_explicitStartURL copyWithZone:zone];
     
     return parameters;
 }
@@ -50,6 +65,8 @@
         _redirectUri = redirectUri;
         _clientId = clientId;
         _target = target;
+        
+        _pkce = [MSIDPkce new];
     }
     
     return self;

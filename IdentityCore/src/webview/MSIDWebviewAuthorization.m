@@ -47,6 +47,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 {
     id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithRequest:parameters
                                                                                            customWebview:nil
+                                                                                                 context:context
                                                                                        completionHandler:completionHandler];
     [self startWebviewAuth:embeddedWebviewController
                    context:context
@@ -61,6 +62,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 {
     id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithRequest:parameters
                                                                                            customWebview:webview
+                                                                                                 context:context
                                                                                        completionHandler:completionHandler];
     [self startWebviewAuth:embeddedWebviewController
                    context:context
@@ -76,6 +78,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 
     id<MSIDWebviewInteracting> systemWebviewController = [factory systemWebviewControllerWithRequest:parameters
                                                                                    callbackURLScheme:callbackURLScheme
+                                                                                             context:context
                                                                                    completionHandler:completionHandler];
     [self startWebviewAuth:systemWebviewController
                    context:context

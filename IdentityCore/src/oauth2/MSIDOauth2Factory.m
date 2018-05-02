@@ -270,6 +270,7 @@
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
                                                      customWebview:(WKWebView *)webview
+                                                           context:(id<MSIDRequestContext>)context
                                                  completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // TODO: return default
@@ -278,16 +279,20 @@
 
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
                                                callbackURLScheme:(NSString *)callbackURLScheme
+                                                         context:(id<MSIDRequestContext>)context
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    // TODO: return default
-    return nil;
+    NSURL *startURL = [self startURLFromRequest:requestParams];
+    
+    return [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
+                                               callbackURLScheme:callbackURLScheme
+                                                         context:context
+                                               completionHandler:completionHandler];
 }
 
 - (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
 {
-    // Default URL from authority
-    return nil;
+    return requestParams.explicitStartURL;
 }
 
 @end

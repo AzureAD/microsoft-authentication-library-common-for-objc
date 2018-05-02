@@ -151,7 +151,8 @@
 
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
-                                                           Webview:(WKWebView *)webview
+                                                     customWebview:(WKWebView *)webview
+                                                           context:(id<MSIDRequestContext>)context
                                                  completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
@@ -160,6 +161,7 @@
 
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
                                                callbackURLScheme:(NSString *)callbackURLScheme
+                                                         context:(id<MSIDRequestContext>)context
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController

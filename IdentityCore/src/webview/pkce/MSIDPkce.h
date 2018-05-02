@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDPkce : NSObject
+@interface MSIDPkce : NSObject<NSCopying>
 
 @property (readonly) NSString *codeVerifier;
 @property (readonly) NSString *codeChallenge;

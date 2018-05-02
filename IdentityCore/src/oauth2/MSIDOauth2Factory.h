@@ -59,9 +59,12 @@
 // Webviews
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
                                                      customWebview:(WKWebView *)webview
+                                                           context:(id<MSIDRequestContext>)context
                                                  completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
                                                callbackURLScheme:(NSString *)callbackURLScheme
+                                                         context:(id<MSIDRequestContext>)context
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
 - (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams;

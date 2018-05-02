@@ -32,6 +32,10 @@
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
 #import "MSIDSystemWebviewController.h"
+#import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDPkce.h"
+#import "MSIDIdTokenWrapper.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -214,7 +218,8 @@
 
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
-                                                           Webview:(WKWebView *)webview
+                                                     customWebview:(WKWebView *)webview
+                                                           context:(id<MSIDRequestContext>)context
                                                  completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
@@ -225,116 +230,80 @@
 
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
                                                callbackURLScheme:(NSString *)callbackURLScheme
+                                                         context:(id<MSIDRequestContext>)context
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // TODO: get authorization endpoint from authority validation cache.
+    NSURL *startURL = [self startURLFromRequest:requestParams];
     
-//    MSIDWebUIStateVerifier stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState)
-//    {
-//        return NO;
-//    };
-//    
-//    
-    return nil;
+    return [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
+                                               callbackURLScheme:callbackURLScheme
+                                                         context:context
+                                               completionHandler:completionHandler];
 }
 
 - (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
 {
+    if (requestParams.explicitStartURL)
+    {
+        return requestParams.explicitStartURL;
+    }
     
     NSURLComponents *urlComponents = [NSURLComponents new];
     urlComponents.scheme = @"https";
     
     // get this from cache: authorizationendpoint if possible
     urlComponents.host = requestParams.authority.absoluteString;
-    
     urlComponents.path = MSID_OAUTH2_V2_AUTHORIZE_SUFFIX;
 
+    // query parameters
+    NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
     
-    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray new];
-    
-    for (NSString *key in requestParams.extraQueryParameters)
+    if (requestParams.extraQueryParameters)
     {
-        [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:requestParams.extraQueryParameters[key]]];
+        [parameters addEntriesFromDictionary:requestParams.extraQueryParameters];
     }
-    [queryItems addObject:[NSURLQueryItem queryItemWithName:MSID_OAUTH2_CLIENT_ID value:requestParams.clientId]];
     
-    urlComponents.queryItems = queryItems;
+    NSOrderedSet<NSString *> *allScopes = requestParams.scopes;
+    
+    [parameters addEntriesFromDictionary:
+     @{MSID_OAUTH2_CLIENT_ID : requestParams.clientId,
+       MSID_OAUTH2_SCOPE : [allScopes msidToString],
+       MSID_OAUTH2_RESPONSE_TYPE : MSID_OAUTH2_CODE,
+       MSID_OAUTH2_REDIRECT_URI : requestParams.redirectUri,
+       MSID_OAUTH2_CORRELATION_ID_REQUEST : [requestParams.correlationId UUIDString],
+       MSID_OAUTH2_LOGIN_HINT : requestParams.loginHint
+       }];
+    
+    // PKCE
+    [parameters addEntriesFromDictionary:
+     @{MSID_OAUTH2_CODE_CHALLENGE : requestParams.pkce.codeChallenge,
+       MSID_OAUTH2_CODE_CHALLENGE_METHOD : requestParams.pkce.codeChallengeMethod
+       }];
+    
+    // TODO: Check if this really should be a string value
+    // move prompt to a string constant?
+    parameters[@"prompt"] = requestParams.promptBehavior;
+    
+    if (requestParams.sliceParameters)
+    {
+        [parameters addEntriesFromDictionary:requestParams.sliceParameters];
+    }
+
+    MSIDIdTokenWrapper *tokenWrapper = [[MSIDIdTokenWrapper alloc] initWithRawIdToken:requestParams.rawIdTokenString];
+    
+    if (tokenWrapper && requestParams.clientInfo)
+    {
+        [parameters msidSetObjectIfNotNil:tokenWrapper.username forKey:MSID_OAUTH2_LOGIN_HINT];
+        [parameters msidSetObjectIfNotNil:requestParams.clientInfo.uid forKey:MSID_OAUTH2_LOGIN_REQ];
+        [parameters msidSetObjectIfNotNil:requestParams.clientInfo.utid forKey:MSID_OAUTH2_DOMAIN_REQ];
+    }
+    
+    parameters[MSID_OAUTH2_STATE] = [[NSUUID UUID] UUIDString];
+    
+    urlComponents.queryItems = [parameters urlQueryItemsArray];
     
     return urlComponents.URL;
-    
-//
-//    if (requestParams.extraQueryParameters)
-//    {
-//        for
-//
-//    }
-    
-    /*
-     
-     1. get auth endpoint from cache
-     2. if not 1, append su
-     
-     NSURLComponents *urlComponents =
-     [[NSURLComponents alloc] initWithURL:_authority.authorizationEndpoint
-     resolvingAgainstBaseURL:NO];
-     
-     NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
-     if (_parameters.extraQueryParameters)
-     {
-     [parameters addEntriesFromDictionary:_parameters.extraQueryParameters];
-     }
-     MSALScopes *allScopes = [self requestScopes:_extraScopesToConsent];
-     parameters[OAUTH2_CLIENT_ID] = _parameters.clientId;
-     parameters[OAUTH2_SCOPE] = [allScopes msalToString];
-     parameters[OAUTH2_RESPONSE_TYPE] = OAUTH2_CODE;
-     parameters[OAUTH2_REDIRECT_URI] = [_parameters.redirectUri absoluteString];
-     parameters[OAUTH2_CORRELATION_ID_REQUEST] = [_parameters.correlationId UUIDString];
-     parameters[OAUTH2_LOGIN_HINT] = _parameters.loginHint;
-     
-     // PKCE:
-     parameters[OAUTH2_CODE_CHALLENGE] = _pkce.codeChallenge;
-     parameters[OAUTH2_CODE_CHALLENGE_METHOD] = _pkce.codeChallengeMethod;
-     
-     NSDictionary *msalId = [MSALLogger msalId];
-     [parameters addEntriesFromDictionary:msalId];
-     [parameters addEntriesFromDictionary:MSALParametersForBehavior(_uiBehavior)];
-     
-     // Query parameters can come through from the OIDC discovery on the authorization endpoint as well
-     // and we need to retain them when constructing our authorization uri
-     NSMutableDictionary <NSString *, NSString *> *parameters = [self authorizationParameters];
-     if (urlComponents.percentEncodedQuery)
-     {
-     NSDictionary *authorizationQueryParams = [NSDictionary msalURLFormDecode:urlComponents.percentEncodedQuery];
-     if (authorizationQueryParams)
-     {
-     [parameters addEntriesFromDictionary:authorizationQueryParams];
-     }
-     }
-     
-     if (_parameters.sliceParameters)
-     {
-     [parameters addEntriesFromDictionary:_parameters.sliceParameters];
-     }
-     
-     MSALUser *user = _parameters.user;
-     if (user)
-     {
-     parameters[OAUTH2_LOGIN_HINT] = user.displayableId;
-     parameters[OAUTH2_LOGIN_REQ] = user.uid;
-     parameters[OAUTH2_DOMAIN_REQ] = user.utid;
-     }
-     
-     _state = [[NSUUID UUID] UUIDString];
-     parameters[OAUTH2_STATE] = _state;
-     
-     urlComponents.percentEncodedQuery = [parameters msalURLFormEncode];
-     */
-    
-    
-    
-    
-    
-    return nil;
 }
 
 @end
