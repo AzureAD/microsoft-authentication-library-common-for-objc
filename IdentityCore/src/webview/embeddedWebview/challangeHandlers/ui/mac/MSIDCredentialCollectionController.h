@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,22 +15,28 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import <WebKit/WebKit.h>
+#import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
 
-typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential);
+@interface MSIDCredentialCollectionController : NSObject {
+    IBOutlet NSView *_customView;
+    IBOutlet NSTextField *_usernameField;
+    IBOutlet NSSecureTextField *_passwordField;
+    IBOutlet NSTextField *_usernameLabel;
+    IBOutlet NSTextField *_passwordLabel;
+}
 
-@protocol MSIDChallengeHandling
-
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                webview:(WKWebView *)webview
-      completionHandler:(ChallengeCompletionHandler)completionHandler;
+@property (strong) IBOutlet NSView *customView;
+@property (strong) IBOutlet NSTextField *usernameField;
+@property (strong) IBOutlet NSSecureTextField *passwordField;
+@property (strong) IBOutlet NSTextField *usernameLabel;
+@property (strong) IBOutlet NSTextField *passwordLabel;
 
 @end
+

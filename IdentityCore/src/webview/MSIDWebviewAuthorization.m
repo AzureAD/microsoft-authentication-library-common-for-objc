@@ -36,19 +36,6 @@ id<MSIDWebviewInteracting> s_webviewController;
 
 @implementation MSIDWebviewAuthorization
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                     factory:(MSIDOauth2Factory *)factory;
-{
-    return nil;
-}
-
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                     webview:(WKWebView *)webview
-                                                                     factory:(MSIDOauth2Factory *)factory;
-{
-    return nil;
-}
-
 + (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                    factory:(MSIDOauth2Factory *)factory;
 {
@@ -60,15 +47,27 @@ id<MSIDWebviewInteracting> s_webviewController;
     return NO;
 }
 
-+ (void)startEmbeddedWebviewSession:(MSIDRequestParameters *)parameters
-                            webview:(WKWebView *)webview
-                            factory:(MSIDOauth2Factory *)factory
-                            context:(id<MSIDRequestContext>)context
-                  completionHandler:(MSIDWebUICompletionHandler)completionHandler
++ (void)startEmbeddedWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                              factory:(MSIDOauth2Factory *)factory
+                                              context:(id<MSIDRequestContext>)context
+                                    completionHandler:(MSIDWebUICompletionHandler)completionHandler
+{
+    [self startEmbeddedWebviewWebviewAuthWithRequestParameters:parameters
+                                                       webview:nil
+                                                       factory:factory
+                                                       context:context
+                                             completionHandler:completionHandler];
+}
+
++ (void)startEmbeddedWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                     webview:(WKWebView *)webview
+                                                     factory:(MSIDOauth2Factory *)factory
+                                                     context:(id<MSIDRequestContext>)context
+                                           completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     //TODO: rewrite the following to fit JK's work
     
-    NSURL *startURL = [factory startURLFrom:parameters];
+    NSURL *startURL = [factory startURLFromRequest:parameters];
     s_webviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartUrl:startURL
                                                                                  endURL:[NSURL URLWithString:[parameters redirectUri]]
                                                                                 webview:webview

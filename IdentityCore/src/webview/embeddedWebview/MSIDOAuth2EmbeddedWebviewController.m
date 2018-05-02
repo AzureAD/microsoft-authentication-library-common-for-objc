@@ -33,6 +33,8 @@
 #import "MSIDError.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebviewAuthorization.h"
+#import "MSIDChallengeHandler.h"
+#import "MSIDNTLMHandler.h"
 
 #if TARGET_OS_IPHONE
 #import "UIApplication+MSIDExtensions.h"
@@ -170,7 +172,9 @@
 - (BOOL)endWebAuthenticationWithError:(NSError *) error
                                 orURL:(NSURL*)endURL
 {
-    [self dismidssWebview:^{[self dispatchCompletionBlock:error URL:endURL];}];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self dismidssWebview:^{[self dispatchCompletionBlock:error URL:endURL];}];
+    });
     
     return YES;
 }
@@ -295,6 +299,20 @@
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error
 {
     [self webAuthFailWithError:error];
+}
+
+- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(ChallengeCompletionHandler)completionHandler
+{
+    NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
+    
+    MSID_LOG_VERBOSE(_context,
+                     @"%@ - %@. Previous challenge failure count: %ld",
+                     @"session:task:didReceiveChallenge:completionHandler",
+                     authMethod, (long)challenge.previousFailureCount);
+    
+    [MSIDChallengeHandler handleChallenge:challenge
+                                  webview:webView
+                        completionHandler:completionHandler];
 }
 
 // Authentication completed at the end URL

@@ -163,7 +163,7 @@
     return nil;
 }
 
-- (NSURL *)startURLFrom:(MSIDRequestParameters *)requestParams
+- (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
 {
     NSString* state = [self encodeProtocolState:requestParams];
     

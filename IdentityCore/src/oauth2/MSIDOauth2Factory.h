@@ -59,6 +59,6 @@
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
                                                      customWebview:(WKWebView *)webview;
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams;
-- (NSURL *)startURLFrom:(MSIDRequestParameters *)requestParams;
+- (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams;
 
 @end

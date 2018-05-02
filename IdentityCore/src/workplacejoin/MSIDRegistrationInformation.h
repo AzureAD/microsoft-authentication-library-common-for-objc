@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,22 +15,41 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import <WebKit/WebKit.h>
+#import <Foundation/Foundation.h>
 
-typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential);
+@interface MSIDRegistrationInformation : NSObject
+{
+@protected
+    SecIdentityRef _securityIdentity;
+    SecCertificateRef _certificate;
+    NSString *_certificateSubject;
+    NSString *_certificateIssuer;
+    NSData *_certificateData;
+    SecKeyRef _privateKey;
+}
 
-@protocol MSIDChallengeHandling
+@property (nonatomic, readonly) SecIdentityRef securityIdentity;
+@property (nonatomic, readonly) SecCertificateRef certificate;
+@property (nonatomic, readonly) NSString *certificateSubject;
+@property (nonatomic, readonly) NSString *certificateIssuer;
+@property (nonatomic, readonly) NSData *certificateData;
+@property (nonatomic, readonly) SecKeyRef privateKey;
 
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                webview:(WKWebView *)webview
-      completionHandler:(ChallengeCompletionHandler)completionHandler;
+- (id)initWithSecurityIdentity:(SecIdentityRef)identity
+             certificateIssuer:(NSString *)certificateIssuer
+                   certificate:(SecCertificateRef)certificate
+            certificateSubject:(NSString *)certificateSubject
+               certificateData:(NSData *)certificateData
+                    privateKey:(SecKeyRef)privateKey;
+
+- (BOOL)isWorkPlaceJoined;
 
 @end
+
+

@@ -36,22 +36,21 @@
 
 @interface MSIDWebviewAuthorization : NSObject
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                     factory:(MSIDOauth2Factory *)factory;
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                     webview:(WKWebView *)webview
-                                                                     factory:(MSIDOauth2Factory *)factory;
++ (void)startEmbeddedWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                              factory:(MSIDOauth2Factory *)factory
+                                              context:(id<MSIDRequestContext>)context
+                                    completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+
++ (void)startEmbeddedWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                     webview:(WKWebView *)webview
+                                                     factory:(MSIDOauth2Factory *)factory
+                                                     context:(id<MSIDRequestContext>)context
+                                           completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
 + (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                    factory:(MSIDOauth2Factory *)factory;
 
 + (BOOL)handleURLResponse:(NSURL *)url;
-
-+ (void)startEmbeddedWebviewSession:(MSIDRequestParameters *)parameters
-                            webview:(WKWebView *)webview
-                            factory:(MSIDOauth2Factory *)factory
-                            context:(id<MSIDRequestContext>)context
-                  completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
 + (MSIDWebOAuth2Response *)parseUrlResponse:(NSURL *)url
                                     context:(id<MSIDRequestContext>)context

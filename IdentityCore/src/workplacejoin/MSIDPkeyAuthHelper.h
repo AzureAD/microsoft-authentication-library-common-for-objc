@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,22 +15,24 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import <WebKit/WebKit.h>
+#import <Foundation/Foundation.h>
+#import "MSIDRegistrationInformation.h"
 
-typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential);
+@interface MSIDPkeyAuthHelper : NSObject
 
-@protocol MSIDChallengeHandling
++ (nullable NSString *)createDeviceAuthResponse:(nonnull NSString *)authorizationServer
+                                  challengeData:(nullable NSDictionary *)challengeData
+                                        context:(nullable id<MSIDRequestContext>)context
+                                          error:(NSError * _Nullable * _Nullable)error;
 
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                webview:(WKWebView *)webview
-      completionHandler:(ChallengeCompletionHandler)completionHandler;
++ (nonnull NSString *)computeThumbprint:(nonnull NSData *)data
+                                 isSha2:(BOOL)isSha2;
 
 @end
+

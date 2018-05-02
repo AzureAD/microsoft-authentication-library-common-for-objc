@@ -280,7 +280,7 @@
     return nil;
 }
 
-- (NSURL *)startURLFrom:(MSIDRequestParameters *)requestParams
+- (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
 {
     // TODO: generate start url for OAuth 2
     return nil;
