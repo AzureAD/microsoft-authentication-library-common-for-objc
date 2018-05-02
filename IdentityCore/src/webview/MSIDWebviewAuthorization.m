@@ -26,14 +26,8 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebviewAuthorization.h"
-#import "MSIDWebviewInteracting.h"
-#import "MSIDOauth2Factory.h"
-#import "MSIDAADV1Oauth2Factory.h"
-#import "MSIDAADV2Oauth2Factory.h"
-#import "MSIDWebOAuth2Response.h"
-#import "MSIDWebAADAuthResponse.h"
-#import "MSIDWebWPJAuthResponse.h"
 #import <SafariServices/SafariServices.h>
+
 #import "MSIDSystemWebviewController.h"
 
 @implementation MSIDWebviewAuthorization

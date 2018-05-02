@@ -28,12 +28,12 @@
 #import <Foundation/Foundation.h>
 #import "MSIDRequestParameters.h"
 #import "MSIDWebviewInteracting.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebAADAuthResponse.h"
 
 @class WKWebView;
-@class MSIDOauth2Factory;
-@class MSIDWebOAuth2Response;
-@class MSIDWebOAuth2Response;
-@protocol MSIDRequestContext;
 
 @interface MSIDWebviewAuthorization : NSObject
 
