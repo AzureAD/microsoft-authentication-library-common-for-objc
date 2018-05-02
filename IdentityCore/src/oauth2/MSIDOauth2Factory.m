@@ -282,12 +282,15 @@
                                                          context:(id<MSIDRequestContext>)context
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
+#if TARGET_OS_IPHONE
     NSURL *startURL = [self startURLFromRequest:requestParams];
-    
     return [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                callbackURLScheme:callbackURLScheme
                                                          context:context
                                                completionHandler:completionHandler];
+#else
+    return nil;
+#endif
 }
 
 - (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams

@@ -34,7 +34,7 @@
     id<MSIDRequestContext> _context;
     MSIDWebUICompletionHandler _completionHandler;
 
-#ifdef __IPHONE_11_0
+#if TARGET_OS_IPHONE
     MSIDSFAuthenticationSession *_authSession;
 #else
     MSIDSafariViewController *_safariViewController;
@@ -70,7 +70,7 @@
         return NO;
     }
     
-#ifdef __IPHONE_11_0
+#if TARGET_OS_IPHONE
     if (@available(iOS 11.0, *))
     {
         _authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:_startURL
@@ -102,7 +102,7 @@
 
 - (void)cancel
 {
-#ifdef __IPHONE_11_0
+#if TARGET_OS_IPHONE
     [_authSession cancel];
 #else
     [_safariViewController cancel];

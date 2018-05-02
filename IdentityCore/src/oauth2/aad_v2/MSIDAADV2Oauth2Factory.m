@@ -31,11 +31,11 @@
 #import "MSIDAuthority.h"
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
-#import "MSIDSystemWebviewController.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDPkce.h"
 #import "MSIDIdTokenWrapper.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDSystemWebviewController.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -233,13 +233,16 @@
                                                          context:(id<MSIDRequestContext>)context
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
+#if TARGET_OS_IPHONE
     // TODO: get authorization endpoint from authority validation cache.
     NSURL *startURL = [self startURLFromRequest:requestParams];
-    
     return [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                callbackURLScheme:callbackURLScheme
                                                          context:context
                                                completionHandler:completionHandler];
+#else
+    return nil;
+#endif
 }
 
 - (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
