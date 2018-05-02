@@ -21,13 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+import Foundation
 
-@interface NSData (MSIDExtensions)
-
-- (NSDictionary *)msidToJsonDictionary:(NSError **)error;
-- (NSString *)msidComputeSHA256;
-- (NSString *)msidComputeSHA1;
-- (NSString *)msidComputeSHA1Base64Encoded;
-
-@end
+public enum KeyVaultError : Error {
+    case InvalidUrl
+    case NoAuthHeader
+    case NoBearerChallenge
+    case BearerChallengeMissingRequiredParameter
+    case NoAuthCallback
+}

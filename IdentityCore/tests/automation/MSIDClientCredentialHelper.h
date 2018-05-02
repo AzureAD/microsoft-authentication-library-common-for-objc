@@ -23,11 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSData (MSIDExtensions)
+@interface MSIDClientCredentialHelper : NSObject
 
-- (NSDictionary *)msidToJsonDictionary:(NSError **)error;
-- (NSString *)msidComputeSHA256;
-- (NSString *)msidComputeSHA1;
-- (NSString *)msidComputeSHA1Base64Encoded;
++ (void)getAccessTokenForAuthority:(NSString *)authority
+                          resource:(NSString *)resource
+                          clientId:(NSString *)clientId
+                       certificate:(NSData *)certificateData
+               certificatePassword:(NSString *)password
+                 completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler;
 
 @end

@@ -22,12 +22,24 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTestConfigurationRequest.h"
+#import "MSIDTestConfiguration.h"
 
-@interface NSData (MSIDExtensions)
+@interface MSIDTestAccountsProvider : NSObject
 
-- (NSDictionary *)msidToJsonDictionary:(NSError **)error;
-- (NSString *)msidComputeSHA256;
-- (NSString *)msidComputeSHA1;
-- (NSString *)msidComputeSHA1Base64Encoded;
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithClientCertificateContents:(NSString *)certificate
+                              certificatePassword:(NSString *)password
+                         additionalConfigurations:(NSDictionary *)additionalConfigurations
+                                          apiPath:(NSString *)apiPath;
+
+- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
+
+- (void)configurationWithRequest:(MSIDTestConfigurationRequest *)request
+               completionHandler:(void (^)(MSIDTestConfiguration *configuration))completionHandler;
+
+- (void)passwordForAccount:(MSIDTestAccount *)account
+         completionHandler:(void (^)(NSString *password))completionHandler;
 
 @end

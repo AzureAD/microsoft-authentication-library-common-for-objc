@@ -21,13 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
 
-@interface NSData (MSIDExtensions)
+#ifndef MSIDAutomation_Bridging_Header_h
+#define MSIDAutomation_Bridging_Header_h
 
-- (NSDictionary *)msidToJsonDictionary:(NSError **)error;
-- (NSString *)msidComputeSHA256;
-- (NSString *)msidComputeSHA1;
-- (NSString *)msidComputeSHA1Base64Encoded;
+#import "MSIDClientCredentialHelper.h"
 
-@end
+#endif /* MSIDAutomation_Bridging_Header_h */
