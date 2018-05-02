@@ -481,7 +481,10 @@
             return nil;
         }
         
-        NSArray<MSIDBaseToken *> *matchedTokens = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:cacheItems legacyUserId:legacyUserId environment:alias.msidHostWithPortIfNecessary context:context];
+        NSArray<MSIDBaseToken *> *matchedTokens = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:cacheItems
+                                                                                            legacyUserId:legacyUserId
+                                                                                             environment:alias.msidHostWithPortIfNecessary
+                                                                                                 context:context];
         
         if ([matchedTokens count] > 0)
         {
