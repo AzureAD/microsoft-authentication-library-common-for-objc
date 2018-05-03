@@ -382,6 +382,25 @@
     [loadingIndicator setCenter:rootView.center];
     return loadingIndicator;
 }
+
+- (BOOL)shouldAutorotate
+{
+    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad )
+        // The device is an iPad running iPhone 3.2 or later.
+        return YES;
+    else
+        return NO;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad )
+        // The device is an iPad running iPhone 3.2 or later.
+        return UIInterfaceOrientationMaskAll;
+    else
+        return UIInterfaceOrientationMaskPortrait;
+}
+
 #endif
 
 #pragma mark - Mac specific

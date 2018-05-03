@@ -34,7 +34,8 @@
     {
         return [self msidCurrentViewControllerWithRootViewController:[MSIDAppExtensionUtil sharedApplication].keyWindow.rootViewController];
     }
-    else {
+    else
+    {
         return nil;
     }
 }

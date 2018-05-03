@@ -40,6 +40,7 @@
 
 @property (readwrite) NSString *loginHint;
 @property (readwrite) NSString *extraQueryParameters;
+@property (readwrite) NSString *correlationId;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
 

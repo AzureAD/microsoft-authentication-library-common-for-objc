@@ -36,7 +36,7 @@ UIViewController <MSIDWebviewInteracting, WKNavigationDelegate>
 NSWindowController <MSIDWebviewInteracting, WKNavigationDelegate, NSWindowDelegate>
 #endif
 
-@property (weak, nonatomic) WKWebView *webView;
+@property (nonatomic) WKWebView *webView;
 #if TARGET_OS_IPHONE
 @property (weak, nonatomic) UIViewController *parentController;
 @property BOOL fullScreen;

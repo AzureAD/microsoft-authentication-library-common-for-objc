@@ -175,8 +175,9 @@
                                         [requestParams redirectUri], MSID_OAUTH2_REDIRECT_URI,
                                         state, MSID_OAUTH2_STATE,
                                         requestParams.promptBehavior, @"prompt",
-                                        @"1", @"hashchrome", //to hide back button in UI
-                                        [NSString msidIsStringNilOrBlank:requestParams.loginHint] ? nil : requestParams.loginHint, MSID_OAUTH2_LOGIN_HINT, 
+                                        @"1", @"haschrome", //to hide back button in UI
+                                        [NSString msidIsStringNilOrBlank:requestParams.loginHint] ? nil : requestParams.loginHint, MSID_OAUTH2_LOGIN_HINT,
+                                        [NSString msidIsStringNilOrBlank:requestParams.correlationId] ? nil : requestParams.correlationId, MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE,
                                         nil];
     
     [queryParams addEntriesFromDictionary:[MSIDDeviceId deviceId]];
