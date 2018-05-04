@@ -39,7 +39,7 @@
         return;
     }
     
-    completionBlock(authority, [self defaultOpenIdConfigurationEndpointForAuthority:authority], validate, nil);
+    completionBlock(authority, [self openIdConfigurationEndpointForAuthority:authority], validate, nil);
 }
 
 @end

@@ -75,10 +75,11 @@
         
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[@"api-version"] = @"1.1";
-        parameters[@"authorization_endpoint"] = authority.absoluteString;
+        __auto_type authorizationEndpoint = [authority.absoluteString.lowercaseString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX()];
+        parameters[@"authorization_endpoint"] = authorizationEndpoint;
         
         NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
-        urlRequest.URL = endpoint;
+        urlRequest.URL = [endpoint URLByAppendingPathComponent:MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX];
         urlRequest.HTTPMethod = @"GET";
         _urlRequest = urlRequest;
         

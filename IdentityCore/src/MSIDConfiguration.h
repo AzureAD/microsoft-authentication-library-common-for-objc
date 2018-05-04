@@ -22,14 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAuthorityResolverProtocol.h"
 
-@class MSIDAadAuthorityCache;
+@interface MSIDConfiguration : NSObject
 
-@interface MSIDAadAuthorityResolver : NSObject <MSIDAuthorityResolverProtocol>
+@property (class, nullable) MSIDConfiguration *defaultConfiguration;
 
-@property (nonatomic) MSIDAadAuthorityCache *aadCache;
-
-- (NSURL *)openIdConfigurationEndpointForAuthority:(NSURL *)authority;
+@property (nonatomic, nullable) NSString *aadApiVersion;
 
 @end

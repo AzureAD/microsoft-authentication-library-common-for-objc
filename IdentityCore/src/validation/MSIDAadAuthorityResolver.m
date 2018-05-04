@@ -25,38 +25,23 @@
 #import "MSIDAADGetAuthorityMetadataRequest.h"
 #import "MSIDAuthority.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDConfiguration.h"
 
-// Trusted authorities
-static NSString *const MSIDTrustedAuthority             = @"login.windows.net";
-static NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
-static NSString *const MSIDTrustedAuthorityChina        = @"login.chinacloudapi.cn";
-static NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
-static NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
-static NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
-static NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
-
-static NSSet<NSString *> *s_trustedHostList;
 static dispatch_queue_t s_aadValidationQueue;
 
 @implementation MSIDAadAuthorityResolver
 
 + (void)initialize
 {
-    s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority,
-                         MSIDTrustedAuthorityUS,
-                         MSIDTrustedAuthorityChina,
-                         MSIDTrustedAuthorityGermany,
-                         MSIDTrustedAuthorityWorldWide,
-                         MSIDTrustedAuthorityUSGovernment,
-                         MSIDTrustedAuthorityCloudGovApi, nil];
-                         // login.microsoftonline.us ???
-    
-    // A serial dispatch queue for all authority validation operations. A very common pattern is for
-    // applications to spawn a bunch of threads and call acquireToken on them right at the start. Many
-    // of those acquireToken calls will be to the same authority. To avoid making the exact same
-    // authority validation network call multiple times we throw the requests in this validation
-    // queue.
-    s_aadValidationQueue = dispatch_queue_create("msid.aadvalidation.queue", DISPATCH_QUEUE_SERIAL);
+    if (self == [MSIDAadAuthorityResolver self])
+    {
+        // A serial dispatch queue for all authority validation operations. A very common pattern is for
+        // applications to spawn a bunch of threads and call acquireToken on them right at the start. Many
+        // of those acquireToken calls will be to the same authority. To avoid making the exact same
+        // authority validation network call multiple times we throw the requests in this validation
+        // queue.
+        s_aadValidationQueue = dispatch_queue_create("msid.aadvalidation.queue", DISPATCH_QUEUE_SERIAL);
+    }
 }
 
 - (instancetype)init
@@ -153,7 +138,7 @@ static dispatch_queue_t s_aadValidationQueue;
                  [self.aadCache addInvalidRecord:authority oauthError:error context:context];
              }
              
-             __auto_type endpoint = validate ? nil : [self defaultOpenIdConfigurationEndpointForAuthority:authority];
+             __auto_type endpoint = validate ? nil : [self openIdConfigurationEndpointForAuthority:authority];
              NSURL *auth = validate ? nil : authority;
              error = validate ? error : nil;
              
@@ -175,11 +160,14 @@ static dispatch_queue_t s_aadValidationQueue;
      }];
 }
 
-- (NSURL *)defaultOpenIdConfigurationEndpointForAuthority:(NSURL *)authority
+- (NSURL *)openIdConfigurationEndpointForAuthority:(NSURL *)authority
 {
     if (!authority) return nil;
     
-    return [authority URLByAppendingPathComponent:@"v2.0/.well-known/openid-configuration"];
+    __auto_type apiVersion = MSIDConfiguration.defaultConfiguration.aadApiVersion;
+    __auto_type path = [NSString stringWithFormat:@"%@%@.well-known/openid-configuration", apiVersion ?: @"", apiVersion ? @"/" : @""];
+    
+    return [authority URLByAppendingPathComponent:path];
 }
 
 @end

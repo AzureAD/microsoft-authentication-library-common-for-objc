@@ -32,6 +32,8 @@
 
 typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata *metadata, NSError *error);
 
+extern NSString *const MSIDTrustedAuthorityWorldWide;
+
 @interface MSIDAuthority : NSObject
 
 + (BOOL)isADFSInstance:(NSString *)endpoint;

@@ -21,15 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAuthorityResolverProtocol.h"
+#import "MSIDConfiguration.h"
 
-@class MSIDAadAuthorityCache;
+static MSIDConfiguration *s_defaultConfiguration;
 
-@interface MSIDAadAuthorityResolver : NSObject <MSIDAuthorityResolverProtocol>
+@implementation MSIDConfiguration
 
-@property (nonatomic) MSIDAadAuthorityCache *aadCache;
++ (void)initialize
+{
+    if (self == [MSIDConfiguration self])
+    {
+        s_defaultConfiguration = [MSIDConfiguration new];
+    }
+}
 
-- (NSURL *)openIdConfigurationEndpointForAuthority:(NSURL *)authority;
++ (MSIDConfiguration *)defaultConfiguration
+{
+    return s_defaultConfiguration;
+}
+
++ (void)setDefaultConfiguration:(MSIDConfiguration *)defaultConfiguration
+{
+    s_defaultConfiguration = defaultConfiguration;
+}
 
 @end

@@ -41,26 +41,29 @@
 static NSSet<NSString *> *s_trustedHostList;
 
 // Trusted authorities
-static NSString *const MSIDTrustedAuthority             = @"login.windows.net";
-static NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
-static NSString *const MSIDTrustedAuthorityChina        = @"login.chinacloudapi.cn";
-static NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
-static NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
-static NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
-static NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
+NSString *const MSIDTrustedAuthority             = @"login.windows.net";
+NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
+NSString *const MSIDTrustedAuthorityChina        = @"login.chinacloudapi.cn";
+NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
+NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
+NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
+NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
 
 @implementation MSIDAuthority
 
 + (void)initialize
 {
-    s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority,
-                         MSIDTrustedAuthorityUS,
-                         MSIDTrustedAuthorityChina,
-                         MSIDTrustedAuthorityGermany,
-                         MSIDTrustedAuthorityWorldWide,
-                         MSIDTrustedAuthorityUSGovernment,
-                         MSIDTrustedAuthorityCloudGovApi, nil];
-                        //    login.microsoftonline.us ???
+    if (self == [MSIDAuthority self])
+    {
+        s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority,
+                             MSIDTrustedAuthorityUS,
+                             MSIDTrustedAuthorityChina,
+                             MSIDTrustedAuthorityGermany,
+                             MSIDTrustedAuthorityWorldWide,
+                             MSIDTrustedAuthorityUSGovernment,
+                             MSIDTrustedAuthorityCloudGovApi, nil];
+        //    login.microsoftonline.us ???
+    }
 }
 
 + (BOOL)isADFSInstance:(NSString *)endpoint
