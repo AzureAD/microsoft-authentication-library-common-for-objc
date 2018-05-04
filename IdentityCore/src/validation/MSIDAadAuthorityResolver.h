@@ -24,7 +24,11 @@
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorityResolverProtocol.h"
 
+@class MSIDAadAuthorityCache;
+
 @interface MSIDAadAuthorityResolver : NSObject <MSIDAuthorityResolverProtocol>
+
+@property (nonatomic) MSIDAadAuthorityCache *aadCache;
 
 - (NSURL *)defaultOpenIdConfigurationEndpointForAuthority:(NSURL *)authority;
 

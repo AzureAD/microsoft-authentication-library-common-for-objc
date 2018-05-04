@@ -35,6 +35,7 @@
 @property NSString *networkHost;
 @property NSString *cacheHost;
 @property NSArray<NSString *> *aliases;
+@property (nonatomic) NSURL *openIdConfigurationEndpoint;
 
 @end
 
@@ -59,6 +60,7 @@
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
 
 - (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
+   openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
               authority:(NSURL *)authority
                 context:(id<MSIDRequestContext>)context
                   error:(NSError * __autoreleasing *)error;
