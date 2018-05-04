@@ -26,7 +26,6 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestContext.h"
 #import "MSIDBrokerResponse.h"
-#import "MSIDRequestParameters.h"
 #import "MSIDRefreshableToken.h"
 
 @class MSIDAccessToken;

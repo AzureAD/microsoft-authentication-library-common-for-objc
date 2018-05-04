@@ -34,7 +34,8 @@
     parameters.redirectUri = [_redirectUri copyWithZone:zone];
     parameters.target = [_target copyWithZone:zone];
     parameters.clientId = [_clientId copyWithZone:zone];
-
+    parameters.correlationId = [_correlationId copyWithZone:zone];
+    
     parameters.loginHint = [_loginHint copyWithZone:zone];
     parameters.extraQueryParameters = [_extraQueryParameters copyWithZone:zone];
     parameters.promptBehavior = [_promptBehavior copyWithZone:zone];
@@ -46,6 +47,7 @@
     parameters.sliceParameters = [_sliceParameters copyWithZone:zone];
     parameters.clientId = [_clientId copyWithZone:zone];
     parameters.rawIdTokenString = [_rawIdTokenString copyWithZone:zone];
+    parameters.requestState = [_requestState copyWithZone:zone];
     
     parameters.explicitStartURL = [_explicitStartURL copyWithZone:zone];
     

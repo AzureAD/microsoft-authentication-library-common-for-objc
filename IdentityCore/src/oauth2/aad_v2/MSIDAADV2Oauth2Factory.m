@@ -36,6 +36,7 @@
 #import "MSIDIdTokenWrapper.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDSystemWebviewController.h"
+#import "MSIDDeviceId.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -236,14 +237,48 @@
 #if TARGET_OS_IPHONE
     // TODO: get authorization endpoint from authority validation cache.
     NSURL *startURL = [self startURLFromRequest:requestParams];
-    return [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
-                                               callbackURLScheme:callbackURLScheme
-                                                         context:context
-                                               completionHandler:completionHandler];
+    MSIDSystemWebviewController *webviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
+                                                                                         callbackURLScheme:callbackURLScheme
+                                                                                                   context:context
+                                                                                         completionHandler:completionHandler];
+    webviewController.requestState = requestParams.requestState;
+    webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
+        return [requestState isEqualToString:dictionary[MSID_OAUTH2_STATE]];
+    };
+    return webviewController;
 #else
     return nil;
 #endif
 }
+
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequest:(MSIDRequestParameters *)requestParams
+{
+    NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
+    if (requestParams.extraQueryParameters)
+    {
+        [parameters addEntriesFromDictionary:requestParams.extraQueryParameters];
+    }
+    
+    NSOrderedSet<NSString *> *allScopes = requestParams.scopes;
+    parameters[MSID_OAUTH2_CLIENT_ID] = requestParams.clientId;
+    parameters[MSID_OAUTH2_SCOPE] = [allScopes msidToString];
+    parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
+    parameters[MSID_OAUTH2_REDIRECT_URI] = requestParams.redirectUri;
+    parameters[MSID_OAUTH2_CORRELATION_ID_REQUEST] = [requestParams.correlationId UUIDString];
+    parameters[MSID_OAUTH2_LOGIN_HINT] = requestParams.loginHint;
+    
+    // PKCE
+    parameters[MSID_OAUTH2_CODE_CHALLENGE] = requestParams.pkce.codeChallenge;
+    parameters[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = requestParams.pkce.codeChallengeMethod;
+    
+    NSDictionary *msalId = [MSIDDeviceId deviceId];
+    [parameters addEntriesFromDictionary:msalId];
+    
+    parameters[@"prompt"] = requestParams.promptBehavior;
+    
+    return parameters;
+}
+
 
 - (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
 {
@@ -256,37 +291,10 @@
     urlComponents.scheme = @"https";
     
     // get this from cache: authorizationendpoint if possible
-    urlComponents.host = requestParams.authority.absoluteString;
-    urlComponents.path = MSID_OAUTH2_V2_AUTHORIZE_SUFFIX;
+    urlComponents.host = requestParams.authority.host;
+    urlComponents.path = [requestParams.authority.path stringByAppendingString:MSID_OAUTH2_V2_AUTHORIZE_SUFFIX];
 
-    // query parameters
-    NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
-    
-    if (requestParams.extraQueryParameters)
-    {
-        [parameters addEntriesFromDictionary:requestParams.extraQueryParameters];
-    }
-    
-    NSOrderedSet<NSString *> *allScopes = requestParams.scopes;
-    
-    [parameters addEntriesFromDictionary:
-     @{MSID_OAUTH2_CLIENT_ID : requestParams.clientId,
-       MSID_OAUTH2_SCOPE : [allScopes msidToString],
-       MSID_OAUTH2_RESPONSE_TYPE : MSID_OAUTH2_CODE,
-       MSID_OAUTH2_REDIRECT_URI : requestParams.redirectUri,
-       MSID_OAUTH2_CORRELATION_ID_REQUEST : [requestParams.correlationId UUIDString],
-       MSID_OAUTH2_LOGIN_HINT : requestParams.loginHint
-       }];
-    
-    // PKCE
-    [parameters addEntriesFromDictionary:
-     @{MSID_OAUTH2_CODE_CHALLENGE : requestParams.pkce.codeChallenge,
-       MSID_OAUTH2_CODE_CHALLENGE_METHOD : requestParams.pkce.codeChallengeMethod
-       }];
-    
-    // TODO: Check if this really should be a string value
-    // move prompt to a string constant?
-    parameters[@"prompt"] = requestParams.promptBehavior;
+    NSMutableDictionary <NSString *, NSString *> *parameters = [self authorizationParametersFromRequest:requestParams];
     
     if (requestParams.sliceParameters)
     {
@@ -302,9 +310,10 @@
         [parameters msidSetObjectIfNotNil:requestParams.clientInfo.utid forKey:MSID_OAUTH2_DOMAIN_REQ];
     }
     
-    parameters[MSID_OAUTH2_STATE] = [[NSUUID UUID] UUIDString];
+    parameters[MSID_OAUTH2_STATE] = requestParams.requestState;
     
     urlComponents.queryItems = [parameters urlQueryItemsArray];
+    urlComponents.percentEncodedQuery = [parameters msidURLFormEncode];
     
     return urlComponents.URL;
 }

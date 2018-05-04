@@ -28,31 +28,37 @@
 
 @interface MSIDRequestParameters : NSObject <NSCopying>
 
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readwrite) NSString *target;
-
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
 - (instancetype)initWithAuthority:(NSURL *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target;
 
+// Commonly used or needed properties
+@property (readwrite) NSURL *authority;
+@property (readwrite) NSString *redirectUri;
+@property (readwrite) NSString *clientId;
+@property (readwrite) NSString *target;
+
+@property (readwrite) NSUUID *correlationId;
+
+@property (readonly) NSString *resource;
+@property (readonly) NSOrderedSet<NSString *> *scopes;
+
+// Optionally used or needed properties
 @property (readwrite) NSString *loginHint;
 @property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
 
-@property (readwrite) NSUUID *correlationId;
+@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
+@property (readwrite) NSString *requestState;
 
 // Is this only for V2?
 @property (readonly) MSIDPkce *pkce;
-@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
+
 @property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSString *rawIdTokenString;
+
 
 @property (readwrite) NSURL *explicitStartURL;
 

@@ -29,6 +29,8 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDWebviewInteracting.h"
 #import "MSIDOauth2Factory.h"
+#import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebWPJAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"

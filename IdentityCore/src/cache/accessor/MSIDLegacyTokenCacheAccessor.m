@@ -32,7 +32,6 @@
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
-#import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"

@@ -28,18 +28,18 @@
 #import "MSIDSystemWebviewController.h"
 #import "MSIDSFAuthenticationSession.h"
 #import "MSIDSafariViewController.h"
+#import "MSIDWebviewAuthorization.h"
 
 @implementation MSIDSystemWebviewController
 {
     id<MSIDRequestContext> _context;
     MSIDWebUICompletionHandler _completionHandler;
 
-#if TARGET_OS_IPHONE
+
     MSIDSFAuthenticationSession *_authSession;
-#else
+
     MSIDSafariViewController *_safariViewController;
-#endif
-    
+
 }
 
 @synthesize parentViewController;
@@ -69,13 +69,13 @@
         MSID_LOG_ERROR(_context, @"Attemped to start with nil URL");
         return NO;
     }
-    
-#if TARGET_OS_IPHONE
+#ifdef __IPHONE_11_0
     if (@available(iOS 11.0, *))
     {
         _authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:_startURL
                                                       callbackURLScheme:_callbackURLScheme
                                                                 context:_context];
+        _authSession.webviewDelegate = self;
         if (!_authSession)
         {
             MSID_LOG_ERROR(_context, @"Failed to create an auth session");
@@ -96,13 +96,14 @@
         
         return [_safariViewController start];
     }
-    #endif
+#endif
+    
     return NO;
 }
 
 - (void)cancel
 {
-#if TARGET_OS_IPHONE
+#ifdef __IPHONE_11_0
     [_authSession cancel];
 #else
     [_safariViewController cancel];
@@ -112,12 +113,34 @@
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
 {
+    if (!url)
+    {
+        MSID_LOG_ERROR(_context, @"nil passed into the MSID Web handle response.");
+        return NO;
+    }
+    
+#ifdef __IPHONE_11_0
     return NO;
+#else
+    if (!_safariViewController)
+    {
+        MSID_LOG_ERROR(_context, @"Received MSID web response without a current session running.");
+        return NO;
+    }
+    return [_safariViewController handleURLResponse:url];
+#endif
 }
 
 - (void)handleAuthResponse:(NSURL *)url
                      error:(NSError *)error
 {
+    NSError *authError = nil;
+    MSIDWebOAuth2Response *response = [MSIDWebviewAuthorization responseWithURL:url
+                                                                   requestState:self.requestState
+                                                                  stateVerifier:self.stateVerifier
+                                                                        context:_context
+                                                                          error:&authError];
     
+    _completionHandler(response, error);
 }
 @end
