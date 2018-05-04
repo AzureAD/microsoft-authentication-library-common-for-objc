@@ -36,7 +36,7 @@
 #import "MSIDDefaultTokenCacheKey.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAADV2IdTokenWrapper.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDOauth2Factory.h"
@@ -98,7 +98,7 @@
 #pragma mark - MSIDSharedCacheAccessor
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
+                 requestParams:(MSIDConfiguration *)requestParams
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
@@ -232,7 +232,7 @@
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
-                      requestParams:(MSIDRequestParameters *)parameters
+                      requestParams:(MSIDConfiguration *)parameters
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
@@ -542,7 +542,7 @@
 #pragma mark - Account
 
 - (BOOL)saveAccount:(MSIDAccount *)account
-      requestParams:(MSIDRequestParameters *)parameters
+      requestParams:(MSIDConfiguration *)parameters
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
@@ -582,7 +582,7 @@
 
 
 - (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
-                       requestParams:(MSIDRequestParameters *)parameters
+                       requestParams:(MSIDConfiguration *)parameters
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
@@ -665,7 +665,7 @@
 }
 
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
-                        requestParams:(MSIDRequestParameters *)parameters
+                        requestParams:(MSIDConfiguration *)parameters
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {

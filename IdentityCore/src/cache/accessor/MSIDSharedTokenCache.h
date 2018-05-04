@@ -26,7 +26,7 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestContext.h"
 #import "MSIDBrokerResponse.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDRefreshableToken.h"
 
 @class MSIDAccessToken;
@@ -42,7 +42,7 @@
 
 // Save operations
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                requestParams:(MSIDRequestParameters *)requestParams
+                requestParams:(MSIDConfiguration *)requestParams
                      response:(MSIDTokenResponse *)response
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error;
@@ -54,16 +54,16 @@
                          error:(NSError **)error;
 
 - (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
-                       requestParams:(MSIDRequestParameters *)parameters
+                       requestParams:(MSIDConfiguration *)parameters
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
 - (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(MSIDAccount *)account
-                                              requestParams:(MSIDRequestParameters *)parameters
+                                              requestParams:(MSIDConfiguration *)parameters
                                                     context:(id<MSIDRequestContext>)context
                                                       error:(NSError **)error;
 
-- (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDRequestParameters *)parameters
+- (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDConfiguration *)parameters
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error;
 
@@ -72,7 +72,7 @@
  potentially be used for many resources for that given user, client ID and authority.
  */
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
-                        requestParams:(MSIDRequestParameters *)parameters
+                        requestParams:(MSIDConfiguration *)parameters
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
 
@@ -81,7 +81,7 @@
  be used for many resources within a given family of client IDs.
  */
 - (MSIDRefreshToken *)getFRTforAccount:(MSIDAccount *)account
-                         requestParams:(MSIDRequestParameters *)parameters
+                         requestParams:(MSIDConfiguration *)parameters
                               familyId:(NSString *)familyId
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error;

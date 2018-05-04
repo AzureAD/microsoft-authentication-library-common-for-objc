@@ -32,7 +32,7 @@
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDTokenResponse.h"
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"
@@ -67,7 +67,7 @@
 #pragma mark - MSIDSharedCacheAccessor
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
+                 requestParams:(MSIDConfiguration *)requestParams
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
@@ -194,7 +194,7 @@
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
-                      requestParams:(MSIDRequestParameters *)parameters
+                      requestParams:(MSIDConfiguration *)parameters
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
@@ -372,7 +372,7 @@
 #pragma mark - Private
 
 - (MSIDBaseToken *)getRefreshTokenWithAccount:(MSIDAccount *)account
-                                requestParams:(MSIDRequestParameters *)parameters
+                                requestParams:(MSIDConfiguration *)parameters
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError **)error
 {

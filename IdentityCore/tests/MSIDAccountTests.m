@@ -26,7 +26,7 @@
 #import "MSIDAccount.h"
 #import "MSIDAccountCacheItem.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDAADTokenResponse.h"
 #import "MSIDAADV1TokenResponse.h"

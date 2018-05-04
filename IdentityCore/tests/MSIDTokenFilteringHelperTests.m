@@ -175,7 +175,7 @@
     
     NSArray *input = @[testItem1, testItem2];
     
-    MSIDRequestParameters *params = [MSIDTestRequestParams paramsWithAuthority:nil
+    MSIDConfiguration *params = [MSIDTestRequestParams paramsWithAuthority:nil
                                                                       clientId:DEFAULT_TEST_CLIENT_ID
                                                                    redirectUri:nil
                                                                         target:@"user.read"];
@@ -216,7 +216,7 @@
     
     NSArray *input = @[testItem1, testItem2];
     
-    MSIDRequestParameters *params = [MSIDTestRequestParams paramsWithAuthority:nil
+    MSIDConfiguration *params = [MSIDTestRequestParams paramsWithAuthority:nil
                                                                       clientId:@"different client"
                                                                    redirectUri:nil
                                                                         target:@"user.read"];
@@ -255,7 +255,7 @@
     
     NSArray *input = @[testItem1, testItem2];
     
-    MSIDRequestParameters *params = [MSIDTestRequestParams paramsWithAuthority:nil
+    MSIDConfiguration *params = [MSIDTestRequestParams paramsWithAuthority:nil
                                                                       clientId:DEFAULT_TEST_CLIENT_ID
                                                                    redirectUri:nil
                                                                         target:@"user.read"];

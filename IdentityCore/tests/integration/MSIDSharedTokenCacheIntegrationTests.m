@@ -67,7 +67,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:nil];
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponse];
     
     NSError *error = nil;
@@ -114,7 +114,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:nil];
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponse];
     
     NSError *error = nil;
@@ -149,7 +149,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponse];
     
     NSError *error = nil;
@@ -196,7 +196,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponse];
     
     NSError *error = nil;
@@ -234,7 +234,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
                                                                                       rt:DEFAULT_TEST_REFRESH_TOKEN
                                                                                 resource:DEFAULT_TEST_RESOURCE
@@ -264,7 +264,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
                                                                                       rt:DEFAULT_TEST_REFRESH_TOKEN
                                                                                 resource:DEFAULT_TEST_RESOURCE
@@ -305,7 +305,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
     
     NSError *error = nil;
@@ -364,7 +364,7 @@
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
     
     NSError *error = nil;
     MSIDAccessToken *token = [tokenCache getATForAccount:account
@@ -984,7 +984,7 @@ static NSString * extracted() {
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:@"at"
                                                                                       rt:nil
                                                                                 resource:@"rt"

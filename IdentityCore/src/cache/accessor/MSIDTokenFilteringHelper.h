@@ -25,7 +25,7 @@
 #import "MSIDTokenType.h"
 
 @class MSIDTokenCacheItem;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @class MSIDAccount;
 @class MSIDAccessToken;
 @class MSIDBaseToken;
@@ -43,7 +43,7 @@ typedef BOOL (^MSIDTokenCacheItemFiltering)(MSIDTokenCacheItem *tokenCacheItem);
                                                     withScopes:(NSOrderedSet<NSString *> *)scopes;
 
 + (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                                withParameters:(MSIDRequestParameters *)parameters
+                                                withParameters:(MSIDConfiguration *)parameters
                                                        account:(MSIDAccount *)account
                                                        context:(id<MSIDRequestContext>)context
                                                          error:(NSError **)error;

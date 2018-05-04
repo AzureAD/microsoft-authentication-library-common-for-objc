@@ -119,7 +119,7 @@
 #pragma mark - Tokens
 
 - (MSIDBaseToken *)baseTokenFromResponse:(MSIDAADTokenResponse *)response
-                                 request:(MSIDRequestParameters *)requestParams
+                                 request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -131,7 +131,7 @@
 }
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADTokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+                                     request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -153,7 +153,7 @@
 }
 
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDAADTokenResponse *)response
-                                       request:(MSIDRequestParameters *)requestParams
+                                       request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -167,7 +167,7 @@
 }
 
 - (MSIDIdToken *)idTokenFromResponse:(MSIDAADTokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                             request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -179,7 +179,7 @@
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDAADTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+                                                   request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -192,7 +192,7 @@
 }
 
 - (MSIDAccount *)accountFromResponse:(MSIDAADTokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                             request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -214,7 +214,7 @@
 
 - (MSIDBaseToken *)fillAADBaseToken:(MSIDBaseToken *)baseToken
                        fromResponse:(MSIDAADTokenResponse *)response
-                            request:(MSIDRequestParameters *)requestParams
+                            request:(MSIDConfiguration *)requestParams
 {
     baseToken.clientInfo = response.clientInfo;
 

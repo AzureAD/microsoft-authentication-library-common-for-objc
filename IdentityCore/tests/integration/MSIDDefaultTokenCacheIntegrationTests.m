@@ -34,7 +34,7 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAadAuthorityCache+TestUtil.h"
@@ -238,7 +238,7 @@
 
     // save 2nd token with different authority
     MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams paramsWithAuthority:@"https://contoso2.com"
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams paramsWithAuthority:@"https://contoso2.com"
                                                                           clientId:DEFAULT_TEST_CLIENT_ID
                                                                        redirectUri:nil
                                                                             target:DEFAULT_TEST_SCOPE];
@@ -523,7 +523,7 @@
     NSArray *accessTokensInCache = [_dataSource allDefaultAccessTokens];
     XCTAssertEqual([accessTokensInCache count], 4);
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v2DefaultParams];
     requestParams.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
     
     // retrieve first at
@@ -556,7 +556,7 @@
                                         context:nil
                                           error:nil];
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v2DefaultParams];
     requestParams.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
 
     NSError *error = nil;
@@ -588,7 +588,7 @@
                                         context:nil
                                           error:nil];
     
-    MSIDRequestParameters *parameters = [MSIDTestRequestParams paramsWithAuthority:nil
+    MSIDConfiguration *parameters = [MSIDTestRequestParams paramsWithAuthority:nil
                                                                           clientId:DEFAULT_TEST_CLIENT_ID
                                                                        redirectUri:nil
                                                                             target:DEFAULT_TEST_SCOPE];
@@ -623,7 +623,7 @@
                                           error:nil];
     
     // Save second token
-    MSIDRequestParameters *secondParameters = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.de/common"
+    MSIDConfiguration *secondParameters = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.de/common"
                                                                                 clientId:DEFAULT_TEST_CLIENT_ID
                                                                              redirectUri:nil
                                                                                   target:DEFAULT_TEST_SCOPE];
@@ -636,7 +636,7 @@
                                           error:nil];
     
     // Query cache
-    MSIDRequestParameters *parameters = [MSIDTestRequestParams paramsWithAuthority:nil
+    MSIDConfiguration *parameters = [MSIDTestRequestParams paramsWithAuthority:nil
                                                                           clientId:DEFAULT_TEST_CLIENT_ID
                                                                        redirectUri:nil
                                                                             target:DEFAULT_TEST_SCOPE];
@@ -672,10 +672,10 @@
                                           error:nil];
 
     // Retrieve token
-    MSIDRequestParameters *param = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *param = [MSIDTestRequestParams v2DefaultParams];
     param.authority = nil;
     
-    MSIDRequestParameters *requestParams = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *requestParams = [MSIDTestRequestParams v2DefaultParams];
     requestParams.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
 
     NSError *error = nil;
@@ -698,7 +698,7 @@
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
 
     // save token 1
-    MSIDRequestParameters *param = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *param = [MSIDTestRequestParams v2DefaultParams];
     param.authority = [NSURL URLWithString:@"https://authority1.contoso.com"];
 
     [_cacheAccessor saveTokensWithFactory:factory

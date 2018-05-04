@@ -122,7 +122,7 @@
 #pragma mark - Tokens
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV1TokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+                                     request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -136,7 +136,7 @@
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+                                                   request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -149,14 +149,14 @@
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                            Webview:(WKWebView *)webview
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
     return nil;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController
     return nil;

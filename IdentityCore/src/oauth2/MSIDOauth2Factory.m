@@ -87,41 +87,41 @@
 #pragma mark - Tokens
 
 - (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response
-                                 request:(MSIDRequestParameters *)requestParams
+                                 request:(MSIDConfiguration *)requestParams
 {
     MSIDBaseToken *baseToken = [[MSIDBaseToken alloc] init];
     return [self fillBaseToken:baseToken fromResponse:response request:requestParams];
 }
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+                                     request:(MSIDConfiguration *)requestParams
 {
     MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] init];
     return [self fillAccessToken:accessToken fromResponse:response request:requestParams];
 }
 
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response
-                                       request:(MSIDRequestParameters *)requestParams
+                                       request:(MSIDConfiguration *)requestParams
 {
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
     return [self fillRefreshToken:refreshToken fromResponse:response request:requestParams];
 }
 
 - (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                             request:(MSIDConfiguration *)requestParams
 {
     MSIDIdToken *idToken = [[MSIDIdToken alloc] init];
     return [self fillIDToken:idToken fromResponse:response request:requestParams];
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+                                                   request:(MSIDConfiguration *)requestParams
 {
     MSIDLegacySingleResourceToken *legacyToken = [[MSIDLegacySingleResourceToken alloc] init];
     return [self fillLegacyToken:legacyToken fromResponse:response request:requestParams];
 }
 
-- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams
+- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams
 {
     MSIDAccount *account = [[MSIDAccount alloc] init];
     return [self fillAccount:account fromResponse:response request:requestParams];
@@ -131,7 +131,7 @@
 
 - (MSIDBaseToken *)fillBaseToken:(MSIDBaseToken *)token
                     fromResponse:(MSIDTokenResponse *)response
-                         request:(MSIDRequestParameters *)requestParams
+                         request:(MSIDConfiguration *)requestParams
 {
     if (!response
         || !requestParams)
@@ -150,7 +150,7 @@
 
 - (MSIDAccessToken *)fillAccessToken:(MSIDAccessToken *)token
                         fromResponse:(MSIDTokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                             request:(MSIDConfiguration *)requestParams
 {
     token = (MSIDAccessToken *) [self fillBaseToken:token fromResponse:response request:requestParams];
 
@@ -188,7 +188,7 @@
 
 - (MSIDRefreshToken *)fillRefreshToken:(MSIDRefreshToken *)token
                           fromResponse:(MSIDTokenResponse *)response
-                               request:(MSIDRequestParameters *)requestParams
+                               request:(MSIDConfiguration *)requestParams
 {
     token = (MSIDRefreshToken *) [self fillBaseToken:token fromResponse:response request:requestParams];
 
@@ -217,7 +217,7 @@
 
 - (MSIDIdToken *)fillIDToken:(MSIDIdToken *)token
                 fromResponse:(MSIDTokenResponse *)response
-                     request:(MSIDRequestParameters *)requestParams
+                     request:(MSIDConfiguration *)requestParams
 {
     token = (MSIDIdToken *) [self fillBaseToken:token fromResponse:response request:requestParams];
 
@@ -239,7 +239,7 @@
 
 - (MSIDLegacySingleResourceToken *)fillLegacyToken:(MSIDLegacySingleResourceToken *)token
                                       fromResponse:(MSIDTokenResponse *)response
-                                           request:(MSIDRequestParameters *)requestParams
+                                           request:(MSIDConfiguration *)requestParams
 {
     token = (MSIDLegacySingleResourceToken *) [self fillAccessToken:token fromResponse:response request:requestParams];
 
@@ -254,7 +254,7 @@
 
 - (MSIDAccount *)fillAccount:(MSIDAccount *)account
                 fromResponse:(MSIDTokenResponse *)response
-                     request:(MSIDRequestParameters *)requestParams
+                     request:(MSIDConfiguration *)requestParams
 {
     account.uniqueUserId = response.idTokenObj.userId;
     account.username = response.idTokenObj.username;
@@ -267,14 +267,14 @@
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                      customWebview:(WKWebView *)webview
 {
     // TODO: return default
     return nil;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
 {
     // TODO: return default
     return nil;

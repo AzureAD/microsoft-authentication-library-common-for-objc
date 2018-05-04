@@ -144,7 +144,7 @@
     MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
 
     MSIDAADTokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDBaseToken *token = [factory baseTokenFromResponse:response request:params];
 
@@ -166,7 +166,7 @@
     MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
 
     MSIDAADTokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDAccessToken *token = [factory accessTokenFromResponse:response request:params];
 
@@ -197,7 +197,7 @@
     MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
 
     MSIDAADTokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response request:params];
 
@@ -233,7 +233,7 @@
                                                                                 upn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                            tenantId:DEFAULT_TEST_UTID];
 
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response request:params];
 
@@ -245,7 +245,7 @@
     MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
 
     MSIDAADTokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDIdToken *token = [factory idTokenFromResponse:response request:params];
 
@@ -269,7 +269,7 @@
     MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
 
     MSIDAADTokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response request:params];
 

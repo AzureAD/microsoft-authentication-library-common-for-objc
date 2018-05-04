@@ -25,16 +25,18 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewRequest.h"
+#import "MSIDWebviewRequestParameter.h"
 
-@class MSIDRequestParameters;
+@implementation MSIDWebviewRequestParameter
 
-@interface MSIDEmbeddedWebviewRequest : MSIDWebviewRequest
-
-- (id)initWithRequestParameters:(MSIDRequestParameters *)requestParameter;
-
-@property NSURL *endURL;
-@property NSDictionary *headers;
+- (instancetype)initWithConfiguration:(MSIDConfiguration *)configuration
+{
+    self = [super init];
+    if (self)
+    {
+        _configuration = configuration;
+    }
+    return self;
+}
 
 @end

@@ -105,7 +105,7 @@
 #pragma mark - Tokens
 
 - (MSIDBaseToken *)baseTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                 request:(MSIDRequestParameters *)requestParams
+                                 request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -117,7 +117,7 @@
 }
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+                                     request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -150,7 +150,7 @@
 }
 
 - (MSIDIdToken *)idTokenFromResponse:(MSIDAADTokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                             request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -162,7 +162,7 @@
 }
 
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDAADTokenResponse *)response
-                                       request:(MSIDRequestParameters *)requestParams
+                                       request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -174,7 +174,7 @@
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDAADTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+                                                   request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -186,7 +186,7 @@
 }
 
 - (MSIDAccount *)accountFromResponse:(MSIDAADV2TokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                             request:(MSIDConfiguration *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
@@ -203,7 +203,7 @@
 
 - (MSIDBaseToken *)fillAADV2BaseToken:(MSIDBaseToken *)baseToken
                          fromResponse:(MSIDAADTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams
+                              request:(MSIDConfiguration *)requestParams
 {
     MSIDAADV2IdTokenWrapper *idToken = (MSIDAADV2IdTokenWrapper *) response.idTokenObj;
     baseToken.authority = [MSIDAuthority cacheUrlForAuthority:baseToken.authority tenantId:idToken.tenantId];
@@ -212,14 +212,14 @@
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                            Webview:(WKWebView *)webview
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
     return nil;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController
     return nil;

@@ -22,32 +22,32 @@
 // THE SOFTWARE.
 
 #import "MSIDTestRequestParams.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDTestRequestParams
 
-+ (MSIDRequestParameters *)defaultParams
++ (MSIDConfiguration *)defaultParams
 {
-    return [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
+    return [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
                                                 redirectUri:nil
                                                    clientId:DEFAULT_TEST_CLIENT_ID
                                                      target:nil];
 }
 
-+ (MSIDRequestParameters *)paramsWithAuthority:(NSString *)authority
++ (MSIDConfiguration *)paramsWithAuthority:(NSString *)authority
                                       clientId:(NSString *)clientId
                                    redirectUri:(NSString *)redirectUri
                                         target:(NSString *)target
 {
-    return [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:authority]
+    return [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:authority]
                                                 redirectUri:redirectUri
                                                    clientId:clientId
                                                      target:target];
 }
 
-+ (MSIDRequestParameters *)v1DefaultParams
++ (MSIDConfiguration *)v1DefaultParams
 {
     return [self paramsWithAuthority:DEFAULT_TEST_AUTHORITY
                             clientId:DEFAULT_TEST_CLIENT_ID
@@ -55,7 +55,7 @@
                               target:DEFAULT_TEST_RESOURCE];
 }
 
-+ (MSIDRequestParameters *)v2DefaultParams
++ (MSIDConfiguration *)v2DefaultParams
 {
     return [self paramsWithAuthority:DEFAULT_TEST_AUTHORITY
                             clientId:DEFAULT_TEST_CLIENT_ID
@@ -63,7 +63,7 @@
                               target:DEFAULT_TEST_SCOPE];
 }
 
-+ (MSIDRequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes
++ (MSIDConfiguration *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes
 {
     return [self paramsWithAuthority:DEFAULT_TEST_AUTHORITY
                             clientId:DEFAULT_TEST_CLIENT_ID

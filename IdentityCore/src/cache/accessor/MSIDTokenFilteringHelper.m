@@ -26,7 +26,7 @@
 #import "MSIDTokenCacheItem.h"
 #import "MSIDAccount.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDAADV2IdTokenWrapper.h"
 
 @implementation MSIDTokenFilteringHelper
@@ -76,7 +76,7 @@
 }
 
 + (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                                withParameters:(MSIDRequestParameters *)parameters
+                                                withParameters:(MSIDConfiguration *)parameters
                                                        account:(MSIDAccount *)account
                                                        context:(id<MSIDRequestContext>)context
                                                          error:(NSError **)error

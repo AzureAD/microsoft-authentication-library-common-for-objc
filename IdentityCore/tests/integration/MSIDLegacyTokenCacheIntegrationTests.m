@@ -237,7 +237,7 @@
                                                                                  upn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                             tenantId:DEFAULT_TEST_UTID];
     
-    MSIDRequestParameters *secondParams = [MSIDTestRequestParams paramsWithAuthority:DEFAULT_TEST_AUTHORITY
+    MSIDConfiguration *secondParams = [MSIDTestRequestParams paramsWithAuthority:DEFAULT_TEST_AUTHORITY
                                                                             clientId:DEFAULT_TEST_CLIENT_ID
                                                                          redirectUri:nil
                                                                               target:@"resource2"];
@@ -431,7 +431,7 @@
     XCTAssertTrue(result);
     
     // Second token
-    MSIDRequestParameters *secondParams = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.com/contoso.com/"
+    MSIDConfiguration *secondParams = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.com/contoso.com/"
                                                                             clientId:DEFAULT_TEST_CLIENT_ID
                                                                          redirectUri:nil
                                                                               target:DEFAULT_TEST_RESOURCE];
@@ -476,7 +476,7 @@
     XCTAssertTrue(result);
     
     // Second token
-    MSIDRequestParameters *secondParams = [MSIDTestRequestParams paramsWithAuthority:DEFAULT_TEST_AUTHORITY
+    MSIDConfiguration *secondParams = [MSIDTestRequestParams paramsWithAuthority:DEFAULT_TEST_AUTHORITY
                                                                             clientId:@"client_id_2"
                                                                          redirectUri:nil
                                                                               target:DEFAULT_TEST_RESOURCE];
@@ -657,7 +657,7 @@
     XCTAssertTrue(result);
     
     // Save second token
-    MSIDRequestParameters *secondParams = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.com/contoso.com/"
+    MSIDConfiguration *secondParams = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.com/contoso.com/"
                                                                             clientId:DEFAULT_TEST_CLIENT_ID
                                                                          redirectUri:nil
                                                                               target:DEFAULT_TEST_RESOURCE];
@@ -741,7 +741,7 @@
     account = [[MSIDAccount alloc] initWithLegacyUserId:nil
                                            uniqueUserId:@"1.1234-5678-90abcdefg"];
     
-    MSIDRequestParameters *consumerParameters = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.com/organizations"
+    MSIDConfiguration *consumerParameters = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.com/organizations"
                                                                                   clientId:DEFAULT_TEST_CLIENT_ID
                                                                                redirectUri:nil
                                                                                     target:DEFAULT_TEST_SCOPE];
@@ -776,7 +776,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    MSIDRequestParameters *consumerParameters = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.com/consumers"
+    MSIDConfiguration *consumerParameters = [MSIDTestRequestParams paramsWithAuthority:@"https://login.microsoftonline.com/consumers"
                                                                                   clientId:DEFAULT_TEST_CLIENT_ID
                                                                                redirectUri:nil
                                                                                     target:DEFAULT_TEST_SCOPE];

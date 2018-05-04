@@ -129,7 +129,7 @@
               return;
           }
 
-          MSIDRequestParameters *params = [MSIDRequestParameters new];
+          MSIDConfiguration *params = [MSIDConfiguration new];
           params.authority = [NSURL URLWithString:authority];
           params.clientId = clientId;
           params.target = resource;

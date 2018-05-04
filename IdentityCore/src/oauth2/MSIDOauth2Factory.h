@@ -30,7 +30,7 @@
 @class MSIDIdToken;
 @class MSIDLegacySingleResourceToken;
 @class MSIDAccount;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @class WKWebView;
 
 @protocol MSIDRequestContext;
@@ -48,16 +48,16 @@
                  error:(NSError * __autoreleasing *)error;
 
 // Tokens
-- (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
+- (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
+- (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
+- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
+- (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
+- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
+- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
 
 // Webviews
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                      customWebview:(WKWebView *)webview;
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams;
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams;
 
 @end

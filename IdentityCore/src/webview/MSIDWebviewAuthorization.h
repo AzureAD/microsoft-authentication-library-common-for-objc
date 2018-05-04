@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 
 @class WKWebView;
 @class MSIDOAuth2Factory;
@@ -35,13 +35,13 @@
 
 @interface MSIDWebviewAuthorization : NSObject
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
                                                                      factory:(MSIDOAuth2Factory *)factory;
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
                                                                      webview:(WKWebView *)webview
                                                                      factory:(MSIDOAuth2Factory *)factory;
 
-+ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
++ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
                                                                    factory:(MSIDOAuth2Factory *)factory;
 
 + (BOOL)handleURLResponse:(NSURL *)url;

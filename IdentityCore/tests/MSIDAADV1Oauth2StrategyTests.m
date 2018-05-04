@@ -175,7 +175,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDBaseToken *token = [factory baseTokenFromResponse:response request:params];
 
@@ -197,7 +197,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDAccessToken *token = [factory accessTokenFromResponse:response request:params];
 
@@ -228,7 +228,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response request:params];
 
@@ -264,7 +264,7 @@
                                                                                 upn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                            tenantId:DEFAULT_TEST_UTID];
 
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response request:params];
 
@@ -276,7 +276,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDIdToken *token = [factory idTokenFromResponse:response request:params];
 
@@ -300,7 +300,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v1DefaultParams];
 
     MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response request:params];
 
@@ -333,8 +333,8 @@
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman"];
     NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
-    MSIDRequestParameters *requestParameters =
-    [[MSIDRequestParameters alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
+    MSIDConfiguration *requestParameters =
+    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
                                          redirectUri:@"redirect uri"
                                             clientId:@"client id"
                                               target:@"target"];
@@ -358,7 +358,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     NSString *resourceInRequest = @"https://contoso.com";
-    MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
+    MSIDConfiguration *requestParams = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
                                                                                 redirectUri:@"fake_redirect_uri"
                                                                                    clientId:@"fake_client_id"
                                                                                      target:resourceInRequest];
@@ -377,7 +377,7 @@
 
     NSString *resourceInRequest = @"https://contoso.com/.Default";
     NSString *resourceInResponse = @"https://contoso.com";
-    MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
+    MSIDConfiguration *requestParams = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
                                                                                 redirectUri:@"fake_redirect_uri"
                                                                                    clientId:@"fake_client_id"
                                                                                      target:resourceInRequest];

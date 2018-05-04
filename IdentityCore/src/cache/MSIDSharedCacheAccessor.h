@@ -25,7 +25,7 @@
 #import "MSIDTokenType.h"
 
 @class MSIDAccount;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @class MSIDBaseToken;
 @class MSIDTokenResponse;
 @class MSIDRefreshToken;
@@ -35,7 +35,7 @@
 @protocol MSIDSharedCacheAccessor <NSObject>
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
+                 requestParams:(MSIDConfiguration *)requestParams
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
@@ -53,7 +53,7 @@
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
-                      requestParams:(MSIDRequestParameters *)parameters
+                      requestParams:(MSIDConfiguration *)parameters
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
 

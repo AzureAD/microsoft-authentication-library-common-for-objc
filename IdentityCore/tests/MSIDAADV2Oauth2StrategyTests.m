@@ -176,7 +176,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v2DefaultParams];
 
     MSIDBaseToken *token = [factory baseTokenFromResponse:response request:params];
 
@@ -198,7 +198,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v2DefaultParams];
 
     MSIDAccessToken *token = [factory accessTokenFromResponse:response request:params];
 
@@ -232,7 +232,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v2DefaultParams];
 
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response request:params];
 
@@ -261,7 +261,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v2DefaultParams];
 
     MSIDIdToken *token = [factory idTokenFromResponse:response request:params];
 
@@ -285,7 +285,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDRequestParameters *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *params = [MSIDTestRequestParams v2DefaultParams];
 
     MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response request:params];
 
@@ -322,7 +322,7 @@
     NSString *scopeInResposne = @"user.read";
 
     // construct request parameters
-    MSIDRequestParameters *reqParams = [MSIDRequestParameters new];
+    MSIDConfiguration *reqParams = [MSIDConfiguration new];
     [reqParams setTarget:scopeInRequest];
 
     // construct response
@@ -351,7 +351,7 @@
     NSString *scopeInResposne = @"user.read";
 
     // construct request parameters
-    MSIDRequestParameters *reqParams = [MSIDRequestParameters new];
+    MSIDConfiguration *reqParams = [MSIDConfiguration new];
     [reqParams setTarget:scopeInRequest];
 
     // construct response
@@ -380,7 +380,7 @@
     NSString *scopeInResposne = @"user.read";
 
     // construct request parameters
-    MSIDRequestParameters *reqParams = [MSIDRequestParameters new];
+    MSIDConfiguration *reqParams = [MSIDConfiguration new];
     [reqParams setTarget:scopeInRequest];
 
     // construct response
@@ -413,8 +413,8 @@
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman"];
     NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
-    MSIDRequestParameters *requestParameters =
-    [[MSIDRequestParameters alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
+    MSIDConfiguration *requestParameters =
+    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
                                          redirectUri:@"redirect uri"
                                             clientId:@"client id"
                                               target:@"target"];

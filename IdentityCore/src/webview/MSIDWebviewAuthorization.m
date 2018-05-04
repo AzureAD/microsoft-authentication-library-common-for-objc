@@ -31,20 +31,20 @@
 
 
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
                                                                      factory:(MSIDOAuth2Factory *)factory;
 {
     return nil;
 }
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
                                                                      webview:(WKWebView *)webview
                                                                      factory:(MSIDOAuth2Factory *)factory;
 {
     return nil;
 }
 
-+ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
++ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
                                                                    factory:(MSIDOAuth2Factory *)factory;
 {
     return nil;

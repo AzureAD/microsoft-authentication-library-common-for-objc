@@ -68,7 +68,7 @@
 #pragma mark - Save tokens
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
+                 requestParams:(MSIDConfiguration *)requestParams
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
@@ -87,7 +87,7 @@
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    MSIDRequestParameters *params = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:response.authority]
+    MSIDConfiguration *params = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:response.authority]
                                                                          redirectUri:nil
                                                                             clientId:response.clientId
                                                                               target:response.resource];
@@ -103,7 +103,7 @@
 #pragma mark - Get tokens
 
 - (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
-                       requestParams:(MSIDRequestParameters *)parameters
+                       requestParams:(MSIDConfiguration *)parameters
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
@@ -115,7 +115,7 @@
 }
 
 - (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(MSIDAccount *)account
-                                              requestParams:(MSIDRequestParameters *)parameters
+                                              requestParams:(MSIDConfiguration *)parameters
                                                     context:(id<MSIDRequestContext>)context
                                                       error:(NSError **)error
 {
@@ -126,7 +126,7 @@
                                                                          error:error];
 }
 
-- (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDRequestParameters *)parameters
+- (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDConfiguration *)parameters
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error
 {
@@ -140,7 +140,7 @@
 }
 
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
-                        requestParams:(MSIDRequestParameters *)parameters
+                        requestParams:(MSIDConfiguration *)parameters
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
@@ -175,7 +175,7 @@
 
 
 - (MSIDRefreshToken *)getFRTforAccount:(MSIDAccount *)account
-                         requestParams:(MSIDRequestParameters *)parameters
+                         requestParams:(MSIDConfiguration *)parameters
                               familyId:(NSString *)familyId
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
@@ -361,7 +361,7 @@
 }
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
+                 requestParams:(MSIDConfiguration *)requestParams
                       response:(MSIDTokenResponse *)response
           saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
                        context:(id<MSIDRequestContext>)context

@@ -21,48 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRequestParameters.h"
-#import "NSOrderedSet+MSIDExtensions.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDRequestParameters
+@interface MSIDConfiguration : NSObject <NSCopying>
 
-- (instancetype)copyWithZone:(NSZone*)zone
-{
-    MSIDRequestParameters *parameters = [[MSIDRequestParameters allocWithZone:zone] init];
-    parameters.authority = [_authority copyWithZone:zone];
-    parameters.redirectUri = [_redirectUri copyWithZone:zone];
-    parameters.target = [_target copyWithZone:zone];
-    parameters.clientId = [_clientId copyWithZone:zone];
-    
-    return parameters;
-}
+@property (readwrite) NSURL *authority;
+@property (readwrite) NSString *redirectUri;
+@property (readwrite) NSString *clientId;
+@property (readwrite) NSString *target;
+@property (readwrite) NSUUID *correlationId;
+
+@property (readonly) NSString *resource;
+@property (readonly) NSOrderedSet<NSString *> *scopes;
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target;
 
 - (instancetype)initWithAuthority:(NSURL *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target
-{
-    self = [super init];
-    
-    if (self)
-    {
-        _authority = authority;
-        _redirectUri = redirectUri;
-        _clientId = clientId;
-        _target = target;
-    }
-    
-    return self;
-}
-
-- (NSString *)resource
-{
-    return _target;
-}
-
-- (NSOrderedSet<NSString *> *)scopes
-{
-    return [_target scopeSet];
-}
+                    correlationId:(NSUUID *)correlationId;
 
 @end
