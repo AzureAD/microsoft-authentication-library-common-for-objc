@@ -64,14 +64,13 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 }
 
 + (void)startSystemWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                         callbackURLScheme:(NSString *)callbackURLScheme
                                                    factory:(MSIDOauth2Factory *)factory
                                                    context:(id<MSIDRequestContext>)context
                                          completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
 
     id<MSIDWebviewInteracting> systemWebviewController = [factory systemWebviewControllerWithRequest:parameters
-                                                                                   callbackURLScheme:callbackURLScheme
+                                                                                   callbackURLScheme:parameters.redirectUri
                                                                                              context:context
                                                                                    completionHandler:completionHandler];
     [self startWebviewAuth:systemWebviewController
@@ -178,7 +177,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
         return wpjResponse;
     }
     
-    // Check for AAD response
+    // Check for AAD response,
     MSIDWebAADAuthResponse *aadResponse = [[MSIDWebAADAuthResponse alloc] initWithParameters:parameters
                                                                                 requestState:requestState
                                                                                stateVerifier:stateVerifier
@@ -198,7 +197,6 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     {
         oauth2Response.url = url;
         return oauth2Response;
-        
     }
     
     // Any other errors are caught here

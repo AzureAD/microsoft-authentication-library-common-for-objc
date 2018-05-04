@@ -67,8 +67,6 @@
         _redirectUri = redirectUri;
         _clientId = clientId;
         _target = target;
-        
-        _pkce = [MSIDPkce new];
     }
     
     return self;

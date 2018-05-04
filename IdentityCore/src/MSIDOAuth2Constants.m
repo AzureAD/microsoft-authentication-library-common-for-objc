@@ -35,6 +35,7 @@ NSString *const MSID_OAUTH2_CLIENT_ID          = @"client_id";
 NSString *const MSID_OAUTH2_CODE               = @"code";
 NSString *const MSID_OAUTH2_ERROR              = @"error";
 NSString *const MSID_OAUTH2_ERROR_DESCRIPTION  = @"error_description";
+NSString *const MSID_OAUTH2_ERROR_SUBCODE      = @"error_subcode";
 NSString *const MSID_OAUTH2_EXPIRES_IN         = @"expires_in";
 NSString *const MSID_OAUTH2_GRANT_TYPE         = @"grant_type";
 NSString *const MSID_OAUTH2_REDIRECT_URI       = @"redirect_uri";

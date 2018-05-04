@@ -54,7 +54,7 @@
 @property (readwrite) NSString *requestState;
 
 // Is this only for V2?
-@property (readonly) MSIDPkce *pkce;
+@property (readwrite) MSIDPkce *pkce;
 
 @property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSString *rawIdTokenString;

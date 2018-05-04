@@ -67,5 +67,6 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     {
         return MSIDErrorInvalidGrant;
     }
+    
     return defaultCode;
 }
