@@ -39,6 +39,7 @@
 #import "MSIDOpenIdConfigurationInfoRequest.h"
 
 static NSSet<NSString *> *s_trustedHostList;
+static NSCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
 
 // Trusted authorities
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
@@ -63,6 +64,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
                              MSIDTrustedAuthorityUSGovernment,
                              MSIDTrustedAuthorityCloudGovApi, nil];
         //    login.microsoftonline.us ???
+        s_openIdConfigurationCache = [NSCache new];
     }
 }
 
@@ -233,8 +235,22 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
                             context:(id<MSIDRequestContext>)context
                     completionBlock:(MSIDOpenIdConfigurationInfoBlock)completionBlock
 {
+    __auto_type cacheKey = openIdConfigurationEndpoint.absoluteString.lowercaseString;
+    __auto_type metadata = [s_openIdConfigurationCache objectForKey:cacheKey];
+    
+    if (metadata)
+    {
+        if (completionBlock) completionBlock(metadata, nil);
+        return;
+    }
+    
     __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:openIdConfigurationEndpoint];
-    [request sendWithBlock:completionBlock];
+    [request sendWithBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+    {
+        [s_openIdConfigurationCache setObject:metadata forKey:cacheKey];
+        
+        if (completionBlock) completionBlock(metadata, error);
+    }];
 }
 
 + (NSURL *)normalizeAuthority:(NSURL *)authority
