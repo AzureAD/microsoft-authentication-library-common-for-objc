@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDChallengeHandler.h"
-#import "MSIDTLSHandler.h"
+#import "MSIDClientTLSHandler.h"
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDRegistrationInformation.h"
 #import "MSIDWorkPlaceJoinConstants.h"
@@ -35,21 +35,23 @@
     [MSIDChallengeHandler registerHandler:self authMethod:NSURLAuthenticationMethodClientCertificate];
 }
 
++ (void)resetHandler { }
+
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
+                context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    //NSUUID *correlationId = protocol.context.correlationId;
-    //NSString *host = challenge.protectionSpace.host;
+    NSString *host = challenge.protectionSpace.host;
     
-    //MSID_LOG_INFO(protocol.context, @"Attempting to handle client certificate challenge");
-    //MSID_LOG_INFO_PII(protocol.context, @"Attempting to handle client certificate challenge. host: %@", host);
+    MSID_LOG_INFO(context, @"Attempting to handle client TLS challenge");
+    MSID_LOG_INFO_PII(context, @"Attempting to handle client TLS challenge. host: %@", host);
     
     // See if this is a challenge for the WPJ cert.
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
     if ([self isWPJChallenge:distinguishedNames])
     {
-        return [self handleWPJChallenge:challenge completionHandler:completionHandler];
+        return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
     }
 #if TARGET_OS_IPHONE
     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
@@ -57,7 +59,7 @@
 #else
     else
     {
-        return [self handleCertAuthChallenge:challenge webview:webview completionHandler:completionHandler];
+        return [self handleCertAuthChallenge:challenge webview:webview context:context completionHandler:completionHandler];
     }
 #endif
 }
@@ -78,14 +80,15 @@
 }
 
 + (BOOL)handleWPJChallenge:(NSURLAuthenticationChallenge *)challenge
+                   context:(id<MSIDRequestContext>)context
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     NSError *localError = nil;
-    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:nil error:&localError];//TODO pass context here
+    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context error:&localError];
     if (!info || ![info isWorkPlaceJoined])
     {
-        //MSID_LOG_INFO(protocol.context, @"Device is not workplace joined");
-        //MSID_LOG_INFO_PII(protocol.context, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);
+        MSID_LOG_INFO(context, @"Device is not workplace joined");
+        MSID_LOG_INFO_PII(context, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);
         
         // In other cert auth cases we send Cancel to ensure that we continue to get
         // auth challenges, however when we do that with WPJ we don't get the subsequent
@@ -99,8 +102,8 @@
         return YES;
     }
     
-    //MSID_LOG_INFO(protocol.context, @"Responding to WPJ cert challenge");
-    //MSID_LOG_INFO_PII(protocol.context, @"Responding to WPJ cert challenge. host: %@", challenge.protectionSpace.host);
+    MSID_LOG_INFO(context, @"Responding to WPJ cert challenge");
+    MSID_LOG_INFO_PII(context, @"Responding to WPJ cert challenge. host: %@", challenge.protectionSpace.host);
     
     NSURLCredential *creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
                                                         certificates:@[(__bridge id)info.certificate]
@@ -115,6 +118,7 @@
 
 + (BOOL)handleCertAuthChallenge:(NSURLAuthenticationChallenge *)challenge
                         webview:(WKWebView *)webview
+                        context:(id<MSIDRequestContext>)context
               completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     NSString *host = challenge.protectionSpace.host;
@@ -124,15 +128,15 @@
     SecIdentityRef identity = SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
     if (identity != NULL)
     {
-        //MSID_LOG_INFO(protocol.context, @"Using preferred identity");
+        MSID_LOG_INFO(context, @"Using preferred identity");
     }
     else
     {
         // If not prompt the user to select an identity
-        identity = [self promptUserForIdentity:distinguishedNames host:host webview:webview correlationId:nil];//TODO pass correlation id here
+        identity = [self promptUserForIdentity:distinguishedNames host:host webview:webview correlationId:context.correlationId];
         if (identity == NULL)
         {
-            //MSID_LOG_INFO(protocol.context, @"No identity returned from cert chooser");
+            MSID_LOG_INFO(context, @"No identity returned from cert chooser");
             
             // If no identity comes back then we can't handle the request
             completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
@@ -141,7 +145,7 @@
         
         // Adding a retain count to match the retain count from SecIdentityCopyPreferred
         CFRetain(identity);
-        //MSID_LOG_INFO(protocol.context, @"Using user selected certificate");
+        MSID_LOG_INFO(context, @"Using user selected certificate");
     }
     
     SecCertificateRef cert = NULL;
@@ -149,13 +153,13 @@
     if (status != errSecSuccess)
     {
         CFRelease(identity);
-        //MSID_LOG_ERROR(protocol.context, @"Failed to copy certificate from identity.");
+        MSID_LOG_ERROR(context, @"Failed to copy certificate from identity.");
         
         completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
         return YES;
     }
     
-    //MSID_LOG_INFO(protocol.context, @"Responding to cert auth challenge with certicate");
+    MSID_LOG_INFO(context, @"Responding to cert auth challenge with certicate");
     NSURLCredential *credential = [[NSURLCredential alloc] initWithIdentity:identity certificates:@[(__bridge id)cert] persistence:NSURLCredentialPersistenceNone];
     completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     CFRelease(cert);

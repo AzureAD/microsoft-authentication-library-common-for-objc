@@ -34,8 +34,17 @@
                                authMethod:NSURLAuthenticationMethodNTLM];
 }
 
++ (void)resetHandler
+{
+    @synchronized(self)
+    {
+        [MSIDNTLMUIPrompt dismissPrompt];
+    }
+}
+
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
+                context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     @synchronized(self)
@@ -48,25 +57,23 @@
          {
              if (username)
              {
-                 NSURLCredential *credential;
-                 credential = [NSURLCredential
-                               credentialWithUser:username
-                               password:password
-                               persistence:NSURLCredentialPersistenceForSession];
+                 NSURLCredential *credential = [NSURLCredential credentialWithUser:username
+                                                                          password:password
+                                                                       persistence:NSURLCredentialPersistenceForSession];
                  
                  completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
                  
-                 MSID_LOG_INFO(nil, @"NTLM credentials added");
-                 MSID_LOG_INFO_PII(nil, @"NTLM credentials added - host: %@", challenge.protectionSpace.host);
+                 MSID_LOG_INFO(context, @"NTLM credentials added");
+                 MSID_LOG_INFO_PII(context, @"NTLM credentials added - host: %@", challenge.protectionSpace.host);
              }
              else
              {
-                 MSID_LOG_INFO(nil, @"NTLM challenge cancelled");
-                 MSID_LOG_INFO_PII(nil, @"NTLM challenge cancelled - host: %@", challenge.protectionSpace.host);
+                 MSID_LOG_INFO(context, @"NTLM challenge cancelled");
+                 MSID_LOG_INFO_PII(context, @"NTLM challenge cancelled - host: %@", challenge.protectionSpace.host);
                  
                  completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
                  
-                 NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user has cancelled the NTLM prompt.", nil, nil, nil, nil, nil);
+                 NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user has cancelled the NTLM prompt.", nil, nil, nil, context.correlationId, nil);
                  [webview.navigationDelegate webView:webview didFailProvisionalNavigation:nil withError:error];
              }
          }];
@@ -76,4 +83,3 @@
 }
 
 @end
-

@@ -35,9 +35,11 @@
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDChallengeHandler.h"
 #import "MSIDNTLMHandler.h"
+#import "MSIDAuthority.h"
 
 #if TARGET_OS_IPHONE
 #import "UIApplication+MSIDExtensions.h"
+#import "MSIDAppExtensionUtil.h"
 #else
 #define DEFAULT_WINDOW_WIDTH 420
 #define DEFAULT_WINDOW_HEIGHT 650
@@ -51,6 +53,8 @@
     void (^_completionHandler)(MSIDWebOAuth2Response *response, NSError *error);
     
     NSLock *_completionLock;
+    NSTimer *_spinnerTimer; // Used for managing the activity spinner
+    BOOL _loading;
     BOOL _complete;
     
 #if TARGET_OS_IPHONE
@@ -103,22 +107,32 @@
         return;
     }
     
-    [self loadView];
+    NSError *error = nil;
+    [self loadView:&error];
+    if (error)
+    {
+        [self endWebAuthenticationWithError:error orURL:nil];
+    }
+    
     [self startRequest:[[NSMutableURLRequest alloc] initWithURL:_startUrl]];
 }
 
 - (void)cancel
 {
-    //TODO
+    MSID_LOG_INFO(_context, @"Cancel Web Auth...");
+    
+    // Dispatch the completion block
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user/application has cancelled the authorization.", nil, nil, nil, _context.correlationId, nil);
+    [self endWebAuthenticationWithError:error orURL:nil];
 }
 
-- (void)loadView
+- (BOOL)loadView:(NSError **)error
 {
     // Just need to hijack the delegate and return if webview is passed in.
     if (_webView)
     {
         _webView.navigationDelegate = self;
-        return;
+        return YES;
     }
     
     // Create Webview
@@ -127,7 +141,11 @@
     // Need parent controller to proceed
     if (![self obtainParentController])
     {
-        return;
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"The Application does not have a current ViewController", nil, nil, nil, _context.correlationId, nil);
+        }
+        return NO;
     }
     
     UIView *rootView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
@@ -160,17 +178,12 @@
     _webView = webView;
     [rootView addSubview:_webView];
     [rootView addSubview:_laodingIndicator];
+    
+    return YES;
 }
 
-- (void)cancelWebAuth
-{
-    // Dispatch the completion block
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user has cancelled the authorization.", nil, nil, nil, nil, nil);
-    [self endWebAuthenticationWithError:error orURL:nil];
-}
-
-- (BOOL)endWebAuthenticationWithError:(NSError *) error
-                                orURL:(NSURL*)endURL
+- (BOOL)endWebAuthenticationWithError:(NSError *)error
+                                orURL:(NSURL *)endURL
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self dismidssWebview:^{[self dispatchCompletionBlock:error URL:endURL];}];
@@ -209,6 +222,8 @@
     //       be resilient to this condition and should not generate
     //       two callbacks.
     [_completionLock lock];
+    
+    [MSIDChallengeHandler resetHandlers];
     
     if ( _completionHandler )
     {
@@ -254,7 +269,7 @@
 #endif
 }
 
-- (void)loadRequest:(NSURLRequest*)request
+- (void)loadRequest:(NSURLRequest *)request
 {
     [_webView loadRequest:request];
 }
@@ -264,31 +279,94 @@
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     NSURL *requestUrl = navigationAction.request.URL;
+    NSString *requestUrlString = [requestUrl.absoluteString lowercaseString];
+    
+    MSID_LOG_VERBOSE(_context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestUrl] ? requestUrl.host : @"unknown host");
+    MSID_LOG_VERBOSE_PII(_context, @"-decidePolicyForNavigationAction host: %@", requestUrl.host);
     
     // Stop at the end URL.
-    if ([[requestUrl.absoluteString lowercaseString] hasPrefix:[_endUrl.absoluteString lowercaseString]] ||
+    if ([requestUrlString hasPrefix:[_endUrl.absoluteString lowercaseString]] ||
         [[[requestUrl scheme] lowercaseString] isEqualToString:@"msauth"])
     {
         _complete = YES;
         
         NSURL *url = navigationAction.request.URL;
-        [self webAuthCompleteWithURL:url];
+        [self webAuthDidCompleteWithURL:url];
         
-        // Tell the web view that this URL should not be loaded.
         decisionHandler(WKNavigationActionPolicyCancel);
+        return;
     }
-    else
+    
+    if ([requestUrlString isEqualToString:@"about:blank"])
     {
         decisionHandler(WKNavigationActionPolicyAllow);
+        return;
     }
+    
+    if ([[[requestUrl scheme] lowercaseString] isEqualToString:@"browser"])
+    {
+        _complete = YES;
+        requestUrlString = [requestUrlString stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+        
+#if TARGET_OS_IPHONE
+        if (![MSIDAppExtensionUtil isExecutingInAppExtension])
+        {
+            [self cancel];
+            [MSIDAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:requestUrlString]];
+        }
+        else
+        {
+            MSID_LOG_INFO(_context, @"unable to redirect to browser from extension");
+        }
+#else
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestUrlString]];
+#endif
+        
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    
+    // redirecting to non-https url is not allowed
+    if (![[[requestUrl scheme] lowercaseString] isEqualToString:@"https"])
+    {
+        MSID_LOG_INFO(_context, @"Server is redirecting to a non-https url");
+        _complete = YES;
+        
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, _context.correlationId, nil);
+        [self endWebAuthenticationWithError:error orURL:nil];
+        
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    
+    decisionHandler(WKNavigationActionPolicyAllow);
 }
 
-- (void)webView:(WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation
+- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(null_unspecified WKNavigation *)navigation
 {
+    if (!_loading)
+    {
+        _loading = YES;
+        if (_spinnerTimer)
+        {
+            [_spinnerTimer invalidate];
+        }
+        _spinnerTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
+                                                         target:self
+                                                       selector:@selector(onStartLoadingIndicator:)
+                                                       userInfo:nil
+                                                        repeats:NO];
+        [_spinnerTimer setTolerance:0.3];
+    }
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation
 {
+    NSURL *url = webView.URL;
+    MSID_LOG_VERBOSE(_context, @"-didFinishNavigation host: %@", [MSIDAuthority isKnownHost:url] ? url.host : @"unknown host");
+    MSID_LOG_VERBOSE_PII(_context, @"-didFinishNavigation host: %@", url.host);
+    
+    [self stopSpinner];
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error
@@ -312,12 +390,15 @@
     
     [MSIDChallengeHandler handleChallenge:challenge
                                   webview:webView
+                                  context:_context
                         completionHandler:completionHandler];
 }
 
-// Authentication completed at the end URL
-- (void)webAuthCompleteWithURL:(NSURL *)endURL
+- (void)webAuthDidCompleteWithURL:(NSURL *)endURL
 {
+    MSID_LOG_INFO(_context, @"-webAuthDidCompleteWithURL: %@", [MSIDAuthority isKnownHost:endURL] ? endURL.host : @"unknown host");
+    MSID_LOG_INFO_PII(_context, @"-webAuthDidCompleteWithURL: %@", endURL);
+    
     [self endWebAuthenticationWithError:nil orURL:endURL];
 }
 
@@ -335,14 +416,58 @@
         return;
     }
     
-    // TODO: stop loading indicator
+    [self stopSpinner];
     
     if([error.domain isEqual:@"WebKitErrorDomain"])
     {
         return;
     }
+    
+    MSID_LOG_ERROR(_context, @"-webAuthFailWithError error code %ld", (long)error.code);
+    MSID_LOG_ERROR_PII(_context, @"-webAuthFailWithError: %@", error);
+    
+    [self endWebAuthenticationWithError:error orURL:nil];
+}
 
-    dispatch_async(dispatch_get_main_queue(), ^{ [self endWebAuthenticationWithError:error orURL:nil]; });
+#pragma mark - Loading Indicator
+
+- (void)onStartLoadingIndicator:(id)sender
+{
+    (void)sender;
+    
+    if (_loading)
+    {
+        [_laodingIndicator setHidden:NO];
+#if TARGET_OS_IPHONE
+        [_laodingIndicator startAnimating];
+#else
+        [_laodingIndicator startAnimation:nil];
+        [self.window.contentView setNeedsDisplay:YES];
+#endif
+    }
+    _spinnerTimer = nil;
+}
+
+- (void)stopSpinner
+{
+    if (!_loading)
+    {
+        return;
+    }
+    
+    _loading = NO;
+    if (_spinnerTimer)
+    {
+        [_spinnerTimer invalidate];
+        _spinnerTimer = nil;
+    }
+    
+    [_laodingIndicator setHidden:YES];
+#if TARGET_OS_IPHONE
+    [_laodingIndicator stopAnimating];
+#else
+    [_laodingIndicator stopAnimation:nil];
+#endif
 }
 
 #pragma mark - iOS specific
@@ -354,7 +479,7 @@
     {
         return YES;
     }
-
+    
     _parentController = [UIApplication msidCurrentViewController];
     
     return (_parentController != nil);
@@ -372,7 +497,7 @@
 - (IBAction)onCancel:(id)sender
 {
     (void)sender;
-    [self cancelWebAuth];
+    [self cancel];
 }
 
 - (UIActivityIndicatorView *)prepareLoadingIndicator:(UIView *)rootView
@@ -381,24 +506,6 @@
     [loadingIndicator setColor:[UIColor blackColor]];
     [loadingIndicator setCenter:rootView.center];
     return loadingIndicator;
-}
-
-- (BOOL)shouldAutorotate
-{
-    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad )
-        // The device is an iPad running iPhone 3.2 or later.
-        return YES;
-    else
-        return NO;
-}
-
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations
-{
-    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad )
-        // The device is an iPad running iPhone 3.2 or later.
-        return UIInterfaceOrientationMaskAll;
-    else
-        return UIInterfaceOrientationMaskPortrait;
 }
 
 #endif
@@ -457,7 +564,7 @@
     {
         return;
     }
-    [self cancelWebAuth];
+    [self cancel];
 }
 
 - (NSProgressIndicator *)prepareLoadingIndicator
@@ -471,7 +578,7 @@
     // at least make it looks like something is happening.
     [loadingIndicator setHidden:NO];
     [loadingIndicator startAnimation:nil];
-
+    
     return loadingIndicator;
 }
 

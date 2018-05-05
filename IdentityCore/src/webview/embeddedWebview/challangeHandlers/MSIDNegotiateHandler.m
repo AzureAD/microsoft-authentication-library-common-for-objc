@@ -31,8 +31,11 @@
     [MSIDChallengeHandler registerHandler:self authMethod:NSURLAuthenticationMethodNegotiate];
 }
 
++ (void)resetHandler { }
+
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
+                context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     // This challenge is rejected and the next authentication protection space should be tried by OS

@@ -28,10 +28,13 @@
 
 + (void)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
+                context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler;
 
 + (void)registerHandler:(id)handler
              authMethod:(NSString *)authMethod;
+
++ (void)resetHandlers;
 
 @end
 

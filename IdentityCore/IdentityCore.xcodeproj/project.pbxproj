@@ -55,8 +55,8 @@
 		600D19982095988C0004CD43 /* MSIDChallengeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19962095988C0004CD43 /* MSIDChallengeHandler.m */; };
 		600D199E20963B020004CD43 /* MSIDNTLMUIPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D199D20963B020004CD43 /* MSIDNTLMUIPrompt.m */; };
 		600D19A020963B0F0004CD43 /* MSIDNTLMUIPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D199F20963B0F0004CD43 /* MSIDNTLMUIPrompt.m */; };
-		600D19A320964B930004CD43 /* MSIDTLSHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19A220964B930004CD43 /* MSIDTLSHandler.m */; };
-		600D19A420964B930004CD43 /* MSIDTLSHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19A220964B930004CD43 /* MSIDTLSHandler.m */; };
+		600D19A320964B930004CD43 /* MSIDClientTLSHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19A220964B930004CD43 /* MSIDClientTLSHandler.m */; };
+		600D19A420964B930004CD43 /* MSIDClientTLSHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19A220964B930004CD43 /* MSIDClientTLSHandler.m */; };
 		600D19AA20964C950004CD43 /* MSIDJwtHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19A920964C950004CD43 /* MSIDJwtHelper.m */; };
 		600D19AB20964C950004CD43 /* MSIDJwtHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19A920964C950004CD43 /* MSIDJwtHelper.m */; };
 		600D19AE20964CC00004CD43 /* MSIDRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19AD20964CC00004CD43 /* MSIDRegistrationInformation.m */; };
@@ -501,8 +501,8 @@
 		600D199C20963AD50004CD43 /* MSIDNTLMUIPrompt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDNTLMUIPrompt.h; sourceTree = "<group>"; };
 		600D199D20963B020004CD43 /* MSIDNTLMUIPrompt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDNTLMUIPrompt.m; sourceTree = "<group>"; };
 		600D199F20963B0F0004CD43 /* MSIDNTLMUIPrompt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDNTLMUIPrompt.m; sourceTree = "<group>"; };
-		600D19A120964B810004CD43 /* MSIDTLSHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTLSHandler.h; sourceTree = "<group>"; };
-		600D19A220964B930004CD43 /* MSIDTLSHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTLSHandler.m; sourceTree = "<group>"; };
+		600D19A120964B810004CD43 /* MSIDClientTLSHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDClientTLSHandler.h; sourceTree = "<group>"; };
+		600D19A220964B930004CD43 /* MSIDClientTLSHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDClientTLSHandler.m; sourceTree = "<group>"; };
 		600D19A820964C810004CD43 /* MSIDJwtHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJwtHelper.h; sourceTree = "<group>"; };
 		600D19A920964C950004CD43 /* MSIDJwtHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJwtHelper.m; sourceTree = "<group>"; };
 		600D19AC20964CAF0004CD43 /* MSIDRegistrationInformation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRegistrationInformation.h; sourceTree = "<group>"; };
@@ -1034,8 +1034,8 @@
 				96235FA1207D78E9007EAB36 /* MSIDChallengeHandling.h */,
 				96F94A3120817C1A0034676C /* MSIDNTLMHandler.h */,
 				96F94A3220817C1A0034676C /* MSIDNTLMHandler.m */,
-				600D19A120964B810004CD43 /* MSIDTLSHandler.h */,
-				600D19A220964B930004CD43 /* MSIDTLSHandler.m */,
+				600D19A120964B810004CD43 /* MSIDClientTLSHandler.h */,
+				600D19A220964B930004CD43 /* MSIDClientTLSHandler.m */,
 				606830032098ACC100CCA6AB /* MSIDNegotiateHandler.h */,
 				606830042098ACED00CCA6AB /* MSIDNegotiateHandler.m */,
 				600D199920963A8A0004CD43 /* ui */,
@@ -1956,7 +1956,7 @@
 				96F94A2820816B820034676C /* MSIDEmbeddedWebviewRequest.m in Sources */,
 				B2964BE3205103920000BC95 /* MSIDTokenFilteringHelper.m in Sources */,
 				B210F4391FDDEA23005A8F76 /* MSIDAADV1TokenResponse.m in Sources */,
-				600D19A420964B930004CD43 /* MSIDTLSHandler.m in Sources */,
+				600D19A420964B930004CD43 /* MSIDClientTLSHandler.m in Sources */,
 				B2CDB5771FE33A3E003A4B5C /* MSIDAccount.m in Sources */,
 				B2CDB5871FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m in Sources */,
 				B26A0B842071B6CC006BD95A /* MSIDAADOauth2Factory.m in Sources */,
@@ -2179,7 +2179,7 @@
 				B2115828202BD5F3005CE586 /* MSIDTokenCacheKey.m in Sources */,
 				600D19AA20964C950004CD43 /* MSIDJwtHelper.m in Sources */,
 				B210F4621FDF19E9005A8F76 /* MSIDURLFormObject.m in Sources */,
-				600D19A320964B930004CD43 /* MSIDTLSHandler.m in Sources */,
+				600D19A320964B930004CD43 /* MSIDClientTLSHandler.m in Sources */,
 				B2908C081FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m in Sources */,
 				B26A0B832071B6CC006BD95A /* MSIDAADOauth2Factory.m in Sources */,
 				96CD695D1FE84A0300D41938 /* MSIDJsonObject.m in Sources */,

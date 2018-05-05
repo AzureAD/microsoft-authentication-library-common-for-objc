@@ -29,7 +29,7 @@
 /// Determine whether or not the host app is an application extension based on the main bundle path
 + (BOOL)isExecutingInAppExtension;
 /// Application extension safe replacement for `[UIApplication sharedApplication]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
-+ (UIApplication*)sharedApplication;
++ (UIApplication *)sharedApplication;
 /// Application extension safe replacement for `[[UIApplication sharedApplication] openURL:]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
 + (void)sharedApplicationOpenURL:(NSURL *)url;
 

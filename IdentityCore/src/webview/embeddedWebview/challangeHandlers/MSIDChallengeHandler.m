@@ -30,6 +30,7 @@ static NSMutableDictionary *s_handlers = nil;
 
 + (void)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
+                context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
@@ -49,6 +50,7 @@ static NSMutableDictionary *s_handlers = nil;
     
     handled = [handler handleChallenge:challenge
                                webview:webview
+                               context:context
                      completionHandler:completionHandler];
 }
 
@@ -70,6 +72,18 @@ static NSMutableDictionary *s_handlers = nil;
         });
         
         [s_handlers setValue:handler forKey:authMethod];
+    }
+}
+
++ (void)resetHandlers
+{
+    @synchronized(self)
+    {
+        for (NSString *key in s_handlers)
+        {
+            Class<MSIDChallengeHandling> handler = [s_handlers objectForKey:key];
+            [handler resetHandler];
+        }
     }
 }
 

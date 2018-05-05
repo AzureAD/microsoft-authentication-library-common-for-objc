@@ -49,6 +49,13 @@ const CGFloat CUSTOM_VIEW_HEIGHT = 63;
 
 
 @implementation MSIDCredentialCollectionController
+{
+    IBOutlet NSView *_customView;
+    IBOutlet NSTextField *_usernameField;
+    IBOutlet NSSecureTextField *_passwordField;
+    IBOutlet NSTextField *_usernameLabel;
+    IBOutlet NSTextField *_passwordLabel;
+}
 
 @synthesize customView = _customView;
 @synthesize usernameField = _usernameField;

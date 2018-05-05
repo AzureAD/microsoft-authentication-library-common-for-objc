@@ -29,6 +29,23 @@
 
 @implementation MSIDAuthority
 
+static NSSet<NSString *> *s_trustedHostList;
+
++ (void)initialize
+{
+    s_trustedHostList = [NSSet setWithObjects: @"login.windows.net",
+                         @"login.chinacloudapi.cn",
+                         @"login-us.microsoftonline.com",
+                         @"login.cloudgovapi.us",
+                         @"login.microsoftonline.com",
+                         @"login.microsoftonline.de", nil];
+}
+
++ (BOOL)isKnownHost:(NSURL *)url
+{
+    return [s_trustedHostList containsObject:url.host.lowercaseString];
+}
+
 + (BOOL)isADFSInstance:(NSString *)endpoint
 {
     if ([NSString msidIsStringNilOrBlank:endpoint])

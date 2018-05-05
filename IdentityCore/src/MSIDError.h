@@ -73,8 +73,11 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     MSIDErrorUserCancel = -51019,
     
+    MSIDErrorNoMainViewController = -51020,
+    MSIDServerNonHttpsRedirect = -51021,
+    
     MSIDErrorCodeFirst = MSIDErrorInternal,
-    MSIDErrorCodeLast = MSIDErrorInvalidParameter
+    MSIDErrorCodeLast = MSIDServerNonHttpsRedirect
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
