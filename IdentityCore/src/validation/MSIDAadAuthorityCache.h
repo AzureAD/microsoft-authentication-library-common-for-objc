@@ -26,16 +26,13 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDAuthorityCacheRecord.h"
 
-@interface MSIDAadAuthorityCacheRecord : NSObject
-
-@property BOOL validated;
-@property NSError *error;
+@interface MSIDAadAuthorityCacheRecord : MSIDAuthorityCacheRecord
 
 @property NSString *networkHost;
 @property NSString *cacheHost;
 @property NSArray<NSString *> *aliases;
-@property (nonatomic) NSURL *openIdConfigurationEndpoint;
 
 @end
 

@@ -25,10 +25,20 @@
 #import "MSIDAuthority.h"
 #import "MSIDWebFingerRequest.h"
 #import "MSIDDRSDiscoveryRequest.h"
+#import "MSIDAuthorityCacheRecord.h"
 
 static NSString *const s_kTrustedRelation = @"http://schemas.microsoft.com/rel/trusted-realm";
+static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
 
 @implementation MSIDAdfsAuthorityResolver
+
++ (void)initialize
+{
+    if (self == [MSIDAdfsAuthorityResolver self])
+    {
+        s_cache = [NSCache new];
+    }
+}
 
 - (void)discoverAuthority:(NSURL *)authority
         userPrincipalName:(NSString *)upn
@@ -43,13 +53,20 @@ static NSString *const s_kTrustedRelation = @"http://schemas.microsoft.com/rel/t
         return;
     }
     
+    __auto_type record = [s_cache objectForKey:authority.absoluteString.lowercaseString];
+    if (record)
+    {
+        if (completionBlock) completionBlock(authority, record.openIdConfigurationEndpoint, record.validated, nil);
+        return;
+    }
+    
     // Check for upn suffix
     NSString *domain = [self getDomain:upn];
     if ([NSString msidIsStringNilOrBlank:domain])
     {
         __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"'upn' is a required parameter and must not be nil or empty.", nil, nil, nil, context.correlationId, nil);
         
-        completionBlock(nil, nil, NO, error);
+        if (completionBlock) completionBlock(nil, nil, NO, error);
         return;
     }
     
@@ -68,16 +85,24 @@ static NSString *const s_kTrustedRelation = @"http://schemas.microsoft.com/rel/t
               if ([self isRealmTrustedFromWebFingerPayload:response authority:authority])
               {
                   __auto_type openIdConfigurationEndpoint = [self openIdConfigurationEndpointForAuthority:authority];
-                  completionBlock(authority, openIdConfigurationEndpoint, YES, nil);
+                  
+                  __auto_type cacheRecord = [MSIDAuthorityCacheRecord new];
+                  cacheRecord.validated = YES;
+                  cacheRecord.openIdConfigurationEndpoint = openIdConfigurationEndpoint;
+                  [s_cache setObject:cacheRecord forKey:authority.absoluteString.lowercaseString];
+                  
+                  if (completionBlock) completionBlock(authority, openIdConfigurationEndpoint, YES, nil);
               }
               else
               {
                   error = MSIDCreateError(MSIDErrorDomain, MSIDErrorDeveloperAuthorityValidation, @"WebFinger request was invalid or failed", nil, nil, nil, context.correlationId, nil);
-                  completionBlock(nil, nil, NO, error);
+                  if (completionBlock) completionBlock(nil, nil, NO, error);
               }
           }];
      }];
 }
+
+#pragma mark - Private
 
 - (void)sendDrsDiscoveryWithDomain:(NSString *)domain
                            context:(id<MSIDRequestContext>)context
@@ -89,7 +114,7 @@ static NSString *const s_kTrustedRelation = @"http://schemas.microsoft.com/rel/t
      {
          if (response)
          {
-             completionBlock(response, error);
+             if (completionBlock) completionBlock(response, error);
              return;
          }
          
@@ -99,7 +124,7 @@ static NSString *const s_kTrustedRelation = @"http://schemas.microsoft.com/rel/t
           {
               if (response)
               {
-                  completionBlock(response, error);
+                  if (completionBlock) completionBlock(response, error);
                   return;
               }
           }];

@@ -66,7 +66,7 @@ static dispatch_queue_t s_aadValidationQueue;
     MSIDAadAuthorityCacheRecord *record = [self.aadCache tryCheckCache:authority];
     if (record)
     {
-        completionBlock(authority, record.openIdConfigurationEndpoint, record.validated, record.error);
+        if (completionBlock) completionBlock(authority, record.openIdConfigurationEndpoint, record.validated, record.error);
         return;
     }
     
@@ -84,7 +84,7 @@ static dispatch_queue_t s_aadValidationQueue;
              // validation network request at a time, we want to jump off this queue as quick as
              // possible whenever we hit an error to unblock the queue
              dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                 completionBlock(authority, openIdConfigurationEndpoint, validated, error);
+                 if (completionBlock) completionBlock(authority, openIdConfigurationEndpoint, validated, error);
              });
              
              dispatch_semaphore_signal(dsem);
@@ -104,6 +104,18 @@ static dispatch_queue_t s_aadValidationQueue;
     });
 }
 
+- (NSURL *)openIdConfigurationEndpointForAuthority:(NSURL *)authority
+{
+    if (!authority) return nil;
+    
+    __auto_type apiVersion = MSIDConfiguration.defaultConfiguration.aadApiVersion;
+    __auto_type path = [NSString stringWithFormat:@"%@%@.well-known/openid-configuration", apiVersion ?: @"", apiVersion ? @"/" : @""];
+    
+    return [authority URLByAppendingPathComponent:path];
+}
+
+#pragma mark - Private
+
 - (void)sendDiscoverRequestWithAuthority:(NSURL *)authority
                        userPrincipalName:(NSString *)upn
                                 validate:(BOOL)validate
@@ -115,7 +127,7 @@ static dispatch_queue_t s_aadValidationQueue;
     MSIDAadAuthorityCacheRecord *record = [self.aadCache checkCache:authority];
     if (record)
     {
-        completionBlock(authority, record.openIdConfigurationEndpoint, record.validated, record.error);
+        if (completionBlock) completionBlock(authority, record.openIdConfigurationEndpoint, record.validated, record.error);
         return;
     }
     
@@ -142,7 +154,7 @@ static dispatch_queue_t s_aadValidationQueue;
              NSURL *auth = validate ? nil : authority;
              error = validate ? error : nil;
              
-             completionBlock(auth, endpoint, NO, error);
+             if (completionBlock) completionBlock(auth, endpoint, NO, error);
              return;
          }
          
@@ -152,22 +164,13 @@ static dispatch_queue_t s_aadValidationQueue;
                                      context:context
                                        error:&error])
          {
-             completionBlock(nil, nil, NO, error);
+             if (completionBlock) completionBlock(nil, nil, NO, error);
              return;
          }
          
-         completionBlock(authority, response.openIdConfigurationEndpoint, YES, nil);
+         if (completionBlock) completionBlock(authority, response.openIdConfigurationEndpoint, YES, nil);
      }];
 }
 
-- (NSURL *)openIdConfigurationEndpointForAuthority:(NSURL *)authority
-{
-    if (!authority) return nil;
-    
-    __auto_type apiVersion = MSIDConfiguration.defaultConfiguration.aadApiVersion;
-    __auto_type path = [NSString stringWithFormat:@"%@%@.well-known/openid-configuration", apiVersion ?: @"", apiVersion ? @"/" : @""];
-    
-    return [authority URLByAppendingPathComponent:path];
-}
 
 @end

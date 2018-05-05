@@ -21,25 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDB2CAuthorityResolver.h"
-#import "MSIDAuthority.h"
+#import "MSIDAuthorityCacheRecord.h"
 
-@implementation MSIDB2CAuthorityResolver
-
-- (void)discoverAuthority:(NSURL *)authority
-        userPrincipalName:(NSString *)upn
-                 validate:(BOOL)validate
-                  context:(id<MSIDRequestContext>)context
-          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
-{
-    if (validate && ![MSIDAuthority isKnownHost:authority])
-    {
-        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidRequest, @"Authority validation is not supported for this type of authority", nil, nil, nil, context.correlationId, nil);
-        if (completionBlock) completionBlock(nil, nil, NO, error);
-        return;
-    }
-    
-    if (completionBlock) completionBlock(authority, [self openIdConfigurationEndpointForAuthority:authority], validate, nil);
-}
+@implementation MSIDAuthorityCacheRecord
 
 @end
