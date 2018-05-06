@@ -97,23 +97,196 @@ static NSInteger kTokenTypePrefix = 2000;
                                                            realm:(NSString *)realm
                                                           target:(NSString *)target
 {
+    return [self keyForCredentialWithUniqueUserId:userId
+                                      environment:environment
+                                         clientId:clientId
+                                            realm:realm
+                                           target:target
+                                             type:MSIDTokenTypeAccessToken];
+}
+
+#pragma mark - Default
+
++ (MSIDDefaultTokenCacheKey *)keyForCredentialWithUniqueUserId:(nonnull NSString *)uniqueUserId
+                                                   environment:(nonnull NSString *)environment
+                                                      clientId:(nonnull NSString *)clientId
+                                                         realm:(nullable NSString *)realm
+                                                        target:(nullable NSString *)target
+                                                          type:(MSIDTokenType)type
+{
     // kSecAttrAccount - account_id (<unique_id>-<environment>)
     // kSecAttrService - credential_id+target (<credential_type>-<client_id>-<realm>-<target>)
     // kSecAttrGeneric - credential_id (<credential_type>-<client_id>-<realm>)
     // kSecAttrType - type
-    
-    NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
-    NSString *generic = [self.class credentialIdWithType:MSIDTokenTypeAccessToken clientId:clientId realm:realm];
-    NSString *service = [self.class serviceWithType:MSIDTokenTypeAccessToken clientID:clientId realm:realm target:target];
+
+    NSString *account = [self.class accountIdWithUniqueUserId:uniqueUserId environment:environment];
+    NSString *generic = [self.class credentialIdWithType:type clientId:clientId realm:realm];
+    NSString *service = [self.class serviceWithType:type clientID:clientId realm:realm target:target];
+    NSNumber *credentialType = [self tokenType:type];
+
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
+                                                     service:service
+                                                     generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
+                                                        type:credentialType];
+}
+
++ (MSIDDefaultTokenCacheKey *)queryForCredentialsWithUniqueUserId:(nullable NSString *)uniqueUserId
+                                                      environment:(nullable NSString *)environment
+                                                         clientId:(nullable NSString *)clientId
+                                                            realm:(nullable NSString *)realm
+                                                           target:(nullable NSString *)target
+                                                             type:(MSIDTokenType)type
+{
+    switch (type)
+    {
+        case MSIDTokenTypeAccessToken:
+        {
+            return [self queryForAllAccessTokensWithUniqueUserId:uniqueUserId
+                                                     environment:environment
+                                                        clientId:clientId
+                                                           realm:realm
+                                                          target:target];
+        }
+        case MSIDTokenTypeRefreshToken:
+        {
+            return [self queryForAllRefreshTokensWithUniqueUserId:uniqueUserId
+                                                      environment:environment
+                                                         clientId:clientId];
+        }
+        case MSIDTokenTypeIDToken:
+        {
+            return [self queryForAllIDTokensWithUniqueUserId:uniqueUserId
+                                                 environment:environment
+                                                       realm:realm
+                                                    clientId:clientId];
+        }
+        default:
+            break;
+    }
+
+    return nil;
+}
+
++ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(nullable NSString *)userId
+                                                          environment:(nullable NSString *)environment
+                                                             clientId:(nullable NSString *)clientId
+                                                                realm:(nullable NSString *)realm
+                                                               target:(nullable NSString *)target
+{
+    NSString *account = nil;
+
+    if (userId && environment)
+    {
+        account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    }
+
+    NSString *generic = nil;
+
+    if (clientId && realm)
+    {
+        generic = [self.class credentialIdWithType:MSIDTokenTypeAccessToken clientId:clientId realm:realm];
+    }
+
+    NSString *service = nil;
+
+    if (clientId && realm && target)
+    {
+        service = [self.class serviceWithType:MSIDTokenTypeAccessToken clientID:clientId realm:realm target:target];
+    }
+
     NSNumber *type = [self tokenType:MSIDTokenTypeAccessToken];
-    
+
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
                                                      generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:type];
 }
 
-#pragma mark - Default
++ (MSIDDefaultTokenCacheKey *)queryForAllRefreshTokensWithUniqueUserId:(nullable NSString *)userId
+                                                           environment:(nullable NSString *)environment
+                                                              clientId:(nullable NSString *)clientId
+{
+    NSString *account = nil;
+
+    if (userId && environment)
+    {
+        account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    }
+
+    NSString *generic = nil;
+
+    if (clientId)
+    {
+        generic = [self.class credentialIdWithType:MSIDTokenTypeRefreshToken clientId:clientId realm:nil];
+    }
+
+    NSString *service = nil;
+
+    if (clientId)
+    {
+        service = [self.class serviceWithType:MSIDTokenTypeRefreshToken clientID:clientId realm:nil target:nil];
+    }
+
+    NSNumber *type = [self tokenType:MSIDTokenTypeRefreshToken];
+
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
+                                                     service:service
+                                                     generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
+                                                        type:type];
+}
+
++ (MSIDDefaultTokenCacheKey *)queryForAllIDTokensWithUniqueUserId:(nullable NSString *)userId
+                                                      environment:(nullable NSString *)environment
+                                                            realm:(nullable NSString *)realm
+                                                         clientId:(nullable NSString *)clientId
+{
+    NSString *account = nil;
+
+    if (userId && environment)
+    {
+        account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    }
+
+    NSString *service = nil;
+
+    if (clientId && realm)
+    {
+        service = [self.class serviceWithType:MSIDTokenTypeIDToken clientID:clientId realm:realm target:nil];
+    }
+
+    NSString *generic = nil;
+
+    if (clientId && realm)
+    {
+        generic = [self credentialIdWithType:MSIDTokenTypeIDToken clientId:clientId realm:realm];
+    }
+
+    NSNumber *type = [self tokenType:MSIDTokenTypeIDToken];
+
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
+                                                     service:service
+                                                     generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
+                                                        type:type];
+}
+
++ (MSIDDefaultTokenCacheKey *)queryForAccountsWithUniqueUserId:(nullable NSString *)userId
+                                                   environment:(nullable NSString *)environment
+                                                         realm:(nullable NSString *)realm
+{
+    NSString *account = nil;
+
+    if (userId && environment)
+    {
+        account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    }
+
+    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
+                                                     service:realm
+                                                     generic:nil
+                                                        type:nil];
+}
+
+// TODO: check if all are necessary
 
 + (MSIDDefaultTokenCacheKey *)keyForAccessTokenWithUniqueUserId:(NSString *)userId
                                                     environment:(NSString *)environment
@@ -174,25 +347,6 @@ static NSInteger kTokenTypePrefix = 2000;
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
                                                      generic:[username.msidTrimmedString.lowercaseString dataUsingEncoding:NSUTF8StringEncoding]
-                                                        type:type];
-}
-
-+ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
-                                                          environment:(NSString *)environment
-                                                             clientId:(NSString *)clientId
-                                                                realm:(NSString *)realm
-{
-    // kSecAttrAccount - account_id (<unique_id>-<environment>)
-    // kSecAttrGeneric - credential_id (<credential_type>-<client_id>-<realm>)
-    // kSecAttrType - type
-    
-    NSString *account = [self.class accountIdWithUniqueUserId:userId environment:environment];
-    NSString *generic = [self.class credentialIdWithType:MSIDTokenTypeAccessToken clientId:clientId realm:realm];
-    NSNumber *type = [self tokenType:MSIDTokenTypeAccessToken];
-    
-    return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
-                                                     service:nil
-                                                     generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
                                                         type:type];
 }
 

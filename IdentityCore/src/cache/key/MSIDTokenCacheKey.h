@@ -60,6 +60,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSString *)familyClientId:(NSString *)familyId;
 
+- (NSString *)logDescription;
+- (NSString *)piiLogDescription;
+
 NS_ASSUME_NONNULL_END
 
 @end

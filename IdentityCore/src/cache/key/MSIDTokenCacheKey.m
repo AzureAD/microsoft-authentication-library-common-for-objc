@@ -59,4 +59,16 @@
     return [NSString stringWithFormat:@"foci-%@", familyId];
 }
 
+- (NSString *)logDescription
+{
+    // TODO
+    return nil;
+}
+
+- (NSString *)piiLogDescription
+{
+    // TODO
+    return nil;
+}
+
 @end

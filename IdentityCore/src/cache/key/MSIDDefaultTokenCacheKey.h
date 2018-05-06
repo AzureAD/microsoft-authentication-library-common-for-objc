@@ -29,6 +29,39 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
++ (MSIDDefaultTokenCacheKey *)keyForCredentialWithUniqueUserId:(nonnull NSString *)uniqueUserId
+                                                   environment:(nonnull NSString *)environment
+                                                      clientId:(nonnull NSString *)clientId
+                                                         realm:(nullable NSString *)realm
+                                                        target:(nullable NSString *)target
+                                                          type:(MSIDTokenType)type;
+
++ (MSIDDefaultTokenCacheKey *)queryForCredentialsWithUniqueUserId:(nullable NSString *)uniqueUserId
+                                                      environment:(nullable NSString *)environment
+                                                         clientId:(nullable NSString *)clientId
+                                                            realm:(nullable NSString *)realm
+                                                           target:(nullable NSString *)target
+                                                             type:(MSIDTokenType)type;
+
++ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(nullable NSString *)userId
+                                                          environment:(nullable NSString *)environment
+                                                             clientId:(nullable NSString *)clientId
+                                                                realm:(nullable NSString *)realm
+                                                               target:(nullable NSString *)target;
+
++ (MSIDDefaultTokenCacheKey *)queryForAllRefreshTokensWithUniqueUserId:(nullable NSString *)userId
+                                                           environment:(nullable NSString *)environment
+                                                              clientId:(nullable NSString *)clientId;
+
++ (MSIDDefaultTokenCacheKey *)queryForAllIDTokensWithUniqueUserId:(nullable NSString *)userId
+                                                      environment:(nullable NSString *)environment
+                                                            realm:(nullable NSString *)realm
+                                                         clientId:(nullable NSString *)clientId;
+
++ (MSIDDefaultTokenCacheKey *)queryForAccountsWithUniqueUserId:(nullable NSString *)userId
+                                                   environment:(nullable NSString *)environment
+                                                         realm:(nullable NSString *)realm;
+
 /*!
  Key for MSAL tokens - single authority, one clientId, multiple scopes, and userId.
  Environment is derived from the authority

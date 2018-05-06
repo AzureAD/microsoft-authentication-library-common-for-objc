@@ -67,6 +67,16 @@
 #pragma mark - MSIDSharedCacheAccessor
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
+                requestParams:(MSIDRequestParameters *)requestParams
+                     response:(MSIDTokenResponse *)response
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
+{
+    // TODO
+    return YES;
+}
+
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                  requestParams:(MSIDRequestParameters *)requestParams
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response

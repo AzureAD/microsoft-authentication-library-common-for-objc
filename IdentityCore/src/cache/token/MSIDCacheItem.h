@@ -36,6 +36,10 @@
 @property (readwrite, nonnull) NSURL *authority;
 @property (readwrite, nonnull) NSString *uniqueUserId;
 
+// TODO: implement us
+@property (readwrite, nonnull) NSString *environment;
+@property (readwrite, nullable) NSString *realm;
+
 @property (readwrite, nullable) NSString *username;
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
 
