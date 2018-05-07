@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDJsonObject.h"
-#import "MSIDIdTokenWrapper.h"
+#import "MSIDIdTokenClaims.h"
 #import "MSIDAccountType.h"
 #import "MSIDConfiguration.h"
 #import "MSIDError.h"
@@ -57,7 +57,7 @@
 @property (readonly) BOOL isMultiResource;
 
 // Wrapper object around ID token
-@property (readonly) MSIDIdTokenWrapper *idTokenObj;
+@property (readonly) MSIDIdTokenClaims *idTokenObj;
 
 // Generic target of the access token, scope for base token response, resource for AAD v1
 @property (readonly) NSString *target;

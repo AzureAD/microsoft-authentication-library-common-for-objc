@@ -22,15 +22,15 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV2TokenResponse.h"
-#import "MSIDAADV2IdTokenWrapper.h"
+#import "MSIDAADV2IdTokenClaims.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDAuthority.h"
 
 @implementation MSIDAADV2TokenResponse
 
-- (MSIDAADV2IdTokenWrapper *)idTokenObj
+- (MSIDAADV2IdTokenClaims *)idTokenObj
 {
-    return [[MSIDAADV2IdTokenWrapper alloc] initWithRawIdToken:self.idToken];
+    return [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken];
 }
 
 - (MSIDAccountType)accountType

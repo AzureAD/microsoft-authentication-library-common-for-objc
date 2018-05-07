@@ -116,7 +116,7 @@
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
-    MSIDIdTokenWrapper *idTokenObj = response.idTokenObj;
+    MSIDIdTokenClaims *idTokenObj = response.idTokenObj;
     XCTAssertNotNil(idTokenObj);
     XCTAssertEqualObjects(idTokenObj.rawIdToken, idToken);
 }
@@ -135,7 +135,7 @@
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
-    MSIDIdTokenWrapper *idTokenObj = response.idTokenObj;
+    MSIDIdTokenClaims *idTokenObj = response.idTokenObj;
     XCTAssertNil(idTokenObj);
 }
 
@@ -152,7 +152,7 @@
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
-    MSIDIdTokenWrapper *idTokenObj = response.idTokenObj;
+    MSIDIdTokenClaims *idTokenObj = response.idTokenObj;
     XCTAssertNil(idTokenObj);
 }
 

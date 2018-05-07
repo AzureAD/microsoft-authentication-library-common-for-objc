@@ -50,5 +50,6 @@ typedef BOOL (^MSIDTokenCacheItemFiltering)(MSIDTokenCacheItem *tokenCacheItem);
 
 + (NSArray<MSIDBaseToken *> *)filterRefreshTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
                                               legacyUserId:(NSString *)legacyUserId
+                                               environment:(NSString *)environment
                                                    context:(id<MSIDRequestContext>)context;
 @end

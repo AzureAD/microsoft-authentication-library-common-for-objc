@@ -23,7 +23,7 @@
 
 #import "MSIDAADTokenResponse.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDAADV1IdTokenWrapper.h"
+#import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDHelpers.h"
 #import "MSIDRefreshableToken.h"
 #import "MSIDBaseToken.h"

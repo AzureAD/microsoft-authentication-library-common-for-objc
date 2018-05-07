@@ -27,7 +27,8 @@
 #import "MSIDAccount.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDConfiguration.h"
-#import "MSIDAADV2IdTokenWrapper.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
+
 
 @implementation MSIDTokenFilteringHelper
 
@@ -135,18 +136,20 @@
 
 + (NSArray<MSIDBaseToken *> *)filterRefreshTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
                                               legacyUserId:(NSString *)legacyUserId
+                                               environment:(NSString *)environment
                                                    context:(id<MSIDRequestContext>)context
 {
     BOOL (^filterBlock)(MSIDTokenCacheItem *tokenCacheItem) = ^BOOL(MSIDTokenCacheItem *token) {
         
         if (!token.idToken) return NO;
+
+        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:token.idToken];
         
-        MSIDAADV2IdTokenWrapper *idTokenWrapper = [[MSIDAADV2IdTokenWrapper alloc] initWithRawIdToken:token.idToken];
-        
-        if (![idTokenWrapper matchesLegacyUserId:legacyUserId])
+        if (![idTokenClaims matchesLegacyUserId:legacyUserId]
+            && [token.authority.msidHostWithPortIfNecessary isEqualToString:environment])
         {
             MSID_LOG_VERBOSE(context, @"(Default accessor) Matching by legacy userId didn't succeed");
-            MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Matching by legacy userId didn't succeed (expected userId %@, found %@)", legacyUserId, idTokenWrapper.userId);
+            MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Matching by legacy userId didn't succeed (expected userId %@, found %@)", legacyUserId, idTokenClaims.userId);
             
             return NO;
         }
