@@ -31,9 +31,11 @@
 
 typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
 
+typedef BOOL (^MSIDWebUIStateVerifier)(NSDictionary *dictionary, NSString *requestState);
+
 @protocol MSIDWebviewInteracting
 
-- (void)start;
+- (BOOL)start;
 - (void)cancel;
 
 #if TARGET_OS_IPHONE

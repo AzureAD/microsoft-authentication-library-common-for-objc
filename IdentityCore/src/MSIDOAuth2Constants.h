@@ -32,6 +32,7 @@ extern NSString *const MSID_OAUTH2_CLIENT_ID;
 extern NSString *const MSID_OAUTH2_CODE;
 extern NSString *const MSID_OAUTH2_ERROR;
 extern NSString *const MSID_OAUTH2_ERROR_DESCRIPTION;
+extern NSString *const MSID_OAUTH2_ERROR_SUBCODE;
 extern NSString *const MSID_OAUTH2_EXPIRES_IN;
 extern NSString *const MSID_OAUTH2_GRANT_TYPE;
 extern NSString *const MSID_OAUTH2_REDIRECT_URI;

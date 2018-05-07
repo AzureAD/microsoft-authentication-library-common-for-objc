@@ -29,6 +29,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
 #import "MSIDDeviceId.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -151,10 +152,37 @@
 
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
-                                                           Webview:(WKWebView *)webview
+                                                     customWebview:(WKWebView *)webview
+                                                           context:(id<MSIDRequestContext>)context
+                                                 completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
-    return nil;
+    NSURL *startURL = [self startURLFromRequest:requestParams];
+    MSIDOAuth2EmbeddedWebviewController *webviewController =
+    [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartUrl:startURL
+                                                           endURL:[NSURL URLWithString:[requestParams redirectUri]]
+                                                          webview:webview
+                                                          context:context completion:completionHandler];
+    
+    webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
+        //Just log the state
+        NSDictionary *state = [NSDictionary msidURLFormDecode:[[dictionary objectForKey:MSID_OAUTH2_STATE] msidBase64UrlDecode]];
+        if (state.count != 0)
+        {
+            NSString *authorizationServer = [state objectForKey:@"a"];
+            NSString *resource            = [state objectForKey:@"r"];
+            
+            if (![NSString msidIsStringNilOrBlank:authorizationServer] && ![NSString msidIsStringNilOrBlank:resource])
+            {
+                MSID_LOG_VERBOSE_PII(context, @"The authorization server returned the following state: %@", state);
+            }
+        }
+        MSID_LOG_WARN(context, @"Missing or invalid state returned");
+        MSID_LOG_WARN_PII(context, @"Missing or invalid state returned state: %@", state);
+        
+        return YES;
+    };
+    
+    return webviewController;
 }
 
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams

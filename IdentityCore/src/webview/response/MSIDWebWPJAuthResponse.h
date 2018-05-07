@@ -29,6 +29,11 @@
 
 @interface MSIDWebWPJAuthResponse : MSIDWebOAuth2Response
 
+- (instancetype)initWithScheme:(NSString *)scheme
+                    parameters:(NSDictionary *)parameters
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error;
+
 @property NSString *upn;
 @property NSString *appInstallLink;
 

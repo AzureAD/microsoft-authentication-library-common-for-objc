@@ -36,9 +36,9 @@
     
 }
 
-- (void)start
+- (BOOL)start
 {
-    
+    return YES;
 }
 
 - (void)cancel

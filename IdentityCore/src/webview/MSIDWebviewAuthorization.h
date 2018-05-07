@@ -50,10 +50,10 @@
 + (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                    factory:(MSIDOauth2Factory *)factory;
 
-+ (BOOL)handleURLResponse:(NSURL *)url;
-
-+ (MSIDWebOAuth2Response *)parseUrlResponse:(NSURL *)url
-                                    context:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error;
++ (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
+                              requestState:(NSString *)requestState
+                             stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
 
 @end

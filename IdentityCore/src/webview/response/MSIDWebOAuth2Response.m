@@ -29,5 +29,54 @@
 
 @implementation MSIDWebOAuth2Response
 
+- (instancetype)initWithParameters:(NSDictionary *)parameters
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
+{
+    NSString *authCode = parameters[MSID_OAUTH2_CODE];
+    NSError *oauthError = [self.class oauthErrorFromParameters:parameters];
+    
+    if (!authCode && !oauthError)
+    {
+        return nil;
+    }
+    
+    self = [super init];
+    if (self)
+    {
+        // populate auth code
+        _authorizationCode = authCode;
+        
+        // populate oauth error
+        _oauthError = oauthError;
+    }
+    return self;
+}
+
++ (NSError *)oauthErrorFromParameters:(NSDictionary *)parameters
+{
+    NSUUID *correlationId = [parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
+    [[NSUUID alloc] initWithUUIDString:[parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
+    
+    NSString *serverOAuth2Error = [parameters objectForKey:MSID_OAUTH2_ERROR];
+    //login_required  ; has error_description
+    //access_denied ; has error_subcode
+    
+    if (serverOAuth2Error)
+    {
+        NSString *errorDescription = parameters[MSID_OAUTH2_ERROR_DESCRIPTION];
+        if (!errorDescription)
+        {
+            errorDescription = parameters[MSID_OAUTH2_ERROR_SUBCODE];
+        }
+        
+        NSString *subError = parameters[MSID_OAUTH2_SUB_ERROR];
+        MSIDErrorCode errorCode = MSIDErrorCodeForOAuthError(errorDescription, MSIDErrorAuthorizationFailed);
+        
+        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, nil);
+    }
+    
+    return nil;
+}
 
 @end

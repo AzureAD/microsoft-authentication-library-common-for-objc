@@ -235,7 +235,11 @@
         NSError *systemError = error;
         if (!systemError)
         {
-            response = [MSIDWebviewAuthorization parseUrlResponse:url context:_context error:&systemError];
+            response = [MSIDWebviewAuthorization responseWithURL:url
+                                                    requestState:self.requestState
+                                                   stateVerifier:self.stateVerifier
+                                                         context:_context
+                                                           error:&systemError];
         }
         
         dispatch_async( dispatch_get_main_queue(), ^{

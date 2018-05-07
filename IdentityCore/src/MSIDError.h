@@ -69,12 +69,46 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorInvalidClient = -51015,
     MSIDErrorInvalidGrant = -51016,
     MSIDErrorInvalidParameter = -51017,
-    MSIDErrorAuthorizationCode = -51018,
+    
+    /*!
+     The user or application failed to authenticate in the interactive flow.
+     Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
+     dictionary for more detailed information about the specific error.
+     */
+    MSIDErrorAuthorizationFailed = -52018,
+    
+    /*!
+     The state returned by the server does not match the state that was sent to
+     the server at the beginning of the authorization attempt.
+     */
+    MSIDErrorInvalidState = -52501,
+    /*!
+     Interaction required errors occur because of a wide variety of errors
+     returned by the authentication service.
+     */
+    MSIDErrorMismatchedUser             = -52101,
+    MSIDErrorNoAuthorizationResponse    = -52102,
+    MSIDErrorBadAuthorizationResponse   = -52103,
+    
     
     MSIDErrorUserCancel = -51019,
+    /*!
+     The authentication request was cancelled programmatically.
+     */
+    MSIDErrorSessionCanceled = -51020,
+    /*!
+     An interactive authentication session is already running with the
+     SafariViewController visible. Another authentication session can not be
+     launched yet.
+     */
+    MSIDErrorInteractiveSessionAlreadyRunning = -51021,
+    /*!
+     An interactive authentication session failed to start.
+     */
+    MSIDErrorInteractiveSessionStartFailure = -51022,
     
-    MSIDErrorNoMainViewController = -51020,
-    MSIDServerNonHttpsRedirect = -51021,
+    MSIDErrorNoMainViewController = -51023,
+    MSIDServerNonHttpsRedirect = -51024,
     
     MSIDErrorCodeFirst = MSIDErrorInternal,
     MSIDErrorCodeLast = MSIDServerNonHttpsRedirect
@@ -82,3 +116,4 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
 
+extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode);

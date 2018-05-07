@@ -42,6 +42,9 @@ NSWindowController <MSIDWebviewInteracting, WKNavigationDelegate, NSWindowDelega
 @property UIModalPresentationStyle presentationType;
 #endif
 
+@property MSIDWebUIStateVerifier stateVerifier;
+@property NSString *requestState;
+
 - (id)init NS_UNAVAILABLE;
 - (id)initWithStartUrl:(NSURL *)startUrl
                 endURL:(NSURL *)endUrl
