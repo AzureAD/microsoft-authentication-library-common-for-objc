@@ -325,12 +325,6 @@
 		B2CDB5851FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.h in Headers */ = {isa = PBXBuildFile; fileRef = B2CDB5831FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.h */; };
 		B2CDB5861FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.m */; };
 		B2CDB5871FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.m */; };
-		B2CDB57C1FE33EC1003A4B5C /* MSIDIdTokenWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2CDB57A1FE33E99003A4B5C /* MSIDIdTokenWrapper.h */; };
-		B2CDB57D1FE33EC5003A4B5C /* MSIDIdTokenWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB57B1FE33E9A003A4B5C /* MSIDIdTokenWrapper.m */; };
-		B2CDB57E1FE33EC5003A4B5C /* MSIDIdTokenWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB57B1FE33E9A003A4B5C /* MSIDIdTokenWrapper.m */; };
-		B2CDB5851FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2CDB5831FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.h */; };
-		B2CDB5861FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m */; };
-		B2CDB5871FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenWrapper.m */; };
 		B2D1841E2083CDE90001D445 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
 		B2D1841F2083CDEA0001D445 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
 		B2D81BC01FF5C7520093859A /* MSIDTestBrokerResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D81BBC1FF5C7460093859A /* MSIDTestBrokerResponse.h */; };
@@ -1027,6 +1021,15 @@
 			path = serializers;
 			sourceTree = "<group>";
 		};
+		966D0A8120A0D98800EDDE94 /* configuration */ = {
+			isa = PBXGroup;
+			children = (
+				B29CB6B91FEC7CE900F880ED /* MSIDConfiguration.h */,
+				B29CB6BA1FEC7CE900F880ED /* MSIDConfiguration.m */,
+			);
+			path = configuration;
+			sourceTree = "<group>";
+		};
 		96F94A22208169380034676C /* embeddedWebview */ = {
 			isa = PBXGroup;
 			children = (
@@ -1090,8 +1093,6 @@
 				B210F4301FDDE7EB005A8F76 /* MSIDTokenResponse.m */,
 				B210F4531FDDFA7B005A8F76 /* MSIDBrokerResponse.h */,
 				B210F4541FDDFA7B005A8F76 /* MSIDBrokerResponse.m */,
-				B29CB6B91FEC7CE900F880ED /* MSIDConfiguration.h */,
-				B29CB6BA1FEC7CE900F880ED /* MSIDConfiguration.m */,
 				B2CDB57A1FE33E99003A4B5C /* MSIDIdTokenClaims.h */,
 				B2CDB57B1FE33E9A003A4B5C /* MSIDIdTokenClaims.m */,
 				B2B1D575204369CA00DD81F0 /* account */,
@@ -1443,6 +1444,7 @@
 		D6DA89721FBA6A4E004C56C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				966D0A8120A0D98800EDDE94 /* configuration */,
 				96235F8F207D7128007EAB36 /* webview */,
 				B210F4671FDF20FF005A8F76 /* IdentityCore_Internal.h */,
 				D61AFAB21FD8B6C600DABBE5 /* MSIDContants.h */,
