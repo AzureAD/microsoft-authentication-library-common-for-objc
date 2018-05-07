@@ -52,11 +52,11 @@
 
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 configuration:(MSIDConfiguration *)configuration
-                       account:(MSIDAccount *)account
-                      response:(MSIDTokenResponse *)response
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                configuration:(MSIDConfiguration *)configuration
+                      account:(MSIDAccount *)account
+                     response:(MSIDTokenResponse *)response
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
     if (!configuration)
     {
@@ -270,7 +270,7 @@
                             tokenType:(MSIDTokenType)tokenType
                              clientId:(NSString *)clientId
                             authority:(NSURL *)authority
-                           context:(id<MSIDRequestContext>)context
+                              context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
     if (!clientId
@@ -372,7 +372,7 @@
     NSMutableArray *resultTokens = [NSMutableArray array];
     
     @synchronized (self) {
-       
+        
         // Filter out tokens based on the token type
         for (NSString *key in [_cacheContents allKeys])
         {
@@ -403,3 +403,4 @@
 }
 
 @end
+

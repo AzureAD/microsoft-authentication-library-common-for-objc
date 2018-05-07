@@ -239,9 +239,9 @@
     // save 2nd token with different authority
     MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2DefaultTokenResponse];
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://contoso2.com"
-                                                                         clientId:DEFAULT_TEST_CLIENT_ID
-                                                                      redirectUri:nil
-                                                                           target:DEFAULT_TEST_SCOPE];
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:DEFAULT_TEST_SCOPE];
     
     NSError *error = nil;
     BOOL result = [_cacheAccessor saveTokensWithFactory:factory
@@ -494,9 +494,9 @@
     
     [_cacheAccessor saveTokensWithFactory:factory
                             configuration:[MSIDTestConfiguration configurationWithAuthority:@"https://contoso2.com/common"
-                                                                            clientId:DEFAULT_TEST_CLIENT_ID
-                                                                         redirectUri:nil
-                                                                              target:DEFAULT_TEST_SCOPE]
+                                                                                   clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                redirectUri:nil
+                                                                                     target:DEFAULT_TEST_SCOPE]
                                   account:account
                                  response:tokenResponse3
                                   context:nil
@@ -589,9 +589,9 @@
                                     error:nil];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
-                                                                         clientId:DEFAULT_TEST_CLIENT_ID
-                                                                      redirectUri:nil
-                                                                           target:DEFAULT_TEST_SCOPE];
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:DEFAULT_TEST_SCOPE];
     
     NSError *error = nil;
     MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
@@ -624,9 +624,9 @@
     
     // Save second token
     MSIDConfiguration *secondParameters = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.de/common"
-                                                                            clientId:DEFAULT_TEST_CLIENT_ID
-                                                                         redirectUri:nil
-                                                                              target:DEFAULT_TEST_SCOPE];
+                                                                                   clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                redirectUri:nil
+                                                                                     target:DEFAULT_TEST_SCOPE];
     
     [_cacheAccessor saveTokensWithFactory:factory
                             configuration:secondParameters
@@ -637,9 +637,9 @@
     
     // Query cache
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
-                                                                         clientId:DEFAULT_TEST_CLIENT_ID
-                                                                      redirectUri:nil
-                                                                           target:DEFAULT_TEST_SCOPE];
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:DEFAULT_TEST_SCOPE];
     
     NSError *error = nil;
     MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken

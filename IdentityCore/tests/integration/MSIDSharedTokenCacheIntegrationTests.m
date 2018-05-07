@@ -63,7 +63,7 @@
 - (void)testSaveTokens_withMRRTTokenAndOnlyPrimaryFormat_returnsAccessAndRefreshTokens
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:nil];
     
@@ -73,10 +73,10 @@
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       configuration:configuration
-                                            response:tokenResponse
-                                             context:nil
-                                               error:&error];
+                                      configuration:configuration
+                                           response:tokenResponse
+                                            context:nil
+                                              error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -110,7 +110,7 @@
 - (void)testSaveTokens_withMRRTTokenAndOnlyPrimaryFormat_savesOnlyToPrimaryFormat
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:nil];
     
@@ -120,10 +120,10 @@
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       configuration:configuration
-                                            response:tokenResponse
-                                             context:nil
-                                               error:&error];
+                                      configuration:configuration
+                                           response:tokenResponse
+                                            context:nil
+                                              error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -145,7 +145,7 @@
 - (void)testSaveTokens_withMRRTToken_returnsAccessAndRefreshTokens
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
@@ -155,10 +155,10 @@
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       configuration:configuration
-                                            response:tokenResponse
-                                             context:nil
-                                               error:&error];
+                                      configuration:configuration
+                                           response:tokenResponse
+                                            context:nil
+                                              error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -168,9 +168,9 @@
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
     
     MSIDAccessToken *token = [tokenCache getATForAccount:account
-                                     configuration:configuration
-                                           context:nil
-                                             error:&error];
+                                           configuration:configuration
+                                                 context:nil
+                                                   error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
@@ -192,7 +192,7 @@
 - (void)testSaveTokens_withMRRTToken_savesRTsToMultipleFormats
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
@@ -202,10 +202,10 @@
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       configuration:configuration
-                                            response:tokenResponse
-                                             context:nil
-                                               error:&error];
+                                      configuration:configuration
+                                           response:tokenResponse
+                                            context:nil
+                                              error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -228,7 +228,7 @@
 - (void)testSaveTokens_withNoLegacyIdForPrimaryFormat_shouldReturnError
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     _primaryAccessor.requireLegacyUserId = YES;
     
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
@@ -245,10 +245,10 @@
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       configuration:configuration
-                                            response:tokenResponse
-                                             context:nil
-                                               error:&error];
+                                      configuration:configuration
+                                           response:tokenResponse
+                                            context:nil
+                                              error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertFalse(result);
@@ -258,7 +258,7 @@
 - (void)testSaveTokens_withNoLegacyIdForSecondaryFormat_shouldSaveTokensInPrimaryCacheOnly
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     _secondaryAccessor.requireLegacyUserId = YES;
     
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
@@ -275,10 +275,10 @@
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       configuration:configuration
-                                            response:tokenResponse
-                                             context:nil
-                                               error:&error];
+                                      configuration:configuration
+                                           response:tokenResponse
+                                            context:nil
+                                              error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -301,7 +301,7 @@
 - (void)testSaveTokens_withFRTToken_savesFRTsToMultipleFormats
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
@@ -311,10 +311,10 @@
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       configuration:configuration
-                                            response:tokenResponse
-                                             context:nil
-                                               error:&error];
+                                      configuration:configuration
+                                           response:tokenResponse
+                                            context:nil
+                                              error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -379,7 +379,7 @@
 - (void)testGetATForAccount_whenATPresentInPrimaryCache_returnsToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
@@ -405,14 +405,14 @@
 - (void)testGetATForAccount_whenATInSecondaryCache_returnsNil
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
     // Check that no access token is returned
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
-
+    
     MSIDAccessToken *token = [factory accessTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     [_secondaryAccessor addToken:token forAccount:account];
@@ -430,10 +430,10 @@
 - (void)testGetLegacyTokenWithoutAccount_whenLegacyTokenPresentInPrimaryCache_returnsToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
-
+    
     MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@""
@@ -455,7 +455,7 @@
 - (void)testGetLegacySingleResourceTokenWithAccount_whenLegacyTokenPresentInPrimaryCache_returnsToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
@@ -481,10 +481,10 @@
 - (void)testGetRTForAccount_whenRTPresentInPrimaryCacheOnly_returnsToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
-
+    
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
@@ -507,10 +507,10 @@
 - (void)testGetRTForAccount_whenRTPresentInSecondaryCache_returnsToken
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
-
+    
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
@@ -533,7 +533,7 @@
 - (void)testGetRTForAccount_whenRTPresentInBothCachesReturnsFromPrimary_returnsToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
@@ -543,10 +543,10 @@
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
     
     [_primaryAccessor addToken:token forAccount:account];
-
+    
     MSIDAADV2Oauth2Factory *v2Factory = [MSIDAADV2Oauth2Factory new];
     MSIDRefreshToken *secondToken = [v2Factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
-
+    
     [secondToken setValue:@"rt-2" forKey:@"refreshToken"];
     [_secondaryAccessor addToken:secondToken forAccount:account];
     
@@ -585,12 +585,12 @@
 - (void)testGetFRTForAccount_whenFRTPresentInPrimaryCacheOnly_returnsToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
     MSIDAADV1TokenResponse *v1TokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
-
+    
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:v1TokenResponse configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
@@ -615,12 +615,12 @@
 - (void)testGetFRTForAccount_whenFRTPresentInSecondaryCache_returnsToken
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
     MSIDAADV2TokenResponse *v2TokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
-
+    
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:v2TokenResponse configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
@@ -645,12 +645,12 @@
 - (void)testGetFRTForAccount_whenFRTPresentInBothCachesReturnsFromPrimary_returnsToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
     MSIDAADV1TokenResponse *v1TokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
-
+    
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:v1TokenResponse configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
@@ -659,10 +659,10 @@
     [_primaryAccessor addToken:token forAccount:account];
     
     MSIDAADV2TokenResponse *v2TokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
-
+    
     MSIDAADV2Oauth2Factory *v2Factory = [MSIDAADV2Oauth2Factory new];
     MSIDRefreshToken *secondToken = [v2Factory refreshTokenFromResponse:v2TokenResponse configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
-
+    
     [secondToken setValue:@"rt-2" forKey:@"refreshToken"];
     [_secondaryAccessor addToken:secondToken forAccount:account];
     
@@ -705,10 +705,10 @@
 - (void)testGetAllClientRTs_whenRTPresentInPrimaryCache_returnsOneToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
-
+    
     MSIDRefreshToken *firstToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
@@ -730,13 +730,13 @@
 - (void)testGetAllClientRTs_whenRTPresentInSecondaryCache_returnsOneToken
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
-
+    
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     [_secondaryAccessor addToken:token forAccount:account];
@@ -755,19 +755,19 @@
 - (void)testGetAllClientRTs_whenRTPresentInPrimaryAndSecondaryCache_returnsTwoTokens
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
-
+    
     MSIDRefreshToken *firstToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
     
     [_primaryAccessor addToken:firstToken forAccount:account];
-
+    
     MSIDAADV2Oauth2Factory *v2Factory = [MSIDAADV2Oauth2Factory new];
-
+    
     MSIDRefreshToken *secondToken = [v2Factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     [_secondaryAccessor addToken:secondToken forAccount:account];
@@ -802,13 +802,13 @@
 - (void)testRemoveRTForAccount_whenNoRTPresent_returnsYes
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
-
+    
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     NSError *error = nil;
@@ -823,10 +823,10 @@
 {
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
-
+    
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
-
+    
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
@@ -849,7 +849,7 @@
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
-
+    
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
@@ -876,9 +876,9 @@ static NSString * extracted() {
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
-
+    
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     [_primaryAccessor addToken:token forAccount:account];
@@ -891,7 +891,7 @@ static NSString * extracted() {
                                                                                  utid:DEFAULT_TEST_UTID
                                                                                   upn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                              tenantId:DEFAULT_TEST_UTID];
-
+    
     MSIDRefreshToken *updatedToken = [factory refreshTokenFromResponse:updatedResponse configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     NSError *error = nil;
@@ -941,7 +941,7 @@ static NSString * extracted() {
 - (void)testSaveBrokerResponse_withMRRTToken_savesToMultipleFormats
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
@@ -972,9 +972,9 @@ static NSString * extracted() {
 - (void)testSaveTokensWithRequestParams_whenNoRefreshTokenReturnedInResponse_shouldOnlySaveAccessToken_keepOldRefreshToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-
+    
     MSIDAccount *account = [factory accountFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
-
+    
     MSIDRefreshToken *oldRefreshToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     // Add old token
@@ -994,7 +994,7 @@ static NSString * extracted() {
                                                                                 tenantId:@"tenant"];
     
     NSError *error = nil;
-
+    
     BOOL result = [tokenCache saveTokensWithFactory:factory configuration:configuration response:tokenResponse context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -1013,3 +1013,4 @@ static NSString * extracted() {
 }
 
 @end
+

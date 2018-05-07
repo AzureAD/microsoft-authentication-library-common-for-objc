@@ -30,9 +30,9 @@
 + (MSIDConfiguration *)defaultParams;
 
 + (MSIDConfiguration *)configurationWithAuthority:(NSString *)authority
-                                      clientId:(NSString *)clientId
-                                   redirectUri:(NSString *)redirectUri
-                                        target:(NSString *)target;
+                                         clientId:(NSString *)clientId
+                                      redirectUri:(NSString *)redirectUri
+                                           target:(NSString *)target;
 
 + (MSIDConfiguration *)v1DefaultConfiguration;
 + (MSIDConfiguration *)v2DefaultConfiguration;
@@ -40,3 +40,4 @@
 + (MSIDConfiguration *)v2DefaultConfigurationWithScopes:(NSOrderedSet<NSString *> *)scopes;
 
 @end
+

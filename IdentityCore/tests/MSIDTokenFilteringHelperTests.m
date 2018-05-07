@@ -176,16 +176,16 @@
     NSArray *input = @[testItem1, testItem2];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
-                                                                      clientId:DEFAULT_TEST_CLIENT_ID
-                                                                   redirectUri:nil
-                                                                        target:@"user.read"];
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:@"user.read"];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_UID
                                                         uniqueUserId:DEFAULT_TEST_UID];
     
     NSError *error = nil;
     NSArray *result = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:input
-                                                                withConfiguration:configuration
+                                                             withConfiguration:configuration
                                                                        account:account
                                                                        context:nil
                                                                          error:&error];
@@ -217,16 +217,16 @@
     NSArray *input = @[testItem1, testItem2];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
-                                                                      clientId:@"different client"
-                                                                   redirectUri:nil
-                                                                        target:@"user.read"];
+                                                                                clientId:@"different client"
+                                                                             redirectUri:nil
+                                                                                  target:@"user.read"];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_UID
                                                         uniqueUserId:DEFAULT_TEST_UID];
     
     NSError *error = nil;
     NSArray *result = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:input
-                                                                withConfiguration:configuration
+                                                             withConfiguration:configuration
                                                                        account:account
                                                                        context:nil
                                                                          error:&error];
@@ -256,16 +256,16 @@
     NSArray *input = @[testItem1, testItem2];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
-                                                                      clientId:DEFAULT_TEST_CLIENT_ID
-                                                                   redirectUri:nil
-                                                                        target:@"user.read"];
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:@"user.read"];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_UID
                                                         uniqueUserId:DEFAULT_TEST_UID];
     
     NSError *error = nil;
     NSArray *result = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:input
-                                                                withConfiguration:configuration
+                                                             withConfiguration:configuration
                                                                        account:account
                                                                        context:nil
                                                                          error:&error];
@@ -341,3 +341,4 @@
 }
 
 @end
+
