@@ -58,8 +58,6 @@
 
 @property (nonatomic, nullable) id<MSIDRequestContext> context;
 
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable)completionBlock;
-
 - (void)cancel;
 
 @end
