@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,40 +17,42 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDNetworkConfiguration.h"
+#import "MSIDConfiguration.h"
 
-@interface MSIDConfiguration : NSObject <NSCopying>
+@class MSIDPkce;
+@class MSIDClientInfo;
 
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readwrite) NSString *target;
+@interface MSIDWebviewConfiguration : NSObject
 
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
+- (instancetype)initWithConfiguration:(MSIDConfiguration *)configuration;
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target;
+@property (readonly) MSIDConfiguration *configuration;
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target
-                    correlationId:(NSUUID *)correlationId;
-
-// Optional configurations
-@property (readwrite) NSString *loginHint;
+// Common
 @property (readwrite) NSUUID *correlationId;
 
-@property (readwrite) MSIDNetworkConfiguration *networkConfig;
+@property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
+@property (readwrite) NSString *promptBehavior;
+@property (readwrite) NSString *claims;
+
+@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
+
+// Is this only for V2?
+@property (readwrite) NSString *requestState;
+
+@property (readwrite) MSIDPkce *pkce;
+@property (readwrite) MSIDClientInfo *clientInfo;
+
+// Priority start URL
+@property (readwrite) NSURL *explicitStartURL;
 
 @end

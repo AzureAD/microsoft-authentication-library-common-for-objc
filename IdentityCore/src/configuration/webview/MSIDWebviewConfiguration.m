@@ -25,35 +25,18 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDConfiguration.h"
+#import "MSIDWebviewConfiguration.h"
 
-@class MSIDPkce;
-@class MSIDClientInfo;
+@implementation MSIDWebviewConfiguration
 
-@interface MSIDWebviewRequestParameter : NSObject
-
-- (instancetype)initWithConfiguration:(MSIDConfiguration *)configuration;
-
-@property (readonly) MSIDConfiguration *configuration;
-
-// Common
-@property (readwrite) NSUUID *correlationId;
-
-@property (readwrite) NSString *loginHint;
-@property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
-@property (readwrite) NSString *promptBehavior;
-@property (readwrite) NSString *claims;
-
-@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
-
-// Is this only for V2?
-@property (readwrite) NSString *requestState;
-
-@property (readwrite) MSIDPkce *pkce;
-@property (readwrite) MSIDClientInfo *clientInfo;
-
-// Priority start URL
-@property (readwrite) NSURL *explicitStartURL;
+- (instancetype)initWithConfiguration:(MSIDConfiguration *)configuration
+{
+    self = [super init];
+    if (self)
+    {
+        _configuration = configuration;
+    }
+    return self;
+}
 
 @end

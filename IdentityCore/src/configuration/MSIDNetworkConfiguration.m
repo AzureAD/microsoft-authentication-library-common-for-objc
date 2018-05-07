@@ -21,34 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
 #import "MSIDNetworkConfiguration.h"
 
-@interface MSIDConfiguration : NSObject <NSCopying>
+static NSTimeInterval const s_defaultTimeout = 30;
+static int const s_defaultRetryCount = 2;
 
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readwrite) NSString *target;
+@implementation MSIDNetworkConfiguration
 
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _timeout = s_defaultTimeout;
+        _retryCount = s_defaultRetryCount;
+    }
+    return self;
+}
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target;
-
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target
-                    correlationId:(NSUUID *)correlationId;
-
-// Optional configurations
-@property (readwrite) NSString *loginHint;
-@property (readwrite) NSUUID *correlationId;
-
-@property (readwrite) MSIDNetworkConfiguration *networkConfig;
-
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout retryCount:(int)retryCount
+{
+    self = [super init];
+    if (self)
+    {
+        _timeout = timeout;
+        _retryCount = retryCount;
+    }
+    return self;
+}
 @end
