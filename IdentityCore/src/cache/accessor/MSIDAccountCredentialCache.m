@@ -28,6 +28,7 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDTokenCacheDataSource.h"
 #import "MSIDTokenFilteringHelper.h"
+#import "MSIDTokenCacheKey.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -57,25 +58,25 @@
 #pragma mark - Public
 
 // Reading credentials
-- (nullable NSArray<MSIDTokenCacheItem *> *)getCredentialsWithUniqueUserId:(nonnull NSString *)uniqueUserId
-                                                               environment:(nonnull NSString *)environment
+- (nullable NSArray<MSIDTokenCacheItem *> *)getCredentialsWithUniqueUserId:(nullable NSString *)uniqueUserId
+                                                               environment:(nullable NSString *)environment
                                                                      realm:(nullable NSString *)realm
-                                                                  clientId:(nonnull NSString *)clientId
+                                                                  clientId:(nullable NSString *)clientId
                                                                     target:(nullable NSString *)target
+                                                            targetMatching:(MSIDComparisonOptions)matchingOptions
                                                                       type:(MSIDTokenType)type
                                                                    context:(nullable id<MSIDRequestContext>)context
                                                                      error:(NSError * _Nullable * _Nullable)error
 {
-    assert(uniqueUserId);
-    assert(environment);
-    assert(clientId);
+    BOOL exactMatch = YES;
 
     MSIDDefaultTokenCacheKey *query = [MSIDDefaultTokenCacheKey queryForCredentialsWithUniqueUserId:uniqueUserId
                                                                                         environment:environment
                                                                                            clientId:clientId
                                                                                               realm:realm
                                                                                              target:target
-                                                                                               type:type];
+                                                                                               type:type
+                                                                                         exactMatch:&exactMatch];
 
     NSError *cacheError = nil;
 
@@ -94,26 +95,27 @@
         return nil;
     }
 
-    /*
-     If passed in realm is nil, it means "match all".
-     However, because realm is part of generic and service keys,
-     if realm is nil, it won't match by clientID and target either, so we need to do additional filtering.
-     */
-
-    if (!realm && (type == MSIDTokenTypeIDToken || type == MSIDTokenTypeAccessToken))
+    if (!exactMatch)
     {
-        NSMutableArray *filteredResults = [NSMutableArray new];
+        BOOL shouldMatchAccount = !uniqueUserId || !environment;
 
-        for (MSIDTokenCacheItem *item in results)
+        NSMutableArray *filteredResults = [NSMutableArray array];
+
+        for (MSIDTokenCacheItem *cacheItem in results)
         {
-            if ([item.clientId isEqualToString:clientId]
-                && (!item.target || !target || [item.target isEqualToString:target]))
+            if (shouldMatchAccount
+                && ![cacheItem matchesWithUniqueUserId:uniqueUserId environment:environment])
             {
-                [filteredResults addObject:item];
+                continue;
             }
-        }
 
-        return filteredResults;
+            if (![cacheItem matchesWithRealm:realm clientId:clientId target:target targetMatching:matchingOptions])
+            {
+                continue;
+            }
+
+            [filteredResults addObject:cacheItem];
+        }
     }
 
     return results;
@@ -167,9 +169,12 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Get accounts with environment %@, realm %@",environment, realm);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get accounts with environment %@, realm %@, unique user id %@",environment, realm, uniqueUserId);
 
+    BOOL exactMatch = YES;
+
     MSIDDefaultTokenCacheKey *query = [MSIDDefaultTokenCacheKey queryForAccountsWithUniqueUserId:uniqueUserId
                                                                                      environment:environment
-                                                                                           realm:realm];
+                                                                                           realm:realm
+                                                                                      exactMatch:&exactMatch];
 
     return [_dataSource accountsWithKey:query serializer:_serializer context:context error:error];
 }
@@ -208,6 +213,15 @@
     return [_dataSource accountsWithKey:key serializer:_serializer context:context error:error];
 }
 
+- (nullable NSArray<MSIDTokenCacheItem *> *)getAllItemsWithContext:(nullable id<MSIDRequestContext>)context
+                                                             error:(NSError * _Nullable * _Nullable)error
+{
+    MSID_LOG_VERBOSE(context, @"(Default cache) Get all items from cache");
+
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey queryForAllItems];
+    return [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
+}
+
 // Writing credentials
 - (BOOL)saveCredential:(nonnull MSIDTokenCacheItem *)credential
                context:(nullable id<MSIDRequestContext>)context
@@ -240,12 +254,21 @@
     assert(account);
 
     MSID_LOG_VERBOSE(context, @"(Default cache) Saving account with authority %@", account.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving account with authority %@, user ID %@", account.authority, account.uniqueUserId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving account %@", account);
 
     MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:account.uniqueUserId
                                                                                   authority:account.authority
                                                                                    username:account.username
                                                                                 accountType:account.accountType];
+
+    // Get previous account, so we don't loose any fields
+    MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
+
+    if (previousAccount)
+    {
+        // Make sure we copy over all the additional fields
+        [account updateFieldsFromAccount:previousAccount];
+    }
 
     return [_dataSource saveAccount:account
                                 key:key
@@ -260,6 +283,7 @@
                                     realm:(nullable NSString *)realm
                                  clientId:(nonnull NSString *)clientId
                                    target:(nullable NSString *)target
+                           targetMatching:(MSIDComparisonOptions)matchingOptions
                                      type:(MSIDTokenType)type
                                   context:(nullable id<MSIDRequestContext>)context
                                     error:(NSError * _Nullable * _Nullable)error
@@ -271,37 +295,34 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:type], environment, realm, clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDTokenTypeHelpers tokenTypeAsString:type], environment, realm, clientId, uniqueUserId, target);
 
-    /*
-     If passed in realm is nil, it means "match all".
-     However, because realm is part of generic and service keys,
-     if realm is nil, it won't match by clientID and target either, so we need to do additional filtering.
-     */
-
-    if (!realm && (type == MSIDTokenTypeIDToken || type == MSIDTokenTypeAccessToken))
-    {
-        NSArray<MSIDTokenCacheItem *> *matchedCredentials = [self getCredentialsWithUniqueUserId:uniqueUserId
-                                                                                     environment:environment
-                                                                                           realm:realm
-                                                                                        clientId:clientId
-                                                                                          target:target
-                                                                                            type:type
-                                                                                         context:context
-                                                                                           error:error];
-
-        return [self removeAllCredentials:matchedCredentials
-                                  context:context
-                                    error:error];
-
-    }
+    BOOL exactMatch = YES;
 
     MSIDDefaultTokenCacheKey *query = [MSIDDefaultTokenCacheKey queryForCredentialsWithUniqueUserId:uniqueUserId
                                                                                         environment:environment
                                                                                            clientId:clientId
                                                                                               realm:realm
                                                                                              target:target
-                                                                                               type:type];
+                                                                                               type:type
+                                                                                         exactMatch:&exactMatch];
 
-    return [_dataSource removeItemsWithKey:query context:context error:error];
+    if (exactMatch)
+    {
+        return [_dataSource removeItemsWithKey:query context:context error:error];
+    }
+
+    NSArray<MSIDTokenCacheItem *> *matchedCredentials = [self getCredentialsWithUniqueUserId:uniqueUserId
+                                                                                 environment:environment
+                                                                                       realm:realm
+                                                                                    clientId:clientId
+                                                                                      target:target
+                                                                              targetMatching:matchingOptions
+                                                                                        type:type
+                                                                                     context:context
+                                                                                       error:error];
+
+    return [self removeAllCredentials:matchedCredentials
+                              context:context
+                                error:error];
 }
 
 - (BOOL)removeCredential:(nonnull MSIDTokenCacheItem *)credential
@@ -320,7 +341,24 @@
                                                                                         target:credential.target
                                                                                           type:credential.tokenType];
 
-    return [_dataSource removeItemsWithKey:key context:context error:error];
+    BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
+
+    if (result && credential.tokenType == MSIDTokenTypeRefreshToken)
+    {
+        [_dataSource saveWipeInfoWithContext:context error:nil];
+
+        return [self removeCredentialsWithUniqueUserId:credential.uniqueUserId
+                                           environment:credential.environment
+                                                 realm:nil
+                                              clientId:credential.clientId
+                                                target:nil
+                                        targetMatching:Any
+                                                  type:MSIDTokenTypeIDToken
+                                               context:context
+                                                 error:error];
+    }
+
+    return result;
 }
 
 - (BOOL)removeCredentials:(nonnull MSIDDefaultTokenCacheKey *)query
@@ -348,9 +386,12 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing accounts with environment %@, realm %@",environment, realm);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing accounts with environment %@, realm %@, unique user id %@",environment, realm, uniqueUserId);
 
+    BOOL exactMatch = YES;
+
     MSIDDefaultTokenCacheKey *query = [MSIDDefaultTokenCacheKey queryForAccountsWithUniqueUserId:uniqueUserId
                                                                                      environment:environment
-                                                                                           realm:realm];
+                                                                                           realm:realm
+                                                                                      exactMatch:&exactMatch];
 
     return [_dataSource removeItemsWithKey:query context:context error:error];
 }

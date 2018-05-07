@@ -330,4 +330,62 @@
     return nil;
 }
 
+- (BOOL)matchesTarget:(NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions
+{
+    if (!target)
+    {
+        return YES;
+    }
+
+    switch (comparisonOptions) {
+        case Any:
+            return YES;
+        case ExactStringMatch:
+            return [self.target isEqualToString:target];
+        case SubSet:
+            return [[target scopeSet] isSubsetOfOrderedSet:[self.target scopeSet]];
+        case Intersect:
+            return [[target scopeSet] intersectsOrderedSet:[self.target scopeSet]];
+    }
+
+    return NO;
+}
+
+- (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
+                    environment:(nullable NSString *)environment
+{
+    if (uniqueUserId && ![self.uniqueUserId isEqualToString:uniqueUserId])
+    {
+        return NO;
+    }
+
+    if (environment && ![self.environment isEqualToString:environment])
+    {
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)matchesWithRealm:(nullable NSString *)realm
+                clientId:(nullable NSString *)clientId
+                  target:(nullable NSString *)target
+          targetMatching:(MSIDComparisonOptions)matchingOptions
+{
+    if (clientId && ![self.clientId isEqualToString:clientId])
+    {
+        return NO;
+    }
+
+    if (realm && ![self.realm isEqualToString:realm])
+    {
+        return NO;
+    }
+
+    if (![self matchesTarget:target comparisonOptions:matchingOptions])
+    {
+        return NO;
+    }
+}
+
 @end

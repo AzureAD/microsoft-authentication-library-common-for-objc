@@ -24,15 +24,15 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTokenType.h"
 #import "MSIDAccountType.h"
+#import "MSIDTokenCacheItem.h"
 
-@class MSIDTokenCacheItem;
 @class MSIDAccountCacheItem;
 @class MSIDDefaultTokenCacheKey;
 @protocol MSIDTokenCacheDataSource;
 
 @interface MSIDAccountCredentialCache : NSObject
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
+- (nonnull instancetype)initWithDataSource:(nonnull id<MSIDTokenCacheDataSource>)dataSource;
 
 // Reading credentials
 /*
@@ -44,11 +44,12 @@
  @param target optional. Empty string means "match all".
  @param type: required
 */
-- (nullable NSArray<MSIDTokenCacheItem *> *)getCredentialsWithUniqueUserId:(nonnull NSString *)uniqueUserId
-                                                               environment:(nonnull NSString *)environment
+- (nullable NSArray<MSIDTokenCacheItem *> *)getCredentialsWithUniqueUserId:(nullable NSString *)uniqueUserId
+                                                               environment:(nullable NSString *)environment
                                                                      realm:(nullable NSString *)realm
-                                                                  clientId:(nonnull NSString *)clientId
+                                                                  clientId:(nullable NSString *)clientId
                                                                     target:(nullable NSString *)target
+                                                            targetMatching:(MSIDComparisonOptions)matchingOptions
                                                                       type:(MSIDTokenType)type
                                                                    context:(nullable id<MSIDRequestContext>)context
                                                                      error:(NSError * _Nullable * _Nullable)error;
@@ -110,6 +111,12 @@
                                                                error:(NSError * _Nullable * _Nullable)error;
 
 /*
+ Gets all items
+ */
+- (nullable NSArray<MSIDTokenCacheItem *> *)getAllItemsWithContext:(nullable id<MSIDRequestContext>)context
+                                                             error:(NSError * _Nullable * _Nullable)error;
+
+/*
  Saves a credential
 */
 - (BOOL)saveCredential:(nonnull MSIDTokenCacheItem *)credential
@@ -137,6 +144,7 @@
                                     realm:(nullable NSString *)realm
                                  clientId:(nonnull NSString *)clientId
                                    target:(nullable NSString *)target
+                           targetMatching:(MSIDComparisonOptions)matchingOptions
                                      type:(MSIDTokenType)type
                                   context:(nullable id<MSIDRequestContext>)context
                                     error:(NSError * _Nullable * _Nullable)error;

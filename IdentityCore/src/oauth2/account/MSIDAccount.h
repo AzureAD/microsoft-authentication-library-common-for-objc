@@ -24,12 +24,13 @@
 #import <Foundation/Foundation.h>
 #import "MSIDCacheItem.h"
 #import "MSIDAccountType.h"
+#import "MSIDUserIdentifiers.h"
 
 @class MSIDAccountCacheItem;
 @class MSIDRequestParameters;
 @class MSIDTokenResponse;
 
-@interface MSIDAccount : NSObject <NSCopying>
+@interface MSIDAccount : NSObject <NSCopying, MSIDUserIdentifiers>
 
 // Legacy user identifier
 @property (readwrite) NSString *legacyUserId;

@@ -24,6 +24,13 @@
 #import "MSIDCacheItem.h"
 #import "MSIDTokenType.h"
 
+typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
+    Any,
+    ExactStringMatch,
+    SubSet,
+    Intersect,
+};
+
 @class MSIDBaseToken;
 
 @interface MSIDTokenCacheItem : MSIDCacheItem
@@ -54,5 +61,15 @@
 @property (readwrite, nullable) NSDictionary *additionalInfo;
 
 - (nullable MSIDBaseToken *)tokenWithType:(MSIDTokenType)tokenType;
+
+- (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;
+
+- (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
+                    environment:(nullable NSString *)environment;
+
+- (BOOL)matchesWithRealm:(nullable NSString *)realm
+                clientId:(nullable NSString *)clientId
+                  target:(nullable NSString *)target
+          targetMatching:(MSIDComparisonOptions)matchingOptions;
 
 @end

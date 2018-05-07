@@ -41,26 +41,31 @@ NS_ASSUME_NONNULL_BEGIN
                                                          clientId:(nullable NSString *)clientId
                                                             realm:(nullable NSString *)realm
                                                            target:(nullable NSString *)target
-                                                             type:(MSIDTokenType)type;
+                                                             type:(MSIDTokenType)type
+                                                       exactMatch:(BOOL *)exactMatch;
 
 + (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(nullable NSString *)userId
                                                           environment:(nullable NSString *)environment
                                                              clientId:(nullable NSString *)clientId
                                                                 realm:(nullable NSString *)realm
-                                                               target:(nullable NSString *)target;
+                                                               target:(nullable NSString *)target
+                                                           exactMatch:(BOOL *)exactMatch;
 
 + (MSIDDefaultTokenCacheKey *)queryForAllRefreshTokensWithUniqueUserId:(nullable NSString *)userId
                                                            environment:(nullable NSString *)environment
-                                                              clientId:(nullable NSString *)clientId;
+                                                              clientId:(nullable NSString *)clientId
+                                                            exactMatch:(BOOL *)exactMatch;
 
 + (MSIDDefaultTokenCacheKey *)queryForAllIDTokensWithUniqueUserId:(nullable NSString *)userId
                                                       environment:(nullable NSString *)environment
                                                             realm:(nullable NSString *)realm
-                                                         clientId:(nullable NSString *)clientId;
+                                                         clientId:(nullable NSString *)clientId
+                                                       exactMatch:(BOOL *)exactMatch;
 
 + (MSIDDefaultTokenCacheKey *)queryForAccountsWithUniqueUserId:(nullable NSString *)userId
                                                    environment:(nullable NSString *)environment
-                                                         realm:(nullable NSString *)realm;
+                                                         realm:(nullable NSString *)realm
+                                                    exactMatch:(BOOL *)exactMatch;
 
 /*!
  Key for MSAL tokens - single authority, one clientId, multiple scopes, and userId.
@@ -85,13 +90,6 @@ NS_ASSUME_NONNULL_BEGIN
                                                   authority:(NSURL *)authority
                                                    username:(NSString *)username
                                                 accountType:(MSIDAccountType)accountType;
-/*!
- Key for getting all MSAL access tokens for a user, environment and clientId
- */
-+ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
-                                                          environment:(NSString *)environment
-                                                             clientId:(NSString *)clientId
-                                                                realm:(NSString *)realm;
 
 + (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
                                                             authority:(NSURL *)authority

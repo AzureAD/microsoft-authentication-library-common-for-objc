@@ -31,45 +31,35 @@
 @class MSIDRefreshToken;
 @class MSIDOauth2Factory;
 @class MSIDAccessToken;
+@protocol MSIDUserIdentifiers;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 
-/*
+// Writing
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                 requestParams:(MSIDRequestParameters *)requestParams
                      response:(MSIDTokenResponse *)response
                       context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;*/
+                        error:(NSError **)error;
 
 - (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
-                 account:(MSIDAccount *)account
                  context:(id<MSIDRequestContext>)context
                    error:(NSError **)error;
 
 - (BOOL)saveAccessToken:(MSIDAccessToken *)accessToken
-                account:(MSIDAccount *)account
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error;
 
-//////////
-- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
-                       account:(MSIDAccount *)account
-                      response:(MSIDTokenResponse *)response
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error;
-////
-
+// Retrieval
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
-                            account:(MSIDAccount *)account
+                    userIdentifiers:(id<MSIDUserIdentifiers>)userIdentifiers
                       requestParams:(MSIDRequestParameters *)parameters
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
 
-- (MSIDBaseToken *)getLatestToken:(MSIDBaseToken *)token
-                          account:(MSIDAccount *)account
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error;
+- (MSIDBaseToken *)getUpdatedToken:(MSIDBaseToken *)token
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error;
 
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
                                              error:(NSError **)error;
@@ -79,8 +69,8 @@
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
 
+// Removal
 - (BOOL)removeToken:(MSIDBaseToken *)token
-            account:(MSIDAccount *)account
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error;
 
@@ -88,13 +78,16 @@
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error;
 
-- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error;
+- (BOOL)removeAllTokensForUser:(id<MSIDUserIdentifiers>)userIdentifiers
+                   environment:(NSString *)environment
+                      clientId:(NSString *)clientId
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error;
 
 /*
  It is supposed to be used in test apps only.
  */
-- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error;
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context
+                   error:(NSError **)error;
 
 @end

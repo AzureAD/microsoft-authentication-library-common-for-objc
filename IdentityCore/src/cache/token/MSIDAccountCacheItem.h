@@ -26,7 +26,6 @@
 
 @interface MSIDAccountCacheItem : MSIDCacheItem
 
-@property (readwrite, nullable) NSString *legacyUserIdentifier;
 @property (readwrite) MSIDAccountType accountType;
 @property (readwrite, nullable) NSString *firstName;
 @property (readwrite, nullable) NSString *lastName;

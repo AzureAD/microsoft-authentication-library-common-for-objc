@@ -136,6 +136,7 @@ static NSInteger kTokenTypePrefix = 2000;
                                                             realm:(nullable NSString *)realm
                                                            target:(nullable NSString *)target
                                                              type:(MSIDTokenType)type
+                                                       exactMatch:(BOOL *)exactMatch
 {
     switch (type)
     {
@@ -145,20 +146,23 @@ static NSInteger kTokenTypePrefix = 2000;
                                                      environment:environment
                                                         clientId:clientId
                                                            realm:realm
-                                                          target:target];
+                                                          target:target
+                                                      exactMatch:exactMatch];
         }
         case MSIDTokenTypeRefreshToken:
         {
             return [self queryForAllRefreshTokensWithUniqueUserId:uniqueUserId
                                                       environment:environment
-                                                         clientId:clientId];
+                                                         clientId:clientId
+                                                       exactMatch:exactMatch];
         }
         case MSIDTokenTypeIDToken:
         {
             return [self queryForAllIDTokensWithUniqueUserId:uniqueUserId
                                                  environment:environment
                                                        realm:realm
-                                                    clientId:clientId];
+                                                    clientId:clientId
+                                                  exactMatch:exactMatch];
         }
         default:
             break;
@@ -172,12 +176,19 @@ static NSInteger kTokenTypePrefix = 2000;
                                                              clientId:(nullable NSString *)clientId
                                                                 realm:(nullable NSString *)realm
                                                                target:(nullable NSString *)target
+                                                           exactMatch:(BOOL *)exactMatch
 {
+    *exactMatch = YES;
+
     NSString *account = nil;
 
     if (userId && environment)
     {
         account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    }
+    else
+    {
+        *exactMatch = NO;
     }
 
     NSString *generic = nil;
@@ -193,6 +204,10 @@ static NSInteger kTokenTypePrefix = 2000;
     {
         service = [self.class serviceWithType:MSIDTokenTypeAccessToken clientID:clientId realm:realm target:target];
     }
+    else
+    {
+        *exactMatch = NO;
+    }
 
     NSNumber *type = [self tokenType:MSIDTokenTypeAccessToken];
 
@@ -205,12 +220,19 @@ static NSInteger kTokenTypePrefix = 2000;
 + (MSIDDefaultTokenCacheKey *)queryForAllRefreshTokensWithUniqueUserId:(nullable NSString *)userId
                                                            environment:(nullable NSString *)environment
                                                               clientId:(nullable NSString *)clientId
+                                                            exactMatch:(BOOL *)exactMatch
 {
+    *exactMatch = YES;
+
     NSString *account = nil;
 
     if (userId && environment)
     {
         account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    }
+    else
+    {
+        *exactMatch = NO;
     }
 
     NSString *generic = nil;
@@ -218,6 +240,10 @@ static NSInteger kTokenTypePrefix = 2000;
     if (clientId)
     {
         generic = [self.class credentialIdWithType:MSIDTokenTypeRefreshToken clientId:clientId realm:nil];
+    }
+    else
+    {
+        *exactMatch = NO;
     }
 
     NSString *service = nil;
@@ -239,12 +265,19 @@ static NSInteger kTokenTypePrefix = 2000;
                                                       environment:(nullable NSString *)environment
                                                             realm:(nullable NSString *)realm
                                                          clientId:(nullable NSString *)clientId
+                                                       exactMatch:(BOOL *)exactMatch
 {
+    *exactMatch = YES;
+
     NSString *account = nil;
 
     if (userId && environment)
     {
         account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+    }
+    else
+    {
+        *exactMatch = NO;
     }
 
     NSString *service = nil;
@@ -252,6 +285,10 @@ static NSInteger kTokenTypePrefix = 2000;
     if (clientId && realm)
     {
         service = [self.class serviceWithType:MSIDTokenTypeIDToken clientID:clientId realm:realm target:nil];
+    }
+    else
+    {
+        *exactMatch = NO;
     }
 
     NSString *generic = nil;
@@ -272,12 +309,16 @@ static NSInteger kTokenTypePrefix = 2000;
 + (MSIDDefaultTokenCacheKey *)queryForAccountsWithUniqueUserId:(nullable NSString *)userId
                                                    environment:(nullable NSString *)environment
                                                          realm:(nullable NSString *)realm
+                                                    exactMatch:(BOOL *)exactMatch
 {
+    *exactMatch = NO;
+
     NSString *account = nil;
 
     if (userId && environment)
     {
         account = [self.class accountIdWithUniqueUserId:userId environment:environment];
+        *exactMatch = realm != nil;
     }
 
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account

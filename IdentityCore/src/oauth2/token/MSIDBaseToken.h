@@ -59,6 +59,11 @@
 
 // User info
 @property (readwrite) NSString *uniqueUserId;
+
+// TODO: fill me in!
+@property (readwrite) NSString *legacyUserId;
+
+// TODO: remove me!
 @property (readwrite) NSString *username;
 
 - (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem;

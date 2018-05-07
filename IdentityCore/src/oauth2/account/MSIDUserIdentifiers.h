@@ -22,30 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
-#import "MSIDClientInfo.h"
 
-@interface MSIDCacheItem : NSObject <NSCopying, NSSecureCoding, MSIDJsonSerializable>
-{
-    NSURL *_authority;
-    NSString *_username;
-    NSString *_uniqueUserId;
-    MSIDClientInfo *_clientInfo;
-}
+@protocol MSIDUserIdentifiers <NSObject>
 
-@property (readwrite, nonnull) NSURL *authority;
-@property (readwrite, nonnull) NSString *uniqueUserId;
-
-// TODO: implement us
-@property (readwrite, nonnull) NSString *environment;
-@property (readwrite, nullable) NSString *realm;
-
-@property (readwrite, nullable) NSString *username;
-@property (readwrite, nullable) MSIDClientInfo *clientInfo;
-
-// TODO: fill me in
-@property (readwrite, nullable) NSString *legacyUserIdentifier;
-
-- (BOOL)isEqualToItem:(nonnull MSIDCacheItem *)item;
+@property NSString *uniqueUserId;
+@property NSString *legacyUserId;
 
 @end
