@@ -43,7 +43,7 @@
     [self.telemetry startEvent:telemetryRequestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
 }
 
-- (void)responseReceivedEventWithContext:(id <MSIDRequestContext>)context
+- (void)responseReceivedEventWithContext:(id<MSIDRequestContext>)context
                               urlRequest:(NSURLRequest *)urlRequest
                             httpResponse:(NSHTTPURLResponse *)httpResponse
                                     data:(NSData *)data

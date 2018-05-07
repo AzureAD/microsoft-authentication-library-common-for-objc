@@ -35,28 +35,28 @@
 {
     NSDictionary<NSString *, NSString *> *_parameters;
     NSURLRequest *_urlRequest;
-    id <MSIDRequestSerialization> _requestSerializer;
-    id <MSIDResponseSerialization> _responseSerializer;
-    id <MSIDHttpRequestConfiguratorProtocol> _requestConfigurator;
-    id <MSIDHttpRequestTelemetryProtocol> _telemetry;
-    id <MSIDHttpRequestErrorHandlerProtocol> _errorHandler;
+    id<MSIDRequestSerialization> _requestSerializer;
+    id<MSIDResponseSerialization> _responseSerializer;
+    id<MSIDHttpRequestConfiguratorProtocol> _requestConfigurator;
+    id<MSIDHttpRequestTelemetryProtocol> _telemetry;
+    id<MSIDHttpRequestErrorHandlerProtocol> _errorHandler;
 }
 
 @property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *parameters;
 
 @property (nonatomic, nullable) NSURLRequest *urlRequest;
 
-@property (nonatomic, nonnull) id <MSIDRequestSerialization> requestSerializer;
+@property (nonatomic, nonnull) id<MSIDRequestSerialization> requestSerializer;
 
-@property (nonatomic, nonnull) id <MSIDResponseSerialization> responseSerializer;
+@property (nonatomic, nonnull) id<MSIDResponseSerialization> responseSerializer;
 
-@property (nonatomic, nullable) id <MSIDHttpRequestConfiguratorProtocol> requestConfigurator;
+@property (nonatomic, nullable) id<MSIDHttpRequestConfiguratorProtocol> requestConfigurator;
 
-@property (nonatomic, nullable) id <MSIDHttpRequestTelemetryProtocol> telemetry;
+@property (nonatomic, nullable) id<MSIDHttpRequestTelemetryProtocol> telemetry;
 
-@property (nonatomic, nullable) id <MSIDHttpRequestErrorHandlerProtocol> errorHandler;
+@property (nonatomic, nullable) id<MSIDHttpRequestErrorHandlerProtocol> errorHandler;
 
-@property (nonatomic, nullable) id <MSIDRequestContext> context;
+@property (nonatomic, nullable) id<MSIDRequestContext> context;
 
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable)completionBlock;
 

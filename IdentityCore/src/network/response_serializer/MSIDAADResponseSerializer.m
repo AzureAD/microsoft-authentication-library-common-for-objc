@@ -31,7 +31,7 @@
 {
     NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data error:error] mutableCopy];
     
-    if (error) return nil;
+    if (error) { return nil; }
     
     jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
     
