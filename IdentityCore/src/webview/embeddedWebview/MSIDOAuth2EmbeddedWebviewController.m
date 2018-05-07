@@ -33,7 +33,6 @@
 #import "MSIDError.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebviewAuthorization.h"
-#import "MSIDChallengeHandler.h"
 #import "MSIDNTLMHandler.h"
 #import "MSIDAuthority.h"
 
@@ -224,8 +223,6 @@
     //       two callbacks.
     [_completionLock lock];
     
-    [MSIDChallengeHandler resetHandlers];
-    
     if ( _completionHandler )
     {
         void (^completionHandler)(MSIDWebOAuth2Response *response, NSError *error) = _completionHandler;
@@ -385,10 +382,7 @@
                      @"session:task:didReceiveChallenge:completionHandler",
                      authMethod, (long)challenge.previousFailureCount);
     
-    [MSIDChallengeHandler handleChallenge:challenge
-                                  webview:webView
-                                  context:_context
-                        completionHandler:completionHandler];
+    // Handle challenge
 }
 
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL
