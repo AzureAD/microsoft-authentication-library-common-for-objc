@@ -35,7 +35,7 @@
 @protocol MSIDSharedCacheAccessor <NSObject>
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDConfiguration *)requestParams
+                 configuration:(MSIDConfiguration *)configuration
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
@@ -53,7 +53,7 @@
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
-                      requestParams:(MSIDConfiguration *)parameters
+                      configuration:(MSIDConfiguration *)configuration
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
 

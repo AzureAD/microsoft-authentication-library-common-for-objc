@@ -31,21 +31,21 @@
 
 
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
-                                                                     factory:(MSIDOAuth2Factory *)factory;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDConfiguration *)configuration
+                                                                 factory:(MSIDOAuth2Factory *)factory;
 {
     return nil;
 }
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
-                                                                     webview:(WKWebView *)webview
-                                                                     factory:(MSIDOAuth2Factory *)factory;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDConfiguration *)configuration
+                                                                 webview:(WKWebView *)webview
+                                                                 factory:(MSIDOAuth2Factory *)factory;
 {
     return nil;
 }
 
-+ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
-                                                                   factory:(MSIDOAuth2Factory *)factory;
++ (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDConfiguration *)configuration
+                                                               factory:(MSIDOAuth2Factory *)factory;
 {
     return nil;
 }
@@ -56,3 +56,4 @@
 }
 
 @end
+

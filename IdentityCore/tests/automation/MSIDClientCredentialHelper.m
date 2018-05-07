@@ -129,10 +129,10 @@
               return;
           }
 
-          MSIDConfiguration *params = [MSIDConfiguration new];
-          params.authority = [NSURL URLWithString:authority];
-          params.clientId = clientId;
-          params.target = resource;
+          MSIDConfiguration *configuration = [MSIDConfiguration new];
+          configuration.authority = [NSURL URLWithString:authority];
+          configuration.clientId = clientId;
+          configuration.target = resource;
 
           MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
@@ -146,7 +146,7 @@
               }
           }
 
-          MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse request:params];
+          MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse configuration:configuration];
           self.accessTokenCache[cacheKey] = accessToken;
 
           if (completionHandler)

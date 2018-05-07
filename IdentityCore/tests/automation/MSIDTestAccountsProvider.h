@@ -22,8 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTestConfigurationRequest.h"
-#import "MSIDTestConfiguration.h"
+#import "MSIDTestAutomationConfigurationRequest.h"
+#import "MSIDTestAutomationConfiguration.h"
 
 @interface MSIDTestAccountsProvider : NSObject
 
@@ -36,8 +36,8 @@
 
 - (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
 
-- (void)configurationWithRequest:(MSIDTestConfigurationRequest *)request
-               completionHandler:(void (^)(MSIDTestConfiguration *configuration))completionHandler;
+- (void)configurationWithRequest:(MSIDTestAutomationConfigurationRequest *)request
+               completionHandler:(void (^)(MSIDTestAutomationConfiguration *configuration))completionHandler;
 
 - (void)passwordForAccount:(MSIDTestAccount *)account
          completionHandler:(void (^)(NSString *password))completionHandler;

@@ -38,7 +38,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDTestTokenResponse.h"
 #import "MSIDTestCacheIdentifiers.h"
-#import "MSIDTestRequestParams.h"
+#import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccount.h"
 #import "NSOrderedSet+MSIDExtensions.h"
@@ -176,12 +176,12 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDConfiguration *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
 
-    MSIDBaseToken *token = [factory baseTokenFromResponse:response request:params];
+    MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
@@ -198,12 +198,12 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDConfiguration *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
 
-    MSIDAccessToken *token = [factory accessTokenFromResponse:response request:params];
+    MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
@@ -232,12 +232,12 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDConfiguration *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
 
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:response request:params];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
@@ -261,12 +261,12 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDConfiguration *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
 
-    MSIDIdToken *token = [factory idTokenFromResponse:response request:params];
+    MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
@@ -285,12 +285,12 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDConfiguration *params = [MSIDTestRequestParams v2DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
 
-    MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response request:params];
+    MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
@@ -321,9 +321,9 @@
     NSString *scopeInRequest = @"user.write abc://abc/.default";
     NSString *scopeInResposne = @"user.read";
 
-    // construct request parameters
-    MSIDConfiguration *reqParams = [MSIDConfiguration new];
-    [reqParams setTarget:scopeInRequest];
+    // construct configuration
+    MSIDConfiguration *configuration = [MSIDConfiguration new];
+    [configuration setTarget:scopeInRequest];
 
     // construct response
     NSDictionary *jsonInput = @{@"access_token": @"at",
@@ -339,7 +339,7 @@
     XCTAssertNil(error);
 
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:reqParams];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
 
     // scope should be the same as it is in response
     XCTAssertEqualObjects(accessToken.scopes.msidToString, scopeInResposne);
@@ -350,9 +350,9 @@
     NSString *scopeInRequest = @"user.write";
     NSString *scopeInResposne = @"user.read";
 
-    // construct request parameters
-    MSIDConfiguration *reqParams = [MSIDConfiguration new];
-    [reqParams setTarget:scopeInRequest];
+    // construct configuration
+    MSIDConfiguration *configuration = [MSIDConfiguration new];
+    [configuration setTarget:scopeInRequest];
 
     // construct response
     NSDictionary *jsonInput = @{@"access_token": @"at",
@@ -368,7 +368,7 @@
     XCTAssertNil(error);
 
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:reqParams];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
 
     // scope should be the same as it is in response
     XCTAssertEqualObjects(accessToken.scopes.msidToString, scopeInResposne);
@@ -379,9 +379,9 @@
     NSString *scopeInRequest = @"abc://abc/.default";
     NSString *scopeInResposne = @"user.read";
 
-    // construct request parameters
-    MSIDConfiguration *reqParams = [MSIDConfiguration new];
-    [reqParams setTarget:scopeInRequest];
+    // construct configuration
+    MSIDConfiguration *configuration = [MSIDConfiguration new];
+    [configuration setTarget:scopeInRequest];
 
     // construct response
     NSDictionary *jsonInput = @{@"access_token": @"at",
@@ -397,7 +397,7 @@
     XCTAssertNil(error);
 
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:reqParams];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
 
     // both scopes in request and response should be included
     NSOrderedSet<NSString *> *scopeWithAddition = accessToken.scopes;
@@ -413,14 +413,14 @@
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman"];
     NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
-    MSIDConfiguration *requestParameters =
+    MSIDConfiguration *configuration =
     [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
                                          redirectUri:@"redirect uri"
                                             clientId:@"client id"
                                               target:@"target"];
     MSIDAADV2TokenResponse *tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:nil];
 
-    MSIDAccount *account = [factory accountFromResponse:tokenResponse request:requestParameters];
+    MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
 
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"eric999");

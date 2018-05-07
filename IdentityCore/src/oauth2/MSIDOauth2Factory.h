@@ -48,12 +48,12 @@
                  error:(NSError * __autoreleasing *)error;
 
 // Tokens
-- (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
-- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
-- (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
-- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
-- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams;
+- (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
 // Webviews
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams

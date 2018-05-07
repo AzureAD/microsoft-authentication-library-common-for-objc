@@ -76,7 +76,7 @@
 }
 
 + (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                                withParameters:(MSIDConfiguration *)parameters
+                                                withConfiguration:(MSIDConfiguration *)configuration
                                                        account:(MSIDAccount *)account
                                                        context:(id<MSIDRequestContext>)context
                                                          error:(NSError **)error
@@ -99,8 +99,8 @@
     BOOL (^filterBlock)(MSIDTokenCacheItem *tokenCacheItem) = ^BOOL(MSIDTokenCacheItem *token) {
         
         if ([token.uniqueUserId isEqualToString:account.uniqueUserId]
-            && [token.clientId isEqualToString:parameters.clientId]
-            && [parameters.scopes isSubsetOfOrderedSet:[token.target scopeSet]])
+            && [token.clientId isEqualToString:configuration.clientId]
+            && [configuration.scopes isSubsetOfOrderedSet:[token.target scopeSet]])
         {
             if ([token.authority msidIsEquivalentWithAnyAlias:tokenAliases])
             {

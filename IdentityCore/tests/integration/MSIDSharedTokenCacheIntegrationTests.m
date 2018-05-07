@@ -27,7 +27,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDTestTokenResponse.h"
-#import "MSIDTestRequestParams.h"
+#import "MSIDTestConfiguration.h"
 #import "MSIDAccount.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDLegacySingleResourceToken.h"
@@ -67,13 +67,13 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:nil];
     
-    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponse];
     
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       requestParams:requestParams
+                                       configuration:configuration
                                             response:tokenResponse
                                              context:nil
                                                error:&error];
@@ -86,7 +86,7 @@
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
     
     MSIDAccessToken *token = [tokenCache getATForAccount:account
-                                           requestParams:requestParams
+                                           configuration:configuration
                                                  context:nil
                                                    error:&error];
     
@@ -97,7 +97,7 @@
     
     // Check that a refresh token is returned back
     MSIDRefreshToken *refreshToken = [tokenCache getRTForAccount:account
-                                                   requestParams:requestParams
+                                                   configuration:configuration
                                                          context:nil
                                                            error:&error];
     
@@ -114,13 +114,13 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:nil];
     
-    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponse];
     
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       requestParams:requestParams
+                                       configuration:configuration
                                             response:tokenResponse
                                              context:nil
                                                error:&error];
@@ -149,13 +149,13 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponse];
     
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       requestParams:requestParams
+                                       configuration:configuration
                                             response:tokenResponse
                                              context:nil
                                                error:&error];
@@ -168,7 +168,7 @@
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
     
     MSIDAccessToken *token = [tokenCache getATForAccount:account
-                                     requestParams:requestParams
+                                     configuration:configuration
                                            context:nil
                                              error:&error];
     
@@ -179,7 +179,7 @@
     
     // Check that a refresh token is returned back
     MSIDRefreshToken *refreshToken = [tokenCache getRTForAccount:account
-                                                   requestParams:requestParams
+                                                   configuration:configuration
                                                          context:nil
                                                            error:&error];
     
@@ -196,13 +196,13 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponse];
     
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       requestParams:requestParams
+                                       configuration:configuration
                                             response:tokenResponse
                                              context:nil
                                                error:&error];
@@ -234,7 +234,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
                                                                                       rt:DEFAULT_TEST_REFRESH_TOKEN
                                                                                 resource:DEFAULT_TEST_RESOURCE
@@ -245,7 +245,7 @@
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       requestParams:requestParams
+                                       configuration:configuration
                                             response:tokenResponse
                                              context:nil
                                                error:&error];
@@ -264,7 +264,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
                                                                                       rt:DEFAULT_TEST_REFRESH_TOKEN
                                                                                 resource:DEFAULT_TEST_RESOURCE
@@ -275,7 +275,7 @@
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       requestParams:requestParams
+                                       configuration:configuration
                                             response:tokenResponse
                                              context:nil
                                                error:&error];
@@ -305,13 +305,13 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
     
     NSError *error = nil;
     // Save tokens
     BOOL result = [tokenCache saveTokensWithFactory:factory
-                                       requestParams:requestParams
+                                       configuration:configuration
                                             response:tokenResponse
                                              context:nil
                                                error:&error];
@@ -364,11 +364,11 @@
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
     
-    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
     
     NSError *error = nil;
     MSIDAccessToken *token = [tokenCache getATForAccount:account
-                                           requestParams:requestParams
+                                           configuration:configuration
                                                  context:nil
                                                    error:&error];
     
@@ -383,7 +383,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDAccessToken *token = [factory accessTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAccessToken *token = [factory accessTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -393,7 +393,7 @@
     // Check that AT is returned
     NSError *error = nil;
     MSIDAccessToken *returnedToken = [tokenCache getATForAccount:account
-                                                   requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                   configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                          context:nil
                                                            error:&error];
     
@@ -413,13 +413,13 @@
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
 
-    MSIDAccessToken *token = [factory accessTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDAccessToken *token = [factory accessTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     [_secondaryAccessor addToken:token forAccount:account];
     
     NSError *error = nil;
     MSIDAccessToken *returnedToken = [tokenCache getATForAccount:account
-                                                   requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                   configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                          context:nil
                                                            error:&error];
     
@@ -434,7 +434,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
 
-    MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@""
                                                         uniqueUserId:nil];
@@ -443,7 +443,7 @@
     
     // Check that AT is returned
     NSError *error = nil;
-    MSIDLegacySingleResourceToken *returnedToken = [tokenCache getLegacyTokenWithRequestParams:[MSIDTestRequestParams v1DefaultParams]
+    MSIDLegacySingleResourceToken *returnedToken = [tokenCache getLegacyTokenWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                                        context:nil
                                                                                          error:&error];
     
@@ -459,7 +459,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:[MSIDTestTokenResponse v1SingleResourceTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"legacy ID"
                                                         uniqueUserId:nil];
@@ -469,7 +469,7 @@
     // Check that AT is returned
     NSError *error = nil;
     MSIDLegacySingleResourceToken *returnedToken = [tokenCache getLegacyTokenForAccount:account
-                                                                          requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                          configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                                 context:nil
                                                                                   error:&error];
     
@@ -485,7 +485,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
 
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -495,7 +495,7 @@
     // Check that RT is returned
     NSError *error = nil;
     MSIDRefreshToken *returnedToken = [tokenCache getRTForAccount:account
-                                                    requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                    configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                           context:nil
                                                             error:&error];
     
@@ -511,7 +511,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
 
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -521,7 +521,7 @@
     // Check that RT is returned
     NSError *error = nil;
     MSIDRefreshToken *returnedToken = [tokenCache getRTForAccount:account
-                                                    requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                    configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                           context:nil
                                                             error:&error];
     
@@ -537,7 +537,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -545,7 +545,7 @@
     [_primaryAccessor addToken:token forAccount:account];
 
     MSIDAADV2Oauth2Factory *v2Factory = [MSIDAADV2Oauth2Factory new];
-    MSIDRefreshToken *secondToken = [v2Factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *secondToken = [v2Factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
 
     [secondToken setValue:@"rt-2" forKey:@"refreshToken"];
     [_secondaryAccessor addToken:secondToken forAccount:account];
@@ -553,7 +553,7 @@
     // Check that RT is returned
     NSError *error = nil;
     MSIDRefreshToken *returnedToken = [tokenCache getRTForAccount:account
-                                                    requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                    configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                           context:nil
                                                             error:&error];
     
@@ -574,7 +574,7 @@
     
     NSError *error = nil;
     MSIDRefreshToken *token = [tokenCache getRTForAccount:account
-                                            requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                            configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                   context:nil
                                                     error:&error];
     
@@ -591,7 +591,7 @@
     
     MSIDAADV1TokenResponse *v1TokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
 
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:v1TokenResponse request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:v1TokenResponse configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -601,7 +601,7 @@
     // Check that FRT is returned
     NSError *error = nil;
     MSIDRefreshToken *returnedToken = [tokenCache getFRTforAccount:account
-                                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                     configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                           familyId:DEFAULT_TEST_FAMILY_ID
                                                            context:nil
                                                              error:&error];
@@ -621,7 +621,7 @@
     
     MSIDAADV2TokenResponse *v2TokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
 
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:v2TokenResponse request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:v2TokenResponse configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -631,7 +631,7 @@
     // Check that FRT is returned
     NSError *error = nil;
     MSIDRefreshToken *returnedToken = [tokenCache getFRTforAccount:account
-                                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                     configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                           familyId:DEFAULT_TEST_FAMILY_ID
                                                            context:nil
                                                              error:&error];
@@ -651,7 +651,7 @@
     
     MSIDAADV1TokenResponse *v1TokenResponse = [MSIDTestTokenResponse v1DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
 
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:v1TokenResponse request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:v1TokenResponse configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -661,7 +661,7 @@
     MSIDAADV2TokenResponse *v2TokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponseWithFamilyId:DEFAULT_TEST_FAMILY_ID];
 
     MSIDAADV2Oauth2Factory *v2Factory = [MSIDAADV2Oauth2Factory new];
-    MSIDRefreshToken *secondToken = [v2Factory refreshTokenFromResponse:v2TokenResponse request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *secondToken = [v2Factory refreshTokenFromResponse:v2TokenResponse configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
 
     [secondToken setValue:@"rt-2" forKey:@"refreshToken"];
     [_secondaryAccessor addToken:secondToken forAccount:account];
@@ -669,7 +669,7 @@
     // Check that FRT is returned
     NSError *error = nil;
     MSIDRefreshToken *returnedToken = [tokenCache getFRTforAccount:account
-                                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                     configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                           familyId:DEFAULT_TEST_FAMILY_ID
                                                            context:nil
                                                              error:&error];
@@ -692,7 +692,7 @@
     
     NSError *error = nil;
     MSIDRefreshToken *returnedToken = [tokenCache getFRTforAccount:account
-                                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                     configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                           familyId:DEFAULT_TEST_FAMILY_ID
                                                            context:nil
                                                              error:&error];
@@ -709,7 +709,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
 
-    MSIDRefreshToken *firstToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *firstToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -718,7 +718,7 @@
     
     // Check that 1 RT is returned
     NSError *error = nil;
-    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestRequestParams v1DefaultParams].clientId
+    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestConfiguration v1DefaultConfiguration].clientId
                                           context:nil
                                             error:&error];
     
@@ -737,13 +737,13 @@
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
 
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     [_secondaryAccessor addToken:token forAccount:account];
     
     // Check that 1 RT is returned
     NSError *error = nil;
-    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestRequestParams v1DefaultParams].clientId
+    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestConfiguration v1DefaultConfiguration].clientId
                                           context:nil
                                             error:&error];
     
@@ -759,7 +759,7 @@
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
 
-    MSIDRefreshToken *firstToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *firstToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
@@ -768,13 +768,13 @@
 
     MSIDAADV2Oauth2Factory *v2Factory = [MSIDAADV2Oauth2Factory new];
 
-    MSIDRefreshToken *secondToken = [v2Factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *secondToken = [v2Factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     [_secondaryAccessor addToken:secondToken forAccount:account];
     
     // Check that 2 RTs are returned
     NSError *error = nil;
-    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestRequestParams v1DefaultParams].clientId
+    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestConfiguration v1DefaultConfiguration].clientId
                                           context:nil
                                             error:&error];
     
@@ -791,7 +791,7 @@
     
     // Check that no RT is returned
     NSError *error = nil;
-    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestRequestParams v1DefaultParams].clientId
+    NSArray *tokens = [tokenCache getAllClientRTs:[MSIDTestConfiguration v1DefaultConfiguration].clientId
                                           context:nil
                                             error:&error];
     
@@ -809,7 +809,7 @@
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
 
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     NSError *error = nil;
     BOOL result = [tokenCache removeRTForAccount:account token:token context:nil error:&error];
@@ -828,7 +828,7 @@
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
 
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     [_primaryAccessor addToken:token forAccount:account];
     XCTAssertEqual([[_primaryAccessor allRefreshTokens] count], 1);
@@ -851,7 +851,7 @@
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
 
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] request:[MSIDTestRequestParams v2DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v2DefaultTokenResponse] configuration:[MSIDTestConfiguration v2DefaultConfiguration]];
     
     [_secondaryAccessor addToken:token forAccount:account];
     XCTAssertEqual([[_secondaryAccessor allRefreshTokens] count], 1);
@@ -879,7 +879,7 @@ static NSString * extracted() {
 
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     [_primaryAccessor addToken:token forAccount:account];
     XCTAssertEqual([[_primaryAccessor allRefreshTokens] count], 1);
@@ -892,7 +892,7 @@ static NSString * extracted() {
                                                                                   upn:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                              tenantId:DEFAULT_TEST_UTID];
 
-    MSIDRefreshToken *updatedToken = [factory refreshTokenFromResponse:updatedResponse request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *updatedToken = [factory refreshTokenFromResponse:updatedResponse configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     NSError *error = nil;
     BOOL result = [tokenCache removeRTForAccount:account token:updatedToken context:nil error:&error];
@@ -973,9 +973,9 @@ static NSString * extracted() {
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
-    MSIDAccount *account = [factory accountFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDAccount *account = [factory accountFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
 
-    MSIDRefreshToken *oldRefreshToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *oldRefreshToken = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     
     // Add old token
     [_primaryAccessor addToken:oldRefreshToken forAccount:account];
@@ -984,7 +984,7 @@ static NSString * extracted() {
     MSIDSharedTokenCache *tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:_primaryAccessor
                                                                               otherCacheAccessors:@[_secondaryAccessor]];
     
-    MSIDConfiguration *requestParams = [MSIDTestRequestParams v1DefaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
     MSIDAADV1TokenResponse *tokenResponse = [MSIDTestTokenResponse v1TokenResponseWithAT:@"at"
                                                                                       rt:nil
                                                                                 resource:@"rt"
@@ -995,7 +995,7 @@ static NSString * extracted() {
     
     NSError *error = nil;
 
-    BOOL result = [tokenCache saveTokensWithFactory:factory requestParams:requestParams response:tokenResponse context:nil error:&error];
+    BOOL result = [tokenCache saveTokensWithFactory:factory configuration:configuration response:tokenResponse context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
     

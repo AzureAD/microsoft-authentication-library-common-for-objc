@@ -31,7 +31,7 @@
 #import "MSIDBaseToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDTestCacheIdentifiers.h"
-#import "MSIDTestRequestParams.h"
+#import "MSIDTestConfiguration.h"
 #import "MSIDAccount.h"
 #import "MSIDTestIdTokenUtil.h"
 
@@ -175,7 +175,7 @@
     
     NSArray *input = @[testItem1, testItem2];
     
-    MSIDConfiguration *params = [MSIDTestRequestParams paramsWithAuthority:nil
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
                                                                       clientId:DEFAULT_TEST_CLIENT_ID
                                                                    redirectUri:nil
                                                                         target:@"user.read"];
@@ -185,7 +185,7 @@
     
     NSError *error = nil;
     NSArray *result = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:input
-                                                                withParameters:params
+                                                                withConfiguration:configuration
                                                                        account:account
                                                                        context:nil
                                                                          error:&error];
@@ -216,7 +216,7 @@
     
     NSArray *input = @[testItem1, testItem2];
     
-    MSIDConfiguration *params = [MSIDTestRequestParams paramsWithAuthority:nil
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
                                                                       clientId:@"different client"
                                                                    redirectUri:nil
                                                                         target:@"user.read"];
@@ -226,7 +226,7 @@
     
     NSError *error = nil;
     NSArray *result = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:input
-                                                                withParameters:params
+                                                                withConfiguration:configuration
                                                                        account:account
                                                                        context:nil
                                                                          error:&error];
@@ -255,7 +255,7 @@
     
     NSArray *input = @[testItem1, testItem2];
     
-    MSIDConfiguration *params = [MSIDTestRequestParams paramsWithAuthority:nil
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
                                                                       clientId:DEFAULT_TEST_CLIENT_ID
                                                                    redirectUri:nil
                                                                         target:@"user.read"];
@@ -265,7 +265,7 @@
     
     NSError *error = nil;
     NSArray *result = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:input
-                                                                withParameters:params
+                                                                withConfiguration:configuration
                                                                        account:account
                                                                        context:nil
                                                                          error:&error];

@@ -52,13 +52,13 @@
 
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDConfiguration *)parameters
+                 configuration:(MSIDConfiguration *)configuration
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    if (!parameters)
+    if (!configuration)
     {
         if (error)
         {
@@ -68,9 +68,9 @@
         return NO;
     }
     
-    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:parameters];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     
-    return [self saveTokenForAccount:account token:accessToken clientId:parameters.clientId authority:parameters.authority context:context error:error];
+    return [self saveTokenForAccount:account token:accessToken clientId:configuration.clientId authority:configuration.authority context:context error:error];
 }
 
 - (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
@@ -88,14 +88,14 @@
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
-                      requestParams:(MSIDConfiguration *)parameters
+                      configuration:(MSIDConfiguration *)configuration
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
     return [self getTokenForAccount:account
                           tokenType:tokenType
-                           clientId:parameters.clientId
-                          authority:parameters.authority
+                           clientId:configuration.clientId
+                          authority:configuration.authority
                             context:context
                               error:error];
 }

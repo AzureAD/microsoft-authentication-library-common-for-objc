@@ -35,14 +35,15 @@
 
 @interface MSIDWebviewAuthorization : NSObject
 
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
-                                                                     factory:(MSIDOAuth2Factory *)factory;
-+ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
-                                                                     webview:(WKWebView *)webview
-                                                                     factory:(MSIDOAuth2Factory *)factory;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDConfiguration *)configuration
+                                                                 factory:(MSIDOAuth2Factory *)factory;
++ (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDConfiguration *)configuration
+                                                                 webview:(WKWebView *)webview
+                                                                 factory:(MSIDOAuth2Factory *)factory;
 
-+ (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDConfiguration *)parameters
-                                                                   factory:(MSIDOAuth2Factory *)factory;
++ (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDConfiguration *)configuration
+                                                               factory:(MSIDOAuth2Factory *)factory;
 
 + (BOOL)handleURLResponse:(NSURL *)url;
 @end
+

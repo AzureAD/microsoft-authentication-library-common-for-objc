@@ -43,7 +43,7 @@ typedef BOOL (^MSIDTokenCacheItemFiltering)(MSIDTokenCacheItem *tokenCacheItem);
                                                     withScopes:(NSOrderedSet<NSString *> *)scopes;
 
 + (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                                withParameters:(MSIDConfiguration *)parameters
+                                                withConfiguration:(MSIDConfiguration *)configuration
                                                        account:(MSIDAccount *)account
                                                        context:(id<MSIDRequestContext>)context
                                                          error:(NSError **)error;

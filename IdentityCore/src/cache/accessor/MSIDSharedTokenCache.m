@@ -68,65 +68,65 @@
 #pragma mark - Save tokens
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDConfiguration *)requestParams
-                      response:(MSIDTokenResponse *)response
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                configuration:(MSIDConfiguration *)configuration
+                     response:(MSIDTokenResponse *)response
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
     return [self saveTokensWithFactory:factory
-                          requestParams:requestParams
-                               response:response
-                   saveRefreshTokenOnly:NO
-                                context:context
-                                  error:error];
+                         configuration:configuration
+                              response:response
+                  saveRefreshTokenOnly:NO
+                               context:context
+                                 error:error];
 }
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                brokerResponse:(MSIDBrokerResponse *)response
-          saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+               brokerResponse:(MSIDBrokerResponse *)response
+         saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
-    MSIDConfiguration *params = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:response.authority]
-                                                                         redirectUri:nil
-                                                                            clientId:response.clientId
-                                                                              target:response.resource];
-
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:response.authority]
+                                                                 redirectUri:nil
+                                                                    clientId:response.clientId
+                                                                      target:response.resource];
+    
     return [self saveTokensWithFactory:factory
-                          requestParams:params
-                               response:response.tokenResponse
-                   saveRefreshTokenOnly:saveRefreshTokenOnly
-                                context:context
-                                  error:error];
+                         configuration:configuration
+                              response:response.tokenResponse
+                  saveRefreshTokenOnly:saveRefreshTokenOnly
+                               context:context
+                                 error:error];
 }
 
 #pragma mark - Get tokens
 
 - (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
-                       requestParams:(MSIDConfiguration *)parameters
+                       configuration:(MSIDConfiguration *)configuration
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
     return (MSIDAccessToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeAccessToken
                                                          account:account
-                                                   requestParams:parameters
+                                                   configuration:configuration
                                                          context:context
                                                            error:error];
 }
 
 - (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(MSIDAccount *)account
-                                              requestParams:(MSIDConfiguration *)parameters
+                                              configuration:(MSIDConfiguration *)configuration
                                                     context:(id<MSIDRequestContext>)context
                                                       error:(NSError **)error
 {
     return (MSIDLegacySingleResourceToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
                                                                        account:account
-                                                                 requestParams:parameters
+                                                                 configuration:configuration
                                                                        context:context
                                                                          error:error];
 }
 
-- (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDConfiguration *)parameters
+- (MSIDLegacySingleResourceToken *)getLegacyTokenWithConfiguration:(MSIDConfiguration *)configuration
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error
 {
@@ -134,13 +134,13 @@
     
     return (MSIDLegacySingleResourceToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
                                                                        account:account
-                                                                 requestParams:parameters
+                                                                 configuration:configuration
                                                                        context:context
                                                                          error:error];
 }
 
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
-                        requestParams:(MSIDConfiguration *)parameters
+                        configuration:(MSIDConfiguration *)configuration
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
@@ -151,7 +151,7 @@
     {
         MSIDRefreshToken *token = (MSIDRefreshToken *)[cache getTokenWithType:MSIDTokenTypeRefreshToken
                                                                       account:account
-                                                                requestParams:parameters
+                                                                configuration:configuration
                                                                       context:context
                                                                         error:error];
         
@@ -175,15 +175,15 @@
 
 
 - (MSIDRefreshToken *)getFRTforAccount:(MSIDAccount *)account
-                         requestParams:(MSIDConfiguration *)parameters
+                         configuration:(MSIDConfiguration *)configuration
                               familyId:(NSString *)familyId
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
-    parameters.clientId = [MSIDTokenCacheKey familyClientId:familyId];
+    configuration.clientId = [MSIDTokenCacheKey familyClientId:familyId];
     
     return [self getRTForAccount:account
-                   requestParams:parameters
+                   configuration:configuration
                          context:context
                            error:error];
 }
@@ -361,33 +361,33 @@
 }
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDConfiguration *)requestParams
-                      response:(MSIDTokenResponse *)response
-          saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                configuration:(MSIDConfiguration *)configuration
+                     response:(MSIDTokenResponse *)response
+         saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
-    MSIDAccount *account = [factory accountFromResponse:response request:requestParams];
-
-    MSID_LOG_VERBOSE(context, @"Saving tokens with authority %@, clientId %@, resource %@", requestParams.authority, requestParams.clientId, requestParams.resource);
-    MSID_LOG_VERBOSE_PII(context, @"Saving tokens with authority %@, clientId %@, resource %@, user ID: %@, legacy user ID: %@", requestParams.authority, requestParams.clientId, requestParams.resource, account.uniqueUserId, account.legacyUserId);
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
+    
+    MSID_LOG_VERBOSE(context, @"Saving tokens with authority %@, clientId %@, resource %@", configuration.authority, configuration.clientId, configuration.resource);
+    MSID_LOG_VERBOSE_PII(context, @"Saving tokens with authority %@, clientId %@, resource %@, user ID: %@, legacy user ID: %@", configuration.authority, configuration.clientId, configuration.resource, account.uniqueUserId, account.legacyUserId);
     
     BOOL result = YES;
     
     if (!saveRefreshTokenOnly)
     {
         result = [_primaryAccessor saveTokensWithFactory:factory
-                                            requestParams:requestParams
-                                                  account:account
-                                                 response:response
-                                                  context:context error:error];
+                                           configuration:configuration
+                                                 account:account
+                                                response:response
+                                                 context:context error:error];
         
         if (!result) return NO;
     }
     
     // Create a refresh token item
     MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response
-                                                                request:requestParams];
+                                                         configuration:configuration];
     
     if (!refreshToken)
     {
@@ -399,3 +399,4 @@
 }
 
 @end
+

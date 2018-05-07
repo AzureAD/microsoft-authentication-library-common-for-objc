@@ -25,18 +25,18 @@
 
 @class MSIDConfiguration;
 
-@interface MSIDTestRequestParams : NSObject
+@interface MSIDTestConfiguration : NSObject
 
 + (MSIDConfiguration *)defaultParams;
 
-+ (MSIDConfiguration *)paramsWithAuthority:(NSString *)authority
++ (MSIDConfiguration *)configurationWithAuthority:(NSString *)authority
                                       clientId:(NSString *)clientId
                                    redirectUri:(NSString *)redirectUri
                                         target:(NSString *)target;
 
-+ (MSIDConfiguration *)v1DefaultParams;
-+ (MSIDConfiguration *)v2DefaultParams;
++ (MSIDConfiguration *)v1DefaultConfiguration;
++ (MSIDConfiguration *)v2DefaultConfiguration;
 
-+ (MSIDConfiguration *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes;
++ (MSIDConfiguration *)v2DefaultConfigurationWithScopes:(NSOrderedSet<NSString *> *)scopes;
 
 @end

@@ -55,7 +55,7 @@
         }
         return NO;
     }
-
+    
     if (response.error)
     {
         if (error)
@@ -71,7 +71,7 @@
         }
         return NO;
     }
-
+    
     if ([NSString msidIsStringNilOrBlank:response.accessToken])
     {
         if (error)
@@ -80,187 +80,187 @@
         }
         return NO;
     }
-
+    
     return YES;
 }
 
 #pragma mark - Tokens
 
 - (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response
-                                 request:(MSIDConfiguration *)requestParams
+                           configuration:(MSIDConfiguration *)configuration
 {
     MSIDBaseToken *baseToken = [[MSIDBaseToken alloc] init];
-    return [self fillBaseToken:baseToken fromResponse:response request:requestParams];
+    return [self fillBaseToken:baseToken fromResponse:response configuration:configuration];
 }
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response
-                                     request:(MSIDConfiguration *)requestParams
+                               configuration:(MSIDConfiguration *)configuration
 {
     MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] init];
-    return [self fillAccessToken:accessToken fromResponse:response request:requestParams];
+    return [self fillAccessToken:accessToken fromResponse:response configuration:configuration];
 }
 
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response
-                                       request:(MSIDConfiguration *)requestParams
+                                 configuration:(MSIDConfiguration *)configuration
 {
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
-    return [self fillRefreshToken:refreshToken fromResponse:response request:requestParams];
+    return [self fillRefreshToken:refreshToken fromResponse:response configuration:configuration];
 }
 
 - (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response
-                             request:(MSIDConfiguration *)requestParams
+                       configuration:(MSIDConfiguration *)configuration
 {
     MSIDIdToken *idToken = [[MSIDIdToken alloc] init];
-    return [self fillIDToken:idToken fromResponse:response request:requestParams];
+    return [self fillIDToken:idToken fromResponse:response configuration:configuration];
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
-                                                   request:(MSIDConfiguration *)requestParams
+                                             configuration:(MSIDConfiguration *)configuration
 {
     MSIDLegacySingleResourceToken *legacyToken = [[MSIDLegacySingleResourceToken alloc] init];
-    return [self fillLegacyToken:legacyToken fromResponse:response request:requestParams];
+    return [self fillLegacyToken:legacyToken fromResponse:response configuration:configuration];
 }
 
-- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDConfiguration *)requestParams
+- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration
 {
     MSIDAccount *account = [[MSIDAccount alloc] init];
-    return [self fillAccount:account fromResponse:response request:requestParams];
+    return [self fillAccount:account fromResponse:response configuration:configuration];
 }
 
 #pragma mark - Token helpers
 
 - (MSIDBaseToken *)fillBaseToken:(MSIDBaseToken *)token
                     fromResponse:(MSIDTokenResponse *)response
-                         request:(MSIDConfiguration *)requestParams
+                   configuration:(MSIDConfiguration *)configuration
 {
     if (!response
-        || !requestParams)
+        || !configuration)
     {
         return nil;
     }
-
-    token.authority = requestParams.authority;
-    token.clientId = requestParams.clientId;
+    
+    token.authority = configuration.authority;
+    token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
     token.username = response.idTokenObj.username;
     token.uniqueUserId = response.idTokenObj.userId;
-
+    
     return token;
 }
 
 - (MSIDAccessToken *)fillAccessToken:(MSIDAccessToken *)token
                         fromResponse:(MSIDTokenResponse *)response
-                             request:(MSIDConfiguration *)requestParams
+                       configuration:(MSIDConfiguration *)configuration
 {
-    token = (MSIDAccessToken *) [self fillBaseToken:token fromResponse:response request:requestParams];
-
+    token = (MSIDAccessToken *) [self fillBaseToken:token fromResponse:response configuration:configuration];
+    
     if (!token)
     {
         return nil;
     }
-
+    
     token.scopes = [response.target scopeSet];
-
+    
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     token.accessToken = response.accessToken;
-
+    
     if (!token.accessToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
         return nil;
     }
-
+    
     token.idToken = response.idToken;
-
+    
     NSDate *expiresOn = response.expiryDate;
-
+    
     if (!expiresOn)
     {
         MSID_LOG_WARN(nil, @"The server did not return the expiration time for the access token.");
         expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
     }
-
+    
     token.expiresOn = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[expiresOn timeIntervalSince1970]];
     token.cachedAt = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[[NSDate date] timeIntervalSince1970]];
-
+    
     return token;
 }
 
 - (MSIDRefreshToken *)fillRefreshToken:(MSIDRefreshToken *)token
                           fromResponse:(MSIDTokenResponse *)response
-                               request:(MSIDConfiguration *)requestParams
+                         configuration:(MSIDConfiguration *)configuration
 {
-    token = (MSIDRefreshToken *) [self fillBaseToken:token fromResponse:response request:requestParams];
-
+    token = (MSIDRefreshToken *) [self fillBaseToken:token fromResponse:response configuration:configuration];
+    
     if (!token)
     {
         return nil;
     }
-
+    
     if (!response.isMultiResource)
     {
         return nil;
     }
-
+    
     token.refreshToken = response.refreshToken;
-
+    
     if (!token.refreshToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize refresh token when missing refresh token field");
         return nil;
     }
-
+    
     token.idToken = response.idToken;
-
+    
     return token;
 }
 
 - (MSIDIdToken *)fillIDToken:(MSIDIdToken *)token
                 fromResponse:(MSIDTokenResponse *)response
-                     request:(MSIDConfiguration *)requestParams
+               configuration:(MSIDConfiguration *)configuration
 {
-    token = (MSIDIdToken *) [self fillBaseToken:token fromResponse:response request:requestParams];
-
+    token = (MSIDIdToken *) [self fillBaseToken:token fromResponse:response configuration:configuration];
+    
     if (!token)
     {
         return nil;
     }
-
+    
     token.rawIdToken = response.idToken;
-
+    
     if (!token.rawIdToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize ID token when missing ID token field");
         return nil;
     }
-
+    
     return token;
 }
 
 - (MSIDLegacySingleResourceToken *)fillLegacyToken:(MSIDLegacySingleResourceToken *)token
                                       fromResponse:(MSIDTokenResponse *)response
-                                           request:(MSIDConfiguration *)requestParams
+                                     configuration:(MSIDConfiguration *)configuration
 {
-    token = (MSIDLegacySingleResourceToken *) [self fillAccessToken:token fromResponse:response request:requestParams];
-
+    token = (MSIDLegacySingleResourceToken *) [self fillAccessToken:token fromResponse:response configuration:configuration];
+    
     if (!token)
     {
         return nil;
     }
-
+    
     token.refreshToken = response.refreshToken;
     return token;
 }
 
 - (MSIDAccount *)fillAccount:(MSIDAccount *)account
                 fromResponse:(MSIDTokenResponse *)response
-                     request:(MSIDConfiguration *)requestParams
+               configuration:(MSIDConfiguration *)configuration
 {
     account.uniqueUserId = response.idTokenObj.userId;
     account.username = response.idTokenObj.username;
     account.firstName = response.idTokenObj.givenName;
     account.lastName = response.idTokenObj.familyName;
-    account.authority = requestParams.authority;
+    account.authority = configuration.authority;
     account.accountType = response.accountType;
     account.legacyUserId = response.idTokenObj.userId;
     return account;
@@ -281,3 +281,4 @@
 }
 
 @end
+

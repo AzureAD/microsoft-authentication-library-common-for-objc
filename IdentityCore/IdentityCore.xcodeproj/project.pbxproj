@@ -20,8 +20,8 @@
 		2308476B207D6D500024CE7C /* NSData+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 23084769207D6D500024CE7C /* NSData+MSIDExtensions.h */; };
 		2308476C207D6D500024CE7C /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2308476A207D6D500024CE7C /* NSData+MSIDExtensions.m */; };
 		2308476D207D6D500024CE7C /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2308476A207D6D500024CE7C /* NSData+MSIDExtensions.m */; };
-		23185366206D8B080024DCA4 /* MSIDTestRequestParams.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFF1FF306110015FC1D /* MSIDTestRequestParams.m */; };
-		23185367206D8B090024DCA4 /* MSIDTestRequestParams.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFF1FF306110015FC1D /* MSIDTestRequestParams.m */; };
+		23185366206D8B080024DCA4 /* MSIDTestConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFF1FF306110015FC1D /* MSIDTestConfiguration.m */; };
+		23185367206D8B090024DCA4 /* MSIDTestConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFF1FF306110015FC1D /* MSIDTestConfiguration.m */; };
 		23185368206D8B1D0024DCA4 /* MSIDTestTokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFB1FF304250015FC1D /* MSIDTestTokenResponse.m */; };
 		23185369206D8B1E0024DCA4 /* MSIDTestTokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFB1FF304250015FC1D /* MSIDTestTokenResponse.m */; };
 		2318536A206D8B360024DCA4 /* MSIDTestCacheAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEF71FF2FC540015FC1D /* MSIDTestCacheAccessor.m */; };
@@ -233,15 +233,15 @@
 		B27551DE20817A5E00AA7A38 /* MSIDClientCredentialHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */; };
 		B27551DF20817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
 		B27551E020817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
-		B27551EA20817CD400AA7A38 /* MSIDTestConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E420817CD300AA7A38 /* MSIDTestConfiguration.h */; };
+		B27551EA20817CD400AA7A38 /* MSIDTestAutomationConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E420817CD300AA7A38 /* MSIDTestAutomationConfiguration.h */; };
 		B27551EB20817CD400AA7A38 /* MSIDTestAccountsProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */; };
 		B27551EC20817CD400AA7A38 /* MSIDTestAccountsProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */; };
 		B27551ED20817CD400AA7A38 /* MSIDTestAccountsProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E620817CD400AA7A38 /* MSIDTestAccountsProvider.h */; };
-		B27551EE20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestConfiguration.m */; };
-		B27551EF20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestConfiguration.m */; };
-		B27551F020817CD400AA7A38 /* MSIDTestConfigurationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E820817CD400AA7A38 /* MSIDTestConfigurationRequest.h */; };
-		B27551F120817CD400AA7A38 /* MSIDTestConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E920817CD400AA7A38 /* MSIDTestConfigurationRequest.m */; };
-		B27551F220817CD400AA7A38 /* MSIDTestConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E920817CD400AA7A38 /* MSIDTestConfigurationRequest.m */; };
+		B27551EE20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */; };
+		B27551EF20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */; };
+		B27551F020817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E820817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h */; };
+		B27551F120817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */; };
+		B27551F220817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */; };
 		B27551FE208182BE00AA7A38 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F8208182BE00AA7A38 /* Authentication.swift */; };
 		B27551FF208182BE00AA7A38 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F8208182BE00AA7A38 /* Authentication.swift */; };
 		B2755200208182BE00AA7A38 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F9208182BE00AA7A38 /* Result.swift */; };
@@ -614,8 +614,8 @@
 		B23ECEF71FF2FC540015FC1D /* MSIDTestCacheAccessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestCacheAccessor.m; sourceTree = "<group>"; };
 		B23ECEFA1FF304250015FC1D /* MSIDTestTokenResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestTokenResponse.h; sourceTree = "<group>"; };
 		B23ECEFB1FF304250015FC1D /* MSIDTestTokenResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestTokenResponse.m; sourceTree = "<group>"; };
-		B23ECEFE1FF306110015FC1D /* MSIDTestRequestParams.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestRequestParams.h; sourceTree = "<group>"; };
-		B23ECEFF1FF306110015FC1D /* MSIDTestRequestParams.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestRequestParams.m; sourceTree = "<group>"; };
+		B23ECEFE1FF306110015FC1D /* MSIDTestConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestConfiguration.h; sourceTree = "<group>"; };
+		B23ECEFF1FF306110015FC1D /* MSIDTestConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestConfiguration.m; sourceTree = "<group>"; };
 		B23ECF021FF308D20015FC1D /* MSIDTestCacheIdentifiers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestCacheIdentifiers.h; sourceTree = "<group>"; };
 		B23ECF041FF33AE70015FC1D /* MSIDLegacyTokenCacheIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLegacyTokenCacheIntegrationTests.m; sourceTree = "<group>"; };
 		B23ECF0C1FF33BD20015FC1D /* MSIDTestCacheDataSource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MSIDTestCacheDataSource.m; path = tests/util/MSIDTestCacheDataSource.m; sourceTree = SOURCE_ROOT; };
@@ -663,12 +663,12 @@
 		B27551E120817AF400AA7A38 /* identitycore__automation__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__common.xcconfig; sourceTree = "<group>"; };
 		B27551E220817AF400AA7A38 /* identitycore__automation__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__mac.xcconfig; sourceTree = "<group>"; };
 		B27551E320817AF400AA7A38 /* identitycore__automation__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__ios.xcconfig; sourceTree = "<group>"; };
-		B27551E420817CD300AA7A38 /* MSIDTestConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestConfiguration.h; sourceTree = "<group>"; };
+		B27551E420817CD300AA7A38 /* MSIDTestAutomationConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestAutomationConfiguration.h; sourceTree = "<group>"; };
 		B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestAccountsProvider.m; sourceTree = "<group>"; };
 		B27551E620817CD400AA7A38 /* MSIDTestAccountsProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestAccountsProvider.h; sourceTree = "<group>"; };
-		B27551E720817CD400AA7A38 /* MSIDTestConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestConfiguration.m; sourceTree = "<group>"; };
-		B27551E820817CD400AA7A38 /* MSIDTestConfigurationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestConfigurationRequest.h; sourceTree = "<group>"; };
-		B27551E920817CD400AA7A38 /* MSIDTestConfigurationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestConfigurationRequest.m; sourceTree = "<group>"; };
+		B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestAutomationConfiguration.m; sourceTree = "<group>"; };
+		B27551E820817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestAutomationConfigurationRequest.h; sourceTree = "<group>"; };
+		B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestAutomationConfigurationRequest.m; sourceTree = "<group>"; };
 		B27551F8208182BE00AA7A38 /* Authentication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
 		B27551F9208182BE00AA7A38 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		B27551FA208182BE00AA7A38 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
@@ -1189,8 +1189,8 @@
 				B23ECEF71FF2FC540015FC1D /* MSIDTestCacheAccessor.m */,
 				B23ECEFA1FF304250015FC1D /* MSIDTestTokenResponse.h */,
 				B23ECEFB1FF304250015FC1D /* MSIDTestTokenResponse.m */,
-				B23ECEFE1FF306110015FC1D /* MSIDTestRequestParams.h */,
-				B23ECEFF1FF306110015FC1D /* MSIDTestRequestParams.m */,
+				B23ECEFE1FF306110015FC1D /* MSIDTestConfiguration.h */,
+				B23ECEFF1FF306110015FC1D /* MSIDTestConfiguration.m */,
 				B23ECF021FF308D20015FC1D /* MSIDTestCacheIdentifiers.h */,
 			);
 			path = cache;
@@ -1269,10 +1269,10 @@
 				B27551F7208182BE00AA7A38 /* keyvault */,
 				B27551E620817CD400AA7A38 /* MSIDTestAccountsProvider.h */,
 				B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */,
-				B27551E420817CD300AA7A38 /* MSIDTestConfiguration.h */,
-				B27551E720817CD400AA7A38 /* MSIDTestConfiguration.m */,
-				B27551E820817CD400AA7A38 /* MSIDTestConfigurationRequest.h */,
-				B27551E920817CD400AA7A38 /* MSIDTestConfigurationRequest.m */,
+				B27551E420817CD300AA7A38 /* MSIDTestAutomationConfiguration.h */,
+				B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */,
+				B27551E820817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h */,
+				B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */,
 				B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */,
 				B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */,
 				B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */,
@@ -1505,9 +1505,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B27551F020817CD400AA7A38 /* MSIDTestConfigurationRequest.h in Headers */,
+				B27551F020817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h in Headers */,
 				B275520E208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h in Headers */,
-				B27551EA20817CD400AA7A38 /* MSIDTestConfiguration.h in Headers */,
+				B27551EA20817CD400AA7A38 /* MSIDTestAutomationConfiguration.h in Headers */,
 				B27551DE20817A5E00AA7A38 /* MSIDClientCredentialHelper.h in Headers */,
 				B27551ED20817CD400AA7A38 /* MSIDTestAccountsProvider.h in Headers */,
 			);
@@ -1897,8 +1897,8 @@
 				B27551DF20817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */,
 				B2755208208182BE00AA7A38 /* AuthHeader.swift in Sources */,
 				B2D1841E2083CDE90001D445 /* MSIDVersion.m in Sources */,
-				B27551F120817CD400AA7A38 /* MSIDTestConfigurationRequest.m in Sources */,
-				B27551EE20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */,
+				B27551F120817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m in Sources */,
+				B27551EE20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */,
 				B27551FE208182BE00AA7A38 /* Authentication.swift in Sources */,
 				B2755204208182BE00AA7A38 /* Secret.swift in Sources */,
 				B275520B208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */,
@@ -1916,8 +1916,8 @@
 				B27551E020817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */,
 				B2755209208182BE00AA7A38 /* AuthHeader.swift in Sources */,
 				B2D1841F2083CDEA0001D445 /* MSIDVersion.m in Sources */,
-				B27551F220817CD400AA7A38 /* MSIDTestConfigurationRequest.m in Sources */,
-				B27551EF20817CD400AA7A38 /* MSIDTestConfiguration.m in Sources */,
+				B27551F220817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m in Sources */,
+				B27551EF20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */,
 				B27551FF208182BE00AA7A38 /* Authentication.swift in Sources */,
 				B2755205208182BE00AA7A38 /* Secret.swift in Sources */,
 				B275520C208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */,
@@ -2121,7 +2121,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23185367206D8B090024DCA4 /* MSIDTestRequestParams.m in Sources */,
+				23185367206D8B090024DCA4 /* MSIDTestConfiguration.m in Sources */,
 				23F32F251FFDAF1900B2905E /* MSIDTestBrokerResponse.m in Sources */,
 				D6D9A4571FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
 				23F32F191FFD635500B2905E /* MSIDTestIdTokenUtil.m in Sources */,
@@ -2142,7 +2142,7 @@
 				D6D9A4581FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
 				D626FFF21FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
 				D626FFF81FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
-				23185366206D8B080024DCA4 /* MSIDTestRequestParams.m in Sources */,
+				23185366206D8B080024DCA4 /* MSIDTestConfiguration.m in Sources */,
 				23F32F261FFDAF1A00B2905E /* MSIDTestBrokerResponse.m in Sources */,
 				D626FFF51FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
 				D6D9A44E1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,

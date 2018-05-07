@@ -35,7 +35,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDTestTokenResponse.h"
 #import "MSIDTestCacheIdentifiers.h"
-#import "MSIDTestRequestParams.h"
+#import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccount.h"
@@ -150,7 +150,7 @@
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
 
-    MSIDBaseToken *result = [factory baseTokenFromResponse:nil request:[MSIDConfiguration new]];
+    MSIDBaseToken *result = [factory baseTokenFromResponse:nil configuration:[MSIDConfiguration new]];
 
     XCTAssertNil(result);
 }
@@ -159,7 +159,7 @@
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
 
-    MSIDBaseToken *result = [factory baseTokenFromResponse:[MSIDTokenResponse new] request:nil];
+    MSIDBaseToken *result = [factory baseTokenFromResponse:[MSIDTokenResponse new] configuration:nil];
 
     XCTAssertNil(result);
 }
@@ -174,12 +174,12 @@
                                                                            username:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                             subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
 
-    MSIDConfiguration *params = [MSIDTestRequestParams defaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
 
-    MSIDBaseToken *token = [factory baseTokenFromResponse:response request:params];
+    MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, params.authority);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -196,12 +196,12 @@
                                                                            username:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                             subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
 
-    MSIDConfiguration *params = [MSIDTestRequestParams defaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
 
-    MSIDAccessToken *token = [factory accessTokenFromResponse:response request:params];
+    MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, params.authority);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -229,12 +229,12 @@
                                                                            username:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                             subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
 
-    MSIDConfiguration *params = [MSIDTestRequestParams defaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
 
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:response request:params];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, params.authority);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -257,12 +257,12 @@
                                                                            username:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                             subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
 
-    MSIDConfiguration *params = [MSIDTestRequestParams defaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
 
-    MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response request:params];
+    MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, params.authority);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -290,12 +290,12 @@
                                                                            username:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                             subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
 
-    MSIDConfiguration *params = [MSIDTestRequestParams defaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
 
-    MSIDIdToken *token = [factory idTokenFromResponse:response request:params];
+    MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, params.authority);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -320,12 +320,12 @@
                                    };
 
     MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:responseDict refreshToken:nil error:nil];
-    MSIDConfiguration *params = [MSIDTestRequestParams defaultParams];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
 
-    MSIDBaseToken *token = [factory baseTokenFromResponse:response request:params];
+    MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, params.authority);
-    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     XCTAssertEqualObjects(token.uniqueUserId, @"subject");
 
@@ -342,14 +342,14 @@
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman"];
     NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
-    MSIDConfiguration *requestParameters =
+    MSIDConfiguration *configuration =
     [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
                                          redirectUri:@"redirect uri"
                                             clientId:@"client id"
                                               target:@"target"];
     MSIDTokenResponse *tokenResponse = [[MSIDTokenResponse alloc] initWithJSONDictionary:json error:nil];
 
-    MSIDAccount *account = [factory accountFromResponse:tokenResponse request:requestParameters];
+    MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
 
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"subject");

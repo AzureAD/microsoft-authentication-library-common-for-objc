@@ -28,14 +28,14 @@
 
 - (instancetype)copyWithZone:(NSZone*)zone
 {
-    MSIDConfiguration *parameters = [[MSIDConfiguration allocWithZone:zone] init];
-    parameters.authority = [_authority copyWithZone:zone];
-    parameters.redirectUri = [_redirectUri copyWithZone:zone];
-    parameters.target = [_target copyWithZone:zone];
-    parameters.clientId = [_clientId copyWithZone:zone];
-    parameters.correlationId = [_correlationId copyWithZone:zone];
+    MSIDConfiguration *configuration = [[MSIDConfiguration allocWithZone:zone] init];
+    configuration.authority = [_authority copyWithZone:zone];
+    configuration.redirectUri = [_redirectUri copyWithZone:zone];
+    configuration.target = [_target copyWithZone:zone];
+    configuration.clientId = [_clientId copyWithZone:zone];
+    configuration.correlationId = [_correlationId copyWithZone:zone];
     
-    return parameters;
+    return configuration;
 }
 
 - (instancetype)initWithAuthority:(NSURL *)authority
