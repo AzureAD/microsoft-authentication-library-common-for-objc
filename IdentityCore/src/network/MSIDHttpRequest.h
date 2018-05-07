@@ -33,13 +33,13 @@
 
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
 {
-    NSDictionary<NSString *, NSString *> *_parameters;
-    NSURLRequest *_urlRequest;
-    id<MSIDRequestSerialization> _requestSerializer;
-    id<MSIDResponseSerialization> _responseSerializer;
-    id<MSIDHttpRequestConfiguratorProtocol> _requestConfigurator;
-    id<MSIDHttpRequestTelemetryProtocol> _telemetry;
-    id<MSIDHttpRequestErrorHandlerProtocol> _errorHandler;
+    @protected NSDictionary<NSString *, NSString *> *_parameters;
+    @protected NSURLRequest *_urlRequest;
+    @protected id<MSIDRequestSerialization> _requestSerializer;
+    @protected id<MSIDResponseSerialization> _responseSerializer;
+    @protected id<MSIDHttpRequestConfiguratorProtocol> _requestConfigurator;
+    @protected id<MSIDHttpRequestTelemetryProtocol> _telemetry;
+    @protected id<MSIDHttpRequestErrorHandlerProtocol> _errorHandler;
 }
 
 @property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *parameters;
