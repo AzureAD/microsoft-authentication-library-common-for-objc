@@ -39,7 +39,7 @@ NSWindowController <MSIDWebviewInteracting, WKNavigationDelegate, NSWindowDelega
 @property (nonatomic) WKWebView *webView;
 #if TARGET_OS_IPHONE
 @property (weak, nonatomic) UIViewController *parentController;
-@property BOOL fullScreen;
+@property UIModalPresentationStyle presentationType;
 #endif
 
 - (id)init NS_UNAVAILABLE;

@@ -148,7 +148,8 @@
         return NO;
     }
     
-    UIView *rootView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    UIView *rootView = [self view];
+    [rootView setFrame:[[UIScreen mainScreen] bounds]];
     [rootView setAutoresizesSubviews:YES];
     [rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 #else
@@ -186,13 +187,13 @@
                                 orURL:(NSURL *)endURL
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self dismidssWebview:^{[self dispatchCompletionBlock:error URL:endURL];}];
+        [self dismissWebview:^{[self dispatchCompletionBlock:error URL:endURL];}];
     });
     
     return YES;
 }
 
-- (void)dismidssWebview:(void (^)(void))completion
+- (void)dismissWebview:(void (^)(void))completion
 {
 #if TARGET_OS_IPHONE
     //if webview is created by us, dismiss and then complete and return;
@@ -251,15 +252,7 @@
     
 #if TARGET_OS_IPHONE
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
-    
-    if (_fullScreen)
-    {
-        [navController setModalPresentationStyle:UIModalPresentationFullScreen];
-    }
-    else
-    {
-        [navController setModalPresentationStyle:UIModalPresentationFormSheet];
-    }
+    [navController setModalPresentationStyle:_presentationType];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [_parentController presentViewController:navController animated:YES completion:nil];
