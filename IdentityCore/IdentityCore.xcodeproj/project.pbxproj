@@ -82,6 +82,10 @@
 		606830072098C88800CCA6AB /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EF5209126FC00BCD67D /* AppKit.framework */; };
 		6068300A2098C9D300CCA6AB /* MSIDCredentialCollectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 606830092098C9D300CCA6AB /* MSIDCredentialCollectionController.m */; };
 		606830102098E94100CCA6AB /* MSIDCertificateChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 6068300F2098E94100CCA6AB /* MSIDCertificateChooser.m */; };
+		6068302820A0B44200CCA6AB /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6068302720A0B44200CCA6AB /* Security.framework */; };
+		6068302920A0B45300CCA6AB /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6068302720A0B44200CCA6AB /* Security.framework */; };
+		6068302B20A0B4B800CCA6AB /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6068302A20A0B4B800CCA6AB /* SecurityInterface.framework */; };
+		6068302C20A0B4BF00CCA6AB /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6068302A20A0B4B800CCA6AB /* SecurityInterface.framework */; };
 		60BF06042051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */; };
 		60BF06052051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */; };
 		60BF06072052023900DE7C1C /* MSIDWipeDataTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06062052023900DE7C1C /* MSIDWipeDataTelemetryTests.m */; };
@@ -524,6 +528,8 @@
 		606830092098C9D300CCA6AB /* MSIDCredentialCollectionController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCredentialCollectionController.m; sourceTree = "<group>"; };
 		6068300E2098E92E00CCA6AB /* MSIDCertificateChooser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCertificateChooser.h; sourceTree = "<group>"; };
 		6068300F2098E94100CCA6AB /* MSIDCertificateChooser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCertificateChooser.m; sourceTree = "<group>"; };
+		6068302720A0B44200CCA6AB /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		6068302A20A0B4B800CCA6AB /* SecurityInterface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityInterface.framework; path = System/Library/Frameworks/SecurityInterface.framework; sourceTree = SDKROOT; };
 		60BF06022051F95B00DE7C1C /* MSIDTelemetryTestDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryTestDispatcher.h; sourceTree = "<group>"; };
 		60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryTestDispatcher.m; sourceTree = "<group>"; };
 		60BF06062052023900DE7C1C /* MSIDWipeDataTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWipeDataTelemetryTests.m; sourceTree = "<group>"; };
@@ -812,6 +818,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6068302B20A0B4B800CCA6AB /* SecurityInterface.framework in Frameworks */,
+				6068302920A0B45300CCA6AB /* Security.framework in Frameworks */,
 				606830072098C88800CCA6AB /* AppKit.framework in Frameworks */,
 				600E0EF22091260700BCD67D /* WebKit.framework in Frameworks */,
 			);
@@ -821,6 +829,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6068302C20A0B4BF00CCA6AB /* SecurityInterface.framework in Frameworks */,
+				6068302820A0B44200CCA6AB /* Security.framework in Frameworks */,
 				600E0EF72091270300BCD67D /* AppKit.framework in Frameworks */,
 				600E0EF42091264900BCD67D /* WebKit.framework in Frameworks */,
 				B20657DC1FC92EC600412B7D /* IOKit.framework in Frameworks */,
@@ -1459,6 +1469,8 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6068302A20A0B4B800CCA6AB /* SecurityInterface.framework */,
+				6068302720A0B44200CCA6AB /* Security.framework */,
 				600E0EF5209126FC00BCD67D /* AppKit.framework */,
 				96A3E9C020895CCE00BE5262 /* WebKit.framework */,
 				600E0EEE209125FA00BCD67D /* WebKit.framework */,
