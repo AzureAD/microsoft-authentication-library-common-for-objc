@@ -29,31 +29,19 @@
 @class MSIDAccountCacheItem;
 @class MSIDDefaultTokenCacheKey;
 @protocol MSIDTokenCacheDataSource;
+@class MSIDDefaultTokenCacheQuery;
 
 @interface MSIDAccountCredentialCache : NSObject
 
 - (nonnull instancetype)initWithDataSource:(nonnull id<MSIDTokenCacheDataSource>)dataSource;
 
-// Reading credentials
 /*
- Gets all credentials which match the parameters
- @param uniqueUserId required
- @param environment required
- @param realm optional. Nil string means "match all".
- @param client_id required
- @param target optional. Empty string means "match all".
- @param type: required
-*/
-- (nullable NSArray<MSIDTokenCacheItem *> *)getCredentialsWithUniqueUserId:(nullable NSString *)uniqueUserId
-                                                               environment:(nullable NSString *)environment
-                                                                     realm:(nullable NSString *)realm
-                                                                  clientId:(nullable NSString *)clientId
-                                                                    target:(nullable NSString *)target
-                                                            targetMatching:(MSIDComparisonOptions)matchingOptions
-                                                                      type:(MSIDTokenType)type
-                                                                   context:(nullable id<MSIDRequestContext>)context
-                                                                     error:(NSError * _Nullable * _Nullable)error;
-
+ Gets all credentials matching the parameters specified in the query
+ */
+- (nullable NSArray<MSIDTokenCacheItem *> *)getCredentialsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+                                                       legacyUserId:(nullable NSString *)legacyUserId
+                                                            context:(nullable id<MSIDRequestContext>)context
+                                                              error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Gets a credential for a particular key
@@ -63,31 +51,18 @@
                                          error:(NSError * _Nullable * _Nullable)error;
 
 /*
- Gets all credentials which matching parameters
-*/
-- (nullable NSArray<MSIDTokenCacheItem *> *)getCredentials:(nonnull MSIDDefaultTokenCacheKey *)query
-                                                   context:(nullable id<MSIDRequestContext>)context
-                                                     error:(NSError * _Nullable * _Nullable)error;
-
-/*
  Gets all credentials which a matching type
 */
 - (nullable NSArray<MSIDTokenCacheItem *> *)getAllCredentialsWithType:(MSIDTokenType)type
                                                               context:(nullable id<MSIDRequestContext>)context
                                                                 error:(NSError * _Nullable * _Nullable)error;
 
-
 /*
- Reads all accounts with matching parameters
- @param uniqueUserId required
- @param environment required
- @param realm optional. Nil string means "match all".
-*/
-- (nullable NSArray<MSIDAccountCacheItem *> *)getAccountsWithUniqueUserId:(nonnull NSString *)uniqueUserId
-                                                              environment:(nonnull NSString *)environment
-                                                                    realm:(nullable NSString *)realm
-                                                                  context:(nullable id<MSIDRequestContext>)context
-                                                                    error:(NSError * _Nullable * _Nullable)error;
+ Gets all accounts matching the parameters specified in the query
+ */
+- (nullable NSArray<MSIDAccountCacheItem *> *)getAccountsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+                                                           context:(nullable id<MSIDRequestContext>)context
+                                                             error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Gets an account for a particular key
@@ -95,13 +70,6 @@
 - (nullable MSIDAccountCacheItem *)getAccount:(nonnull MSIDDefaultTokenCacheKey *)key
                                       context:(nullable id<MSIDRequestContext>)context
                                         error:(NSError * _Nullable * _Nullable)error;
-
-/*
- Gets all accounts which matching parameters
- */
-- (nullable NSArray<MSIDAccountCacheItem *> *)getAccounts:(nonnull MSIDDefaultTokenCacheKey *)query
-                                                  context:(nullable id<MSIDRequestContext>)context
-                                                    error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Gets all accounts which a matching type
@@ -131,23 +99,11 @@
               error:(NSError * _Nullable * _Nullable)error;
 
 /*
- Remove all credentials which match the parameters
- @param uniqueUserId required
- @param environment required
- @param realm optional. Nil string means "match all".
- @param client_id required
- @param target optional. Empty string means "match all".
- @param type: required
+ Removes credentials matching parameters specified in the query
  */
-- (BOOL)removeCredentialsWithUniqueUserId:(nonnull NSString *)uniqueUserId
-                              environment:(nonnull NSString *)environment
-                                    realm:(nullable NSString *)realm
-                                 clientId:(nonnull NSString *)clientId
-                                   target:(nullable NSString *)target
-                           targetMatching:(MSIDComparisonOptions)matchingOptions
-                                     type:(MSIDTokenType)type
-                                  context:(nullable id<MSIDRequestContext>)context
-                                    error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)removeCredetialsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+                          context:(nullable id<MSIDRequestContext>)context
+                            error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Removes a credential
@@ -157,20 +113,11 @@
                    error:(NSError * _Nullable * _Nullable)error;
 
 /*
- Removes credentials matching the query
- */
-- (BOOL)removeCredentials:(nonnull MSIDDefaultTokenCacheKey *)query
-                  context:(nullable id<MSIDRequestContext>)context
-                    error:(NSError * _Nullable * _Nullable)error;
-
-/*
  Removes multiple accounts matching parameters
 */
-- (BOOL)removeAccountsWithUniqueUserId:(nonnull NSString *)uniqueUserId
-                           environment:(nonnull NSString *)environment
-                                 realm:(nullable NSString *)realm
-                               context:(nullable id<MSIDRequestContext>)context
-                                 error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)removeAccountsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+                        context:(nullable id<MSIDRequestContext>)context
+                          error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Removes an account
@@ -178,13 +125,6 @@
 - (BOOL)removeAccount:(nonnull MSIDAccountCacheItem *)account
               context:(nullable id<MSIDRequestContext>)context
                 error:(NSError * _Nullable * _Nullable)error;
-
-/*
- Removes multiple accounts
-*/
-- (BOOL)removeAccounts:(nonnull MSIDDefaultTokenCacheKey *)query
-               context:(nullable id<MSIDRequestContext>)context
-                 error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Clears the whole cache, should only be used for testing!
@@ -198,5 +138,11 @@
 - (BOOL)removeAllCredentials:(nonnull NSArray<MSIDTokenCacheItem *> *)credentials
                      context:(nullable id<MSIDRequestContext>)context
                        error:(NSError * _Nullable * _Nullable)error;
+
+/*
+ Returns latest wipe info
+ */
+- (nullable NSDictionary *)wipeInfoWithContext:(nullable id<MSIDRequestContext>)context
+                                         error:(NSError * _Nullable * _Nullable)error;
 
 @end

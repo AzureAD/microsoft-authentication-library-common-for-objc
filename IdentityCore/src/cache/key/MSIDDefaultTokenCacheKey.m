@@ -135,10 +135,21 @@ static NSInteger kTokenTypePrefix = 2000;
                                                          clientId:(nullable NSString *)clientId
                                                             realm:(nullable NSString *)realm
                                                            target:(nullable NSString *)target
-                                                             type:(MSIDTokenType)type
+                                                   credentialType:(MSIDTokenType)credentialType
+                                                     matchAnyType:(BOOL)anyType
                                                        exactMatch:(BOOL *)exactMatch
 {
-    switch (type)
+    if (anyType)
+    {
+        return [self queryForAllCredentialsWithUniqueUserId:uniqueUserId
+                                                environment:environment
+                                                   clientId:clientId
+                                                      realm:realm
+                                                     target:target
+                                                 exactMatch:exactMatch];
+    }
+
+    switch (credentialType)
     {
         case MSIDTokenTypeAccessToken:
         {
@@ -178,6 +189,24 @@ static NSInteger kTokenTypePrefix = 2000;
                                                                target:(nullable NSString *)target
                                                            exactMatch:(BOOL *)exactMatch
 {
+    MSIDDefaultTokenCacheKey *query = [self queryForAllCredentialsWithUniqueUserId:userId
+                                                                       environment:environment
+                                                                          clientId:clientId
+                                                                             realm:realm
+                                                                            target:target
+                                                                        exactMatch:exactMatch];
+
+    query.type = [self tokenType:MSIDTokenTypeAccessToken];
+    return query;
+}
+
++ (MSIDDefaultTokenCacheKey *)queryForAllCredentialsWithUniqueUserId:(nullable NSString *)userId
+                                                         environment:(nullable NSString *)environment
+                                                            clientId:(nullable NSString *)clientId
+                                                               realm:(nullable NSString *)realm
+                                                              target:(nullable NSString *)target
+                                                          exactMatch:(BOOL *)exactMatch
+{
     *exactMatch = YES;
 
     NSString *account = nil;
@@ -209,12 +238,10 @@ static NSInteger kTokenTypePrefix = 2000;
         *exactMatch = NO;
     }
 
-    NSNumber *type = [self tokenType:MSIDTokenTypeAccessToken];
-
     return [[MSIDDefaultTokenCacheKey alloc] initWithAccount:account
                                                      service:service
                                                      generic:[generic dataUsingEncoding:NSUTF8StringEncoding]
-                                                        type:type];
+                                                        type:nil];
 }
 
 + (MSIDDefaultTokenCacheKey *)queryForAllRefreshTokensWithUniqueUserId:(nullable NSString *)userId

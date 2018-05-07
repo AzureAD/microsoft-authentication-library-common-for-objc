@@ -41,7 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                          clientId:(nullable NSString *)clientId
                                                             realm:(nullable NSString *)realm
                                                            target:(nullable NSString *)target
-                                                             type:(MSIDTokenType)type
+                                                   credentialType:(MSIDTokenType)credentialType
+                                                     matchAnyType:(BOOL)anyType
                                                        exactMatch:(BOOL *)exactMatch;
 
 + (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(nullable NSString *)userId
@@ -126,6 +127,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (MSIDDefaultTokenCacheKey *)queryForIDTokensWithUniqueUserId:(NSString *)userId
                                                    environment:(NSString *)environment;
+
++ (NSString *)serviceWithType:(MSIDTokenType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm target:(nullable NSString *)target;
++ (NSString *)credentialIdWithType:(MSIDTokenType)type clientId:(NSString *)clientId realm:(nullable NSString *)realm;
++ (NSString *)accountIdWithUniqueUserId:(NSString *)uniqueId environment:(NSString *)environment;
++ (NSNumber *)accountType:(MSIDAccountType)accountType;
++ (NSNumber *)tokenType:(MSIDTokenType)tokenType;
 
 NS_ASSUME_NONNULL_END
 

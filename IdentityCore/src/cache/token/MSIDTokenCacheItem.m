@@ -32,6 +32,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
 
 @implementation MSIDTokenCacheItem
 
@@ -361,6 +362,31 @@
 
     if (environment && ![self.environment isEqualToString:environment])
     {
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)matchesWithLegacyUserId:(nullable NSString *)legacyUserId
+                    environment:(nullable NSString *)environment
+{
+    if (legacyUserId)
+    {
+        if (!self.idToken)
+        {
+            return NO;
+        }
+
+        // TODO: initialize legacy user ID instead
+        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:self.idToken];
+
+        if ([idTokenClaims matchesLegacyUserId:legacyUserId]
+            && [self.authority.msidHostWithPortIfNecessary isEqualToString:environment])
+        {
+            return YES;
+        }
+
         return NO;
     }
 

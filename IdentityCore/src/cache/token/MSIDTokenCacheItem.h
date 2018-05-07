@@ -67,6 +67,9 @@ typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
 - (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
                     environment:(nullable NSString *)environment;
 
+- (BOOL)matchesWithLegacyUserId:(nullable NSString *)legacyUserId
+                    environment:(nullable NSString *)environment;
+
 - (BOOL)matchesWithRealm:(nullable NSString *)realm
                 clientId:(nullable NSString *)clientId
                   target:(nullable NSString *)target
