@@ -30,6 +30,7 @@
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDTokenCacheKey.h"
 #import "MSIDDefaultTokenCacheQuery.h"
+#import "MSIDDefaultAccountCacheQuery.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -64,10 +65,6 @@
                                                             context:(nullable id<MSIDRequestContext>)context
                                                               error:(NSError * _Nullable * _Nullable)error
 {
-    BOOL exactMatch = YES;
-
-    [cacheQuery generateKeyWithExactMatch:&exactMatch];
-
     NSError *cacheError = nil;
 
     NSArray<MSIDTokenCacheItem *> *results = [_dataSource tokensWithKey:cacheQuery
@@ -85,7 +82,7 @@
         return nil;
     }
 
-    if (!exactMatch)
+    if (!cacheQuery.exactMatch)
     {
         BOOL shouldMatchAccount = !cacheQuery.uniqueUserId || !cacheQuery.environment;
 
@@ -138,23 +135,22 @@
 {
     MSID_LOG_VERBOSE(context, @"(Default cache) Get all credentials with type %@", [MSIDTokenTypeHelpers tokenTypeAsString:type]);
 
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllTokensWithType:type];
-    return [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
+    MSIDDefaultTokenCacheQuery *query = [MSIDDefaultTokenCacheQuery new];
+    query.credentialType = type;
+    return [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 }
 
 
 // Reading accounts
-- (nullable NSArray<MSIDAccountCacheItem *> *)getAccountsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+- (nullable NSArray<MSIDAccountCacheItem *> *)getAccountsWithQuery:(nonnull MSIDDefaultAccountCacheQuery *)cacheQuery
                                                            context:(nullable id<MSIDRequestContext>)context
                                                              error:(NSError * _Nullable * _Nullable)error
 {
     assert(cacheQuery);
 
-    MSID_LOG_VERBOSE(context, @"(Default cache) Get accounts with environment %@, realm %@", cacheQuery.environment, cacheQuery.realm);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get accounts with environment %@, realm %@, unique user id %@", cacheQuery.environment, cacheQuery.realm, cacheQuery.uniqueUserId);
+    MSID_LOG_VERBOSE(context, @"(Default cache) Get accounts with environment %@", cacheQuery.environment);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get accounts with environment %@, unique user id %@", cacheQuery.environment, cacheQuery.uniqueUserId);
 
-    BOOL exactMatch = YES;
-    [cacheQuery generateKeyWithExactMatch:&exactMatch];
     return [_dataSource accountsWithKey:cacheQuery serializer:_serializer context:context error:error];
 }
 
@@ -176,8 +172,10 @@
 {
     MSID_LOG_VERBOSE(context, @"(Default cache) Get all accounts with type %@", [MSIDAccountTypeHelpers accountTypeAsString:type]);
 
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccountsWithType:MSIDAccountTypeAADV2];
-    return [_dataSource accountsWithKey:key serializer:_serializer context:context error:error];
+    MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
+    query.accountType = MSIDAccountTypeAADV2;
+
+    return [_dataSource accountsWithKey:query serializer:_serializer context:context error:error];
 }
 
 - (nullable NSArray<MSIDTokenCacheItem *> *)getAllItemsWithContext:(nullable id<MSIDRequestContext>)context
@@ -185,8 +183,8 @@
 {
     MSID_LOG_VERBOSE(context, @"(Default cache) Get all items from cache");
 
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey queryForAllItems];
-    return [_dataSource tokensWithKey:key serializer:_serializer context:context error:error];
+    MSIDDefaultTokenCacheQuery *query = [MSIDDefaultTokenCacheQuery new];
+    return [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 }
 
 // Writing credentials
@@ -199,12 +197,13 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Saving token %@ with authority %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:credential.tokenType], credential.authority, credential.clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving token %@ for userID %@ with authority %@, clientID %@,", credential, credential.uniqueUserId, credential.authority, credential.clientId);
 
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForCredentialWithUniqueUserId:credential.uniqueUserId
-                                                                                   environment:credential.environment
-                                                                                      clientId:credential.clientId
-                                                                                         realm:credential.realm
-                                                                                        target:credential.target
-                                                                                          type:credential.tokenType];
+    MSIDDefaultTokenCacheKey *key = [[MSIDDefaultTokenCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
+                                                                               environment:credential.environment];
+
+    key.clientId = credential.clientId;
+    key.realm = credential.realm;
+    key.target = credential.target;
+    key.credentialType = credential.tokenType;
 
     return [_dataSource saveToken:credential
                               key:key
@@ -223,10 +222,10 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Saving account with authority %@", account.authority);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving account %@", account);
 
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:account.uniqueUserId
-                                                                                  authority:account.authority
-                                                                                   username:account.username
-                                                                                accountType:account.accountType];
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:account.uniqueUserId environment:account.environment];
+
+    key.username = account.username;
+    key.accountType = account.accountType;
 
     // Get previous account, so we don't loose any fields
     MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
@@ -254,11 +253,7 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDTokenTypeHelpers tokenTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, cacheQuery.uniqueUserId, cacheQuery.target);
 
-    BOOL exactMatch = YES;
-
-    [cacheQuery generateKeyWithExactMatch:&exactMatch];
-
-    if (exactMatch)
+    if (cacheQuery.exactMatch)
     {
         return [_dataSource removeItemsWithKey:cacheQuery context:context error:error];
     }
@@ -279,12 +274,13 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing credential %@ with authority %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:credential.tokenType], credential.authority, credential.clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credential %@ for userID %@ with authority %@, clientID %@,", credential, credential.uniqueUserId, credential.authority, credential.clientId);
 
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForCredentialWithUniqueUserId:credential.uniqueUserId
-                                                                                   environment:credential.environment
-                                                                                      clientId:credential.clientId
-                                                                                         realm:credential.realm
-                                                                                        target:credential.target
-                                                                                          type:credential.tokenType];
+    MSIDDefaultTokenCacheKey *key = [[MSIDDefaultTokenCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
+                                                                               environment:credential.environment];
+
+    key.clientId = credential.clientId;
+    key.realm = credential.realm;
+    key.target = credential.target;
+    key.credentialType = credential.tokenType;
 
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
 
@@ -314,9 +310,6 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing accounts with environment %@, realm %@", cacheQuery.environment, cacheQuery.realm);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing accounts with environment %@, realm %@, unique user id %@", cacheQuery.environment, cacheQuery.realm, cacheQuery.uniqueUserId);
 
-    BOOL exactMatch = YES;
-    [cacheQuery generateKeyWithExactMatch:&exactMatch];
-
     return [_dataSource removeItemsWithKey:cacheQuery context:context error:error];
 }
 
@@ -329,10 +322,10 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing account with authority %@", account.authority);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing account with authority %@, user ID %@, username %@", account.authority, account.uniqueUserId, account.username);
 
-    MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey keyForAccountWithUniqueUserId:account.uniqueUserId
-                                                                                  authority:account.authority
-                                                                                   username:account.username
-                                                                                accountType:account.accountType];
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:account.uniqueUserId environment:account.environment];
+
+    key.username = account.username;
+    key.accountType = account.accountType;
 
     return [_dataSource removeItemsWithKey:key context:context error:error];
 }
@@ -342,7 +335,8 @@
                    error:(NSError * _Nullable * _Nullable)error
 {
     MSID_LOG_WARN(context, @"(Default cache) Clearing the whole cache, this method should only be called in tests");
-    return [_dataSource removeItemsWithKey:[MSIDTokenCacheKey queryForAllItems] context:context error:error];
+    MSIDDefaultTokenCacheQuery *query = [MSIDDefaultTokenCacheQuery new];
+    return [_dataSource removeItemsWithKey:query context:context error:error];
 }
 
 - (BOOL)removeAllCredentials:(nonnull NSArray<MSIDTokenCacheItem *> *)credentials

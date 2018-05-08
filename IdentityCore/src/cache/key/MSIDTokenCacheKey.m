@@ -36,17 +36,12 @@
         return nil;
     }
     
-    self.account = account;
-    self.service = service;
-    self.type = type;
-    self.generic = generic;
+    _account = account;
+    _service = service;
+    _type = type;
+    _generic = generic;
     
     return self;
-}
-
-+ (MSIDTokenCacheKey *)queryForAllItems
-{
-    return [[MSIDTokenCacheKey alloc] initWithAccount:nil service:nil generic:nil type:nil];
 }
 
 + (NSString *)familyClientId:(NSString *)familyId

@@ -21,28 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheKey.h"
+#import "MSIDLegacyTokenCacheQuery.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDLegacyTokenCacheQuery
 
-@interface MSIDLegacyTokenCacheKey : MSIDTokenCacheKey <NSCopying, NSSecureCoding>
+- (NSString *)account
+{
+    if (self.legacyUserId)
+    {
+        return [self adalAccountWithUserId:self.legacyUserId];
+    }
 
-@property (nullable, nonatomic) NSURL *authority;
-@property (nullable, nonatomic) NSString *clientId;
-@property (nullable, nonatomic) NSString *resource;
-@property (nullable, nonatomic) NSString *legacyUserId;
+    return nil;
+}
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                         clientId:(NSString *)clientId
-                         resource:(nullable NSString *)resource
-                     legacyUserId:(NSString *)legacyUserId;
+- (NSString *)service
+{
+    if (self.authority
+        && self.clientId)
+    {
+        return [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+    }
 
-- (NSString *)serviceWithAuthority:(NSURL *)authority
-                          resource:(nullable NSString *)resource
-                          clientId:(NSString *)clientId;
+    return nil;
+}
 
-- (NSString *)adalAccountWithUserId:(NSString *)userId;
-
-NS_ASSUME_NONNULL_END
+- (BOOL)exactMatch
+{
+    return self.legacyUserId && self.authority && self.clientId;
+}
 
 @end

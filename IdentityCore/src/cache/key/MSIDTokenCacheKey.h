@@ -24,36 +24,25 @@
 #import <Foundation/Foundation.h>
 
 @interface MSIDTokenCacheKey : NSObject
-{
-    NSString *_account;
-    NSString *_service;
-    NSNumber *_type;
-    NSData *_generic;
-}
 
 NS_ASSUME_NONNULL_BEGIN
 
 /* Corresponds to kSecAttrAccount */
-@property (nullable) NSString *account;
+@property (nullable, readonly) NSString *account;
 
 /* Corresponds to kSecAttrService */
-@property (nullable) NSString *service;
+@property (nullable, readonly) NSString *service;
 
 /* Corresponds to kSecAttrType */
-@property (nullable) NSNumber *type;
+@property (nullable, readonly) NSNumber *type;
 
 /* Corresponds to kSecAttrGeneric */
-@property (nullable) NSData *generic;
+@property (nullable, readonly) NSData *generic;
 
 - (nullable id)initWithAccount:(nullable NSString *)account
                        service:(nullable NSString *)service
                        generic:(nullable NSData *)generic
                           type:(nullable NSNumber *)type;
-
-/*!
- Key for all items in the keychain
- */
-+ (MSIDTokenCacheKey *)queryForAllItems;
 
 /*!
  Helper method to get the clientId from the provided familyId

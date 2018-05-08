@@ -24,12 +24,14 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTokenType.h"
 #import "MSIDAccountType.h"
-#import "MSIDTokenCacheItem.h"
 
+@class MSIDTokenCacheItem;
 @class MSIDAccountCacheItem;
 @class MSIDDefaultTokenCacheKey;
 @protocol MSIDTokenCacheDataSource;
 @class MSIDDefaultTokenCacheQuery;
+@class MSIDDefaultAccountCacheQuery;
+@class MSIDDefaultAccountCacheKey;
 
 @interface MSIDAccountCredentialCache : NSObject
 
@@ -60,14 +62,14 @@
 /*
  Gets all accounts matching the parameters specified in the query
  */
-- (nullable NSArray<MSIDAccountCacheItem *> *)getAccountsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+- (nullable NSArray<MSIDAccountCacheItem *> *)getAccountsWithQuery:(nonnull MSIDDefaultAccountCacheQuery *)cacheQuery
                                                            context:(nullable id<MSIDRequestContext>)context
                                                              error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Gets an account for a particular key
 */
-- (nullable MSIDAccountCacheItem *)getAccount:(nonnull MSIDDefaultTokenCacheKey *)key
+- (nullable MSIDAccountCacheItem *)getAccount:(nonnull MSIDDefaultAccountCacheKey *)key
                                       context:(nullable id<MSIDRequestContext>)context
                                         error:(NSError * _Nullable * _Nullable)error;
 
@@ -115,7 +117,7 @@
 /*
  Removes multiple accounts matching parameters
 */
-- (BOOL)removeAccountsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+- (BOOL)removeAccountsWithQuery:(nonnull MSIDDefaultAccountCacheQuery *)cacheQuery
                         context:(nullable id<MSIDRequestContext>)context
                           error:(NSError * _Nullable * _Nullable)error;
 

@@ -107,11 +107,11 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
-    return (MSIDAccessToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeAccessToken
-                                                         account:account
-                                                   requestParams:parameters
-                                                         context:context
-                                                           error:error];
+    return (MSIDAccessToken *) [_primaryAccessor getTokenWithType:MSIDTokenTypeAccessToken
+                                                  userIdentifiers:account
+                                                    requestParams:parameters
+                                                          context:context
+                                                            error:error];
 }
 
 - (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(MSIDAccount *)account
@@ -119,11 +119,11 @@
                                                     context:(id<MSIDRequestContext>)context
                                                       error:(NSError **)error
 {
-    return (MSIDLegacySingleResourceToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
-                                                                       account:account
-                                                                 requestParams:parameters
-                                                                       context:context
-                                                                         error:error];
+    return (MSIDLegacySingleResourceToken *) [_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
+                                                                userIdentifiers:account
+                                                                  requestParams:parameters
+                                                                        context:context
+                                                                          error:error];
 }
 
 - (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDRequestParameters *)parameters
@@ -131,12 +131,12 @@
                                                              error:(NSError **)error
 {
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"" uniqueUserId:nil];
-    
-    return (MSIDLegacySingleResourceToken *)[_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
-                                                                       account:account
-                                                                 requestParams:parameters
-                                                                       context:context
-                                                                         error:error];
+
+    return (MSIDLegacySingleResourceToken *) [_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
+                                                                userIdentifiers:account
+                                                                  requestParams:parameters
+                                                                        context:context
+                                                                          error:error];
 }
 
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
@@ -149,11 +149,11 @@
     // try all caches in order starting with the primary
     for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
     {
-        MSIDRefreshToken *token = (MSIDRefreshToken *)[cache getTokenWithType:MSIDTokenTypeRefreshToken
-                                                                      account:account
-                                                                requestParams:parameters
-                                                                      context:context
-                                                                        error:error];
+        MSIDRefreshToken *token = (MSIDRefreshToken *) [cache getTokenWithType:MSIDTokenTypeRefreshToken
+                                                               userIdentifiers:account
+                                                                 requestParams:parameters
+                                                                       context:context
+                                                                         error:error];
         
         if (token)
         {
@@ -241,11 +241,10 @@
     MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, legacy userId %@, token %@", token.clientId, token.authority, account.uniqueUserId, account.legacyUserId, _PII_NULLIFY(token.refreshToken));
     
     NSError *cacheError = nil;
-    
-    MSIDBaseToken<MSIDRefreshableToken> *tokenInCache = (MSIDBaseToken<MSIDRefreshableToken> *)[_primaryAccessor getLatestToken:token
-                                                                                                                        account:account
-                                                                                                                        context:context
-                                                                                                                          error:&cacheError];
+
+    MSIDBaseToken<MSIDRefreshableToken> *tokenInCache = (MSIDBaseToken<MSIDRefreshableToken> *)[_primaryAccessor getUpdatedToken:token
+                                                                                                                         context:context
+                                                                                                                           error:&cacheError];
     
     if (cacheError)
     {
@@ -262,7 +261,6 @@
         MSID_LOG_VERBOSE_PII(context, @"Found refresh token in cache and it's the latest version, removing token %@", token);
         
         return [_primaryAccessor removeToken:tokenInCache
-                                     account:account
                                      context:context
                                        error:error];
     }
@@ -276,7 +274,6 @@
               error:(NSError **)error
 {
     return [_primaryAccessor removeToken:token
-                                 account:account
                                  context:context
                                    error:error];
 }
@@ -285,7 +282,9 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    return [_primaryAccessor removeAllTokensForAccount:account context:context error:error];
+    // TODO: implement me
+    //return [_primaryAccessor removeAllTokensForAccount:account context:context error:error];
+    return nil;
 }
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
@@ -345,7 +344,6 @@
         NSError *cacheError = nil;
         
         BOOL result = [cache saveRefreshToken:refreshToken
-                                      account:account
                                       context:context
                                         error:&cacheError];
         
@@ -377,10 +375,10 @@
     if (!saveRefreshTokenOnly)
     {
         result = [_primaryAccessor saveTokensWithFactory:factory
-                                            requestParams:requestParams
-                                                  account:account
-                                                 response:response
-                                                  context:context error:error];
+                                           requestParams:requestParams
+                                                response:response
+                                                 context:context
+                                                   error:error];
         
         if (!result) return NO;
     }

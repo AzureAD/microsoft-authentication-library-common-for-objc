@@ -21,28 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheKey.h"
+#import "MSIDDefaultAccountCacheQuery.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDDefaultAccountCacheQuery
 
-@interface MSIDLegacyTokenCacheKey : MSIDTokenCacheKey <NSCopying, NSSecureCoding>
+- (NSString *)account
+{
+    if (self.uniqueUserId && self.environment)
+    {
+        return [super account];
+    }
 
-@property (nullable, nonatomic) NSURL *authority;
-@property (nullable, nonatomic) NSString *clientId;
-@property (nullable, nonatomic) NSString *resource;
-@property (nullable, nonatomic) NSString *legacyUserId;
+    return nil;
+}
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                         clientId:(NSString *)clientId
-                         resource:(nullable NSString *)resource
-                     legacyUserId:(NSString *)legacyUserId;
-
-- (NSString *)serviceWithAuthority:(NSURL *)authority
-                          resource:(nullable NSString *)resource
-                          clientId:(NSString *)clientId;
-
-- (NSString *)adalAccountWithUserId:(NSString *)userId;
-
-NS_ASSUME_NONNULL_END
+- (BOOL)exactMatch
+{
+    return self.uniqueUserId && self.environment;
+}
 
 @end

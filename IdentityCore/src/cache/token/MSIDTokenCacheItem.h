@@ -23,13 +23,7 @@
 
 #import "MSIDCacheItem.h"
 #import "MSIDTokenType.h"
-
-typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
-    Any,
-    ExactStringMatch,
-    SubSet,
-    Intersect,
-};
+#import "MSIDDefaultTokenCacheQuery.h"
 
 @class MSIDBaseToken;
 

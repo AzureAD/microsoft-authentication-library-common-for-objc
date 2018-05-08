@@ -32,170 +32,118 @@
     if (self)
     {
         _targetMatchingOptions = Any;
-        _credentialType = MSIDTokenTypeOther;
         _matchAnyCredentialType = NO;
     }
 
     return self;
 }
 
-- (void)generateKeyWithExactMatch:(BOOL *)exactMatch
+- (NSString *)account
+{
+    if (self.uniqueUserId && self.environment)
+    {
+        return [self accountIdWithUniqueUserId:self.uniqueUserId environment:self.environment];
+    }
+
+    return nil;
+}
+
+- (NSString *)service
+{
+    if (self.matchAnyCredentialType
+        || self.credentialType == MSIDTokenTypeAccessToken)
+    {
+        if (self.clientId
+            && self.realm
+            && self.target
+            && (self.targetMatchingOptions == ExactStringMatch || self.targetMatchingOptions == Any))
+        {
+            return [self serviceWithType:self.credentialType clientID:self.clientId realm:self.realm target:self.target];
+        }
+        return nil;
+    }
+    else
+    {
+        switch (self.credentialType)
+        {
+            case MSIDTokenTypeRefreshToken:
+            {
+                if (self.clientId)
+                {
+                    return [self serviceWithType:self.credentialType clientID:self.clientId realm:nil target:nil];
+                }
+                break;
+            }
+            case MSIDTokenTypeIDToken:
+            {
+                if (self.clientId && self.realm)
+                {
+                    return [self serviceWithType:MSIDTokenTypeIDToken clientID:self.clientId realm:self.realm target:nil];
+                }
+
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    return nil;
+}
+
+- (NSData *)generic
+{
+    NSString *genericString = nil;
+
+    if (self.credentialType == MSIDTokenTypeRefreshToken
+        && self.clientId)
+    {
+        genericString = [self credentialIdWithType:self.credentialType clientId:self.clientId realm:self.realm];
+    }
+    else if (self.clientId && self.realm)
+    {
+        genericString = [self credentialIdWithType:self.credentialType clientId:self.clientId realm:self.realm];
+    }
+
+    return [genericString dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+- (NSNumber *)type
 {
     if (self.matchAnyCredentialType)
     {
-        [self generateCredentialKeyWithExactMatch:exactMatch];
+        return nil;
     }
 
-    switch (self.credentialType)
+    return [self credentialTypeNumber:self.credentialType];
+}
+
+- (BOOL)exactMatch
+{
+    if (!self.environment
+        || !self.uniqueUserId
+        || !self.clientId)
     {
-        case MSIDTokenTypeAccessToken:
+        return NO;
+    }
+
+    if (self.credentialType == MSIDTokenTypeAccessToken)
+    {
+        if (!self.realm
+            || !self.target
+            || self.targetMatchingOptions != ExactStringMatch)
         {
-            [self generateAccessTokenKeyWithExactMatch:exactMatch];
+            return NO;
         }
-        case MSIDTokenTypeRefreshToken:
-        {
-            [self generateRefreshTokenKeyWithExactMatch:exactMatch];
-        }
-        case MSIDTokenTypeIDToken:
-        {
-            [self generateIDTokenKeyWithExactMatch:exactMatch];
-        }
-        default:
-            break;
     }
-}
 
-- (void)generateAccessTokenKeyWithExactMatch:(BOOL *)exactMatch
-{
-    [self generateCredentialKeyWithExactMatch:exactMatch];
-    self.type = [MSIDDefaultTokenCacheKey tokenType:MSIDTokenTypeAccessToken];
-}
-
-- (void)generateCredentialKeyWithExactMatch:(BOOL *)exactMatch
-{
-    *exactMatch = YES;
-
-    NSString *account = nil;
-
-    if (self.uniqueUserId && self.environment)
+    if (self.credentialType == MSIDTokenTypeIDToken
+        && !self.realm)
     {
-        account = [MSIDDefaultTokenCacheKey accountIdWithUniqueUserId:self.uniqueUserId environment:self.environment];
-    }
-    else
-    {
-        *exactMatch = NO;
+        return NO;
     }
 
-    NSString *generic = nil;
-
-    if (self.clientId && self.realm)
-    {
-        generic = [MSIDDefaultTokenCacheKey credentialIdWithType:MSIDTokenTypeAccessToken clientId:self.clientId realm:self.realm];
-    }
-
-    NSString *service = nil;
-
-    if (self.clientId && self.realm && self.target && self.targetMatchingOptions == ExactStringMatch)
-    {
-        service = [self.class serviceWithType:MSIDTokenTypeAccessToken clientID:self.clientId realm:self.realm target:self.target];
-    }
-    else
-    {
-        *exactMatch = NO;
-    }
-
-    self.account = account;
-    self.service = service;
-    self.generic = [generic dataUsingEncoding:NSUTF8StringEncoding];
-}
-
-- (void)generateRefreshTokenKeyWithExactMatch:(BOOL *)exactMatch
-{
-    *exactMatch = YES;
-
-    NSString *account = nil;
-
-    if (self.uniqueUserId && self.environment)
-    {
-        account = [MSIDDefaultTokenCacheKey accountIdWithUniqueUserId:self.uniqueUserId environment:self.environment];
-    }
-    else
-    {
-        *exactMatch = NO;
-    }
-
-    NSString *generic = nil;
-
-    if (self.clientId)
-    {
-        generic = [MSIDDefaultTokenCacheKey credentialIdWithType:MSIDTokenTypeRefreshToken clientId:self.clientId realm:nil];
-    }
-    else
-    {
-        *exactMatch = NO;
-    }
-
-    NSString *service = nil;
-
-    if (self.clientId)
-    {
-        service = [MSIDDefaultTokenCacheKey serviceWithType:MSIDTokenTypeRefreshToken clientID:self.clientId realm:nil target:nil];
-    }
-
-    self.account = account;
-    self.service = service;
-    self.generic = [generic dataUsingEncoding:NSUTF8StringEncoding];
-    self.type = [MSIDDefaultTokenCacheKey tokenType:MSIDTokenTypeRefreshToken];
-}
-
-- (void)generateIDTokenKeyWithExactMatch:(BOOL *)exactMatch
-{
-    *exactMatch = YES;
-
-    NSString *account = nil;
-
-    if (self.uniqueUserId && self.environment)
-    {
-        account = [MSIDDefaultTokenCacheKey accountIdWithUniqueUserId:self.uniqueUserId environment:self.environment];
-    }
-    else
-    {
-        *exactMatch = NO;
-    }
-
-    NSString *service = nil;
-    NSString *generic = nil;
-
-    if (self.clientId && self.realm)
-    {
-        service = [MSIDDefaultTokenCacheKey serviceWithType:MSIDTokenTypeIDToken clientID:self.clientId realm:self.realm target:nil];
-        generic = [MSIDDefaultTokenCacheKey credentialIdWithType:MSIDTokenTypeIDToken clientId:self.clientId realm:self.realm];
-    }
-    else
-    {
-        *exactMatch = NO;
-    }
-
-    self.account = account;
-    self.service = service;
-    self.generic = [generic dataUsingEncoding:NSUTF8StringEncoding];
-    self.type = [MSIDDefaultTokenCacheKey tokenType:MSIDTokenTypeIDToken];
-}
-
-- (void)generateAccountKeyWithExactMatch:(BOOL *)exactMatch
-{
-    *exactMatch = NO;
-
-    NSString *account = nil;
-
-    if (self.uniqueUserId && self.environment)
-    {
-        account = [MSIDDefaultTokenCacheKey accountIdWithUniqueUserId:self.uniqueUserId environment:self.environment];
-        *exactMatch = self.realm != nil;
-    }
-
-    self.account = account;
-    self.service = self.realm;
+    return YES;
 }
 
 @end

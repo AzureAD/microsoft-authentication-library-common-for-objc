@@ -25,114 +25,24 @@
 #import "MSIDAccount.h"
 #import "MSIDTokenType.h"
 
-@interface MSIDDefaultTokenCacheKey : MSIDTokenCacheKey
-
 NS_ASSUME_NONNULL_BEGIN
 
-+ (MSIDDefaultTokenCacheKey *)keyForCredentialWithUniqueUserId:(nonnull NSString *)uniqueUserId
-                                                   environment:(nonnull NSString *)environment
-                                                      clientId:(nonnull NSString *)clientId
-                                                         realm:(nullable NSString *)realm
-                                                        target:(nullable NSString *)target
-                                                          type:(MSIDTokenType)type;
+@interface MSIDDefaultTokenCacheKey : MSIDTokenCacheKey
 
-+ (MSIDDefaultTokenCacheKey *)queryForCredentialsWithUniqueUserId:(nullable NSString *)uniqueUserId
-                                                      environment:(nullable NSString *)environment
-                                                         clientId:(nullable NSString *)clientId
-                                                            realm:(nullable NSString *)realm
-                                                           target:(nullable NSString *)target
-                                                   credentialType:(MSIDTokenType)credentialType
-                                                     matchAnyType:(BOOL)anyType
-                                                       exactMatch:(BOOL *)exactMatch;
+@property (nullable, nonatomic) NSString *uniqueUserId;
+@property (nullable, nonatomic) NSString *environment;
+@property (nullable, nonatomic) NSString *realm;
+@property (nullable, nonatomic) NSString *clientId;
+@property (nullable, nonatomic) NSString *target;
+@property (nonatomic) MSIDTokenType credentialType;
 
-+ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(nullable NSString *)userId
-                                                          environment:(nullable NSString *)environment
-                                                             clientId:(nullable NSString *)clientId
-                                                                realm:(nullable NSString *)realm
-                                                               target:(nullable NSString *)target
-                                                           exactMatch:(BOOL *)exactMatch;
+- (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
+                         environment:(NSString *)environment;
 
-+ (MSIDDefaultTokenCacheKey *)queryForAllRefreshTokensWithUniqueUserId:(nullable NSString *)userId
-                                                           environment:(nullable NSString *)environment
-                                                              clientId:(nullable NSString *)clientId
-                                                            exactMatch:(BOOL *)exactMatch;
-
-+ (MSIDDefaultTokenCacheKey *)queryForAllIDTokensWithUniqueUserId:(nullable NSString *)userId
-                                                      environment:(nullable NSString *)environment
-                                                            realm:(nullable NSString *)realm
-                                                         clientId:(nullable NSString *)clientId
-                                                       exactMatch:(BOOL *)exactMatch;
-
-+ (MSIDDefaultTokenCacheKey *)queryForAccountsWithUniqueUserId:(nullable NSString *)userId
-                                                   environment:(nullable NSString *)environment
-                                                         realm:(nullable NSString *)realm
-                                                    exactMatch:(BOOL *)exactMatch;
-
-/*!
- Key for MSAL tokens - single authority, one clientId, multiple scopes, and userId.
- Environment is derived from the authority
- */
-+ (MSIDDefaultTokenCacheKey *)keyForAccessTokenWithUniqueUserId:(NSString *)userId
-                                                    environment:(NSString *)environment
-                                                       clientId:(NSString *)clientId
-                                                          realm:(NSString *)realm
-                                                         target:(NSString *)target;
-
-+ (MSIDDefaultTokenCacheKey *)keyForAccessTokenWithUniqueUserId:(NSString *)userId
-                                                      authority:(NSURL *)authority
-                                                       clientId:(NSString *)clientId
-                                                         scopes:(NSOrderedSet<NSString *> *)scopes;
-
-+ (MSIDDefaultTokenCacheKey *)keyForIDTokenWithUniqueUserId:(NSString *)userId
-                                                  authority:(NSURL *)authority
-                                                   clientId:(NSString *)clientId;
-
-+ (MSIDDefaultTokenCacheKey *)keyForAccountWithUniqueUserId:(NSString *)userId
-                                                  authority:(NSURL *)authority
-                                                   username:(NSString *)username
-                                                accountType:(MSIDAccountType)accountType;
-
-+ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
-                                                            authority:(NSURL *)authority
-                                                             clientId:(NSString *)clientId;
-
-+ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokensWithUniqueUserId:(NSString *)userId
-                                                          environment:(NSString *)environment;
-
-+ (MSIDDefaultTokenCacheKey *)queryForAllTokensWithUniqueUserId:(NSString *)userId
-                                                          environment:(NSString *)environment;
-
-+ (MSIDDefaultTokenCacheKey *)queryForAllAccessTokens;
-
-+ (MSIDDefaultTokenCacheKey *)queryForAllAccountsWithType:(MSIDAccountType)accountType;
-
-/*!
- Key for MSAL refresh tokens - one user, one clientId, and one environment
- */
-+ (MSIDDefaultTokenCacheKey *)keyForRefreshTokenWithUniqueUserId:(NSString *)userId
-                                                     environment:(NSString *)environment
-                                                        clientId:(NSString *)clientId;
-
-/*!
- Key for all MSAL tokens for a type
- */
-
-+ (MSIDDefaultTokenCacheKey *)queryForAllTokensWithType:(MSIDTokenType)type;
-
-/*!
- Key for all MSAL refresh tokens with a clientId
- */
-
-+ (MSIDDefaultTokenCacheKey *)queryForAllRefreshTokensWithClientId:(NSString *)clientID;
-
-+ (MSIDDefaultTokenCacheKey *)queryForIDTokensWithUniqueUserId:(NSString *)userId
-                                                   environment:(NSString *)environment;
-
-+ (NSString *)serviceWithType:(MSIDTokenType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm target:(nullable NSString *)target;
-+ (NSString *)credentialIdWithType:(MSIDTokenType)type clientId:(NSString *)clientId realm:(nullable NSString *)realm;
-+ (NSString *)accountIdWithUniqueUserId:(NSString *)uniqueId environment:(NSString *)environment;
-+ (NSNumber *)accountType:(MSIDAccountType)accountType;
-+ (NSNumber *)tokenType:(MSIDTokenType)tokenType;
+- (NSString *)serviceWithType:(MSIDTokenType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm target:(nullable NSString *)target;
+- (NSString *)credentialIdWithType:(MSIDTokenType)type clientId:(NSString *)clientId realm:(nullable NSString *)realm;
+- (NSString *)accountIdWithUniqueUserId:(NSString *)uniqueId environment:(NSString *)environment;
+- (NSNumber *)credentialTypeNumber:(MSIDTokenType)credentialType;
 
 NS_ASSUME_NONNULL_END
 

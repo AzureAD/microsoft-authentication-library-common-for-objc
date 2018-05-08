@@ -22,27 +22,20 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenCacheKey.h"
+#import "MSIDAccountType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLegacyTokenCacheKey : MSIDTokenCacheKey <NSCopying, NSSecureCoding>
+@interface MSIDDefaultAccountCacheKey : MSIDTokenCacheKey
 
-@property (nullable, nonatomic) NSURL *authority;
-@property (nullable, nonatomic) NSString *clientId;
-@property (nullable, nonatomic) NSString *resource;
-@property (nullable, nonatomic) NSString *legacyUserId;
+@property (nullable, nonatomic) NSString *uniqueUserId;
+@property (nullable, nonatomic) NSString *environment;
+@property (nullable, nonatomic) NSString *username;
+@property (nonatomic) MSIDAccountType accountType;
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                         clientId:(NSString *)clientId
-                         resource:(nullable NSString *)resource
-                     legacyUserId:(NSString *)legacyUserId;
-
-- (NSString *)serviceWithAuthority:(NSURL *)authority
-                          resource:(nullable NSString *)resource
-                          clientId:(NSString *)clientId;
-
-- (NSString *)adalAccountWithUserId:(NSString *)userId;
-
-NS_ASSUME_NONNULL_END
+- (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
+                         environment:(NSString *)environment;
 
 @end
+
+NS_ASSUME_NONNULL_END

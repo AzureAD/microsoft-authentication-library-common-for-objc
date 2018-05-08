@@ -21,28 +21,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheKey.h"
+#import "MSIDDefaultAccountCacheKey.h"
 
-NS_ASSUME_NONNULL_BEGIN
+static NSString *keyDelimiter = @"-";
+static NSInteger kAccountTypePrefix = 1000;
 
-@interface MSIDLegacyTokenCacheKey : MSIDTokenCacheKey <NSCopying, NSSecureCoding>
+@implementation MSIDDefaultAccountCacheKey
 
-@property (nullable, nonatomic) NSURL *authority;
-@property (nullable, nonatomic) NSString *clientId;
-@property (nullable, nonatomic) NSString *resource;
-@property (nullable, nonatomic) NSString *legacyUserId;
+- (NSNumber *)accountTypeNumber:(MSIDAccountType)accountType
+{
+    return @(kAccountTypePrefix + accountType);
+}
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                         clientId:(NSString *)clientId
-                         resource:(nullable NSString *)resource
-                     legacyUserId:(NSString *)legacyUserId;
+- (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
+                         environment:(NSString *)environment
+{
+    self = [super init];
 
-- (NSString *)serviceWithAuthority:(NSURL *)authority
-                          resource:(nullable NSString *)resource
-                          clientId:(NSString *)clientId;
+    if (self)
+    {
+        _uniqueUserId = uniqueUserId;
+        _environment = environment;
+    }
 
-- (NSString *)adalAccountWithUserId:(NSString *)userId;
+    return self;
+}
 
-NS_ASSUME_NONNULL_END
+- (NSData *)generic
+{
+    return [self.username.msidTrimmedString.lowercaseString dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+- (NSNumber *)type
+{
+    return [self accountTypeNumber:self.accountType];
+}
+
+- (NSString *)account
+{
+    NSString *uniqueId = self.uniqueUserId.msidTrimmedString.lowercaseString;
+
+    return [NSString stringWithFormat:@"%@%@%@",
+            uniqueId, keyDelimiter, self.environment];
+}
+
+- (NSString *)service
+{
+    return nil;
+}
 
 @end

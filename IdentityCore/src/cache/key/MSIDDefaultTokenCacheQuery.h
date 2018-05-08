@@ -35,15 +35,8 @@ typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
 
 @interface MSIDDefaultTokenCacheQuery : MSIDDefaultTokenCacheKey
 
-@property (nonatomic) NSString *uniqueUserId;
-@property (nonatomic) NSString *environment;
-@property (nonatomic) NSString *realm;
-@property (nonatomic) NSString *clientId;
-@property (nonatomic) NSString *target;
 @property (nonatomic) MSIDComparisonOptions targetMatchingOptions;
-@property (nonatomic) MSIDTokenType credentialType;
 @property (nonatomic) BOOL matchAnyCredentialType;
-
-- (void)generateKeyWithExactMatch:(BOOL *)exactMatch;
+@property (nonatomic, readonly) BOOL exactMatch;
 
 @end
