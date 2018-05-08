@@ -21,14 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDIdTokenWrapper.h"
+import Foundation
 
-@interface MSIDAADV2IdTokenWrapper : MSIDIdTokenWrapper
-
-@property (readonly) NSString *issuer;
-@property (readonly) NSString *objectId;
-@property (readonly) NSString *tenantId;
-@property (readonly) NSString *version;
-@property (readonly) NSString *homeObjectId;
-
-@end
+public enum Result<T> {
+    case Success(T)
+    case Failure(Error)
+}

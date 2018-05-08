@@ -21,16 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
+#ifndef MSIDAutomation_Bridging_Header_h
+#define MSIDAutomation_Bridging_Header_h
 
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
+#import "MSIDClientCredentialHelper.h"
 
-- (void)responseReceivedEventWithContext:(id<MSIDRequestContext>)context
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
-
-@end
+#endif /* MSIDAutomation_Bridging_Header_h */

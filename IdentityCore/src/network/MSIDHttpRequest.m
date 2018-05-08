@@ -42,12 +42,14 @@
 {
     self = [super init];
     
-    if (!self) return nil;
-    
-    _sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    _responseSerializer = [MSIDJsonResponseSerializer new];
-    _requestSerializer = [MSIDUrlRequestSerializer new];
-    _telemetry = [MSIDHttpRequestTelemetry new];
+    if (self)
+    {
+        _sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        _session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
+        _responseSerializer = [MSIDJsonResponseSerializer new];
+        _requestSerializer = [MSIDUrlRequestSerializer new];
+        _telemetry = [MSIDHttpRequestTelemetry new];
+    }
     
     return self;
 }
@@ -58,11 +60,9 @@
     
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
     
-    if (self.requestConfigurator) [self.requestConfigurator configure:self];
+    if (self.requestConfigurator) { [self.requestConfigurator configure:self]; }
     
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
-    
-    self.session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
     
     MSID_LOG_VERBOSE(self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));
     
@@ -70,7 +70,7 @@
       {
           MSID_LOG_VERBOSE(self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
           
-          if (response) NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
+          if (response) { NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL); }
           
           __auto_type httpResponse = (NSHTTPURLResponse *)response;
           
@@ -93,7 +93,7 @@
               else
               {
                   dispatch_async(dispatch_get_main_queue(), ^{
-                      if (completionBlock) completionBlock(nil, error);
+                      if (completionBlock) { completionBlock(nil, error); }
                   });
               }
           }
@@ -104,11 +104,14 @@
               MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@", _PII_NULLIFY(responseObject), _PII_NULLIFY(error));
               
               dispatch_async(dispatch_get_main_queue(), ^{
-                  if (completionBlock) completionBlock(error ? nil : responseObject, error);
+                  if (completionBlock) { completionBlock(error ? nil : responseObject, error); }
               });
           }
       }] resume];
-    
+}
+
+- (void)finishAndInvalidate
+{
     [self.session finishTasksAndInvalidate];
 }
 

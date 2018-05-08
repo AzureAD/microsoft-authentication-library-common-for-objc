@@ -30,7 +30,5 @@
 @interface MSIDAADRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
 
 @property (nonatomic) NSTimeInterval timeoutInterval;
-@property (nonatomic) MSIDAadAuthorityCache *authorityCache;
-
 
 @end

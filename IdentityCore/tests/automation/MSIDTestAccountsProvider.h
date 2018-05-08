@@ -22,15 +22,24 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTestConfigurationRequest.h"
+#import "MSIDTestConfiguration.h"
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
+@interface MSIDTestAccountsProvider : NSObject
 
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
+- (instancetype)init NS_UNAVAILABLE;
 
-- (void)responseReceivedEventWithContext:(id<MSIDRequestContext>)context
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
+- (instancetype)initWithClientCertificateContents:(NSString *)certificate
+                              certificatePassword:(NSString *)password
+                         additionalConfigurations:(NSDictionary *)additionalConfigurations
+                                          apiPath:(NSString *)apiPath;
+
+- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
+
+- (void)configurationWithRequest:(MSIDTestConfigurationRequest *)request
+               completionHandler:(void (^)(MSIDTestConfiguration *configuration))completionHandler;
+
+- (void)passwordForAccount:(MSIDTestAccount *)account
+         completionHandler:(void (^)(NSString *password))completionHandler;
 
 @end

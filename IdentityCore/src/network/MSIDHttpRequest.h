@@ -31,35 +31,35 @@
 @protocol MSIDHttpRequestErrorHandlerProtocol;
 @protocol MSIDHttpRequestConfiguratorProtocol;
 
+/**
+ Important: You need to call `finishAndInvalidate` method in `completionBlock` of `sendWithBlock:`.
+ If you don’t call, the app leaks memory until it exits.
+ */
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
 {
-    NSDictionary<NSString *, NSString *> *_parameters;
-    NSURLRequest *_urlRequest;
-    id <MSIDRequestSerialization> _requestSerializer;
-    id <MSIDResponseSerialization> _responseSerializer;
-    id <MSIDHttpRequestConfiguratorProtocol> _requestConfigurator;
-    id <MSIDHttpRequestTelemetryProtocol> _telemetry;
-    id <MSIDHttpRequestErrorHandlerProtocol> _errorHandler;
+    @protected NSDictionary<NSString *, NSString *> *_parameters;
+    @protected NSURLRequest *_urlRequest;
+    @protected id<MSIDRequestSerialization> _requestSerializer;
+    @protected id<MSIDResponseSerialization> _responseSerializer;
+    @protected id<MSIDHttpRequestConfiguratorProtocol> _requestConfigurator;
+    @protected id<MSIDHttpRequestTelemetryProtocol> _telemetry;
+    @protected id<MSIDHttpRequestErrorHandlerProtocol> _errorHandler;
 }
 
 @property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *parameters;
 
 @property (nonatomic, nullable) NSURLRequest *urlRequest;
 
-@property (nonatomic, nonnull) id <MSIDRequestSerialization> requestSerializer;
+@property (nonatomic, nonnull) id<MSIDRequestSerialization> requestSerializer;
 
-@property (nonatomic, nonnull) id <MSIDResponseSerialization> responseSerializer;
+@property (nonatomic, nonnull) id<MSIDResponseSerialization> responseSerializer;
 
-@property (nonatomic, nullable) id <MSIDHttpRequestConfiguratorProtocol> requestConfigurator;
+@property (nonatomic, nullable) id<MSIDHttpRequestConfiguratorProtocol> requestConfigurator;
 
-@property (nonatomic, nullable) id <MSIDHttpRequestTelemetryProtocol> telemetry;
+@property (nonatomic, nullable) id<MSIDHttpRequestTelemetryProtocol> telemetry;
 
-@property (nonatomic, nullable) id <MSIDHttpRequestErrorHandlerProtocol> errorHandler;
+@property (nonatomic, nullable) id<MSIDHttpRequestErrorHandlerProtocol> errorHandler;
 
-@property (nonatomic, nullable) id <MSIDRequestContext> context;
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable)completionBlock;
-
-- (void)cancel;
+@property (nonatomic, nullable) id<MSIDRequestContext> context;
 
 @end

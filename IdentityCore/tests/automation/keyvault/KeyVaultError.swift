@@ -21,16 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+import Foundation
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
-
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
-
-- (void)responseReceivedEventWithContext:(id<MSIDRequestContext>)context
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
-
-@end
+public enum KeyVaultError : Error {
+    case InvalidUrl
+    case NoAuthHeader
+    case NoBearerChallenge
+    case BearerChallengeMissingRequiredParameter
+    case NoAuthCallback
+}

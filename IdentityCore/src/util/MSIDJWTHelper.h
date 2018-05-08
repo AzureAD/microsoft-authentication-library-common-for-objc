@@ -23,14 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
+@interface MSIDJWTHelper : NSObject
 
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
++ (NSString *)createSignedJWTforHeader:(NSDictionary *)header
+                               payload:(NSDictionary *)payload
+                            signingKey:(SecKeyRef)signingKey;
 
-- (void)responseReceivedEventWithContext:(id<MSIDRequestContext>)context
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
++ (NSString *)decryptJWT:(NSData *)jwtData
+           decryptionKey:(SecKeyRef)decryptionKey;
 
 @end

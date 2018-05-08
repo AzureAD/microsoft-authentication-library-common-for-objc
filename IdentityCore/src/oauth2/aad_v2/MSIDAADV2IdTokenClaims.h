@@ -21,16 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDIdTokenClaims.h"
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
+@interface MSIDAADV2IdTokenClaims : MSIDIdTokenClaims
 
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
-
-- (void)responseReceivedEventWithContext:(id<MSIDRequestContext>)context
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
+@property (readonly) NSString *issuer;
+@property (readonly) NSString *objectId;
+@property (readonly) NSString *tenantId;
+@property (readonly) NSString *version;
+@property (readonly) NSString *homeObjectId;
 
 @end

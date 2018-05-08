@@ -31,6 +31,14 @@
 #import "MSIDVersion.h"
 #import "MSIDContants.h"
 
+static NSTimeInterval const s_defaultTimeoutInterval = 300;
+
+@interface MSIDAADRequestConfigurator()
+
+@property (nonatomic) MSIDAadAuthorityCache *authorityCache;
+
+@end
+
 @implementation MSIDAADRequestConfigurator
 
 - (instancetype)init
@@ -38,7 +46,7 @@
     self = [super init];
     if (self)
     {
-        _timeoutInterval = 300;
+        _timeoutInterval = s_defaultTimeoutInterval;
         _authorityCache = [MSIDAadAuthorityCache sharedInstance];
     }
     return self;

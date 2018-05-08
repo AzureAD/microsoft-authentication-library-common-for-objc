@@ -23,14 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol MSIDHttpRequestTelemetryProtocol <NSObject>
+@interface MSIDClientCredentialHelper : NSObject
 
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
-
-- (void)responseReceivedEventWithContext:(id<MSIDRequestContext>)context
-                         urlRequest:(NSURLRequest *)urlRequest
-                       httpResponse:(NSHTTPURLResponse *)httpResponse
-                               data:(NSData *)data
-                              error:(NSError *)error;
++ (void)getAccessTokenForAuthority:(NSString *)authority
+                          resource:(NSString *)resource
+                          clientId:(NSString *)clientId
+                       certificate:(NSData *)certificateData
+               certificatePassword:(NSString *)password
+                 completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler;
 
 @end

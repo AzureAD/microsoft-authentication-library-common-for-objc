@@ -23,11 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id _Nullable response, NSError *_Nullable error);
+typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
 
 @protocol MSIDHttpRequestProtocol <NSObject>
 
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable)completionBlock;
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+
+- (void)finishAndInvalidate;
 
 - (void)cancel;
 

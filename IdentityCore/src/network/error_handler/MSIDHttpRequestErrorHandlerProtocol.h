@@ -29,8 +29,8 @@
 - (void)handleError:(NSError * )error
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
-        httpRequest:(id <MSIDHttpRequestProtocol>)httpRequest
-            context:(id <MSIDRequestContext>)context
+        httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+            context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
 
 @end

@@ -45,7 +45,7 @@
         parameters[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
         parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
         parameters[MSID_OAUTH2_RESPONSE_TYPE] = loginHint;
-        parameters[@"prompt"] = @"none";
+        parameters[MSID_OAUTH2_PROMPT] = MSID_OAUTH2_PROMPT_NONE;
         parameters[MSID_OAUTH2_SCOPE] = scope;
         _parameters = parameters;
         

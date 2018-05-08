@@ -25,16 +25,20 @@
 #import "MSIDAADRequestErrorHandler.h"
 #import "MSIDJsonResponseSerializer.h"
 
+static NSInteger const s_defaultRetryCounter = 1;
+static NSTimeInterval const s_defaultRetryInterval = 0.5;
+
 @implementation MSIDAADRequestErrorHandler
 
 - (instancetype)init
 {
     self = [super init];
     
-    if (!self) return nil;
-    
-    _retryCounter = 1;
-    _retryInterval = 0.5;
+    if (self)
+    {
+        _retryCounter = s_defaultRetryCounter;
+        _retryInterval = s_defaultRetryInterval;
+    }
     
     return self;
 }
@@ -42,20 +46,21 @@
 - (void)handleError:(NSError * )error
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
-        httpRequest:(id <MSIDHttpRequestProtocol>)httpRequest
-            context:(id <MSIDRequestContext>)context
+        httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+            context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     if (!httpResponse)
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) completionBlock(nil, error);
+            if (completionBlock) { completionBlock(nil, error); }
         });
         return;
     }
     
     BOOL shouldRetry = YES;
     shouldRetry &= self.retryCounter > 0;
+    // 5xx Server errors.
     shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
 
     if (shouldRetry)
@@ -77,7 +82,7 @@
         MSID_LOG_VERBOSE(context, @"Parsed error response: %@", _PII_NULLIFY(responseObject));
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) completionBlock(responseObject, error);
+            if (completionBlock) { completionBlock(responseObject, error); }
         });
     }
 }

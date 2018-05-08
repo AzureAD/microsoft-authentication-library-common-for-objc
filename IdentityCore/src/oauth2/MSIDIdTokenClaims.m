@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDIdTokenWrapper.h"
+#import "MSIDIdTokenClaims.h"
 #import "MSIDHelpers.h"
 
 #define ID_TOKEN_SUBJECT             @"sub"
@@ -36,7 +36,7 @@
 #define ID_TOKEN_MIDDLE_NAME         @"middle_name"
 #define ID_TOKEN_EMAIL               @"email"
 
-@implementation MSIDIdTokenWrapper
+@implementation MSIDIdTokenClaims
 
 MSID_JSON_ACCESSOR(ID_TOKEN_SUBJECT, subject)
 MSID_JSON_ACCESSOR(ID_TOKEN_PERFERRED_USERNAME, preferredUsername)
@@ -73,11 +73,28 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
         return nil;
     }
     
+    [self initDerivedProperties];
+    
+    return self;
+}
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+
+    if (self)
+    {
+        [self initDerivedProperties];
+    }
+
+    return self;
+}
+
+- (void)initDerivedProperties
+{
     _uniqueId = [MSIDHelpers normalizeUserId:self.subject];
     _userId = [MSIDHelpers normalizeUserId:self.subject];
     _userIdDisplayable = NO;
-    
-    return self;
 }
 
 - (BOOL)matchesLegacyUserId:(NSString *)legacyUserId

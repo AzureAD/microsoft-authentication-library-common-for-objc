@@ -25,34 +25,29 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDJsonObject.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
+#import "MSIDAADV2IdTokenClaims.h"
+#import "MSIDAADV1IdTokenClaims.h"
 
-@interface MSIDIdTokenWrapper : MSIDJsonObject
+@implementation MSIDAADIdTokenClaimsFactory
+
++ (MSIDIdTokenClaims *)claimsFromRawIdToken:(NSString *)rawIdTokenString
 {
-    NSString *_uniqueId;
-    NSString *_userId;
-    BOOL _userIdDisplayable;
+    MSIDIdTokenClaims *claims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:rawIdTokenString];
+
+    NSDictionary *allClaims = [claims jsonDictionary];
+    CGFloat idTokenVersion = [allClaims[@"ver"] floatValue];
+
+    if (idTokenVersion == 1.0f)
+    {
+        return [[MSIDAADV1IdTokenClaims alloc] initWithJSONDictionary:allClaims error:nil];
+    }
+    else if (idTokenVersion == 2.0f)
+    {
+        return [[MSIDAADV2IdTokenClaims alloc] initWithJSONDictionary:allClaims error:nil];
+    }
+
+    return claims;
 }
-
-// Default properties
-@property (readonly) NSString *subject;
-@property (readonly) NSString *preferredUsername;
-@property (readonly) NSString *name;
-@property (readonly) NSString *givenName;
-@property (readonly) NSString *middleName;
-@property (readonly) NSString *familyName;
-@property (readonly) NSString *email;
-
-// Derived properties
-@property (readonly) NSString *uniqueId;
-@property (readonly) NSString *userId;
-@property (readonly) BOOL userIdDisplayable;
-
-// Convinience properties
-@property (readonly) NSString *rawIdToken;
-
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
-- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId;
-- (NSString *)username;
 
 @end
