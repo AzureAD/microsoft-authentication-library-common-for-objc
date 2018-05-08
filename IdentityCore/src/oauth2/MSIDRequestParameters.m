@@ -58,6 +58,7 @@
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target
+                    correlationId:(NSUUID *)correlationId
 {
     self = [super init];
     
@@ -67,6 +68,7 @@
         _redirectUri = redirectUri;
         _clientId = clientId;
         _target = target;
+        _correlationId = correlationId;
     }
     
     return self;

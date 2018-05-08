@@ -68,36 +68,37 @@
 #pragma mark - Save tokens
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
-                      response:(MSIDTokenResponse *)response
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                requestParams:(MSIDRequestParameters *)requestParams
+                     response:(MSIDTokenResponse *)response
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
     return [self saveTokensWithFactory:factory
-                          requestParams:requestParams
-                               response:response
-                   saveRefreshTokenOnly:NO
-                                context:context
-                                  error:error];
+                         requestParams:requestParams
+                              response:response
+                  saveRefreshTokenOnly:NO
+                               context:context
+                                 error:error];
 }
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                brokerResponse:(MSIDBrokerResponse *)response
-          saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+               brokerResponse:(MSIDBrokerResponse *)response
+         saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
     MSIDRequestParameters *params = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:response.authority]
                                                                          redirectUri:nil
                                                                             clientId:response.clientId
-                                                                              target:response.resource];
-
+                                                                              target:response.resource
+                                                                       correlationId:context.correlationId];
+    
     return [self saveTokensWithFactory:factory
-                          requestParams:params
-                               response:response.tokenResponse
-                   saveRefreshTokenOnly:saveRefreshTokenOnly
-                                context:context
-                                  error:error];
+                         requestParams:params
+                              response:response.tokenResponse
+                  saveRefreshTokenOnly:saveRefreshTokenOnly
+                               context:context
+                                 error:error];
 }
 
 #pragma mark - Get tokens
@@ -361,14 +362,14 @@
 }
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
-                      response:(MSIDTokenResponse *)response
-          saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                requestParams:(MSIDRequestParameters *)requestParams
+                     response:(MSIDTokenResponse *)response
+         saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
     MSIDAccount *account = [factory accountFromResponse:response request:requestParams];
-
+    
     MSID_LOG_VERBOSE(context, @"Saving tokens with authority %@, clientId %@, resource %@", requestParams.authority, requestParams.clientId, requestParams.resource);
     MSID_LOG_VERBOSE_PII(context, @"Saving tokens with authority %@, clientId %@, resource %@, user ID: %@, legacy user ID: %@", requestParams.authority, requestParams.clientId, requestParams.resource, account.uniqueUserId, account.legacyUserId);
     
@@ -377,17 +378,17 @@
     if (!saveRefreshTokenOnly)
     {
         result = [_primaryAccessor saveTokensWithFactory:factory
-                                            requestParams:requestParams
-                                                  account:account
-                                                 response:response
-                                                  context:context error:error];
+                                           requestParams:requestParams
+                                                 account:account
+                                                response:response
+                                                 context:context error:error];
         
         if (!result) return NO;
     }
     
     // Create a refresh token item
     MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response
-                                                                request:requestParams];
+                                                               request:requestParams];
     
     if (!refreshToken)
     {
@@ -399,3 +400,4 @@
 }
 
 @end
+

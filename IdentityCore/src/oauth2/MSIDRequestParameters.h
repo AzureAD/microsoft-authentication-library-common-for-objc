@@ -31,7 +31,8 @@
 - (instancetype)initWithAuthority:(NSURL *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
-                           target:(NSString *)target;
+                           target:(NSString *)target
+                    correlationId:(NSUUID *)correlationId;
 
 // Commonly used or needed properties
 @property (readwrite) NSURL *authority;

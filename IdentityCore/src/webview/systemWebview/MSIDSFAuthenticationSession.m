@@ -34,6 +34,8 @@
 {
     API_AVAILABLE(ios(11.0))
     SFAuthenticationSession *_authSession;
+    
+    id<MSIDRequestContext> _context;
 }
 
 
@@ -41,30 +43,43 @@
           callbackURLScheme:(NSString *)callbackURLScheme
                     context:(id<MSIDRequestContext>)context
 {
-    if (@available(iOS 11.0, *))
+    self = [super init];
+    if (self)
     {
-        _authSession = [[SFAuthenticationSession alloc] initWithURL:url
-                                                  callbackURLScheme:callbackURLScheme
-                                                  completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error)
-                        {
-                            if (error)
-                            {
-                                if (error.code == SFAuthenticationErrorCanceledLogin)
-                                {
-                                    error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, context.correlationId, nil);
-                                }
-                                
-                                [self.webviewDelegate handleAuthResponse:nil error:error];
-                                return;
-                            }
-                            
-                            [self.webviewDelegate handleAuthResponse:callbackURL error:nil];
-                        }];
-        return self;
+        _context = context;
+        _authSession = [self authSessionWithURL:url callbackURLScheme:callbackURLScheme];
     }
-    return nil;
+    
+    return self;
 }
 
+- (id)authSessionWithURL:(NSURL *)url
+       callbackURLScheme:(NSString *)callbackURLScheme
+{
+    if (@available(iOS 11.0, *))
+    {
+        SFAuthenticationSession *session = [[SFAuthenticationSession alloc] initWithURL:url
+                                                                      callbackURLScheme:callbackURLScheme
+                                                                      completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error)
+                                            {
+                                                if (error)
+                                                {
+                                                    if (error.code == SFAuthenticationErrorCanceledLogin)
+                                                    {
+                                                        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
+                                                    }
+                                                    
+                                                    [self.webviewDelegate handleAuthResponse:nil error:error];
+                                                    return;
+                                                }
+                                                
+                                                [self.webviewDelegate handleAuthResponse:callbackURL error:nil];
+                                            }];
+        return session;
+    }
+        
+    return nil;
+}
 
 - (BOOL)start
 {
@@ -74,7 +89,9 @@
 
 - (void)cancel
 {
-    [_authSession cancel];
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceled, @"Authorization session was cancelled programatically", nil, nil, nil, _context.correlationId, nil);
+    
+    [self.webviewDelegate handleAuthResponse:nil error:error];
 }
 
 @end
