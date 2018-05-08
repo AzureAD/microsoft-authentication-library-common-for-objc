@@ -99,6 +99,11 @@ static MSIDTestRequireValueSentinel *s_requiredSentinel = nil;
     return s_requiredSentinel;
 }
 
+- (NSString *)description
+{
+    return @"<MSIDTestRequireValueSentinel>";
+}
+
 @end
 
 @implementation MSIDTestIgnoreSentinel
@@ -113,6 +118,11 @@ static MSIDTestIgnoreSentinel *s_ignoreSentinel = nil;
 + (instancetype)sentinel
 {
     return s_ignoreSentinel;
+}
+
+- (NSString *)description
+{
+    return @"<MSIDTestIgnoreSentinel>";
 }
 
 @end

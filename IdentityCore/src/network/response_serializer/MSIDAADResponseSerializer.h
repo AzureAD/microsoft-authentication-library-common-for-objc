@@ -21,23 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryEventInterface.h"
+#import "MSIDJsonResponseSerializer.h"
 
-@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
-{
-    NSMutableDictionary *_propertyMap;
-}
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithName:(NSString*)eventName
-                   requestId:(NSString*)requestId
-               correlationId:(NSUUID*)correlationId;
-
-- (instancetype)initWithName:(NSString*)eventName
-                     context:(id<MSIDRequestContext>)requestParams;
-
-+ (NSDictionary *)defaultParameters;
+@interface MSIDAADResponseSerializer : MSIDJsonResponseSerializer
 
 @end

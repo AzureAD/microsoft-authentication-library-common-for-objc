@@ -31,6 +31,7 @@
 @property (nonatomic, weak) id delegate;
 @property (nonatomic, weak) MSIDTestURLSession *session;
 @property (nonatomic, strong) NSURLRequest *request;
+@property (nonatomic, copy) void (^completionHandler)(NSData *, NSURLResponse *, NSError *);
 
 @end
 
@@ -50,6 +51,19 @@
     return self;
 }
 
+- (id)initWithRequest:(NSURLRequest *)request
+             completionHandler:(void(^)(NSData *, NSURLResponse *, NSError *))completionHandler
+              session:(MSIDTestURLSession *)session
+{
+    self = [super init];
+    if (self)
+    {
+        self.completionHandler = completionHandler;
+        self.session = session;
+        self.request = request;
+    }
+    return self;
+}
 
 - (void)resume
 {
@@ -61,6 +75,8 @@
             NSError* error = [NSError errorWithDomain:NSURLErrorDomain
                                                  code:NSURLErrorNotConnectedToInternet
                                              userInfo:nil];
+            if (self.completionHandler) self.completionHandler(nil, nil, error);
+            
             [self.delegate URLSession:(NSURLSession *)self.session
                                  task:(NSURLSessionDataTask *)self
                  didCompleteWithError:error];
@@ -74,6 +90,10 @@
         dispatch_semaphore_wait(response->_waitSemaphore, DISPATCH_TIME_FOREVER);
     }
     
+    [self.session dispatchIfNeed:^{
+        if (self.completionHandler) self.completionHandler(response->_responseData, response->_response, response->_error);
+    }];
+    
     if (response->_error)
     {
         [self.session dispatchIfNeed:^{
@@ -83,6 +103,7 @@
         }];
         return;
     }
+    
     if (response->_expectedRequestHeaders)
     {
         BOOL failed = NO;
@@ -107,11 +128,14 @@
         if (failed)
         {
             [self.session dispatchIfNeed:^{
+                __auto_type error = [NSError errorWithDomain:NSURLErrorDomain
+                                                        code:NSURLErrorNotConnectedToInternet
+                                                    userInfo:nil];
+                if (self.completionHandler) self.completionHandler(nil, nil, error);
+                
                 [self.delegate URLSession:(NSURLSession *)self.session
                                      task:(NSURLSessionDataTask *)self
-                     didCompleteWithError:[NSError errorWithDomain:NSURLErrorDomain
-                                                              code:NSURLErrorNotConnectedToInternet
-                                                          userInfo:nil]];
+                     didCompleteWithError:error];
             }];
             return;
         }

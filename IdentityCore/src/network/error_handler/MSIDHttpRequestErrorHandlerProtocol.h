@@ -21,23 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryEventInterface.h"
+#import <Foundation/Foundation.h>
+#import "MSIDHttpRequestProtocol.h"
 
-@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
-{
-    NSMutableDictionary *_propertyMap;
-}
+@protocol MSIDHttpRequestErrorHandlerProtocol <NSObject>
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithName:(NSString*)eventName
-                   requestId:(NSString*)requestId
-               correlationId:(NSUUID*)correlationId;
-
-- (instancetype)initWithName:(NSString*)eventName
-                     context:(id<MSIDRequestContext>)requestParams;
-
-+ (NSDictionary *)defaultParameters;
+- (void)handleError:(NSError * )error
+       httpResponse:(NSHTTPURLResponse *)httpResponse
+               data:(NSData *)data
+        httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+            context:(id<MSIDRequestContext>)context
+    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
 
 @end

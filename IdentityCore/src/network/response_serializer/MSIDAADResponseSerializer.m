@@ -21,23 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryEventInterface.h"
+#import "MSIDAADResponseSerializer.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "NSString+MSIDTelemetryExtensions.h"
 
-@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
+@implementation MSIDAADResponseSerializer
+
+- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse data:(NSData *)data error:(NSError **)error
 {
-    NSMutableDictionary *_propertyMap;
+    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data error:error] mutableCopy];
+    
+    if (error) { return nil; }
+    
+    jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
+    
+    NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
+    if (![NSString msidIsStringNilOrBlank:clientTelemetry])
+    {
+        NSString *speInfo = [clientTelemetry parsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
+        
+        if (![NSString msidIsStringNilOrBlank:speInfo])
+        {
+            jsonObject[MSID_TELEMETRY_KEY_SPE_INFO] = speInfo;
+        }
+    }
+
+    return jsonObject;
 }
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithName:(NSString*)eventName
-                   requestId:(NSString*)requestId
-               correlationId:(NSUUID*)correlationId;
-
-- (instancetype)initWithName:(NSString*)eventName
-                     context:(id<MSIDRequestContext>)requestParams;
-
-+ (NSDictionary *)defaultParameters;
 
 @end

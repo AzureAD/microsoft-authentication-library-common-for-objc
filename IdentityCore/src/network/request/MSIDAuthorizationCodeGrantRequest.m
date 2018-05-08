@@ -21,23 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryEventInterface.h"
+#import "MSIDAuthorizationCodeGrantRequest.h"
 
-@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
+@implementation MSIDAuthorizationCodeGrantRequest
+
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope
+                     redirectUri:(NSString *)redirectUri
+                            code:(NSString *)code
 {
-    NSMutableDictionary *_propertyMap;
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope];
+    if (self)
+    {
+        NSParameterAssert(redirectUri);
+        NSParameterAssert(code);
+        
+        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        parameters[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
+        parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_AUTHORIZATION_CODE;
+        parameters[MSID_OAUTH2_CODE] = code;
+        _parameters = parameters;
+    }
+    
+    return self;
 }
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithName:(NSString*)eventName
-                   requestId:(NSString*)requestId
-               correlationId:(NSUUID*)correlationId;
-
-- (instancetype)initWithName:(NSString*)eventName
-                     context:(id<MSIDRequestContext>)requestParams;
-
-+ (NSDictionary *)defaultParameters;
 
 @end
