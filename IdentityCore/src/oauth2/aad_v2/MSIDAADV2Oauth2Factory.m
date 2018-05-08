@@ -194,8 +194,7 @@
     }
 
     MSIDAccount *account = [super accountFromResponse:response request:requestParams];
-    MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
-    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
+    // TODO: remove me
     return account;
 }
 

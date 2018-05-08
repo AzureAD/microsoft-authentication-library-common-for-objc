@@ -50,6 +50,7 @@
                           context:(id<MSIDRequestContext>)context;
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority
                         context:(id<MSIDRequestContext>)context;
+
 /*!
  Returns an array of authority URLs for the provided URL, in the order that cache lookups
  should be attempted.

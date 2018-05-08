@@ -198,10 +198,10 @@
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving token %@ for userID %@ with authority %@, clientID %@,", credential, credential.uniqueUserId, credential.authority, credential.clientId);
 
     MSIDDefaultTokenCacheKey *key = [[MSIDDefaultTokenCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
-                                                                               environment:credential.environment];
+                                                                               environment:credential.authority.msidHostWithPortIfNecessary];
 
     key.clientId = credential.clientId;
-    key.realm = credential.realm;
+    key.realm = credential.authority.msidTenant;
     key.target = credential.target;
     key.credentialType = credential.tokenType;
 
@@ -219,7 +219,7 @@
 {
     assert(account);
 
-    MSID_LOG_VERBOSE(context, @"(Default cache) Saving account with authority %@", account.authority);
+    MSID_LOG_VERBOSE(context, @"(Default cache) Saving account with environment %@", account.environment);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving account %@", account);
 
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:account.uniqueUserId environment:account.environment];
@@ -275,10 +275,10 @@
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credential %@ for userID %@ with authority %@, clientID %@,", credential, credential.uniqueUserId, credential.authority, credential.clientId);
 
     MSIDDefaultTokenCacheKey *key = [[MSIDDefaultTokenCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
-                                                                               environment:credential.environment];
+                                                                               environment:credential.authority.msidHostWithPortIfNecessary];
 
     key.clientId = credential.clientId;
-    key.realm = credential.realm;
+    key.realm = credential.authority.msidTenant;
     key.target = credential.target;
     key.credentialType = credential.tokenType;
 
@@ -290,7 +290,7 @@
 
         MSIDDefaultTokenCacheQuery *query = [MSIDDefaultTokenCacheQuery new];
         query.uniqueUserId = credential.uniqueUserId;
-        query.environment = credential.environment;
+        query.environment = credential.authority.msidHostWithPortIfNecessary;
         query.clientId = credential.clientId;
         query.credentialType = MSIDTokenTypeIDToken;
 
@@ -319,8 +319,8 @@
 {
     assert(account);
 
-    MSID_LOG_VERBOSE(context, @"(Default cache) Removing account with authority %@", account.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing account with authority %@, user ID %@, username %@", account.authority, account.uniqueUserId, account.username);
+    MSID_LOG_VERBOSE(context, @"(Default cache) Removing account with environment %@", account.environment);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, account.uniqueUserId, account.username);
 
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:account.uniqueUserId environment:account.environment];
 

@@ -247,7 +247,7 @@
 {
     MSIDTokenCacheItem *cacheItem = token.tokenCacheItem;
     
-    return [self getTokenByLegacyUserId:cacheItem.legacyUserIdentifier
+    return [self getTokenByLegacyUserId:cacheItem.legacyUserId
                               tokenType:cacheItem.tokenType
                               authority:cacheItem.authority
                                clientId:cacheItem.clientId
@@ -339,7 +339,7 @@
     MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:authority
                                                                              clientId:cacheItem.clientId
                                                                              resource:cacheItem.target
-                                                                         legacyUserId:cacheItem.legacyUserIdentifier];
+                                                                         legacyUserId:cacheItem.legacyUserId];
     
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
 
@@ -380,7 +380,7 @@
             MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:item.authority
                                                                                      clientId:item.clientId
                                                                                      resource:item.target
-                                                                                 legacyUserId:item.legacyUserIdentifier];
+                                                                                 legacyUserId:item.legacyUserId];
 
             if (![_dataSource removeItemsWithKey:key
                                          context:context

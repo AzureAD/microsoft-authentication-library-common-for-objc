@@ -41,6 +41,7 @@
 - (BOOL)isEqualToItem:(MSIDTokenCacheItem *)item
 {
     BOOL result = [super isEqualToItem:item];
+    result &= (!self.authority || !item.authority) || [self.authority isEqual:item.authority];
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= self.tokenType == item.tokenType;
     result &= (!self.accessToken && !item.accessToken) || [self.accessToken isEqualToString:item.accessToken];
@@ -61,6 +62,7 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
+    hash = hash * 31 + self.authority.hash;
     hash = hash * 31 + self.clientId.hash;
     hash = hash * 31 + self.tokenType;
     hash = hash * 31 + self.accessToken.hash;
@@ -81,6 +83,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDTokenCacheItem *item = [super copyWithZone:zone];
+    item.authority = [self.authority copyWithZone:zone];
     item.clientId = [self.clientId copyWithZone:zone];
     item.tokenType = self.tokenType;
     item.accessToken = [self.accessToken copyWithZone:zone];
@@ -104,6 +107,13 @@
     {
         return nil;
     }
+
+    NSString *authorityString = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+
+    if (authorityString)
+    {
+        _authority = [NSURL URLWithString:authorityString];
+    }
     
     _refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     _accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
@@ -121,6 +131,7 @@
     // Decode id_token from a backward compatible way
     MSIDUserInformation *userInfo = [coder decodeObjectOfClass:[MSIDUserInformation class] forKey:@"userInformation"];
     _idToken = userInfo.rawIdToken;
+    _legacyUserId = userInfo.userId;
     
     if (!_uniqueUserId) _uniqueUserId = userInfo.userId;
     
@@ -133,7 +144,8 @@
 - (void)encodeWithCoder:(NSCoder *)coder
 {
     [super encodeWithCoder:coder];
-    
+
+    [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
     [coder encodeObject:self.familyId forKey:@"familyId"];
     [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
     
@@ -189,6 +201,9 @@
     
     // Access token type
     _oauthTokenType = json[MSID_OAUTH_TOKEN_TYPE_CACHE_KEY];
+
+    // Authority account ID
+    _legacyUserId = json[MSID_ACCOUNT_ID_CACHE_KEY];
     
     // Additional Info
     NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
@@ -227,6 +242,30 @@
             break;
         }
     }
+
+    // Environment
+    NSString *environment = json[MSID_ENVIRONMENT_CACHE_KEY];
+
+    // Authority
+    NSString *authorityString = json[MSID_AUTHORITY_CACHE_KEY];
+
+    if (authorityString)
+    {
+        _authority = [NSURL URLWithString:authorityString];
+    }
+    else if (environment)
+    {
+        NSString *tenant = json[MSID_REALM_CACHE_KEY];
+
+        if (tenant)
+        {
+            _authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
+        }
+        else
+        {
+            _authority = [NSURL msidURLWithEnvironment:environment];
+        }
+    }
     
     return self;
 }
@@ -260,6 +299,15 @@
     
     // Spe info
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
+
+    // Environment
+    dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _authority.msidHostWithPortIfNecessary;
+
+    // Authority
+    dictionary[MSID_AUTHORITY_CACHE_KEY] = _authority.absoluteString;
+
+    // Authority account ID
+    dictionary[MSID_ACCOUNT_ID_CACHE_KEY] = _legacyUserId;
     
     // Extended expires on
     dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = [_additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] msidDateToTimestamp];
@@ -268,7 +316,6 @@
         case MSIDTokenTypeRefreshToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _refreshToken;
-            dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
             break;
         }
         case MSIDTokenTypeIDToken:
@@ -281,7 +328,6 @@
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _accessToken;
             dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
-            dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
             break;
         }
         case MSIDTokenTypeLegacySingleResourceToken:
@@ -289,7 +335,6 @@
             dictionary[MSID_TOKEN_CACHE_KEY] = _accessToken;
             dictionary[MSID_RESOURCE_RT_CACHE_KEY] = _refreshToken;
             dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
-            dictionary[MSID_ID_TOKEN_CACHE_KEY] = _idToken;
             break;
         }
             
@@ -360,7 +405,7 @@
         return NO;
     }
 
-    if (environment && ![self.environment isEqualToString:environment])
+    if (environment && ![self.authority.msidHostWithPortIfNecessary isEqualToString:environment])
     {
         return NO;
     }
@@ -378,7 +423,6 @@
             return NO;
         }
 
-        // TODO: initialize legacy user ID instead
         MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:self.idToken];
 
         if ([idTokenClaims matchesLegacyUserId:legacyUserId]
@@ -403,7 +447,7 @@
         return NO;
     }
 
-    if (realm && ![self.realm isEqualToString:realm])
+    if (realm && ![self.authority.msidTenant isEqualToString:realm])
     {
         return NO;
     }

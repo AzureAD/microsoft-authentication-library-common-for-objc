@@ -597,7 +597,8 @@
     MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
 
     MSIDAccountCacheItem *cacheItem = account.accountCacheItem;
-    cacheItem.authority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:cacheItem.authority context:context];
+    NSURL *cacheAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:[NSURL msidURLWithEnvironment:cacheItem.environment] context:context];
+    cacheItem.environment = cacheAuthority.msidHostWithPortIfNecessary; // TODO: this is a hack
 
     BOOL result = [_accountCredentialCache saveAccount:cacheItem context:context error:error];
 

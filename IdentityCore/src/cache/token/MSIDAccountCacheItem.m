@@ -34,12 +34,16 @@
         return nil;
     }
     
-    _legacyUserIdentifier = [coder decodeObjectOfClass:[NSString class] forKey:@"legacy_user_id"];
+    _legacyUserId = [coder decodeObjectOfClass:[NSString class] forKey:@"legacy_user_id"];
     
     _accountType = [MSIDAccountTypeHelpers accountTypeFromString:[coder decodeObjectOfClass:[NSString class] forKey:@"authority_type"]];
+    _username = [coder decodeObjectOfClass:[NSString class] forKey:@"username"];
     
-    _firstName = [coder decodeObjectOfClass:[NSString class] forKey:@"first_name"];
-    _lastName = [coder decodeObjectOfClass:[NSString class] forKey:@"last_name"];
+    _givenName = [coder decodeObjectOfClass:[NSString class] forKey:@"given_name"];
+    _middleName = [coder decodeObjectOfClass:[NSString class] forKey:@"middle_name"];
+    _familyName = [coder decodeObjectOfClass:[NSString class] forKey:@"family_name"];
+    _name = [coder decodeObjectOfClass:[NSString class] forKey:@"name"];
+    _environment = [coder decodeObjectOfClass:[NSString class] forKey:@"environment"];
     
     return self;
 }
@@ -47,11 +51,15 @@
 - (void)encodeWithCoder:(NSCoder *)coder
 {
     [super encodeWithCoder:coder];
-    
-    [coder encodeObject:_legacyUserIdentifier forKey:@"legacy_user_id"];
+
+    [coder encodeObject:_legacyUserId forKey:@"legacy_user_id"];
     [coder encodeObject:[MSIDAccountTypeHelpers accountTypeAsString:_accountType] forKey:@"authority_type"];
-    [coder encodeObject:_firstName forKey:@"first_name"];
-    [coder encodeObject:_lastName forKey:@"last_name"];
+    [coder encodeObject:_username forKey:@"username"];
+    [coder encodeObject:_givenName forKey:@"given_name"];
+    [coder encodeObject:_middleName forKey:@"middle_name"];
+    [coder encodeObject:_familyName forKey:@"family_name"];
+    [coder encodeObject:_name forKey:@"name"];
+    [coder encodeObject:_environment forKey:@"environment"];
 }
 
 #pragma mark - JSON
@@ -64,20 +72,32 @@
     }
     
     // Authority account ID
-    _legacyUserIdentifier = json[MSID_ACCOUNT_ID_CACHE_KEY];
+    _legacyUserId = json[MSID_ACCOUNT_ID_CACHE_KEY];
     
     /* Optional fields */
     // First name
-    _firstName = json[MSID_FIRST_NAME_CACHE_KEY];
+    _givenName = json[MSID_GIVEN_NAME_CACHE_KEY];
+
+    // Middle name
+    _middleName = json[MSID_MIDDLE_NAME_CACHE_KEY];
     
     // Last name
-    _lastName = json[MSID_LAST_NAME_CACHE_KEY];
+    _familyName = json[MSID_FAMILY_NAME_CACHE_KEY];
+
+    // Name
+    _name = json[MSID_NAME_CACHE_KEY];
     
     // Account type
     _accountType = [MSIDAccountTypeHelpers accountTypeFromString:json[MSID_AUTHORITY_TYPE_CACHE_KEY]];
     
     // Extensibility
     _additionalAccountFields = json;
+
+    // Username
+    _username = json[MSID_USERNAME_CACHE_KEY];
+
+    // Environment
+    _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
     
     return self;
 }
@@ -95,21 +115,31 @@
     [dictionary addEntriesFromDictionary:[super jsonDictionary]];
     
     /* Mandatory fields */
-    // Tenant
-    dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
     
     // Authority account ID
-    dictionary[MSID_ACCOUNT_ID_CACHE_KEY] = _legacyUserIdentifier;
+    dictionary[MSID_ACCOUNT_ID_CACHE_KEY] = _legacyUserId;
     
     /* Optional fields */
     // First name
-    dictionary[MSID_FIRST_NAME_CACHE_KEY] = _firstName;
+    dictionary[MSID_GIVEN_NAME_CACHE_KEY] = _givenName;
+
+    // Middle name
+    dictionary[MSID_MIDDLE_NAME_CACHE_KEY] = _middleName;
+
+    // Name
+    dictionary[MSID_NAME_CACHE_KEY] = _name;
     
     // Last name
-    dictionary[MSID_LAST_NAME_CACHE_KEY] = _lastName;
+    dictionary[MSID_FAMILY_NAME_CACHE_KEY] = _familyName;
+
+    // Username
+    dictionary[MSID_USERNAME_CACHE_KEY] = _username;
     
     // Account type
     dictionary[MSID_AUTHORITY_TYPE_CACHE_KEY] = [MSIDAccountTypeHelpers accountTypeAsString:_accountType];
+
+    // Environment
+    dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _environment;
     
     return dictionary;
 }

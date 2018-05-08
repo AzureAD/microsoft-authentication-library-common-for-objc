@@ -39,9 +39,9 @@
     NSURL *_authority;
     NSString *_clientId;
     NSString *_uniqueUserId;
+    NSString *_legacyUserId;
     MSIDClientInfo *_clientInfo;
     NSDictionary *_additionalServerInfo;
-    NSString *_username;
 }
 
 @property (readonly) MSIDTokenType tokenType;
@@ -53,18 +53,11 @@
  */
 @property (readwrite) NSURL *storageAuthority;
 @property (readwrite) NSString *clientId;
+@property (readwrite) NSString *uniqueUserId;
+@property (readwrite) NSString *legacyUserId;
 
 @property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSDictionary *additionalServerInfo;
-
-// User info
-@property (readwrite) NSString *uniqueUserId;
-
-// TODO: fill me in!
-@property (readwrite) NSString *legacyUserId;
-
-// TODO: remove me!
-@property (readwrite) NSString *username;
 
 - (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem;
 - (MSIDTokenCacheItem *)tokenCacheItem;

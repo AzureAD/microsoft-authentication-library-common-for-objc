@@ -53,7 +53,8 @@
     }
     
     _rawIdToken = [coder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
-    
+
+    // TODO: use factory here!
     MSIDAADV1IdTokenClaims *tokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:_rawIdToken];
     _userId = tokenObj.userId;
     

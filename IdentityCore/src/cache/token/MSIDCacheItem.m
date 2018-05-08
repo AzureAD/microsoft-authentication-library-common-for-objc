@@ -51,8 +51,6 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = 0;
-    hash = hash * 31 + self.authority.hash;
-    hash = hash * 31 + self.username.hash;
     hash = hash * 31 + self.uniqueUserId.hash;
     hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
 
@@ -67,8 +65,6 @@
     }
     
     BOOL result = YES;
-    result &= (!self.authority && !item.authority) || [self.authority.absoluteString isEqualToString:item.authority.absoluteString];
-    result &= (!self.username && !item.username) || [self.username isEqualToString:item.username];
     result &= (!self.uniqueUserId && !item.uniqueUserId) || [self.uniqueUserId isEqualToString:item.uniqueUserId];
     result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
     
@@ -80,8 +76,6 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDCacheItem *item = [[self.class allocWithZone:zone] init];
-    item.authority = [self.authority copyWithZone:zone];
-    item.username = [self.username copyWithZone:zone];
     item.uniqueUserId = [self.uniqueUserId copyWithZone:zone];
     item.clientInfo = [self.clientInfo copyWithZone:zone];
     
@@ -101,16 +95,7 @@
     {
         return nil;
     }
-    
-    NSString *authorityString = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
-    
-    if (authorityString)
-    {
-        _authority = [NSURL URLWithString:authorityString];
-    }
-    
-    _username = [coder decodeObjectOfClass:[NSString class] forKey:@"username"];
-    
+
     NSString *rawClientInfo = [coder decodeObjectOfClass:[NSString class] forKey:@"clientInfo"];
     [self fillClientInfo:rawClientInfo];
     
@@ -119,10 +104,7 @@
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
-    
     [coder encodeObject:self.clientInfo.rawClientInfo forKey:@"clientInfo"];
-    [coder encodeObject:self.username forKey:@"username"];
 }
 
 #pragma mark - JSON
@@ -139,36 +121,9 @@
     // Unique ID
     _uniqueUserId = json[MSID_UNIQUE_ID_CACHE_KEY];
     
-    // Environment
-    NSString *environment = json[MSID_ENVIRONMENT_CACHE_KEY];
-    
     /* Optional fields */
     NSString *rawClientInfo = json[MSID_OAUTH2_CLIENT_INFO];
     [self fillClientInfo:rawClientInfo];
-    
-    // Username
-    _username = json[MSID_USERNAME_CACHE_KEY];
-    
-    // Authority
-    NSString *authorityString = json[MSID_AUTHORITY_CACHE_KEY];
-    
-    if (authorityString)
-    {
-        _authority = [NSURL URLWithString:authorityString];
-    }
-    else if (environment)
-    {
-        NSString *tenant = json[MSID_REALM_CACHE_KEY];
-        
-        if (tenant)
-        {
-            _authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
-        }
-        else
-        {
-            _authority = [NSURL msidURLWithEnvironment:environment];
-        }
-    }
     
     return self;
 }
@@ -187,19 +142,10 @@
     // Unique id
     dictionary[MSID_UNIQUE_ID_CACHE_KEY] = _clientInfo.userIdentifier ? _clientInfo.userIdentifier : _uniqueUserId;
     
-    // Environment
-    dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _authority.msidHostWithPortIfNecessary;
-    
     /* Optional fields */
     
     // Client info
     dictionary[MSID_CLIENT_INFO_CACHE_KEY] = _clientInfo.rawClientInfo;
-    
-    // Username
-    dictionary[MSID_USERNAME_CACHE_KEY] = _username;
-    
-    // Authority
-    dictionary[MSID_AUTHORITY_CACHE_KEY] = _authority.absoluteString;
     
     return dictionary;
 }

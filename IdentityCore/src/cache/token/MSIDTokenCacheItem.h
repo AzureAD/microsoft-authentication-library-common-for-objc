@@ -29,6 +29,9 @@
 
 @interface MSIDTokenCacheItem : MSIDCacheItem
 
+// Authority
+@property (readwrite, nonnull) NSURL *authority;
+
 // Client id
 @property (readwrite, nonnull) NSString *clientId;
 

@@ -32,20 +32,21 @@
 
 @interface MSIDAccount : NSObject <NSCopying, MSIDUserIdentifiers>
 
-// Legacy user identifier
-@property (readwrite) NSString *legacyUserId;
-@property (readwrite) MSIDClientInfo *clientInfo;
-
 // Primary user identifier
 @property (readwrite) NSString *uniqueUserId;
 
+// Legacy user identifier
+@property (readwrite) NSString *legacyUserId;
 @property (readwrite) MSIDAccountType accountType;
+@property (readwrite) NSString *environment;
 
 @property (readwrite) NSString *username;
-@property (readwrite) NSString *firstName;
-@property (readwrite) NSString *lastName;
+@property (readwrite) NSString *givenName;
+@property (readwrite) NSString *middleName;
+@property (readwrite) NSString *familyName;
+@property (readwrite) NSString *name;
 
-@property (readwrite) NSURL *authority;
+@property (readwrite) MSIDClientInfo *clientInfo;
 
 - (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
                         clientInfo:(MSIDClientInfo *)clientInfo;

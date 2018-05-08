@@ -40,7 +40,7 @@
     item->_uniqueUserId = _uniqueUserId;
     item->_clientInfo = _clientInfo;
     item->_additionalServerInfo = _additionalServerInfo;
-    item->_username = _username;
+    item->_legacyUserId = _legacyUserId;
     
     return item;
 }
@@ -70,8 +70,8 @@
     hash = hash * 31 + self.uniqueUserId.hash;
     hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
     hash = hash * 31 + self.additionalServerInfo.hash;
-    hash = hash * 31 + self.username.hash;
     hash = hash * 31 + self.tokenType;
+    hash = hash * 31 + self.legacyUserId.hash;
     return hash;
 }
 
@@ -86,9 +86,9 @@
     result &= (!self.authority && !item.authority) || [self.authority.absoluteString isEqualToString:item.authority.absoluteString];
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= (!self.uniqueUserId && !item.uniqueUserId) || [self.uniqueUserId isEqualToString:item.uniqueUserId];
+    result &= (!self.legacyUserId || item.legacyUserId) || [self.legacyUserId isEqualToString:item.legacyUserId];
     result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
     result &= (!self.additionalServerInfo && !item.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:item.additionalServerInfo];
-    result &= (!self.username && !item.username) || [self.username isEqualToString:item.username];
     result &= (self.tokenType == item.tokenType);
     
     return result;
@@ -143,8 +143,8 @@
         
         _clientInfo = tokenCacheItem.clientInfo;
         _additionalServerInfo = tokenCacheItem.additionalInfo;
-        _username = tokenCacheItem.username;
         _uniqueUserId = tokenCacheItem.uniqueUserId;
+        _legacyUserId = tokenCacheItem.legacyUserId;
     }
     
     return self;
@@ -158,8 +158,8 @@
     cacheItem.clientId = self.clientId;
     cacheItem.clientInfo = self.clientInfo;
     cacheItem.additionalInfo = self.additionalServerInfo;
-    cacheItem.username = self.username;
     cacheItem.uniqueUserId = self.uniqueUserId;
+    cacheItem.legacyUserId = self.legacyUserId;
     return cacheItem;
 }
 
@@ -167,8 +167,8 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ tokenType=%@ uniqueUserId=%@ clientInfo=%@)",
-            _authority, _clientId, [MSIDTokenTypeHelpers tokenTypeAsString:self.tokenType], _uniqueUserId, _clientInfo];
+    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ tokenType=%@ uniqueUserId=%@ legacyuserId=%@ clientInfo=%@)",
+            _authority, _clientId, [MSIDTokenTypeHelpers tokenTypeAsString:self.tokenType], _uniqueUserId, _legacyUserId, _clientInfo];
 }
 
 @end

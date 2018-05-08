@@ -142,7 +142,6 @@
     token.authority = requestParams.authority;
     token.clientId = requestParams.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
-    token.username = response.idTokenObj.username;
     token.uniqueUserId = response.idTokenObj.userId;
 
     return token;
@@ -258,9 +257,10 @@
 {
     account.uniqueUserId = response.idTokenObj.userId;
     account.username = response.idTokenObj.username;
-    account.firstName = response.idTokenObj.givenName;
-    account.lastName = response.idTokenObj.familyName;
-    account.authority = requestParams.authority;
+    account.givenName = response.idTokenObj.givenName;
+    account.familyName = response.idTokenObj.familyName;
+    account.middleName = response.idTokenObj.middleName;
+    account.environment = requestParams.authority.msidHostWithPortIfNecessary;
     account.accountType = response.accountType;
     account.legacyUserId = response.idTokenObj.userId;
     return account;

@@ -28,6 +28,8 @@
 
 @property (readwrite) NSString *refreshToken;
 @property (readwrite) NSString *familyId;
+
+// Id token is necessary for backward ADAL compatibility
 @property (readwrite) NSString *idToken;
 
 @end
