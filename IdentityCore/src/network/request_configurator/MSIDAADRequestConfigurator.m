@@ -33,6 +33,12 @@
 
 static NSTimeInterval const s_defaultTimeoutInterval = 300;
 
+@interface MSIDAADRequestConfigurator()
+
+@property (nonatomic) MSIDAadAuthorityCache *authorityCache;
+
+@end
+
 @implementation MSIDAADRequestConfigurator
 
 - (instancetype)init
