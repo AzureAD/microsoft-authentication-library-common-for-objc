@@ -52,6 +52,4 @@ NSWindowController <MSIDWebviewInteracting, WKNavigationDelegate, NSWindowDelega
                context:(id<MSIDRequestContext>)context
             completion:(MSIDWebUICompletionHandler)completionHandler;
 
-- (void)start;
-
 @end

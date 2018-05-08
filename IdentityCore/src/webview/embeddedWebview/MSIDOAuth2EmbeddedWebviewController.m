@@ -98,7 +98,7 @@
     _webView = nil;
 }
 
-- (void)start
+- (BOOL)start
 {
     // If we're not on the main thread when trying to kick up the UI then
     // dispatch over to the main thread.
@@ -107,7 +107,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [self start];
         });
-        return;
+        return YES;
     }
     
     NSError *error = nil;
@@ -115,6 +115,7 @@
     if (error)
     {
         [self endWebAuthenticationWithError:error orURL:nil];
+        return YES;
     }
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_startUrl];
@@ -125,6 +126,7 @@
     [request addValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
 #endif
     [self startRequest:request];
+    return YES;
 }
 
 - (void)cancel
