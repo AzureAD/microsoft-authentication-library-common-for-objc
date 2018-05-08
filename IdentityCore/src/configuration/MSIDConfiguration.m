@@ -35,6 +35,7 @@
     configuration.clientId = [_clientId copyWithZone:zone];
     configuration.correlationId = [_correlationId copyWithZone:zone];
     configuration.loginHint = [_loginHint copyWithZone:zone];
+    configuration.sliceParameters = [_sliceParameters copyWithZone:zone];
     return configuration;
 }
 

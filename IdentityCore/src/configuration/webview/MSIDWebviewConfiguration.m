@@ -29,14 +29,4 @@
 
 @implementation MSIDWebviewConfiguration
 
-- (instancetype)initWithConfiguration:(MSIDConfiguration *)configuration
-{
-    self = [super init];
-    if (self)
-    {
-        _configuration = configuration;
-    }
-    return self;
-}
-
 @end

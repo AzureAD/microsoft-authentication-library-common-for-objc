@@ -51,4 +51,6 @@
 
 @property (readwrite) MSIDNetworkConfiguration *networkConfig;
 
+@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
+
 @end

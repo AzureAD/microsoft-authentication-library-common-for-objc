@@ -31,20 +31,13 @@
 @class MSIDPkce;
 @class MSIDClientInfo;
 
-@interface MSIDWebviewConfiguration : NSObject
-
-- (instancetype)initWithConfiguration:(MSIDConfiguration *)configuration;
-
-@property (readonly) MSIDConfiguration *configuration;
+@interface MSIDWebviewConfiguration : MSIDConfiguration
 
 // Common
-@property (readwrite) NSUUID *correlationId;
 
 @property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
-
-@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 
 // Is this only for V2?
 @property (readwrite) NSString *requestState;
