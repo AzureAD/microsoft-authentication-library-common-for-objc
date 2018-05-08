@@ -44,6 +44,10 @@
     return self;
 }
 
+- (void)finishAndInvalidate
+{
+}
+
 - (void)cancel
 {
 }

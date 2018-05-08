@@ -45,6 +45,7 @@
     if (self)
     {
         _sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        _session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
         _responseSerializer = [MSIDJsonResponseSerializer new];
         _requestSerializer = [MSIDUrlRequestSerializer new];
         _telemetry = [MSIDHttpRequestTelemetry new];
@@ -62,8 +63,6 @@
     if (self.requestConfigurator) { [self.requestConfigurator configure:self]; }
     
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
-    
-    self.session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
     
     MSID_LOG_VERBOSE(self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));
     
@@ -109,7 +108,10 @@
               });
           }
       }] resume];
-    
+}
+
+- (void)finishAndInvalidate
+{
     [self.session finishTasksAndInvalidate];
 }
 
