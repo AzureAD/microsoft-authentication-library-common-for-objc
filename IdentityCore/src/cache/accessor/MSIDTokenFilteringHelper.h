@@ -38,18 +38,4 @@ typedef BOOL (^MSIDTokenCacheItemFiltering)(MSIDTokenCacheItem *tokenCacheItem);
                          tokenType:(MSIDTokenType)tokenType
                        returnFirst:(BOOL)returnFirst
                           filterBy:(MSIDTokenCacheItemFiltering)tokenFiltering;
-
-+ (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allCacheItems
-                                                    withScopes:(NSOrderedSet<NSString *> *)scopes;
-
-+ (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                                withParameters:(MSIDRequestParameters *)parameters
-                                                       account:(MSIDAccount *)account
-                                                       context:(id<MSIDRequestContext>)context
-                                                         error:(NSError **)error;
-
-+ (NSArray<MSIDBaseToken *> *)filterRefreshTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                              legacyUserId:(NSString *)legacyUserId
-                                               environment:(NSString *)environment
-                                                   context:(id<MSIDRequestContext>)context;
 @end

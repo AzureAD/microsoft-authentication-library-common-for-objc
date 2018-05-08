@@ -52,6 +52,8 @@
 {
     NSUInteger hash = 0;
     hash = hash * 31 + self.uniqueUserId.hash;
+    hash = hash * 31 + self.legacyUserId.hash;
+    hash = hash * 31 + self.environment.hash;
     hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
 
     return hash;
@@ -66,6 +68,8 @@
     
     BOOL result = YES;
     result &= (!self.uniqueUserId && !item.uniqueUserId) || [self.uniqueUserId isEqualToString:item.uniqueUserId];
+    result &= (!self.legacyUserId && !item.legacyUserId) || [self.legacyUserId isEqualToString:item.legacyUserId];
+    result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
     result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
     
     return result;
@@ -78,6 +82,8 @@
     MSIDCacheItem *item = [[self.class allocWithZone:zone] init];
     item.uniqueUserId = [self.uniqueUserId copyWithZone:zone];
     item.clientInfo = [self.clientInfo copyWithZone:zone];
+    item.environment = [self.environment copyWithZone:zone];
+    item.legacyUserId = [self.legacyUserId copyWithZone:zone];
     
     return item;
 }
@@ -120,6 +126,12 @@
     
     // Unique ID
     _uniqueUserId = json[MSID_UNIQUE_ID_CACHE_KEY];
+
+    // Environment
+    _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
+
+    // Authority account ID
+    _legacyUserId = json[MSID_ACCOUNT_ID_CACHE_KEY];
     
     /* Optional fields */
     NSString *rawClientInfo = json[MSID_OAUTH2_CLIENT_INFO];
@@ -141,6 +153,12 @@
     
     // Unique id
     dictionary[MSID_UNIQUE_ID_CACHE_KEY] = _clientInfo.userIdentifier ? _clientInfo.userIdentifier : _uniqueUserId;
+
+    // Environment
+    dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _environment;
+
+    // Authority account ID
+    dictionary[MSID_ACCOUNT_ID_CACHE_KEY] = _legacyUserId;
     
     /* Optional fields */
     

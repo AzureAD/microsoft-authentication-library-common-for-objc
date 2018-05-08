@@ -25,7 +25,6 @@
 #import "MSIDTokenCacheKey.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetry+Internal.h"
-#import "MSIDAccount.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
@@ -37,9 +36,9 @@
 {
     // Primary cache accessor
     id<MSIDSharedCacheAccessor> _primaryAccessor;
-    
-    // All shared accessors starting with the primary
-    NSArray<id<MSIDSharedCacheAccessor>> *_allAccessors;
+
+    // Other shared accessors
+    NSArray<id<MSIDSharedCacheAccessor>> *_otherAccessors;
 }
 
 @end
@@ -56,10 +55,7 @@
     if (self)
     {
         _primaryAccessor = primaryAccessor;
-        
-        NSMutableArray *allFormatsArray = [@[primaryAccessor] mutableCopy];
-        [allFormatsArray addObjectsFromArray:otherAccessors];
-        _allAccessors = allFormatsArray;
+        _otherAccessors = otherAccessors;
     }
     
     return self;
@@ -74,18 +70,18 @@
                          error:(NSError **)error
 {
     return [self saveTokensWithFactory:factory
-                          requestParams:requestParams
-                               response:response
-                   saveRefreshTokenOnly:NO
-                                context:context
-                                  error:error];
+                         requestParams:requestParams
+                              response:response
+                      saveSSOStateOnly:NO
+                               context:context
+                                 error:error];
 }
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                brokerResponse:(MSIDBrokerResponse *)response
-          saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+               brokerResponse:(MSIDBrokerResponse *)response
+             saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
     MSIDRequestParameters *params = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:response.authority]
                                                                          redirectUri:nil
@@ -93,88 +89,72 @@
                                                                               target:response.resource];
 
     return [self saveTokensWithFactory:factory
-                          requestParams:params
-                               response:response.tokenResponse
-                   saveRefreshTokenOnly:saveRefreshTokenOnly
-                                context:context
-                                  error:error];
+                         requestParams:params
+                              response:response.tokenResponse
+                      saveSSOStateOnly:saveSSOStateOnly
+                               context:context
+                                 error:error];
 }
 
 #pragma mark - Get tokens
 
-- (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
+- (MSIDAccessToken *)getATForAccount:(id<MSIDAccountIdentifiers>)account
                        requestParams:(MSIDRequestParameters *)parameters
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
     return (MSIDAccessToken *) [_primaryAccessor getTokenWithType:MSIDTokenTypeAccessToken
-                                                  userIdentifiers:account
+                                                          account:account
                                                     requestParams:parameters
                                                           context:context
                                                             error:error];
 }
 
-- (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(MSIDAccount *)account
+- (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(id<MSIDAccountIdentifiers>)account
                                               requestParams:(MSIDRequestParameters *)parameters
                                                     context:(id<MSIDRequestContext>)context
                                                       error:(NSError **)error
 {
     return (MSIDLegacySingleResourceToken *) [_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
-                                                                userIdentifiers:account
+                                                                        account:account
                                                                   requestParams:parameters
                                                                         context:context
                                                                           error:error];
 }
 
-- (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDRequestParameters *)parameters
-                                                           context:(id<MSIDRequestContext>)context
-                                                             error:(NSError **)error
-{
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"" uniqueUserId:nil];
-
-    return (MSIDLegacySingleResourceToken *) [_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
-                                                                userIdentifiers:account
-                                                                  requestParams:parameters
-                                                                        context:context
-                                                                          error:error];
-}
-
-- (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
+- (MSIDRefreshToken *)getRTForAccount:(id<MSIDAccountIdentifiers>)account
                         requestParams:(MSIDRequestParameters *)parameters
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
-    NSError *cacheError = nil;
-    
-    // try all caches in order starting with the primary
-    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
+    MSIDRefreshToken *token = (MSIDRefreshToken *) [_primaryAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+                                                                              account:account
+                                                                        requestParams:parameters
+                                                                              context:context
+                                                                                error:error];
+
+    if (!token)
     {
-        MSIDRefreshToken *token = (MSIDRefreshToken *) [cache getTokenWithType:MSIDTokenTypeRefreshToken
-                                                               userIdentifiers:account
-                                                                 requestParams:parameters
-                                                                       context:context
-                                                                         error:error];
-        
-        if (token)
+        for (id<MSIDSharedCacheAccessor> cache in _otherAccessors)
         {
-            return token;
-        }
-        else if (cacheError)
-        {
-            if (error)
+            MSIDRefreshToken *token = (MSIDRefreshToken *) [cache getTokenWithType:MSIDTokenTypeRefreshToken
+                                                                           account:account
+                                                                     requestParams:parameters
+                                                                           context:context
+                                                                             error:error];
+
+            if (token)
             {
-                *error = cacheError;
+                return token;
             }
-            
-            return nil;
         }
     }
-    
+
     return nil;
 }
 
 
-- (MSIDRefreshToken *)getFRTforAccount:(MSIDAccount *)account
+- (MSIDRefreshToken *)getFRTforAccount:(id<MSIDAccountIdentifiers>)account
                          requestParams:(MSIDRequestParameters *)parameters
                               familyId:(NSString *)familyId
                                context:(id<MSIDRequestContext>)context
@@ -192,10 +172,17 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    NSMutableArray *resultRTs = [NSMutableArray array];
+    NSArray *primaryRTs = [_primaryAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken withClientId:clientId context:context error:error];
+
+    if (!primaryRTs)
+    {
+        return nil;
+    }
+
+    NSMutableArray *resultRTs = [primaryRTs mutableCopy];
     
     // Get RTs from all caches
-    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
+    for (id<MSIDSharedCacheAccessor> cache in _otherAccessors)
     {
         NSArray *otherRTs = [cache getAllTokensOfType:MSIDTokenTypeRefreshToken
                                          withClientId:clientId
@@ -222,8 +209,7 @@
 
 #pragma mark - Remove tokens
 
-- (BOOL)removeRTForAccount:(MSIDAccount *)account
-                     token:(MSIDBaseToken<MSIDRefreshableToken> *)token
+- (BOOL)removeRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
@@ -238,7 +224,7 @@
     }
     
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
-    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, legacy userId %@, token %@", token.clientId, token.authority, account.uniqueUserId, account.legacyUserId, _PII_NULLIFY(token.refreshToken));
+    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, legacy userId %@, token %@", token.clientId, token.authority, token.uniqueUserId, token.legacyUserId, _PII_NULLIFY(token.refreshToken));
     
     NSError *cacheError = nil;
 
@@ -269,7 +255,6 @@
 }
 
 - (BOOL)removeToken:(MSIDBaseToken *)token
-         forAccount:(MSIDAccount *)account
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
@@ -278,92 +263,61 @@
                                    error:error];
 }
 
-- (BOOL)removeAllTokensForAccount:(MSIDAccount *)account
+- (BOOL)removeAllTokensForAccount:(id<MSIDAccountIdentifiers>)account
+                      environment:(NSString *)environment
+                         clientId:(NSString *)clientId
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    // TODO: implement me
-    //return [_primaryAccessor removeAllTokensForAccount:account context:context error:error];
-    return nil;
+    return [_primaryAccessor removeAllTokensForAccount:account
+                                           environment:environment
+                                              clientId:clientId
+                                               context:context
+                                                 error:error];
 }
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
 {
-    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
+    for (id<MSIDSharedCacheAccessor> cache in _otherAccessors)
     {
         BOOL result = [cache clearWithContext:context error:error];
         if (!result) return NO;
     }
     
-    return YES;
+    return [_primaryAccessor clearWithContext:context error:error];
 }
 
 #pragma mark - Private
 
-- (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
-              forAccount:(MSIDAccount *)account
-                 context:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
+- (BOOL)saveSSOStateInOtherAccessorsWithFactory:(MSIDOauth2Factory *)factory
+                                  requestParams:(MSIDRequestParameters *)requestParams
+                                       response:(MSIDTokenResponse *)response
+                                        context:(id<MSIDRequestContext>)context
+                                          error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"Saving refresh token in all caches");
-    MSID_LOG_VERBOSE_PII(context, @"Saving refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
-    
-    // Save RTs in all formats
-    BOOL result = [self saveRefreshTokenInAllCaches:refreshToken
-                                        withAccount:account
-                                            context:context
-                                              error:error];
-    
-    if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
-    {
-        // If saving failed or it's not an FRT, we're done
-        return result;
-    }
-    
-    MSID_LOG_VERBOSE(context, @"Saving family refresh token in all caches");
-    MSID_LOG_VERBOSE_PII(context, @"Saving family refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
-    
-    // If it's an FRT, save it separately and update the clientId of the token item
-    MSIDRefreshToken *familyRefreshToken = [refreshToken copy];
-    familyRefreshToken.clientId = [MSIDTokenCacheKey familyClientId:refreshToken.familyId];
-    
-    return [self saveRefreshTokenInAllCaches:familyRefreshToken
-                                 withAccount:account
-                                     context:context
-                                       error:error];
-}
+    MSID_LOG_VERBOSE(context, @"Saving SSO state in all caches");
 
-- (BOOL)saveRefreshTokenInAllCaches:(MSIDRefreshToken *)refreshToken
-                        withAccount:(MSIDAccount *)account
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
-{
-    // Save RTs in all formats including primary
-    for (id<MSIDSharedCacheAccessor> cache in _allAccessors)
+    for (id<MSIDSharedCacheAccessor> accessor in _otherAccessors)
     {
-        NSError *cacheError = nil;
-        
-        BOOL result = [cache saveRefreshToken:refreshToken
-                                      context:context
-                                        error:&cacheError];
-        
-        if (!result && [cache isEqual:_primaryAccessor])
+        if (![accessor saveSSOStateWithFactory:factory
+                                 requestParams:requestParams
+                                      response:response
+                                       context:context
+                                         error:error])
         {
-            if (error) *error = cacheError;
-            
             return NO;
         }
     }
-    
+
     return YES;
 }
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
-                      response:(MSIDTokenResponse *)response
-          saveRefreshTokenOnly:(BOOL)saveRefreshTokenOnly
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                requestParams:(MSIDRequestParameters *)requestParams
+                     response:(MSIDTokenResponse *)response
+             saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
     MSIDAccount *account = [factory accountFromResponse:response request:requestParams];
 
@@ -372,7 +326,7 @@
     
     BOOL result = YES;
     
-    if (!saveRefreshTokenOnly)
+    if (!saveSSOStateOnly)
     {
         result = [_primaryAccessor saveTokensWithFactory:factory
                                            requestParams:requestParams
@@ -382,18 +336,20 @@
         
         if (!result) return NO;
     }
-    
-    // Create a refresh token item
-    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response
-                                                                request:requestParams];
-    
-    if (!refreshToken)
+    else
     {
-        MSID_LOG_INFO(context, @"No refresh token returned in the token response, not updating cache");
-        return YES;
+        result = [_primaryAccessor saveSSOStateWithFactory:factory
+                                             requestParams:requestParams
+                                                  response:response
+                                                   context:context
+                                                     error:error];
     }
-    
-    return [self saveRefreshToken:refreshToken forAccount:account context:context error:error];
+
+    return [self saveSSOStateInOtherAccessorsWithFactory:factory
+                                           requestParams:requestParams
+                                                response:response
+                                                 context:context
+                                                   error:error];
 }
 
 @end

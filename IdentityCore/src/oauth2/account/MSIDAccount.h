@@ -24,13 +24,13 @@
 #import <Foundation/Foundation.h>
 #import "MSIDCacheItem.h"
 #import "MSIDAccountType.h"
-#import "MSIDUserIdentifiers.h"
+#import "MSIDAccountIdentifiers.h"
 
 @class MSIDAccountCacheItem;
 @class MSIDRequestParameters;
 @class MSIDTokenResponse;
 
-@interface MSIDAccount : NSObject <NSCopying, MSIDUserIdentifiers>
+@interface MSIDAccount : NSObject <NSCopying, MSIDAccountIdentifiers>
 
 // Primary user identifier
 @property (readwrite) NSString *uniqueUserId;
@@ -41,7 +41,7 @@
 @property (readwrite) NSString *environment;
 
 @property (readwrite) NSString *username;
-@property (readwrite) NSString *givenName;
+@property (readwrite) NSString *givenName; // TODO: those fields are not set!
 @property (readwrite) NSString *middleName;
 @property (readwrite) NSString *familyName;
 @property (readwrite) NSString *name;

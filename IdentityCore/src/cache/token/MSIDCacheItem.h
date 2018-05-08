@@ -29,11 +29,13 @@
 {
     NSString *_uniqueUserId;
     NSString *_legacyUserId;
+    NSString *_environment;
     MSIDClientInfo *_clientInfo;
 }
 
 @property (readwrite, nonnull) NSString *uniqueUserId;
 @property (readwrite, nullable) NSString *legacyUserId;
+@property (readwrite, nullable) NSString *environment;
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
 
 - (BOOL)isEqualToItem:(nonnull MSIDCacheItem *)item;

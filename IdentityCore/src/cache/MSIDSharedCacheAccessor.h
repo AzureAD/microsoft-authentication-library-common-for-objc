@@ -31,16 +31,21 @@
 @class MSIDRefreshToken;
 @class MSIDOauth2Factory;
 @class MSIDAccessToken;
-@protocol MSIDUserIdentifiers;
+@protocol MSIDAccountIdentifiers;
 
 @protocol MSIDSharedCacheAccessor <NSObject>
 
-// Writing
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                 requestParams:(MSIDRequestParameters *)requestParams
                      response:(MSIDTokenResponse *)response
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error;
+
+- (BOOL)saveSSOStateWithFactory:(MSIDOauth2Factory *)factory
+                  requestParams:(MSIDRequestParameters *)requestParams
+                       response:(MSIDTokenResponse *)response
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error;
 
 - (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
                  context:(id<MSIDRequestContext>)context
@@ -52,7 +57,7 @@
 
 // Retrieval
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
-                    userIdentifiers:(id<MSIDUserIdentifiers>)userIdentifiers
+                            account:(id<MSIDAccountIdentifiers>)account
                       requestParams:(MSIDRequestParameters *)parameters
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
@@ -78,11 +83,11 @@
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error;
 
-- (BOOL)removeAllTokensForUser:(id<MSIDUserIdentifiers>)userIdentifiers
-                   environment:(NSString *)environment
-                      clientId:(NSString *)clientId
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error;
+- (BOOL)removeAllTokensForAccount:(id<MSIDAccountIdentifiers>)account
+                      environment:(NSString *)environment
+                         clientId:(NSString *)clientId
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error;
 
 /*
  It is supposed to be used in test apps only.

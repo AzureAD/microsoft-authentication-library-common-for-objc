@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTokenType.h"
 #import "MSIDDefaultTokenCacheKey.h"
-#import "MSIDUserIdentifiers.h"
+#import "MSIDAccountIdentifiers.h"
 
 typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
     Any,

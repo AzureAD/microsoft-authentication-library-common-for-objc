@@ -98,6 +98,15 @@
     }
 }
 
+- (BOOL)saveSSOStateWithFactory:(MSIDOauth2Factory *)factory
+                  requestParams:(MSIDRequestParameters *)requestParams
+                       response:(MSIDTokenResponse *)response
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    return [self saveRefreshTokenWithFactory:factory requestParams:requestParams response:response context:context error:error];
+}
+
 - (BOOL)saveAccessTokenWithFactory:(MSIDOauth2Factory *)factory
                      requestParams:(MSIDRequestParameters *)requestParams
                           response:(MSIDTokenResponse *)response
@@ -135,7 +144,22 @@
     MSID_LOG_INFO(context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor");
     MSID_LOG_INFO_PII(context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor %@", refreshToken);
 
-    return [self saveToken:refreshToken userId:refreshToken.legacyUserId context:context error:error];
+    BOOL result = [self saveToken:refreshToken userId:refreshToken.legacyUserId context:context error:error];
+
+    if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
+    {
+        // If saving failed or it's not an FRT, we're done
+        return result;
+    }
+
+    MSID_LOG_VERBOSE(context, @"Saving family refresh token in all caches");
+    MSID_LOG_VERBOSE_PII(context, @"Saving family refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
+
+    // If it's an FRT, save it separately and update the clientId of the token item
+    MSIDRefreshToken *familyRefreshToken = [refreshToken copy];
+    familyRefreshToken.clientId = [MSIDTokenCacheKey familyClientId:refreshToken.familyId];
+
+    return [self saveToken:familyRefreshToken userId:refreshToken.legacyUserId context:context error:error];
 }
 
 - (BOOL)saveLegacySingleResourceTokenWithFactory:(MSIDOauth2Factory *)factory
@@ -209,7 +233,7 @@
 }
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
-                    userIdentifiers:(id<MSIDUserIdentifiers>)userIdentifiers
+                            account:(id<MSIDAccountIdentifiers>)account
                       requestParams:(MSIDRequestParameters *)parameters
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
@@ -221,14 +245,14 @@
     // Do custom handling for refresh tokens, because they need fallback logic with different identifiers
     if (tokenType == MSIDTokenTypeRefreshToken)
     {
-        token = [self getRefreshTokenWithUserIdentifiers:userIdentifiers
-                                           requestParams:parameters
-                                                 context:context
-                                                   error:error];
+        token = [self getRefreshTokenWithAccount:account
+                                   requestParams:parameters
+                                         context:context
+                                           error:error];
     }
     else
     {
-        token = [self getTokenByLegacyUserId:userIdentifiers.legacyUserId
+        token = [self getTokenByLegacyUserId:account.legacyUserId
                                    tokenType:tokenType
                                    authority:parameters.authority
                                     clientId:parameters.clientId
@@ -360,15 +384,15 @@
     return YES;
 }
 
-- (BOOL)removeAllTokensForUser:(id<MSIDUserIdentifiers>)userIdentifiers
-                   environment:(NSString *)environment
-                      clientId:(NSString *)clientId
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+- (BOOL)removeAllTokensForAccount:(id<MSIDAccountIdentifiers>)account
+                      environment:(NSString *)environment
+                         clientId:(NSString *)clientId
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
 {
     // TODO: authority migration?
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
-    query.legacyUserId = userIdentifiers.legacyUserId;
+    query.legacyUserId = account.legacyUserId;
 
     NSArray<MSIDTokenCacheItem *> *userTokens = [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 
@@ -402,10 +426,10 @@
 
 #pragma mark - Private
 
-- (MSIDBaseToken *)getRefreshTokenWithUserIdentifiers:(id<MSIDUserIdentifiers>)userIdentifiers
-                                        requestParams:(MSIDRequestParameters *)parameters
-                                              context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+- (MSIDBaseToken *)getRefreshTokenWithAccount:(id<MSIDAccountIdentifiers>)account
+                                requestParams:(MSIDRequestParameters *)parameters
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError **)error
 {
     if ([MSIDAuthority isConsumerInstanceURL:parameters.authority])
     {
@@ -413,9 +437,9 @@
     }
     
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", parameters.clientId, parameters.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", userIdentifiers.legacyUserId, parameters.clientId, parameters.authority);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyUserId, parameters.clientId, parameters.authority);
     
-    MSIDBaseToken *resultToken = [self getTokenByLegacyUserId:userIdentifiers.legacyUserId
+    MSIDBaseToken *resultToken = [self getTokenByLegacyUserId:account.legacyUserId
                                                     tokenType:MSIDTokenTypeRefreshToken
                                                     authority:parameters.authority
                                                      clientId:parameters.clientId
@@ -425,14 +449,14 @@
     
     // If no legacy user ID available, or no token found by legacy user ID, try to look by unique user ID
     if (!resultToken
-        && ![NSString msidIsStringNilOrBlank:userIdentifiers.uniqueUserId])
+        && ![NSString msidIsStringNilOrBlank:account.uniqueUserId])
     {
         NSURL *authority = [MSIDAuthority universalAuthorityURL:parameters.authority];
         
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", parameters.clientId, authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", userIdentifiers.uniqueUserId, parameters.clientId, authority);
+        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.uniqueUserId, parameters.clientId, authority);
         
-        return [self getTokenByUniqueUserId:userIdentifiers.uniqueUserId
+        return [self getTokenByUniqueUserId:account.uniqueUserId
                                   tokenType:MSIDTokenTypeRefreshToken
                                   authority:authority
                                    clientId:parameters.clientId

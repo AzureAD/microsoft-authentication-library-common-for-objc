@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol MSIDUserIdentifiers <NSObject>
+@protocol MSIDAccountIdentifiers <NSObject>
 
 @property NSString *uniqueUserId;
 @property NSString *legacyUserId;

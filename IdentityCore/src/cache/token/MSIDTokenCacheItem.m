@@ -41,6 +41,7 @@
 - (BOOL)isEqualToItem:(MSIDTokenCacheItem *)item
 {
     BOOL result = [super isEqualToItem:item];
+    result &= (!self.realm || !item.realm) || [self.realm isEqualToString:item.realm];
     result &= (!self.authority || !item.authority) || [self.authority isEqual:item.authority];
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= self.tokenType == item.tokenType;
@@ -62,7 +63,7 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
-    hash = hash * 31 + self.authority.hash;
+    hash = hash * 31 + self.realm.hash;
     hash = hash * 31 + self.clientId.hash;
     hash = hash * 31 + self.tokenType;
     hash = hash * 31 + self.accessToken.hash;
@@ -74,6 +75,7 @@
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.oauthTokenType.hash;
     hash = hash * 31 + self.additionalInfo.hash;
+    hash = hash * 31 + self.authority.hash;
     
     return hash;
 }
@@ -83,6 +85,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDTokenCacheItem *item = [super copyWithZone:zone];
+    item.realm = [self.realm copyWithZone:zone];
     item.authority = [self.authority copyWithZone:zone];
     item.clientId = [self.clientId copyWithZone:zone];
     item.tokenType = self.tokenType;
@@ -114,6 +117,9 @@
     {
         _authority = [NSURL URLWithString:authorityString];
     }
+
+    _environment = _authority.msidHostWithPortIfNecessary;
+    _realm = _authority.msidTenant;
     
     _refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     _accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
@@ -196,14 +202,11 @@
     // Expires on
     _expiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXPIRES_ON_CACHE_KEY]];
     
-    // ID token
-    _idToken = json[MSID_ID_TOKEN_CACHE_KEY];
-    
     // Access token type
     _oauthTokenType = json[MSID_OAUTH_TOKEN_TYPE_CACHE_KEY];
 
-    // Authority account ID
-    _legacyUserId = json[MSID_ACCOUNT_ID_CACHE_KEY];
+    // Realm
+    _realm = json[MSID_REALM_CACHE_KEY];
     
     // Additional Info
     NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
@@ -300,11 +303,11 @@
     // Spe info
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
 
-    // Environment
-    dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _authority.msidHostWithPortIfNecessary;
+    // Realm
+    dictionary[MSID_REALM_CACHE_KEY] = _realm;
 
     // Authority
-    dictionary[MSID_AUTHORITY_CACHE_KEY] = _authority.absoluteString;
+    dictionary[MSID_AUTHORITY_CACHE_KEY] = _authority;
 
     // Authority account ID
     dictionary[MSID_ACCOUNT_ID_CACHE_KEY] = _legacyUserId;
@@ -321,20 +324,17 @@
         case MSIDTokenTypeIDToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _idToken;
-            dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
             break;
         }
         case MSIDTokenTypeAccessToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _accessToken;
-            dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
             break;
         }
         case MSIDTokenTypeLegacySingleResourceToken:
         {
             dictionary[MSID_TOKEN_CACHE_KEY] = _accessToken;
             dictionary[MSID_RESOURCE_RT_CACHE_KEY] = _refreshToken;
-            dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
             break;
         }
             
@@ -405,7 +405,7 @@
         return NO;
     }
 
-    if (environment && ![self.authority.msidHostWithPortIfNecessary isEqualToString:environment])
+    if (environment && ![self.environment isEqualToString:environment])
     {
         return NO;
     }
@@ -426,7 +426,7 @@
         MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:self.idToken];
 
         if ([idTokenClaims matchesLegacyUserId:legacyUserId]
-            && [self.authority.msidHostWithPortIfNecessary isEqualToString:environment])
+            && [self.environment isEqualToString:environment])
         {
             return YES;
         }
@@ -447,7 +447,7 @@
         return NO;
     }
 
-    if (realm && ![self.authority.msidTenant isEqualToString:realm])
+    if (realm && ![self.realm isEqualToString:realm])
     {
         return NO;
     }

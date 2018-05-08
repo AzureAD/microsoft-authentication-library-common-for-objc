@@ -27,7 +27,6 @@
 @interface MSIDAccountCacheItem : MSIDCacheItem
 
 @property (readwrite) MSIDAccountType accountType;
-@property (readwrite, nullable) NSString *environment;
 @property (readwrite, nullable) NSString *username;
 @property (readwrite, nullable) NSString *givenName;
 @property (readwrite, nullable) NSString *middleName;

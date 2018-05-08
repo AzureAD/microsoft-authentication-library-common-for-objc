@@ -160,6 +160,9 @@
     cacheItem.additionalInfo = self.additionalServerInfo;
     cacheItem.uniqueUserId = self.uniqueUserId;
     cacheItem.legacyUserId = self.legacyUserId;
+
+    // TODO: set environment and realm
+    // TODO: set storage authority
     return cacheItem;
 }
 

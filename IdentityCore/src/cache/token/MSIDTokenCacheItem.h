@@ -29,9 +29,6 @@
 
 @interface MSIDTokenCacheItem : MSIDCacheItem
 
-// Authority
-@property (readwrite, nonnull) NSURL *authority;
-
 // Client id
 @property (readwrite, nonnull) NSString *clientId;
 
@@ -40,12 +37,19 @@
 @property (readwrite, nullable) NSString *oauthTokenType;
 
 // Tokens
+// TODO: it's confusing that all tokens are here
 @property (readwrite, nullable) NSString *accessToken;
 @property (readwrite, nullable) NSString *refreshToken;
 @property (readwrite, nullable) NSString *idToken;
 
 // Targets
 @property (readwrite, nullable) NSString *target;
+
+// Realm
+@property (readwrite, nonnull) NSString *realm;
+
+// Authority
+@property (readwrite, nonnull) NSURL *authority;
 
 // Dates
 @property (readwrite, nullable) NSDate *expiresOn;

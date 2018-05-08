@@ -143,7 +143,7 @@
     token.clientId = requestParams.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
     token.uniqueUserId = response.idTokenObj.userId;
-
+    token.legacyUserId = response.idTokenObj.userId;
     return token;
 }
 

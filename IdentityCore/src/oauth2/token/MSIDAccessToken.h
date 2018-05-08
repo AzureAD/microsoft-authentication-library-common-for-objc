@@ -33,7 +33,7 @@
 @property (readwrite) NSString *accessTokenType;
 
 // Id token is necessary for backward ADAL compatibility
-@property (readwrite) NSString *idToken;
+@property (readwrite) NSString *idToken; // TODO: this will be confusing, because for MSAL it won't be here!
 
 // v1 access tokens are scoped down to resources
 @property (readwrite) NSString *resource;
