@@ -21,23 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryEventInterface.h"
+#import <Foundation/Foundation.h>
+#import "MSIDHttpRequest.h"
 
-@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
-{
-    NSMutableDictionary *_propertyMap;
-}
+/**
+ Authorization code request.
+ 
+ @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#request-an-authorization-code
+ */
+@interface MSIDAADAuthorizationCodeRequest : MSIDHttpRequest
+
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSString *)redirectUri
+                           scope:(NSString *)scope
+                       loginHint:(NSString *)loginHint NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithName:(NSString*)eventName
-                   requestId:(NSString*)requestId
-               correlationId:(NSUUID*)correlationId;
-
-- (instancetype)initWithName:(NSString*)eventName
-                     context:(id<MSIDRequestContext>)requestParams;
-
-+ (NSDictionary *)defaultParameters;
 
 @end

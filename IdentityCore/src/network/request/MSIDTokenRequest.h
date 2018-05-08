@@ -21,23 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryEventInterface.h"
+#import <Foundation/Foundation.h>
+#import "MSIDHttpRequest.h"
 
-@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
-{
-    NSMutableDictionary *_propertyMap;
-}
+/**
+ @abstract Represents abstract request to oauth 2.0 '/token' endpoint.
+ */
+@interface MSIDTokenRequest : MSIDHttpRequest
+
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithName:(NSString*)eventName
-                   requestId:(NSString*)requestId
-               correlationId:(NSUUID*)correlationId;
-
-- (instancetype)initWithName:(NSString*)eventName
-                     context:(id<MSIDRequestContext>)requestParams;
-
-+ (NSDictionary *)defaultParameters;
 
 @end

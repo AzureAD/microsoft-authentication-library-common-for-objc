@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -21,23 +20,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryEventInterface.h"
+#import "MSIDAADV1AuthorizationCodeRequest.h"
 
-@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
+@implementation MSIDAADV1AuthorizationCodeRequest
+
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSString *)redirectUri
+                           scope:(NSString *)scope
+                       loginHint:(NSString *)loginHint
+                        resource:(NSString *)resource
 {
-    NSMutableDictionary *_propertyMap;
+    self = [super initWithEndpoint:endpoint
+                          clientId:clientId
+                       redirectUri:redirectUri
+                             scope:scope
+                         loginHint:loginHint];
+    if (self)
+    {
+        NSParameterAssert(resource);
+        
+        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        parameters[MSID_OAUTH2_RESOURCE] = resource;
+        _parameters = parameters;
+    }
+    
+    return self;
 }
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithName:(NSString*)eventName
-                   requestId:(NSString*)requestId
-               correlationId:(NSUUID*)correlationId;
-
-- (instancetype)initWithName:(NSString*)eventName
-                     context:(id<MSIDRequestContext>)requestParams;
-
-+ (NSDictionary *)defaultParameters;
 
 @end

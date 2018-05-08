@@ -21,23 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryEventInterface.h"
+#import "MSIDAuthorizationCodeGrantRequest.h"
 
-@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
-{
-    NSMutableDictionary *_propertyMap;
-}
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithName:(NSString*)eventName
-                   requestId:(NSString*)requestId
-               correlationId:(NSUUID*)correlationId;
-
-- (instancetype)initWithName:(NSString*)eventName
-                     context:(id<MSIDRequestContext>)requestParams;
-
-+ (NSDictionary *)defaultParameters;
+/**
+ Redeem code request.
+ 
+ @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#use-the-authorization-code-to-request-an-access-token
+ */
+@interface MSIDAADAuthorizationCodeGrantRequest : MSIDAuthorizationCodeGrantRequest
 
 @end
