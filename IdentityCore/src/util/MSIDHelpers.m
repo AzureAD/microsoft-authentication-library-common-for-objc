@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "MSIDHelpers.h"
+#import "MSIDContants.h"
+#import "MSIDDeviceId.h"
 
 @implementation MSIDHelpers
 
@@ -44,6 +46,41 @@
     NSString *normalized = [userId msidTrimmedString].lowercaseString;
 
     return normalized.length ? normalized : nil;
+}
+
++ (NSString *)msidAddClientVersionToURLString:(NSString *)urlString;
+{
+    NSURL *url = [NSURL URLWithString:urlString];
+    if (!url)
+    {
+        return nil;
+    }
+    
+    // Pull apart the request URL and add the ADAL Client version to the query parameters
+    NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+    if (!components)
+    {
+        return nil;
+    }
+    
+    NSString *query = [components percentEncodedQuery];
+    // Don't bother adding it if it's already there
+    if (query && [query containsString:MSID_VERSION_KEY])
+    {
+        return [url absoluteString];
+    }
+    
+    NSString *clientVersionString = [NSString stringWithFormat:@"&%@=%@", MSID_VERSION_KEY, MSIDDeviceId.deviceId[MSID_VERSION_KEY]];
+    if (query)
+    {
+        [components setPercentEncodedQuery:[query stringByAppendingString:clientVersionString]];
+    }
+    else
+    {
+        [components setPercentEncodedQuery:clientVersionString];
+    }
+    
+    return [[components URL] absoluteString];
 }
 
 @end

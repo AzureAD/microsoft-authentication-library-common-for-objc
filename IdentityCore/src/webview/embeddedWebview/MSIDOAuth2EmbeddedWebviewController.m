@@ -36,6 +36,9 @@
 #import "MSIDChallengeHandler.h"
 #import "MSIDNTLMHandler.h"
 #import "MSIDAuthority.h"
+#import "MSIDWorkPlaceJoinConstants.h"
+#import "MSIDPkeyAuthHelper.h"
+#import "MSIDHelpers.h"
 
 #if TARGET_OS_IPHONE
 #import "UIApplication+MSIDExtensions.h"
@@ -114,7 +117,14 @@
         [self endWebAuthenticationWithError:error orURL:nil];
     }
     
-    [self startRequest:[[NSMutableURLRequest alloc] initWithURL:_startUrl]];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_startUrl];
+#if TARGET_OS_IPHONE
+    // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
+    // It swallows the challenge response rather than sending it to server.
+    // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
+    [request addValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
+#endif
+    [self startRequest:request];
 }
 
 - (void)cancel
@@ -323,6 +333,16 @@
         return;
     }
     
+#if TARGET_OS_IPHONE
+    // check for pkeyauth challenge.
+    if ([requestUrlString hasPrefix:[kMSIDPKeyAuthUrn lowercaseString]])
+    {
+        decisionHandler(WKNavigationActionPolicyCancel);
+        [self handlePKeyAuthChallenge:requestUrl.absoluteString];
+        return;
+    }
+#endif
+    
     // redirecting to non-https url is not allowed
     if (![[[requestUrl scheme] lowercaseString] isEqualToString:@"https"])
     {
@@ -503,6 +523,36 @@
     [loadingIndicator setColor:[UIColor blackColor]];
     [loadingIndicator setCenter:rootView.center];
     return loadingIndicator;
+}
+
+- (void)handlePKeyAuthChallenge:(NSString *)challengeUrl
+{
+    MSID_LOG_INFO(_context, @"Handling PKeyAuth Challenge.");
+    
+    NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
+    NSString *qp = [parts objectAtIndex:1];
+    NSDictionary* queryParamsMap = [NSDictionary msidURLFormDecode:qp];
+    NSString* submitUrl = [MSIDHelpers msidAddClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
+    
+    NSArray * authorityParts = [submitUrl componentsSeparatedByString:@"?"];
+    NSString *authority = [authorityParts objectAtIndex:0];
+    
+    NSError* error = nil;
+    NSString* authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
+                                                          challengeData:queryParamsMap
+                                                                context:_context
+                                                                  error:&error];
+    if (!authHeader)
+    {
+        [self endWebAuthenticationWithError:error orURL:nil];
+        return;
+    }
+    
+    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:submitUrl]];
+    
+    [responseUrl setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
+    [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
+    [self loadRequest:responseUrl];
 }
 
 #endif
