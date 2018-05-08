@@ -21,33 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV1TokenResponse.h"
-#import "MSIDAADV1IdTokenClaims.h"
+#import "MSIDIdTokenClaims.h"
 
-@implementation MSIDAADV1TokenResponse
+@interface MSIDAADV2IdTokenClaims : MSIDIdTokenClaims
 
-MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
-
-- (BOOL)isMultiResource
-{
-    // TODO: this was brought over from ADAL, find and add a link to documentation describing this behavior
-    return ![NSString msidIsStringNilOrBlank:self.resource]
-            && ![NSString msidIsStringNilOrBlank:self.refreshToken];
-}
-
-- (MSIDIdTokenClaims *)idTokenObj
-{
-    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken];
-}
-
-- (NSString *)target
-{
-    return self.resource;
-}
-
-- (MSIDAccountType)accountType
-{
-    return MSIDAccountTypeAADV1;
-}
+@property (readonly) NSString *issuer;
+@property (readonly) NSString *objectId;
+@property (readonly) NSString *tenantId;
+@property (readonly) NSString *version;
+@property (readonly) NSString *homeObjectId;
 
 @end

@@ -27,7 +27,7 @@
 #import "MSIDBaseToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
-#import "MSIDAADV2IdTokenWrapper.h"
+#import "MSIDAADV2IdTokenClaims.h"
 #import "MSIDAuthority.h"
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
@@ -194,7 +194,7 @@
     }
 
     MSIDAccount *account = [super accountFromResponse:response request:requestParams];
-    MSIDAADV2IdTokenWrapper *idToken = (MSIDAADV2IdTokenWrapper *) response.idTokenObj;
+    MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
     account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
     return account;
 }
@@ -205,7 +205,7 @@
                          fromResponse:(MSIDAADTokenResponse *)response
                               request:(MSIDRequestParameters *)requestParams
 {
-    MSIDAADV2IdTokenWrapper *idToken = (MSIDAADV2IdTokenWrapper *) response.idTokenObj;
+    MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
     baseToken.authority = [MSIDAuthority cacheUrlForAuthority:baseToken.authority tenantId:idToken.tenantId];
 
     return baseToken;

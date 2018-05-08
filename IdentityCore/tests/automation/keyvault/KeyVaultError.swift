@@ -21,33 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV1TokenResponse.h"
-#import "MSIDAADV1IdTokenClaims.h"
+import Foundation
 
-@implementation MSIDAADV1TokenResponse
-
-MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
-
-- (BOOL)isMultiResource
-{
-    // TODO: this was brought over from ADAL, find and add a link to documentation describing this behavior
-    return ![NSString msidIsStringNilOrBlank:self.resource]
-            && ![NSString msidIsStringNilOrBlank:self.refreshToken];
+public enum KeyVaultError : Error {
+    case InvalidUrl
+    case NoAuthHeader
+    case NoBearerChallenge
+    case BearerChallengeMissingRequiredParameter
+    case NoAuthCallback
 }
-
-- (MSIDIdTokenClaims *)idTokenObj
-{
-    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken];
-}
-
-- (NSString *)target
-{
-    return self.resource;
-}
-
-- (MSIDAccountType)accountType
-{
-    return MSIDAccountTypeAADV1;
-}
-
-@end

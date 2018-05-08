@@ -21,33 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV1TokenResponse.h"
-#import "MSIDAADV1IdTokenClaims.h"
 
-@implementation MSIDAADV1TokenResponse
+#ifndef MSIDAutomation_Bridging_Header_h
+#define MSIDAutomation_Bridging_Header_h
 
-MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
+#import "MSIDClientCredentialHelper.h"
 
-- (BOOL)isMultiResource
-{
-    // TODO: this was brought over from ADAL, find and add a link to documentation describing this behavior
-    return ![NSString msidIsStringNilOrBlank:self.resource]
-            && ![NSString msidIsStringNilOrBlank:self.refreshToken];
-}
-
-- (MSIDIdTokenClaims *)idTokenObj
-{
-    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken];
-}
-
-- (NSString *)target
-{
-    return self.resource;
-}
-
-- (MSIDAccountType)accountType
-{
-    return MSIDAccountTypeAADV1;
-}
-
-@end
+#endif /* MSIDAutomation_Bridging_Header_h */

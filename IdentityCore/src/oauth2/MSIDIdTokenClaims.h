@@ -25,15 +25,35 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDIdTokenWrapper.h"
+#import "MSIDJsonObject.h"
 
-@interface MSIDAADV1IdTokenWrapper : MSIDIdTokenWrapper
+@interface MSIDIdTokenClaims : MSIDJsonObject
+{
+    NSString *_uniqueId;
+    NSString *_userId;
+    BOOL _userIdDisplayable;
+}
 
-@property (readonly) NSString *upn;
-@property (readonly) NSString *identityProvider;
-@property (readonly) NSString *objectId;
-@property (readonly) NSString *tenantId;
-@property (readonly) NSString *guestId;
-@property (readonly) NSString *uniqueName;
+// Default properties
+@property (readonly) NSString *subject;
+@property (readonly) NSString *preferredUsername;
+@property (readonly) NSString *name;
+@property (readonly) NSString *givenName;
+@property (readonly) NSString *middleName;
+@property (readonly) NSString *familyName;
+@property (readonly) NSString *email;
+
+// Derived properties
+@property (readonly) NSString *uniqueId;
+@property (readonly) NSString *userId;
+@property (readonly) BOOL userIdDisplayable;
+
+// Convinience properties
+@property (readonly) NSString *rawIdToken;
+
+- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
+- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId;
+- (NSString *)username;
+- (void)initDerivedProperties;
 
 @end

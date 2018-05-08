@@ -21,33 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV1TokenResponse.h"
-#import "MSIDAADV1IdTokenClaims.h"
+#import <Foundation/Foundation.h>
+#import "MSIDTestConfigurationRequest.h"
+#import "MSIDTestConfiguration.h"
 
-@implementation MSIDAADV1TokenResponse
+@interface MSIDTestAccountsProvider : NSObject
 
-MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
+- (instancetype)init NS_UNAVAILABLE;
 
-- (BOOL)isMultiResource
-{
-    // TODO: this was brought over from ADAL, find and add a link to documentation describing this behavior
-    return ![NSString msidIsStringNilOrBlank:self.resource]
-            && ![NSString msidIsStringNilOrBlank:self.refreshToken];
-}
+- (instancetype)initWithClientCertificateContents:(NSString *)certificate
+                              certificatePassword:(NSString *)password
+                         additionalConfigurations:(NSDictionary *)additionalConfigurations
+                                          apiPath:(NSString *)apiPath;
 
-- (MSIDIdTokenClaims *)idTokenObj
-{
-    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken];
-}
+- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
 
-- (NSString *)target
-{
-    return self.resource;
-}
+- (void)configurationWithRequest:(MSIDTestConfigurationRequest *)request
+               completionHandler:(void (^)(MSIDTestConfiguration *configuration))completionHandler;
 
-- (MSIDAccountType)accountType
-{
-    return MSIDAccountTypeAADV1;
-}
+- (void)passwordForAccount:(MSIDTestAccount *)account
+         completionHandler:(void (^)(NSString *password))completionHandler;
 
 @end
