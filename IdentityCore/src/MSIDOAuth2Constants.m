@@ -26,7 +26,6 @@
 
 NSString *const MSID_OAUTH2_ACCESS_TOKEN       = @"access_token";
 NSString *const MSID_OAUTH2_AUTHORIZATION      = @"authorization";
-//NSString *const MSID_OAUTH2_AUTHORIZE_SUFFIX   = @"/oauth2/authorize";
 NSString *const MSID_OAUTH2_AUTHORITY           = @"authority";
 NSString *const MSID_OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const MSID_OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";

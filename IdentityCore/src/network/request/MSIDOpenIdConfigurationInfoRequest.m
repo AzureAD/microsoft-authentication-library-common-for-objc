@@ -23,8 +23,14 @@
 #import "MSIDOpenIdConfigurationInfoRequest.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDAADResponseSerializer.h"
+#import "MSIDAuthority.h"
+
+static NSString *s_tenantIdPlaceholder = @"{tenantid}";
 
 @interface MSIDOpenIdConfigurationInfoResponseSerializer : MSIDAADResponseSerializer
+
+@property (nonatomic) NSURL *endpoint;
+
 @end
 
 @implementation MSIDOpenIdConfigurationInfoResponseSerializer
@@ -34,14 +40,28 @@
                         context:(id <MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:error] mutableCopy];
+    NSError *jsonError;
+    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
     
-    if (error) return nil;
+    if (jsonError) {
+        if (error) { *error = jsonError; }
+        return nil;
+    }
     
     __auto_type metadata = [MSIDOpenIdProviderMetadata new];
     metadata.authorizationEndpoint = [NSURL URLWithString:jsonObject[@"authorization_endpoint"]];
     metadata.tokenEndpoint = [NSURL URLWithString:jsonObject[@"token_endpoint"]];
-    metadata.issuer = [NSURL URLWithString:jsonObject[@"issuer"]];
+    
+    NSString *issuerString = jsonObject[@"issuer"];
+    
+    // If `issuer` contains {tenantid}, it is AAD authority.
+    // Lets exctract tenant from `endpoint` and put it instead of {tenantid}.
+    if ([issuerString containsString:s_tenantIdPlaceholder] && [self.endpoint msidTenant])
+    {
+        issuerString = [issuerString stringByReplacingOccurrencesOfString:s_tenantIdPlaceholder withString:[self.endpoint msidTenant]];
+    }
+    
+    metadata.issuer = [NSURL URLWithString:issuerString];
     
     return metadata;
 }
@@ -61,6 +81,10 @@
         urlRequest.URL = endpoint;
         urlRequest.HTTPMethod = @"GET";
         _urlRequest = urlRequest;
+        
+        __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
+        responseSerializer.endpoint = endpoint;
+        _responseSerializer = responseSerializer;
     }
     
     return self;

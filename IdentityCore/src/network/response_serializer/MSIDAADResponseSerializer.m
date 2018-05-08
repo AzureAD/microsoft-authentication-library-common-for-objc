@@ -32,9 +32,13 @@
                         context:(id <MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:error] mutableCopy];
+    NSError *jsonError;
+    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
     
-    if (error) { return nil; }
+    if (jsonError) {
+        if (error) { *error = jsonError; }
+        return nil;
+    }
     
     jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
     

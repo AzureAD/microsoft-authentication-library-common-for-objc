@@ -36,9 +36,12 @@ extern NSString *const MSIDTrustedAuthorityWorldWide;
 
 @interface MSIDAuthority : NSObject
 
+@property (class, readonly) NSCache *openIdConfigurationCache;
+
 + (BOOL)isADFSInstance:(NSString *)endpoint;
 + (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl;
 + (BOOL)isConsumerInstanceURL:(NSURL *)authorityURL;
++ (BOOL)isB2CInstanceURL:(NSURL *)endpointUrl;
 
 /* AAD v1 endpoint supports only "common" path.
    AAD v2 endpoint supports both common and organizations.

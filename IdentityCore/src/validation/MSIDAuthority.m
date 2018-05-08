@@ -68,6 +68,11 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
     }
 }
 
++ (NSCache *)openIdConfigurationCache
+{
+    return s_openIdConfigurationCache;
+}
+
 + (BOOL)isADFSInstance:(NSString *)endpoint
 {
     if ([NSString msidIsStringNilOrBlank:endpoint])
@@ -247,7 +252,10 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
     __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:openIdConfigurationEndpoint];
     [request sendWithBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
     {
-        [s_openIdConfigurationCache setObject:metadata forKey:cacheKey];
+        if (cacheKey && metadata)
+        {
+            [s_openIdConfigurationCache setObject:metadata forKey:cacheKey];
+        }
         
         if (completionBlock) completionBlock(metadata, error);
     }];
@@ -287,7 +295,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
     // B2C
     if ([self isB2CInstanceURL:authority])
     {
-        if (authority.pathComponents.count < 3)
+        if (authority.pathComponents.count < 4)
         {
             if (error)
             {
