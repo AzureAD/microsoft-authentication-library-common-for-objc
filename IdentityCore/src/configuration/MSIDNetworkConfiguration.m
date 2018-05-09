@@ -49,4 +49,15 @@ static int const s_defaultRetryCount = 2;
     }
     return self;
 }
+
+- (instancetype)copyWithZone:(NSZone*)zone
+{
+    MSIDNetworkConfiguration *configuration = [[MSIDNetworkConfiguration allocWithZone:zone] init];
+    configuration.timeout = _timeout;
+    configuration.retryCount = _retryCount;
+    
+    return configuration;
+}
+
+
 @end
