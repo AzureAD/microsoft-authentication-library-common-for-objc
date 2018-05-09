@@ -22,24 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTestAutomationConfigurationRequest.h"
-#import "MSIDTestAutomationConfiguration.h"
 
-@interface MSIDTestAccountsProvider : NSObject
 
-- (instancetype)init NS_UNAVAILABLE;
+@interface MSIDNetworkConfiguration : NSObject <NSCopying>
 
-- (instancetype)initWithClientCertificateContents:(NSString *)certificate
-                              certificatePassword:(NSString *)password
-                         additionalConfigurations:(NSDictionary *)additionalConfigurations
-                                          apiPath:(NSString *)apiPath;
+@property (readwrite) NSTimeInterval timeout;
+@property (readwrite) int retryCount;
 
-- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
-
-- (void)configurationWithRequest:(MSIDTestAutomationConfigurationRequest *)request
-               completionHandler:(void (^)(MSIDTestAutomationConfiguration *configuration))completionHandler;
-
-- (void)passwordForAccount:(MSIDTestAccount *)account
-         completionHandler:(void (^)(NSString *password))completionHandler;
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout retryCount:(int)retryCount;
 
 @end

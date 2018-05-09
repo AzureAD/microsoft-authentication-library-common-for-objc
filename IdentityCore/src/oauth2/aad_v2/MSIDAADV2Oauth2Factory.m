@@ -37,6 +37,7 @@
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDSystemWebviewController.h"
 #import "MSIDDeviceId.h"
+#import "MSIDWebviewConfiguration.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -111,36 +112,36 @@
 #pragma mark - Tokens
 
 - (MSIDBaseToken *)baseTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                 request:(MSIDRequestParameters *)requestParams
+                                 configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDBaseToken *baseToken = [super baseTokenFromResponse:response request:requestParams];
-    return [self fillAADV2BaseToken:baseToken fromResponse:response request:requestParams];
+    MSIDBaseToken *baseToken = [super baseTokenFromResponse:response configuration:configuration];
+    return [self fillAADV2BaseToken:baseToken fromResponse:response configuration:configuration];
 }
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+                                     configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response request:requestParams];
+    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response configuration:configuration];
 
     NSOrderedSet *responseScopes = response.scope.scopeSet;
 
     if (!response.scope)
     {
-        responseScopes = requestParams.scopes;
+        responseScopes = configuration.scopes;
     }
     else
     {
-        NSOrderedSet<NSString *> *reqScopes = requestParams.scopes;
+        NSOrderedSet<NSString *> *reqScopes = configuration.scopes;
 
         if (reqScopes.count == 1 && [reqScopes.firstObject.lowercaseString hasSuffix:@".default"])
         {
@@ -152,55 +153,56 @@
 
     accessToken.scopes = responseScopes;
 
-    return (MSIDAccessToken *) [self fillAADV2BaseToken:accessToken fromResponse:response request:requestParams];
+    return (MSIDAccessToken *) [self fillAADV2BaseToken:accessToken fromResponse:response configuration:configuration];
 }
 
 - (MSIDIdToken *)idTokenFromResponse:(MSIDAADTokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                             configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDIdToken *idToken = [super idTokenFromResponse:response request:requestParams];
-    return (MSIDIdToken *) [self fillAADV2BaseToken:idToken fromResponse:response request:requestParams];
+    MSIDIdToken *idToken = [super idTokenFromResponse:response configuration:configuration];
+    return (MSIDIdToken *) [self fillAADV2BaseToken:idToken fromResponse:response configuration:configuration];
 }
 
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDAADTokenResponse *)response
-                                       request:(MSIDRequestParameters *)requestParams
+                                       configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDRefreshToken *token = [super refreshTokenFromResponse:response request:requestParams];
-    return (MSIDRefreshToken *) [self fillAADV2BaseToken:token fromResponse:response request:requestParams];
+    MSIDRefreshToken *token = [super refreshTokenFromResponse:response configuration:configuration];
+    return (MSIDRefreshToken *) [self fillAADV2BaseToken:token fromResponse:response configuration:configuration];
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDAADTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+                                                   configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDLegacySingleResourceToken *token = [super legacyTokenFromResponse:response request:requestParams];
-    return (MSIDLegacySingleResourceToken *) [self fillAADV2BaseToken:token fromResponse:response request:requestParams];
+    MSIDLegacySingleResourceToken *token = [super legacyTokenFromResponse:response configuration:configuration];
+    return (MSIDLegacySingleResourceToken *) [self fillAADV2BaseToken:token fromResponse:response configuration:configuration];
 }
 
 - (MSIDAccount *)accountFromResponse:(MSIDAADV2TokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                             configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDAccount *account = [super accountFromResponse:response request:requestParams];
+    MSIDAccount *account = [super accountFromResponse:response configuration:configuration];
     MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
+
     account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
     return account;
 }
@@ -209,7 +211,7 @@
 
 - (MSIDBaseToken *)fillAADV2BaseToken:(MSIDBaseToken *)baseToken
                          fromResponse:(MSIDAADTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams
+                              configuration:(MSIDConfiguration *)configuration
 {
     MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
     baseToken.authority = [MSIDAuthority cacheUrlForAuthority:baseToken.authority tenantId:idToken.tenantId];
@@ -218,7 +220,7 @@
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                      customWebview:(WKWebView *)webview
                                                            context:(id<MSIDRequestContext>)context
                                                  completionHandler:(MSIDWebUICompletionHandler)completionHandler
@@ -229,19 +231,20 @@
     return nil;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                callbackURLScheme:(NSString *)callbackURLScheme
                                                          context:(id<MSIDRequestContext>)context
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
 #if TARGET_OS_IPHONE
     // TODO: get authorization endpoint from authority validation cache.
-    NSURL *startURL = [self startURLFromRequest:requestParams];
+    NSURL *startURL = [self startURLFromConfiguration:configuration];
     MSIDSystemWebviewController *webviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                                                          callbackURLScheme:callbackURLScheme
                                                                                                    context:context
                                                                                          completionHandler:completionHandler];
-    webviewController.requestState = requestParams.requestState;
+    webviewController.requestState = configuration.requestState;
     webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
         return [requestState isEqualToString:dictionary[MSID_OAUTH2_STATE]];
     };
@@ -251,60 +254,60 @@
 #endif
 }
 
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequest:(MSIDRequestParameters *)requestParams
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
 {
     NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
-    if (requestParams.extraQueryParameters)
+    if (configuration.extraQueryParameters)
     {
-        [parameters addEntriesFromDictionary:requestParams.extraQueryParameters];
+        [parameters addEntriesFromDictionary:configuration.extraQueryParameters];
     }
     
-    NSOrderedSet<NSString *> *allScopes = requestParams.scopes;
-    parameters[MSID_OAUTH2_CLIENT_ID] = requestParams.clientId;
+    NSOrderedSet<NSString *> *allScopes = configuration.scopes;
+    parameters[MSID_OAUTH2_CLIENT_ID] = configuration.clientId;
     parameters[MSID_OAUTH2_SCOPE] = [allScopes msidToString];
     parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
-    parameters[MSID_OAUTH2_REDIRECT_URI] = requestParams.redirectUri;
-    parameters[MSID_OAUTH2_CORRELATION_ID_REQUEST] = [requestParams.correlationId UUIDString];
-    parameters[MSID_OAUTH2_LOGIN_HINT] = requestParams.loginHint;
+    parameters[MSID_OAUTH2_REDIRECT_URI] = configuration.redirectUri;
+    parameters[MSID_OAUTH2_CORRELATION_ID_REQUEST] = [configuration.correlationId UUIDString];
+    parameters[MSID_OAUTH2_LOGIN_HINT] = configuration.loginHint;
     
     // PKCE
-    parameters[MSID_OAUTH2_CODE_CHALLENGE] = requestParams.pkce.codeChallenge;
-    parameters[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = requestParams.pkce.codeChallengeMethod;
+    parameters[MSID_OAUTH2_CODE_CHALLENGE] = configuration.pkce.codeChallenge;
+    parameters[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = configuration.pkce.codeChallengeMethod;
     
     NSDictionary *msalId = [MSIDDeviceId deviceId];
     [parameters addEntriesFromDictionary:msalId];
     
-    parameters[MSID_OAUTH2_PROMPT] = requestParams.promptBehavior;
+    parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
     
     return parameters;
 }
 
 
-- (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
+- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration
 {
-    if (requestParams.explicitStartURL)
+    if (configuration.explicitStartURL)
     {
-        return requestParams.explicitStartURL;
+        return configuration.explicitStartURL;
     }
     
     NSURLComponents *urlComponents = [NSURLComponents new];
     urlComponents.scheme = @"https";
     
     // get this from cache: authorizationendpoint if possible
-    urlComponents.host = requestParams.authority.host;
-    urlComponents.path = [requestParams.authority.path stringByAppendingString:MSID_OAUTH2_V2_AUTHORIZE_SUFFIX];
+    urlComponents.host = configuration.authority.host;
+    urlComponents.path = [configuration.authority.path stringByAppendingString:MSID_OAUTH2_V2_AUTHORIZE_SUFFIX];
 
-    NSMutableDictionary <NSString *, NSString *> *parameters = [self authorizationParametersFromRequest:requestParams];
+    NSMutableDictionary <NSString *, NSString *> *parameters = [self authorizationParametersFromConfiguration:configuration];
     
-    if (requestParams.sliceParameters)
+    if (configuration.sliceParameters)
     {
-        [parameters addEntriesFromDictionary:requestParams.sliceParameters];
+        [parameters addEntriesFromDictionary:configuration.sliceParameters];
     }
 
-    [parameters msidSetObjectIfNotNil:requestParams.uid forKey:MSID_OAUTH2_LOGIN_REQ];
-    [parameters msidSetObjectIfNotNil:requestParams.utid forKey:MSID_OAUTH2_DOMAIN_REQ];
+    [parameters msidSetObjectIfNotNil:configuration.uid forKey:MSID_OAUTH2_LOGIN_REQ];
+    [parameters msidSetObjectIfNotNil:configuration.utid forKey:MSID_OAUTH2_DOMAIN_REQ];
     
-    parameters[MSID_OAUTH2_STATE] = requestParams.requestState;
+    parameters[MSID_OAUTH2_STATE] = configuration.requestState;
     
     urlComponents.queryItems = [parameters urlQueryItemsArray];
     urlComponents.percentEncodedQuery = [parameters msidURLFormEncode];

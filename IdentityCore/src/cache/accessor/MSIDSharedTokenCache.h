@@ -41,7 +41,7 @@
 
 // Save operations
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                requestParams:(MSIDRequestParameters *)requestParams
+                configuration:(MSIDConfiguration *)configuration
                      response:(MSIDTokenResponse *)response
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error;
@@ -53,25 +53,25 @@
                          error:(NSError **)error;
 
 - (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
-                       requestParams:(MSIDRequestParameters *)parameters
+                       configuration:(MSIDConfiguration *)configuration
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
 - (MSIDLegacySingleResourceToken *)getLegacyTokenForAccount:(MSIDAccount *)account
-                                              requestParams:(MSIDRequestParameters *)parameters
+                                              configuration:(MSIDConfiguration *)configuration
                                                     context:(id<MSIDRequestContext>)context
                                                       error:(NSError **)error;
 
-- (MSIDLegacySingleResourceToken *)getLegacyTokenWithRequestParams:(MSIDRequestParameters *)parameters
+- (MSIDLegacySingleResourceToken *)getLegacyTokenWithConfiguration:(MSIDConfiguration *)configuration
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error;
 
 /*!
- Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
+ Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given configuration. A MRRT can
  potentially be used for many resources for that given user, client ID and authority.
  */
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
-                        requestParams:(MSIDRequestParameters *)parameters
+                        configuration:(MSIDConfiguration *)configuration
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
 
@@ -80,7 +80,7 @@
  be used for many resources within a given family of client IDs.
  */
 - (MSIDRefreshToken *)getFRTforAccount:(MSIDAccount *)account
-                         requestParams:(MSIDRequestParameters *)parameters
+                         configuration:(MSIDConfiguration *)configuration
                               familyId:(NSString *)familyId
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error;

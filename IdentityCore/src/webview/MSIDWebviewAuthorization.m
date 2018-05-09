@@ -47,49 +47,50 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 }
 
 
-+ (void)startEmbeddedWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                              factory:(MSIDOauth2Factory *)factory
-                                              context:(id<MSIDRequestContext>)context
-                                    completionHandler:(MSIDWebUICompletionHandler)completionHandler
++ (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                          factory:(MSIDOauth2Factory *)factory
+                                          context:(id<MSIDRequestContext>)context
+                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithRequest:parameters
-                                                                                           customWebview:nil
-                                                                                                 context:context
-                                                                                       completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
+    id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithConfiguration:configuration
+                                                                                                 customWebview:nil
+                                                                                                       context:context
+                                                                                             completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
     [self startWebviewAuth:embeddedWebviewController
                    context:context
          completionHandler:completionHandler];
 }
 
-+ (void)startEmbeddedWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                     webview:(WKWebView *)webview
-                                                     factory:(MSIDOauth2Factory *)factory
-                                                     context:(id<MSIDRequestContext>)context
-                                           completionHandler:(MSIDWebUICompletionHandler)completionHandler
++ (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                                 webview:(WKWebView *)webview
+                                                 factory:(MSIDOauth2Factory *)factory
+                                                 context:(id<MSIDRequestContext>)context
+                                       completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithRequest:parameters
-                                                                                           customWebview:webview
-                                                                                                 context:context
-                                                                                       completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
+    id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithConfiguration:configuration
+                                                                                                 customWebview:webview
+                                                                                                       context:context
+                                                                                             completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
     [self startWebviewAuth:embeddedWebviewController
                    context:context
          completionHandler:completionHandler];
 }
 
-+ (void)startSystemWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                   factory:(MSIDOauth2Factory *)factory
-                                                   context:(id<MSIDRequestContext>)context
-                                         completionHandler:(MSIDWebUICompletionHandler)completionHandler
++ (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                               factory:(MSIDOauth2Factory *)factory
+                                               context:(id<MSIDRequestContext>)context
+                                     completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-
-    id<MSIDWebviewInteracting> systemWebviewController = [factory systemWebviewControllerWithRequest:parameters
-                                                                                   callbackURLScheme:parameters.redirectUri
-                                                                                             context:context
-                                                                                   completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
+    
+    id<MSIDWebviewInteracting> systemWebviewController = [factory systemWebviewControllerWithConfiguration:configuration
+                                                                                         callbackURLScheme:configuration.redirectUri
+                                                                                                   context:context
+                                                                                         completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
     [self startWebviewAuth:systemWebviewController
                    context:context
          completionHandler:completionHandler];
 }
+
 
 + (void)startWebviewAuth:(id<MSIDWebviewInteracting>)webviewController
                  context:(id<MSIDRequestContext>)context
@@ -191,6 +192,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     return nil;
 }
 
+
 + (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
                               requestState:(NSString *)requestState
                              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
@@ -265,3 +267,6 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 
 
 @end
+
+
+

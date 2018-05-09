@@ -26,8 +26,9 @@
 #import "MSIDTokenCacheItem.h"
 #import "MSIDAccount.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
+
 
 @implementation MSIDTokenFilteringHelper
 
@@ -76,7 +77,7 @@
 }
 
 + (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                                withParameters:(MSIDRequestParameters *)parameters
+                                                withConfiguration:(MSIDConfiguration *)configuration
                                                        account:(MSIDAccount *)account
                                                        context:(id<MSIDRequestContext>)context
                                                          error:(NSError **)error
@@ -99,8 +100,8 @@
     BOOL (^filterBlock)(MSIDTokenCacheItem *tokenCacheItem) = ^BOOL(MSIDTokenCacheItem *token) {
         
         if ([token.uniqueUserId isEqualToString:account.uniqueUserId]
-            && [token.clientId isEqualToString:parameters.clientId]
-            && [parameters.scopes isSubsetOfOrderedSet:[token.target scopeSet]])
+            && [token.clientId isEqualToString:configuration.clientId]
+            && [configuration.scopes isSubsetOfOrderedSet:[token.target scopeSet]])
         {
             if ([token.authority msidIsEquivalentWithAnyAlias:tokenAliases])
             {

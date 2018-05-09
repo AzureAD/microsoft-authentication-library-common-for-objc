@@ -56,9 +56,9 @@
 }
 
 - (instancetype)initWithName:(NSString *)eventName
-                     context:(id<MSIDRequestContext>)requestParams
+                     context:(id<MSIDRequestContext>)configuration
 {
-    return [self initWithName:eventName requestId:requestParams.telemetryRequestId correlationId:requestParams.correlationId];
+    return [self initWithName:eventName requestId:configuration.telemetryRequestId correlationId:configuration.correlationId];
 }
 
 - (void)setProperty:(NSString *)name value:(NSString *)value
@@ -163,9 +163,9 @@
 + (NSDictionary *)rawDefaultParameters
 {
     static NSMutableDictionary *s_defaultParameters;
-    static dispatch_once_t s_parametersOnce;
+    static dispatch_once_t s_configurationOnce;
     
-    dispatch_once(&s_parametersOnce, ^{
+    dispatch_once(&s_configurationOnce, ^{
         
         s_defaultParameters = [NSMutableDictionary new];
         

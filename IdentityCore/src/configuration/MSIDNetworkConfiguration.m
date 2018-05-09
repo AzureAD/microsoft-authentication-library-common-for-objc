@@ -21,22 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDNetworkConfiguration.h"
 
-@class MSIDRequestParameters;
+static NSTimeInterval const s_defaultTimeout = 30;
+static int const s_defaultRetryCount = 2;
 
-@interface MSIDTestRequestParams : NSObject
+@implementation MSIDNetworkConfiguration
 
-+ (MSIDRequestParameters *)defaultParams;
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _timeout = s_defaultTimeout;
+        _retryCount = s_defaultRetryCount;
+    }
+    return self;
+}
 
-+ (MSIDRequestParameters *)paramsWithAuthority:(NSString *)authority
-                                      clientId:(NSString *)clientId
-                                   redirectUri:(NSString *)redirectUri
-                                        target:(NSString *)target;
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout retryCount:(int)retryCount
+{
+    self = [super init];
+    if (self)
+    {
+        _timeout = timeout;
+        _retryCount = retryCount;
+    }
+    return self;
+}
 
-+ (MSIDRequestParameters *)v1DefaultParams;
-+ (MSIDRequestParameters *)v2DefaultParams;
+- (instancetype)copyWithZone:(NSZone*)zone
+{
+    MSIDNetworkConfiguration *configuration = [[MSIDNetworkConfiguration allocWithZone:zone] init];
+    configuration.timeout = _timeout;
+    configuration.retryCount = _retryCount;
+    
+    return configuration;
+}
 
-+ (MSIDRequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes;
 
 @end

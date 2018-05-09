@@ -22,24 +22,22 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTestAutomationConfigurationRequest.h"
-#import "MSIDTestAutomationConfiguration.h"
 
-@interface MSIDTestAccountsProvider : NSObject
+@class MSIDConfiguration;
 
-- (instancetype)init NS_UNAVAILABLE;
+@interface MSIDTestConfiguration : NSObject
 
-- (instancetype)initWithClientCertificateContents:(NSString *)certificate
-                              certificatePassword:(NSString *)password
-                         additionalConfigurations:(NSDictionary *)additionalConfigurations
-                                          apiPath:(NSString *)apiPath;
++ (MSIDConfiguration *)defaultParams;
 
-- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
++ (MSIDConfiguration *)configurationWithAuthority:(NSString *)authority
+                                         clientId:(NSString *)clientId
+                                      redirectUri:(NSString *)redirectUri
+                                           target:(NSString *)target;
 
-- (void)configurationWithRequest:(MSIDTestAutomationConfigurationRequest *)request
-               completionHandler:(void (^)(MSIDTestAutomationConfiguration *configuration))completionHandler;
++ (MSIDConfiguration *)v1DefaultConfiguration;
++ (MSIDConfiguration *)v2DefaultConfiguration;
 
-- (void)passwordForAccount:(MSIDTestAccount *)account
-         completionHandler:(void (^)(NSString *password))completionHandler;
++ (MSIDConfiguration *)v2DefaultConfigurationWithScopes:(NSOrderedSet<NSString *> *)scopes;
 
 @end
+

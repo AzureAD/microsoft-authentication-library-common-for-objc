@@ -26,7 +26,7 @@
 #import "MSIDAccountType.h"
 
 @class MSIDAccountCacheItem;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @class MSIDTokenResponse;
 
 @interface MSIDAccount : NSObject <NSCopying>

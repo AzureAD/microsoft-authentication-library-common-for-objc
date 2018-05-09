@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,31 +17,16 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDTestAutomationConfigurationRequest.h"
-#import "MSIDTestAutomationConfiguration.h"
+#import "MSIDWebviewConfiguration.h"
 
-@interface MSIDTestAccountsProvider : NSObject
-
-- (instancetype)init NS_UNAVAILABLE;
-
-- (instancetype)initWithClientCertificateContents:(NSString *)certificate
-                              certificatePassword:(NSString *)password
-                         additionalConfigurations:(NSDictionary *)additionalConfigurations
-                                          apiPath:(NSString *)apiPath;
-
-- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
-
-- (void)configurationWithRequest:(MSIDTestAutomationConfigurationRequest *)request
-               completionHandler:(void (^)(MSIDTestAutomationConfiguration *configuration))completionHandler;
-
-- (void)passwordForAccount:(MSIDTestAccount *)account
-         completionHandler:(void (^)(NSString *password))completionHandler;
+@implementation MSIDWebviewConfiguration
 
 @end

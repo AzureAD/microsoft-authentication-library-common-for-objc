@@ -36,7 +36,7 @@
         return nil;
     }
     
-    NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *configuration = [[NSMutableDictionary alloc] init];
     
     if ( nil != string && string.length != 0 )
     {
@@ -51,18 +51,18 @@
                 NSString *key     = [[[elements objectAtIndex:0] msidTrimmedString] msidUrlFormDecode];
                 NSString *value   = [[[elements objectAtIndex:1] msidTrimmedString] msidUrlFormDecode];
                 if ( nil != key && key.length != 0 )
-                    [parameters setObject:value forKey:key];
+                    [configuration setObject:value forKey:key];
             }
         }
     }
-    return parameters;
+    return configuration;
 }
 
 // Encodes a dictionary consisting of a set of name/values pairs that are strings to www-form-urlencoded
 // Returns nil if the dictionary is empty, otherwise the encoded value
 - (NSString *)msidURLFormEncode
 {
-    __block NSMutableString *parameters = nil;
+    __block NSMutableString *configuration = nil;
     
     [self enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL __unused *stop)
      {
@@ -74,17 +74,17 @@
          }
          NSString* encodedValue = [[v msidTrimmedString] msidUrlFormEncode];
          
-         if ( parameters == nil )
+         if ( configuration == nil )
          {
-             parameters = [NSMutableString new];
-             [parameters appendFormat:@"%@=%@", encodedKey, encodedValue];
+             configuration = [NSMutableString new];
+             [configuration appendFormat:@"%@=%@", encodedKey, encodedValue];
          }
          else
          {
-             [parameters appendFormat:@"&%@=%@", encodedKey, encodedValue];
+             [configuration appendFormat:@"&%@=%@", encodedKey, encodedValue];
          }
      }];
-    return parameters;
+    return configuration;
 }
 
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove

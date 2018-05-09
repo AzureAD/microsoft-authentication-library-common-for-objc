@@ -22,17 +22,12 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDNetworkConfiguration.h"
 
 @class MSIDPkce;
 @class MSIDClientInfo;
 
-@interface MSIDRequestParameters : NSObject <NSCopying>
-
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target
-                    correlationId:(NSUUID *)correlationId;
+@interface MSIDConfiguration : NSObject <NSCopying>
 
 // Commonly used or needed properties
 @property (readwrite) NSURL *authority;
@@ -45,22 +40,22 @@
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;
 
-// Optionally used or needed properties
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target;
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target
+                    correlationId:(NSUUID *)correlationId;
+
+// Optional configurations
 @property (readwrite) NSString *loginHint;
-@property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
-@property (readwrite) NSString *promptBehavior;
-@property (readwrite) NSString *claims;
+
+@property (readwrite) MSIDNetworkConfiguration *networkConfig;
 
 @property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
-@property (readwrite) NSString *requestState;
-
-// Is this only for V2?
-@property (readwrite) MSIDPkce *pkce;
-
-@property (readwrite) MSIDClientInfo *clientInfo;
-@property (readwrite) NSString *uid;
-@property (readwrite) NSString *utid;
-
-@property (readwrite) NSURL *explicitStartURL;
 
 @end

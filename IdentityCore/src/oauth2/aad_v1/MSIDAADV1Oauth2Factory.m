@@ -29,6 +29,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
 #import "MSIDDeviceId.h"
+#import "MSIDWebviewConfiguration.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -123,34 +124,34 @@
 #pragma mark - Tokens
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV1TokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+                                     configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response request:requestParams];
-    accessToken.resource = response.target ? response.target : requestParams.target;
+    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response configuration:configuration];
+    accessToken.resource = response.target ? response.target : configuration.target;
 
     return accessToken;
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+                                                   configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response request:requestParams];
-    legacyToken.resource = response.target ? response.target : requestParams.target;
+    MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response configuration:configuration];
+    legacyToken.resource = response.target ? response.target : configuration.target;
     return legacyToken;
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                      customWebview:(WKWebView *)webview
                                                            context:(id<MSIDRequestContext>)context
                                                  completionHandler:(MSIDWebUICompletionHandler)completionHandler
@@ -159,7 +160,8 @@
     return nil;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                callbackURLScheme:(NSString *)callbackURLScheme
                                                          context:(id<MSIDRequestContext>)context
                                                completionHandler:(MSIDWebUICompletionHandler)completionHandler
@@ -168,16 +170,16 @@
     return nil;
 }
 
-- (NSURL *)startURLFrom:(MSIDRequestParameters *)requestParams
+- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration
 {
     return nil;
 }
 
 // TODO: if same in MSAL, move to common logic
 // Encodes the state parameter for a protocol message
-- (NSString *)encodeProtocolState:(MSIDRequestParameters *)requestParams
+- (NSString *)encodeProtocolState:(MSIDWebviewConfiguration *)configuration
 {
-    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[requestParams authority], @"a", [requestParams resource], @"r", nil]
+    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[configuration authority], @"a", [configuration resource], @"r", nil]
              msidURLFormEncode] msidBase64UrlEncode];
 }
 

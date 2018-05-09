@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDRequestParameters.h"
+#import "MSIDWebviewConfiguration.h"
 #import "MSIDWebviewInteracting.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDAADV1Oauth2Factory.h"
@@ -39,22 +39,22 @@
 
 @interface MSIDWebviewAuthorization : NSObject
 
-+ (void)startEmbeddedWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                              factory:(MSIDOauth2Factory *)factory
-                                              context:(id<MSIDRequestContext>)context
-                                    completionHandler:(MSIDWebUICompletionHandler)completionHandler;
++ (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                          factory:(MSIDOauth2Factory *)factory
+                                          context:(id<MSIDRequestContext>)context
+                                completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
-+ (void)startEmbeddedWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                     webview:(WKWebView *)webview
-                                                     factory:(MSIDOauth2Factory *)factory
-                                                     context:(id<MSIDRequestContext>)context
-                                           completionHandler:(MSIDWebUICompletionHandler)completionHandler;
++ (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                                 webview:(WKWebView *)webview
+                                                 factory:(MSIDOauth2Factory *)factory
+                                                 context:(id<MSIDRequestContext>)context
+                                       completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
 #if TARGET_OS_IPHONE
-+ (void)startSystemWebviewWebviewAuthWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                   factory:(MSIDOauth2Factory *)factory
-                                                   context:(id<MSIDRequestContext>)context
-                                         completionHandler:(MSIDWebUICompletionHandler)completionHandler;
++ (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                               factory:(MSIDOauth2Factory *)factory
+                                               context:(id<MSIDRequestContext>)context
+                                     completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 #endif
 
 + (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
@@ -68,4 +68,7 @@
 // This is for system webview auth session on iOS 10 - Thus, a SafariViewController
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 
+
 @end
+
+

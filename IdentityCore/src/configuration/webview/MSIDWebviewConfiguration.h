@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,31 +17,37 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDTestAutomationConfigurationRequest.h"
-#import "MSIDTestAutomationConfiguration.h"
+#import "MSIDConfiguration.h"
 
-@interface MSIDTestAccountsProvider : NSObject
+@class MSIDPkce;
+@class MSIDClientInfo;
 
-- (instancetype)init NS_UNAVAILABLE;
+@interface MSIDWebviewConfiguration : MSIDConfiguration
 
-- (instancetype)initWithClientCertificateContents:(NSString *)certificate
-                              certificatePassword:(NSString *)password
-                         additionalConfigurations:(NSDictionary *)additionalConfigurations
-                                          apiPath:(NSString *)apiPath;
+// Common
+@property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
+@property (readwrite) NSString *promptBehavior;
+@property (readwrite) NSString *claims;
 
-- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
+// Is this only for V2?
+@property (readwrite) NSString *requestState;
+@property (readwrite) MSIDPkce *pkce;
 
-- (void)configurationWithRequest:(MSIDTestAutomationConfigurationRequest *)request
-               completionHandler:(void (^)(MSIDTestAutomationConfiguration *configuration))completionHandler;
+// User information
+@property (readwrite) NSString *utid;
+@property (readwrite) NSString *uid;
+@property (readwrite) MSIDClientInfo *clientInfo;
 
-- (void)passwordForAccount:(MSIDTestAccount *)account
-         completionHandler:(void (^)(NSString *password))completionHandler;
+// Priority start URL
+@property (readwrite) NSURL *explicitStartURL;
 
 @end

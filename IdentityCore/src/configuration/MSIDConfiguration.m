@@ -21,36 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDPkce.h"
 
-@implementation MSIDRequestParameters
+@implementation MSIDConfiguration
 
 - (instancetype)copyWithZone:(NSZone*)zone
 {
-    MSIDRequestParameters *parameters = [[MSIDRequestParameters allocWithZone:zone] init];
-    parameters.authority = [_authority copyWithZone:zone];
-    parameters.redirectUri = [_redirectUri copyWithZone:zone];
-    parameters.target = [_target copyWithZone:zone];
-    parameters.clientId = [_clientId copyWithZone:zone];
-    parameters.correlationId = [_correlationId copyWithZone:zone];
+    MSIDConfiguration *configuration = [[MSIDConfiguration allocWithZone:zone] init];
+    configuration.authority = [_authority copyWithZone:zone];
+    configuration.redirectUri = [_redirectUri copyWithZone:zone];
+    configuration.target = [_target copyWithZone:zone];
+    configuration.clientId = [_clientId copyWithZone:zone];
+    configuration.correlationId = [_correlationId copyWithZone:zone];
+    configuration.loginHint = [_loginHint copyWithZone:zone];
+    configuration.sliceParameters = [_sliceParameters copyWithZone:zone];
+    configuration.networkConfig = [_networkConfig copyWithZone:zone];
     
-    parameters.loginHint = [_loginHint copyWithZone:zone];
-    parameters.extraQueryParameters = [_extraQueryParameters copyWithZone:zone];
-    parameters.promptBehavior = [_promptBehavior copyWithZone:zone];
-    parameters.claims = [_claims copyWithZone:zone];
+    return configuration;
+}
 
-    parameters.correlationId = [_correlationId copyWithZone:zone];
-    
-    parameters->_pkce = [_pkce copyWithZone:zone];
-    parameters.sliceParameters = [_sliceParameters copyWithZone:zone];
-    parameters.clientId = [_clientId copyWithZone:zone];
-    parameters.requestState = [_requestState copyWithZone:zone];
-    
-    parameters.explicitStartURL = [_explicitStartURL copyWithZone:zone];
-    
-    return parameters;
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target
+{
+    return [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:redirectUri clientId:clientId target:target correlationId:nil];
 }
 
 - (instancetype)initWithAuthority:(NSURL *)authority
