@@ -66,7 +66,7 @@ __weak static NSAlert *_presentedPrompt = nil;
         
         [alert beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse returnCode)
          {
-             if (returnCode == 1000)
+             if (returnCode == NSModalResponseStop)
              {
                  NSString *username = [view.usernameField stringValue];
                  NSString *password = [view.passwordField stringValue];

@@ -24,6 +24,10 @@
 #import <Foundation/Foundation.h>
 #import "MSIDChallengeHandling.h"
 
-@interface MSIDNegotiateHandler : NSObject <MSIDChallengeHandling>
+@interface MSIDPKeyAuthHandler : NSObject
+
++ (BOOL)handleChallenge:(NSString *)challengeUrl
+                context:(id<MSIDRequestContext>)context
+      completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
 
 @end

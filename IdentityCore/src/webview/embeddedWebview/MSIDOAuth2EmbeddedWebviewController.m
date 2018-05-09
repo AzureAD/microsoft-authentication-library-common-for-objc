@@ -37,12 +37,11 @@
 #import "MSIDNTLMHandler.h"
 #import "MSIDAuthority.h"
 #import "MSIDWorkPlaceJoinConstants.h"
-#import "MSIDPkeyAuthHelper.h"
-#import "MSIDHelpers.h"
 
 #if TARGET_OS_IPHONE
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDPKeyAuthHandler.h"
 #else
 #define DEFAULT_WINDOW_WIDTH 420
 #define DEFAULT_WINDOW_HEIGHT 650
@@ -340,7 +339,16 @@
     if ([requestUrlString hasPrefix:[kMSIDPKeyAuthUrn lowercaseString]])
     {
         decisionHandler(WKNavigationActionPolicyCancel);
-        [self handlePKeyAuthChallenge:requestUrl.absoluteString];
+        [MSIDPKeyAuthHandler handleChallenge:requestUrl.absoluteString
+                                     context:_context
+                           completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
+                               if (!challengeResponse)
+                               {
+                                   [self endWebAuthenticationWithError:error orURL:nil];
+                                   return;
+                               }
+                               [self loadRequest:challengeResponse];
+                           }];
         return;
     }
 #endif
@@ -404,7 +412,7 @@
     
     MSID_LOG_VERBOSE(_context,
                      @"%@ - %@. Previous challenge failure count: %ld",
-                     @"session:task:didReceiveChallenge:completionHandler",
+                     @"webView:didReceiveAuthenticationChallenge:completionHandler",
                      authMethod, (long)challenge.previousFailureCount);
     
     [MSIDChallengeHandler handleChallenge:challenge
@@ -525,36 +533,6 @@
     [loadingIndicator setColor:[UIColor blackColor]];
     [loadingIndicator setCenter:rootView.center];
     return loadingIndicator;
-}
-
-- (void)handlePKeyAuthChallenge:(NSString *)challengeUrl
-{
-    MSID_LOG_INFO(_context, @"Handling PKeyAuth Challenge.");
-    
-    NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
-    NSString *qp = [parts objectAtIndex:1];
-    NSDictionary* queryParamsMap = [NSDictionary msidURLFormDecode:qp];
-    NSString* submitUrl = [MSIDHelpers msidAddClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
-    
-    NSArray * authorityParts = [submitUrl componentsSeparatedByString:@"?"];
-    NSString *authority = [authorityParts objectAtIndex:0];
-    
-    NSError* error = nil;
-    NSString* authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
-                                                          challengeData:queryParamsMap
-                                                                context:_context
-                                                                  error:&error];
-    if (!authHeader)
-    {
-        [self endWebAuthenticationWithError:error orURL:nil];
-        return;
-    }
-    
-    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:submitUrl]];
-    
-    [responseUrl setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
-    [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
-    [self loadRequest:responseUrl];
 }
 
 #endif

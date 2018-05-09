@@ -86,6 +86,7 @@
 		6068302920A0B45300CCA6AB /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6068302720A0B44200CCA6AB /* Security.framework */; };
 		6068302B20A0B4B800CCA6AB /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6068302A20A0B4B800CCA6AB /* SecurityInterface.framework */; };
 		6068302C20A0B4BF00CCA6AB /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6068302A20A0B4B800CCA6AB /* SecurityInterface.framework */; };
+		6068303A20A3560F00CCA6AB /* MSIDPKeyAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 6068303820A33A9000CCA6AB /* MSIDPKeyAuthHandler.m */; };
 		60BF06042051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */; };
 		60BF06052051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */; };
 		60BF06072052023900DE7C1C /* MSIDWipeDataTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06062052023900DE7C1C /* MSIDWipeDataTelemetryTests.m */; };
@@ -530,6 +531,8 @@
 		6068300F2098E94100CCA6AB /* MSIDCertificateChooser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCertificateChooser.m; sourceTree = "<group>"; };
 		6068302720A0B44200CCA6AB /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6068302A20A0B4B800CCA6AB /* SecurityInterface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityInterface.framework; path = System/Library/Frameworks/SecurityInterface.framework; sourceTree = SDKROOT; };
+		6068303720A33A7400CCA6AB /* MSIDPKeyAuthHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPKeyAuthHandler.h; sourceTree = "<group>"; };
+		6068303820A33A9000CCA6AB /* MSIDPKeyAuthHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPKeyAuthHandler.m; sourceTree = "<group>"; };
 		60BF06022051F95B00DE7C1C /* MSIDTelemetryTestDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryTestDispatcher.h; sourceTree = "<group>"; };
 		60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryTestDispatcher.m; sourceTree = "<group>"; };
 		60BF06062052023900DE7C1C /* MSIDWipeDataTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWipeDataTelemetryTests.m; sourceTree = "<group>"; };
@@ -1048,6 +1051,8 @@
 				600D19A220964B930004CD43 /* MSIDClientTLSHandler.m */,
 				606830032098ACC100CCA6AB /* MSIDNegotiateHandler.h */,
 				606830042098ACED00CCA6AB /* MSIDNegotiateHandler.m */,
+				6068303720A33A7400CCA6AB /* MSIDPKeyAuthHandler.h */,
+				6068303820A33A9000CCA6AB /* MSIDPKeyAuthHandler.m */,
 				600D199920963A8A0004CD43 /* ui */,
 			);
 			path = challangeHandlers;
@@ -2183,6 +2188,7 @@
 				D61AFAB51FD8B6C600DABBE5 /* MSIDContants.m in Sources */,
 				606830052098ACED00CCA6AB /* MSIDNegotiateHandler.m in Sources */,
 				96F94A3420817C1A0034676C /* MSIDNTLMHandler.m in Sources */,
+				6068303A20A3560F00CCA6AB /* MSIDPKeyAuthHandler.m in Sources */,
 				B251CC4A204105A7005E0179 /* MSIDBaseToken.m in Sources */,
 				B20657BE1FC9254800412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				96F94A3A208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */,
