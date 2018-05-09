@@ -23,22 +23,12 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDRequestParameters : NSObject <NSCopying>
 
-@property (readwrite) NSURL *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readwrite) NSString *target;
+@interface MSIDNetworkConfiguration : NSObject <NSCopying>
 
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
+@property (readwrite) NSTimeInterval timeout;
+@property (readwrite) int retryCount;
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target;
-
-@property (readwrite) NSString *loginHint;
-@property (readwrite) NSString *extraQueryParameters;
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout retryCount:(int)retryCount;
 
 @end

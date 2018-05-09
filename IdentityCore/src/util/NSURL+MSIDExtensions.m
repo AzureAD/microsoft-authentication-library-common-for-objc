@@ -31,13 +31,13 @@ const unichar queryStringSeparator = '?';
 
 @implementation NSURL (MSIDExtensions)      
 
-// Decodes parameters contained in a URL fragment
+// Decodes configuration contained in a URL fragment
 - (NSDictionary *)msidFragmentParameters
 {
     return [NSDictionary msidURLFormDecode:self.fragment];
 }
 
-// Decodes parameters contains in a URL query
+// Decodes configuration contains in a URL query
 - (NSDictionary *)msidQueryParameters
 {
     NSURLComponents* components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];

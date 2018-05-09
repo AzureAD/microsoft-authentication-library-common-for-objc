@@ -41,13 +41,13 @@ public class Authentication {
     
     public static var authCallback : AuthCallback?
     
-    private class func getToken(_ server:URL, _ params:AuthParameters, _ completion: @escaping (Result<String>) -> Void) {
+    private class func getToken(_ server:URL, _ configuration:AuthParameters, _ completion: @escaping (Result<String>) -> Void) {
         guard let authCallback = Authentication.authCallback else {
             completion(.Failure(KeyVaultError.NoAuthCallback))
             return
         }
         
-        authCallback(params.authority, params.resource, completion)
+        authCallback(configuration.authority, configuration.resource, completion)
     }
     
     private class func getValue(_ dict:[Substring : Substring], _ possibleKeys:[String]) throws -> Substring {
@@ -61,7 +61,7 @@ public class Authentication {
     }
     
     private class func getAuthParams(_ server:URL, _ completion: @escaping (Result<AuthParameters>) -> Void) {
-        print("Getting auth parameters for \(server)")
+        print("Getting auth configuration for \(server)")
         URLSession.shared.dataTask(with: server) { (data, response, error) in
             if let error = error {
                 completion(.Failure(error))

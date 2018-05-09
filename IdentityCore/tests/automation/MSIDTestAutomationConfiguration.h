@@ -38,7 +38,7 @@
 
 @end
 
-@interface MSIDTestConfiguration : NSObject
+@interface MSIDTestAutomationConfiguration : NSObject
 
 @property (readonly) NSString *authority;
 @property (nonatomic) NSString *authorityHost;
@@ -49,10 +49,10 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)response;
 - (instancetype)initWithJSONResponseData:(NSData *)response;
-- (NSDictionary *)configParameters;
-- (NSDictionary *)configParametersForAccount:(MSIDTestAccount *)account;
-- (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams;
-- (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
+- (NSDictionary *)config;
+- (NSDictionary *)configForAccount:(MSIDTestAccount *)account;
+- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration;
+- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration
                                                account:(MSIDTestAccount *)account;
 - (void)addAdditionalAccount:(MSIDTestAccount *)additionalAccount;
 

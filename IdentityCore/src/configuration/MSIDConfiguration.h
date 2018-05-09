@@ -22,24 +22,35 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTestAutomationConfigurationRequest.h"
-#import "MSIDTestAutomationConfiguration.h"
+#import "MSIDNetworkConfiguration.h"
 
-@interface MSIDTestAccountsProvider : NSObject
+@interface MSIDConfiguration : NSObject <NSCopying>
 
-- (instancetype)init NS_UNAVAILABLE;
+@property (readwrite) NSURL *authority;
+@property (readwrite) NSString *redirectUri;
+@property (readwrite) NSString *clientId;
+@property (readwrite) NSString *target;
 
-- (instancetype)initWithClientCertificateContents:(NSString *)certificate
-                              certificatePassword:(NSString *)password
-                         additionalConfigurations:(NSDictionary *)additionalConfigurations
-                                          apiPath:(NSString *)apiPath;
+@property (readonly) NSString *resource;
+@property (readonly) NSOrderedSet<NSString *> *scopes;
 
-- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target;
 
-- (void)configurationWithRequest:(MSIDTestAutomationConfigurationRequest *)request
-               completionHandler:(void (^)(MSIDTestAutomationConfiguration *configuration))completionHandler;
+- (instancetype)initWithAuthority:(NSURL *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target
+                    correlationId:(NSUUID *)correlationId;
 
-- (void)passwordForAccount:(MSIDTestAccount *)account
-         completionHandler:(void (^)(NSString *password))completionHandler;
+// Optional configurations
+@property (readwrite) NSString *loginHint;
+@property (readwrite) NSUUID *correlationId;
+
+@property (readwrite) MSIDNetworkConfiguration *networkConfig;
+
+@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 
 @end

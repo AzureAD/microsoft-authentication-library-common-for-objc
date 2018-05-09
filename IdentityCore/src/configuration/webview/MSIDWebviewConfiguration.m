@@ -25,8 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebviewRequest.h"
+#import "MSIDWebviewConfiguration.h"
 
-@implementation MSIDWebviewRequest
+@implementation MSIDWebviewConfiguration
 
 @end
