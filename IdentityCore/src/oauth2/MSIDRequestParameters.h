@@ -58,8 +58,8 @@
 @property (readwrite) MSIDPkce *pkce;
 
 @property (readwrite) MSIDClientInfo *clientInfo;
-@property (readwrite) NSString *rawIdTokenString;
-
+@property (readwrite) NSString *uid;
+@property (readwrite) NSString *utid;
 
 @property (readwrite) NSURL *explicitStartURL;
 

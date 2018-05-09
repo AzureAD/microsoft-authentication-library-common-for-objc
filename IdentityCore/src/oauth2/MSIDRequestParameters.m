@@ -46,7 +46,6 @@
     parameters->_pkce = [_pkce copyWithZone:zone];
     parameters.sliceParameters = [_sliceParameters copyWithZone:zone];
     parameters.clientId = [_clientId copyWithZone:zone];
-    parameters.rawIdTokenString = [_rawIdTokenString copyWithZone:zone];
     parameters.requestState = [_requestState copyWithZone:zone];
     
     parameters.explicitStartURL = [_explicitStartURL copyWithZone:zone];

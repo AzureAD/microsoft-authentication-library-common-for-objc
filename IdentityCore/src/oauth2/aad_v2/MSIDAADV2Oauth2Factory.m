@@ -274,7 +274,7 @@
     NSDictionary *msalId = [MSIDDeviceId deviceId];
     [parameters addEntriesFromDictionary:msalId];
     
-    parameters[@"prompt"] = requestParams.promptBehavior;
+    parameters[MSID_OAUTH2_PROMPT] = requestParams.promptBehavior;
     
     return parameters;
 }
@@ -301,14 +301,8 @@
         [parameters addEntriesFromDictionary:requestParams.sliceParameters];
     }
 
-    MSIDIdTokenClaims *tokenWrapper = [[MSIDIdTokenClaims alloc] initWithRawIdToken:requestParams.rawIdTokenString];
-    
-    if (tokenWrapper && requestParams.clientInfo)
-    {
-        [parameters msidSetObjectIfNotNil:tokenWrapper.username forKey:MSID_OAUTH2_LOGIN_HINT];
-        [parameters msidSetObjectIfNotNil:requestParams.clientInfo.uid forKey:MSID_OAUTH2_LOGIN_REQ];
-        [parameters msidSetObjectIfNotNil:requestParams.clientInfo.utid forKey:MSID_OAUTH2_DOMAIN_REQ];
-    }
+    [parameters msidSetObjectIfNotNil:requestParams.uid forKey:MSID_OAUTH2_LOGIN_REQ];
+    [parameters msidSetObjectIfNotNil:requestParams.utid forKey:MSID_OAUTH2_DOMAIN_REQ];
     
     parameters[MSID_OAUTH2_STATE] = requestParams.requestState;
     
