@@ -33,7 +33,8 @@
     return [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
                                                 redirectUri:nil
                                                    clientId:DEFAULT_TEST_CLIENT_ID
-                                                     target:nil];
+                                                     target:nil
+                                              correlationId:nil];
 }
 
 + (MSIDRequestParameters *)paramsWithAuthority:(NSString *)authority
@@ -44,7 +45,8 @@
     return [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:authority]
                                                 redirectUri:redirectUri
                                                    clientId:clientId
-                                                     target:target];
+                                                     target:target
+                                              correlationId:nil];
 }
 
 + (MSIDRequestParameters *)v1DefaultParams

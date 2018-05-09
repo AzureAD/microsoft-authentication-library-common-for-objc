@@ -337,7 +337,8 @@
     [[MSIDRequestParameters alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
                                          redirectUri:@"redirect uri"
                                             clientId:@"client id"
-                                              target:@"target"];
+                                              target:@"target"
+                                       correlationId:[NSUUID UUID]];
     MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:json error:nil];
 
     MSIDAccount *account = [factory accountFromResponse:tokenResponse request:requestParameters];
@@ -361,7 +362,8 @@
     MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
                                                                                 redirectUri:@"fake_redirect_uri"
                                                                                    clientId:@"fake_client_id"
-                                                                                     target:resourceInRequest];
+                                                                                     target:resourceInRequest
+                                                                              correlationId:[NSUUID UUID]];
     MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
                                                                                                      }
                                                                                              error:nil];
@@ -380,7 +382,8 @@
     MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
                                                                                 redirectUri:@"fake_redirect_uri"
                                                                                    clientId:@"fake_client_id"
-                                                                                     target:resourceInRequest];
+                                                                                     target:resourceInRequest
+                                                                              correlationId:[NSUUID UUID]];
     MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
                                                                                                      @"resource":resourceInResponse
                                                                                                      }

@@ -346,7 +346,8 @@
     [[MSIDRequestParameters alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
                                          redirectUri:@"redirect uri"
                                             clientId:@"client id"
-                                              target:@"target"];
+                                              target:@"target"
+                                       correlationId:[NSUUID UUID]];
     MSIDTokenResponse *tokenResponse = [[MSIDTokenResponse alloc] initWithJSONDictionary:json error:nil];
 
     MSIDAccount *account = [factory accountFromResponse:tokenResponse request:requestParameters];
