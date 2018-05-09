@@ -63,27 +63,6 @@
     return self;
 }
 
-#pragma mark - Input validation
-
-- (BOOL)checkUserIdentifier:(MSIDAccount *)account
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
-{
-    if (!account.legacyUserId)
-    {
-        MSID_LOG_ERROR(context, @"(Legacy accessor) Legacy user ID is expected for legacy accessor, but not provided");
-        MSID_LOG_ERROR_PII(context, @"(Legacy accessor) Legacy user ID is expected for legacy accessor, but not provided with account %@", account);
-        
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Legacy user ID is needed for legacy token cache accessor", nil, nil, nil, context.correlationId, nil);
-        }
-        return NO;
-    }
-    
-    return YES;
-}
-
 #pragma mark - MSIDSharedCacheAccessor
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory

@@ -301,7 +301,9 @@
     NSArray *input = @[testItem1, testItem2];
     
     NSArray *result = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:input
-                                                                legacyUserId:@"user.me" context:nil];
+                                                                legacyUserId:@"user.me"
+                                                                 environment:@"login.microsoftonline.com"
+                                                                     context:nil];
     
     XCTAssertEqual([result count], 1);
     XCTAssertEqualObjects(result[0], [testItem1 tokenWithType:MSIDTokenTypeRefreshToken]);
@@ -331,7 +333,9 @@
     NSArray *input = @[testItem1, testItem2];
     
     NSArray *result = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:input
-                                                                legacyUserId:@"user.me" context:nil];
+                                                                legacyUserId:@"user.me"
+                                                                 environment:@"login.microsoftonline.com"
+                                                                     context:nil];
     
     XCTAssertEqual([result count], 0);
 }

@@ -164,6 +164,14 @@ static NSMutableArray* s_responses = nil;
     return (NSURLSessionDataTask *)task;
 }
 
+- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler
+{
+    MSIDTestURLSessionDataTask *task = [[MSIDTestURLSessionDataTask alloc] initWithRequest:request
+                                                                         completionHandler:completionHandler
+                                                                                   session:self];
+    
+    return (NSURLSessionDataTask *)task;
+}
 
 + (MSIDTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request
 {
@@ -226,7 +234,20 @@ static NSMutableArray* s_responses = nil;
         
         if (AmIBeingDebugged())
         {
-            NSLog(@"Failed to find repsonse for %@\ncurrent responses: %@", requestURL, s_responses);
+            fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"\nFailed to find repsonse for request:"] UTF8String]);
+            fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"URL: %@", request.URL] UTF8String]);
+            fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"BODY: %@", request.HTTPBody] UTF8String]);
+            fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"HEADERS: %@", request.allHTTPHeaderFields] UTF8String]);
+            
+            fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"\nCurrent responses:"] UTF8String]);
+            fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"---"] UTF8String]);
+            for (MSIDTestURLResponse *response in s_responses)
+            {
+                fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"URL: %@", response->_requestURL] UTF8String]);
+                fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"BODY: %@", response->_requestBody] UTF8String]);
+                fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"HEADERS: %@", response->_requestHeaders] UTF8String]);
+                fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"---"] UTF8String]);
+            }
             
             // This will cause the tests to immediately stop execution right here if we're in the debugger,
             // hopefully making it a little easier to see why a test is failing. :)

@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,42 +15,19 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import "MSIDJsonObject.h"
+#import "MSIDAuthorizationCodeGrantRequest.h"
 
-@interface MSIDIdTokenWrapper : MSIDJsonObject
-{
-    NSString *_uniqueId;
-    NSString *_userId;
-    BOOL _userIdDisplayable;
-}
-
-// Default properties
-@property (readonly) NSString *subject;
-@property (readonly) NSString *preferredUsername;
-@property (readonly) NSString *name;
-@property (readonly) NSString *givenName;
-@property (readonly) NSString *middleName;
-@property (readonly) NSString *familyName;
-@property (readonly) NSString *email;
-
-// Derived properties
-@property (readonly) NSString *uniqueId;
-@property (readonly) NSString *userId;
-@property (readonly) BOOL userIdDisplayable;
-
-// Convinience properties
-@property (readonly) NSString *rawIdToken;
-
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
-- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId;
-- (NSString *)username;
+/**
+ Redeem code request.
+ 
+ @see https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code#use-the-authorization-code-to-request-an-access-token
+ */
+@interface MSIDAADAuthorizationCodeGrantRequest : MSIDAuthorizationCodeGrantRequest
 
 @end

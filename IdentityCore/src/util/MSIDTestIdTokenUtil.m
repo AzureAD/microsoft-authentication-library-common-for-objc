@@ -107,7 +107,20 @@
 + (NSString *)idTokenWithPreferredUsername:(NSString *)username
                                    subject:(NSString *)subject
                                  givenName:(NSString *)givenName
+                                familyName:(NSString *)familyName
+{
+    return [self idTokenWithPreferredUsername:username
+                                      subject:subject
+                                    givenName:givenName
+                                   familyName:familyName
+                                      version:@"2.0"];
+}
+
++ (NSString *)idTokenWithPreferredUsername:(NSString *)username
+                                   subject:(NSString *)subject
+                                 givenName:(NSString *)givenName
                                  familyName:(NSString *)familyName
+                                    version:(NSString *)version
 {
     NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
     NSString *idTokenp2 = [@{ @"iss" : @"issuer",
@@ -115,7 +128,9 @@
                               @"family_name" : familyName,
                               @"name" : @"Test name",
                               @"preferred_username" : username,
-                              @"sub" : subject} msidBase64UrlJson];
+                              @"sub" : subject,
+                              @"ver": version
+                              } msidBase64UrlJson];
     return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
 }
 

@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV1TokenResponse.h"
-#import "MSIDAADV1IdTokenWrapper.h"
+#import "MSIDAADV1IdTokenClaims.h"
 
 @implementation MSIDAADV1TokenResponse
 
@@ -35,9 +35,9 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
             && ![NSString msidIsStringNilOrBlank:self.refreshToken];
 }
 
-- (MSIDIdTokenWrapper *)idTokenObj
+- (MSIDIdTokenClaims *)idTokenObj
 {
-    return [[MSIDAADV1IdTokenWrapper alloc] initWithRawIdToken:self.idToken];
+    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken];
 }
 
 - (NSString *)target

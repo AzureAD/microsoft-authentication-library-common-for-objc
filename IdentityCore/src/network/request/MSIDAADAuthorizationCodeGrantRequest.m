@@ -21,49 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV2IdTokenWrapper.h"
-#import "MSIDHelpers.h"
+#import "MSIDAADAuthorizationCodeGrantRequest.h"
+#import "MSIDAADRequestConfigurator.h"
 
-#define ID_TOKEN_ISSUER              @"iss"
-#define ID_TOKEN_OBJECT_ID           @"oid"
-#define ID_TOKEN_TENANT_ID           @"tid"
-#define ID_TOKEN_VERSION             @"ver"
-#define ID_TOKEN_HOME_OBJECT_ID      @"home_oid"
+@implementation MSIDAADAuthorizationCodeGrantRequest
 
-@implementation MSIDAADV2IdTokenWrapper
-
-MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
-MSID_JSON_ACCESSOR(ID_TOKEN_OBJECT_ID, objectId)
-MSID_JSON_ACCESSOR(ID_TOKEN_TENANT_ID, tenantId)
-MSID_JSON_ACCESSOR(ID_TOKEN_VERSION, version)
-MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
-
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                           scope:(NSString *)scope
+                     redirectUri:(NSString *)redirectUri
+                            code:(NSString *)code
 {
-    self = [super initWithRawIdToken:rawIdTokenString];
-    
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope redirectUri:redirectUri code:code];
     if (self)
     {
-        // Set uniqueId
-        NSString *uniqueId = self.objectId;
+        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
+        _parameters = parameters;
         
-        if ([NSString msidIsStringNilOrBlank:uniqueId])
-        {
-            uniqueId = self.subject;
-        }
-        
-        _uniqueId = [MSIDHelpers normalizeUserId:uniqueId];
-        _userId = [MSIDHelpers normalizeUserId:self.preferredUsername];
-        _userIdDisplayable = YES;
+        _requestConfigurator = [MSIDAADRequestConfigurator new];
     }
     
     return self;
-}
-
-- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId
-{
-    return [super matchesLegacyUserId:legacyUserId]
-        || [self.objectId isEqualToString:legacyUserId];
 }
 
 @end

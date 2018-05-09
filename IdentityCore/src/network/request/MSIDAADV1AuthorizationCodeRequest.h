@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -21,14 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDIdTokenWrapper.h"
+#import "MSIDAADAuthorizationCodeRequest.h"
 
-@interface MSIDAADV2IdTokenWrapper : MSIDIdTokenWrapper
+@interface MSIDAADV1AuthorizationCodeRequest : MSIDAADAuthorizationCodeRequest
 
-@property (readonly) NSString *issuer;
-@property (readonly) NSString *objectId;
-@property (readonly) NSString *tenantId;
-@property (readonly) NSString *version;
-@property (readonly) NSString *homeObjectId;
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSString *)redirectUri
+                           scope:(NSString *)scope
+                       loginHint:(NSString *)loginHint
+                        resource:(NSString *)resource NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithEndpoint:(NSURL *)endpoint
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSString *)redirectUri
+                           scope:(NSString *)scope
+                       loginHint:(NSString *)loginHint NS_UNAVAILABLE;
 
 @end
