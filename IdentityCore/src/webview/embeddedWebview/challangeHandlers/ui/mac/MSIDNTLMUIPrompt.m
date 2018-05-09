@@ -66,7 +66,8 @@ __weak static NSAlert *_presentedPrompt = nil;
         
         [alert beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse returnCode)
          {
-             if (returnCode == NSModalResponseStop)
+             // The first button being added is "Login" button
+             if (returnCode == NSAlertFirstButtonReturn)
              {
                  NSString *username = [view.usernameField stringValue];
                  NSString *password = [view.passwordField stringValue];

@@ -94,10 +94,11 @@
     if (!challengeData)
     {
         // Error should have been logged before this where there is more information on why the challenge data was bad
+        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
     }
     else if (![info isWorkPlaceJoined])
     {
-        MSID_LOG_INFO(nil, @"PKeyAuth: Received PKeyAuth request but no WPJ info.");
+        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request but no WPJ info.");
     }
     else
     {
@@ -109,7 +110,7 @@
             NSString *issuerOU = [MSIDPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
-                MSID_LOG_ERROR(nil, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
+                MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
                 
                 info = nil;
             }
@@ -118,7 +119,7 @@
         {
             if (![expectedThumbprint isEqualToString:[MSIDPkeyAuthHelper computeThumbprint:[info certificateData]]])
             {
-                MSID_LOG_ERROR(nil, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
+                MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
                 
                 info = nil;
             }
