@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDHelpers.h"
-#import "MSIDContants.h"
+#import "MSIDConstants.h"
 #import "MSIDDeviceId.h"
 
 @implementation MSIDHelpers

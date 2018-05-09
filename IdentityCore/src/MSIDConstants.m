@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDContants.h"
+#import "MSIDConstants.h"
 
 NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
 NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
