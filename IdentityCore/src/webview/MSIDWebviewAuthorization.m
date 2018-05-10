@@ -36,6 +36,18 @@
 
 static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 
++ (MSIDWebUICompletionHandler)clearAppendedCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+{
+    void (^clearAppendedCompletionHandler)(MSIDWebOAuth2Response *, NSError *) =
+    ^void(MSIDWebOAuth2Response *response, NSError *error)
+    {
+        [self clearCurrentWebAuthSession];
+        completionHandler(response, error);
+    };
+    
+    return clearAppendedCompletionHandler;
+}
+
 + (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                    factory:(MSIDOauth2Factory *)factory;
 {
@@ -63,7 +75,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithRequest:parameters
                                                                                            customWebview:webview
                                                                                                  context:context
-                                                                                       completionHandler:completionHandler];
+                                                                                       completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
     [self startWebviewAuth:embeddedWebviewController
                    context:context
          completionHandler:completionHandler];
@@ -101,6 +113,34 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     }
     
     return NO;
+}
+
++ (void)clearCurrentWebAuthSession
+{
+    @synchronized ([MSIDWebviewAuthorization class])
+    {
+        if (!s_currentWebSession)
+        {
+            // There's no error param because this isn't on a critical path. Just log that you are
+            // trying to clear a session when there isn't one.
+            MSID_LOG_INFO(nil, @"Trying to clear out an empty session");
+        }
+        
+        s_currentWebSession = nil;
+    }
+}
+
++ (void)cancelCurrentWebAuthSession
+{
+    if (s_currentWebSession)
+    {
+        [s_currentWebSession cancel];
+        
+        @synchronized([MSIDWebviewAuthorization class])
+        {
+            s_currentWebSession = nil;
+        }
+    }
 }
 
 // Helper methods
@@ -173,19 +213,6 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
         
     }
     return nil;
-}
-
-+ (void)cancelCurrentWebAuthSession
-{
-    if (s_currentWebSession)
-    {
-        [s_currentWebSession cancel];
-        
-        @synchronized([MSIDWebviewAuthorization class])
-        {
-            s_currentWebSession = nil;
-        }
-    }
 }
 
 @end
