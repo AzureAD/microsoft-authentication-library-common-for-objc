@@ -35,6 +35,7 @@
 
 - (BOOL)handleURLResponse:(NSURL *)url;
 - (BOOL)start;
+- (void)cancel;
 
 @property(weak) id<MSIDSystemWebviewResponseDelegate> webviewDelegate;
 

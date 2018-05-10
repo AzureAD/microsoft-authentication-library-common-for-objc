@@ -107,7 +107,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     if (![s_currentWebSession start])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, context.correlationId, nil);
-        
+        [self.class clearCurrentWebAuthSession];
         completionHandler(nil, error);
     }
 }

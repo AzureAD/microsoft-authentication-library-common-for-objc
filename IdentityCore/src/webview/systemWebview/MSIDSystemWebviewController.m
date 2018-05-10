@@ -35,7 +35,6 @@
     id<MSIDRequestContext> _context;
     MSIDWebUICompletionHandler _completionHandler;
 
-
     MSIDSFAuthenticationSession *_authSession;
 
     MSIDSafariViewController *_safariViewController;
@@ -69,7 +68,7 @@
         MSID_LOG_ERROR(_context, @"Attemped to start with nil URL");
         return NO;
     }
-#ifdef __IPHONE_11_0
+    
     if (@available(iOS 11.0, *))
     {
         _authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:_startURL
@@ -84,31 +83,24 @@
         
         return [_authSession start];
     }
-#else
+
+    _safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                                  context:_context];
+    if (!_safariViewController)
     {
-        _safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
-                                                             context:_context];
-        if (!_safariViewController)
-        {
-            MSID_LOG_ERROR(_context, @"Failed to create an auth session");
-            return NO;
-        }
-        
-        return [_safariViewController start];
+        MSID_LOG_ERROR(_context, @"Failed to create an auth session");
+        return NO;
     }
-#endif
     
-    return NO;
+    return [_safariViewController start];
 }
 
 - (void)cancel
 {
-#ifdef __IPHONE_11_0
-    [_authSession cancel];
-#else
-    [_safariViewController cancel];
-#endif
-    
+    if (@available(iOS 11.0, *))
+        [_authSession cancel];
+    else
+        [_safariViewController cancel];
 }
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
@@ -119,16 +111,14 @@
         return NO;
     }
     
-#ifdef __IPHONE_11_0
-    return NO;
-#else
+    if (@available(iOS 11.0, *)) { return NO; }
+    
     if (!_safariViewController)
     {
         MSID_LOG_ERROR(_context, @"Received MSID web response without a current session running.");
         return NO;
     }
     return [_safariViewController handleURLResponse:url];
-#endif
 }
 
 - (void)handleAuthResponse:(NSURL *)url
