@@ -60,8 +60,6 @@
     
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
     
-    if (self.requestConfigurator) { [self.requestConfigurator configure:self]; }
-    
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
     
     MSID_LOG_VERBOSE(self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));

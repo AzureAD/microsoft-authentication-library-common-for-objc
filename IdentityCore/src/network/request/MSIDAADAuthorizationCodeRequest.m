@@ -54,7 +54,8 @@
         urlRequest.HTTPMethod = @"GET";
         _urlRequest = urlRequest;
         
-        _requestConfigurator = [MSIDAADRequestConfigurator new];
+        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
+        [requestConfigurator configure:self];
     }
     
     return self;

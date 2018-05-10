@@ -29,7 +29,6 @@
 @protocol MSIDRequestContext;
 @protocol MSIDHttpRequestTelemetryProtocol;
 @protocol MSIDHttpRequestErrorHandlerProtocol;
-@protocol MSIDHttpRequestConfiguratorProtocol;
 
 /**
  Important: You need to call `finishAndInvalidate` method in `completionBlock` of `sendWithBlock:`.
@@ -41,7 +40,6 @@
     @protected NSURLRequest *_urlRequest;
     @protected id<MSIDRequestSerialization> _requestSerializer;
     @protected id<MSIDResponseSerialization> _responseSerializer;
-    @protected id<MSIDHttpRequestConfiguratorProtocol> _requestConfigurator;
     @protected id<MSIDHttpRequestTelemetryProtocol> _telemetry;
     @protected id<MSIDHttpRequestErrorHandlerProtocol> _errorHandler;
 }
@@ -53,8 +51,6 @@
 @property (nonatomic, nonnull) id<MSIDRequestSerialization> requestSerializer;
 
 @property (nonatomic, nonnull) id<MSIDResponseSerialization> responseSerializer;
-
-@property (nonatomic, nullable) id<MSIDHttpRequestConfiguratorProtocol> requestConfigurator;
 
 @property (nonatomic, nullable) id<MSIDHttpRequestTelemetryProtocol> telemetry;
 

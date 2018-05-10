@@ -34,9 +34,14 @@
                         context:(id <MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:error] mutableCopy];
+    NSError *jsonError;
+    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
 
-    if (error) return nil;
+    if (jsonError)
+    {
+        if (error) { *error = jsonError; }
+        return nil;
+    }
 
     __auto_type reponse = [MSIDAADAuthorityMetadataResponse new];
     
@@ -73,17 +78,20 @@
         NSParameterAssert(endpoint);
         NSParameterAssert(authority);
         
-        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[@"api-version"] = @"1.1";
         __auto_type authorizationEndpoint = [authority.absoluteString.lowercaseString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX()];
         parameters[@"authorization_endpoint"] = authorizationEndpoint;
+        _parameters = parameters;
         
         NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
-        urlRequest.URL = [endpoint URLByAppendingPathComponent:MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX];
+        urlRequest.URL = endpoint;
         urlRequest.HTTPMethod = @"GET";
         _urlRequest = urlRequest;
         
-        _requestConfigurator = [MSIDAADRequestConfigurator new];
+        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
+        [requestConfigurator configure:self];
+        
         _responseSerializer = [MSIDAADAuthorityMetadataResponseSerializer new];
     }
     

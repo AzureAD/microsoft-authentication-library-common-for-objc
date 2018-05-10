@@ -66,7 +66,7 @@ static dispatch_queue_t s_aadValidationQueue;
     MSIDAadAuthorityCacheRecord *record = [self.aadCache tryCheckCache:authority];
     if (record)
     {
-        if (completionBlock) completionBlock(authority, record.openIdConfigurationEndpoint, record.validated, record.error);
+        [self handleRecord:record authority:authority completionBlock:completionBlock];
         return;
     }
     
@@ -127,17 +127,18 @@ static dispatch_queue_t s_aadValidationQueue;
     MSIDAadAuthorityCacheRecord *record = [self.aadCache checkCache:authority];
     if (record)
     {
-        if (completionBlock) completionBlock(authority, record.openIdConfigurationEndpoint, record.validated, record.error);
+        [self handleRecord:record authority:authority completionBlock:completionBlock];
         return;
     }
     
-    NSURL *trustedHost = [[NSURL alloc] initWithString:MSIDTrustedAuthorityWorldWide];
+    __auto_type trustedHost = MSIDTrustedAuthorityWorldWide;
     if ([MSIDAuthority isKnownHost:authority])
     {
-        trustedHost = authority;
+        trustedHost = authority.msidHostWithPortIfNecessary;
     }
     
-    __auto_type endpoint = [trustedHost URLByAppendingPathComponent:MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX];
+    __auto_type trustedAuthority = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"https://%@", trustedHost]];
+    __auto_type endpoint = [trustedAuthority URLByAppendingPathComponent:MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX];
     
     __auto_type *request = [[MSIDAADGetAuthorityMetadataRequest alloc] initWithEndpoint:endpoint authority:authority];
     request.context = context;
@@ -172,5 +173,11 @@ static dispatch_queue_t s_aadValidationQueue;
      }];
 }
 
+- (void)handleRecord:(MSIDAadAuthorityCacheRecord *)record
+           authority:(NSURL *)authority
+     completionBlock:(MSIDAuthorityInfoBlock)completionBlock
+{
+    if (completionBlock) completionBlock(record.error ? nil : authority, record.openIdConfigurationEndpoint, record.validated, record.error);
+}
 
 @end

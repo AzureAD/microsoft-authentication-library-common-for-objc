@@ -35,11 +35,12 @@
     self = [super initWithEndpoint:endpoint clientId:clientId scope:scope redirectUri:redirectUri code:code];
     if (self)
     {
+        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
+        [requestConfigurator configure:self];
+        
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
         _parameters = parameters;
-        
-        _requestConfigurator = [MSIDAADRequestConfigurator new];
     }
     
     return self;

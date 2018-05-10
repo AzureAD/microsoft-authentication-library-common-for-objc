@@ -26,6 +26,9 @@
 #import "MSIDTestURLResponse.h"
 #import "MSIDTestURLSession.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDDeviceId.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAadAuthorityCache+TestUtil.h"
 
 @interface MSIDAuthorityIntegrationTests : XCTestCase
 
@@ -43,6 +46,7 @@
     [super tearDown];
     
     [MSIDAuthority.openIdConfigurationCache removeAllObjects];
+    [[MSIDAadAuthorityCache sharedInstance] clear];
 }
 
 #pragma mark - loadOpenIdConfigurationInfo
@@ -140,7 +144,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-#pragma mark - discoverAuthority
+#pragma mark - discoverAuthority, B2C
 
 - (void)testDiscoverAuthority_whenAuthorityIsB2CValidateYesAuthroityIsKnown_shouldReturnNormalizedAuthorityErrorNil
 {
@@ -206,6 +210,297 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+#pragma mark - discoverAuthority, AAD
+
+- (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnown_shouldReturnNormalizedAuthorityErrorNil
+{
+    __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:httpResponse];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{
+                                 @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
+                                 @"metadata" : @[
+                                         @{
+                                             @"preferred_network" : @"login.microsoftonline.com",
+                                             @"preferred_cache" : @"login.windows.net",
+                                             @"aliases" : @[@"login.microsoftonline.com", @"login.windows.net"]
+                                             }
+                                         ]
+                                 };
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsNotKnown_shouldReturnNormalizedAuthorityErrorNil
+{
+    __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:httpResponse];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{
+                                 @"tenant_discovery_endpoint" : @"https://example.com/common/.well-known/openid-configuration",
+                                 @"metadata" : @[
+                                         @{
+                                             @"preferred_network" : @"example.com",
+                                             @"preferred_cache" : @"example.com",
+                                             @"aliases" : @[@"example.com"]
+                                             }
+                                         ]
+                                 };
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://example.com/common", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://example.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenSent2Times_shouldUseCacheFor2ndRequest
+{
+    __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:httpResponse];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{
+                                 @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
+                                 @"metadata" : @[
+                                         @{
+                                             @"preferred_network" : @"login.microsoftonline.com",
+                                             @"preferred_cache" : @"login.windows.net",
+                                             @"aliases" : @[@"login.microsoftonline.com", @"login.windows.net"]
+                                             }
+                                         ]
+                                 };
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    // 1st request
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    // 2nd request
+    expectation = [self expectationWithDescription:@"Get Authority Info From Cache"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenSent2TimesAnd1stResponseWasWithError_shouldNotUseCacheFor2ndRequest
+{
+    __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
+    __auto_type error = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:nil];
+    
+    MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:requestUrl
+                                                         respondWithError:error];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    responseWithError->_requestHeaders = headers;
+    [MSIDTestURLSession addResponse:responseWithError];
+    
+    // 1st request
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertNil(authority.absoluteString);
+         XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    __auto_type httpResponse = [NSHTTPURLResponse new];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:httpResponse];
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{
+                                 @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
+                                 @"metadata" : @[
+                                         @{
+                                             @"preferred_network" : @"login.microsoftonline.com",
+                                             @"preferred_cache" : @"login.windows.net",
+                                             @"aliases" : @[@"login.microsoftonline.com", @"login.windows.net"]
+                                             }
+                                         ]
+                                 };
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    // 2nd request
+    expectation = [self expectationWithDescription:@"Discover AAD Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsInvalid_shouldReturnError
+{
+    __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:httpResponse];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{@"error" : @"invalid_instance"};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertNil(authority.absoluteString);
+         XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenAuthroityIsInvalid_shoulStoreInvalidRecordInCache
+{
+    __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:httpResponse];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{@"error" : @"invalid_instance"};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    // 1st request
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertNil(authority.absoluteString);
+         XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1222 handler:nil];
+    
+    // 2nd request (no network call should happen)
+    expectation = [self expectationWithDescription:@"Read Invalid Authority From Cache"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertNil(authority.absoluteString);
+         XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1222 handler:nil];
 }
 
 @end
