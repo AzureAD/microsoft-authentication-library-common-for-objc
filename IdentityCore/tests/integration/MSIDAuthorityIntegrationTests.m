@@ -140,4 +140,72 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+#pragma mark - discoverAuthority
+
+- (void)testDiscoverAuthority_whenAuthorityIsB2CValidateYesAuthroityIsKnown_shouldReturnNormalizedAuthorityErrorNil
+{
+    __auto_type authority = [@"https://login.microsoftonline.com/tfp/common/policy/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover B2C Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/tfp/common/policy", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/tfp/common/policy/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenAuthorityIsB2CValidateYesAuthroityIsNotKnown_shouldReturnError
+{
+    __auto_type authority = [@"https://example.com/tfp/common/policy/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover B2C Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertNil(authority);
+         XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenAuthorityIsB2CValidateNoAuthroityIsNotKnown_shouldReturnNormalizedAuthorityErrorNil
+{
+    __auto_type authority = [@"https://example.com/tfp/common/policy/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover B2C Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:NO
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://example.com/tfp/common/policy", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://example.com/tfp/common/policy/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
 @end
