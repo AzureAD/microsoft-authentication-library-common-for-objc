@@ -33,7 +33,7 @@
 
 @implementation MSIDWebviewAuthorization
 
-static id<MSIDWebviewInteracting> s_currentWebSession1 = nil;
+static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 static int testNum;
 
 + (MSIDWebUICompletionHandler)clearAppendedCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
@@ -117,7 +117,7 @@ static int testNum;
         return;
     }
     
-    if (![s_currentWebSession1 start])
+    if (![s_currentWebSession start])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, context.correlationId, nil);
         [self.class clearCurrentWebAuthSession];
@@ -130,11 +130,11 @@ static int testNum;
 {
     @synchronized([MSIDWebviewAuthorization class])
     {
-        if (s_currentWebSession1) {
+        if (s_currentWebSession) {
             return NO;
             
         }
-        s_currentWebSession1 = newWebSession;
+        s_currentWebSession = newWebSession;
         
         return YES;
     }
@@ -146,27 +146,27 @@ static int testNum;
 {
     @synchronized ([MSIDWebviewAuthorization class])
     {
-        if (!s_currentWebSession1)
+        if (!s_currentWebSession)
         {
             // There's no error param because this isn't on a critical path. Just log that you are
             // trying to clear a session when there isn't one.
             MSID_LOG_INFO(nil, @"Trying to clear out an empty session");
         }
         
-        s_currentWebSession1 = nil;
+        s_currentWebSession = nil;
     }
 }
 
 
 + (void)cancelCurrentWebAuthSession
 {
-    if (s_currentWebSession1)
+    if (s_currentWebSession)
     {
-        [s_currentWebSession1 cancel];
+        [s_currentWebSession cancel];
         
         @synchronized([MSIDWebviewAuthorization class])
         {
-            s_currentWebSession1 = nil;
+            s_currentWebSession = nil;
         }
     }
 }
@@ -275,10 +275,10 @@ static int testNum;
 #if TARGET_OS_IPHONE
     @synchronized([MSIDWebviewAuthorization class])
     {
-        if (s_currentWebSession1 &&
-            [(NSObject *)s_currentWebSession1 isKindOfClass:MSIDSystemWebviewController.class])
+        if (s_currentWebSession &&
+            [(NSObject *)s_currentWebSession isKindOfClass:MSIDSystemWebviewController.class])
         {
-            return [((MSIDSystemWebviewController *)s_currentWebSession1) handleURLResponseForSafariViewController:url];
+            return [((MSIDSystemWebviewController *)s_currentWebSession) handleURLResponseForSafariViewController:url];
         }
     }
 #endif
