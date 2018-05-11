@@ -33,8 +33,9 @@
         NSParameterAssert(issuer);
         NSParameterAssert(authority);
         
-        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[@"resource"] = authority.absoluteString;
+        _parameters = parameters;
         
         NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
         urlRequest.URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/.well-known/webfinger", issuer.host]];

@@ -29,6 +29,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAadAuthorityCache+TestUtil.h"
+#import "MSIDAdfsAuthorityResolver.h"
 
 @interface MSIDAuthorityIntegrationTests : XCTestCase
 
@@ -47,6 +48,7 @@
     
     [MSIDAuthority.openIdConfigurationCache removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] clear];
+    [MSIDAdfsAuthorityResolver.cache removeAllObjects];
 }
 
 #pragma mark - loadOpenIdConfigurationInfo
@@ -219,7 +221,7 @@
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [NSHTTPURLResponse new];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -260,7 +262,7 @@
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [NSHTTPURLResponse new];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -301,7 +303,7 @@
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [NSHTTPURLResponse new];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -359,9 +361,8 @@
 {
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
     __auto_type error = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:nil];
-    
     MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:requestUrl
                                                          respondWithError:error];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -426,7 +427,7 @@
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [NSHTTPURLResponse new];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -458,7 +459,7 @@
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [NSHTTPURLResponse new];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -501,6 +502,329 @@
      }];
     
     [self waitForExpectationsWithTimeout:1222 handler:nil];
+}
+
+#pragma mark - discoverAuthority, ADFS
+
+- (void)testDiscoverAuthority_whenAuthorityIsADFSValidateNo_shouldReturnNormalizedAuthorityErrorNil
+{
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:NO
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenValidOnPremADFSAuthorityValidateYes_shouldReturnNormalizedAuthorityErrorNil
+{
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+
+    // On Prem Drs Response
+    __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:[NSHTTPURLResponse new]];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+
+    // Web finger response.
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    response = [MSIDTestURLResponse request:webFingerRequestUrl
+                                    reponse:[NSHTTPURLResponse new]];
+    responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
+                                    @"href" : @"https://login.windows.com/adfs"}]};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenWebFingerRequestFailed_shouldReturnError
+{
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    
+    // On Prem Drs Response
+    __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:[NSHTTPURLResponse new]];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    // Web finger response.
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type error = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:nil];
+    MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:webFingerRequestUrl
+                                                         respondWithError:error];
+    responseWithError->_requestHeaders = nil;
+    [MSIDTestURLSession addResponse:responseWithError];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertNil(authority);
+         XCTAssertNil(openIdConfigurationEndpoint);
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenValidCloudADFSAuthorityValidateYes_shouldReturnNormalizedAuthorityErrorNil
+{
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    
+    // On Prem Drs Response
+    __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
+    __auto_type error = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:nil];
+    MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:requestUrl
+                                                         respondWithError:error];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    responseWithError->_requestHeaders = headers;
+    [MSIDTestURLSession addResponse:responseWithError];
+    
+    // Cloud Drs Response
+    requestUrl = [@"https://enterpriseregistration.windows.net/microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
+    __auto_type response = [MSIDTestURLResponse request:requestUrl
+                                    reponse:[NSHTTPURLResponse new]];
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    // Web finger response.
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    response = [MSIDTestURLResponse request:webFingerRequestUrl
+                                    reponse:[NSHTTPURLResponse new]];
+    responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
+                                    @"href" : @"https://login.windows.com/adfs"}]};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenValidateNo_shouldReturnNormalizedAuthorityErrorNil
+{
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:NO
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenSent2Requests_shouldUseCacheFor2ndRequest
+{
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    
+    // On Prem Drs Response
+    __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:[NSHTTPURLResponse new]];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    // Web finger response.
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    response = [MSIDTestURLResponse request:webFingerRequestUrl
+                                    reponse:[NSHTTPURLResponse new]];
+    responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
+                                    @"href" : @"https://login.windows.com/adfs"}]};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    // 1st request
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    // 2nd request
+    expectation = [self expectationWithDescription:@"Discover ADFS Authority (Using Cache)"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenWebFingerResponseShowsThatAuthorityIsNotValid_shouldReturnError
+{
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    
+    // On Prem Drs Response
+    __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:[NSHTTPURLResponse new]];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    // Web finger response.
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    response = [MSIDTestURLResponse request:webFingerRequestUrl
+                                    reponse:[NSHTTPURLResponse new]];
+    responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
+                                    @"href" : @"https://otherhost.com/adfs"}]};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertNil(authority.absoluteString);
+         XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenValidateYesUpnNil_shouldReturnError
+{
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:nil
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertNil(authority.absoluteString);
+         XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenValidateNoUpnNil_shouldReturnNormalizedAuthorityErrorNil
+{
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:nil
+                            validate:NO
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 @end

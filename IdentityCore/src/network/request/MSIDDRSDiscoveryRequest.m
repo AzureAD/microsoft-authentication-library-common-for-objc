@@ -22,6 +22,7 @@
 
 #import "MSIDDRSDiscoveryRequest.h"
 #import "MSIDAADResponseSerializer.h"
+#import "MSIDAADRequestConfigurator.h"
 
 @interface MSIDDRSDiscoveryResponseSerializer : MSIDAADResponseSerializer
 @end
@@ -33,9 +34,14 @@
                         context:(id <MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:error] mutableCopy];
+    NSError *jsonError;
+    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
     
-    if (error) return nil;
+    if (jsonError)
+    {
+        if (error) { *error = jsonError; }
+        return nil;
+    }
     
     __auto_type endpoint = (NSString *)jsonObject[@"IdentityProviderService"][@"PassiveAuthEndpoint"];
     
@@ -64,13 +70,19 @@
         _domain = domain;
         _adfsType = adfsType;
         
-        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[@"api-version"] = @"1.0";
+        _parameters = parameters;
 
         NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
         urlRequest.URL = [self endpointWithDomain:domain adfsType:adfsType];
         urlRequest.HTTPMethod = @"GET";
         _urlRequest = urlRequest;
+        
+        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
+        [requestConfigurator configure:self];
+        
+        _responseSerializer = [MSIDDRSDiscoveryResponseSerializer new];
     }
     
     return self;

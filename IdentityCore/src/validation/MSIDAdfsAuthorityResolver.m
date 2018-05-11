@@ -40,6 +40,11 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
     }
 }
 
++ (NSCache *)cache
+{
+    return s_cache;
+}
+
 - (void)discoverAuthority:(NSURL *)authority
         userPrincipalName:(NSString *)upn
                  validate:(BOOL)validate

@@ -43,7 +43,8 @@ static NSString *s_tenantIdPlaceholder = @"{tenantid}";
     NSError *jsonError;
     NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
     
-    if (jsonError) {
+    if (jsonError)
+    {
         if (error) { *error = jsonError; }
         return nil;
     }
