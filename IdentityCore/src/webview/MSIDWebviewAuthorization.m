@@ -34,18 +34,14 @@
 @implementation MSIDWebviewAuthorization
 
 static id<MSIDWebviewInteracting> s_currentWebSession = nil;
-static int testNum;
 
 + (MSIDWebUICompletionHandler)clearAppendedCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    __block id selfRef = self;
-    
     void (^clearAppendedCompletionHandler)(MSIDWebOAuth2Response *, NSError *) =
     ^void(MSIDWebOAuth2Response *response, NSError *error)
     {
         @synchronized([MSIDWebviewAuthorization class]) {
             [MSIDWebviewAuthorization clearCurrentWebAuthSession];
-            NSLog(@"%@", selfRef);
         }
         completionHandler(response, error);
     };
@@ -93,11 +89,7 @@ static int testNum;
                                                                                          callbackURLScheme:configuration.redirectUri
                                                                                                    context:context
                                                                                          completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
-    
-    @synchronized(self)
-    {
-        testNum = 10;
-    }
+
     
     [self startWebviewAuth:systemWebviewController
                    context:context
@@ -271,7 +263,6 @@ static int testNum;
 
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 {
-    testNum++;
 #if TARGET_OS_IPHONE
     @synchronized([MSIDWebviewAuthorization class])
     {
