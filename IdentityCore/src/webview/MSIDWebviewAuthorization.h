@@ -68,7 +68,6 @@
 // This is for system webview auth session on iOS 10 - Thus, a SafariViewController
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 
-
 @end
 
 

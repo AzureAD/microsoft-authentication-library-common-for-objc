@@ -86,6 +86,8 @@
 
     _safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
                                                                   context:_context];
+    _safariViewController.webviewDelegate = self;
+    
     if (!_safariViewController)
     {
         MSID_LOG_ERROR(_context, @"Failed to create an auth session");
@@ -118,6 +120,7 @@
         MSID_LOG_ERROR(_context, @"Received MSID web response without a current session running.");
         return NO;
     }
+    
     return [_safariViewController handleURLResponse:url];
 }
 

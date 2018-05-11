@@ -27,19 +27,26 @@
 
 #import "MSIDWebviewAuthorization.h"
 #import <SafariServices/SafariServices.h>
-
 #import "MSIDSystemWebviewController.h"
+#import "MSIDError.h"
+#import "NSURL+MSIDExtensions.h"
 
 @implementation MSIDWebviewAuthorization
 
-static id<MSIDWebviewInteracting> s_currentWebSession = nil;
+static id<MSIDWebviewInteracting> s_currentWebSession1 = nil;
+static int testNum;
 
 + (MSIDWebUICompletionHandler)clearAppendedCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
+    __block id selfRef = self;
+    
     void (^clearAppendedCompletionHandler)(MSIDWebOAuth2Response *, NSError *) =
     ^void(MSIDWebOAuth2Response *response, NSError *error)
     {
-        [self.class clearCurrentWebAuthSession];
+        @synchronized([MSIDWebviewAuthorization class]) {
+            [MSIDWebviewAuthorization clearCurrentWebAuthSession];
+            NSLog(@"%@", selfRef);
+        }
         completionHandler(response, error);
     };
     
@@ -86,6 +93,12 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
                                                                                          callbackURLScheme:configuration.redirectUri
                                                                                                    context:context
                                                                                          completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
+    
+    @synchronized(self)
+    {
+        testNum = 10;
+    }
+    
     [self startWebviewAuth:systemWebviewController
                    context:context
          completionHandler:completionHandler];
@@ -104,7 +117,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
         return;
     }
     
-    if (![s_currentWebSession start])
+    if (![s_currentWebSession1 start])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, context.correlationId, nil);
         [self.class clearCurrentWebAuthSession];
@@ -117,10 +130,13 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 {
     @synchronized([MSIDWebviewAuthorization class])
     {
-        if (s_currentWebSession) { return NO; }
-        s_currentWebSession = newWebSession;
-        return YES;
+        if (s_currentWebSession1) {
+            return NO;
+            
+        }
+        s_currentWebSession1 = newWebSession;
         
+        return YES;
     }
     return NO;
 }
@@ -130,27 +146,27 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 {
     @synchronized ([MSIDWebviewAuthorization class])
     {
-        if (!s_currentWebSession)
+        if (!s_currentWebSession1)
         {
             // There's no error param because this isn't on a critical path. Just log that you are
             // trying to clear a session when there isn't one.
             MSID_LOG_INFO(nil, @"Trying to clear out an empty session");
         }
         
-        s_currentWebSession = nil;
+        s_currentWebSession1 = nil;
     }
 }
 
 
 + (void)cancelCurrentWebAuthSession
 {
-    if (s_currentWebSession)
+    if (s_currentWebSession1)
     {
-        [s_currentWebSession cancel];
+        [s_currentWebSession1 cancel];
         
         @synchronized([MSIDWebviewAuthorization class])
         {
-            s_currentWebSession = nil;
+            s_currentWebSession1 = nil;
         }
     }
 }
@@ -255,11 +271,15 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 {
+    testNum++;
 #if TARGET_OS_IPHONE
-    if (s_currentWebSession &&
-        [(NSObject *)s_currentWebSession isKindOfClass:MSIDSystemWebviewController.class])
+    @synchronized([MSIDWebviewAuthorization class])
     {
-        return [((MSIDSystemWebviewController *)s_currentWebSession) handleURLResponseForSafariViewController:url];
+        if (s_currentWebSession1 &&
+            [(NSObject *)s_currentWebSession1 isKindOfClass:MSIDSystemWebviewController.class])
+        {
+            return [((MSIDSystemWebviewController *)s_currentWebSession1) handleURLResponseForSafariViewController:url];
+        }
     }
 #endif
     return NO;

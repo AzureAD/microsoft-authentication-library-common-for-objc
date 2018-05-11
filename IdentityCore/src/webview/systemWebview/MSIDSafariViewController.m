@@ -29,6 +29,7 @@
 #import "MSIDSystemWebviewController.h"
 #import <SafariServices/SafariServices.h>
 #import "MSIDWebOAuth2Response.h"
+#import "UIApplication+MSIDExtensions.h"
 
 @interface MSIDSafariViewController() <SFSafariViewControllerDelegate>
 
@@ -67,13 +68,16 @@
 
 - (BOOL)start
 {
-    UIViewController *viewController; // TODO: Get current view controller
-    if (!viewController || ![NSThread isMainThread])
+    UIViewController *viewController = [UIApplication msidCurrentViewController];
+    if (!viewController)
     {
         return NO;
     }
     
-    [viewController presentViewController:_safariViewController animated:YES completion:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [viewController presentViewController:_safariViewController animated:YES completion:nil];
+    });
+    
     return YES;
 }
 
