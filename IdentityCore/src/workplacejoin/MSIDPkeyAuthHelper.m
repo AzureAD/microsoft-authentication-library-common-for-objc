@@ -27,7 +27,7 @@
 #import "MSIDRegistrationInformation.h"
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDError.h"
-#import "MSIDJwtHelper.h"
+#import "MSIDJWTHelper.h"
 
 @implementation MSIDPkeyAuthHelper
 
@@ -200,7 +200,7 @@
                               @"iat" : [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]]
                               };
     
-    return [MSIDJwtHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKey]];
+    return [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKey]];
 }
 
 @end
