@@ -31,6 +31,8 @@
              delegate:(id)delegate
               session:(MSIDTestURLSession *)session;
 
-
+- (id)initWithRequest:(NSURLRequest *)request
+    completionHandler:(void(^)(NSData *, NSURLResponse *, NSError *))completionHandler
+              session:(MSIDTestURLSession *)session;
 
 @end

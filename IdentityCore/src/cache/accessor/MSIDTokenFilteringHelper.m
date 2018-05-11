@@ -26,8 +26,9 @@
 #import "MSIDTokenCacheItem.h"
 #import "MSIDAccount.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDAADV2IdTokenWrapper.h"
+#import "MSIDConfiguration.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
+
 
 @implementation MSIDTokenFilteringHelper
 
@@ -76,7 +77,7 @@
 }
 
 + (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                                withParameters:(MSIDRequestParameters *)parameters
+                                                withConfiguration:(MSIDConfiguration *)configuration
                                                        account:(MSIDAccount *)account
                                                        context:(id<MSIDRequestContext>)context
                                                          error:(NSError **)error
@@ -99,8 +100,8 @@
     BOOL (^filterBlock)(MSIDTokenCacheItem *tokenCacheItem) = ^BOOL(MSIDTokenCacheItem *token) {
         
         if ([token.uniqueUserId isEqualToString:account.uniqueUserId]
-            && [token.clientId isEqualToString:parameters.clientId]
-            && [parameters.scopes isSubsetOfOrderedSet:[token.target scopeSet]])
+            && [token.clientId isEqualToString:configuration.clientId]
+            && [configuration.scopes isSubsetOfOrderedSet:[token.target scopeSet]])
         {
             if ([token.authority msidIsEquivalentWithAnyAlias:tokenAliases])
             {
@@ -135,18 +136,20 @@
 
 + (NSArray<MSIDBaseToken *> *)filterRefreshTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
                                               legacyUserId:(NSString *)legacyUserId
+                                               environment:(NSString *)environment
                                                    context:(id<MSIDRequestContext>)context
 {
     BOOL (^filterBlock)(MSIDTokenCacheItem *tokenCacheItem) = ^BOOL(MSIDTokenCacheItem *token) {
         
         if (!token.idToken) return NO;
+
+        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:token.idToken];
         
-        MSIDAADV2IdTokenWrapper *idTokenWrapper = [[MSIDAADV2IdTokenWrapper alloc] initWithRawIdToken:token.idToken];
-        
-        if (![idTokenWrapper matchesLegacyUserId:legacyUserId])
+        if (![idTokenClaims matchesLegacyUserId:legacyUserId]
+            && [token.authority.msidHostWithPortIfNecessary isEqualToString:environment])
         {
             MSID_LOG_VERBOSE(context, @"(Default accessor) Matching by legacy userId didn't succeed");
-            MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Matching by legacy userId didn't succeed (expected userId %@, found %@)", legacyUserId, idTokenWrapper.userId);
+            MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Matching by legacy userId didn't succeed (expected userId %@, found %@)", legacyUserId, idTokenClaims.userId);
             
             return NO;
         }

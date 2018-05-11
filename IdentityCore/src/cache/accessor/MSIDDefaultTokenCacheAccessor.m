@@ -35,8 +35,9 @@
 #import "MSIDIdToken.h"
 #import "MSIDDefaultTokenCacheKey.h"
 #import "MSIDAccountCacheItem.h"
-#import "MSIDAADV2IdTokenWrapper.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
+#import "MSIDAADV2IdTokenClaims.h"
+
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDOauth2Factory.h"
@@ -98,7 +99,7 @@
 #pragma mark - MSIDSharedCacheAccessor
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
+                 configuration:(MSIDConfiguration *)configuration
                        account:(MSIDAccount *)account
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
@@ -110,7 +111,7 @@
     }
     
     // Save access token item in the primary format
-    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:requestParams];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     
     if (!accessToken)
     {
@@ -132,7 +133,7 @@
     }
     
     // Save ID token
-    MSIDIdToken *idToken = [factory idTokenFromResponse:response request:requestParams];
+    MSIDIdToken *idToken = [factory idTokenFromResponse:response configuration:configuration];
     
     if (idToken)
     {
@@ -153,7 +154,7 @@
     
     // Save account
     return [self saveAccount:account
-               requestParams:requestParams
+               configuration:configuration
                      context:context
                        error:error];
 }
@@ -232,7 +233,7 @@
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
-                      requestParams:(MSIDRequestParameters *)parameters
+                      configuration:(MSIDConfiguration *)configuration
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
@@ -248,20 +249,20 @@
     {
         case MSIDTokenTypeAccessToken:
         {
-            token = [self getATForAccount:account requestParams:parameters context:context error:error];
+            token = [self getATForAccount:account configuration:configuration context:context error:error];
             break;
         }
         case MSIDTokenTypeRefreshToken:
         {
-            token = [self getRTForAccount:account requestParams:parameters context:context error:error];
+            token = [self getRTForAccount:account configuration:configuration context:context error:error];
             break;
         }
         default:
         {
             token = [self getTokenByUniqueUserId:account.uniqueUserId
                                        tokenType:tokenType
-                                       authority:parameters.authority
-                                        clientId:parameters.clientId
+                                       authority:configuration.authority
+                                        clientId:configuration.clientId
                                           scopes:nil
                                          context:context
                                            error:error];
@@ -481,7 +482,10 @@
             return nil;
         }
         
-        NSArray<MSIDBaseToken *> *matchedTokens = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:cacheItems legacyUserId:legacyUserId context:context];
+        NSArray<MSIDBaseToken *> *matchedTokens = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:cacheItems
+                                                                                            legacyUserId:legacyUserId
+                                                                                             environment:alias.msidHostWithPortIfNecessary
+                                                                                                 context:context];
         
         if ([matchedTokens count] > 0)
         {
@@ -542,7 +546,7 @@
 #pragma mark - Account
 
 - (BOOL)saveAccount:(MSIDAccount *)account
-      requestParams:(MSIDRequestParameters *)parameters
+      configuration:(MSIDConfiguration *)configuration
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
@@ -570,8 +574,8 @@
         [currentAccount updateFieldsFromAccount:previousAccount];
     }
     
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving account with authority %@, clientId %@", account.authority, parameters.clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving account with authority %@, clientId %@, user ID %@, legacy user ID %@", account.authority, parameters.clientId, account.uniqueUserId, account.legacyUserId);
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving account with authority %@, clientId %@", account.authority, configuration.clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving account with authority %@, clientId %@, user ID %@, legacy user ID %@", account.authority, configuration.clientId, account.uniqueUserId, account.legacyUserId);
     
     return [_dataSource saveAccount:currentAccount
                                 key:key
@@ -582,7 +586,7 @@
 
 
 - (MSIDAccessToken *)getATForAccount:(MSIDAccount *)account
-                       requestParams:(MSIDRequestParameters *)parameters
+                       configuration:(MSIDConfiguration *)configuration
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
@@ -591,27 +595,27 @@
         return nil;
     }
     
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for access token with authority %@, clientId %@, scopes %@", parameters.authority, parameters.clientId, parameters.scopes);
-    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for access token with authority %@, clientId %@, scopes %@, user Id %@, legacy user ID %@", parameters.authority, parameters.clientId, parameters.scopes, account.uniqueUserId, account.legacyUserId);
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for access token with authority %@, clientId %@, scopes %@", configuration.authority, configuration.clientId, configuration.scopes);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for access token with authority %@, clientId %@, scopes %@, user Id %@, legacy user ID %@", configuration.authority, configuration.clientId, configuration.scopes, account.uniqueUserId, account.legacyUserId);
     
     NSArray<MSIDAccessToken *> *matchedTokens = nil;
     
-    if (parameters.authority)
+    if (configuration.authority)
     {
         // This is an optimization for cases, when developer provides us an authority
         // We can then do exact match except for scopes
         // We query less items and loop through less items too
         
         MSIDDefaultTokenCacheKey *key = [MSIDDefaultTokenCacheKey queryForAllAccessTokensWithUniqueUserId:account.uniqueUserId
-                                                                                                authority:parameters.authority
-                                                                                                 clientId:parameters.clientId];
+                                                                                                authority:configuration.authority
+                                                                                                 clientId:configuration.clientId];
         
         NSArray<MSIDTokenCacheItem *> *allItems = [self getAllTokensWithType:MSIDTokenTypeAccessToken
                                                                          key:key
                                                                     context:context
                                                                       error:error];
         
-        matchedTokens = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:allItems withScopes:parameters.scopes];
+        matchedTokens = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:allItems withScopes:configuration.scopes];
     }
     else
     {
@@ -635,13 +639,13 @@
                                                                     context:context
                                                                       error:error];
         
-        if (allItems.count == 1 && parameters.authority == nil)
+        if (allItems.count == 1 && configuration.authority == nil)
         {
-            parameters.authority = allItems.firstObject.authority;
+            configuration.authority = allItems.firstObject.authority;
         }
         
         matchedTokens = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:allItems
-                                                                  withParameters:parameters
+                                                                  withConfiguration:configuration
                                                                          account:account
                                                                          context:context
                                                                            error:error];
@@ -656,16 +660,16 @@
     
     MSIDAccessToken *tokenToReturn = matchedTokens[0];
     
-    if (parameters.authority)
+    if (configuration.authority)
     {
-        tokenToReturn.authority = parameters.authority;
+        tokenToReturn.authority = configuration.authority;
     }
     
     return tokenToReturn;
 }
 
 - (MSIDRefreshToken *)getRTForAccount:(MSIDAccount *)account
-                        requestParams:(MSIDRequestParameters *)parameters
+                        configuration:(MSIDConfiguration *)configuration
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
@@ -674,13 +678,13 @@
     // First try to look by the unique user identifier
     if (![NSString msidIsStringNilOrBlank:account.uniqueUserId])
     {
-        MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with user ID, clientId %@, authority %@", parameters.clientId, parameters.authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with user ID %@, clientId %@, authority %@", account.uniqueUserId, parameters.clientId, parameters.authority);
+        MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with user ID, clientId %@, authority %@", configuration.clientId, configuration.authority);
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with user ID %@, clientId %@, authority %@", account.uniqueUserId, configuration.clientId, configuration.authority);
         
         refreshToken = [self getTokenByUniqueUserId:account.uniqueUserId
                                           tokenType:MSIDTokenTypeRefreshToken
-                                          authority:parameters.authority
-                                           clientId:parameters.clientId
+                                          authority:configuration.authority
+                                           clientId:configuration.clientId
                                              scopes:nil
                                             context:context
                                               error:error];
@@ -689,13 +693,13 @@
     // If token wasn't found and legacy user ID is available, try to look by legacy user id
     if (!refreshToken && ![NSString msidIsStringNilOrBlank:account.legacyUserId])
     {
-        MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", parameters.clientId, parameters.authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyUserId, parameters.clientId, parameters.authority);
+        MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", configuration.clientId, configuration.authority);
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyUserId, configuration.clientId, configuration.authority);
         
         refreshToken = [self getTokenByLegacyUserId:account.legacyUserId
                                           tokenType:MSIDTokenTypeRefreshToken
-                                          authority:parameters.authority
-                                           clientId:parameters.clientId
+                                          authority:configuration.authority
+                                           clientId:configuration.clientId
                                              scopes:nil
                                             context:context
                                               error:error];

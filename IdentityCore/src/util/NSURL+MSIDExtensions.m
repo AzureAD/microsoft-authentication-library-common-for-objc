@@ -31,13 +31,13 @@ const unichar queryStringSeparator = '?';
 
 @implementation NSURL (MSIDExtensions)      
 
-// Decodes parameters contained in a URL fragment
+// Decodes configuration contained in a URL fragment
 - (NSDictionary *)msidFragmentParameters
 {
     return [NSDictionary msidURLFormDecode:self.fragment];
 }
 
-// Decodes parameters contains in a URL query
+// Decodes configuration contains in a URL query
 - (NSDictionary *)msidQueryParameters
 {
     NSURLComponents* components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];
@@ -177,6 +177,33 @@ const unichar queryStringSeparator = '?';
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment
 {
     return [self msidURLWithEnvironment:environment tenant:@"common"];
+}
+
++ (NSURL *)msidAddParameters:(NSDictionary<NSString *, NSString *> *)parameters toUrl:(NSURL *)url
+{
+    __auto_type urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:YES];
+    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray new];
+    
+    for (id key in parameters)
+    {
+        id value = parameters[key];
+        
+        NSAssert([value isKindOfClass:NSString.class], NULL);
+        NSAssert([key isKindOfClass:NSString.class], NULL);
+        
+        if (![key isKindOfClass:NSString.class] || ![value isKindOfClass:NSString.class])
+        {
+            MSID_LOG_WARN(nil, @"Ignoring key/value.");
+            MSID_LOG_WARN_PII(nil, @"Ignoring key: %@ value: %@", key, value);
+            continue;
+        }
+        __auto_type item = [[NSURLQueryItem alloc] initWithName:key value:value];
+        [queryItems addObject:item];
+    }
+    
+    urlComponents.queryItems = queryItems;
+    
+    return urlComponents.URL;
 }
 
 @end

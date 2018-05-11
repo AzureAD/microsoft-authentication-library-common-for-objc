@@ -1,0 +1,13 @@
+#include "identitycore__automation__common.xcconfig"
+#include "identitycore__common__ios.xcconfig"
+
+INFOPLIST_FILE = tests/ios/Info.plist
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @loader_path/Frameworks
+DEFINES_MODULE = YES
+SWIFT_VERSION = 4.1
+SDKROOT = iphoneos
+CODE_SIGN_IDENTITY = "iPhone Developer"
+IPHONEOS_DEPLOYMENT_TARGET = 9.3
+TARGETED_DEVICE_FAMILY = 1,2
+ENABLE_BITCODE = YES
+SKIP_INSTALL = YES

@@ -31,7 +31,8 @@
 @class MSIDIdToken;
 @class MSIDLegacySingleResourceToken;
 @class MSIDAccount;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
+@class MSIDWebviewConfiguration;
 @class WKWebView;
 
 @protocol MSIDRequestContext;
@@ -49,24 +50,24 @@
                  error:(NSError * __autoreleasing *)error;
 
 // Tokens
-- (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
+- (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
 // Webviews
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
-                                                     customWebview:(WKWebView *)webview
-                                                           context:(id<MSIDRequestContext>)context
-                                                 completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                                           customWebview:(WKWebView *)webview
+                                                                 context:(id<MSIDRequestContext>)context
+                                                       completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
-                                               callbackURLScheme:(NSString *)callbackURLScheme
-                                                         context:(id<MSIDRequestContext>)context
-                                               completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                                     callbackURLScheme:(NSString *)callbackURLScheme
+                                                               context:(id<MSIDRequestContext>)context
+                                                     completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
-- (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams;
+- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration;
 
 @end

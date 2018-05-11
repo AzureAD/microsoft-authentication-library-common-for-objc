@@ -51,13 +51,13 @@
     XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo#foo=bar#"]).msidFragmentParameters);
     XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#        "]).msidFragmentParameters);
     
-    //Valid fragment, but missing/invalid parameters:
+    //Valid fragment, but missing/invalid configuration:
     NSDictionary* empty = [NSDictionary new];
     XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com#bar"]).msidFragmentParameters);
     XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar"]).msidFragmentParameters);
     XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo=bar"]).msidFragmentParameters);
     
-    //At least some of the parameters are valid:
+    //At least some of the configuration are valid:
     NSDictionary* simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
     XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2"]).msidFragmentParameters);
     XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2&foo2=bar2"]).msidFragmentParameters);
@@ -87,7 +87,7 @@
 
 - (void)testAdQueryParamters_whenMixedQueryFragment
 {
-    //Mixed query and fragment parameters:
+    //Mixed query and fragment configuration:
     NSDictionary *simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
     XCTAssertEqualObjects(simple, ([[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2#foo3=bar3"] msidQueryParameters]));
 }

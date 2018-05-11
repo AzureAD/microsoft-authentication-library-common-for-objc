@@ -31,7 +31,7 @@
 #import "MSIDBaseToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDTestCacheIdentifiers.h"
-#import "MSIDTestRequestParams.h"
+#import "MSIDTestConfiguration.h"
 #import "MSIDAccount.h"
 #import "MSIDTestIdTokenUtil.h"
 
@@ -175,17 +175,17 @@
     
     NSArray *input = @[testItem1, testItem2];
     
-    MSIDRequestParameters *params = [MSIDTestRequestParams paramsWithAuthority:nil
-                                                                      clientId:DEFAULT_TEST_CLIENT_ID
-                                                                   redirectUri:nil
-                                                                        target:@"user.read"];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:@"user.read"];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_UID
                                                         uniqueUserId:DEFAULT_TEST_UID];
     
     NSError *error = nil;
     NSArray *result = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:input
-                                                                withParameters:params
+                                                             withConfiguration:configuration
                                                                        account:account
                                                                        context:nil
                                                                          error:&error];
@@ -216,17 +216,17 @@
     
     NSArray *input = @[testItem1, testItem2];
     
-    MSIDRequestParameters *params = [MSIDTestRequestParams paramsWithAuthority:nil
-                                                                      clientId:@"different client"
-                                                                   redirectUri:nil
-                                                                        target:@"user.read"];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
+                                                                                clientId:@"different client"
+                                                                             redirectUri:nil
+                                                                                  target:@"user.read"];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_UID
                                                         uniqueUserId:DEFAULT_TEST_UID];
     
     NSError *error = nil;
     NSArray *result = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:input
-                                                                withParameters:params
+                                                             withConfiguration:configuration
                                                                        account:account
                                                                        context:nil
                                                                          error:&error];
@@ -255,17 +255,17 @@
     
     NSArray *input = @[testItem1, testItem2];
     
-    MSIDRequestParameters *params = [MSIDTestRequestParams paramsWithAuthority:nil
-                                                                      clientId:DEFAULT_TEST_CLIENT_ID
-                                                                   redirectUri:nil
-                                                                        target:@"user.read"];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:@"user.read"];
     
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_UID
                                                         uniqueUserId:DEFAULT_TEST_UID];
     
     NSError *error = nil;
     NSArray *result = [MSIDTokenFilteringHelper filterAllAccessTokenCacheItems:input
-                                                                withParameters:params
+                                                             withConfiguration:configuration
                                                                        account:account
                                                                        context:nil
                                                                          error:&error];
@@ -301,7 +301,9 @@
     NSArray *input = @[testItem1, testItem2];
     
     NSArray *result = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:input
-                                                                legacyUserId:@"user.me" context:nil];
+                                                                legacyUserId:@"user.me"
+                                                                 environment:@"login.microsoftonline.com"
+                                                                     context:nil];
     
     XCTAssertEqual([result count], 1);
     XCTAssertEqualObjects(result[0], [testItem1 tokenWithType:MSIDTokenTypeRefreshToken]);
@@ -331,9 +333,12 @@
     NSArray *input = @[testItem1, testItem2];
     
     NSArray *result = [MSIDTokenFilteringHelper filterRefreshTokenCacheItems:input
-                                                                legacyUserId:@"user.me" context:nil];
+                                                                legacyUserId:@"user.me"
+                                                                 environment:@"login.microsoftonline.com"
+                                                                     context:nil];
     
     XCTAssertEqual([result count], 0);
 }
 
 @end
+

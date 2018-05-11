@@ -30,6 +30,7 @@
 #import "MSIDAccount.h"
 #import "MSIDDeviceId.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDWebviewConfiguration.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -124,42 +125,42 @@
 #pragma mark - Tokens
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV1TokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+                                     configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response request:requestParams];
-    accessToken.resource = response.target ? response.target : requestParams.target;
+    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response configuration:configuration];
+    accessToken.resource = response.target ? response.target : configuration.target;
 
     return accessToken;
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+                                             configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response request:requestParams];
-    legacyToken.resource = response.target ? response.target : requestParams.target;
+    MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response configuration:configuration];
+    legacyToken.resource = response.target ? response.target : configuration.target;
     return legacyToken;
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
-                                                     customWebview:(WKWebView *)webview
-                                                           context:(id<MSIDRequestContext>)context
-                                                 completionHandler:(MSIDWebUICompletionHandler)completionHandler
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                                           customWebview:(WKWebView *)webview
+                                                                 context:(id<MSIDRequestContext>)context
+                                                       completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    NSURL *startURL = [self startURLFromRequest:requestParams];
+    NSURL *startURL = [self startURLFromConfiguration:configuration];
     MSIDOAuth2EmbeddedWebviewController *webviewController =
     [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartUrl:startURL
-                                                           endURL:[NSURL URLWithString:[requestParams redirectUri]]
+                                                           endURL:[NSURL URLWithString:[configuration redirectUri]]
                                                           webview:webview
                                                           context:context completion:completionHandler];
     
@@ -185,61 +186,61 @@
     return webviewController;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController
     return nil;
 }
 
-- (NSURL *)startURLFromRequest:(MSIDRequestParameters *)requestParams
+- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration
 {
-    NSString* state = [self encodeProtocolState:requestParams];
+    NSString* state = [self encodeProtocolState:configuration];
     
     // if value is nil, it won't appear in the dictionary
     NSMutableDictionary *queryParams = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                         MSID_OAUTH2_CODE, MSID_OAUTH2_RESPONSE_TYPE,
-                                        [requestParams clientId], MSID_OAUTH2_CLIENT_ID,
-                                        [requestParams resource], MSID_OAUTH2_RESOURCE,
-                                        [requestParams redirectUri], MSID_OAUTH2_REDIRECT_URI,
+                                        [configuration clientId], MSID_OAUTH2_CLIENT_ID,
+                                        [configuration resource], MSID_OAUTH2_RESOURCE,
+                                        [configuration redirectUri], MSID_OAUTH2_REDIRECT_URI,
                                         state, MSID_OAUTH2_STATE,
-                                        requestParams.promptBehavior, @"prompt",
+                                        configuration.promptBehavior, @"prompt",
                                         @"1", @"haschrome", //to hide back button in UI
-                                        [NSString msidIsStringNilOrBlank:requestParams.loginHint] ? nil : requestParams.loginHint, MSID_OAUTH2_LOGIN_HINT,
-                                        [NSString msidIsStringNilOrBlank:requestParams.correlationId] ? nil : requestParams.correlationId, MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE,
+                                        [NSString msidIsStringNilOrBlank:configuration.loginHint] ? nil : configuration.loginHint, MSID_OAUTH2_LOGIN_HINT,
+                                        [configuration.correlationId UUIDString], MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE,
                                         nil];
     
     [queryParams addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     
     NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@",
-                                 [requestParams.authority.absoluteString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX], [queryParams msidURLFormEncode]];
+                                 [configuration.authority.absoluteString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX], [queryParams msidURLFormEncode]];
     
     // we expect extraQueryParameters to be URL form encoded
-    if (![NSString msidIsStringNilOrBlank:requestParams.extraQueryParameters])
+    if (![NSString msidIsStringNilOrBlank:configuration.extraQueryParametersString])
     {
         //Add the '&' for the additional params if not there already:
-        if ([requestParams.extraQueryParameters hasPrefix:@"&"])
+        if ([configuration.extraQueryParametersString hasPrefix:@"&"])
         {
-            [startUrl appendString:requestParams.extraQueryParameters.msidTrimmedString];
+            [startUrl appendString:configuration.extraQueryParametersString.msidTrimmedString];
         }
         else
         {
-            [startUrl appendFormat:@"&%@", requestParams.extraQueryParameters.msidTrimmedString];
+            [startUrl appendFormat:@"&%@", configuration.extraQueryParametersString.msidTrimmedString];
         }
     }
     
     // we expect claims to be URL form encoded
-    if (![NSString msidIsStringNilOrBlank:requestParams.claims])
+    if (![NSString msidIsStringNilOrBlank:configuration.claims])
     {
-        [startUrl appendFormat:@"&claims=%@", requestParams.claims];
+        [startUrl appendFormat:@"&claims=%@", configuration.claims];
     }
     
     return [NSURL URLWithString:startUrl];
 }
 
 // Encodes the state parameter for a protocol message
-- (NSString *)encodeProtocolState:(MSIDRequestParameters *)requestParams
+- (NSString *)encodeProtocolState:(MSIDWebviewConfiguration *)configuration
 {
-    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[requestParams authority], @"a", [requestParams resource], @"r", nil]
+    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[configuration authority], @"a", [configuration resource], @"r", nil]
              msidURLFormEncode] msidBase64UrlEncode];
 }
 

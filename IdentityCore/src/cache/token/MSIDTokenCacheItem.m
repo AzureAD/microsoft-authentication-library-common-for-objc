@@ -26,7 +26,7 @@
 #import "MSIDTokenType.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSURL+MSIDExtensions.h"
-#import "MSIDIdTokenWrapper.h"
+#import "MSIDIdTokenClaims.h"
 #import "MSIDBaseToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
