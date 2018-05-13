@@ -30,6 +30,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAadAuthorityCache+TestUtil.h"
 #import "MSIDAdfsAuthorityResolver.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDAuthorityIntegrationTests : XCTestCase
 
@@ -49,6 +50,8 @@
     [MSIDAuthority.openIdConfigurationCache removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] clear];
     [MSIDAdfsAuthorityResolver.cache removeAllObjects];
+    
+    MSIDConfiguration.defaultConfiguration.aadApiVersion = nil;
 }
 
 #pragma mark - loadOpenIdConfigurationInfo
@@ -148,7 +151,7 @@
 
 #pragma mark - discoverAuthority, B2C
 
-- (void)testDiscoverAuthority_whenAuthorityIsB2CValidateYesAuthroityIsKnown_shouldReturnNormalizedAuthorityErrorNil
+- (void)testDiscoverAuthority_whenAuthorityIsB2CValidateYesAuthroityIsKnown_shouldReturnErrorNil
 {
     __auto_type authority = [@"https://login.microsoftonline.com/tfp/common/policy/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
@@ -192,7 +195,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testDiscoverAuthority_whenAuthorityIsB2CValidateNoAuthroityIsNotKnown_shouldReturnNormalizedAuthorityErrorNil
+- (void)testDiscoverAuthority_whenAuthorityIsB2CValidateNoAuthroityIsNotKnown_shouldReturnErrorNil
 {
     __auto_type authority = [@"https://example.com/tfp/common/policy/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
@@ -216,7 +219,7 @@
 
 #pragma mark - discoverAuthority, AAD
 
-- (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnown_shouldReturnNormalizedAuthorityErrorNil
+- (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnown_shouldReturnErrorNil
 {
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
@@ -257,7 +260,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsNotKnown_shouldReturnNormalizedAuthorityErrorNil
+- (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsNotKnown_shouldReturnErrorNil
 {
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
@@ -504,9 +507,52 @@
     [self waitForExpectationsWithTimeout:1222 handler:nil];
 }
 
+- (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnownAADApiVersionV2_shouldReturnErrorNil
+{
+    MSIDConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    
+    __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/qwe/oauth2/v2.0/authorize" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:httpResponse];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{
+                                 @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
+                                 @"metadata" : @[
+                                         @{
+                                             @"preferred_network" : @"login.microsoftonline.com",
+                                             @"preferred_cache" : @"login.windows.net",
+                                             @"aliases" : @[@"login.microsoftonline.com", @"login.windows.net"]
+                                             }
+                                         ]
+                                 };
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
+    [MSIDAuthority discoverAuthority:authority
+                   userPrincipalName:upn
+                            validate:YES
+                             context:nil
+                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertTrue(validated);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
 #pragma mark - discoverAuthority, ADFS
 
-- (void)testDiscoverAuthority_whenAuthorityIsADFSValidateNo_shouldReturnNormalizedAuthorityErrorNil
+- (void)testDiscoverAuthority_whenAuthorityIsADFSValidateNo_shouldReturnErrorNil
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
@@ -528,7 +574,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testDiscoverAuthority_whenValidOnPremADFSAuthorityValidateYes_shouldReturnNormalizedAuthorityErrorNil
+- (void)testDiscoverAuthority_whenValidOnPremADFSAuthorityValidateYes_shouldReturnErrorNil
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
@@ -611,7 +657,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testDiscoverAuthority_whenValidCloudADFSAuthorityValidateYes_shouldReturnNormalizedAuthorityErrorNil
+- (void)testDiscoverAuthority_whenValidCloudADFSAuthorityValidateYes_shouldReturnErrorNil
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
@@ -661,7 +707,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testDiscoverAuthority_whenValidateNo_shouldReturnNormalizedAuthorityErrorNil
+- (void)testDiscoverAuthority_whenValidateNo_shouldReturnErrorNil
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
@@ -806,7 +852,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testDiscoverAuthority_whenValidateNoUpnNil_shouldReturnNormalizedAuthorityErrorNil
+- (void)testDiscoverAuthority_whenValidateNoUpnNil_shouldReturnErrorNil
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     
