@@ -36,24 +36,23 @@
 #import "MSIDRequestParameters.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
-#import "MSIDCachePersistence.h"
 #import "MSIDBrokerResponse.h"
 #import "MSIDDefaultAccountCacheQuery.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
     MSIDAccountCredentialCache *_accountCredentialCache;
-    NSArray<id<MSIDCachePersistence>> *_otherAccessors;
+    NSArray<id<MSIDCacheAccessor>> *_otherAccessors;
 }
 
 @end
 
 @implementation MSIDDefaultTokenCacheAccessor
 
-#pragma mark - MSIDCachePersistence
+#pragma mark - MSIDCacheAccessor
 
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-               otherCacheAccessors:(NSArray<id<MSIDCachePersistence>> *)otherAccessors
+               otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors
 {
     self = [super init];
 
@@ -104,16 +103,16 @@
         return NO;
     }
 
-    for (id<MSIDCachePersistence> persistence in _otherAccessors)
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        if (![persistence saveSSOStateWithFactory:factory
-                                    requestParams:requestParams
-                                         response:response
-                                          context:context
-                                            error:error])
+        if (![accessor saveSSOStateWithFactory:factory
+                                 requestParams:requestParams
+                                      response:response
+                                       context:context
+                                         error:error])
         {
-            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", persistence);
-            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", persistence, *error);
+            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", accessor);
+            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor, *error);
         }
     }
 
@@ -141,13 +140,13 @@
 
     if (!refreshToken)
     {
-        for (id<MSIDCachePersistence> persistence in _otherAccessors)
+        for (id<MSIDCacheAccessor> accessor in _otherAccessors)
         {
-            MSIDRefreshToken *refreshToken = [persistence getRefreshTokenWithAccount:account
-                                                                            familyId:familyId
-                                                                       requestParams:parameters
-                                                                             context:context
-                                                                               error:error];
+            MSIDRefreshToken *refreshToken = [accessor getRefreshTokenWithAccount:account
+                                                                         familyId:familyId
+                                                                    requestParams:parameters
+                                                                          context:context
+                                                                            error:error];
 
             if (refreshToken)
             {
@@ -265,13 +264,13 @@
 
     [self stopCacheEvent:event withItem:nil success:resultCredentials != nil context:context];
 
-    for (id<MSIDCachePersistence> persistence in _otherAccessors)
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        [filteredAccounts addObjectsFromArray:[persistence allFilteredAccountsForEnvironment:environment
-                                                                                    clientId:clientId
-                                                                                    familyId:familyId
-                                                                                     context:context
-                                                                                       error:error]];
+        [filteredAccounts addObjectsFromArray:[accessor allFilteredAccountsForEnvironment:environment
+                                                                                 clientId:clientId
+                                                                                 familyId:familyId
+                                                                                  context:context
+                                                                                    error:error]];
     }
 
     return filteredAccounts;

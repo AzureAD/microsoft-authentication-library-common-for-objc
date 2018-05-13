@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDCachePersistence.h"
+#import "MSIDCacheAccessor.h"
 
 @protocol MSIDAccountIdentifiers;
 @class MSIDRequestParameters;
@@ -32,7 +32,7 @@
 @class MSIDAccount;
 @class MSIDIdToken;
 
-@interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDCachePersistence>
+@interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDCacheAccessor>
 
 - (MSIDAccessToken *)getAccessTokenForAccount:(id<MSIDAccountIdentifiers>)account
                                 requestParams:(MSIDRequestParameters *)parameters

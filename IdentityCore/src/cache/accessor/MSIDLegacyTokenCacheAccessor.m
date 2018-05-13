@@ -56,7 +56,7 @@
 #pragma mark - Init
 
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-               otherCacheAccessors:(NSArray<id<MSIDCachePersistence>> *)otherAccessors
+               otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors
 {
     self = [super init];
 
@@ -136,16 +136,16 @@
         return NO;
     }
 
-    for (id<MSIDCachePersistence> persistence in _otherAccessors)
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        if (![persistence saveSSOStateWithFactory:factory
-                                    requestParams:requestParams
-                                         response:response
-                                          context:context
-                                            error:error])
+        if (![accessor saveSSOStateWithFactory:factory
+                                 requestParams:requestParams
+                                      response:response
+                                       context:context
+                                         error:error])
         {
-            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", persistence);
-            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", persistence, *error);
+            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", accessor);
+            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor, *error);
         }
     }
 
@@ -167,13 +167,13 @@
                                                                    error:error];
     if (!refreshToken)
     {
-        for (id<MSIDCachePersistence> persistence in _otherAccessors)
+        for (id<MSIDCacheAccessor> accessor in _otherAccessors)
         {
-            MSIDRefreshToken *refreshToken = [persistence getRefreshTokenWithAccount:account
-                                                                            familyId:familyId
-                                                                       requestParams:parameters
-                                                                             context:context
-                                                                               error:error];
+            MSIDRefreshToken *refreshToken = [accessor getRefreshTokenWithAccount:account
+                                                                         familyId:familyId
+                                                                    requestParams:parameters
+                                                                          context:context
+                                                                            error:error];
 
             if (refreshToken)
             {

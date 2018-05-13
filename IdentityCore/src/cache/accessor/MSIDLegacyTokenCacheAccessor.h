@@ -23,8 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedCacheAccessor.h"
-#import "MSIDCachePersistence.h"
+#import "MSIDCacheAccessor.h"
 
 @class MSIDLegacyAccessToken;
 @class MSIDLegacyRefreshToken;
@@ -34,7 +33,7 @@
 @protocol MSIDRequestContext;
 @class MSIDLegacyAccessToken;
 
-@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDCachePersistence>
+@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDCacheAccessor>
 
 - (MSIDLegacyAccessToken *)getAccessTokenForAccount:(id<MSIDAccountIdentifiers>)account
                                       requestParams:(MSIDRequestParameters *)parameters
