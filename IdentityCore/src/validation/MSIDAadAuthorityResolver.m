@@ -78,13 +78,13 @@ static dispatch_queue_t s_aadValidationQueue;
         // get a response back from the server, or timeout, or fail for any other reason
         __block dispatch_semaphore_t dsem = dispatch_semaphore_create(0);
         
-        [self sendDiscoverRequestWithAuthority:authority userPrincipalName:upn validate:validate context:context completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+        [self sendDiscoverRequestWithAuthority:authority userPrincipalName:upn validate:validate context:context completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
          {
              // Because we're on a serialized queue here to ensure that we don't have more then one
              // validation network request at a time, we want to jump off this queue as quick as
              // possible whenever we hit an error to unblock the queue
              dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                 if (completionBlock) completionBlock(authority, openIdConfigurationEndpoint, validated, error);
+                 if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
              });
              
              dispatch_semaphore_signal(dsem);
@@ -152,10 +152,9 @@ static dispatch_queue_t s_aadValidationQueue;
              }
              
              __auto_type endpoint = validate ? nil : [self openIdConfigurationEndpointForAuthority:authority];
-             NSURL *auth = validate ? nil : authority;
              error = validate ? error : nil;
              
-             if (completionBlock) completionBlock(auth, endpoint, NO, error);
+             if (completionBlock) completionBlock(endpoint, NO, error);
              return;
          }
          
@@ -165,11 +164,11 @@ static dispatch_queue_t s_aadValidationQueue;
                                      context:context
                                        error:&error])
          {
-             if (completionBlock) completionBlock(nil, nil, NO, error);
+             if (completionBlock) completionBlock(nil, NO, error);
              return;
          }
          
-         if (completionBlock) completionBlock(authority, response.openIdConfigurationEndpoint, YES, nil);
+         if (completionBlock) completionBlock(response.openIdConfigurationEndpoint, YES, nil);
      }];
 }
 
@@ -177,7 +176,7 @@ static dispatch_queue_t s_aadValidationQueue;
            authority:(NSURL *)authority
      completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
-    if (completionBlock) completionBlock(record.error ? nil : authority, record.openIdConfigurationEndpoint, record.validated, record.error);
+    if (completionBlock) completionBlock(record.openIdConfigurationEndpoint, record.validated, record.error);
 }
 
 @end

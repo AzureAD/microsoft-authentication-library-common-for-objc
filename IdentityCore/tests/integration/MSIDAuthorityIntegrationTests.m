@@ -161,9 +161,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/tfp/common/policy/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/tfp/common/policy/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -183,9 +182,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertNil(authority);
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -205,7 +203,7 @@
                    userPrincipalName:upn
                             validate:NO
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://example.com/tfp/common/policy/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://example.com/tfp/common/policy/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
@@ -248,7 +246,7 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
@@ -289,7 +287,7 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://example.com/common/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://example.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
@@ -331,9 +329,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -348,9 +345,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -379,9 +375,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertNil(authority.absoluteString);
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -413,9 +408,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -445,9 +439,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertNil(authority.absoluteString);
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -478,9 +471,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertNil(authority.absoluteString);
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -495,9 +487,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertNil(authority.absoluteString);
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -538,9 +529,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -562,9 +552,8 @@
                    userPrincipalName:upn
                             validate:NO
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNil(error);
@@ -604,9 +593,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -645,9 +633,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertNil(authority);
          XCTAssertNil(openIdConfigurationEndpoint);
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -695,9 +682,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -717,9 +703,8 @@
                    userPrincipalName:upn
                             validate:NO
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNil(error);
@@ -760,9 +745,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -777,7 +761,7 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
@@ -819,9 +803,8 @@
                    userPrincipalName:upn
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertNil(authority.absoluteString);
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -840,9 +823,8 @@
                    userPrincipalName:nil
                             validate:YES
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertNil(authority.absoluteString);
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -861,9 +843,8 @@
                    userPrincipalName:nil
                             validate:NO
                              context:nil
-                     completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNil(error);

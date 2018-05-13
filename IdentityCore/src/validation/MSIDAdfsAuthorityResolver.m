@@ -54,14 +54,14 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
     if (!validate)
     {
         __auto_type openIdConfigurationEndpoint = [self openIdConfigurationEndpointForAuthority:authority];
-        if (completionBlock) completionBlock(authority, openIdConfigurationEndpoint, NO, nil);
+        if (completionBlock) completionBlock(openIdConfigurationEndpoint, NO, nil);
         return;
     }
     
     __auto_type record = [s_cache objectForKey:authority.absoluteString.lowercaseString];
     if (record)
     {
-        if (completionBlock) completionBlock(authority, record.openIdConfigurationEndpoint, record.validated, nil);
+        if (completionBlock) completionBlock(record.openIdConfigurationEndpoint, record.validated, nil);
         return;
     }
     
@@ -71,7 +71,7 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
     {
         __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"'upn' is a required parameter and must not be nil or empty.", nil, nil, nil, context.correlationId, nil);
         
-        if (completionBlock) completionBlock(nil, nil, NO, error);
+        if (completionBlock) completionBlock(nil, NO, error);
         return;
     }
     
@@ -83,7 +83,7 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
           {
               if (error)
               {
-                  if (completionBlock) completionBlock(nil, nil, NO, error);
+                  if (completionBlock) completionBlock(nil, NO, error);
                   return;
               }
               
@@ -96,12 +96,12 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
                   cacheRecord.openIdConfigurationEndpoint = openIdConfigurationEndpoint;
                   [s_cache setObject:cacheRecord forKey:authority.absoluteString.lowercaseString];
                   
-                  if (completionBlock) completionBlock(authority, openIdConfigurationEndpoint, YES, nil);
+                  if (completionBlock) completionBlock(openIdConfigurationEndpoint, YES, nil);
               }
               else
               {
                   error = MSIDCreateError(MSIDErrorDomain, MSIDErrorDeveloperAuthorityValidation, @"WebFinger request was invalid or failed", nil, nil, nil, context.correlationId, nil);
-                  if (completionBlock) completionBlock(nil, nil, NO, error);
+                  if (completionBlock) completionBlock(nil, NO, error);
               }
           }];
      }];

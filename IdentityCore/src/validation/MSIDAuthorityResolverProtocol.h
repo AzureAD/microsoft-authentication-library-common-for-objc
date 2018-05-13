@@ -25,7 +25,7 @@
 
 @protocol MSIDRequestContext;
 
-typedef void(^MSIDAuthorityInfoBlock)(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error);
+typedef void(^MSIDAuthorityInfoBlock)(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error);
 
 @protocol MSIDAuthorityResolverProtocol <NSObject>
 
