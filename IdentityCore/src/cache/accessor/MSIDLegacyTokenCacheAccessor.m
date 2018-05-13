@@ -406,7 +406,11 @@
     MSID_LOG_INFO(context, @"(Legacy accessor) Saving access token in legacy accessor");
     MSID_LOG_INFO_PII(context, @"(Legacy accessor) Saving access token in legacy accessor %@", accessToken);
 
-    return [self saveToken:accessToken.legacyTokenCacheItem userId:accessToken.legacyUserId context:context error:error];
+    return [self saveToken:accessToken
+                 cacheItem:accessToken.legacyTokenCacheItem
+                    userId:accessToken.legacyUserId
+                   context:context
+                     error:error];
 }
 
 - (BOOL)saveRefreshTokenWithFactory:(MSIDOauth2Factory *)factory
@@ -426,7 +430,11 @@
     MSID_LOG_INFO(context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor");
     MSID_LOG_INFO_PII(context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor %@", refreshToken);
 
-    BOOL result = [self saveToken:refreshToken.legacyTokenCacheItem userId:refreshToken.legacyUserId context:context error:error];
+    BOOL result = [self saveToken:refreshToken
+                        cacheItem:refreshToken.legacyTokenCacheItem
+                           userId:refreshToken.legacyUserId
+                          context:context
+                            error:error];
 
     if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
     {
@@ -441,7 +449,11 @@
     MSIDLegacyRefreshToken *familyRefreshToken = [refreshToken copy];
     familyRefreshToken.clientId = [MSIDCacheKey familyClientId:refreshToken.familyId];
 
-    return [self saveToken:familyRefreshToken.legacyTokenCacheItem userId:refreshToken.legacyUserId context:context error:error];
+    return [self saveToken:familyRefreshToken
+                 cacheItem:familyRefreshToken.legacyTokenCacheItem
+                    userId:familyRefreshToken.legacyUserId
+                   context:context
+                     error:error];
 }
 
 - (BOOL)saveLegacySingleResourceTokenWithFactory:(MSIDOauth2Factory *)factory
@@ -462,10 +474,15 @@
     MSID_LOG_INFO_PII(context, @"(Legacy accessor) Saving single resource tokens in legacy accessor %@", legacyToken);
 
     // Save token for legacy single resource token
-    return [self saveToken:legacyToken.legacyTokenCacheItem userId:legacyToken.legacyUserId context:context error:error];
+    return [self saveToken:legacyToken
+                 cacheItem:legacyToken.legacyTokenCacheItem
+                    userId:legacyToken.legacyUserId
+                   context:context
+                     error:error];
 }
 
-- (BOOL)saveToken:(MSIDLegacyTokenCacheItem *)tokenCacheItem
+- (BOOL)saveToken:(MSIDBaseToken *)token
+        cacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem
            userId:(NSString *)userId
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
@@ -493,8 +510,7 @@
                                  context:context
                                    error:error];
 
-    // TODO: send non-nil item
-    [self stopTelemetryEvent:event withItem:nil success:result context:context];
+    [self stopTelemetryEvent:event withItem:token success:result context:context];
     
     return result;
 }
@@ -589,7 +605,6 @@
         }
         
         NSError *cacheError = nil;
-        // TODO: this shouldn't be dynamic cast!
         MSIDLegacyTokenCacheItem *cacheItem = (MSIDLegacyTokenCacheItem *) [_dataSource tokenWithKey:key serializer:_serializer context:context error:&cacheError];
         
         if (cacheError)
