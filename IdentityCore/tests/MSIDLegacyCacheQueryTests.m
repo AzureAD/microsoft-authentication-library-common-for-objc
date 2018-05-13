@@ -22,51 +22,124 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "MSIDLegacyTokenCacheQuery.h"
 
 @interface MSIDLegacyCacheQueryTests : XCTestCase
+
+@property (nonatomic) NSString *expectedUpn;
 
 @end
 
 @implementation MSIDLegacyCacheQueryTests
 
-/*
+- (void)setUp
+{
+    [super setUp];
+
+    self.expectedUpn = @"test_upn@test_devex.com";
+#if TARGET_OS_IPHONE
+    self.expectedUpn = @"dGVzdF91cG5AdGVzdF9kZXZleC5jb20";
+#endif
+}
+
  - (void)testLegacyQuery_withAllParameters_shouldReturnKey
  {
- NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
- MSIDLegacyTokenCacheKey *legacyKey = [MSIDLegacyTokenCacheKey queryWithAuthority:authority
- clientId:@"client"
- resource:@"resource"
- legacyUserId:@"eric_cartman@contoso.com"];
- XCTAssertEqualObjects(legacyKey.account, self.expectedUpn);
- XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
- XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
- XCTAssertNil(legacyKey.type);
+     NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+
+     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
+     query.authority = authority;
+     query.clientId = @"client";
+     query.resource = @"resource";
+     query.legacyUserId = @"test_upn@test_devex.com";
+
+     XCTAssertEqualObjects(query.account, self.expectedUpn);
+     XCTAssertEqualObjects(query.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
+     XCTAssertEqualObjects(query.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
+     XCTAssertNil(query.type);
+     XCTAssertTrue(query.exactMatch);
  }
+
+- (void)testLegacyQuery_withNilResource_shouldReturnKey
+{
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+
+    MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
+    query.authority = authority;
+    query.clientId = @"client";
+    query.resource = nil;
+    query.legacyUserId = @"test_upn@test_devex.com";
+
+    XCTAssertEqualObjects(query.account, self.expectedUpn);
+    XCTAssertEqualObjects(query.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|CC3513A0-0E69-4B4D-97FC-DFB6C91EE132|Y2xpZW50");
+    XCTAssertEqualObjects(query.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertNil(query.type);
+    XCTAssertTrue(query.exactMatch);
+}
 
  - (void)testLegacyQuery_withEmptyAccount_shouldReturnKeyWithEmptyAccount
  {
- NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
- MSIDLegacyTokenCacheKey *legacyKey = [MSIDLegacyTokenCacheKey queryWithAuthority:authority
- clientId:@"client"
- resource:@"resource"
- legacyUserId:@""];
- XCTAssertEqualObjects(legacyKey.account, @"");
- XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
- XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
- XCTAssertNil(legacyKey.type);
+     NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+
+     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
+     query.authority = authority;
+     query.clientId = @"client";
+     query.resource = @"resource";
+     query.legacyUserId = @"";
+
+     XCTAssertEqualObjects(query.account, @"");
+     XCTAssertEqualObjects(query.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
+     XCTAssertEqualObjects(query.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
+     XCTAssertNil(query.type);
+     XCTAssertTrue(query.exactMatch);
  }
 
- - (void)testLegacyQuery_withNilAccount_shouldReturnKeyWithNilAccount
- {
- NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
- MSIDLegacyTokenCacheKey *legacyKey = [MSIDLegacyTokenCacheKey queryWithAuthority:authority
- clientId:@"client"
- resource:@"resource"
- legacyUserId:nil];
- XCTAssertNil(legacyKey.account);
- XCTAssertEqualObjects(legacyKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
- XCTAssertEqualObjects(legacyKey.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
- XCTAssertNil(legacyKey.type);
- }*/
+- (void)testLegacyQuery_withNilAccount_shouldReturnKeyWithNilAccount
+{
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+
+    MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
+    query.authority = authority;
+    query.clientId = @"client";
+    query.resource = @"resource";
+    query.legacyUserId = nil;
+
+    XCTAssertNil(query.account);
+    XCTAssertEqualObjects(query.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NvbW1vbg|cmVzb3VyY2U|Y2xpZW50");
+    XCTAssertEqualObjects(query.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertNil(query.type);
+    XCTAssertFalse(query.exactMatch);
+}
+
+- (void)testLegacyQuery_withNilAuthority_shouldReturnKeyWithNilService
+{
+    MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
+    query.authority = nil;
+    query.clientId = @"client";
+    query.resource = @"resource";
+    query.legacyUserId = @"test_upn@test_devex.com";
+
+    XCTAssertEqualObjects(query.account, self.expectedUpn);
+    XCTAssertNil(query.service);
+    XCTAssertEqualObjects(query.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertNil(query.type);
+    XCTAssertFalse(query.exactMatch);
+}
+
+- (void)testLegacyQuery_withNilClient_shouldReturnKeyWithNilClient
+{
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+
+    MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
+    query.authority = authority;
+    query.clientId = nil;
+    query.resource = @"resource";
+    query.legacyUserId = @"test_upn@test_devex.com";
+
+    XCTAssertEqualObjects(query.account, self.expectedUpn);
+    XCTAssertNil(query.service);
+    XCTAssertEqualObjects(query.generic, [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertNil(query.type);
+    XCTAssertFalse(query.exactMatch);
+}
 
 @end
