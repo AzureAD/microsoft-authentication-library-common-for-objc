@@ -204,7 +204,11 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
           completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
     NSError *error;
-    authority = [self normalizeAuthority:authority context:context error:&error];
+    if (![self isAuthorityFormatValid:authority context:nil error:&error])
+    {
+        if (completionBlock) { completionBlock(nil, nil, NO, error); }
+        return;
+    }
     
     if (error)
     {
@@ -265,13 +269,33 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error
 {
+    if (![MSIDAuthority isAuthorityFormatValid:authority context:context error:error])
+    {
+        return nil;
+    }
+    
+    // B2C
+    if ([self isB2CInstanceURL:authority])
+    {
+        NSString *updatedAuthorityString = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [authority msidHostWithPortIfNecessary], authority.pathComponents[1], authority.pathComponents[2], authority.pathComponents[3]];
+        return [NSURL URLWithString:updatedAuthorityString];
+    }
+    
+    // ADFS and AAD
+    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authority msidHostWithPortIfNecessary], authority.pathComponents[1]]];
+}
+
++ (BOOL)isAuthorityFormatValid:(NSURL *)authority
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
+{
     if ([NSString msidIsStringNilOrBlank:authority.absoluteString])
     {
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"'authority' is a required parameter and must not be nil or empty.", nil, nil, nil, context.correlationId, nil);
         }
-        return nil;
+        return NO;
     }
     
     if (![authority.scheme isEqualToString:@"https"])
@@ -280,7 +304,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must use HTTPS.", nil, nil, nil, context.correlationId, nil);
         }
-        return nil;
+        return NO;
     }
     
     if (authority.pathComponents.count < 2)
@@ -289,7 +313,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must specify a tenant or common.", nil, nil, nil, context.correlationId, nil);
         }
-        return nil;
+        return NO;
     }
     
     // B2C
@@ -301,15 +325,12 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
             {
                 *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"B2C authority should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)", nil, nil, nil, context.correlationId, nil);
             }
-            return nil;
+            return NO;
         }
-        
-        NSString *updatedAuthorityString = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [authority msidHostWithPortIfNecessary], authority.pathComponents[1], authority.pathComponents[2], authority.pathComponents[3]];
-        return [NSURL URLWithString:updatedAuthorityString];
     }
     
-    // ADFS and AAD
-    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authority msidHostWithPortIfNecessary], authority.pathComponents[1]]];
+    return YES;
+    
 }
 
 + (BOOL)isKnownHost:(NSURL *)url

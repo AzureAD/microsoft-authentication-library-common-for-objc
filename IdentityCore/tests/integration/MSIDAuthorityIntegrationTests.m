@@ -160,8 +160,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/tfp/common/policy", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/tfp/common/policy/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/tfp/common/policy/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/tfp/common/policy/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -204,8 +204,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://example.com/tfp/common/policy", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://example.com/tfp/common/policy/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://example.com/tfp/common/policy/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://example.com/tfp/common/policy/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -221,7 +221,7 @@
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [NSHTTPURLResponse new];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/qwe/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -247,7 +247,7 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -262,14 +262,14 @@
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [NSHTTPURLResponse new];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/qwe/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
-                                 @"tenant_discovery_endpoint" : @"https://example.com/common/.well-known/openid-configuration",
+                                 @"tenant_discovery_endpoint" : @"https://example.com/common/qwe/.well-known/openid-configuration",
                                  @"metadata" : @[
                                          @{
                                              @"preferred_network" : @"example.com",
@@ -288,8 +288,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://example.com/common", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://example.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://example.com/common/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://example.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -303,14 +303,14 @@
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [NSHTTPURLResponse new];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/qwe/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
-                                 @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
+                                 @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration",
                                  @"metadata" : @[
                                          @{
                                              @"preferred_network" : @"login.microsoftonline.com",
@@ -330,8 +330,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -347,8 +347,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -361,7 +361,7 @@
 {
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/qwe/oauth2/authorize" msidUrl];
     __auto_type error = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:nil];
     MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:requestUrl
                                                          respondWithError:error];
@@ -392,7 +392,7 @@
                                                          reponse:httpResponse];
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
-                                 @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
+                                 @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration",
                                  @"metadata" : @[
                                          @{
                                              @"preferred_network" : @"login.microsoftonline.com",
@@ -412,8 +412,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -427,7 +427,7 @@
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [NSHTTPURLResponse new];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/qwe/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -459,7 +459,7 @@
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [NSHTTPURLResponse new];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/qwe/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -518,8 +518,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -545,11 +545,11 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:[NSHTTPURLResponse new]];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
-                                    @"href" : @"https://login.windows.com/adfs"}]};
+                                    @"href" : @"https://login.windows.com/adfs/qwe"}]};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
 
@@ -560,8 +560,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -587,7 +587,7 @@
     [MSIDTestURLSession addResponse:response];
     
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
     __auto_type error = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:nil];
     MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:webFingerRequestUrl
                                                          respondWithError:error];
@@ -636,11 +636,11 @@
     [MSIDTestURLSession addResponse:response];
     
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:[NSHTTPURLResponse new]];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
-                                    @"href" : @"https://login.windows.com/adfs"}]};
+                                    @"href" : @"https://login.windows.com/adfs/qwe"}]};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
     
@@ -651,8 +651,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -673,8 +673,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -700,11 +700,11 @@
     [MSIDTestURLSession addResponse:response];
     
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:[NSHTTPURLResponse new]];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
-                                    @"href" : @"https://login.windows.com/adfs"}]};
+                                    @"href" : @"https://login.windows.com/adfs/qwe"}]};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
     
@@ -716,8 +716,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -733,8 +733,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -760,11 +760,11 @@
     [MSIDTestURLSession addResponse:response];
     
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:[NSHTTPURLResponse new]];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
-                                    @"href" : @"https://otherhost.com/adfs"}]};
+                                    @"href" : @"https://otherhost.com/adfs/qwe"}]};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
     
@@ -817,8 +817,8 @@
                              context:nil
                      completionBlock:^(NSURL *authority, NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.absoluteString);
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNil(error);
          [expectation fulfill];

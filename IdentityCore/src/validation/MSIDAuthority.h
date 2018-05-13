@@ -68,6 +68,10 @@ extern NSString *const MSIDTrustedAuthorityWorldWide;
                       context:(id<MSIDRequestContext>)context
                         error:(NSError * __autoreleasing *)error;
 
++ (BOOL)isAuthorityFormatValid:(NSURL *)authority
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError * __autoreleasing *)error;
+
 + (BOOL)isKnownHost:(NSURL *)url;
 
 @end
