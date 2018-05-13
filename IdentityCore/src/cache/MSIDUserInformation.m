@@ -23,6 +23,8 @@
 
 #import "MSIDUserInformation.h"
 #import "MSIDAADV1IdTokenClaims.h"
+#import "MSIDIdTokenClaims.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
 
 @implementation MSIDUserInformation
 
@@ -53,13 +55,16 @@
     }
     
     _rawIdToken = [coder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
-
-    // TODO: use factory here!
-    MSIDAADV1IdTokenClaims *tokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:_rawIdToken];
-    _userId = tokenObj.userId;
+    _userId = self.idTokenClaims.userId;
     
     return self;
 }
+
+- (MSIDIdTokenClaims *)idTokenClaims
+{
+    return [[MSIDIdTokenClaims alloc] initWithRawIdToken:_rawIdToken];
+}
+
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
@@ -68,10 +73,10 @@
 #if TARGET_OS_IPHONE
     // These are needed for back-compat with ADAL 1.x
     // ADAL 1.2x only supported AAD v1, so use MSIDAADV1IdToken
-    MSIDAADV1IdTokenClaims *tokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:_rawIdToken];
-    [coder encodeObject:tokenObj.jsonDictionary forKey:@"allClaims"];
-    [coder encodeObject:tokenObj.userId forKey:@"userId"];
-    [coder encodeBool:tokenObj.userIdDisplayable forKey:@"userIdDisplayable"];
+    MSIDIdTokenClaims *claims = self.idTokenClaims;
+    [coder encodeObject:claims.jsonDictionary forKey:@"allClaims"];
+    [coder encodeObject:claims.userId forKey:@"userId"];
+    [coder encodeBool:claims.userIdDisplayable forKey:@"userIdDisplayable"];
 #endif
 }
 

@@ -45,4 +45,8 @@
 
 - (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
 
+- (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
+                    environment:(nullable NSString *)environment
+             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
+
 @end

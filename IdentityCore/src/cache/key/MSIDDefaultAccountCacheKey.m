@@ -35,6 +35,7 @@ static NSInteger kAccountTypePrefix = 1000;
 
 - (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
                          environment:(NSString *)environment
+                               realm:(NSString *)realm
 {
     self = [super init];
 
@@ -42,6 +43,7 @@ static NSInteger kAccountTypePrefix = 1000;
     {
         _uniqueUserId = uniqueUserId;
         _environment = environment;
+        _realm = realm;
     }
 
     return self;
@@ -67,7 +69,7 @@ static NSInteger kAccountTypePrefix = 1000;
 
 - (NSString *)service
 {
-    return nil;
+    return self.realm.msidTrimmedString.lowercaseString;
 }
 
 @end

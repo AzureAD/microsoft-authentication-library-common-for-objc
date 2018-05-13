@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *environment;
 @property (nullable, nonatomic) NSString *realm;
 @property (nullable, nonatomic) NSString *clientId;
+@property (nullable, nonatomic) NSString *familyId;
 @property (nullable, nonatomic) NSString *target;
 @property (nonatomic) MSIDCredentialType credentialType;
 

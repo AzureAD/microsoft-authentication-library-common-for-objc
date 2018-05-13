@@ -56,14 +56,12 @@
 
 - (NSString *)logDescription
 {
-    // TODO
-    return nil;
+    return [NSString stringWithFormat:@"service=%@, type=%@, account=%@", _service, _type, _PII_NULLIFY(_account)];
 }
 
 - (NSString *)piiLogDescription
 {
-    // TODO
-    return nil;
+    return [NSString stringWithFormat:@"service=%@, type=%@, account=%@", _service, _type, _account];
 }
 
 @end

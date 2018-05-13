@@ -32,6 +32,7 @@
     if (self)
     {
         _targetMatchingOptions = Any;
+        _clientIdMatchingOptions = ExactStringMatch;
         _matchAnyCredentialType = NO;
     }
 
@@ -53,12 +54,12 @@
     if (self.matchAnyCredentialType
         || self.credentialType == MSIDCredentialTypeAccessToken)
     {
-        if (self.clientId
+        if (self.queryClientId
             && self.realm
             && self.target
             && (self.targetMatchingOptions == ExactStringMatch || self.targetMatchingOptions == Any))
         {
-            return [self serviceWithType:self.credentialType clientID:self.clientId realm:self.realm target:self.target];
+            return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:self.realm target:self.target];
         }
         return nil;
     }
@@ -68,9 +69,9 @@
         {
             case MSIDCredentialTypeRefreshToken:
             {
-                if (self.clientId)
+                if (self.queryClientId)
                 {
-                    return [self serviceWithType:self.credentialType clientID:self.clientId realm:nil target:nil];
+                    return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:nil target:nil];
                 }
                 break;
             }
@@ -96,9 +97,9 @@
     NSString *genericString = nil;
 
     if (self.credentialType == MSIDCredentialTypeRefreshToken
-        && self.clientId)
+        && self.queryClientId)
     {
-        genericString = [self credentialIdWithType:self.credentialType clientId:self.clientId realm:self.realm];
+        genericString = [self credentialIdWithType:self.credentialType clientId:self.queryClientId realm:self.realm];
     }
     else if (self.clientId && self.realm)
     {
@@ -122,7 +123,7 @@
 {
     if (!self.environment
         || !self.uniqueUserId
-        || !self.clientId)
+        || !self.queryClientId)
     {
         return NO;
     }
@@ -144,6 +145,17 @@
     }
 
     return YES;
+}
+
+- (NSString *)queryClientId
+{
+    if ((self.clientId || self.familyId)
+        && (self.clientIdMatchingOptions == ExactStringMatch))
+    {
+        return self.familyId ? self.familyId : self.clientId;
+    }
+
+    return nil;
 }
 
 @end

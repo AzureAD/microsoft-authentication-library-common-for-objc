@@ -172,4 +172,28 @@
     _additionalAccountFields = allAdditionalFields;
 }
 
+#pragma mark - Query
+
+- (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
+                    environment:(nullable NSString *)environment
+             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
+{
+    if (uniqueUserId && ![self.uniqueUserId isEqualToString:uniqueUserId])
+    {
+        return NO;
+    }
+
+    if (environment && ![self.environment isEqualToString:environment])
+    {
+        return NO;
+    }
+
+    if (environmentAliases && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    {
+        return NO;
+    }
+
+    return YES;
+}
+
 @end

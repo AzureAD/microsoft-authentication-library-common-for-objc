@@ -92,7 +92,11 @@
                                  request:(MSIDRequestParameters *)requestParams
 {
     MSIDBaseToken *baseToken = [[MSIDBaseToken alloc] init];
-    return [self fillBaseToken:baseToken fromResponse:response request:requestParams];
+    BOOL result = [self fillBaseToken:baseToken fromResponse:response request:requestParams];
+
+    if (result) { return baseToken; }
+
+    return nil;
 }
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response
@@ -106,69 +110,87 @@
                                                  request:(MSIDRequestParameters *)requestParams
 {
     MSIDLegacyAccessToken *accessToken = [[MSIDLegacyAccessToken alloc] init];
-    return [self fillLegacyAccessToken:accessToken fromResponse:response request:requestParams];
+    BOOL result = [self fillLegacyAccessToken:accessToken fromResponse:response request:requestParams];
+
+    if (!result) { return nil; }
+    return accessToken;
 }
 
 - (MSIDLegacyRefreshToken *)legacyRefreshTokenFromResponse:(MSIDTokenResponse *)response
                                                    request:(MSIDRequestParameters *)requestParams
 {
     MSIDLegacyRefreshToken *refreshToken = [[MSIDLegacyRefreshToken alloc] init];
-    return [self fillLegacyRefreshToken:refreshToken fromResponse:response request:requestParams];
+    BOOL result = [self fillLegacyRefreshToken:refreshToken fromResponse:response request:requestParams];
+
+    if (!result) { return nil; }
+    return refreshToken;
 }
 
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response
                                        request:(MSIDRequestParameters *)requestParams
 {
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
-    return [self fillRefreshToken:refreshToken fromResponse:response request:requestParams];
+    BOOL result = [self fillRefreshToken:refreshToken fromResponse:response request:requestParams];
+
+    if (!result) { return nil; }
+    return refreshToken;
 }
 
 - (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response
                              request:(MSIDRequestParameters *)requestParams
 {
     MSIDIdToken *idToken = [[MSIDIdToken alloc] init];
-    return [self fillIDToken:idToken fromResponse:response request:requestParams];
+    BOOL result = [self fillIDToken:idToken fromResponse:response request:requestParams];
+
+    if (!result) { return nil; }
+    return idToken;
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
                                                    request:(MSIDRequestParameters *)requestParams
 {
     MSIDLegacySingleResourceToken *legacyToken = [[MSIDLegacySingleResourceToken alloc] init];
-    return [self fillLegacyToken:legacyToken fromResponse:response request:requestParams];
+    BOOL result = [self fillLegacyToken:legacyToken fromResponse:response request:requestParams];
+
+    if (!result) { return nil; }
+    return legacyToken;
 }
 
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams
 {
     MSIDAccount *account = [[MSIDAccount alloc] init];
-    return [self fillAccount:account fromResponse:response request:requestParams];
+    BOOL result = [self fillAccount:account fromResponse:response request:requestParams];
+
+    if (!result) { return nil; }
+    return account;
 }
 
 #pragma mark - Token helpers
 
-- (MSIDBaseToken *)fillBaseToken:(MSIDBaseToken *)token
-                    fromResponse:(MSIDTokenResponse *)response
-                         request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillBaseToken:(MSIDBaseToken *)token
+         fromResponse:(MSIDTokenResponse *)response
+              request:(MSIDRequestParameters *)requestParams
 {
     if (!response
         || !requestParams)
     {
-        return nil;
+        return NO;
     }
 
     token.authority = requestParams.authority;
     token.clientId = requestParams.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
     token.uniqueUserId = response.idTokenObj.userId;
-    return token;
+    return YES;
 }
 
 - (MSIDAccessToken *)fillAccessToken:(MSIDAccessToken *)token
                         fromResponse:(MSIDTokenResponse *)response
                              request:(MSIDRequestParameters *)requestParams
 {
-    token = (MSIDAccessToken *) [self fillBaseToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillBaseToken:token fromResponse:response request:requestParams];
 
-    if (!token)
+    if (!result)
     {
         return nil;
     }
@@ -196,20 +218,20 @@
     return token;
 }
 
-- (MSIDRefreshToken *)fillRefreshToken:(MSIDRefreshToken *)token
-                          fromResponse:(MSIDTokenResponse *)response
-                               request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillRefreshToken:(MSIDRefreshToken *)token
+            fromResponse:(MSIDTokenResponse *)response
+                 request:(MSIDRequestParameters *)requestParams
 {
-    token = (MSIDRefreshToken *) [self fillBaseToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillBaseToken:token fromResponse:response request:requestParams];
 
-    if (!token)
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
     if (!response.isMultiResource)
     {
-        return nil;
+        return NO;
     }
 
     token.refreshToken = response.refreshToken;
@@ -217,21 +239,21 @@
     if (!token.refreshToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize refresh token when missing refresh token field");
-        return nil;
+        return NO;
     }
 
-    return token;
+    return YES;
 }
 
-- (MSIDIdToken *)fillIDToken:(MSIDIdToken *)token
-                fromResponse:(MSIDTokenResponse *)response
-                     request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillIDToken:(MSIDIdToken *)token
+       fromResponse:(MSIDTokenResponse *)response
+            request:(MSIDRequestParameters *)requestParams
 {
-    token = (MSIDIdToken *) [self fillBaseToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillBaseToken:token fromResponse:response request:requestParams];
 
-    if (!token)
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
     token.rawIdToken = response.idToken;
@@ -239,68 +261,74 @@
     if (!token.rawIdToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize ID token when missing ID token field");
-        return nil;
+        return NO;
     }
 
-    return token;
+    return YES;
 }
 
-- (MSIDLegacySingleResourceToken *)fillLegacyToken:(MSIDLegacySingleResourceToken *)token
-                                      fromResponse:(MSIDTokenResponse *)response
-                                           request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillLegacyToken:(MSIDLegacySingleResourceToken *)token
+           fromResponse:(MSIDTokenResponse *)response
+                request:(MSIDRequestParameters *)requestParams
 {
-    token = (MSIDLegacySingleResourceToken *) [self fillAccessToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillAccessToken:token fromResponse:response request:requestParams];
 
-    if (!token)
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
     token.refreshToken = response.refreshToken;
     token.idToken = response.idToken;
     token.legacyUserId = response.idTokenObj.userId;
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
-    return token;
+    return YES;
 }
 
-- (MSIDLegacyAccessToken *)fillLegacyAccessToken:(MSIDLegacyAccessToken *)token
-                                    fromResponse:(MSIDTokenResponse *)response
-                                         request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillLegacyAccessToken:(MSIDLegacyAccessToken *)token
+                 fromResponse:(MSIDTokenResponse *)response
+                      request:(MSIDRequestParameters *)requestParams
 {
-    token = (MSIDLegacyAccessToken *) [self fillAccessToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillAccessToken:token fromResponse:response request:requestParams];
 
-    if (!token)
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
     token.idToken = response.idToken;
     token.legacyUserId = response.idTokenObj.userId;
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
-    return token;
+    return YES;
 }
 
-- (MSIDLegacyRefreshToken *)fillLegacyRefreshToken:(MSIDLegacyRefreshToken *)token
-                                      fromResponse:(MSIDTokenResponse *)response
-                                           request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillLegacyRefreshToken:(MSIDLegacyRefreshToken *)token
+                  fromResponse:(MSIDTokenResponse *)response
+                       request:(MSIDRequestParameters *)requestParams
 {
-    token = (MSIDLegacyRefreshToken *) [self fillRefreshToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillRefreshToken:token fromResponse:response request:requestParams];
 
-    if (!token)
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
     token.idToken = response.idToken;
     token.legacyUserId = response.idTokenObj.userId;
-    return token;
+    return YES;
 }
 
-- (MSIDAccount *)fillAccount:(MSIDAccount *)account
-                fromResponse:(MSIDTokenResponse *)response
-                     request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillAccount:(MSIDAccount *)account
+       fromResponse:(MSIDTokenResponse *)response
+            request:(MSIDRequestParameters *)requestParams
 {
     account.uniqueUserId = response.idTokenObj.userId;
+
+    if (!account.uniqueUserId)
+    {
+        return NO;
+    }
+
     account.username = response.idTokenObj.username;
     account.givenName = response.idTokenObj.givenName;
     account.familyName = response.idTokenObj.familyName;
@@ -309,7 +337,7 @@
     account.authority = requestParams.authority;
     account.accountType = response.accountType;
     account.legacyUserId = response.idTokenObj.userId;
-    return account;
+    return YES;
 }
 
 #pragma mark - Webview controllers

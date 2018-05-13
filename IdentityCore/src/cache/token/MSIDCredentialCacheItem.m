@@ -231,6 +231,7 @@
 
 - (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
                     environment:(nullable NSString *)environment
+             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
     if (uniqueUserId && ![self.uniqueUserId isEqualToString:uniqueUserId])
     {
@@ -238,6 +239,11 @@
     }
 
     if (environment && ![self.environment isEqualToString:environment])
+    {
+        return NO;
+    }
+
+    if (environmentAliases && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
     {
         return NO;
     }
@@ -272,10 +278,16 @@
 
 - (BOOL)matchesWithRealm:(nullable NSString *)realm
                 clientId:(nullable NSString *)clientId
+                familyId:(nullable NSString *)familyId
                   target:(nullable NSString *)target
           targetMatching:(MSIDComparisonOptions)matchingOptions
 {
     if (clientId && ![self.clientId isEqualToString:clientId])
+    {
+        return NO;
+    }
+
+    if (familyId && ![self.familyId isEqualToString:familyId])
     {
         return NO;
     }

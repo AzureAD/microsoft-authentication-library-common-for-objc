@@ -64,4 +64,7 @@
                                                      customWebview:(WKWebView *)webview;
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams;
 
+// Helpers
+- (BOOL)fillBaseToken:(MSIDBaseToken *)token fromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
+
 @end

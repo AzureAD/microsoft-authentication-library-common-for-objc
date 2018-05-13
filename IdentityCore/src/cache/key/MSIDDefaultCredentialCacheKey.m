@@ -101,7 +101,8 @@ static NSInteger kCredentialTypePrefix = 2000;
 
 - (NSData *)generic
 {
-    return [[self credentialIdWithType:self.credentialType clientId:self.clientId realm:self.realm] dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *clientId = self.familyId ? self.familyId : self.clientId;
+    return [[self credentialIdWithType:self.credentialType clientId:clientId realm:self.realm] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSNumber *)type
@@ -116,7 +117,8 @@ static NSInteger kCredentialTypePrefix = 2000;
 
 - (NSString *)service
 {
-    return [self serviceWithType:self.credentialType clientID:self.clientId realm:self.realm target:self.target];
+    NSString *clientId = self.familyId ? self.familyId : self.clientId;
+    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm target:self.target];
 }
 
 @end

@@ -31,10 +31,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *uniqueUserId;
 @property (nullable, nonatomic) NSString *environment;
 @property (nullable, nonatomic) NSString *username;
+@property (nullable, nonatomic) NSString *realm;
 @property (nonatomic) MSIDAccountType accountType;
 
 - (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
-                         environment:(NSString *)environment;
+                         environment:(NSString *)environment
+                               realm:(NSString *)realm;
 
 @end
 

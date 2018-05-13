@@ -176,7 +176,16 @@
 - (MSIDAccountCacheItem *)accountCacheItem
 {
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
-    cacheItem.environment = self.authority.msidHostWithPortIfNecessary;
+
+    if (self.storageAuthority)
+    {
+        cacheItem.environment = self.storageAuthority.msidHostWithPortIfNecessary;
+    }
+    else
+    {
+        cacheItem.environment = self.authority.msidHostWithPortIfNecessary;
+    }
+
     cacheItem.realm = self.authority.msidTenant;
     cacheItem.username = self.username;
     cacheItem.uniqueUserId = self.uniqueUserId;

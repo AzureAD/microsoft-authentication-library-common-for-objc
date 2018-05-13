@@ -64,19 +64,20 @@
 // Additional fields
 @property (readwrite, nullable) NSDictionary *additionalInfo;
 
-// TODO: this shouldn't be here!
 - (nullable MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType;
 
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;
 
 - (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
-                    environment:(nullable NSString *)environment;
+                    environment:(nullable NSString *)environment
+             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
 
 - (BOOL)matchesWithLegacyUserId:(nullable NSString *)legacyUserId
                     environment:(nullable NSString *)environment;
 
 - (BOOL)matchesWithRealm:(nullable NSString *)realm
                 clientId:(nullable NSString *)clientId
+                familyId:(nullable NSString *)familyId
                   target:(nullable NSString *)target
           targetMatching:(MSIDComparisonOptions)matchingOptions;
 

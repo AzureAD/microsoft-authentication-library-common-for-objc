@@ -34,7 +34,7 @@
 @property (readwrite) NSString *accessToken;
 
 // v1 access tokens are scoped down to resources
-@property (readwrite) NSString *resource; // TODO: just call it target?
+@property (readwrite) NSString *resource;
 
 // v2 access tokens are scoped down to resources
 @property (readwrite) NSOrderedSet<NSString *> *scopes;

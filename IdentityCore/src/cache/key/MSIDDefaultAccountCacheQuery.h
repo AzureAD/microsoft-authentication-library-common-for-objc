@@ -26,5 +26,6 @@
 @interface MSIDDefaultAccountCacheQuery : MSIDDefaultAccountCacheKey
 
 @property (nonatomic, readonly) BOOL exactMatch;
+@property (nonatomic) NSArray<NSString *> *environmentAliases;
 
 @end

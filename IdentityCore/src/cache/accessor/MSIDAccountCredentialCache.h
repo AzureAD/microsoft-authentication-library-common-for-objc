@@ -41,16 +41,16 @@
  Gets all credentials matching the parameters specified in the query
  */
 - (nullable NSArray<MSIDCredentialCacheItem *> *)getCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
-                                                       legacyUserId:(nullable NSString *)legacyUserId
-                                                            context:(nullable id<MSIDRequestContext>)context
-                                                              error:(NSError * _Nullable * _Nullable)error;
+                                                            legacyUserId:(nullable NSString *)legacyUserId
+                                                                 context:(nullable id<MSIDRequestContext>)context
+                                                                   error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Gets a credential for a particular key
 */
 - (nullable MSIDCredentialCacheItem *)getCredential:(nonnull MSIDDefaultCredentialCacheKey *)key
-                                       context:(nullable id<MSIDRequestContext>)context
-                                         error:(NSError * _Nullable * _Nullable)error;
+                                            context:(nullable id<MSIDRequestContext>)context
+                                              error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Gets all credentials which a matching type
@@ -84,7 +84,7 @@
  Gets all items
  */
 - (nullable NSArray<MSIDCredentialCacheItem *> *)getAllItemsWithContext:(nullable id<MSIDRequestContext>)context
-                                                             error:(NSError * _Nullable * _Nullable)error;
+                                                                  error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Saves a credential
@@ -140,6 +140,13 @@
 - (BOOL)removeAllCredentials:(nonnull NSArray<MSIDCredentialCacheItem *> *)credentials
                      context:(nullable id<MSIDRequestContext>)context
                        error:(NSError * _Nullable * _Nullable)error;
+
+/*
+ Removes all accounts in the array
+ */
+- (BOOL)removeAllAccounts:(nonnull NSArray<MSIDAccountCacheItem *> *)accounts
+                  context:(nullable id<MSIDRequestContext>)context
+                    error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Returns latest wipe info

@@ -37,7 +37,7 @@
 
 - (BOOL)exactMatch
 {
-    return self.uniqueUserId && self.environment;
+    return self.uniqueUserId && self.environment && self.realm;
 }
 
 @end
