@@ -158,27 +158,6 @@
 
 #pragma mark - Refresh token
 
-- (void)testInitWithJson_andRefreshToken_shouldTakeFieldsFromRefreshToken
-{
-    NSDictionary *jsonInput = @{@"access_token": @"at",
-                                @"token_type": @"Bearer",
-                                @"expires_in": @"3600",
-                                @"refresh_token": @"rt"};
-    
-    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
-    [refreshToken setValue:@"id token" forKey:@"idToken"];
-    
-    NSError *error = nil;
-    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput
-                                                                       refreshToken:refreshToken
-                                                                              error:&error];
-    
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
-    
-    XCTAssertEqualObjects(response.idToken, @"id token");
-}
-
 - (void)testInitWithJson_andNilRefreshToken_shouldNotTakeFieldsFromRefreshToken
 {
     NSDictionary *jsonInput = @{@"access_token": @"at",
@@ -207,8 +186,8 @@
                                 };
     
     MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
-    [refreshToken setValue:@"id token" forKey:@"idToken"];
-    
+    refreshToken.refreshToken = @"rt";
+
     NSError *error = nil;
     MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput
                                                                        refreshToken:refreshToken
