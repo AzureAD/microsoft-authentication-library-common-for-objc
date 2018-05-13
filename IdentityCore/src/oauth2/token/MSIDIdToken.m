@@ -75,13 +75,13 @@
 
 #pragma mark - Cache
 
-- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem
+- (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem
 {
     self = [super initWithTokenCacheItem:tokenCacheItem];
     
     if (self)
     {
-        _rawIdToken = tokenCacheItem.idToken;
+        _rawIdToken = tokenCacheItem.secret;
         
         if (!_rawIdToken)
         {
@@ -93,18 +93,19 @@
     return self;
 }
 
-- (MSIDTokenCacheItem *)tokenCacheItem
+- (MSIDCredentialCacheItem *)tokenCacheItem
 {
-    MSIDTokenCacheItem *cacheItem = [super tokenCacheItem];
-    cacheItem.idToken = self.rawIdToken;
+    MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
+    cacheItem.secret = self.rawIdToken;
+    cacheItem.credentialType = MSIDCredentialTypeIDToken;
     return cacheItem;
 }
 
 #pragma mark - Token type
 
-- (MSIDTokenType)tokenType
+- (MSIDCredentialType)credentialType
 {
-    return MSIDTokenTypeIDToken;
+    return MSIDCredentialTypeIDToken;
 }
 
 #pragma mark - Description

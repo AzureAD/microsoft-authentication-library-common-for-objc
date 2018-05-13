@@ -34,6 +34,7 @@
 #define ID_TOKEN_TID                @"tid"
 #define ID_TOKEN_GUEST_ID           @"altsecid"
 #define ID_TOKEN_UNIQUE_NAME        @"unique_name"
+#define ID_TOKEN_ALT_SEC_ID         @"altsecid"
 
 @implementation MSIDAADV1IdTokenClaims
 
@@ -43,6 +44,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_OID, objectId)
 MSID_JSON_ACCESSOR(ID_TOKEN_TID, tenantId)
 MSID_JSON_ACCESSOR(ID_TOKEN_GUEST_ID, guestId)
 MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
+MSID_JSON_ACCESSOR(ID_TOKEN_ALT_SEC_ID, alternativeAccountId)
 
 - (void)initDerivedProperties
 {

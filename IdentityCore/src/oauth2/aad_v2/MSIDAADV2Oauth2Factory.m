@@ -185,6 +185,30 @@
     return (MSIDLegacySingleResourceToken *) [self fillAADV2BaseToken:token fromResponse:response request:requestParams];
 }
 
+- (MSIDLegacyAccessToken *)legacyAccessTokenFromResponse:(MSIDAADTokenResponse *)response
+                                                 request:(MSIDRequestParameters *)requestParams
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return nil;
+    }
+
+    MSIDLegacyAccessToken *legacyToken = [super legacyAccessTokenFromResponse:response request:requestParams];
+    return (MSIDLegacyAccessToken *) [self fillAADV2BaseToken:legacyToken fromResponse:response request:requestParams];
+}
+
+- (MSIDLegacyRefreshToken *)legacyRefreshTokenFromResponse:(MSIDAADTokenResponse *)response
+                                                   request:(MSIDRequestParameters *)requestParams
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return nil;
+    }
+
+    MSIDLegacyRefreshToken *legacyToken = [super legacyRefreshTokenFromResponse:response request:requestParams];
+    return (MSIDLegacyRefreshToken *) [self fillAADV2BaseToken:legacyToken fromResponse:response request:requestParams];
+}
+
 - (MSIDAccount *)accountFromResponse:(MSIDAADV2TokenResponse *)response
                              request:(MSIDRequestParameters *)requestParams
 {
@@ -194,7 +218,8 @@
     }
 
     MSIDAccount *account = [super accountFromResponse:response request:requestParams];
-    // TODO: remove me
+    MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
+    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
     return account;
 }
 

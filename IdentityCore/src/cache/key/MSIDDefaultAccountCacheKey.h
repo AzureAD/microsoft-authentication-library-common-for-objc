@@ -21,12 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheKey.h"
+#import "MSIDCacheKey.h"
 #import "MSIDAccountType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDDefaultAccountCacheKey : MSIDTokenCacheKey
+@interface MSIDDefaultAccountCacheKey : MSIDCacheKey
 
 @property (nullable, nonatomic) NSString *uniqueUserId;
 @property (nullable, nonatomic) NSString *environment;

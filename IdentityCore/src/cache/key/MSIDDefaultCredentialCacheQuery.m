@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDDefaultTokenCacheQuery.h"
+#import "MSIDDefaultCredentialCacheQuery.h"
 
-@implementation MSIDDefaultTokenCacheQuery
+@implementation MSIDDefaultCredentialCacheQuery
 
 - (instancetype)init
 {
@@ -51,7 +51,7 @@
 - (NSString *)service
 {
     if (self.matchAnyCredentialType
-        || self.credentialType == MSIDTokenTypeAccessToken)
+        || self.credentialType == MSIDCredentialTypeAccessToken)
     {
         if (self.clientId
             && self.realm
@@ -66,7 +66,7 @@
     {
         switch (self.credentialType)
         {
-            case MSIDTokenTypeRefreshToken:
+            case MSIDCredentialTypeRefreshToken:
             {
                 if (self.clientId)
                 {
@@ -74,11 +74,11 @@
                 }
                 break;
             }
-            case MSIDTokenTypeIDToken:
+            case MSIDCredentialTypeIDToken:
             {
                 if (self.clientId && self.realm)
                 {
-                    return [self serviceWithType:MSIDTokenTypeIDToken clientID:self.clientId realm:self.realm target:nil];
+                    return [self serviceWithType:MSIDCredentialTypeIDToken clientID:self.clientId realm:self.realm target:nil];
                 }
 
                 break;
@@ -95,7 +95,7 @@
 {
     NSString *genericString = nil;
 
-    if (self.credentialType == MSIDTokenTypeRefreshToken
+    if (self.credentialType == MSIDCredentialTypeRefreshToken
         && self.clientId)
     {
         genericString = [self credentialIdWithType:self.credentialType clientId:self.clientId realm:self.realm];
@@ -127,7 +127,7 @@
         return NO;
     }
 
-    if (self.credentialType == MSIDTokenTypeAccessToken)
+    if (self.credentialType == MSIDCredentialTypeAccessToken)
     {
         if (!self.realm
             || !self.target
@@ -137,7 +137,7 @@
         }
     }
 
-    if (self.credentialType == MSIDTokenTypeIDToken
+    if (self.credentialType == MSIDCredentialTypeIDToken
         && !self.realm)
     {
         return NO;

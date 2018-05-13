@@ -22,31 +22,33 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDCacheItem.h"
 #import "MSIDAccountType.h"
 #import "MSIDAccountIdentifiers.h"
 
 @class MSIDAccountCacheItem;
 @class MSIDRequestParameters;
 @class MSIDTokenResponse;
+@class MSIDClientInfo;
 
 @interface MSIDAccount : NSObject <NSCopying, MSIDAccountIdentifiers>
+
+@property (readwrite) MSIDAccountType accountType;
 
 // Primary user identifier
 @property (readwrite) NSString *uniqueUserId;
 
 // Legacy user identifier
 @property (readwrite) NSString *legacyUserId;
-@property (readwrite) MSIDAccountType accountType;
-@property (readwrite) NSString *environment;
+@property (readwrite) NSURL *authority;
 
 @property (readwrite) NSString *username;
-@property (readwrite) NSString *givenName; // TODO: those fields are not set!
+@property (readwrite) NSString *givenName;
 @property (readwrite) NSString *middleName;
 @property (readwrite) NSString *familyName;
 @property (readwrite) NSString *name;
 
 @property (readwrite) MSIDClientInfo *clientInfo;
+@property (readwrite) NSString *alternativeAccountId;
 
 - (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
                         clientInfo:(MSIDClientInfo *)clientInfo;

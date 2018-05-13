@@ -45,17 +45,7 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                  error:(NSError **)error
 {
-    self = [super initWithJSONDictionary:json error:error];
-    
-    if (self)
-    {
-        if (token && [NSString msidIsStringNilOrBlank:self.idToken])
-        {
-            self.idToken = token.idToken;
-        }
-    }
-    
-    return self;
+    return [super initWithJSONDictionary:json error:error];
 }
 
 - (NSInteger)expiresIn

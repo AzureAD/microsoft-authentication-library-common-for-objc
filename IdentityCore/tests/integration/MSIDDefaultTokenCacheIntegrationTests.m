@@ -420,7 +420,7 @@
                                                         uniqueUserId:@"1.1234-5678-90abcdefg"];
 
     NSError *error = nil;
-    MSIDBaseToken *token = [_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDBaseToken *token = [_cacheAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                      account:account
                                                requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                      context:nil
@@ -437,7 +437,7 @@
                                                         uniqueUserId:nil];;
 
     NSError *error = nil;
-    MSIDBaseToken *token = [_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDBaseToken *token = [_cacheAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                     account:account
                                               requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                     context:nil
@@ -528,7 +528,7 @@
     
     // retrieve first at
     NSError *error = nil;
-    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                                                  account:account
                                                                            requestParams:requestParams
                                                                                  context:nil
@@ -560,7 +560,7 @@
     requestParams.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
 
     NSError *error = nil;
-    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                                                  account:account
                                                                            requestParams:requestParams
                                                                                  context:nil
@@ -594,7 +594,7 @@
                                                                             target:DEFAULT_TEST_SCOPE];
     
     NSError *error = nil;
-    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                                                  account:account
                                                                            requestParams:parameters
                                                                                  context:nil
@@ -642,7 +642,7 @@
                                                                             target:DEFAULT_TEST_SCOPE];
     
     NSError *error = nil;
-    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                                                  account:account
                                                                            requestParams:parameters
                                                                                  context:nil
@@ -679,7 +679,7 @@
     requestParams.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
 
     NSError *error = nil;
-    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                                                  account:account
                                                                            requestParams:requestParams
                                                                                  context:nil
@@ -721,7 +721,7 @@
     param.authority = nil;
 
     NSError *error = nil;
-    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_cacheAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                                                  account:account
                                                                            requestParams:param
                                                                                  context:nil
@@ -738,7 +738,7 @@
                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
 
     NSError *error = nil;
-    MSIDRefreshToken *returnedToken = (MSIDRefreshToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDRefreshToken *returnedToken = (MSIDRefreshToken *)[_cacheAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                              account:account
                        requestParams:[MSIDTestRequestParams v2DefaultParams]
                              context:nil
@@ -765,7 +765,7 @@
                                error:nil];
 
     NSError *error = nil;
-    MSIDRefreshToken *returnedToken = (MSIDRefreshToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDRefreshToken *returnedToken = (MSIDRefreshToken *)[_cacheAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                                                    account:account
                                                                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                                                    context:nil
@@ -794,7 +794,7 @@
                                                              uniqueUserId:nil];
     
     NSError *error = nil;
-    MSIDRefreshToken *returnedToken = (MSIDRefreshToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDRefreshToken *returnedToken = (MSIDRefreshToken *)[_cacheAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                                                    account:queryAccount
                                                                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                                                    context:nil
@@ -822,7 +822,7 @@
                                           error:nil];
 
     NSError *error = nil;
-    MSIDRefreshToken *returnedToken = (MSIDRefreshToken *)[_cacheAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDRefreshToken *returnedToken = (MSIDRefreshToken *)[_cacheAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                                                    account:account
                                                                              requestParams:[MSIDTestRequestParams v2DefaultParams]
                                                                                    context:nil
@@ -835,7 +835,7 @@
 - (void)testGetAllTokensOfType_whenTypeRefreshNoItemsInCache_shouldReturnEmptyResult
 {
     NSError *error = nil;
-    NSArray *results = [_cacheAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+    NSArray *results = [_cacheAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                              withClientId:[MSIDTestRequestParams v2DefaultParams].clientId
                                                   context:nil
                                                     error:nil];
@@ -862,7 +862,7 @@
                                           error:nil];
 
     NSError *error = nil;
-    NSArray *results = [_cacheAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+    NSArray *results = [_cacheAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                              withClientId:[MSIDTestRequestParams v2DefaultParams].clientId
                                                   context:nil
                                                     error:nil];
@@ -889,7 +889,7 @@
 
 
     NSError *error = nil;
-    NSArray *results = [_cacheAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+    NSArray *results = [_cacheAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                              withClientId:[MSIDTestRequestParams v2DefaultParams].clientId
                                                   context:nil
                                                     error:nil];
@@ -925,7 +925,7 @@
 
     // retrieve all RTs
     NSError *error = nil;
-    NSArray *results = [_cacheAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+    NSArray *results = [_cacheAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                              withClientId:[MSIDTestRequestParams v2DefaultParams].clientId
                                                   context:nil
                                                     error:nil];

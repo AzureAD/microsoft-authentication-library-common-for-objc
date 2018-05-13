@@ -23,7 +23,7 @@
 
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDAccessToken.h"
-#import "MSIDTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 #import "MSIDAccount.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDRequestParameters.h"
@@ -33,14 +33,14 @@
 
 #pragma mark - Generic
 
-+ (NSArray *)filterTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allCacheItems
-                         tokenType:(MSIDTokenType)tokenType
++ (NSArray *)filterTokenCacheItems:(NSArray<MSIDCredentialCacheItem *> *)allCacheItems
+                         tokenType:(MSIDCredentialType)tokenType
                        returnFirst:(BOOL)returnFirst
                           filterBy:(MSIDTokenCacheItemFiltering)tokenFiltering
 {
     NSMutableArray *matchedItems = [NSMutableArray new];
     
-    for (MSIDTokenCacheItem *cacheItem in allCacheItems)
+    for (MSIDCredentialCacheItem *cacheItem in allCacheItems)
     {
         if (tokenFiltering && tokenFiltering(cacheItem))
         {

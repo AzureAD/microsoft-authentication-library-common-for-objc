@@ -26,7 +26,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDRefreshToken.h"
 #import "NSDate+MSIDExtensions.h"
-#import "MSIDTokenCacheKey.h"
+#import "MSIDCacheKey.h"
 
 @implementation MSIDTelemetryCacheEvent
 
@@ -46,19 +46,19 @@
     return self;
 }
 
-- (void)setTokenType:(MSIDTokenType)tokenType
+- (void)setTokenType:(MSIDCredentialType)tokenType
 {
     switch (tokenType)
     {
-        case MSIDTokenTypeAccessToken:
+        case MSIDCredentialTypeAccessToken:
             [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_ACCESS_TOKEN];
             break;
             
-        case MSIDTokenTypeRefreshToken:
+        case MSIDCredentialTypeRefreshToken:
             [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_REFRESH_TOKEN];
             break;
             
-        case MSIDTokenTypeLegacySingleResourceToken:
+        case MSIDCredentialTypeLegacySingleResourceToken:
             [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_ADFS_TOKEN];
             break;
             
@@ -114,20 +114,20 @@
         return;
     }
     
-    [self setTokenType:token.tokenType];
+    [self setTokenType:token.credentialType];
     [self setSpeInfo:token.additionalServerInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
     
-    if (token.tokenType == MSIDTokenTypeLegacySingleResourceToken)
+    if (token.credentialType == MSIDCredentialTypeLegacySingleResourceToken)
     {
         [self setIsRT:MSID_TELEMETRY_VALUE_YES];
         [self setRTStatus:MSID_TELEMETRY_VALUE_TRIED];
     }
     
-    if (token.tokenType == MSIDTokenTypeRefreshToken)
+    if (token.credentialType == MSIDCredentialTypeRefreshToken)
     {
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *)token;
         
-        BOOL isFRT = [token.clientId isEqualToString:[MSIDTokenCacheKey familyClientId:refreshToken.familyId]];
+        BOOL isFRT = [token.clientId isEqualToString:[MSIDCacheKey familyClientId:refreshToken.familyId]];
         
         if (isFRT)
         {

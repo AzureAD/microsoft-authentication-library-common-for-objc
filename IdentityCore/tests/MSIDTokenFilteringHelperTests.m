@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import <XCTest/XCTest.h>
-#import "MSIDTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDBaseToken.h"
 #import "MSIDAccessToken.h"
@@ -45,16 +45,16 @@
 
 - (void)testFilterTokenCacheItems_whenReturnFirstYesAndFilterAll_shouldReturnOneItem
 {
-    MSIDTokenCacheItem *testItem = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem = [MSIDCredentialCacheItem new];
     testItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem.clientId = DEFAULT_TEST_CLIENT_ID;
     
     NSArray *input = @[testItem, testItem];
     
     NSArray *result = [MSIDTokenFilteringHelper filterTokenCacheItems:input
-                                                            tokenType:MSIDTokenTypeOther
+                                                            tokenType:MSIDCredentialTypeOther
                                                           returnFirst:YES
-                                                             filterBy:^BOOL(MSIDTokenCacheItem *tokenCacheItem) {
+                                                             filterBy:^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
                                                                  return YES;
                                                              }];
     
@@ -69,16 +69,16 @@
 
 - (void)testFilterTokenCacheItems_whenReturnFirstNoAndFilterAll_shouldReturnTwoItems
 {
-    MSIDTokenCacheItem *testItem = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem = [MSIDCredentialCacheItem new];
     testItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem.clientId = DEFAULT_TEST_CLIENT_ID;
     
     NSArray *input = @[testItem, testItem];
     
     NSArray *result = [MSIDTokenFilteringHelper filterTokenCacheItems:input
-                                                            tokenType:MSIDTokenTypeOther
+                                                            tokenType:MSIDCredentialTypeOther
                                                           returnFirst:NO
-                                                             filterBy:^BOOL(MSIDTokenCacheItem *tokenCacheItem) {
+                                                             filterBy:^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
                                                                  return YES;
                                                              }];
     
@@ -94,12 +94,12 @@
 
 - (void)testFilterTokenCacheItems_whenReturnFirstYesAndFilterNone_shouldReturnEmptyResult
 {
-    NSArray *input = @[[MSIDTokenCacheItem new], [MSIDTokenCacheItem new]];
+    NSArray *input = @[[MSIDCredentialCacheItem new], [MSIDCredentialCacheItem new]];
     
     NSArray *result = [MSIDTokenFilteringHelper filterTokenCacheItems:input
-                                                            tokenType:MSIDTokenTypeOther
+                                                            tokenType:MSIDCredentialTypeOther
                                                           returnFirst:YES
-                                                             filterBy:^BOOL(MSIDTokenCacheItem *tokenCacheItem) {
+                                                             filterBy:^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
                                                                  return NO;
                                                              }];
     
@@ -108,12 +108,12 @@
 
 - (void)testFilterTokenCacheItems_whenReturnFirstNoFilterNone_shouldReturnEmptyResult
 {
-    NSArray *input = @[[MSIDTokenCacheItem new], [MSIDTokenCacheItem new]];
+    NSArray *input = @[[MSIDCredentialCacheItem new], [MSIDCredentialCacheItem new]];
     
     NSArray *result = [MSIDTokenFilteringHelper filterTokenCacheItems:input
-                                                            tokenType:MSIDTokenTypeOther
+                                                            tokenType:MSIDCredentialTypeOther
                                                           returnFirst:NO
-                                                             filterBy:^BOOL(MSIDTokenCacheItem *tokenCacheItem) {
+                                                             filterBy:^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
                                                                  return NO;
                                                              }];
     
@@ -124,7 +124,7 @@
 
 - (void)testFilterAllAccessTokensWithScopes_whenNotSubset_shouldReturnEmptyResult
 {
-    MSIDTokenCacheItem *testItem = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem = [MSIDCredentialCacheItem new];
     testItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
@@ -140,12 +140,12 @@
 
 - (void)testFilterAllAccessTokensWithScopes_whenIsSubset_shouldReturnMatch
 {
-    MSIDTokenCacheItem *testItem = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem = [MSIDCredentialCacheItem new];
     testItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     testItem.target = @"user.read user.write";
-    testItem.tokenType = MSIDTokenTypeAccessToken;
+    testItem.credentialType = MSIDCredentialTypeAccessToken;
     
     NSArray *input = @[testItem, testItem];
     
@@ -157,21 +157,21 @@
 
 - (void)testFilterAccessTokensWithParameters_whenDifferentAuthorities_shouldReturnError
 {
-    MSIDTokenCacheItem *testItem1 = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem1 = [MSIDCredentialCacheItem new];
     testItem1.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem1.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem1.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     testItem1.target = @"user.read user.write";
     testItem1.uniqueUserId = DEFAULT_TEST_UID;
-    testItem1.tokenType = MSIDTokenTypeAccessToken;
+    testItem1.credentialType = MSIDCredentialTypeAccessToken;
     
-    MSIDTokenCacheItem *testItem2 = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem2 = [MSIDCredentialCacheItem new];
     testItem2.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/different_tenant"];
     testItem2.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem2.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     testItem2.target = @"user.read user.write";
     testItem2.uniqueUserId = DEFAULT_TEST_UID;
-    testItem2.tokenType = MSIDTokenTypeAccessToken;
+    testItem2.credentialType = MSIDCredentialTypeAccessToken;
     
     NSArray *input = @[testItem1, testItem2];
     
@@ -198,21 +198,21 @@
 
 - (void)testFilterAccessTokensWithParameters_withSameAuthoritiesDifferentClientId_shouldReturnEmptyResult
 {
-    MSIDTokenCacheItem *testItem1 = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem1 = [MSIDCredentialCacheItem new];
     testItem1.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem1.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem1.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     testItem1.target = @"user.read user.write";
     testItem1.uniqueUserId = DEFAULT_TEST_UID;
-    testItem1.tokenType = MSIDTokenTypeAccessToken;
+    testItem1.credentialType = MSIDCredentialTypeAccessToken;
     
-    MSIDTokenCacheItem *testItem2 = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem2 = [MSIDCredentialCacheItem new];
     testItem2.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem2.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem2.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     testItem2.target = @"user.read user.write";
     testItem2.uniqueUserId = DEFAULT_TEST_UID;
-    testItem2.tokenType = MSIDTokenTypeAccessToken;
+    testItem2.credentialType = MSIDCredentialTypeAccessToken;
     
     NSArray *input = @[testItem1, testItem2];
     
@@ -237,21 +237,21 @@
 
 - (void)testFilterAccessTokensWithParameters_withSameParameters_shouldReturnMatch
 {
-    MSIDTokenCacheItem *testItem1 = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem1 = [MSIDCredentialCacheItem new];
     testItem1.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem1.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem1.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     testItem1.target = @"user.read user.write";
     testItem1.uniqueUserId = DEFAULT_TEST_UID;
-    testItem1.tokenType = MSIDTokenTypeAccessToken;
+    testItem1.credentialType = MSIDCredentialTypeAccessToken;
     
-    MSIDTokenCacheItem *testItem2 = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem2 = [MSIDCredentialCacheItem new];
     testItem2.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem2.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem2.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     testItem2.target = @"user.read user.write";
     testItem2.uniqueUserId = DEFAULT_TEST_UID;
-    testItem2.tokenType = MSIDTokenTypeAccessToken;
+    testItem2.credentialType = MSIDCredentialTypeAccessToken;
     
     NSArray *input = @[testItem1, testItem2];
     
@@ -272,8 +272,8 @@
     
     XCTAssertNil(error);
     XCTAssertEqual([result count], 2);
-    XCTAssertEqualObjects(result[0], [testItem1 tokenWithType:MSIDTokenTypeAccessToken]);
-    XCTAssertEqualObjects(result[1], [testItem2 tokenWithType:MSIDTokenTypeAccessToken]);
+    XCTAssertEqualObjects(result[0], [testItem1 tokenWithType:MSIDCredentialTypeAccessToken]);
+    XCTAssertEqualObjects(result[1], [testItem2 tokenWithType:MSIDCredentialTypeAccessToken]);
 }
 
 #pragma mark - Refresh tokens
@@ -282,20 +282,20 @@
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"name" preferredUsername:@"user.me"];
     
-    MSIDTokenCacheItem *testItem1 = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem1 = [MSIDCredentialCacheItem new];
     testItem1.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem1.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem1.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     testItem1.uniqueUserId = DEFAULT_TEST_UID;
-    testItem1.tokenType = MSIDTokenTypeRefreshToken;
+    testItem1.credentialType = MSIDCredentialTypeRefreshToken;
     testItem1.idToken = idToken;
     
-    MSIDTokenCacheItem *testItem2 = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem2 = [MSIDCredentialCacheItem new];
     testItem2.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem2.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem2.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     testItem2.uniqueUserId = DEFAULT_TEST_UID;
-    testItem2.tokenType = MSIDTokenTypeRefreshToken;
+    testItem2.credentialType = MSIDCredentialTypeRefreshToken;
     testItem2.idToken = idToken;
     
     NSArray *input = @[testItem1, testItem2];
@@ -306,7 +306,7 @@
                                                                      context:nil];
     
     XCTAssertEqual([result count], 1);
-    XCTAssertEqualObjects(result[0], [testItem1 tokenWithType:MSIDTokenTypeRefreshToken]);
+    XCTAssertEqualObjects(result[0], [testItem1 tokenWithType:MSIDCredentialTypeRefreshToken]);
     
 }
 
@@ -314,20 +314,20 @@
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"name" preferredUsername:@"user.me2"];
     
-    MSIDTokenCacheItem *testItem1 = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem1 = [MSIDCredentialCacheItem new];
     testItem1.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem1.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem1.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     testItem1.uniqueUserId = DEFAULT_TEST_UID;
-    testItem1.tokenType = MSIDTokenTypeRefreshToken;
+    testItem1.credentialType = MSIDCredentialTypeRefreshToken;
     testItem1.idToken = idToken;
     
-    MSIDTokenCacheItem *testItem2 = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *testItem2 = [MSIDCredentialCacheItem new];
     testItem2.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     testItem2.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem2.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     testItem2.uniqueUserId = DEFAULT_TEST_UID;
-    testItem2.tokenType = MSIDTokenTypeRefreshToken;
+    testItem2.credentialType = MSIDCredentialTypeRefreshToken;
     testItem2.idToken = idToken;
     
     NSArray *input = @[testItem1, testItem2];

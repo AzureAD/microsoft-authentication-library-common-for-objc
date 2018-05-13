@@ -23,22 +23,20 @@
 
 #import "MSIDJsonSerializer.h"
 #import "MSIDJsonObject.h"
-#import "MSIDTokenCacheItem.h"
-#import "MSIDCacheItem.h"
-#import "MSIDTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 #import "MSIDAccountCacheItem.h"
 
 @implementation MSIDJsonSerializer
 
-- (NSData *)serialize:(MSIDCacheItem *)item
+- (NSData *)serialize:(NSDictionary *)jsonDictionary
 {
-    if (!item)
+    if (!jsonDictionary)
     {
         return nil;
     }
     
     NSError *error;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:[item jsonDictionary]
+    NSData *data = [NSJSONSerialization dataWithJSONObject:jsonDictionary
                                                    options:0
                                                      error:&error];
     if (error)
@@ -51,7 +49,7 @@
     return data;
 }
 
-- (MSIDCacheItem *)deserialize:(NSData *)data className:(Class)className
+- (NSDictionary *)deserialize:(NSData *)data
 {
     NSError *error = nil;
     NSDictionary *json = [self deserializeJSON:data error:&error];
@@ -63,7 +61,7 @@
         return nil;
     }
     
-    return [[className alloc] initWithJSONDictionary:json error:nil];
+    return json;
 }
 
 #pragma mark - Private
@@ -90,26 +88,50 @@
 
 #pragma mark - Token
 
-- (NSData *)serializeTokenCacheItem:(MSIDTokenCacheItem *)item
+- (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item
 {
-    return [self serialize:item];
+    return [self serialize:item.jsonDictionary];
 }
 
-- (MSIDTokenCacheItem *)deserializeTokenCacheItem:(NSData *)data
+- (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data
 {
-    return (MSIDTokenCacheItem *)[self deserialize:data className:MSIDTokenCacheItem.class];
+    NSDictionary *jsonDictionary = [self deserialize:data];
+
+    NSError *error = nil;
+
+    MSIDCredentialCacheItem *item = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+
+    if (!item)
+    {
+        MSID_LOG_WARN(nil, @"Failed to deserialize credential %@", error);
+        return nil;
+    }
+
+    return item;
 }
 
 #pragma mark - Account
 
 - (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item
 {
-    return [self serialize:item];
+    return [self serialize:item.jsonDictionary];
 }
 
 - (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data
 {
-    return (MSIDAccountCacheItem *)[self deserialize:data className:MSIDAccountCacheItem.class];
+    NSDictionary *jsonDictionary = [self deserialize:data];
+
+    NSError *error = nil;
+
+    MSIDAccountCacheItem *item = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+
+    if (!item)
+    {
+        MSID_LOG_WARN(nil, @"Failed to deserialize credential %@", error);
+        return nil;
+    }
+
+    return item;
 }
 
 @end

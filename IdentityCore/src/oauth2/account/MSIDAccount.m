@@ -29,6 +29,8 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDClientInfo.h"
+#import "MSIDClientInfo.h"
+#import "MSIDClientInfo.h"
 
 @implementation MSIDAccount
 
@@ -40,13 +42,14 @@
     item->_uniqueUserId = [_uniqueUserId copyWithZone:zone];
     item->_legacyUserId = [_legacyUserId copyWithZone:zone];
     item->_accountType = _accountType;
-    item->_environment = [_environment copyWithZone:zone];
+    item->_authority = [_authority copyWithZone:zone];
     item->_username = [_username copyWithZone:zone];
     item->_givenName = [_givenName copyWithZone:zone];
     item->_middleName = [_middleName copyWithZone:zone];
     item->_familyName = [_familyName copyWithZone:zone];
     item->_name = [_name copyWithZone:zone];
     item->_clientInfo = [_clientInfo copyWithZone:zone];
+    item->_alternativeAccountId = [_alternativeAccountId copyWithZone:zone];
     return item;
 }
 
@@ -73,12 +76,13 @@
     hash = hash * 31 + self.uniqueUserId.hash;
     hash = hash * 31 + self.legacyUserId.hash;
     hash = hash * 31 + self.accountType;
-    hash = hash * 31 + self.environment.hash;
+    hash = hash * 31 + self.authority.hash;
     hash = hash * 31 + self.username.hash;
     hash = hash * 31 + self.givenName.hash;
     hash = hash * 31 + self.middleName.hash;
     hash = hash * 31 + self.familyName.hash;
     hash = hash * 31 + self.name.hash;
+    hash = hash * 31 + self.alternativeAccountId.hash;
     hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
     return hash;
 }
@@ -94,12 +98,13 @@
     result &= (!self.uniqueUserId && !account.uniqueUserId) || [self.uniqueUserId isEqualToString:account.uniqueUserId];
     result &= (!self.legacyUserId && !account.legacyUserId) || [self.legacyUserId isEqualToString:account.legacyUserId];
     result &= self.accountType == account.accountType;
-    result &= (!self.environment && !account.environment) || [self.environment isEqualToString:account.environment];
+    result &= (!self.alternativeAccountId && !account.alternativeAccountId) || [self.alternativeAccountId isEqualToString:account.alternativeAccountId];
     result &= (!self.username && !account.username) || [self.username isEqualToString:account.username];
     result &= (!self.givenName && !account.givenName) || [self.givenName isEqualToString:account.givenName];
     result &= (!self.middleName && !account.middleName) || [self.middleName isEqualToString:account.middleName];
     result &= (!self.familyName && !account.familyName) || [self.familyName isEqualToString:account.familyName];
     result &= (!self.name && !account.name) || [self.name isEqualToString:account.name];
+    result &= (!self.authority && !account.authority) || [self.authority isEqual:account.authority];
 
     result &= (!self.clientInfo.rawClientInfo && !account.clientInfo.rawClientInfo) || [self.clientInfo.rawClientInfo isEqualToString:account.clientInfo.rawClientInfo];
     return result;
@@ -150,7 +155,6 @@
         
         _legacyUserId = cacheItem.legacyUserId;
         _accountType = cacheItem.accountType;
-        _environment = cacheItem.environment;
         _givenName = cacheItem.givenName;
         _familyName = cacheItem.familyName;
         _middleName = cacheItem.middleName;
@@ -158,6 +162,12 @@
         _username = cacheItem.username;
         _uniqueUserId = cacheItem.uniqueUserId;
         _clientInfo = cacheItem.clientInfo;
+        _alternativeAccountId = cacheItem.alternativeAccountId;
+
+        NSString *environment = cacheItem.environment;
+        NSString *tenant = cacheItem.realm;
+
+        _authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
     }
     
     return self;
@@ -166,7 +176,8 @@
 - (MSIDAccountCacheItem *)accountCacheItem
 {
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
-    cacheItem.environment = self.environment;
+    cacheItem.environment = self.authority.msidHostWithPortIfNecessary;
+    cacheItem.realm = self.authority.msidTenant;
     cacheItem.username = self.username;
     cacheItem.uniqueUserId = self.uniqueUserId;
     cacheItem.legacyUserId = self.legacyUserId;
@@ -184,8 +195,8 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"(environment=%@ username=%@ uniqueUserId=%@ clientInfo=%@ accountType=%@ legacyUserId=%@)",
-            _environment, _username, _uniqueUserId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _legacyUserId];
+    return [NSString stringWithFormat:@"(authority=%@ username=%@ uniqueUserId=%@ clientInfo=%@ accountType=%@ legacyUserId=%@)",
+            _authority, _username, _uniqueUserId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _legacyUserId];
 }
 
 @end

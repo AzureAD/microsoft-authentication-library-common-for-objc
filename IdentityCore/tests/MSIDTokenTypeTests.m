@@ -22,72 +22,72 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDTokenType.h"
+#import "MSIDCredentialType.h"
 
-@interface MSIDTokenTypeTests : XCTestCase
+@interface MSIDCredentialTypeTests : XCTestCase
 
 @end
 
-@implementation MSIDTokenTypeTests
+@implementation MSIDCredentialTypeTests
 
-- (void)testTokenTypeAsString_whenAccessTokenType_shouldReturnAccessTokenString
+- (void)testcredentialTypeAsString_whenAccessTokenType_shouldReturnAccessTokenString
 {
-    NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeAccessToken];
+    NSString *result = [MSIDCredentialTypeHelpers credentialTypeAsString:MSIDCredentialTypeAccessToken];
     XCTAssertEqualObjects(result, @"accesstoken");
 }
 
-- (void)testTokenTypeAsString_whenRefreshTokenType_shouldReturnRefreshTokenString
+- (void)testcredentialTypeAsString_whenRefreshTokenType_shouldReturnRefreshTokenString
 {
-    NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeRefreshToken];
+    NSString *result = [MSIDCredentialTypeHelpers credentialTypeAsString:MSIDCredentialTypeRefreshToken];
     XCTAssertEqualObjects(result, @"refreshtoken");
 }
 
-- (void)testTokenTypeAsString_whenIDTokenType_shouldReturnIDTokenString
+- (void)testcredentialTypeAsString_whenIDTokenType_shouldReturnIDTokenString
 {
-    NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeIDToken];
+    NSString *result = [MSIDCredentialTypeHelpers credentialTypeAsString:MSIDCredentialTypeIDToken];
     XCTAssertEqualObjects(result, @"idtoken");
 }
 
-- (void)testTokenTypeAsString_whenLegacyTokenType_shouldReturnLegacyTokenString
+- (void)testcredentialTypeAsString_whenLegacyTokenType_shouldReturnLegacyTokenString
 {
-    NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeLegacySingleResourceToken];
+    NSString *result = [MSIDCredentialTypeHelpers credentialTypeAsString:MSIDCredentialTypeLegacySingleResourceToken];
     XCTAssertEqualObjects(result, @"legacysingleresourcetoken");
 }
 
-- (void)testTokenTypeAsString_whenOtherTokenType_shouldReturnOtherTokenString
+- (void)testcredentialTypeAsString_whenOtherTokenType_shouldReturnOtherTokenString
 {
-    NSString *result = [MSIDTokenTypeHelpers tokenTypeAsString:MSIDTokenTypeOther];
+    NSString *result = [MSIDCredentialTypeHelpers credentialTypeAsString:MSIDCredentialTypeOther];
     XCTAssertEqualObjects(result, @"token");
 }
 
 - (void)testTokenTypeFromString_whenAccessTokenString_shouldReturnAccessTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"accesstoken"];
-    XCTAssertEqual(result, MSIDTokenTypeAccessToken);
+    MSIDCredentialType result = [MSIDCredentialTypeHelpers tokenTypeFromString:@"accesstoken"];
+    XCTAssertEqual(result, MSIDCredentialTypeAccessToken);
 }
 
 - (void)testTokenTypeFromString_whenRefreshTokenString_shouldReturnRefreshTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"refreshtoken"];
-    XCTAssertEqual(result, MSIDTokenTypeRefreshToken);
+    MSIDCredentialType result = [MSIDCredentialTypeHelpers tokenTypeFromString:@"refreshtoken"];
+    XCTAssertEqual(result, MSIDCredentialTypeRefreshToken);
 }
 
 - (void)testTokenTypeFromString_whenIDTokenString_shouldReturnIDTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"idtoken"];
-    XCTAssertEqual(result, MSIDTokenTypeIDToken);
+    MSIDCredentialType result = [MSIDCredentialTypeHelpers tokenTypeFromString:@"idtoken"];
+    XCTAssertEqual(result, MSIDCredentialTypeIDToken);
 }
 
 - (void)testTokenTypeFromString_whenLegacyTokenString_shouldReturnLegacyTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"legacysingleresourcetoken"];
-    XCTAssertEqual(result, MSIDTokenTypeLegacySingleResourceToken);
+    MSIDCredentialType result = [MSIDCredentialTypeHelpers tokenTypeFromString:@"legacysingleresourcetoken"];
+    XCTAssertEqual(result, MSIDCredentialTypeLegacySingleResourceToken);
 }
 
 - (void)testTokenTypeFromString_whenOtherTokenString_shouldReturnOtherTokenType
 {
-    MSIDTokenType result = [MSIDTokenTypeHelpers tokenTypeFromString:@"token"];
-    XCTAssertEqual(result, MSIDTokenTypeOther);
+    MSIDCredentialType result = [MSIDCredentialTypeHelpers tokenTypeFromString:@"token"];
+    XCTAssertEqual(result, MSIDCredentialTypeOther);
 }
 
 @end

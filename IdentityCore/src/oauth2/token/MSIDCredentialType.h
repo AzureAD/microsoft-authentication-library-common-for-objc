@@ -23,35 +23,19 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDTokenCacheKey : NSObject
+typedef NS_ENUM(NSInteger, MSIDCredentialType)
+{
+    MSIDCredentialTypeOther = 0,
+    MSIDCredentialTypeAccessToken = 1,
+    MSIDCredentialTypeRefreshToken = 2,
+    MSIDCredentialTypeIDToken = 3,
+    MSIDCredentialTypeLegacySingleResourceToken = 4
+};
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDCredentialTypeHelpers : NSObject
 
-/* Corresponds to kSecAttrAccount */
-@property (nullable, readonly) NSString *account;
-
-/* Corresponds to kSecAttrService */
-@property (nullable, readonly) NSString *service;
-
-/* Corresponds to kSecAttrType */
-@property (nullable, readonly) NSNumber *type;
-
-/* Corresponds to kSecAttrGeneric */
-@property (nullable, readonly) NSData *generic;
-
-- (nullable id)initWithAccount:(nullable NSString *)account
-                       service:(nullable NSString *)service
-                       generic:(nullable NSData *)generic
-                          type:(nullable NSNumber *)type;
-
-/*!
- Helper method to get the clientId from the provided familyId
- */
-+ (NSString *)familyClientId:(NSString *)familyId;
-
-- (NSString *)logDescription;
-- (NSString *)piiLogDescription;
-
-NS_ASSUME_NONNULL_END
++ (NSString *)credentialTypeAsString:(MSIDCredentialType)type;
++ (MSIDCredentialType)credentialTypeFromString:(NSString *)type;
++ (MSIDCredentialType)credentialTypeWithRefreshToken:(NSString *)refreshToken accessToken:(NSString *)accessToken;
 
 @end

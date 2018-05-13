@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
-#import "MSIDTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDSharedTokenCache.h"
@@ -112,7 +112,7 @@
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    MSIDBaseToken *returnedToken = [_legacyCacheAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDBaseToken *returnedToken = [_legacyCacheAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                                   account:account
                                                             requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                                   context:reqContext
@@ -178,7 +178,7 @@
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    NSArray *returnedTokens = [_legacyCacheAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+    NSArray *returnedTokens = [_legacyCacheAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                                           withClientId:DEFAULT_TEST_CLIENT_ID
                                                                context:reqContext
                                                                  error:&error];
@@ -243,7 +243,7 @@
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    MSIDBaseToken *returnedToken = [_defaultCacheAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDBaseToken *returnedToken = [_defaultCacheAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                                    account:account
                                                              requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                                    context:reqContext
@@ -309,7 +309,7 @@
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    NSArray *returnedTokens = [_defaultCacheAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+    NSArray *returnedTokens = [_defaultCacheAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                                            withClientId:DEFAULT_TEST_CLIENT_ID
                                                                 context:reqContext
                                                                   error:&error];

@@ -22,14 +22,14 @@
 // THE SOFTWARE.
 
 #import "MSIDAccountCredentialCache.h"
-#import "MSIDTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 #import "MSIDAccountCacheItem.h"
-#import "MSIDDefaultTokenCacheKey.h"
+#import "MSIDDefaultCredentialCacheKey.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDTokenCacheDataSource.h"
 #import "MSIDTokenFilteringHelper.h"
-#import "MSIDTokenCacheKey.h"
-#import "MSIDDefaultTokenCacheQuery.h"
+#import "MSIDCacheKey.h"
+#import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDDefaultAccountCacheQuery.h"
 
 @interface MSIDAccountCredentialCache()
@@ -60,14 +60,14 @@
 #pragma mark - Public
 
 // Reading credentials
-- (nullable NSArray<MSIDTokenCacheItem *> *)getCredentialsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+- (nullable NSArray<MSIDCredentialCacheItem *> *)getCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                                                        legacyUserId:(nullable NSString *)legacyUserId
                                                             context:(nullable id<MSIDRequestContext>)context
                                                               error:(NSError * _Nullable * _Nullable)error
 {
     NSError *cacheError = nil;
 
-    NSArray<MSIDTokenCacheItem *> *results = [_dataSource tokensWithKey:cacheQuery
+    NSArray<MSIDCredentialCacheItem *> *results = [_dataSource tokensWithKey:cacheQuery
                                                              serializer:_serializer
                                                                 context:context
                                                                   error:&cacheError];
@@ -88,7 +88,7 @@
 
         NSMutableArray *filteredResults = [NSMutableArray array];
 
-        for (MSIDTokenCacheItem *cacheItem in results)
+        for (MSIDCredentialCacheItem *cacheItem in results)
         {
             if (shouldMatchAccount
                 && ![cacheItem matchesWithUniqueUserId:cacheQuery.uniqueUserId environment:cacheQuery.environment])
@@ -117,7 +117,7 @@
     return results;
 }
 
-- (nullable MSIDTokenCacheItem *)getCredential:(nonnull MSIDDefaultTokenCacheKey *)key
+- (nullable MSIDCredentialCacheItem *)getCredential:(nonnull MSIDDefaultCredentialCacheKey *)key
                                        context:(nullable id<MSIDRequestContext>)context
                                          error:(NSError * _Nullable * _Nullable)error
 {
@@ -129,13 +129,13 @@
     return [_dataSource tokenWithKey:key serializer:_serializer context:context error:error];
 }
 
-- (nullable NSArray<MSIDTokenCacheItem *> *)getAllCredentialsWithType:(MSIDTokenType)type
+- (nullable NSArray<MSIDCredentialCacheItem *> *)getAllCredentialsWithType:(MSIDCredentialType)type
                                                               context:(nullable id<MSIDRequestContext>)context
                                                                 error:(NSError * _Nullable * _Nullable)error
 {
-    MSID_LOG_VERBOSE(context, @"(Default cache) Get all credentials with type %@", [MSIDTokenTypeHelpers tokenTypeAsString:type]);
+    MSID_LOG_VERBOSE(context, @"(Default cache) Get all credentials with type %@", [MSIDCredentialTypeHelpers credentialTypeAsString:type]);
 
-    MSIDDefaultTokenCacheQuery *query = [MSIDDefaultTokenCacheQuery new];
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = type;
     return [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 }
@@ -154,7 +154,7 @@
     return [_dataSource accountsWithKey:cacheQuery serializer:_serializer context:context error:error];
 }
 
-- (nullable MSIDAccountCacheItem *)getAccount:(nonnull MSIDDefaultTokenCacheKey *)key
+- (nullable MSIDAccountCacheItem *)getAccount:(nonnull MSIDDefaultCredentialCacheKey *)key
                                       context:(nullable id<MSIDRequestContext>)context
                                         error:(NSError * _Nullable * _Nullable)error
 {
@@ -178,32 +178,32 @@
     return [_dataSource accountsWithKey:query serializer:_serializer context:context error:error];
 }
 
-- (nullable NSArray<MSIDTokenCacheItem *> *)getAllItemsWithContext:(nullable id<MSIDRequestContext>)context
+- (nullable NSArray<MSIDCredentialCacheItem *> *)getAllItemsWithContext:(nullable id<MSIDRequestContext>)context
                                                              error:(NSError * _Nullable * _Nullable)error
 {
     MSID_LOG_VERBOSE(context, @"(Default cache) Get all items from cache");
 
-    MSIDDefaultTokenCacheQuery *query = [MSIDDefaultTokenCacheQuery new];
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     return [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 }
 
 // Writing credentials
-- (BOOL)saveCredential:(nonnull MSIDTokenCacheItem *)credential
+- (BOOL)saveCredential:(nonnull MSIDCredentialCacheItem *)credential
                context:(nullable id<MSIDRequestContext>)context
                  error:(NSError * _Nullable * _Nullable)error
 {
     assert(credential);
 
-    MSID_LOG_VERBOSE(context, @"(Default cache) Saving token %@ with authority %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:credential.tokenType], credential.authority, credential.clientId);
+    MSID_LOG_VERBOSE(context, @"(Default cache) Saving token %@ with authority %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credential.credentialType], credential.authority, credential.clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving token %@ for userID %@ with authority %@, clientID %@,", credential, credential.uniqueUserId, credential.authority, credential.clientId);
 
-    MSIDDefaultTokenCacheKey *key = [[MSIDDefaultTokenCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultTokenCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
                                                                                environment:credential.authority.msidHostWithPortIfNecessary];
 
     key.clientId = credential.clientId;
     key.realm = credential.authority.msidTenant;
     key.target = credential.target;
-    key.credentialType = credential.tokenType;
+    key.credentialType = credential.credentialType;
 
     return [_dataSource saveToken:credential
                               key:key
@@ -244,55 +244,55 @@
 }
 
 // Remove credentials
-- (BOOL)removeCredetialsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+- (BOOL)removeCredetialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                           context:(nullable id<MSIDRequestContext>)context
                             error:(NSError * _Nullable * _Nullable)error
 {
     assert(cacheQuery);
 
-    MSID_LOG_VERBOSE(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDTokenTypeHelpers tokenTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, cacheQuery.uniqueUserId, cacheQuery.target);
+    MSID_LOG_VERBOSE(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, cacheQuery.uniqueUserId, cacheQuery.target);
 
     if (cacheQuery.exactMatch)
     {
         return [_dataSource removeItemsWithKey:cacheQuery context:context error:error];
     }
 
-    NSArray<MSIDTokenCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery legacyUserId:nil context:context error:error];
+    NSArray<MSIDCredentialCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery legacyUserId:nil context:context error:error];
 
     return [self removeAllCredentials:matchedCredentials
                               context:context
                                 error:error];
 }
 
-- (BOOL)removeCredential:(nonnull MSIDTokenCacheItem *)credential
+- (BOOL)removeCredential:(nonnull MSIDCredentialCacheItem *)credential
                  context:(nullable id<MSIDRequestContext>)context
                    error:(NSError * _Nullable * _Nullable)error
 {
     assert(credential);
 
-    MSID_LOG_VERBOSE(context, @"(Default cache) Removing credential %@ with authority %@, clientID %@", [MSIDTokenTypeHelpers tokenTypeAsString:credential.tokenType], credential.authority, credential.clientId);
+    MSID_LOG_VERBOSE(context, @"(Default cache) Removing credential %@ with authority %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credential.credentialType], credential.authority, credential.clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credential %@ for userID %@ with authority %@, clientID %@,", credential, credential.uniqueUserId, credential.authority, credential.clientId);
 
-    MSIDDefaultTokenCacheKey *key = [[MSIDDefaultTokenCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultTokenCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
                                                                                environment:credential.authority.msidHostWithPortIfNecessary];
 
     key.clientId = credential.clientId;
     key.realm = credential.authority.msidTenant;
     key.target = credential.target;
-    key.credentialType = credential.tokenType;
+    key.credentialType = credential.credentialType;
 
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
 
-    if (result && credential.tokenType == MSIDTokenTypeRefreshToken)
+    if (result && credential.credentialType == MSIDCredentialTypeRefreshToken)
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
 
-        MSIDDefaultTokenCacheQuery *query = [MSIDDefaultTokenCacheQuery new];
+        MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
         query.uniqueUserId = credential.uniqueUserId;
         query.environment = credential.authority.msidHostWithPortIfNecessary;
         query.clientId = credential.clientId;
-        query.credentialType = MSIDTokenTypeIDToken;
+        query.credentialType = MSIDCredentialTypeIDToken;
 
         return [self removeCredetialsWithQuery:query context:context error:error];
     }
@@ -301,7 +301,7 @@
 }
 
 // Remove accounts
-- (BOOL)removeAccountsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+- (BOOL)removeAccountsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                         context:(nullable id<MSIDRequestContext>)context
                           error:(NSError * _Nullable * _Nullable)error
 {
@@ -335,11 +335,11 @@
                    error:(NSError * _Nullable * _Nullable)error
 {
     MSID_LOG_WARN(context, @"(Default cache) Clearing the whole cache, this method should only be called in tests");
-    MSIDDefaultTokenCacheQuery *query = [MSIDDefaultTokenCacheQuery new];
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     return [_dataSource removeItemsWithKey:query context:context error:error];
 }
 
-- (BOOL)removeAllCredentials:(nonnull NSArray<MSIDTokenCacheItem *> *)credentials
+- (BOOL)removeAllCredentials:(nonnull NSArray<MSIDCredentialCacheItem *> *)credentials
                      context:(nullable id<MSIDRequestContext>)context
                        error:(NSError * _Nullable * _Nullable)error
 {
@@ -349,7 +349,7 @@
 
     BOOL result = YES;
 
-    for (MSIDTokenCacheItem *item in credentials)
+    for (MSIDCredentialCacheItem *item in credentials)
     {
         result &= [self removeCredential:item context:context error:error];
     }

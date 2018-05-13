@@ -21,22 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenType.h"
-#import "MSIDDefaultTokenCacheKey.h"
-#import "MSIDAccountIdentifiers.h"
+#import "MSIDRefreshToken.h"
 
-typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
-    Any,
-    ExactStringMatch,
-    SubSet,
-    Intersect,
-};
+@class MSIDLegacyTokenCacheItem;
 
-@interface MSIDDefaultTokenCacheQuery : MSIDDefaultTokenCacheKey
+@interface MSIDLegacyRefreshToken : MSIDRefreshToken
 
-@property (nonatomic) MSIDComparisonOptions targetMatchingOptions;
-@property (nonatomic) BOOL matchAnyCredentialType;
-@property (nonatomic, readonly) BOOL exactMatch;
+@property (readwrite) NSString *idToken;
+@property (readwrite) NSString *legacyUserId;
+
+- (instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)legacyTokenCacheItem;
 
 @end

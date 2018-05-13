@@ -22,20 +22,36 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDSharedCacheAccessor.h"
-#import "MSIDBaseToken.h"
 
-@interface MSIDTestCacheAccessor : NSObject <MSIDSharedCacheAccessor>
+@interface MSIDCacheKey : NSObject
 
-@property (nonatomic) BOOL requireLegacyUserId;
-@property (nonatomic) BOOL requireDefaultUserId;
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)addToken:(MSIDBaseToken *)token forAccount:(MSIDAccount *)account;
-- (void)reset;
-- (NSArray *)allAccessTokens;
-- (NSArray *)allRefreshTokens;
-- (NSArray *)allMRRTTokensWithClientId:(NSString *)clientId;
-- (NSArray *)allFRTTokensWithFamilyId:(NSString *)familyId;
-- (NSArray *)allTokensWithType:(MSIDCredentialType)type clientId:(NSString *)clientId;
+/* Corresponds to kSecAttrAccount */
+@property (nullable, readonly) NSString *account;
+
+/* Corresponds to kSecAttrService */
+@property (nullable, readonly) NSString *service;
+
+/* Corresponds to kSecAttrType */
+@property (nullable, readonly) NSNumber *type;
+
+/* Corresponds to kSecAttrGeneric */
+@property (nullable, readonly) NSData *generic;
+
+- (nullable id)initWithAccount:(nullable NSString *)account
+                       service:(nullable NSString *)service
+                       generic:(nullable NSData *)generic
+                          type:(nullable NSNumber *)type;
+
+/*!
+ Helper method to get the clientId from the provided familyId
+ */
++ (NSString *)familyClientId:(NSString *)familyId;
+
+- (NSString *)logDescription;
+- (NSString *)piiLogDescription;
+
+NS_ASSUME_NONNULL_END
 
 @end

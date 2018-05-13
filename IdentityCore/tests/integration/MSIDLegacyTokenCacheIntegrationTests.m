@@ -152,7 +152,7 @@
     XCTAssertEqual([legacyTokensInCache count], 1);
     
     MSIDLegacySingleResourceToken *legacyToken = legacyTokensInCache[0];
-    XCTAssertEqual(legacyToken.tokenType, MSIDTokenTypeLegacySingleResourceToken);
+    XCTAssertEqual(legacyToken.credentialType, MSIDCredentialTypeLegacySingleResourceToken);
     XCTAssertEqualObjects(legacyToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(legacyToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
@@ -288,7 +288,7 @@
                                                        uniqueUserId:@"some id"];
     
     NSError *error = nil;
-    MSIDBaseToken *token = [_legacyAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDBaseToken *token = [_legacyAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                      account:account
                                                requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                      context:nil
@@ -317,7 +317,7 @@
     
     account.legacyUserId = nil;
     
-    MSIDAccessToken *token = (MSIDAccessToken *)[_legacyAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDAccessToken *token = (MSIDAccessToken *)[_legacyAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                                           account:account
                                                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                                           context:nil
@@ -325,7 +325,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    XCTAssertEqual(token.tokenType, MSIDTokenTypeAccessToken);
+    XCTAssertEqual(token.credentialType, MSIDCredentialTypeAccessToken);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
 }
 
@@ -345,7 +345,7 @@
                                          context:nil
                                            error:&error];
     
-    MSIDAccessToken *token = (MSIDAccessToken *)[_legacyAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDAccessToken *token = (MSIDAccessToken *)[_legacyAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                                           account:account
                                                                     requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                                           context:nil
@@ -354,7 +354,7 @@
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     
-    XCTAssertEqual(token.tokenType, MSIDTokenTypeAccessToken);
+    XCTAssertEqual(token.credentialType, MSIDCredentialTypeAccessToken);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
 }
 
@@ -397,7 +397,7 @@
     XCTAssertTrue(result);
     
     // Check that correct token is returned
-    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_legacyAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_legacyAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                                                   account:account
                                                                             requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                                                   context:nil
@@ -444,7 +444,7 @@
                                                     error:&error];
     
     // Check that correct token is returned
-    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                              account:account
                                                        requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                              context:nil
@@ -492,7 +492,7 @@
     XCTAssertTrue(result);
     
     // Check that correct token is returned
-    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                              account:account
                                                        requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                              context:nil
@@ -546,7 +546,7 @@
     XCTAssertTrue(result);
     
     // Check that correct token is returned
-    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_legacyAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    MSIDAccessToken *returnedToken = (MSIDAccessToken *)[_legacyAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                                                   account:account
                                                                             requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                                                   context:nil
@@ -578,7 +578,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    MSIDLegacySingleResourceToken *returnedToken = (MSIDLegacySingleResourceToken *) [_legacyAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
+    MSIDLegacySingleResourceToken *returnedToken = (MSIDLegacySingleResourceToken *) [_legacyAccessor getTokenWithType:MSIDCredentialTypeLegacySingleResourceToken
                                                                                account:account
                                                                          requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                                                context:nil
@@ -587,7 +587,7 @@
     XCTAssertNil(error);
     XCTAssertNotNil(returnedToken);
     
-    XCTAssertEqual(returnedToken.tokenType, MSIDTokenTypeLegacySingleResourceToken);
+    XCTAssertEqual(returnedToken.credentialType, MSIDCredentialTypeLegacySingleResourceToken);
     XCTAssertEqualObjects(returnedToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(returnedToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
@@ -598,7 +598,7 @@
                                                        uniqueUserId:@"some id"];
     
     NSError *error = nil;
-    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                              account:account
                                                        requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                              context:nil
@@ -626,7 +626,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                              account:account
                                                        requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                              context:nil
@@ -673,7 +673,7 @@
     XCTAssertTrue(result);
     
     // Check that correct token is returned
-    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                              account:account
                                                        requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                              context:nil
@@ -709,7 +709,7 @@
                                                    uniqueUserId:@"1.1234-5678-90abcdefg"];
     
     // Check that correct token is returned
-    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                              account:account
                                                        requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                              context:nil
@@ -747,7 +747,7 @@
                                                                                     target:DEFAULT_TEST_SCOPE];
     
     // Check that correct token is returned
-    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                              account:account
                                                        requestParams:consumerParameters
                                                              context:nil
@@ -782,7 +782,7 @@
                                                                                     target:DEFAULT_TEST_SCOPE];
     
     // Check that correct token is returned
-    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                              account:account
                                                        requestParams:consumerParameters
                                                              context:nil
@@ -825,7 +825,7 @@
                                            uniqueUserId:@"1.1234-5678-90abcdefg"];
     
     // Check that correct token is returned
-    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDBaseToken *returnedToken = [_legacyAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                              account:account
                                                        requestParams:[MSIDTestRequestParams v1DefaultParams]
                                                              context:nil
@@ -837,7 +837,7 @@
 - (void)testGetAllSharedRTs_whenNoItemsInCache_shouldReturnEmptyResult
 {
     NSError *error = nil;
-    NSArray *results = [_legacyAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+    NSArray *results = [_legacyAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                               withClientId:DEFAULT_TEST_CLIENT_ID
                                                    context:nil
                                                      error:&error];
@@ -865,7 +865,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *results = [_legacyAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+    NSArray *results = [_legacyAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                               withClientId:DEFAULT_TEST_CLIENT_ID
                                                    context:nil
                                                      error:&error];
@@ -905,7 +905,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *results = [_legacyAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+    NSArray *results = [_legacyAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                               withClientId:DEFAULT_TEST_CLIENT_ID
                                                    context:nil
                                                      error:&error];
@@ -933,7 +933,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *results = [_legacyAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken
+    NSArray *results = [_legacyAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                               withClientId:DEFAULT_TEST_CLIENT_ID
                                                    context:nil
                                                      error:&error];

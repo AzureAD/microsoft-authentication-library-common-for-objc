@@ -21,11 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheKey.h"
+#import "MSIDCacheKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLegacyTokenCacheKey : MSIDTokenCacheKey <NSCopying, NSSecureCoding>
+@interface MSIDLegacyTokenCacheKey : MSIDCacheKey <NSCopying, NSSecureCoding>
 
 @property (nullable, nonatomic) NSURL *authority;
 @property (nullable, nonatomic) NSString *clientId;

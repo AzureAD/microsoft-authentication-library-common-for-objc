@@ -21,21 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDDefaultTokenCacheKey.h"
+#import "MSIDDefaultCredentialCacheKey.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDTokenType.h"
+#import "MSIDCredentialType.h"
 #import "NSURL+MSIDExtensions.h"
 
 static NSString *keyDelimiter = @"-";
 static NSInteger kCredentialTypePrefix = 2000;
 
-@implementation MSIDDefaultTokenCacheKey
+@implementation MSIDDefaultCredentialCacheKey
 
 #pragma mark - Helpers
 
 // kSecAttrService - (<credential_type>-<client_id>-<realm>-<target>)
-- (NSString *)serviceWithType:(MSIDTokenType)type
+- (NSString *)serviceWithType:(MSIDCredentialType)type
                      clientID:(NSString *)clientId
                         realm:(NSString *)realm
                        target:(NSString *)target
@@ -53,14 +53,14 @@ static NSInteger kCredentialTypePrefix = 2000;
 }
 
 // credential_id - (<credential_type>-<client_id>-<realm>)
-- (NSString *)credentialIdWithType:(MSIDTokenType)type
+- (NSString *)credentialIdWithType:(MSIDCredentialType)type
                           clientId:(NSString *)clientId
                              realm:(NSString *)realm
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
 
-    NSString *credentialType = [MSIDTokenTypeHelpers tokenTypeAsString:type];
+    NSString *credentialType = [MSIDCredentialTypeHelpers credentialTypeAsString:type];
     
     return [NSString stringWithFormat:@"%@%@%@%@%@",
             credentialType, keyDelimiter, clientId,
@@ -78,7 +78,7 @@ static NSInteger kCredentialTypePrefix = 2000;
             uniqueId, keyDelimiter, environment];
 }
 
-- (NSNumber *)credentialTypeNumber:(MSIDTokenType)credentialType
+- (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType
 {
     return @(kCredentialTypePrefix + credentialType);
 }

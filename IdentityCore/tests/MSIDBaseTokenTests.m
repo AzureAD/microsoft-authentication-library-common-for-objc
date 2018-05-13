@@ -180,8 +180,8 @@
 
 - (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeIDToken;
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDCredentialTypeIDToken;
     
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
@@ -189,8 +189,8 @@
 
 - (void)testInitWithTokenCacheItem_whenNoAuthority_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeOther;
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDCredentialTypeOther;
     cacheItem.clientId = @"test";
     
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
@@ -199,8 +199,8 @@
 
 - (void)testInitWithTokenCacheItem_whenNoClientId_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeOther;
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDCredentialTypeOther;
     cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
     
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
@@ -209,8 +209,8 @@
 
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeOther;
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDCredentialTypeOther;
     cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};

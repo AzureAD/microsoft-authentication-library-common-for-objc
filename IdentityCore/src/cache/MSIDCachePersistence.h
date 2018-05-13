@@ -22,22 +22,29 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDCredentialType.h"
 
-@class MSIDAccount;
+@protocol MSIDOauth2Factory;
 @class MSIDRequestParameters;
-@class MSIDBaseToken;
+@protocol MSIDRequestContext;
 @class MSIDTokenResponse;
 @class MSIDRefreshToken;
-@class MSIDOauth2Factory;
-@class MSIDAccessToken;
 @protocol MSIDAccountIdentifiers;
+@protocol MSIDRefreshableToken;
 
-@protocol MSIDSharedCacheAccessor <NSObject>
+@protocol MSIDCachePersistence <NSObject>
+
+- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
+               otherCacheAccessors:(NSArray<id<MSIDCachePersistence>> *)otherAccessors;
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                 requestParams:(MSIDRequestParameters *)requestParams
                      response:(MSIDTokenResponse *)response
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error;
+
+- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
+               brokerResponse:(MSIDBrokerResponse *)response
+             saveSSOStateOnly:(BOOL)saveSSOStateOnly
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error;
 
@@ -47,44 +54,25 @@
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
 
-// Retrieval
-- (MSIDBaseToken *)getTokenWithType:(MSIDCredentialType)tokenType
-                            account:(id<MSIDAccountIdentifiers>)account
-                      requestParams:(MSIDRequestParameters *)parameters
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error;
+- (MSIDRefreshToken *)getRefreshTokenWithAccount:(id<MSIDAccountIdentifiers>)account
+                                   requestParams:(MSIDRequestParameters *)parameters
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error;
 
-- (MSIDBaseToken *)getUpdatedToken:(MSIDBaseToken *)token
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error;
+- (MSIDRefreshToken *)getFamilyRefreshTokenforAccount:(id<MSIDAccountIdentifiers>)account
+                                        requestParams:(MSIDRequestParameters *)parameters
+                                             familyId:(NSString *)familyId
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error;
+
+- (NSArray<MSIDRefreshToken *> *)getAllRefreshTokensForClientId:(NSString *)clientId
+                                                        context:(id<MSIDRequestContext>)context
+                                                          error:(NSError **)error;
+
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context
+                   error:(NSError **)error;
 
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
                                              error:(NSError **)error;
-
-- (NSArray *)getAllTokensOfType:(MSIDCredentialType)tokenType
-                   withClientId:(NSString *)clientId
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error;
-
-// Removal
-- (BOOL)removeToken:(MSIDBaseToken *)token
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error;
-
-- (BOOL)removeAccount:(MSIDAccount *)account
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error;
-
-- (BOOL)removeAllTokensForAccount:(id<MSIDAccountIdentifiers>)account
-                      environment:(NSString *)environment
-                         clientId:(NSString *)clientId
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error;
-
-/*
- It is supposed to be used in test apps only.
- */
-- (BOOL)clearWithContext:(id<MSIDRequestContext>)context
-                   error:(NSError **)error;
 
 @end

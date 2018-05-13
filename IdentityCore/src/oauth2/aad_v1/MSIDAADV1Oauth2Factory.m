@@ -28,6 +28,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
+#import "MSIDAADV1IdTokenClaims.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -146,6 +147,33 @@
     MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response request:requestParams];
     legacyToken.resource = response.target ? response.target : requestParams.target;
     return legacyToken;
+}
+
+- (MSIDLegacyAccessToken *)legacyAccessTokenFromResponse:(MSIDAADTokenResponse *)response
+                                                 request:(MSIDRequestParameters *)requestParams
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return nil;
+    }
+
+    MSIDLegacyAccessToken *legacyToken = [super legacyAccessTokenFromResponse:response request:requestParams];
+    legacyToken.resource = response.target ? response.target : requestParams.target;
+    return legacyToken;
+}
+
+- (MSIDAccount *)accountFromResponse:(MSIDAADV1TokenResponse *)response
+                             request:(MSIDRequestParameters *)requestParams
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return nil;
+    }
+
+    MSIDAccount *account = [super accountFromResponse:response request:requestParams];
+    MSIDAADV1IdTokenClaims *idToken = (MSIDAADV1IdTokenClaims *) response.idTokenObj;
+    account.alternativeAccountId = idToken.alternativeAccountId;
+    return account;
 }
 
 #pragma mark - Webview controllers

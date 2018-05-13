@@ -22,11 +22,10 @@
 // THE SOFTWARE.
 
 #import "MSIDKeychainTokenCache.h"
-#import "MSIDTokenCacheKey.h"
-#import "MSIDTokenItemSerializer.h"
+#import "MSIDCacheKey.h"
+#import "MSIDCredentialItemSerializer.h"
 #import "MSIDAccountItemSerializer.h"
 #import "MSIDKeychainUtil.h"
-#import "MSIDCacheItem.h"
 #import "MSIDError.h"
 #import "MSIDRefreshToken.h"
 
@@ -135,16 +134,16 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 
 #pragma mark - Tokens
 
-- (BOOL)saveToken:(MSIDTokenCacheItem *)item
-              key:(MSIDTokenCacheKey *)key
-       serializer:(id<MSIDTokenItemSerializer>)serializer
+- (BOOL)saveToken:(MSIDCredentialCacheItem *)item
+              key:(MSIDCacheKey *)key
+       serializer:(id<MSIDCredentialItemSerializer>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
     assert(item);
     assert(serializer);
     
-    NSData *itemData = [serializer serializeTokenCacheItem:item];
+    NSData *itemData = [serializer serializeCredentialCacheItem:item];
     
     if (!itemData)
     {
@@ -164,13 +163,13 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                     error:error];
 }
 
-- (MSIDTokenCacheItem *)tokenWithKey:(MSIDTokenCacheKey *)key
-                          serializer:(id<MSIDTokenItemSerializer>)serializer
+- (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
+                          serializer:(id<MSIDCredentialItemSerializer>)serializer
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
     MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
-    NSArray<MSIDTokenCacheItem *> *items = [self tokensWithKey:key serializer:serializer context:context error:error];
+    NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key serializer:serializer context:context error:error];
     
     if (items.count > 1)
     {
@@ -185,8 +184,8 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return items.firstObject;
 }
 
-- (NSArray<MSIDTokenCacheItem *> *)tokensWithKey:(MSIDTokenCacheKey *)key
-                                      serializer:(id<MSIDTokenItemSerializer>)serializer
+- (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
+                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
@@ -197,17 +196,17 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         return nil;
     }
     
-    NSMutableArray *tokenItems = [[NSMutableArray<MSIDTokenCacheItem *> alloc] initWithCapacity:items.count];
+    NSMutableArray *tokenItems = [[NSMutableArray<MSIDCredentialCacheItem *> alloc] initWithCapacity:items.count];
     
     for (NSDictionary *attrs in items)
     {
         NSData *itemData = [attrs objectForKey:(id)kSecValueData];
-        MSIDTokenCacheItem *tokenItem = [serializer deserializeTokenCacheItem:itemData];
+        MSIDCredentialCacheItem *tokenItem = [serializer deserializeCredentialCacheItem:itemData];
         
         if (tokenItem)
         {
             // Delete tombstones generated from previous versions of ADAL.
-            if ([tokenItem.refreshToken isEqualToString:@"<tombstone>"])
+            if ([tokenItem.secret isEqualToString:@"<tombstone>"])
             {
                 [self deleteTombstoneWithService:attrs[(id)kSecAttrService]
                                          account:attrs[(id)kSecAttrAccount]
@@ -233,7 +232,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 #pragma mark - Accounts
 
 - (BOOL)saveAccount:(MSIDAccountCacheItem *)item
-                key:(MSIDTokenCacheKey *)key
+                key:(MSIDCacheKey *)key
          serializer:(id<MSIDAccountItemSerializer>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
@@ -261,7 +260,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                     error:error];
 }
 
-- (MSIDAccountCacheItem *)accountWithKey:(MSIDTokenCacheKey *)key
+- (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
                               serializer:(id<MSIDAccountItemSerializer>)serializer
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
@@ -282,7 +281,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return items.firstObject;
 }
 
-- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDTokenCacheKey *)key
+- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
                                           serializer:(id<MSIDAccountItemSerializer>)serializer
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error
@@ -319,7 +318,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 
 #pragma mark - Removal
 
-- (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
+- (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
@@ -461,7 +460,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 
 #pragma mark - Helpers
 
-- (NSArray *)itemsWithKey:(MSIDTokenCacheKey *)key
+- (NSArray *)itemsWithKey:(MSIDCacheKey *)key
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error
 {    
@@ -514,7 +513,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
 - (BOOL)saveData:(NSData *)itemData
-             key:(MSIDTokenCacheKey *)key
+             key:(MSIDCacheKey *)key
          context:(id<MSIDRequestContext>)context
            error:(NSError **)error
 {

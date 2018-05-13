@@ -20,22 +20,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 #import <Foundation/Foundation.h>
-#import "MSIDSharedCacheAccessor.h"
-#import "MSIDBaseToken.h"
 
-@interface MSIDTestCacheAccessor : NSObject <MSIDSharedCacheAccessor>
+@class MSIDCredentialCacheItem;
 
-@property (nonatomic) BOOL requireLegacyUserId;
-@property (nonatomic) BOOL requireDefaultUserId;
+@protocol MSIDCredentialItemSerializer <NSObject>
 
-- (void)addToken:(MSIDBaseToken *)token forAccount:(MSIDAccount *)account;
-- (void)reset;
-- (NSArray *)allAccessTokens;
-- (NSArray *)allRefreshTokens;
-- (NSArray *)allMRRTTokensWithClientId:(NSString *)clientId;
-- (NSArray *)allFRTTokensWithFamilyId:(NSString *)familyId;
-- (NSArray *)allTokensWithType:(MSIDCredentialType)type clientId:(NSString *)clientId;
+- (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item;
+- (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data;
 
 @end

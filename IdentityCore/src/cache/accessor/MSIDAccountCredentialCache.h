@@ -22,14 +22,14 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenType.h"
+#import "MSIDCredentialType.h"
 #import "MSIDAccountType.h"
 
-@class MSIDTokenCacheItem;
+@class MSIDCredentialCacheItem;
 @class MSIDAccountCacheItem;
-@class MSIDDefaultTokenCacheKey;
+@class MSIDDefaultCredentialCacheKey;
 @protocol MSIDTokenCacheDataSource;
-@class MSIDDefaultTokenCacheQuery;
+@class MSIDDefaultCredentialCacheQuery;
 @class MSIDDefaultAccountCacheQuery;
 @class MSIDDefaultAccountCacheKey;
 
@@ -40,7 +40,7 @@
 /*
  Gets all credentials matching the parameters specified in the query
  */
-- (nullable NSArray<MSIDTokenCacheItem *> *)getCredentialsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+- (nullable NSArray<MSIDCredentialCacheItem *> *)getCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                                                        legacyUserId:(nullable NSString *)legacyUserId
                                                             context:(nullable id<MSIDRequestContext>)context
                                                               error:(NSError * _Nullable * _Nullable)error;
@@ -48,16 +48,16 @@
 /*
  Gets a credential for a particular key
 */
-- (nullable MSIDTokenCacheItem *)getCredential:(nonnull MSIDDefaultTokenCacheKey *)key
+- (nullable MSIDCredentialCacheItem *)getCredential:(nonnull MSIDDefaultCredentialCacheKey *)key
                                        context:(nullable id<MSIDRequestContext>)context
                                          error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Gets all credentials which a matching type
 */
-- (nullable NSArray<MSIDTokenCacheItem *> *)getAllCredentialsWithType:(MSIDTokenType)type
-                                                              context:(nullable id<MSIDRequestContext>)context
-                                                                error:(NSError * _Nullable * _Nullable)error;
+- (nullable NSArray<MSIDCredentialCacheItem *> *)getAllCredentialsWithType:(MSIDCredentialType)type
+                                                                   context:(nullable id<MSIDRequestContext>)context
+                                                                     error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Gets all accounts matching the parameters specified in the query
@@ -83,13 +83,13 @@
 /*
  Gets all items
  */
-- (nullable NSArray<MSIDTokenCacheItem *> *)getAllItemsWithContext:(nullable id<MSIDRequestContext>)context
+- (nullable NSArray<MSIDCredentialCacheItem *> *)getAllItemsWithContext:(nullable id<MSIDRequestContext>)context
                                                              error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Saves a credential
 */
-- (BOOL)saveCredential:(nonnull MSIDTokenCacheItem *)credential
+- (BOOL)saveCredential:(nonnull MSIDCredentialCacheItem *)credential
                context:(nullable id<MSIDRequestContext>)context
                  error:(NSError * _Nullable * _Nullable)error;
 
@@ -103,14 +103,14 @@
 /*
  Removes credentials matching parameters specified in the query
  */
-- (BOOL)removeCredetialsWithQuery:(nonnull MSIDDefaultTokenCacheQuery *)cacheQuery
+- (BOOL)removeCredetialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                           context:(nullable id<MSIDRequestContext>)context
                             error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Removes a credential
 */
-- (BOOL)removeCredential:(nonnull MSIDTokenCacheItem *)credential
+- (BOOL)removeCredential:(nonnull MSIDCredentialCacheItem *)credential
                  context:(nullable id<MSIDRequestContext>)context
                    error:(NSError * _Nullable * _Nullable)error;
 
@@ -137,7 +137,7 @@
 /*
  Removes all credentials in the array
  */
-- (BOOL)removeAllCredentials:(nonnull NSArray<MSIDTokenCacheItem *> *)credentials
+- (BOOL)removeAllCredentials:(nonnull NSArray<MSIDCredentialCacheItem *> *)credentials
                      context:(nullable id<MSIDRequestContext>)context
                        error:(NSError * _Nullable * _Nullable)error;
 

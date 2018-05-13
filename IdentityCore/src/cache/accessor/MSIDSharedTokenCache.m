@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDSharedTokenCache.h"
-#import "MSIDTokenCacheKey.h"
+#import "MSIDCacheKey.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDLegacySingleResourceToken.h"
@@ -103,7 +103,7 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
-    return (MSIDAccessToken *) [_primaryAccessor getTokenWithType:MSIDTokenTypeAccessToken
+    return (MSIDAccessToken *) [_primaryAccessor getTokenWithType:MSIDCredentialTypeAccessToken
                                                           account:account
                                                     requestParams:parameters
                                                           context:context
@@ -115,7 +115,7 @@
                                                     context:(id<MSIDRequestContext>)context
                                                       error:(NSError **)error
 {
-    return (MSIDLegacySingleResourceToken *) [_primaryAccessor getTokenWithType:MSIDTokenTypeLegacySingleResourceToken
+    return (MSIDLegacySingleResourceToken *) [_primaryAccessor getTokenWithType:MSIDCredentialTypeLegacySingleResourceToken
                                                                         account:account
                                                                   requestParams:parameters
                                                                         context:context
@@ -127,7 +127,7 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
-    MSIDRefreshToken *token = (MSIDRefreshToken *) [_primaryAccessor getTokenWithType:MSIDTokenTypeRefreshToken
+    MSIDRefreshToken *token = (MSIDRefreshToken *) [_primaryAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
                                                                               account:account
                                                                         requestParams:parameters
                                                                               context:context
@@ -137,7 +137,7 @@
     {
         for (id<MSIDSharedCacheAccessor> cache in _otherAccessors)
         {
-            MSIDRefreshToken *token = (MSIDRefreshToken *) [cache getTokenWithType:MSIDTokenTypeRefreshToken
+            MSIDRefreshToken *token = (MSIDRefreshToken *) [cache getTokenWithType:MSIDCredentialTypeRefreshToken
                                                                            account:account
                                                                      requestParams:parameters
                                                                            context:context
@@ -160,7 +160,7 @@
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
-    parameters.clientId = [MSIDTokenCacheKey familyClientId:familyId];
+    parameters.clientId = [MSIDCacheKey familyClientId:familyId];
     
     return [self getRTForAccount:account
                    requestParams:parameters
@@ -172,7 +172,7 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    NSArray *primaryRTs = [_primaryAccessor getAllTokensOfType:MSIDTokenTypeRefreshToken withClientId:clientId context:context error:error];
+    NSArray *primaryRTs = [_primaryAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken withClientId:clientId context:context error:error];
 
     if (!primaryRTs)
     {
@@ -184,7 +184,7 @@
     // Get RTs from all caches
     for (id<MSIDSharedCacheAccessor> cache in _otherAccessors)
     {
-        NSArray *otherRTs = [cache getAllTokensOfType:MSIDTokenTypeRefreshToken
+        NSArray *otherRTs = [cache getAllTokensOfType:MSIDCredentialTypeRefreshToken
                                          withClientId:clientId
                                               context:context
                                                 error:error];
@@ -224,7 +224,7 @@
     }
     
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
-    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, legacy userId %@, token %@", token.clientId, token.authority, token.uniqueUserId, token.legacyUserId, _PII_NULLIFY(token.refreshToken));
+    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.uniqueUserId, _PII_NULLIFY(token.refreshToken));
     
     NSError *cacheError = nil;
 

@@ -33,6 +33,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
+#import "MSIDLegacyRefreshToken.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -189,6 +190,30 @@
     MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response request:requestParams];
     legacyToken.familyId = response.familyId;
     return (MSIDLegacySingleResourceToken *) [self fillAADBaseToken:legacyToken fromResponse:response request:requestParams];
+}
+
+- (MSIDLegacyAccessToken *)legacyAccessTokenFromResponse:(MSIDAADTokenResponse *)response
+                                                 request:(MSIDRequestParameters *)requestParams
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return nil;
+    }
+
+    MSIDLegacyAccessToken *legacyToken = [super legacyAccessTokenFromResponse:response request:requestParams];
+    return (MSIDLegacyAccessToken *) [self fillAADBaseToken:legacyToken fromResponse:response request:requestParams];
+}
+
+- (MSIDLegacyRefreshToken *)legacyRefreshTokenFromResponse:(MSIDAADTokenResponse *)response
+                                                   request:(MSIDRequestParameters *)requestParams
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return nil;
+    }
+
+    MSIDLegacyRefreshToken *legacyToken = [super legacyRefreshTokenFromResponse:response request:requestParams];
+    return (MSIDLegacyRefreshToken *) [self fillAADBaseToken:legacyToken fromResponse:response request:requestParams];
 }
 
 - (MSIDAccount *)accountFromResponse:(MSIDAADTokenResponse *)response

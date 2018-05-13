@@ -30,6 +30,8 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
+#import "MSIDLegacyAccessToken.h"
+#import "MSIDLegacyRefreshToken.h"
 
 @implementation MSIDOauth2Factory
 
@@ -100,6 +102,20 @@
     return [self fillAccessToken:accessToken fromResponse:response request:requestParams];
 }
 
+- (MSIDLegacyAccessToken *)legacyAccessTokenFromResponse:(MSIDTokenResponse *)response
+                                                 request:(MSIDRequestParameters *)requestParams
+{
+    MSIDLegacyAccessToken *accessToken = [[MSIDLegacyAccessToken alloc] init];
+    return [self fillLegacyAccessToken:accessToken fromResponse:response request:requestParams];
+}
+
+- (MSIDLegacyRefreshToken *)legacyRefreshTokenFromResponse:(MSIDTokenResponse *)response
+                                                   request:(MSIDRequestParameters *)requestParams
+{
+    MSIDLegacyRefreshToken *refreshToken = [[MSIDLegacyRefreshToken alloc] init];
+    return [self fillLegacyRefreshToken:refreshToken fromResponse:response request:requestParams];
+}
+
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response
                                        request:(MSIDRequestParameters *)requestParams
 {
@@ -143,7 +159,6 @@
     token.clientId = requestParams.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
     token.uniqueUserId = response.idTokenObj.userId;
-    token.legacyUserId = response.idTokenObj.userId;
     return token;
 }
 
@@ -159,8 +174,6 @@
     }
 
     token.scopes = [response.target scopeSet];
-
-    token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     token.accessToken = response.accessToken;
 
     if (!token.accessToken)
@@ -168,8 +181,6 @@
         MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
         return nil;
     }
-
-    token.idToken = response.idToken;
 
     NSDate *expiresOn = response.expiryDate;
 
@@ -209,8 +220,6 @@
         return nil;
     }
 
-    token.idToken = response.idToken;
-
     return token;
 }
 
@@ -248,6 +257,42 @@
     }
 
     token.refreshToken = response.refreshToken;
+    token.idToken = response.idToken;
+    token.legacyUserId = response.idTokenObj.userId;
+    token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
+    return token;
+}
+
+- (MSIDLegacyAccessToken *)fillLegacyAccessToken:(MSIDLegacyAccessToken *)token
+                                    fromResponse:(MSIDTokenResponse *)response
+                                         request:(MSIDRequestParameters *)requestParams
+{
+    token = (MSIDLegacyAccessToken *) [self fillAccessToken:token fromResponse:response request:requestParams];
+
+    if (!token)
+    {
+        return nil;
+    }
+
+    token.idToken = response.idToken;
+    token.legacyUserId = response.idTokenObj.userId;
+    token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
+    return token;
+}
+
+- (MSIDLegacyRefreshToken *)fillLegacyRefreshToken:(MSIDLegacyRefreshToken *)token
+                                      fromResponse:(MSIDTokenResponse *)response
+                                           request:(MSIDRequestParameters *)requestParams
+{
+    token = (MSIDLegacyRefreshToken *) [self fillRefreshToken:token fromResponse:response request:requestParams];
+
+    if (!token)
+    {
+        return nil;
+    }
+
+    token.idToken = response.idToken;
+    token.legacyUserId = response.idTokenObj.userId;
     return token;
 }
 
@@ -260,7 +305,8 @@
     account.givenName = response.idTokenObj.givenName;
     account.familyName = response.idTokenObj.familyName;
     account.middleName = response.idTokenObj.middleName;
-    account.environment = requestParams.authority.msidHostWithPortIfNecessary;
+    account.name = response.idTokenObj.name;
+    account.authority = requestParams.authority;
     account.accountType = response.accountType;
     account.legacyUserId = response.idTokenObj.userId;
     return account;

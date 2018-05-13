@@ -20,13 +20,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-#import <Foundation/Foundation.h>
 
-@class MSIDTokenCacheItem;
+#import "MSIDAccessToken.h"
 
-@protocol MSIDTokenItemSerializer <NSObject>
+@class MSIDLegacyTokenCacheItem;
 
-- (NSData *)serializeTokenCacheItem:(MSIDTokenCacheItem *)item;
-- (MSIDTokenCacheItem *)deserializeTokenCacheItem:(NSData *)data;
+@interface MSIDLegacyAccessToken : MSIDAccessToken
+
+@property (readwrite) NSString *accessTokenType;
+@property (readwrite) NSString *idToken;
+@property (readwrite) NSString *legacyUserId;
+
+- (instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)legacyTokenCacheItem;
 
 @end

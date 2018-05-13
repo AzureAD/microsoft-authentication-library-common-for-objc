@@ -86,7 +86,7 @@
     return [self saveTokenForAccount:account token:accessToken clientId:accessToken.clientId authority:accessToken.authority context:context error:error];
 }
 
-- (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
+- (MSIDBaseToken *)getTokenWithType:(MSIDCredentialType)tokenType
                             account:(MSIDAccount *)account
                       requestParams:(MSIDRequestParameters *)parameters
                             context:(id<MSIDRequestContext>)context
@@ -106,7 +106,7 @@
                             error:(NSError **)error
 {
     return [self getTokenForAccount:account
-                          tokenType:MSIDTokenTypeRefreshToken
+                          tokenType:MSIDCredentialTypeRefreshToken
                            clientId:token.clientId
                           authority:token.authority
                             context:context
@@ -130,7 +130,7 @@
     }
     
     NSString *tokenIdentifier = [self tokenIdentifierForAccount:account
-                                                      tokenType:token.tokenType
+                                                      tokenType:token.credentialType
                                                        clientId:token.clientId
                                                       authority:token.authority];
     
@@ -148,7 +148,7 @@
     return YES;
 }
 
-- (NSArray *)getAllTokensOfType:(MSIDTokenType)tokenType
+- (NSArray *)getAllTokensOfType:(MSIDCredentialType)tokenType
                    withClientId:(NSString *)clientId
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error
@@ -174,7 +174,7 @@
             
             for (MSIDBaseToken *token in contents)
             {
-                if (token.tokenType == tokenType
+                if (token.credentialType == tokenType
                     && [token.clientId isEqualToString:clientId])
                 {
                     [resultTokens addObject:token];
@@ -186,7 +186,7 @@
     return  resultTokens;
 }
 
-- (NSArray<MSIDTokenCacheItem *> *)allItemsWithContext:(id<MSIDRequestContext>)context
+- (NSArray<MSIDCredentialCacheItem *> *)allItemsWithContext:(id<MSIDRequestContext>)context
                                                  error:(NSError **)error
 {
     return nil;
@@ -244,7 +244,7 @@
         return NO;
     }
     
-    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.tokenType clientId:clientId authority:authority];
+    NSString *tokenIdentifier = [self tokenIdentifierForAccount:account tokenType:token.credentialType clientId:clientId authority:authority];
     
     NSMutableArray *accountTokens = nil;
     
@@ -267,7 +267,7 @@
 }
 
 - (MSIDBaseToken *)getTokenForAccount:(MSIDAccount *)account
-                            tokenType:(MSIDTokenType)tokenType
+                            tokenType:(MSIDCredentialType)tokenType
                              clientId:(NSString *)clientId
                             authority:(NSURL *)authority
                            context:(id<MSIDRequestContext>)context
@@ -301,22 +301,22 @@
 }
 
 - (NSString *)tokenIdentifierForAccount:(MSIDAccount *)account
-                              tokenType:(MSIDTokenType)tokenType
+                              tokenType:(MSIDCredentialType)tokenType
                                clientId:(NSString *)clientId
                               authority:(NSURL *)authority
 {
     NSString *userIdentifier = account.uniqueUserId ? account.uniqueUserId : account.legacyUserId;
     
-    NSString *cloudIdentifier = tokenType == MSIDTokenTypeRefreshToken ? authority.msidHostWithPortIfNecessary : authority.absoluteString;
+    NSString *cloudIdentifier = tokenType == MSIDCredentialTypeRefreshToken ? authority.msidHostWithPortIfNecessary : authority.absoluteString;
     
-    return [NSString stringWithFormat:@"%@_%@_%@_%@", userIdentifier, [self tokenTypeAsString:tokenType], clientId, cloudIdentifier];
+    return [NSString stringWithFormat:@"%@_%@_%@_%@", userIdentifier, [self credentialTypeAsString:tokenType], clientId, cloudIdentifier];
 }
 
-- (NSString *)tokenTypeAsString:(MSIDTokenType)tokenType
+- (NSString *)credentialTypeAsString:(MSIDCredentialType)tokenType
 {
     NSString *typeIdentifier = @"at";
     
-    if (tokenType == MSIDTokenTypeRefreshToken)
+    if (tokenType == MSIDCredentialTypeRefreshToken)
     {
         typeIdentifier = @"rt";
     }
@@ -330,7 +330,7 @@
 {
     NSString *clientId = token.clientId;
     
-    if (token.tokenType == MSIDTokenTypeRefreshToken)
+    if (token.credentialType == MSIDCredentialTypeRefreshToken)
     {
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *)token;
         NSString *familyId = [NSString stringWithFormat:@"foci-%@", refreshToken.familyId];
@@ -349,17 +349,17 @@
 
 - (NSArray *)allAccessTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAccessToken clientId:nil];
+    return [self allTokensWithType:MSIDCredentialTypeAccessToken clientId:nil];
 }
 
 - (NSArray *)allRefreshTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeRefreshToken clientId:nil];
+    return [self allTokensWithType:MSIDCredentialTypeRefreshToken clientId:nil];
 }
 
 - (NSArray *)allMRRTTokensWithClientId:(NSString *)clientId
 {
-    return [self allTokensWithType:MSIDTokenTypeRefreshToken clientId:clientId];
+    return [self allTokensWithType:MSIDCredentialTypeRefreshToken clientId:clientId];
 }
 
 - (NSArray *)allFRTTokensWithFamilyId:(NSString *)familyId
@@ -367,7 +367,7 @@
     return [self allMRRTTokensWithClientId:[NSString stringWithFormat:@"foci-%@", familyId]];
 }
 
-- (NSArray *)allTokensWithType:(MSIDTokenType)type clientId:(NSString *)clientId
+- (NSArray *)allTokensWithType:(MSIDCredentialType)type clientId:(NSString *)clientId
 {
     NSMutableArray *resultTokens = [NSMutableArray array];
     
@@ -376,7 +376,7 @@
         // Filter out tokens based on the token type
         for (NSString *key in [_cacheContents allKeys])
         {
-            if ([key containsString:[self tokenTypeAsString:type]]
+            if ([key containsString:[self credentialTypeAsString:type]]
                 && (!clientId || [key containsString:clientId])
                 && _cacheContents[key])
             {

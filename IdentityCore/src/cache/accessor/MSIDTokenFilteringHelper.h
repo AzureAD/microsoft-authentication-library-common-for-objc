@@ -22,20 +22,16 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenType.h"
+#import "MSIDCredentialType.h"
 
-@class MSIDTokenCacheItem;
-@class MSIDRequestParameters;
-@class MSIDAccount;
-@class MSIDAccessToken;
-@class MSIDBaseToken;
+@class MSIDCredentialCacheItem;
 
-typedef BOOL (^MSIDTokenCacheItemFiltering)(MSIDTokenCacheItem *tokenCacheItem);
+typedef BOOL (^MSIDTokenCacheItemFiltering)(MSIDCredentialCacheItem *tokenCacheItem);
 
 @interface MSIDTokenFilteringHelper : NSObject
 
-+ (NSArray *)filterTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allCacheItems
-                         tokenType:(MSIDTokenType)tokenType
++ (NSArray *)filterTokenCacheItems:(NSArray<MSIDCredentialCacheItem *> *)allCacheItems
+                         tokenType:(MSIDCredentialType)tokenType
                        returnFirst:(BOOL)returnFirst
                           filterBy:(MSIDTokenCacheItemFiltering)tokenFiltering;
 @end

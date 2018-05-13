@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
 
@@ -36,7 +36,7 @@
 
 - (void)testKeyedArchivingToken_whenAllFieldsSet_shouldReturnSameTokenOnDeserialize
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     cacheItem.username = DEFAULT_TEST_ID_TOKEN_USERNAME;
     cacheItem.uniqueUserId = DEFAULT_TEST_ID_TOKEN_USERNAME;
@@ -45,7 +45,7 @@
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfoString error:nil];
     cacheItem.clientInfo = clientInfo;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
-    cacheItem.tokenType = MSIDTokenTypeAccessToken;
+    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
     cacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     cacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     cacheItem.idToken = DEFAULT_TEST_ID_TOKEN;
@@ -69,7 +69,7 @@
     
     XCTAssertNotNil(data);
     
-    MSIDTokenCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    MSIDCredentialCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     
     XCTAssertNotNil(newItem);
     
@@ -96,9 +96,9 @@
 
 - (void)testJSONDictionary_whenAccessToken_andAllFieldsSet_shouldReturnJSONDictionary
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    cacheItem.tokenType = MSIDTokenTypeAccessToken;
+    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     cacheItem.idToken = DEFAULT_TEST_ID_TOKEN;
@@ -143,9 +143,9 @@
 
 - (void)testJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnJSONDictionary
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
+    cacheItem.credentialType = MSIDCredentialTypeRefreshToken;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     cacheItem.idToken = DEFAULT_TEST_ID_TOKEN;
@@ -165,9 +165,9 @@
 
 - (void)testJSONDictionary_whenIDToken_andAllFieldsSet_shouldReturnJSONDictionary
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    cacheItem.tokenType = MSIDTokenTypeIDToken;
+    cacheItem.credentialType = MSIDCredentialTypeIDToken;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.idToken = DEFAULT_TEST_ID_TOKEN;
     
@@ -184,9 +184,9 @@
 
 - (void)testJSONDictionary_whenLegacyToken_andAllFieldsSet_shouldReturnJSONDictionary
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    cacheItem.tokenType = MSIDTokenTypeLegacySingleResourceToken;
+    cacheItem.credentialType = MSIDCredentialTypeLegacySingleResourceToken;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     cacheItem.idToken = DEFAULT_TEST_ID_TOKEN;
@@ -247,12 +247,12 @@
                                      };
     
     NSError *error = nil;
-    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
     
     XCTAssertNotNil(cacheItem);
     NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
-    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeAccessToken);
+    XCTAssertEqual(cacheItem.credentialType, MSIDCredentialTypeAccessToken);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.target, DEFAULT_TEST_RESOURCE);
     XCTAssertEqualObjects(cacheItem.expiresOn, expiresOn);
@@ -276,12 +276,12 @@
                                      };
     
     NSError *error = nil;
-    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
     
     XCTAssertNotNil(cacheItem);
     NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
-    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeRefreshToken);
+    XCTAssertEqual(cacheItem.credentialType, MSIDCredentialTypeRefreshToken);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(cacheItem.idToken, DEFAULT_TEST_ID_TOKEN);
@@ -310,12 +310,12 @@
                                      };
     
     NSError *error = nil;
-    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
     
     XCTAssertNotNil(cacheItem);
     NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
-    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeLegacySingleResourceToken);
+    XCTAssertEqual(cacheItem.credentialType, MSIDCredentialTypeLegacySingleResourceToken);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.target, DEFAULT_TEST_RESOURCE);
     XCTAssertEqualObjects(cacheItem.expiresOn, expiresOn);
@@ -335,12 +335,12 @@
                                      };
     
     NSError *error = nil;
-    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
     
     XCTAssertNotNil(cacheItem);
     NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
     XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
-    XCTAssertEqual(cacheItem.tokenType, MSIDTokenTypeIDToken);
+    XCTAssertEqual(cacheItem.credentialType, MSIDCredentialTypeIDToken);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.idToken, DEFAULT_TEST_ID_TOKEN);
 }

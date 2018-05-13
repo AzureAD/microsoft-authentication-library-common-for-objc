@@ -21,49 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheKey.h"
-#import "MSIDTokenType.h"
+#import "MSIDCredentialCacheItem.h"
 
-@implementation MSIDTokenCacheKey
+@interface MSIDLegacyTokenCacheItem : MSIDCredentialCacheItem <NSSecureCoding>
 
-- (id)initWithAccount:(NSString *)account
-              service:(NSString *)service
-              generic:(NSData *)generic
-                 type:(NSNumber *)type
-{
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    _account = account;
-    _service = service;
-    _type = type;
-    _generic = generic;
-    
-    return self;
-}
+@property (readwrite, nullable) NSString *accessToken;
+@property (readwrite, nullable) NSString *refreshToken;
+@property (readwrite, nullable) NSString *idToken;
+@property (readwrite, nullable) NSString *oauthTokenType;
 
-+ (NSString *)familyClientId:(NSString *)familyId
-{
-    if (!familyId)
-    {
-        familyId = @"1";
-    }
-    
-    return [NSString stringWithFormat:@"foci-%@", familyId];
-}
-
-- (NSString *)logDescription
-{
-    // TODO
-    return nil;
-}
-
-- (NSString *)piiLogDescription
-{
-    // TODO
-    return nil;
-}
+@property (readwrite, nonnull) NSURL *authority;
 
 @end

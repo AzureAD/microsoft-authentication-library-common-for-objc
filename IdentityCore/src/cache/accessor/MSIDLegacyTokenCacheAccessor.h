@@ -24,9 +24,34 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
 #import "MSIDSharedCacheAccessor.h"
+#import "MSIDCachePersistence.h"
 
-@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDSharedCacheAccessor>
+@class MSIDLegacyAccessToken;
+@class MSIDLegacyRefreshToken;
+@class MSIDLegacySingleResourceToken;
+@protocol MSIDAccountIdentifiers;
+@class MSIDRequestParameters;
+@protocol MSIDRequestContext;
+@class MSIDLegacyAccessToken;
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
+@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDCachePersistence>
+
+- (MSIDLegacyAccessToken *)getAccessTokenForAccount:(id<MSIDAccountIdentifiers>)account
+                                      requestParams:(MSIDRequestParameters *)parameters
+                                            context:(id<MSIDRequestContext>)context
+                                              error:(NSError **)error;
+
+- (MSIDLegacySingleResourceToken *)getSingleResourceTokenForAccount:(id<MSIDAccountIdentifiers>)account
+                                                      requestParams:(MSIDRequestParameters *)parameters
+                                                            context:(id<MSIDRequestContext>)context
+                                                              error:(NSError **)error;
+
+- (BOOL)validateAndRemoveRefreshToken:(MSIDLegacyRefreshToken *)token
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
+
+- (BOOL)removeAccessToken:(MSIDLegacyAccessToken *)token
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error;
 
 @end

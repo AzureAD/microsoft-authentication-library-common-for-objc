@@ -131,7 +131,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
         return YES;
     }
     
-    if (![object isKindOfClass:MSIDTokenCacheKey.class])
+    if (![object isKindOfClass:MSIDCacheKey.class])
     {
         return NO;
     }

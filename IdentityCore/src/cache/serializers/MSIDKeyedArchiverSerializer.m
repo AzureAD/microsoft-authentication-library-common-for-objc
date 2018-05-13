@@ -23,14 +23,15 @@
 
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDUserInformation.h"
-#import "MSIDTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDLegacyTokenCacheItem.h"
 
 @implementation MSIDKeyedArchiverSerializer
 
 #pragma mark - Private
 
-- (NSData *)serialize:(MSIDCacheItem *)item
+- (NSData *)serialize:(MSIDCredentialCacheItem *)item
 {
     if (!item)
     {
@@ -45,14 +46,14 @@
     NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
     // Maintain backward compatibility with ADAL.
     [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
-    [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDTokenCacheItem.class];
+    [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDLegacyTokenCacheItem.class];
     [archiver encodeObject:item forKey:NSKeyedArchiveRootObjectKey];
     [archiver finishEncoding];
     
     return data;
 }
 
-- (MSIDCacheItem *)deserialize:(NSData *)data className:(Class)className
+- (MSIDLegacyTokenCacheItem *)deserialize:(NSData *)data className:(Class)className
 {
     if (!data)
     {
@@ -62,8 +63,8 @@
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     // Maintain backward compatibility with ADAL.
     [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
-    [unarchiver setClass:MSIDTokenCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
-    MSIDCacheItem *token = [unarchiver decodeObjectOfClass:className forKey:NSKeyedArchiveRootObjectKey];
+    [unarchiver setClass:className forClassName:@"ADTokenCacheStoreItem"];
+    MSIDLegacyTokenCacheItem *token = [unarchiver decodeObjectOfClass:className forKey:NSKeyedArchiveRootObjectKey];
     [unarchiver finishDecoding];
     
     return token;
@@ -71,20 +72,26 @@
 
 #pragma mark - Token
 
-- (NSData *)serializeTokenCacheItem:(MSIDTokenCacheItem *)item
+- (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item
 {
+    if (![item isKindOfClass:[MSIDLegacyTokenCacheItem class]])
+    {
+        MSID_LOG_WARN(nil, @"Asked to serialize MSIDCredentialCacheItem, which is unsupported");
+        return nil;
+    }
+
     return [self serialize:item];
 }
 
-- (MSIDTokenCacheItem *)deserializeTokenCacheItem:(NSData *)data
+- (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data
 {
-    MSIDCacheItem *item = [self deserialize:data className:MSIDTokenCacheItem.class];
+    MSIDLegacyTokenCacheItem *item = [self deserialize:data className:MSIDLegacyTokenCacheItem.class];
     
     // Because theoretically any item data can be passed in here for deserialization,
     // we need to ensure that the correct item got deserialized
-    if ([item isKindOfClass:[MSIDTokenCacheItem class]])
+    if ([item isKindOfClass:[MSIDLegacyTokenCacheItem class]])
     {
-        return (MSIDTokenCacheItem *) item;
+        return (MSIDLegacyTokenCacheItem *) item;
     }
     
     return nil;
@@ -94,20 +101,13 @@
 
 - (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item
 {
-    return [self serialize:item];
+    // Account cache item doesn't support keyed archiver serialization
+    return nil;
 }
 
 - (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data
 {
-    MSIDCacheItem *item = [self deserialize:data className:MSIDAccountCacheItem.class];
-    
-    // Because theoretically any item data can be passed in here for deserialization,
-    // we need to ensure that the correct item got deserialized
-    if ([item isKindOfClass:[MSIDAccountCacheItem class]])
-    {
-        return (MSIDAccountCacheItem *) item;
-    }
-    
+    // Account cache item doesn't support keyed archiver deserialization
     return nil;
 }
 

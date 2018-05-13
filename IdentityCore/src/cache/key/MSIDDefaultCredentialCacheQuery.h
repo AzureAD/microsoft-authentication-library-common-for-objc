@@ -21,29 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheKey.h"
-#import "MSIDAccount.h"
-#import "MSIDTokenType.h"
+#import <Foundation/Foundation.h>
+#import "MSIDCredentialType.h"
+#import "MSIDDefaultCredentialCacheKey.h"
+#import "MSIDAccountIdentifiers.h"
 
-NS_ASSUME_NONNULL_BEGIN
+typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
+    Any,
+    ExactStringMatch,
+    SubSet,
+    Intersect,
+};
 
-@interface MSIDDefaultTokenCacheKey : MSIDTokenCacheKey
+@interface MSIDDefaultCredentialCacheQuery : MSIDDefaultCredentialCacheKey
 
-@property (nullable, nonatomic) NSString *uniqueUserId;
-@property (nullable, nonatomic) NSString *environment;
-@property (nullable, nonatomic) NSString *realm;
-@property (nullable, nonatomic) NSString *clientId;
-@property (nullable, nonatomic) NSString *target;
-@property (nonatomic) MSIDTokenType credentialType;
-
-- (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
-                         environment:(NSString *)environment;
-
-- (NSString *)serviceWithType:(MSIDTokenType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm target:(nullable NSString *)target;
-- (NSString *)credentialIdWithType:(MSIDTokenType)type clientId:(NSString *)clientId realm:(nullable NSString *)realm;
-- (NSString *)accountIdWithUniqueUserId:(NSString *)uniqueId environment:(NSString *)environment;
-- (NSNumber *)credentialTypeNumber:(MSIDTokenType)credentialType;
-
-NS_ASSUME_NONNULL_END
+@property (nonatomic) MSIDComparisonOptions targetMatchingOptions;
+@property (nonatomic) BOOL matchAnyCredentialType;
+@property (nonatomic, readonly) BOOL exactMatch;
 
 @end

@@ -21,24 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenType.h"
+#import "MSIDCredentialType.h"
 
-@implementation MSIDTokenTypeHelpers
+@implementation MSIDCredentialTypeHelpers
 
-+ (NSString *)tokenTypeAsString:(MSIDTokenType)type
++ (NSString *)credentialTypeAsString:(MSIDCredentialType)type
 {
     switch (type)
     {
-        case MSIDTokenTypeAccessToken:
+        case MSIDCredentialTypeAccessToken:
             return MSID_ACCESS_TOKEN_CACHE_TYPE;
             
-        case MSIDTokenTypeRefreshToken:
+        case MSIDCredentialTypeRefreshToken:
             return MSID_REFRESH_TOKEN_CACHE_TYPE;
             
-        case MSIDTokenTypeLegacySingleResourceToken:
+        case MSIDCredentialTypeLegacySingleResourceToken:
             return MSID_LEGACY_TOKEN_CACHE_TYPE;
             
-        case MSIDTokenTypeIDToken:
+        case MSIDCredentialTypeIDToken:
             return MSID_ID_TOKEN_CACHE_TYPE;
             
         default:
@@ -46,46 +46,46 @@
     }
 }
 
-static NSDictionary *sTokenTypes = nil;
+static NSDictionary *sCredentialTypes = nil;
 
-+ (MSIDTokenType)tokenTypeFromString:(NSString *)type
++ (MSIDCredentialType)credentialTypeFromString:(NSString *)type
 {
-    static dispatch_once_t sTokenTypesOnce;
+    static dispatch_once_t sCredentialTypesOnce;
     
-    dispatch_once(&sTokenTypesOnce, ^{
+    dispatch_once(&sCredentialTypesOnce, ^{
         
-        sTokenTypes = @{MSID_ACCESS_TOKEN_CACHE_TYPE: @(MSIDTokenTypeAccessToken),
-                        MSID_REFRESH_TOKEN_CACHE_TYPE: @(MSIDTokenTypeRefreshToken),
-                        MSID_LEGACY_TOKEN_CACHE_TYPE: @(MSIDTokenTypeLegacySingleResourceToken),
-                        MSID_ID_TOKEN_CACHE_TYPE: @(MSIDTokenTypeIDToken),
-                        MSID_GENERAL_TOKEN_CACHE_TYPE: @(MSIDTokenTypeOther)
-                        };
+        sCredentialTypes = @{MSID_ACCESS_TOKEN_CACHE_TYPE: @(MSIDCredentialTypeAccessToken),
+                             MSID_REFRESH_TOKEN_CACHE_TYPE: @(MSIDCredentialTypeRefreshToken),
+                             MSID_LEGACY_TOKEN_CACHE_TYPE: @(MSIDCredentialTypeLegacySingleResourceToken),
+                             MSID_ID_TOKEN_CACHE_TYPE: @(MSIDCredentialTypeIDToken),
+                             MSID_GENERAL_TOKEN_CACHE_TYPE: @(MSIDCredentialTypeOther)
+                             };
     });
     
-    NSNumber *tokenType = sTokenTypes[type];
-    return tokenType ? [tokenType integerValue] : MSIDTokenTypeOther;
+    NSNumber *credentialType = sCredentialTypes[type];
+    return credentialType ? [credentialType integerValue] : MSIDCredentialTypeOther;
 }
 
-+ (MSIDTokenType)tokenTypeWithRefreshToken:(NSString *)refreshToken
-                               accessToken:(NSString *)accessToken
++ (MSIDCredentialType)credentialTypeWithRefreshToken:(NSString *)refreshToken
+                                         accessToken:(NSString *)accessToken
 {
     BOOL rtPresent = ![NSString msidIsStringNilOrBlank:refreshToken];
     BOOL atPresent = ![NSString msidIsStringNilOrBlank:accessToken];
     
     if (rtPresent && atPresent)
     {
-        return MSIDTokenTypeLegacySingleResourceToken;
+        return MSIDCredentialTypeLegacySingleResourceToken;
     }
     else if (rtPresent)
     {
-        return MSIDTokenTypeRefreshToken;
+        return MSIDCredentialTypeRefreshToken;
     }
     else if (atPresent)
     {
-        return MSIDTokenTypeAccessToken;
+        return MSIDCredentialTypeAccessToken;
     }
     
-    return MSIDTokenTypeOther;
+    return MSIDCredentialTypeOther;
 }
 
 @end

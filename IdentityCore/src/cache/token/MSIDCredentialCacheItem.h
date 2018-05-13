@@ -21,35 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCacheItem.h"
-#import "MSIDTokenType.h"
-#import "MSIDDefaultTokenCacheQuery.h"
+#import "MSIDCredentialType.h"
+#import "MSIDDefaultCredentialCacheQuery.h"
+#import "MSIDJsonSerializable.h"
 
 @class MSIDBaseToken;
+@class MSIDClientInfo;
 
-@interface MSIDTokenCacheItem : MSIDCacheItem
+@interface MSIDCredentialCacheItem : NSObject <NSCopying, MSIDJsonSerializable>
 
 // Client id
 @property (readwrite, nonnull) NSString *clientId;
 
 // Token type
-@property (readwrite) MSIDTokenType tokenType;
-@property (readwrite, nullable) NSString *oauthTokenType;
+@property (readwrite) MSIDCredentialType credentialType;
 
-// Tokens
-// TODO: it's confusing that all tokens are here
-@property (readwrite, nullable) NSString *accessToken;
-@property (readwrite, nullable) NSString *refreshToken;
-@property (readwrite, nullable) NSString *idToken;
+// Token
+@property (readwrite, nonnull) NSString *secret;
 
-// Targets
+// Target
 @property (readwrite, nullable) NSString *target;
 
 // Realm
-@property (readwrite, nonnull) NSString *realm;
+@property (readwrite, nullable) NSString *realm;
 
-// Authority
-@property (readwrite, nonnull) NSURL *authority;
+// Environment
+@property (readwrite, nullable) NSString *environment;
 
 // Dates
 @property (readwrite, nullable) NSDate *expiresOn;
@@ -58,10 +55,17 @@
 // Family ID
 @property (readwrite, nullable) NSString *familyId;
 
-// Additional info
+// Unique user ID
+@property (readwrite, nonnull) NSString *uniqueUserId;
+
+// Client info
+@property (readwrite, nullable) MSIDClientInfo *clientInfo;
+
+// Additional fields
 @property (readwrite, nullable) NSDictionary *additionalInfo;
 
-- (nullable MSIDBaseToken *)tokenWithType:(MSIDTokenType)tokenType;
+// TODO: this shouldn't be here!
+- (nullable MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType;
 
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;
 

@@ -21,17 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCacheItem.h"
 #import "MSIDAccountType.h"
+#import "MSIDJsonSerializable.h"
 
-@interface MSIDAccountCacheItem : MSIDCacheItem
+@class MSIDClientInfo;
+
+@interface MSIDAccountCacheItem : NSObject <NSCopying, MSIDJsonSerializable>
 
 @property (readwrite) MSIDAccountType accountType;
+@property (readwrite, nonnull) NSString *uniqueUserId;
+@property (readwrite, nonnull) NSString *environment;
+@property (readwrite, nullable) NSString *legacyUserId;
 @property (readwrite, nullable) NSString *username;
 @property (readwrite, nullable) NSString *givenName;
 @property (readwrite, nullable) NSString *middleName;
 @property (readwrite, nullable) NSString *familyName;
 @property (readwrite, nullable) NSString *name;
+@property (readwrite, nullable) NSString *realm;
+@property (readwrite, nullable) MSIDClientInfo *clientInfo;
+@property (readwrite, nullable) NSString *alternativeAccountId;
 
 @property (readwrite, nullable) NSDictionary *additionalAccountFields;
 

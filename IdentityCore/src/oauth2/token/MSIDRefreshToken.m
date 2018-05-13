@@ -34,8 +34,6 @@
     MSIDRefreshToken *item = [super copyWithZone:zone];
     item->_refreshToken = [_refreshToken copyWithZone:zone];
     item->_familyId = [_familyId copyWithZone:zone];
-    item->_idToken = [_idToken copyWithZone:zone];
-    
     return item;
 }
 
@@ -61,7 +59,6 @@
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.refreshToken.hash;
     hash = hash * 31 + self.familyId.hash;
-    hash = hash * 31 + self.idToken.hash;
     return hash;
 }
 
@@ -75,20 +72,18 @@
     BOOL result = [super isEqualToItem:token];
     result &= (!self.refreshToken && !token.refreshToken) || [self.refreshToken isEqualToString:token.refreshToken];
     result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
-    result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
-    
     return result;
 }
 
 #pragma mark - Cache
 
-- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem
+- (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem
 {
     self = [super initWithTokenCacheItem:tokenCacheItem];
     
     if (self)
     {
-        _refreshToken = tokenCacheItem.refreshToken;
+        _refreshToken = tokenCacheItem.secret;
         
         if (!_refreshToken)
         {
@@ -96,27 +91,25 @@
             return nil;
         }
         
-        _idToken = tokenCacheItem.idToken;
         _familyId = tokenCacheItem.familyId;
     }
     
     return self;
 }
 
-- (MSIDTokenCacheItem *)tokenCacheItem
+- (MSIDCredentialCacheItem *)tokenCacheItem
 {
-    MSIDTokenCacheItem *cacheItem = [super tokenCacheItem];
-    cacheItem.refreshToken = self.refreshToken;
-    cacheItem.idToken = self.idToken;
+    MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
+    cacheItem.secret = self.refreshToken;
     cacheItem.familyId = self.familyId;
     return cacheItem;
 }
 
 #pragma mark - Token type
 
-- (MSIDTokenType)tokenType
+- (MSIDCredentialType)credentialType
 {
-    return MSIDTokenTypeRefreshToken;
+    return MSIDCredentialTypeRefreshToken;
 }
 
 #pragma mark - Description
@@ -124,7 +117,7 @@
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(refresh token=%@, family ID=%@, id token=%@)", _PII_NULLIFY(_refreshToken), _familyId, _PII_NULLIFY(_idToken)];
+    return [baseDescription stringByAppendingFormat:@"(refresh token=%@, family ID=%@)", _PII_NULLIFY(_refreshToken), _familyId];
 }
 
 @end

@@ -32,7 +32,6 @@
 
 @protocol MSIDRefreshableToken <NSObject>
 
-@property (readonly) NSString *idToken;
 @property (readonly) NSString *refreshToken;
 
 @end

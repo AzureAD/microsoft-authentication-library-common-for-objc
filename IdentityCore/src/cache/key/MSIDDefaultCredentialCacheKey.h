@@ -21,23 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
-#import "MSIDClientInfo.h"
+#import "MSIDCacheKey.h"
+#import "MSIDAccount.h"
+#import "MSIDCredentialType.h"
 
-@interface MSIDCacheItem : NSObject <NSCopying, NSSecureCoding, MSIDJsonSerializable>
-{
-    NSString *_uniqueUserId;
-    NSString *_legacyUserId;
-    NSString *_environment;
-    MSIDClientInfo *_clientInfo;
-}
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readwrite, nonnull) NSString *uniqueUserId;
-@property (readwrite, nullable) NSString *legacyUserId;
-@property (readwrite, nullable) NSString *environment;
-@property (readwrite, nullable) MSIDClientInfo *clientInfo;
+@interface MSIDDefaultCredentialCacheKey : MSIDCacheKey
 
-- (BOOL)isEqualToItem:(nonnull MSIDCacheItem *)item;
+@property (nullable, nonatomic) NSString *uniqueUserId;
+@property (nullable, nonatomic) NSString *environment;
+@property (nullable, nonatomic) NSString *realm;
+@property (nullable, nonatomic) NSString *clientId;
+@property (nullable, nonatomic) NSString *target;
+@property (nonatomic) MSIDCredentialType credentialType;
+
+- (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
+                         environment:(NSString *)environment;
+
+- (NSString *)serviceWithType:(MSIDCredentialType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm target:(nullable NSString *)target;
+- (NSString *)credentialIdWithType:(MSIDCredentialType)type clientId:(NSString *)clientId realm:(nullable NSString *)realm;
+- (NSString *)accountIdWithUniqueUserId:(NSString *)uniqueId environment:(NSString *)environment;
+- (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType;
+
+NS_ASSUME_NONNULL_END
 
 @end

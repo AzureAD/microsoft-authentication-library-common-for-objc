@@ -21,21 +21,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDCacheKey.h"
+#import "MSIDCredentialType.h"
 
-typedef NS_ENUM(NSInteger, MSIDTokenType)
+@implementation MSIDCacheKey
+
+- (id)initWithAccount:(NSString *)account
+              service:(NSString *)service
+              generic:(NSData *)generic
+                 type:(NSNumber *)type
 {
-    MSIDTokenTypeOther = 0,
-    MSIDTokenTypeAccessToken = 1,
-    MSIDTokenTypeRefreshToken = 2,
-    MSIDTokenTypeIDToken = 3,
-    MSIDTokenTypeLegacySingleResourceToken = 4
-};
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _account = account;
+    _service = service;
+    _type = type;
+    _generic = generic;
+    
+    return self;
+}
 
-@interface MSIDTokenTypeHelpers : NSObject
++ (NSString *)familyClientId:(NSString *)familyId
+{
+    if (!familyId)
+    {
+        familyId = @"1";
+    }
+    
+    return [NSString stringWithFormat:@"foci-%@", familyId];
+}
 
-+ (NSString *)tokenTypeAsString:(MSIDTokenType)type;
-+ (MSIDTokenType)tokenTypeFromString:(NSString *)type;
-+ (MSIDTokenType)tokenTypeWithRefreshToken:(NSString *)refreshToken accessToken:(NSString *)accessToken;
+- (NSString *)logDescription
+{
+    // TODO
+    return nil;
+}
+
+- (NSString *)piiLogDescription
+{
+    // TODO
+    return nil;
+}
 
 @end
