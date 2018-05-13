@@ -57,7 +57,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     return [NSString stringWithFormat:s_adalServiceFormat,
             s_adalLibraryString,
             authorityString.msidBase64UrlEncode,
-            [self.class getAttributeName:resource],
+            [self getAttributeName:resource],
             clientId.msidBase64UrlEncode];
 }
 
@@ -111,6 +111,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     self.authority = [NSURL URLWithString:[coder decodeObjectOfClass:[NSString class] forKey:@"authority"]];
     self.resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
     self.clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+    self.legacyUserId = [coder decodeObjectOfClass:[NSString class] forKey:@"userId"];
     
     return self;
 }
@@ -120,6 +121,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
     [coder encodeObject:self.resource forKey:@"resource"];
     [coder encodeObject:self.clientId forKey:@"clientId"];
+    [coder encodeObject:self.legacyUserId forKey:@"userId"];
 }
 
 #pragma mark - NSObject
