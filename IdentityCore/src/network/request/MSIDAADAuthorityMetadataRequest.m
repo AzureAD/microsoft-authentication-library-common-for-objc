@@ -48,11 +48,14 @@
     NSString *oauthError = jsonObject[@"error"];
     if (![NSString msidIsStringNilOrBlank:oauthError])
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain,
-                                            MSIDErrorDeveloperAuthorityValidation,
-                                            jsonObject[@"error_description"],
-                                            oauthError,
-                                            nil, nil, context.correlationId, nil);
+        if (error) {
+            *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorDeveloperAuthorityValidation,
+                                     jsonObject[@"error_description"],
+                                     oauthError,
+                                     nil, nil, context.correlationId, nil);
+        }
+        
         return nil;
     }
 
