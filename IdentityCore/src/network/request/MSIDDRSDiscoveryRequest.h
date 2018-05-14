@@ -31,7 +31,7 @@ typedef NS_ENUM(NSInteger, MSIDADFSType)
 @interface MSIDDRSDiscoveryRequest : MSIDHttpRequest
 
 - (instancetype)initWithDomain:(NSString *)domain
-                        adfsType:(MSIDADFSType)adfsType NS_DESIGNATED_INITIALIZER;
+                      adfsType:(MSIDADFSType)adfsType NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
