@@ -183,7 +183,6 @@
 		96CD695E1FE84A0300D41938 /* MSIDJsonObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 96CD69581FE84A0300D41938 /* MSIDJsonObject.m */; };
 		96F21AED20A4C6F2002B87C3 /* UIApplication+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 96F21AEB20A4C6F2002B87C3 /* UIApplication+MSIDExtensions.h */; };
 		96F21AEE20A4C6F2002B87C3 /* UIApplication+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F21AEC20A4C6F2002B87C3 /* UIApplication+MSIDExtensions.m */; };
-		96F21AEF20A4C6F2002B87C3 /* UIApplication+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F21AEC20A4C6F2002B87C3 /* UIApplication+MSIDExtensions.m */; };
 		96F21B0520A4FB27002B87C3 /* MSIDAppExtensionUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F21B0420A4FB27002B87C3 /* MSIDAppExtensionUtil.m */; };
 		96F21B1A20A65187002B87C3 /* MSIDWebviewInteracting.h in Headers */ = {isa = PBXBuildFile; fileRef = 96F21B1720A65187002B87C3 /* MSIDWebviewInteracting.h */; };
 		96F21B3120A65896002B87C3 /* MSIDWebviewAuthorization.h in Headers */ = {isa = PBXBuildFile; fileRef = 96F21B2F20A65896002B87C3 /* MSIDWebviewAuthorization.h */; };
@@ -2377,7 +2376,6 @@
 				B2CDB5871FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.m in Sources */,
 				B26A0B842071B6CC006BD95A /* MSIDAADOauth2Factory.m in Sources */,
 				96CD695B1FE84A0300D41938 /* MSIDURLFormObject.m in Sources */,
-				96F21AEF20A4C6F2002B87C3 /* UIApplication+MSIDExtensions.m in Sources */,
 				238E19CE2086FC87004DF483 /* MSIDUrlRequestSerializer.m in Sources */,
 				96CD695E1FE84A0300D41938 /* MSIDJsonObject.m in Sources */,
 				B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */,
