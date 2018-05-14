@@ -29,7 +29,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthorityResolverProtocol.h"
 #import "MSIDAadAuthorityResolver.h"
-#import "MSIDAADGetAuthorityMetadataRequest.h"
+#import "MSIDAADAuthorityMetadataRequest.h"
 #import "MSIDDRSDiscoveryRequest.h"
 #import "MSIDWebFingerRequest.h"
 #import "MSIDAuthorityResolverProtocol.h"

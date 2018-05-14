@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADGetAuthorityMetadataRequest.h"
+#import "MSIDAADAuthorityMetadataRequest.h"
 #import "MSIDAADResponseSerializer.h"
 #import "MSIDAADRequestConfigurator.h"
 
@@ -67,7 +67,7 @@
 @implementation MSIDAADAuthorityMetadataResponse
 @end
 
-@implementation MSIDAADGetAuthorityMetadataRequest
+@implementation MSIDAADAuthorityMetadataRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                        authority:(NSURL *)authority

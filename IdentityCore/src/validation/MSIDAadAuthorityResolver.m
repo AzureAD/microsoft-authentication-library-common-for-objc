@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAadAuthorityResolver.h"
-#import "MSIDAADGetAuthorityMetadataRequest.h"
+#import "MSIDAADAuthorityMetadataRequest.h"
 #import "MSIDAuthority.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDConfiguration.h"
@@ -140,7 +140,7 @@ static dispatch_queue_t s_aadValidationQueue;
     __auto_type trustedAuthority = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"https://%@", trustedHost]];
     __auto_type endpoint = [trustedAuthority URLByAppendingPathComponent:MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX];
     
-    __auto_type *request = [[MSIDAADGetAuthorityMetadataRequest alloc] initWithEndpoint:endpoint authority:authority];
+    __auto_type *request = [[MSIDAADAuthorityMetadataRequest alloc] initWithEndpoint:endpoint authority:authority];
     request.context = context;
     [request sendWithBlock:^(MSIDAADAuthorityMetadataResponse *response, NSError *error)
      {

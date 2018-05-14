@@ -29,7 +29,7 @@
 
 @end
 
-@interface MSIDAADGetAuthorityMetadataRequest : MSIDHttpRequest
+@interface MSIDAADAuthorityMetadataRequest : MSIDHttpRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                         authority:(NSURL *)authority NS_DESIGNATED_INITIALIZER;
