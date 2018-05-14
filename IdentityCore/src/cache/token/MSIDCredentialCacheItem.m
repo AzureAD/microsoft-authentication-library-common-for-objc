@@ -264,13 +264,15 @@
 
         MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:self.secret];
 
-        if ([idTokenClaims matchesLegacyUserId:legacyUserId]
-            && [self.environment isEqualToString:environment])
+        if (![idTokenClaims matchesLegacyUserId:legacyUserId])
         {
-            return YES;
+            return NO;
         }
 
-        return NO;
+        if (environment && ![self.environment isEqualToString:environment])
+        {
+            return NO;
+        }
     }
 
     return YES;

@@ -115,6 +115,8 @@
 
             [filteredResults addObject:cacheItem];
         }
+
+        return filteredResults;
     }
 
     return results;
