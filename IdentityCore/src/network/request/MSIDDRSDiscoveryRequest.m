@@ -44,6 +44,20 @@
     }
     
     __auto_type endpoint = (NSString *)jsonObject[@"IdentityProviderService"][@"PassiveAuthEndpoint"];
+    if (![endpoint isKindOfClass:NSString.class])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"PassiveAuthEndpoint is not a string.",
+                                     nil,
+                                     nil, nil, context.correlationId, nil);
+        }
+        
+        MSID_LOG_ERROR(nil, @"PassiveAuthEndpoint is not a string.");
+        return nil;
+    }
     
     return [NSURL URLWithString:endpoint];
 }
