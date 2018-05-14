@@ -25,14 +25,14 @@
 
 @interface MSIDAuthorizationCodeGrantRequest : MSIDTokenRequest
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                     redirectUri:(NSString *)redirectUri
-                            code:(NSString *)code NS_DESIGNATED_INITIALIZER;
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                   clientId:(nonnull NSString *)clientId
+                                      scope:(nullable NSString *)scope
+                                redirectUri:(nonnull NSString *)redirectUri
+                                       code:(nonnull NSString *)code NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope NS_UNAVAILABLE;
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                   clientId:(nonnull NSString *)clientId
+                                      scope:(nullable NSString *)scope NS_UNAVAILABLE;
 
 @end

@@ -24,10 +24,10 @@
 
 @interface MSIDWebFingerRequest : MSIDHttpRequest
 
-- (instancetype)initWithIssuer:(NSURL *)issuer
-                     authority:(NSURL *)authority NS_DESIGNATED_INITIALIZER;
+- (instancetype _Nullable)initWithIssuer:(nonnull NSURL *)issuer
+                               authority:(nonnull NSURL *)authority NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
 
 @end

@@ -33,6 +33,7 @@
     if (self)
     {
         NSParameterAssert(clientId);
+        NSParameterAssert(endpoint);
         
         NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[MSID_OAUTH2_CLIENT_ID] = clientId;

@@ -26,15 +26,15 @@
 
 @interface MSIDAADV1RefreshTokenGrantRequest : MSIDAADRefreshTokenGrantRequest
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                    refreshToken:(NSString *)refreshToken
-                        resource:(NSString *)resource NS_DESIGNATED_INITIALIZER;
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                   clientId:(nonnull NSString *)clientId
+                                      scope:(nullable NSString *)scope
+                               refreshToken:(nonnull NSString *)refreshToken
+                                   resource:(nonnull NSString *)resource NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                    refreshToken:(NSString *)refreshToken NS_UNAVAILABLE;
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                   clientId:(nonnull NSString *)clientId
+                                      scope:(nullable NSString *)scope
+                               refreshToken:(nonnull NSString *)refreshToken NS_UNAVAILABLE;
 
 @end

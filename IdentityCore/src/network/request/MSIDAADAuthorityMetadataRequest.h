@@ -24,17 +24,17 @@
 
 @interface MSIDAADAuthorityMetadataResponse : NSObject
 
-@property (nonatomic) NSURL *openIdConfigurationEndpoint;
-@property (nonatomic) NSArray<NSDictionary *> *metadata;
+@property (nonatomic, nullable) NSURL *openIdConfigurationEndpoint;
+@property (nonatomic, nullable) NSArray<NSDictionary *> *metadata;
 
 @end
 
 @interface MSIDAADAuthorityMetadataRequest : MSIDHttpRequest
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        authority:(NSURL *)authority NS_DESIGNATED_INITIALIZER;
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                  authority:(nonnull NSURL *)authority NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
 
 @end
