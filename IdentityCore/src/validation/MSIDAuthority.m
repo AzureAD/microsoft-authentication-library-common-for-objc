@@ -63,7 +63,6 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
                              MSIDTrustedAuthorityWorldWide,
                              MSIDTrustedAuthorityUSGovernment,
                              MSIDTrustedAuthorityCloudGovApi, nil];
-        //    login.microsoftonline.us ???
         s_openIdConfigurationCache = [NSCache new];
     }
 }
