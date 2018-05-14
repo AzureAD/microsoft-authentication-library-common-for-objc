@@ -109,7 +109,7 @@ static dispatch_queue_t s_aadValidationQueue;
     if (!authority) return nil;
     
     __auto_type apiVersion = MSIDConfiguration.defaultConfiguration.aadApiVersion;
-    __auto_type path = [NSString stringWithFormat:@"%@%@.well-known/openid-configuration", apiVersion ?: @"", apiVersion ? @"/" : @""];
+    __auto_type path = [NSString stringWithFormat:@"%@%@%@", apiVersion ?: @"", apiVersion ? @"/" : @"", MSID_OPENID_CONFIGURATION_SUFFIX];
     
     return [authority URLByAppendingPathComponent:path];
 }

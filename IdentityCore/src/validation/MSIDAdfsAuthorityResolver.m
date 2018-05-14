@@ -160,7 +160,7 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
 {
     if (!authority) return nil;
     
-    return [authority URLByAppendingPathComponent:@".well-known/openid-configuration"];
+    return [authority URLByAppendingPathComponent:MSID_OPENID_CONFIGURATION_SUFFIX];
 }
 
 - (NSString *)getDomain:(NSString *)upn
