@@ -373,6 +373,7 @@
 {
     MSID_LOG_WARN(context, @"(Default cache) Clearing the whole cache, this method should only be called in tests");
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.matchAnyCredentialType = YES;
     return [_dataSource removeItemsWithKey:query context:context error:error];
 }
 
