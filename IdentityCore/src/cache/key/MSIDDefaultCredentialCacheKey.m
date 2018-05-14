@@ -73,6 +73,7 @@ static NSInteger kCredentialTypePrefix = 2000;
                             environment:(NSString *)environment
 {
     uniqueId = uniqueId.msidTrimmedString.lowercaseString;
+    environment = environment.msidTrimmedString.lowercaseString;
 
     return [NSString stringWithFormat:@"%@%@%@",
             uniqueId, keyDelimiter, environment];
@@ -87,6 +88,8 @@ static NSInteger kCredentialTypePrefix = 2000;
 
 - (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
                          environment:(NSString *)environment
+                            clientId:(NSString *)clientId
+                      credentialType:(MSIDCredentialType)type
 {
     self = [super init];
 
@@ -94,6 +97,8 @@ static NSInteger kCredentialTypePrefix = 2000;
     {
         _uniqueUserId = uniqueUserId;
         _environment = environment;
+        _clientId = clientId;
+        _credentialType = type;
     }
 
     return self;

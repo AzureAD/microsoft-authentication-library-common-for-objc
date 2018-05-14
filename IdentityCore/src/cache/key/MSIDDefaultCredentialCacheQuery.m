@@ -31,7 +31,7 @@
 
     if (self)
     {
-        _targetMatchingOptions = Any;
+        _targetMatchingOptions = ExactStringMatch;
         _clientIdMatchingOptions = ExactStringMatch;
         _matchAnyCredentialType = NO;
     }
@@ -51,59 +51,87 @@
 
 - (NSString *)service
 {
-    if (self.matchAnyCredentialType
-        || self.credentialType == MSIDCredentialTypeAccessToken)
+    if (self.matchAnyCredentialType)
     {
-        if (self.queryClientId
-            && self.realm
-            && self.target
-            && (self.targetMatchingOptions == ExactStringMatch || self.targetMatchingOptions == Any))
-        {
-            return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:self.realm target:self.target];
-        }
         return nil;
     }
-    else
-    {
-        switch (self.credentialType)
-        {
-            case MSIDCredentialTypeRefreshToken:
-            {
-                if (self.queryClientId)
-                {
-                    return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:nil target:nil];
-                }
-                break;
-            }
-            case MSIDCredentialTypeIDToken:
-            {
-                if (self.clientId && self.realm)
-                {
-                    return [self serviceWithType:MSIDCredentialTypeIDToken clientID:self.clientId realm:self.realm target:nil];
-                }
 
-                break;
-            }
-            default:
-                break;
+    switch (self.credentialType)
+    {
+        case MSIDCredentialTypeAccessToken:
+        {
+            return [self serviceForAccessToken];
         }
+        case MSIDCredentialTypeRefreshToken:
+        {
+            return [self serviceForRefreshToken];
+        }
+        case MSIDCredentialTypeIDToken:
+        {
+            return [self serviceForIDToken];
+        }
+        default:
+            break;
     }
 
     return nil;
 }
 
+- (NSString *)serviceForAccessToken
+{
+    if (self.queryClientId
+        && self.realm
+        && self.target
+        && self.targetMatchingOptions == ExactStringMatch)
+    {
+        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:self.realm target:self.target];
+    }
+
+    return nil;
+}
+
+- (NSString *)serviceForRefreshToken
+{
+    if (self.queryClientId)
+    {
+        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:nil target:nil];
+    }
+
+    return nil;
+}
+
+- (NSString *)serviceForIDToken
+{
+    if (self.clientId && self.realm)
+    {
+        return [self serviceWithType:MSIDCredentialTypeIDToken clientID:self.clientId realm:self.realm target:nil];
+    }
+    return nil;
+}
+
 - (NSData *)generic
 {
+    if (self.matchAnyCredentialType)
+    {
+        return nil;
+    }
+
+    NSString *clientId = self.queryClientId;
+
+    if (!clientId)
+    {
+        return nil;
+    }
+
     NSString *genericString = nil;
 
-    if (self.credentialType == MSIDCredentialTypeRefreshToken
-        && self.queryClientId)
+    if (self.credentialType == MSIDCredentialTypeRefreshToken)
     {
-        genericString = [self credentialIdWithType:self.credentialType clientId:self.queryClientId realm:self.realm];
+        genericString = [self credentialIdWithType:self.credentialType clientId:clientId realm:nil];
     }
-    else if (self.clientId && self.realm)
+    else if (self.realm)
     {
-        genericString = [self credentialIdWithType:self.credentialType clientId:self.clientId realm:self.realm];
+        genericString = [self credentialIdWithType:self.credentialType clientId:clientId realm:self.realm];
     }
 
     return [genericString dataUsingEncoding:NSUTF8StringEncoding];
@@ -121,30 +149,7 @@
 
 - (BOOL)exactMatch
 {
-    if (!self.environment
-        || !self.uniqueUserId
-        || !self.queryClientId)
-    {
-        return NO;
-    }
-
-    if (self.credentialType == MSIDCredentialTypeAccessToken)
-    {
-        if (!self.realm
-            || !self.target
-            || self.targetMatchingOptions != ExactStringMatch)
-        {
-            return NO;
-        }
-    }
-
-    if (self.credentialType == MSIDCredentialTypeIDToken
-        && !self.realm)
-    {
-        return NO;
-    }
-
-    return YES;
+    return self.service && self.account;
 }
 
 - (NSString *)queryClientId

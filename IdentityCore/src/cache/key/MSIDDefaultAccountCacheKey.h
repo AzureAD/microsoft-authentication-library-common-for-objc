@@ -36,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
                          environment:(NSString *)environment
-                               realm:(NSString *)realm;
+                               realm:(NSString *)realm
+                                type:(MSIDAccountType)type;
 
 @end
 

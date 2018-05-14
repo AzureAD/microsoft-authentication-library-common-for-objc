@@ -21,57 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <XCTest/XCTest.h>
 #import "MSIDDefaultAccountCacheKey.h"
 
-static NSString *keyDelimiter = @"-";
-static NSInteger kAccountTypePrefix = 1000;
+@interface MSIDDefaultAccountCacheKeyTests : XCTestCase
 
-@implementation MSIDDefaultAccountCacheKey
+@end
 
-- (NSNumber *)accountTypeNumber:(MSIDAccountType)accountType
+@implementation MSIDDefaultAccountCacheKeyTests
+
+- (void)testAccountTokenCacheKey_withAllParameters_shouldReturnKey
 {
-    return @(kAccountTypePrefix + accountType);
-}
+    MSIDDefaultAccountCacheKey *cacheKey = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+                                                                                        environment:@"login.microsoftonline.com"
+                                                                                              realm:@"contoso.com"
+                                                                                               type:MSIDAccountTypeAADV2];
 
-- (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
-                         environment:(NSString *)environment
-                               realm:(NSString *)realm
-                                type:(MSIDAccountType)type
-{
-    self = [super init];
+    cacheKey.username = @"username";
 
-    if (self)
-    {
-        _uniqueUserId = uniqueUserId;
-        _environment = environment;
-        _realm = realm;
-        _accountType = type;
-    }
-
-    return self;
-}
-
-- (NSData *)generic
-{
-    return [self.username.msidTrimmedString.lowercaseString dataUsingEncoding:NSUTF8StringEncoding];
-}
-
-- (NSNumber *)type
-{
-    return [self accountTypeNumber:self.accountType];
-}
-
-- (NSString *)account
-{
-    NSString *uniqueId = self.uniqueUserId.msidTrimmedString.lowercaseString;
-
-    return [NSString stringWithFormat:@"%@%@%@",
-            uniqueId, keyDelimiter, self.environment];
-}
-
-- (NSString *)service
-{
-    return self.realm.msidTrimmedString.lowercaseString;
+    XCTAssertEqualObjects(cacheKey.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertEqualObjects(cacheKey.service, @"contoso.com");
+    XCTAssertEqualObjects(cacheKey.type, @1003);
+    XCTAssertEqualObjects(cacheKey.generic, [@"username" dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
 @end

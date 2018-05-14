@@ -225,13 +225,13 @@
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.uniqueUserId, credential.environment, credential.environment, credential.clientId);
 
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
-                                                                                         environment:credential.environment];
+                                                                                         environment:credential.environment
+                                                                                            clientId:credential.clientId
+                                                                                      credentialType:credential.credentialType];
 
-    key.clientId = credential.clientId;
     key.familyId = credential.familyId;
     key.realm = credential.realm;
     key.target = credential.target;
-    key.credentialType = credential.credentialType;
 
     return [_dataSource saveToken:credential
                               key:key
@@ -250,10 +250,12 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Saving account with environment %@", account.environment);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving account %@", account);
 
-    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:account.uniqueUserId environment:account.environment realm:account.realm];
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:account.uniqueUserId
+                                                                                   environment:account.environment
+                                                                                         realm:account.realm
+                                                                                          type:account.accountType];
 
     key.username = account.username;
-    key.accountType = account.accountType;
 
     // Get previous account, so we don't loose any fields
     MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
@@ -303,12 +305,12 @@
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.uniqueUserId, credential.environment, credential.realm, credential.clientId);
 
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
-                                                                                         environment:credential.environment];
+                                                                                         environment:credential.environment
+                                                                                            clientId:credential.clientId
+                                                                                      credentialType:credential.credentialType];
 
-    key.clientId = credential.clientId;
     key.realm = credential.realm;
     key.target = credential.target;
-    key.credentialType = credential.credentialType;
 
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
 
@@ -357,10 +359,10 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing account with environment %@", account.environment);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, account.uniqueUserId, account.username);
 
-    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:account.uniqueUserId environment:account.environment realm:account.realm];
-
-    key.username = account.username;
-    key.accountType = account.accountType;
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:account.uniqueUserId
+                                                                                   environment:account.environment
+                                                                                         realm:account.realm
+                                                                                          type:account.accountType];
 
     return [_dataSource removeItemsWithKey:key context:context error:error];
 }

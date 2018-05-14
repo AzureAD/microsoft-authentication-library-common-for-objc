@@ -6,7 +6,7 @@
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell         
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
 //
@@ -38,7 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDCredentialType credentialType;
 
 - (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
-                         environment:(NSString *)environment;
+                         environment:(NSString *)environment
+                            clientId:(NSString *)clientId
+                      credentialType:(MSIDCredentialType)type;
 
 - (NSString *)serviceWithType:(MSIDCredentialType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm target:(nullable NSString *)target;
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type clientId:(NSString *)clientId realm:(nullable NSString *)realm;
