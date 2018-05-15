@@ -41,11 +41,12 @@
     MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
     
     MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] init];
-    cacheItem.refreshToken = @"refresh token value";
+    cacheItem.secret = @"refresh token value";
     cacheItem.familyId = @"familyId value";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"spe_info" : @"test"};
-    cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
     cacheItem.clientId = @"some clientId";
     cacheItem.credentialType = MSIDCredentialTypeRefreshToken;
     
@@ -101,10 +102,11 @@
     
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
-    cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
-    cacheItem.lastName = @"last name";
-    cacheItem.legacyUserIdentifier = @"upn";
-    cacheItem.firstName = @"name";
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.familyName = @"Smith";
+    cacheItem.givenName = @"Test";
+    cacheItem.legacyUserId = @"upn";
+    cacheItem.accountType = MSIDAccountTypeAADV2;
     
     NSData *data = [serializer serializeAccountCacheItem:cacheItem];
     MSIDAccountCacheItem *resultItem = [serializer deserializeAccountCacheItem:data];
