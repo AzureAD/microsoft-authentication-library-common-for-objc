@@ -99,7 +99,9 @@
             }
 
             if (legacyUserId
-                && ![cacheItem matchesWithLegacyUserId:legacyUserId environment:cacheQuery.environment])
+                && ![cacheItem matchesWithLegacyUserId:legacyUserId
+                                           environment:cacheQuery.environment
+                                    environmentAliases:cacheQuery.environmentAliases])
             {
                 continue;
             }

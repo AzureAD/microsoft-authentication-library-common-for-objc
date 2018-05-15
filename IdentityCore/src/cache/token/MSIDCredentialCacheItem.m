@@ -251,21 +251,12 @@
         return NO;
     }
 
-    if (environment && ![self.environment isEqualToString:environment])
-    {
-        return NO;
-    }
-
-    if (environmentAliases && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
-    {
-        return NO;
-    }
-
-    return YES;
+    return [self matchByEnvironment:environment environmentAliases:environmentAliases];
 }
 
 - (BOOL)matchesWithLegacyUserId:(nullable NSString *)legacyUserId
                     environment:(nullable NSString *)environment
+             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
     if (legacyUserId)
     {
@@ -281,11 +272,22 @@
         {
             return NO;
         }
+    }
 
-        if (environment && ![self.environment isEqualToString:environment])
-        {
-            return NO;
-        }
+    return [self matchByEnvironment:environment environmentAliases:environmentAliases];
+}
+
+- (BOOL)matchByEnvironment:(nullable NSString *)environment
+        environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
+{
+    if (environment && ![self.environment isEqualToString:environment])
+    {
+        return NO;
+    }
+
+    if (environmentAliases && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    {
+        return NO;
     }
 
     return YES;

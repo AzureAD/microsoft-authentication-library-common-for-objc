@@ -505,6 +505,28 @@
     XCTAssertEqualObjects(results[0], idToken);
 }
 
+- (void)testGetCredentialsWithQuery_whenNotExactMatch_andIDTokenQuery_matchByLegacyUserIdAndEnvironment_shouldNotReturnItems
+{
+    MSIDCredentialCacheItem *idToken = [self createTestIDTokenCacheItem];
+    [self saveItem:idToken];
+
+    MSIDCredentialCacheItem *idToken2 = [self createTestIDTokenCacheItemWithUPN:@"user@upn.com"];
+    idToken2.environment = @"login.windows.net";
+    [self saveItem:idToken2];
+
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDCredentialTypeIDToken;
+    query.environment = @"login.windows.us";
+
+    XCTAssertFalse(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:@"user@upn.com" context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 0);
+}
+
 - (void)testGetCredentialsWithQuery_whenNotExactMatch_andAccessTokenQuery_matchByRealm_shouldReturnItems
 {
     MSIDCredentialCacheItem *accessToken = [self createTestAccessTokenCacheItem];
