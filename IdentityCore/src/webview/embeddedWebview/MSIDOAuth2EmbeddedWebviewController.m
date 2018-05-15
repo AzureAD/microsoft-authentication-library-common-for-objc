@@ -33,12 +33,14 @@
 #import "MSIDError.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebviewAuthorization.h"
+#import "MSIDChallengeHandler.h"
 #import "MSIDNTLMHandler.h"
 #import "MSIDAuthority.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDPKeyAuthHandler.h"
 #else
 #define DEFAULT_WINDOW_WIDTH 420
 #define DEFAULT_WINDOW_HEIGHT 650
@@ -159,6 +161,8 @@
     //       two callbacks.
     [_completionLock lock];
     
+    [MSIDChallengeHandler resetHandlers];
+    
     if ( _completionHandler )
     {
         void (^completionHandler)(MSIDWebOAuth2Response *response, NSError *error) = _completionHandler;
@@ -246,6 +250,25 @@
         return;
     }
     
+#if TARGET_OS_IPHONE
+    // check for pkeyauth challenge.
+    if ([requestUrlString hasPrefix:[kMSIDPKeyAuthUrn lowercaseString]])
+    {
+        decisionHandler(WKNavigationActionPolicyCancel);
+        [MSIDPKeyAuthHandler handleChallenge:requestUrl.absoluteString
+                                     context:self.context
+                           completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
+                               if (!challengeResponse)
+                               {
+                                   [self endWebAuthenticationWithError:error orURL:nil];
+                                   return;
+                               }
+                               [self loadRequest:challengeResponse];
+                           }];
+        return;
+    }
+#endif
+    
     // redirecting to non-https url is not allowed
     if (![[[requestUrl scheme] lowercaseString] isEqualToString:@"https"])
     {
@@ -297,6 +320,21 @@
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error
 {
     [self webAuthFailWithError:error];
+}
+
+- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(ChallengeCompletionHandler)completionHandler
+{
+    NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
+    
+    MSID_LOG_VERBOSE(self.context,
+                     @"%@ - %@. Previous challenge failure count: %ld",
+                     @"webView:didReceiveAuthenticationChallenge:completionHandler",
+                     authMethod, (long)challenge.previousFailureCount);
+    
+    [MSIDChallengeHandler handleChallenge:challenge
+                                  webview:webView
+                                  context:self.context
+                        completionHandler:completionHandler];
 }
 
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL

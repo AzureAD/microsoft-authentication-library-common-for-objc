@@ -141,7 +141,7 @@
     
     // If window is closed by us because web auth is completed, we simply return;
     // otherwise cancel the webauth because it is closed by users.
-    if (_complete)
+    if (_webAuthComplete)
     {
         return;
     }
