@@ -1230,22 +1230,11 @@
 			path = mac;
 			sourceTree = "<group>";
 		};
-		600D199920963A8A0004CD43 /* ui */ = {
-			isa = PBXGroup;
-			children = (
-				600D199C20963AD50004CD43 /* MSIDNTLMUIPrompt.h */,
-				60B3855C20A96DAA00D546D0 /* MSIDWebviewUIController.h */,
-				600D199A20963A980004CD43 /* ios */,
-				600D199B20963A9D0004CD43 /* mac */,
-			);
-			path = ui;
-			sourceTree = "<group>";
-		};
 		600D199A20963A980004CD43 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				600D199D20963B020004CD43 /* MSIDNTLMUIPrompt.m */,
 				60B3855D20A96E0600D546D0 /* MSIDWebviewUIController.m */,
+				600D199D20963B020004CD43 /* MSIDNTLMUIPrompt.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -1253,12 +1242,12 @@
 		600D199B20963A9D0004CD43 /* mac */ = {
 			isa = PBXGroup;
 			children = (
+				60B3855F20A96E2700D546D0 /* MSIDWebviewUIController.m */,
 				600D199F20963B0F0004CD43 /* MSIDNTLMUIPrompt.m */,
 				6068300E2098E92E00CCA6AB /* MSIDCertificateChooser.h */,
 				6068300F2098E94100CCA6AB /* MSIDCertificateChooser.m */,
 				606830082098C9C400CCA6AB /* MSIDCredentialCollectionController.h */,
 				606830092098C9D300CCA6AB /* MSIDCredentialCollectionController.m */,
-				60B3855F20A96E2700D546D0 /* MSIDWebviewUIController.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -1293,6 +1282,17 @@
 				600D19BD20964D9E0004CD43 /* MSIDWorkPlaceJoinUtil.m */,
 			);
 			path = mac;
+			sourceTree = "<group>";
+		};
+		60B3856D20AB3CDC00D546D0 /* ui */ = {
+			isa = PBXGroup;
+			children = (
+				60B3855C20A96DAA00D546D0 /* MSIDWebviewUIController.h */,
+				600D199C20963AD50004CD43 /* MSIDNTLMUIPrompt.h */,
+				600D199A20963A980004CD43 /* ios */,
+				600D199B20963A9D0004CD43 /* mac */,
+			);
+			path = ui;
 			sourceTree = "<group>";
 		};
 		60E434242088F72000802D59 /* ios */ = {
@@ -1346,7 +1346,6 @@
 				606830042098ACED00CCA6AB /* MSIDNegotiateHandler.m */,
 				6068303720A33A7400CCA6AB /* MSIDPKeyAuthHandler.h */,
 				6068303820A33A9000CCA6AB /* MSIDPKeyAuthHandler.m */,
-				600D199920963A8A0004CD43 /* ui */,
 			);
 			path = challangeHandlers;
 			sourceTree = "<group>";
@@ -1425,6 +1424,7 @@
 			children = (
 				96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */,
 				96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */,
+				60B3856D20AB3CDC00D546D0 /* ui */,
 				96235FA0207D786A007EAB36 /* challangeHandlers */,
 			);
 			path = embeddedWebview;
