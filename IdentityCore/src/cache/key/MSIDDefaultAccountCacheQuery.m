@@ -35,6 +35,16 @@
     return nil;
 }
 
+- (NSNumber *)type
+{
+    if (self.accountType != MSIDAccountTypeOther)
+    {
+        return [super type];
+    }
+
+    return nil;
+}
+
 - (BOOL)exactMatch
 {
     return self.uniqueUserId && self.environment && self.realm;

@@ -116,9 +116,22 @@
         return nil;
     }
 
+    if (!json)
+    {
+        MSID_LOG_WARN(nil, @"Tried to decode an account cache item from nil json");
+        return nil;
+    }
+
     _json = json;
 
     _accountType = [MSIDAccountTypeHelpers accountTypeFromString:json[MSID_AUTHORITY_TYPE_CACHE_KEY]];
+
+    if (!_accountType)
+    {
+        MSID_LOG_WARN(nil, @"No account type present in the JSON for credential");
+        return nil;
+    }
+
     _legacyUserId = json[MSID_ACCOUNT_ID_CACHE_KEY];
     _uniqueUserId = json[MSID_UNIQUE_ID_CACHE_KEY];
     _username = json[MSID_USERNAME_CACHE_KEY];

@@ -128,11 +128,24 @@
         return nil;
     }
 
+    if (!json)
+    {
+        MSID_LOG_WARN(nil, @"Tried to decode a credential cache item from nil json");
+        return nil;
+    }
+
     _json = json;
 
     _clientId = json[MSID_CLIENT_ID_CACHE_KEY];
     _credentialType = [MSIDCredentialTypeHelpers credentialTypeFromString:json[MSID_CREDENTIAL_TYPE_CACHE_KEY]];
     _secret = json[MSID_TOKEN_CACHE_KEY];
+
+    if (!_secret)
+    {
+        MSID_LOG_WARN(nil, @"No secret present in the credential");
+        return nil;
+    }
+
     _target = json[MSID_TARGET_CACHE_KEY];
     _realm = json[MSID_REALM_CACHE_KEY];
     _environment = json[MSID_ENVIRONMENT_CACHE_KEY];

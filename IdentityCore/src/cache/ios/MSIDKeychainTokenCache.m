@@ -174,9 +174,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
-                          serializer:(id<MSIDCredentialItemSerializer>)serializer
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
+                               serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
 {
     MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
     NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key serializer:serializer context:context error:error];

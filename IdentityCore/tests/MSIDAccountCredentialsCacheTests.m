@@ -97,6 +97,7 @@
     item.realm = @"contoso.com";
     item.target = @"user.read user.write";
     item.clientId = @"client";
+    item.secret = @"at";
     [self saveItem:item];
 
     // Now query
@@ -143,6 +144,7 @@
     item.uniqueUserId = @"uid.utid";
     item.environment = @"login.microsoftonline.com";
     item.clientId = @"client";
+    item.secret = @"rt";
     [self saveItem:item];
 
     // Now query
@@ -188,6 +190,7 @@
     item.environment = @"login.microsoftonline.com";
     item.realm = @"contoso.com";
     item.clientId = @"client";
+    item.secret = @"id";
     [self saveItem:item];
 
     // Now query
@@ -1448,7 +1451,7 @@
     XCTAssertTrue([allItems count] == 0);
 
     allAccounts = [self.cache getAccountsWithQuery:[MSIDDefaultAccountCacheQuery new] context:nil error:&error];
-    XCTAssertTrue([allAccounts count] == 1);
+    XCTAssertTrue([allAccounts count] == 0);
 
 }
 
@@ -1648,7 +1651,7 @@
 
 #pragma mark - removeCredential
 
-- (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveRefreshToken_shouldRemoveRefreshToken
+- (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveRefreshToken_shouldRemoveRefreshTokenAndIDTokens
 {
     [self saveItem:[self createTestIDTokenCacheItem]];
     [self saveItem:[self createTestRefreshTokenCacheItem]];
@@ -1662,8 +1665,7 @@
     NSArray *allCredentials = [self.cache getAllItemsWithContext:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allCredentials);
-    XCTAssertTrue([allCredentials count] == 2);
-    XCTAssertTrue([allCredentials containsObject:[self createTestIDTokenCacheItem]]);
+    XCTAssertTrue([allCredentials count] == 1);
     XCTAssertTrue([allCredentials containsObject:[self createTestAccessTokenCacheItem]]);
 }
 
@@ -1842,7 +1844,9 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
+    MSIDDefaultAccountCacheQuery *allItemsQuery = [MSIDDefaultAccountCacheQuery new];
+
+    NSArray *results = [self.cache getAccountsWithQuery:allItemsQuery context:nil error:&error];
     XCTAssertNotNil(results);
     XCTAssertNil(error);
 
