@@ -1598,7 +1598,7 @@
     XCTAssertTrue([allCredentials count] == 3);
     XCTAssertTrue([allCredentials containsObject:[self createTestIDTokenCacheItem]]);
     XCTAssertTrue([allCredentials containsObject:[self createTestRefreshTokenCacheItem]]);
-    XCTAssertTrue([allCredentials containsObject:[self createTestIDTokenCacheItem]]);
+    XCTAssertTrue([allCredentials containsObject:[self createTestAccessTokenCacheItem]]);
 }
 
 #pragma mark - removeAllAccounts
@@ -1646,6 +1646,179 @@
     XCTAssertTrue([allAccounts count] == 2);
 }
 
+#pragma mark - removeCredential
+
+- (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveRefreshToken_shouldRemoveRefreshToken
+{
+    [self saveItem:[self createTestIDTokenCacheItem]];
+    [self saveItem:[self createTestRefreshTokenCacheItem]];
+    [self saveItem:[self createTestAccessTokenCacheItem]];
+
+    NSError *error = nil;
+    BOOL result = [self.cache removeCredential:[self createTestRefreshTokenCacheItem] context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    NSArray *allCredentials = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(allCredentials);
+    XCTAssertTrue([allCredentials count] == 2);
+    XCTAssertTrue([allCredentials containsObject:[self createTestIDTokenCacheItem]]);
+    XCTAssertTrue([allCredentials containsObject:[self createTestAccessTokenCacheItem]]);
+}
+
+- (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveAccessToken_shouldRemoveAccessToken
+{
+    [self saveItem:[self createTestIDTokenCacheItem]];
+    [self saveItem:[self createTestRefreshTokenCacheItem]];
+    [self saveItem:[self createTestAccessTokenCacheItem]];
+
+    NSError *error = nil;
+    BOOL result = [self.cache removeCredential:[self createTestAccessTokenCacheItem] context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    NSArray *allCredentials = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(allCredentials);
+    XCTAssertTrue([allCredentials count] == 2);
+    XCTAssertTrue([allCredentials containsObject:[self createTestIDTokenCacheItem]]);
+    XCTAssertTrue([allCredentials containsObject:[self createTestRefreshTokenCacheItem]]);
+}
+
+- (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveIDToken_shouldRemoveIDToken
+{
+    [self saveItem:[self createTestIDTokenCacheItem]];
+    [self saveItem:[self createTestRefreshTokenCacheItem]];
+    [self saveItem:[self createTestAccessTokenCacheItem]];
+
+    NSError *error = nil;
+    BOOL result = [self.cache removeCredential:[self createTestIDTokenCacheItem] context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    NSArray *allCredentials = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(allCredentials);
+    XCTAssertTrue([allCredentials count] == 2);
+    XCTAssertTrue([allCredentials containsObject:[self createTestAccessTokenCacheItem]]);
+    XCTAssertTrue([allCredentials containsObject:[self createTestRefreshTokenCacheItem]]);
+}
+
+#pragma mark - getAccountsWithQuery
+
+- (void)testGetAccountsWithQuery_whenQueryIsExactMatch_shouldReturnAccount
+{
+    [self saveAccount:[self createTestAccountCacheItem]];
+
+    MSIDAccountCacheItem *account2 = [self createTestAccountCacheItem];
+    account2.uniqueUserId = @"uid.utid2";
+
+    [self saveAccount:account2];
+
+    NSError *error = nil;
+
+    MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
+    query.uniqueUserId = @"uid.utid2";
+    query.environment = @"login.microsoftonline.com";
+    query.realm = @"contoso.com";
+    XCTAssertTrue(query.exactMatch);
+
+    NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
+    XCTAssertNotNil(results);
+    XCTAssertNil(error);
+    XCTAssertTrue([results count] == 1);
+    XCTAssertEqualObjects(results[0], account2);
+}
+
+- (void)testGetAccountsWithQuery_whenQueryNotExactMatch_andMatchingByUniqueUserId_shouldReturnAccount
+{
+    [self saveAccount:[self createTestAccountCacheItem]];
+
+    MSIDAccountCacheItem *account2 = [self createTestAccountCacheItem];
+    account2.uniqueUserId = @"uid.utid2";
+
+    [self saveAccount:account2];
+
+    NSError *error = nil;
+
+    MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
+    query.uniqueUserId = @"uid.utid2";
+    XCTAssertFalse(query.exactMatch);
+
+    NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
+    XCTAssertNotNil(results);
+    XCTAssertNil(error);
+    XCTAssertTrue([results count] == 1);
+    XCTAssertEqualObjects(results[0], account2);
+}
+
+- (void)testGetAccountsWithQuery_whenQueryNotExactMatch_andMatchingByEnvironment_shouldReturnAccount
+{
+    [self saveAccount:[self createTestAccountCacheItem]];
+
+    MSIDAccountCacheItem *account2 = [self createTestAccountCacheItem];
+    account2.environment = @"login.windows.net";
+
+    [self saveAccount:account2];
+
+    NSError *error = nil;
+
+    MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
+    query.environment = @"login.windows.net";
+    XCTAssertFalse(query.exactMatch);
+
+    NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
+    XCTAssertNotNil(results);
+    XCTAssertNil(error);
+    XCTAssertTrue([results count] == 1);
+    XCTAssertEqualObjects(results[0], account2);
+}
+
+- (void)testGetAccountsWithQuery_whenQueryNotExactMatch_andMatchingByEnvironmentAliases_shouldReturnAccount
+{
+    [self saveAccount:[self createTestAccountCacheItem]];
+
+    MSIDAccountCacheItem *account2 = [self createTestAccountCacheItem];
+    account2.environment = @"login.windows.net";
+
+    [self saveAccount:account2];
+
+    NSError *error = nil;
+
+    MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
+    query.environmentAliases = @[@"login.microsoftonline.us", @"login.windows.net"];
+    XCTAssertFalse(query.exactMatch);
+
+    NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
+    XCTAssertNotNil(results);
+    XCTAssertNil(error);
+    XCTAssertTrue([results count] == 1);
+    XCTAssertEqualObjects(results[0], account2);
+}
+
+- (void)testGetAccountsWithQuery_whenQueryNotExactMatch_andMatchingByRealm_shouldReturnAccount
+{
+    [self saveAccount:[self createTestAccountCacheItem]];
+
+    MSIDAccountCacheItem *account2 = [self createTestAccountCacheItem];
+    account2.realm = @"contoso2.com";
+
+    [self saveAccount:account2];
+
+    NSError *error = nil;
+
+    MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
+    query.realm = @"contoso2.com";
+    XCTAssertFalse(query.exactMatch);
+
+    NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
+    XCTAssertNotNil(results);
+    XCTAssertNil(error);
+    XCTAssertTrue([results count] == 1);
+    XCTAssertEqualObjects(results[0], account2);
+}
+
 /*
 
 - (nullable NSArray<MSIDAccountCacheItem *> *)getAccountsWithQuery:(nonnull MSIDDefaultAccountCacheQuery *)cacheQuery
@@ -1655,10 +1828,6 @@
 - (BOOL)removeCredetialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                           context:(nullable id<MSIDRequestContext>)context
                             error:(NSError * _Nullable * _Nullable)error;
-
-- (BOOL)removeCredential:(nonnull MSIDCredentialCacheItem *)credential
-                 context:(nullable id<MSIDRequestContext>)context
-                   error:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)removeAccountsWithQuery:(nonnull MSIDDefaultAccountCacheQuery *)cacheQuery
                         context:(nullable id<MSIDRequestContext>)context
