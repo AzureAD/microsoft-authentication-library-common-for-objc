@@ -229,7 +229,7 @@
 
 - (void)testIsKnownHost_whenHostInListOfKnownHost_shouldReturnYes
 {
-    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.windows.net" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.com" msidUrl]]);
     XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.us" msidUrl]]);
     XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.chinacloudapi.cn" msidUrl]]);
     XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.de" msidUrl]]);
@@ -257,9 +257,21 @@
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"'authority' is a required parameter and must not be nil or empty.");
 }
 
+- (void)testNormalizeAuthority_whenAuthorityIsDeprecated_shouldReturnError
+{
+    __auto_type authority = [@"http://login.windows.net" msidUrl];
+    NSError *error;
+    
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
+    
+    XCTAssertNil(updatedAuthority);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"login.windows.net has been deprecated. Use login.microsoftonline.com instead.");
+}
+
 - (void)testNormalizeAuthority_whenAuthoritySchemeIsNotHttps_shouldReturnError
 {
-        __auto_type authority = [@"http://login.windows.net" msidUrl];
+    __auto_type authority = [@"http://login.microsoftonline.com" msidUrl];
     NSError *error;
     
     __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
@@ -271,7 +283,7 @@
 
 - (void)testNormalizeAuthority_whenAADAuthorityWithoutTenant_shouldReturnError
 {
-    __auto_type authority = [@"https://login.windows.net" msidUrl];
+    __auto_type authority = [@"https://login.microsoftonline.com" msidUrl];
     NSError *error;
     
     __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
@@ -283,29 +295,29 @@
 
 - (void)testNormalizeAuthority_whenAADAuthorityWithTenant_shouldReturnNormalizedAuthority
 {
-    __auto_type authority = [@"https://login.windows.net/common/qwe" msidUrl];
+    __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     NSError *error;
     
     __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
     
-    XCTAssertEqualObjects(updatedAuthority, [@"https://login.windows.net/common" msidUrl]);
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.microsoftonline.com/common" msidUrl]);
     XCTAssertNil(error);
 }
 
 - (void)testNormalizeAuthority_whenAADAuthorityWithTenantAndSlash_shouldReturnNormalizedAuthority
 {
-    __auto_type authority = [@"https://login.windows.net/common/" msidUrl];
+    __auto_type authority = [@"https://login.microsoftonline.com/common/" msidUrl];
     NSError *error;
     
     __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
     
-    XCTAssertEqualObjects(updatedAuthority, [@"https://login.windows.net/common" msidUrl]);
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.microsoftonline.com/common" msidUrl]);
     XCTAssertNil(error);
 }
 
 - (void)testNormalizeAuthority_whenB2CAuthorityInvalid_shouldReturnError
 {
-    __auto_type authority = [@"https://login.windows.net/tfp/tenant" msidUrl];
+    __auto_type authority = [@"https://login.microsoftonline.com/tfp/tenant" msidUrl];
     NSError *error;
     
     __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
@@ -317,23 +329,23 @@
 
 - (void)testNormalizeAuthority_whenB2CAuthorityValid_shouldReturnNormalizedAuthority
 {
-    __auto_type authority = [@"https://login.windows.net/tfp/tenant/policy/qwe" msidUrl];
+    __auto_type authority = [@"https://login.microsoftonline.com/tfp/tenant/policy/qwe" msidUrl];
     NSError *error;
     
     __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
     
-    XCTAssertEqualObjects(updatedAuthority, [@"https://login.windows.net/tfp/tenant/policy" msidUrl]);
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.microsoftonline.com/tfp/tenant/policy" msidUrl]);
     XCTAssertNil(error);
 }
 
 - (void)testNormalizeAuthority_whenB2CAuthorityValidAndSlash_shouldReturnNormalizedAuthority
 {
-    __auto_type authority = [@"https://login.windows.net/tfp/tenant/policy/" msidUrl];
+    __auto_type authority = [@"https://login.microsoftonline.com/tfp/tenant/policy/" msidUrl];
     NSError *error;
     
     __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
     
-    XCTAssertEqualObjects(updatedAuthority, [@"https://login.windows.net/tfp/tenant/policy" msidUrl]);
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.microsoftonline.com/tfp/tenant/policy" msidUrl]);
     XCTAssertNil(error);
 }
 

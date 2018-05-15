@@ -288,6 +288,16 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
+    if ([authority.host.lowercaseString isEqualToString:MSIDTrustedAuthority])
+    {
+        if (error)
+        {
+            __auto_type message = [NSString stringWithFormat:@"%@ has been deprecated. Use %@ instead.", MSIDTrustedAuthority, MSIDTrustedAuthorityWorldWide];
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
+    
     if ([NSString msidIsStringNilOrBlank:authority.absoluteString])
     {
         if (error)
