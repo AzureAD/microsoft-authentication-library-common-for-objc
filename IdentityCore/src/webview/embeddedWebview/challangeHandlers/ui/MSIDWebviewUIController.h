@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,30 +15,36 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDWebviewUIController.h"
 
-@interface MSIDOAuth2EmbeddedWebviewController :
-MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
+@interface MSIDWebviewUIController :
+#if TARGET_OS_IPHONE
+UIViewController
+#else
+NSWindowController
+#endif
 
-@property MSIDWebUIStateVerifier stateVerifier;
-@property NSString *requestState;
+@property (nonatomic) WKWebView *webView;
+@property id<MSIDRequestContext> context;
+@property BOOL loading;
+@property BOOL complete;
 
-- (id)init NS_UNAVAILABLE;
-- (id)initWithStartUrl:(NSURL *)startUrl
-                endURL:(NSURL *)endUrl
-               webview:(WKWebView *)webview
-               context:(id<MSIDRequestContext>)context
-            completion:(MSIDWebUICompletionHandler)completionHandler;
+- (id)initWithContext:(id<MSIDRequestContext>)context;
+
+- (BOOL)createAndLoadView:(NSError **)error;
+- (void)presentView;
+- (void)dismissWebview:(void (^)(void))completion;
+- (void)showLoadingIndicator;
+- (void)dismissLoadingIndicator;
+- (void)cancel;
 
 @end
+
+

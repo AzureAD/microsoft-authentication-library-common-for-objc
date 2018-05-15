@@ -39,7 +39,6 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 
 #if TARGET_OS_IPHONE
-#import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDPKeyAuthHandler.h"
 #else
@@ -51,19 +50,10 @@
 {
     NSURL *_startUrl;
     NSURL *_endUrl;
-    id<MSIDRequestContext> _context;
     void (^_completionHandler)(MSIDWebOAuth2Response *response, NSError *error);
     
     NSLock *_completionLock;
     NSTimer *_spinnerTimer; // Used for managing the activity spinner
-    BOOL _loading;
-    BOOL _complete;
-    
-#if TARGET_OS_IPHONE
-    UIActivityIndicatorView *_laodingIndicator;
-#else
-    NSProgressIndicator *_laodingIndicator;
-#endif
 }
 
 - (id)initWithStartUrl:(NSURL *)startUrl
@@ -72,20 +62,19 @@
                context:(id<MSIDRequestContext>)context
             completion:(MSIDWebUICompletionHandler)completionHandler
 {
-    self = [super init];
+    self = [super initWithContext:context];
     
     if (self)
     {
+        self.webView = webview;
         _startUrl = startUrl;
         _endUrl = endUrl;
-        _webView = webview;
-        _context  = context;
         
         // Save the completion block
         _completionHandler = [completionHandler copy];
         
         _completionLock = [[NSLock alloc] init];
-        _complete = NO;
+        self.complete = NO;
     }
     
     return self;
@@ -93,8 +82,8 @@
 
 -(void)dealloc
 {
-    [_webView setNavigationDelegate:nil];
-    _webView = nil;
+    [self.webView setNavigationDelegate:nil];
+    self.webView = nil;
 }
 
 - (BOOL)start
@@ -130,68 +119,26 @@
 
 - (void)cancel
 {
-    MSID_LOG_INFO(_context, @"Cancel Web Auth...");
+    MSID_LOG_INFO(self.context, @"Cancel Web Auth...");
     
     // Dispatch the completion block
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user/application has cancelled the authorization.", nil, nil, nil, _context.correlationId, nil);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user/application has cancelled the authorization.", nil, nil, nil, self.context.correlationId, nil);
     [self endWebAuthenticationWithError:error orURL:nil];
 }
 
 - (BOOL)loadView:(NSError **)error
 {
-    // Just need to hijack the delegate and return if webview is passed in.
-    if (_webView)
+    BOOL result = YES;
+    
+    if (!self.webView)
     {
-        _webView.navigationDelegate = self;
-        return YES;
+        // create and load the view if not provided
+        result = [self createAndLoadView:error];
     }
     
-    // Create Webview
-    // Get UI container to hold the webview
-#if TARGET_OS_IPHONE
-    // Need parent controller to proceed
-    if (![self obtainParentController])
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"The Application does not have a current ViewController", nil, nil, nil, _context.correlationId, nil);
-        }
-        return NO;
-    }
+    self.webView.navigationDelegate = self;
     
-    UIView *rootView = [self view];
-    [rootView setFrame:[[UIScreen mainScreen] bounds]];
-    [rootView setAutoresizesSubviews:YES];
-    [rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-#else
-    NSWindow *window = [self obtainSignInWindow];
-    NSView *rootView = window.contentView;
-#endif
-    
-    // Prepare the WKWebView
-    WKWebViewConfiguration *webConfiguration = [WKWebViewConfiguration new];
-    WKWebView *webView = [[WKWebView alloc] initWithFrame:rootView.frame configuration:webConfiguration];
-    [webView setNavigationDelegate:self];
-    [webView setAccessibilityIdentifier:@"MSID_SIGN_IN_WEBVIEW"];
-    
-    // Customize the UI
-#if TARGET_OS_IPHONE
-    [webView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-    [self setupCancelButton];
-    _laodingIndicator = [self prepareLoadingIndicator:rootView];
-    self.view = rootView;
-#else
-    [webView setAutoresizingMask:NSViewHeightSizable | NSViewWidthSizable];
-    _laodingIndicator = [self prepareLoadingIndicator];
-    self.window = window;
-#endif
-    
-    // Append webview and loading indicator
-    _webView = webView;
-    [rootView addSubview:_webView];
-    [rootView addSubview:_laodingIndicator];
-    
-    return YES;
+    return result;
 }
 
 - (BOOL)endWebAuthenticationWithError:(NSError *)error
@@ -202,27 +149,6 @@
     });
     
     return YES;
-}
-
-- (void)dismissWebview:(void (^)(void))completion
-{
-#if TARGET_OS_IPHONE
-    //if webview is created by us, dismiss and then complete and return;
-    //otherwise just complete and return.
-    if (_parentController)
-    {
-        [_parentController dismissViewControllerAnimated:YES completion:completion];
-    }
-    else
-    {
-        completion();
-    }
-    
-    _parentController = nil;
-#else
-    [self close];
-    completion();
-#endif
 }
 
 - (void)dispatchCompletionBlock:(NSError *)error URL:(NSURL *)url
@@ -249,7 +175,7 @@
             response = [MSIDWebviewAuthorization responseWithURL:url
                                                     requestState:self.requestState
                                                    stateVerifier:self.stateVerifier
-                                                         context:_context
+                                                         context:self.context
                                                            error:&systemError];
         }
         
@@ -264,22 +190,12 @@
 - (void)startRequest:(NSURLRequest *)request
 {
     [self loadRequest:request];
-    
-#if TARGET_OS_IPHONE
-    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
-    [navController setModalPresentationStyle:_presentationType];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [_parentController presentViewController:navController animated:YES completion:nil];
-    });
-#else
-    [self showWindow:nil];
-#endif
+    [self presentView];
 }
 
 - (void)loadRequest:(NSURLRequest *)request
 {
-    [_webView loadRequest:request];
+    [self.webView loadRequest:request];
 }
 
 #pragma mark - WKNavigationDelegate Protocol
@@ -289,14 +205,14 @@
     NSURL *requestUrl = navigationAction.request.URL;
     NSString *requestUrlString = [requestUrl.absoluteString lowercaseString];
     
-    MSID_LOG_VERBOSE(_context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestUrl] ? requestUrl.host : @"unknown host");
-    MSID_LOG_VERBOSE_PII(_context, @"-decidePolicyForNavigationAction host: %@", requestUrl.host);
+    MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestUrl] ? requestUrl.host : @"unknown host");
+    MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestUrl.host);
     
     // Stop at the end URL.
     if ([requestUrlString hasPrefix:[_endUrl.absoluteString lowercaseString]] ||
         [[[requestUrl scheme] lowercaseString] isEqualToString:@"msauth"])
     {
-        _complete = YES;
+        self.complete = YES;
         
         NSURL *url = navigationAction.request.URL;
         [self webAuthDidCompleteWithURL:url];
@@ -313,7 +229,7 @@
     
     if ([[[requestUrl scheme] lowercaseString] isEqualToString:@"browser"])
     {
-        _complete = YES;
+        self.complete = YES;
         requestUrlString = [requestUrlString stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
         
 #if TARGET_OS_IPHONE
@@ -324,7 +240,7 @@
         }
         else
         {
-            MSID_LOG_INFO(_context, @"unable to redirect to browser from extension");
+            MSID_LOG_INFO(self.context, @"unable to redirect to browser from extension");
         }
 #else
         [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestUrlString]];
@@ -340,7 +256,7 @@
     {
         decisionHandler(WKNavigationActionPolicyCancel);
         [MSIDPKeyAuthHandler handleChallenge:requestUrl.absoluteString
-                                     context:_context
+                                     context:self.context
                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
                                if (!challengeResponse)
                                {
@@ -356,10 +272,10 @@
     // redirecting to non-https url is not allowed
     if (![[[requestUrl scheme] lowercaseString] isEqualToString:@"https"])
     {
-        MSID_LOG_INFO(_context, @"Server is redirecting to a non-https url");
-        _complete = YES;
+        MSID_LOG_INFO(self.context, @"Server is redirecting to a non-https url");
+        self.complete = YES;
         
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, _context.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, self.context.correlationId, nil);
         [self endWebAuthenticationWithError:error orURL:nil];
         
         decisionHandler(WKNavigationActionPolicyCancel);
@@ -371,9 +287,9 @@
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(null_unspecified WKNavigation *)navigation
 {
-    if (!_loading)
+    if (!self.loading)
     {
-        _loading = YES;
+        self.loading = YES;
         if (_spinnerTimer)
         {
             [_spinnerTimer invalidate];
@@ -390,8 +306,8 @@
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation
 {
     NSURL *url = webView.URL;
-    MSID_LOG_VERBOSE(_context, @"-didFinishNavigation host: %@", [MSIDAuthority isKnownHost:url] ? url.host : @"unknown host");
-    MSID_LOG_VERBOSE_PII(_context, @"-didFinishNavigation host: %@", url.host);
+    MSID_LOG_VERBOSE(self.context, @"-didFinishNavigation host: %@", [MSIDAuthority isKnownHost:url] ? url.host : @"unknown host");
+    MSID_LOG_VERBOSE_PII(self.context, @"-didFinishNavigation host: %@", url.host);
     
     [self stopSpinner];
 }
@@ -410,21 +326,21 @@
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    MSID_LOG_VERBOSE(_context,
+    MSID_LOG_VERBOSE(self.context,
                      @"%@ - %@. Previous challenge failure count: %ld",
                      @"webView:didReceiveAuthenticationChallenge:completionHandler",
                      authMethod, (long)challenge.previousFailureCount);
     
     [MSIDChallengeHandler handleChallenge:challenge
                                   webview:webView
-                                  context:_context
+                                  context:self.context
                         completionHandler:completionHandler];
 }
 
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL
 {
-    MSID_LOG_INFO(_context, @"-webAuthDidCompleteWithURL: %@", [MSIDAuthority isKnownHost:endURL] ? endURL.host : @"unknown host");
-    MSID_LOG_INFO_PII(_context, @"-webAuthDidCompleteWithURL: %@", endURL);
+    MSID_LOG_INFO(self.context, @"-webAuthDidCompleteWithURL: %@", [MSIDAuthority isKnownHost:endURL] ? endURL.host : @"unknown host");
+    MSID_LOG_INFO_PII(self.context, @"-webAuthDidCompleteWithURL: %@", endURL);
     
     [self endWebAuthenticationWithError:nil orURL:endURL];
 }
@@ -432,7 +348,7 @@
 // Authentication failed somewhere
 - (void)webAuthFailWithError:(NSError *)error
 {
-    if (_complete)
+    if (self.complete)
     {
         return;
     }
@@ -450,8 +366,8 @@
         return;
     }
     
-    MSID_LOG_ERROR(_context, @"-webAuthFailWithError error code %ld", (long)error.code);
-    MSID_LOG_ERROR_PII(_context, @"-webAuthFailWithError: %@", error);
+    MSID_LOG_ERROR(self.context, @"-webAuthFailWithError error code %ld", (long)error.code);
+    MSID_LOG_ERROR_PII(self.context, @"-webAuthFailWithError: %@", error);
     
     [self endWebAuthenticationWithError:error orURL:nil];
 }
@@ -462,154 +378,29 @@
 {
     (void)sender;
     
-    if (_loading)
+    if (self.loading)
     {
-        [_laodingIndicator setHidden:NO];
-#if TARGET_OS_IPHONE
-        [_laodingIndicator startAnimating];
-#else
-        [_laodingIndicator startAnimation:nil];
-        [self.window.contentView setNeedsDisplay:YES];
-#endif
+        [self showLoadingIndicator];
     }
     _spinnerTimer = nil;
 }
 
 - (void)stopSpinner
 {
-    if (!_loading)
+    if (!self.loading)
     {
         return;
     }
     
-    _loading = NO;
+    self.loading = NO;
     if (_spinnerTimer)
     {
         [_spinnerTimer invalidate];
         _spinnerTimer = nil;
     }
     
-    [_laodingIndicator setHidden:YES];
-#if TARGET_OS_IPHONE
-    [_laodingIndicator stopAnimating];
-#else
-    [_laodingIndicator stopAnimation:nil];
-#endif
+    [self dismissLoadingIndicator];
 }
-
-#pragma mark - iOS specific
-
-#if TARGET_OS_IPHONE
-- (BOOL)obtainParentController
-{
-    if (_parentController)
-    {
-        return YES;
-    }
-    
-    _parentController = [UIApplication msidCurrentViewController];
-    
-    return (_parentController != nil);
-}
-
-- (void)setupCancelButton
-{
-    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                                                                                  target:self
-                                                                                  action:@selector(onCancel:)];
-    self.navigationItem.leftBarButtonItem = cancelButton;
-}
-
-// Authentication was cancelled by the user
-- (IBAction)onCancel:(id)sender
-{
-    (void)sender;
-    [self cancel];
-}
-
-- (UIActivityIndicatorView *)prepareLoadingIndicator:(UIView *)rootView
-{
-    UIActivityIndicatorView *loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    [loadingIndicator setColor:[UIColor blackColor]];
-    [loadingIndicator setCenter:rootView.center];
-    return loadingIndicator;
-}
-
-#endif
-
-#pragma mark - Mac specific
-
-#if !TARGET_OS_IPHONE
-- (NSWindow *)obtainSignInWindow
-{
-    NSWindow *mainWindow = [NSApp mainWindow];
-    NSRect windowRect;
-    if (mainWindow)
-    {
-        windowRect = mainWindow.frame;
-    }
-    else
-    {
-        // If we didn't get a main window then center it in the screen
-        windowRect = [[NSScreen mainScreen] frame];
-    }
-    
-    // Calculate the center of the current main window so we can position our window in the center of it
-    NSRect centerRect = [self getCenterRect:windowRect rect2:NSMakeRect(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)];
-    
-    NSWindow *window = [[NSWindow alloc] initWithContentRect:centerRect
-                                                   styleMask:NSTitledWindowMask | NSClosableWindowMask
-                                                     backing:NSBackingStoreBuffered
-                                                       defer:YES];
-    [window setDelegate:self];
-    [window setAccessibilityIdentifier:@"MSID_SIGN_IN_WINDOW"];
-    [window.contentView setAutoresizesSubviews:YES];
-    
-    return window;
-}
-
-- (NSRect)getCenterRect:(NSRect)rect1
-                  rect2:(NSRect)rect2
-{
-    CGFloat x = rect1.origin.x + ((rect1.size.width - rect2.size.width) / 2);
-    CGFloat y = rect1.origin.y + ((rect1.size.height - rect2.size.height) / 2);
-    
-    rect2.origin.x = x;
-    rect2.origin.y = y;
-    
-    return rect2;
-}
-
-// Authentication was cancelled by the user by closing the window
-- (void)windowWillClose:(NSNotification *)notification
-{
-    (void)notification;
-    
-    // If window is closed by us because web auth is completed, we simply return;
-    // otherwise cancel the webauth because it is closed by users.
-    if (_complete)
-    {
-        return;
-    }
-    [self cancel];
-}
-
-- (NSProgressIndicator *)prepareLoadingIndicator
-{
-    NSProgressIndicator *loadingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(DEFAULT_WINDOW_WIDTH / 2 - 16, DEFAULT_WINDOW_HEIGHT / 2 - 16, 32, 32)];
-    [loadingIndicator setStyle:NSProgressIndicatorSpinningStyle];
-    // Keep the item centered in the window even if it's resized.
-    [loadingIndicator setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
-    
-    // On OS X there's a noticable lag between the window showing and the page loading, so starting with the spinner
-    // at least make it looks like something is happening.
-    [loadingIndicator setHidden:NO];
-    [loadingIndicator startAnimation:nil];
-    
-    return loadingIndicator;
-}
-
-#endif
 
 @end
 
