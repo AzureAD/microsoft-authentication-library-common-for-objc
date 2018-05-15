@@ -213,6 +213,7 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Get all items from cache");
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.matchAnyCredentialType = YES;
     return [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 }
 
@@ -374,9 +375,7 @@
                    error:(NSError * _Nullable * _Nullable)error
 {
     MSID_LOG_WARN(context, @"(Default cache) Clearing the whole cache, this method should only be called in tests");
-    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.matchAnyCredentialType = YES;
-    return [_dataSource removeItemsWithKey:query context:context error:error];
+    return [_dataSource removeItemsWithKey:[MSIDCacheKey new] context:context error:error];
 }
 
 - (BOOL)removeAllCredentials:(nonnull NSArray<MSIDCredentialCacheItem *> *)credentials

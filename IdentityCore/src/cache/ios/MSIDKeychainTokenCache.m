@@ -142,6 +142,16 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 {
     assert(item);
     assert(serializer);
+
+    if (!key.generic)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure generic field is not nil.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
+        return NO;
+    }
     
     NSData *itemData = [serializer serializeCredentialCacheItem:item];
     
@@ -185,9 +195,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
-                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+                                           serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
     NSArray *items = [self itemsWithKey:key context:context error:error];
     
@@ -522,11 +532,11 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO(context, @"Set keychain item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Set keychain item, key info (account: %@ service: %@)", key.account, key.service);
     
-    if (!key.service || !key.generic)
+    if (!key.service)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service and generic fields are not nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service field is not nil.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
         return NO;
@@ -545,7 +555,11 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
     [query setObject:key.service forKey:(id)kSecAttrService];
     [query setObject:(key.account ? key.account : @"") forKey:(id)kSecAttrAccount];
-    [query setObject:key.generic forKey:(id)kSecAttrGeneric];
+
+    if (key.generic)
+    {
+        [query setObject:key.generic forKey:(id)kSecAttrGeneric];
+    }
     
     if (key.type)
     {
