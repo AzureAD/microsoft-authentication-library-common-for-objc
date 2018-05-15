@@ -21,28 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDConfiguration.h"
+#import <Foundation/Foundation.h>
+#import "MSIDEndpointProviderProtocol.h"
 
-static MSIDConfiguration *s_defaultConfiguration;
-
-@implementation MSIDConfiguration
-
-+ (void)initialize
-{
-    if (self == [MSIDConfiguration self])
-    {
-        s_defaultConfiguration = [MSIDConfiguration new];
-    }
-}
-
-+ (MSIDConfiguration *)defaultConfiguration
-{
-    return s_defaultConfiguration;
-}
-
-+ (void)setDefaultConfiguration:(MSIDConfiguration *)defaultConfiguration
-{
-    s_defaultConfiguration = defaultConfiguration;
-}
+@interface MSIDAADEndpointProvider : NSObject <MSIDEndpointProviderProtocol>
 
 @end

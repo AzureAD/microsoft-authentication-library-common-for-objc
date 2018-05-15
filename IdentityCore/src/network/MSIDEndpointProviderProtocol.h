@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -20,15 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDHttpRequest.h"
+#import <Foundation/Foundation.h>
 #import "MSIDADFSType.h"
 
-@interface MSIDDRSDiscoveryRequest : MSIDHttpRequest
+@protocol MSIDEndpointProviderProtocol <NSObject>
 
-- (instancetype _Nullable)initWithDomain:(nonnull NSString *)domain
-                                adfsType:(MSIDADFSType)adfsType NS_DESIGNATED_INITIALIZER;
+- (NSURL *)oauth2AuthorizeEndpointWithUrl:(NSURL *)baseUrl;
 
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
+- (NSURL *)oauth2TokenEndpointWithUrl:(NSURL *)baseUrl;
+
+- (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDADFSType)type;
+
+- (NSURL *)webFingerDiscoveryEndpointWithIssuer:(NSURL *)issuer;
+
+- (NSURL *)openIdConfigurationEndpointWithUrl:(NSURL *)baseUrl;
+
+- (NSURL *)aadAuthorityDiscoveryEndpointWithHost:(NSString *)host;
+
 
 @end

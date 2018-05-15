@@ -25,7 +25,7 @@
 #import "MSIDAADAuthorityMetadataRequest.h"
 #import "MSIDAuthority.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDConfiguration.h"
+#import "MSIDNetworkConfiguration.h"
 
 static dispatch_queue_t s_aadValidationQueue;
 
@@ -104,16 +104,6 @@ static dispatch_queue_t s_aadValidationQueue;
     });
 }
 
-- (NSURL *)openIdConfigurationEndpointForAuthority:(NSURL *)authority
-{
-    if (!authority) return nil;
-    
-    __auto_type apiVersion = MSIDConfiguration.defaultConfiguration.aadApiVersion;
-    __auto_type path = [NSString stringWithFormat:@"%@%@%@", apiVersion ?: @"", apiVersion ? @"/" : @"", MSID_OPENID_CONFIGURATION_SUFFIX];
-    
-    return [authority URLByAppendingPathComponent:path];
-}
-
 #pragma mark - Private
 
 - (void)sendDiscoverRequestWithAuthority:(NSURL *)authority
@@ -137,8 +127,7 @@ static dispatch_queue_t s_aadValidationQueue;
         trustedHost = authority.msidHostWithPortIfNecessary;
     }
     
-    __auto_type trustedAuthority = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"https://%@", trustedHost]];
-    __auto_type endpoint = [trustedAuthority URLByAppendingPathComponent:MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX];
+    __auto_type endpoint = [MSIDNetworkConfiguration.defaultConfiguration.endpointProvider aadAuthorityDiscoveryEndpointWithHost:trustedHost];
     
     __auto_type *request = [[MSIDAADAuthorityMetadataRequest alloc] initWithEndpoint:endpoint authority:authority];
     request.context = context;
@@ -151,7 +140,7 @@ static dispatch_queue_t s_aadValidationQueue;
                  [self.aadCache addInvalidRecord:authority oauthError:error context:context];
              }
              
-             __auto_type endpoint = validate ? nil : [self openIdConfigurationEndpointForAuthority:authority];
+             __auto_type endpoint = validate ? nil : [MSIDNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority];
              error = validate ? error : nil;
              
              if (completionBlock) completionBlock(endpoint, NO, error);

@@ -21,12 +21,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDNetworkConfiguration.h"
+#import "MSIDAADEndpointProvider.h"
 
-@interface MSIDConfiguration : NSObject
+static MSIDNetworkConfiguration *s_defaultConfiguration;
 
-@property (class, nullable) MSIDConfiguration *defaultConfiguration;
+@implementation MSIDNetworkConfiguration
 
-@property (nonatomic, nullable) NSString *aadApiVersion;
++ (void)initialize
+{
+    if (self == [MSIDNetworkConfiguration self])
+    {
+        s_defaultConfiguration = [MSIDNetworkConfiguration new];
+    }
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _endpointProvider = [MSIDAADEndpointProvider new];
+        _aadAuthorityDiscoveryApiVersion = @"1.1";
+        _drsDiscoveryApiVersion = @"1.0";
+    }
+    
+    return self;
+}
+
++ (MSIDNetworkConfiguration *)defaultConfiguration
+{
+    return s_defaultConfiguration;
+}
+
++ (void)setDefaultConfiguration:(MSIDNetworkConfiguration *)defaultConfiguration
+{
+    s_defaultConfiguration = defaultConfiguration;
+}
 
 @end

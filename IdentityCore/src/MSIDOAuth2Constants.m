@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDOAuth2Constants.h"
-#import "MSIDConfiguration.h"
+#import "MSIDNetworkConfiguration.h"
 
 NSString *const MSID_OAUTH2_ACCESS_TOKEN       = @"access_token";
 NSString *const MSID_OAUTH2_AUTHORIZATION      = @"authorization";
@@ -110,16 +110,16 @@ NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"token";
 
 NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-configuration";
 
-NSString *MSID_OAUTH2_AUTHORIZE_SUFFIX(void)
-{
-    __auto_type apiVersion = MSIDConfiguration.defaultConfiguration.aadApiVersion;
-
-    return [NSString stringWithFormat:@"/oauth2/%@%@authorize", apiVersion ?: @"", apiVersion ? @"/" : @""];
-}
-
-NSString *MSID_OAUTH2_TOKEN_SUFFIX(void)
-{
-    __auto_type apiVersion = MSIDConfiguration.defaultConfiguration.aadApiVersion;
-    
-    return [NSString stringWithFormat:@"/oauth2/%@%@token", apiVersion ?: @"", apiVersion ? @"/" : @""];
-}
+//NSString *MSID_OAUTH2_AUTHORIZE_SUFFIX(void)
+//{
+//    __auto_type apiVersion = MSIDConfiguration.defaultConfiguration.aadApiVersion;
+//
+//    return [NSString stringWithFormat:@"/oauth2/%@%@authorize", apiVersion ?: @"", apiVersion ? @"/" : @""];
+//}
+//
+//NSString *MSID_OAUTH2_TOKEN_SUFFIX(void)
+//{
+//    __auto_type apiVersion = MSIDConfiguration.defaultConfiguration.aadApiVersion;
+//    
+//    return [NSString stringWithFormat:@"/oauth2/%@%@token", apiVersion ?: @"", apiVersion ? @"/" : @""];
+//}

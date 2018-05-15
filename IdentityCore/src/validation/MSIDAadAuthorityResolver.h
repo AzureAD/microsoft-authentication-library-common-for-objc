@@ -30,6 +30,4 @@
 
 @property (nonatomic) MSIDAadAuthorityCache *aadCache;
 
-- (NSURL *)openIdConfigurationEndpointForAuthority:(NSURL *)authority;
-
 @end

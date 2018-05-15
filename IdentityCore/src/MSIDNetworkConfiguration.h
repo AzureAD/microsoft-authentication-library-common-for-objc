@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -20,15 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDHttpRequest.h"
-#import "MSIDADFSType.h"
+#import <Foundation/Foundation.h>
+#import "MSIDEndpointProviderProtocol.h"
 
-@interface MSIDDRSDiscoveryRequest : MSIDHttpRequest
+@interface MSIDNetworkConfiguration : NSObject
 
-- (instancetype _Nullable)initWithDomain:(nonnull NSString *)domain
-                                adfsType:(MSIDADFSType)adfsType NS_DESIGNATED_INITIALIZER;
+@property (class, nullable) MSIDNetworkConfiguration *defaultConfiguration;
 
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
+@property (nonatomic, nonnull) id<MSIDEndpointProviderProtocol> endpointProvider;
+
+@property (nonatomic, nullable) NSString *aadApiVersion;
+
+@property (nonatomic, nullable) NSString *aadAuthorityDiscoveryApiVersion;
+
+@property (nonatomic, nullable) NSString *drsDiscoveryApiVersion;
 
 @end

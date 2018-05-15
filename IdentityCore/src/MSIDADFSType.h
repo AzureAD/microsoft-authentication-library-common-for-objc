@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -20,15 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDHttpRequest.h"
-#import "MSIDADFSType.h"
-
-@interface MSIDDRSDiscoveryRequest : MSIDHttpRequest
-
-- (instancetype _Nullable)initWithDomain:(nonnull NSString *)domain
-                                adfsType:(MSIDADFSType)adfsType NS_DESIGNATED_INITIALIZER;
-
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
-
-@end
+typedef NS_ENUM(NSInteger, MSIDADFSType)
+{
+    MSIDADFSTypeOnPrems,
+    MSIDADFSTypeCloud
+};
