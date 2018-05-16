@@ -149,6 +149,11 @@ static uint64_t s_expirationBuffer = 300;
 
 - (BOOL)isExpired;
 {
+    if (self.cachedAt && [[NSDate date] compare:self.cachedAt] == NSOrderedAscending)
+    {
+        return YES;
+    }
+
     NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:s_expirationBuffer];
     return [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
 }

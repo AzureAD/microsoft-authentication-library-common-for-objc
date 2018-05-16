@@ -273,6 +273,8 @@
 		B2936F4E20AA906C0050C585 /* MSIDLegacyTokenCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2936F4C20AA906C0050C585 /* MSIDLegacyTokenCacheItemTests.m */; };
 		B2936F4F20AA908F0050C585 /* MSIDCredentialCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B7620461F510084313F /* MSIDCredentialCacheItemTests.m */; };
 		B2936F5020AA954A0050C585 /* MSIDAccountCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B7920461F5E0084313F /* MSIDAccountCacheItemTests.m */; };
+		B2936F7320ABDEF40050C585 /* MSIDBaseTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2321532C1FDF4FD800C6960D /* MSIDBaseTokenTests.m */; };
+		B2936F7420ABEFC10050C585 /* MSIDAccessTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B9D204761550084313F /* MSIDAccessTokenTests.m */; };
 		B2964BDD205083E80000BC95 /* MSIDAuthorityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2964BDC205083E80000BC95 /* MSIDAuthorityTests.m */; };
 		B2964BDE205083E80000BC95 /* MSIDAuthorityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2964BDC205083E80000BC95 /* MSIDAuthorityTests.m */; };
 		B2964BE1205103920000BC95 /* MSIDTokenFilteringHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2964BDF205103920000BC95 /* MSIDTokenFilteringHelper.h */; };
@@ -2034,6 +2036,7 @@
 				B2936F4B20AA8EBB0050C585 /* MSIDKeyedArchiverSerializerTests.m in Sources */,
 				04930F8C1FEC8EC200FC4DCD /* MSIDAadAuthorityCache+TestUtil.m in Sources */,
 				B2DD4B4220A934BC0047A66E /* MSIDTokenFilteringHelperTests.m in Sources */,
+				B2936F7320ABDEF40050C585 /* MSIDBaseTokenTests.m in Sources */,
 				B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */,
 				B2DD4B3120A8DA0B0047A66E /* MSIDLegacyCacheQueryTests.m in Sources */,
 				B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */,
@@ -2043,6 +2046,7 @@
 				B2DD4B4120A9344B0047A66E /* MSIDAadAuthorityCacheTests.m in Sources */,
 				B2DD4B4020A934170047A66E /* MSIDCredentialTypeTests.m in Sources */,
 				B210F4501FDDF5D2005A8F76 /* MSIDClientInfoTests.m in Sources */,
+				B2936F7420ABEFC10050C585 /* MSIDAccessTokenTests.m in Sources */,
 				B20657CF1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
 				B2DD4B3320A8DA4B0047A66E /* MSIDLegacyCacheKeyTests.m in Sources */,
 				D6D9A4BE1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,

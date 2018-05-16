@@ -147,10 +147,14 @@ const unichar queryStringSeparator = '?';
 
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant
 {
-    if ([NSString msidIsStringNilOrBlank:environment]
-        || [NSString msidIsStringNilOrBlank:tenant])
+    if ([NSString msidIsStringNilOrBlank:environment])
     {
         return nil;
+    }
+
+    if ([NSString msidIsStringNilOrBlank:tenant])
+    {
+        return [self msidURLWithEnvironment:environment];
     }
     
     NSString *authorityString = [NSString stringWithFormat:@"https://%@/%@", environment, tenant];
