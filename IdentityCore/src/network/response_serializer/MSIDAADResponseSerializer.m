@@ -37,7 +37,7 @@
     
     if (jsonError)
     {
-        if (error) { *error = jsonError; }
+        if (error) *error = jsonError;
         return nil;
     }
     

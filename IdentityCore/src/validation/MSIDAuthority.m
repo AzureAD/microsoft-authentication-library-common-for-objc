@@ -205,7 +205,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
     NSError *error;
     if (![self isAuthorityFormatValid:authority context:nil error:&error])
     {
-        if (completionBlock) { completionBlock(nil, NO, error); }
+        if (completionBlock) completionBlock(nil, NO, error);
         return;
     }
     

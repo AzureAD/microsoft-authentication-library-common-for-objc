@@ -290,7 +290,7 @@
     
     XCTAssertNil(updatedAuthority);
     XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"authority must specify a tenant or common.");
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"authority must have at least 2 path components.");
 }
 
 - (void)testNormalizeAuthority_whenAADAuthorityWithTenant_shouldReturnNormalizedAuthority

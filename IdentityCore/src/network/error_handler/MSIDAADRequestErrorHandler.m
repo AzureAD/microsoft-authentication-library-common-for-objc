@@ -53,7 +53,7 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
     if (!httpResponse)
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) { completionBlock(nil, error); }
+            if (completionBlock) completionBlock(nil, error);
         });
         return;
     }
@@ -82,7 +82,7 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
         MSID_LOG_VERBOSE(context, @"Parsed error response: %@", _PII_NULLIFY(responseObject));
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) { completionBlock(responseObject, error); }
+            if (completionBlock) completionBlock(responseObject, error);
         });
     }
 }
