@@ -90,7 +90,6 @@
     MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
 
     MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
-    refreshToken.idToken = @"id token";
 
     NSError *error = nil;
     MSIDTokenResponse *response = [factory tokenResponseFromJSON:tokenResponse refreshToken:refreshToken context:nil error:&error];
@@ -102,7 +101,6 @@
     XCTAssertTrue(expectedClass);
     XCTAssertEqualObjects(response.accessToken, @"access token");
     XCTAssertEqualObjects(response.refreshToken, @"refresh token");
-    XCTAssertEqualObjects(response.idToken, @"id token");
 }
 
 #pragma mark - Verify response
@@ -158,7 +156,6 @@
 
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
-    XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
 - (void)testAccessTokenFromResponse_whenAADTokenResponse_shouldReturnToken
@@ -183,11 +180,6 @@
 
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
-    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
-
-    XCTAssertEqualObjects(token.idToken, idToken);
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
     XCTAssertNotNil(token.expiresOn);
 }
@@ -212,12 +204,6 @@
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
-
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
-
-    XCTAssertEqualObjects(token.idToken, idToken);
-
-    XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
     XCTAssertNil(token.familyId);
 }
 

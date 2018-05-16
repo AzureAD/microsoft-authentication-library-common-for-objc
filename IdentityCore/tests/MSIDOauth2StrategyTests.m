@@ -183,7 +183,6 @@
     XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
-    XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
 - (void)testAccessTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -207,12 +206,6 @@
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
-    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
-
-    XCTAssertEqualObjects(token.idToken, idToken);
-
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
 
     XCTAssertEqualObjects(token.scopes, scopes);
@@ -239,11 +232,6 @@
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
-
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
-    XCTAssertEqualObjects(token.idToken, idToken);
-
-    XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
     XCTAssertNil(token.familyId);
 }
 
@@ -357,8 +345,8 @@
     XCTAssertNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertEqualObjects(account.username, @"eric999");
-    XCTAssertEqualObjects(account.firstName, @"Eric");
-    XCTAssertEqualObjects(account.lastName, @"Cartman");
+    XCTAssertEqualObjects(account.givenName, @"Eric");
+    XCTAssertEqualObjects(account.familyName, @"Cartman");
     XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
 

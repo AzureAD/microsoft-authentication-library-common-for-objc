@@ -92,7 +92,6 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
-    refreshToken.idToken = @"id token";
 
     NSError *error = nil;
     MSIDTokenResponse *response = [factory tokenResponseFromJSON:tokenResponse refreshToken:refreshToken context:nil error:&error];
@@ -104,7 +103,6 @@
     XCTAssertTrue(expectedClass);
     XCTAssertEqualObjects(response.accessToken, @"access token");
     XCTAssertEqualObjects(response.refreshToken, @"refresh token");
-    XCTAssertEqualObjects(response.idToken, @"id token");
 }
 
 #pragma mark - Verify response
@@ -190,7 +188,6 @@
 
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
-    XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
 - (void)testAccessTokenFromResponse_whenAADV2TokenResponse_shouldReturnToken
@@ -212,14 +209,9 @@
 
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
-    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
 
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
-
-    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
-
-    XCTAssertEqualObjects(token.idToken, idToken);
 
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
 
@@ -247,12 +239,6 @@
     XCTAssertEqualObjects(token.clientInfo.rawClientInfo, clientInfoString);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
-
-    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
-
-    XCTAssertEqualObjects(token.idToken, idToken);
-
-    XCTAssertEqualObjects(token.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
     XCTAssertNil(token.familyId);
 }
 
@@ -428,8 +414,8 @@
     XCTAssertNotNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeAADV2);
     XCTAssertEqualObjects(account.username, @"eric999");
-    XCTAssertEqualObjects(account.firstName, @"Eric");
-    XCTAssertEqualObjects(account.lastName, @"Cartman");
+    XCTAssertEqualObjects(account.givenName, @"Eric");
+    XCTAssertEqualObjects(account.familyName, @"Cartman");
     XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
 
