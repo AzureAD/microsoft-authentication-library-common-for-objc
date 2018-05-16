@@ -22,6 +22,9 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "MSIDLegacyTokenCacheItem.h"
+#import "MSIDClientInfo.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDLegacyTokenCacheItemTests : XCTestCase
 
@@ -29,65 +32,184 @@
 
 @implementation MSIDLegacyTokenCacheItemTests
 
-/*
+- (void)testKeyedArchivingSingleResourceToken_whenAllFieldsSet_shouldReturnSameTokenOnDeserialize
+{
+    MSIDLegacyTokenCacheItem *cacheItem = [MSIDLegacyTokenCacheItem new];
+    cacheItem.accessToken = @"at";
+    cacheItem.refreshToken = @"rt";
+    cacheItem.idToken = @"id";
+    cacheItem.oauthTokenType = @"token type";
+    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    cacheItem.clientId = @"client";
+    cacheItem.credentialType = MSIDCredentialTypeLegacySingleResourceToken;
+    cacheItem.secret = @"at";
+    cacheItem.target = @"resource";
+    cacheItem.realm = @"contoso.com";
+    cacheItem.environment = @"login.microsoftonline.com";
 
- - (void)testKeyedArchivingToken_whenAllFieldsSet_shouldReturnSameTokenOnDeserialize
- {
- MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
- cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
- cacheItem.username = DEFAULT_TEST_ID_TOKEN_USERNAME;
- cacheItem.uniqueUserId = DEFAULT_TEST_ID_TOKEN_USERNAME;
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    NSDate *extExpiresOn = [NSDate date];
 
- NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
- MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfoString error:nil];
- cacheItem.clientInfo = clientInfo;
- cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
- cacheItem.credentialType = MSIDCredentialTypeAccessToken;
- cacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
- cacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
- cacheItem.idToken = DEFAULT_TEST_ID_TOKEN;
- cacheItem.target = DEFAULT_TEST_RESOURCE;
+    cacheItem.expiresOn = expiresOn;
+    cacheItem.cachedAt = cachedAt;
+    cacheItem.familyId = @"family";
+    cacheItem.uniqueUserId = @"uid.utid";
 
- NSDate *expiresOn = [NSDate date];
- NSDate *cachedAt = [NSDate date];
- NSDate *extExpiresOn = [NSDate date];
+    NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
 
- cacheItem.expiresOn = expiresOn;
- cacheItem.cachedAt = cachedAt;
- cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
- cacheItem.oauthTokenType = @"token type";
+    MSIDClientInfo *clientInfoObj = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
 
- NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
- @"spe_info": @"2", @"test": @"test"};
+    cacheItem.clientInfo = clientInfoObj;
 
- cacheItem.additionalInfo = additionalInfo;
+    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
+                                     @"spe_info": @"2", @"test": @"test"};
 
- NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
+    cacheItem.additionalInfo = additionalInfo;
 
- XCTAssertNotNil(data);
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
 
- MSIDCredentialCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    XCTAssertNotNil(data);
 
- XCTAssertNotNil(newItem);
+    MSIDLegacyTokenCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
 
- XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
- XCTAssertEqualObjects(newItem.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
- XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
- XCTAssertEqualObjects(newItem.clientInfo, clientInfo);
+    XCTAssertNotNil(newItem);
+    XCTAssertEqualObjects(newItem.accessToken, @"at");
+    XCTAssertEqualObjects(newItem.refreshToken, @"rt");
+    XCTAssertEqualObjects(newItem.idToken, @"id");
+    XCTAssertEqualObjects(newItem.oauthTokenType, @"token type");
+    NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    XCTAssertEqualObjects(newItem.authority, authorityURL);
+    XCTAssertEqualObjects(newItem.clientId, @"client");
+    XCTAssertEqual(newItem.credentialType, MSIDCredentialTypeLegacySingleResourceToken);
+    XCTAssertEqualObjects(newItem.secret, @"at");
+    XCTAssertEqualObjects(newItem.target, @"resource");
+    XCTAssertEqualObjects(newItem.realm, @"contoso.com");
+    XCTAssertEqualObjects(newItem.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
+    XCTAssertEqualObjects(newItem.familyId, @"family");
+    XCTAssertEqualObjects(newItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(newItem.clientInfo, clientInfoObj);
+    XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
+}
 
- NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
- XCTAssertEqualObjects(newItem.uniqueUserId, uniqueUserId);
- XCTAssertEqualObjects(newItem.clientId, DEFAULT_TEST_CLIENT_ID);
- XCTAssertEqualObjects(newItem.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
- XCTAssertEqualObjects(newItem.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
- XCTAssertEqualObjects(newItem.idToken, DEFAULT_TEST_ID_TOKEN);
- XCTAssertEqualObjects(newItem.target, DEFAULT_TEST_RESOURCE);
- XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
- XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
- XCTAssertEqualObjects(newItem.familyId, DEFAULT_TEST_FAMILY_ID);
- XCTAssertEqualObjects(newItem.oauthTokenType, @"token type");
- XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
- }
+- (void)testKeyedArchivingAccessToken_whenAllFieldsSet_shouldReturnSameTokenOnDeserialize
+{
+    MSIDLegacyTokenCacheItem *cacheItem = [MSIDLegacyTokenCacheItem new];
+    cacheItem.accessToken = @"at";
+    cacheItem.idToken = @"id";
+    cacheItem.oauthTokenType = @"token type";
+    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    cacheItem.clientId = @"client";
+    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.secret = @"at";
+    cacheItem.target = @"resource";
+    cacheItem.realm = @"contoso.com";
+    cacheItem.environment = @"login.microsoftonline.com";
 
- */
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    NSDate *extExpiresOn = [NSDate date];
+
+    cacheItem.expiresOn = expiresOn;
+    cacheItem.cachedAt = cachedAt;
+    cacheItem.uniqueUserId = @"uid.utid";
+
+    NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
+
+    MSIDClientInfo *clientInfoObj = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
+
+    cacheItem.clientInfo = clientInfoObj;
+
+    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
+                                     @"spe_info": @"2", @"test": @"test"};
+
+    cacheItem.additionalInfo = additionalInfo;
+
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
+
+    XCTAssertNotNil(data);
+
+    MSIDLegacyTokenCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+
+    XCTAssertNotNil(newItem);
+    XCTAssertEqualObjects(newItem.accessToken, @"at");
+    XCTAssertEqualObjects(newItem.idToken, @"id");
+    XCTAssertEqualObjects(newItem.oauthTokenType, @"token type");
+    NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    XCTAssertEqualObjects(newItem.authority, authorityURL);
+    XCTAssertEqualObjects(newItem.clientId, @"client");
+    XCTAssertEqual(newItem.credentialType, MSIDCredentialTypeAccessToken);
+    XCTAssertEqualObjects(newItem.secret, @"at");
+    XCTAssertEqualObjects(newItem.target, @"resource");
+    XCTAssertEqualObjects(newItem.realm, @"contoso.com");
+    XCTAssertEqualObjects(newItem.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
+    XCTAssertEqualObjects(newItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(newItem.clientInfo, clientInfoObj);
+    XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
+}
+
+- (void)testKeyedArchivingRefreshToken_whenAllFieldsSet_shouldReturnSameTokenOnDeserialize
+{
+    MSIDLegacyTokenCacheItem *cacheItem = [MSIDLegacyTokenCacheItem new];
+    cacheItem.refreshToken = @"rt";
+    cacheItem.idToken = @"id";
+    cacheItem.oauthTokenType = @"token type";
+    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    cacheItem.clientId = @"client";
+    cacheItem.credentialType = MSIDCredentialTypeRefreshToken;
+    cacheItem.secret = @"rt";
+    cacheItem.target = @"resource";
+    cacheItem.realm = @"contoso.com";
+    cacheItem.environment = @"login.microsoftonline.com";
+
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    NSDate *extExpiresOn = [NSDate date];
+
+    cacheItem.expiresOn = expiresOn;
+    cacheItem.cachedAt = cachedAt;
+    cacheItem.familyId = @"family";
+    cacheItem.uniqueUserId = @"uid.utid";
+
+    NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
+
+    MSIDClientInfo *clientInfoObj = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
+
+    cacheItem.clientInfo = clientInfoObj;
+
+    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
+                                     @"spe_info": @"2", @"test": @"test"};
+
+    cacheItem.additionalInfo = additionalInfo;
+
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
+
+    XCTAssertNotNil(data);
+
+    MSIDLegacyTokenCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+
+    XCTAssertNotNil(newItem);
+    XCTAssertEqualObjects(newItem.refreshToken, @"rt");
+    XCTAssertEqualObjects(newItem.idToken, @"id");
+    XCTAssertEqualObjects(newItem.oauthTokenType, @"token type");
+    NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    XCTAssertEqualObjects(newItem.authority, authorityURL);
+    XCTAssertEqualObjects(newItem.clientId, @"client");
+    XCTAssertEqual(newItem.credentialType, MSIDCredentialTypeRefreshToken);
+    XCTAssertEqualObjects(newItem.secret, @"rt");
+    XCTAssertEqualObjects(newItem.target, @"resource");
+    XCTAssertEqualObjects(newItem.realm, @"contoso.com");
+    XCTAssertEqualObjects(newItem.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
+    XCTAssertEqualObjects(newItem.familyId, @"family");
+    XCTAssertEqualObjects(newItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(newItem.clientInfo, clientInfoObj);
+    XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
+}
+
 @end
