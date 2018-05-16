@@ -24,7 +24,7 @@
 #import "MSIDB2CAuthorityResolver.h"
 #import "MSIDAuthority.h"
 #import "MSIDNetworkConfiguration.h"
-#import "MSIDEndpointProviderProtocol.h"
+#import "MSIDEndpointProviding.h"
 
 @implementation MSIDB2CAuthorityResolver
 

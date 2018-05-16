@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAuthorityResolverProtocol.h"
+#import "MSIDAuthorityResolving.h"
 
-@interface MSIDAdfsAuthorityResolver : NSObject <MSIDAuthorityResolverProtocol>
+@interface MSIDAdfsAuthorityResolver : NSObject <MSIDAuthorityResolving>
 
 @property (class, readonly) NSCache *cache;
 

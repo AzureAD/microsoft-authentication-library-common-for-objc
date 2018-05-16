@@ -22,17 +22,21 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDADFSType.h"
 
-@protocol MSIDRequestContext;
+@protocol MSIDEndpointProviding <NSObject>
 
-typedef void(^MSIDAuthorityInfoBlock)(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error);
+- (NSURL *)oauth2AuthorizeEndpointWithUrl:(NSURL *)baseUrl;
 
-@protocol MSIDAuthorityResolverProtocol <NSObject>
+- (NSURL *)oauth2TokenEndpointWithUrl:(NSURL *)baseUrl;
 
-- (void)resolveAuthority:(NSURL *)authority
-       userPrincipalName:(NSString *)upn
-                validate:(BOOL)validate
-                 context:(id<MSIDRequestContext>)context
-         completionBlock:(MSIDAuthorityInfoBlock)completionBlock;
+- (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDADFSType)type;
+
+- (NSURL *)webFingerDiscoveryEndpointWithIssuer:(NSURL *)issuer;
+
+- (NSURL *)openIdConfigurationEndpointWithUrl:(NSURL *)baseUrl;
+
+- (NSURL *)aadAuthorityDiscoveryEndpointWithHost:(NSString *)host;
+
 
 @end

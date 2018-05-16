@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDAuthorityResolverProtocol.h"
+#import "MSIDAuthorityResolving.h"
 
 @class MSIDOpenIdProviderMetadata;
 

@@ -27,12 +27,12 @@
 
 #import "MSIDAuthority.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDAuthorityResolverProtocol.h"
+#import "MSIDAuthorityResolving.h"
 #import "MSIDAadAuthorityResolver.h"
 #import "MSIDAADAuthorityMetadataRequest.h"
 #import "MSIDDRSDiscoveryRequest.h"
 #import "MSIDWebFingerRequest.h"
-#import "MSIDAuthorityResolverProtocol.h"
+#import "MSIDAuthorityResolving.h"
 #import "MSIDAadAuthorityResolver.h"
 #import "MSIDB2CAuthorityResolver.h"
 #import "MSIDAdfsAuthorityResolver.h"
@@ -215,7 +215,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
         return;
     }
     
-    id <MSIDAuthorityResolverProtocol> resolver;
+    id <MSIDAuthorityResolving> resolver;
     // ADFS.
     if ([MSIDAuthority isADFSInstanceURL:authority])
     {

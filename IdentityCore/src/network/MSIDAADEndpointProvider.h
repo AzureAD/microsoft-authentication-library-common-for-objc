@@ -22,8 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDEndpointProviderProtocol.h"
+#import "MSIDEndpointProviding.h"
 
-@interface MSIDAADEndpointProvider : NSObject <MSIDEndpointProviderProtocol>
+@interface MSIDAADEndpointProvider : NSObject <MSIDEndpointProviding>
 
 @end

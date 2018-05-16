@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDEndpointProviderProtocol.h"
+#import "MSIDEndpointProviding.h"
 
 @interface MSIDNetworkConfiguration : NSObject
 
 @property (class, nullable) MSIDNetworkConfiguration *defaultConfiguration;
 
-@property (nonatomic, nonnull) id<MSIDEndpointProviderProtocol> endpointProvider;
+@property (nonatomic, nonnull) id<MSIDEndpointProviding> endpointProvider;
 
 @property (nonatomic, nullable) NSString *aadApiVersion;
 

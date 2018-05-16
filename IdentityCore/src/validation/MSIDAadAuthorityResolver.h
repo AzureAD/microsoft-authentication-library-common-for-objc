@@ -22,11 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAuthorityResolverProtocol.h"
+#import "MSIDAuthorityResolving.h"
 
 @class MSIDAadAuthorityCache;
 
-@interface MSIDAadAuthorityResolver : NSObject <MSIDAuthorityResolverProtocol>
+@interface MSIDAadAuthorityResolver : NSObject <MSIDAuthorityResolving>
 
 @property (nonatomic) MSIDAadAuthorityCache *aadCache;
 
