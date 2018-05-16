@@ -129,25 +129,40 @@
     if (identity != NULL)
     {
         MSID_LOG_INFO(context, @"Using preferred identity");
+        [self respondCertAuthChallengeWithIdentity:identity context:context completionHandler:completionHandler];
     }
     else
     {
         // If not prompt the user to select an identity
-        identity = [self promptUserForIdentity:distinguishedNames host:host webview:webview correlationId:context.correlationId];
-        if (identity == NULL)
-        {
-            MSID_LOG_INFO(context, @"No identity returned from cert chooser");
-            
-            // If no identity comes back then we can't handle the request
-            completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
-            return YES;
-        }
-        
-        // Adding a retain count to match the retain count from SecIdentityCopyPreferred
-        CFRetain(identity);
-        MSID_LOG_INFO(context, @"Using user selected certificate");
+        [self promptUserForIdentity:distinguishedNames
+                               host:host
+                            webview:webview
+                      correlationId:context.correlationId
+                  completionHandler:^(SecIdentityRef identity)
+         {
+             if (identity == NULL)
+             {
+                 MSID_LOG_INFO(context, @"No identity returned from cert chooser");
+                 
+                 // If no identity comes back then we can't handle the request
+                 completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+                 return;
+             }
+             
+             // Adding a retain count to match the retain count from SecIdentityCopyPreferred
+             CFRetain(identity);
+             MSID_LOG_INFO(context, @"Using user selected certificate");
+             [self respondCertAuthChallengeWithIdentity:identity context:context completionHandler:completionHandler];
+         }];
     }
     
+    return YES;
+}
+
++ (void)respondCertAuthChallengeWithIdentity:(nonnull SecIdentityRef)identity
+                                     context:(id<MSIDRequestContext>)context
+                           completionHandler:(ChallengeCompletionHandler)completionHandler
+{
     SecCertificateRef cert = NULL;
     OSStatus status = SecIdentityCopyCertificate(identity, &cert);
     if (status != errSecSuccess)
@@ -156,7 +171,7 @@
         MSID_LOG_ERROR(context, @"Failed to copy certificate from identity.");
         
         completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
-        return YES;
+        return;
     }
     
     MSID_LOG_INFO(context, @"Responding to cert auth challenge with certicate");
@@ -164,13 +179,14 @@
     completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     CFRelease(cert);
     CFRelease(identity);
-    return YES;
 }
 
-+ (SecIdentityRef)promptUserForIdentity:(NSArray *)issuers
-                                   host:(NSString *)host
-                                webview:(WKWebView *)webview
-                          correlationId:(NSUUID *)correlationId
+
++ (void)promptUserForIdentity:(NSArray *)issuers
+                         host:(NSString *)host
+                      webview:(WKWebView *)webview
+                correlationId:(NSUUID *)correlationId
+            completionHandler:(void (^)(SecIdentityRef identity))completionHandler
 {
     NSMutableDictionary *query =
     [@{
@@ -189,15 +205,17 @@
     if (status == errSecItemNotFound)
     {
         MSID_LOG_INFO_CORR(correlationId, @"No certificate found matching challenge");
-        return nil;
+        completionHandler(nil);
+        return;
     }
     else if (status != errSecSuccess)
     {
         MSID_LOG_ERROR_CORR(correlationId, @"Failed to find identity matching issuers with %d error.", status);
-        return nil;
+        completionHandler(nil);
+        return;
     }
     
-    return [MSIDCertificateChooserHelper showCertSelectionSheet:(__bridge NSArray *)result host:host webview:webview correlationId:correlationId];
+    [MSIDCertificateChooserHelper showCertSelectionSheet:(__bridge NSArray *)result host:host webview:webview correlationId:correlationId completionHandler:completionHandler];
 }
 
 #endif

@@ -29,14 +29,14 @@
     NSUUID *_correlationId;
     NSWindow *_window;
     SFChooseIdentityPanel *_panel;
-    dispatch_semaphore_t _sem;
-    NSInteger _returnCode;
+    void (^_completionHandler)(SecIdentityRef identity);
 }
 
-+ (SecIdentityRef)showCertSelectionSheet:(NSArray *)identities
-                                    host:(NSString *)host
-                                 webview:(WKWebView *)webview
-                           correlationId:(NSUUID *)correlationId
++ (void)showCertSelectionSheet:(NSArray *)identities
+                          host:(NSString *)host
+                       webview:(WKWebView *)webview
+                 correlationId:(NSUUID *)correlationId
+             completionHandler:(void (^)(SecIdentityRef identity))completionHandler
 {
     NSString *localizedTemplate = NSLocalizedString(@"Please select a certificate for %1", @"certificate dialog selection prompt \"%1\" will be replaced with the URL host");
     NSString *message = [localizedTemplate stringByReplacingOccurrencesOfString:@"%1" withString:host];
@@ -44,7 +44,8 @@
     MSIDCertificateChooserHelper *helper = [MSIDCertificateChooserHelper new];
     helper->_correlationId = correlationId;
     helper->_window = webview.window;
-    return [helper showCertSelectionSheet:identities message:message];
+    helper->_completionHandler = completionHandler;
+    [helper showCertSelectionSheet:identities message:message];
 }
 
 - (void)beginSheet:(NSArray *)identities
@@ -63,27 +64,14 @@
     //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(webAuthDidFail:) name:ADWebAuthDidFailNotification object:nil];
 }
 
-- (SecIdentityRef)showCertSelectionSheet:(NSArray *)identities
-                                 message:(NSString *)message
+- (void)showCertSelectionSheet:(NSArray *)identities
+                       message:(NSString *)message
 {
-    _sem = dispatch_semaphore_create(0);
     MSID_LOG_INFO_CORR(_correlationId, @"Displaying Cert Selection Sheet");
     
-    // This code should always be called from a network thread.
-    assert(![NSThread isMainThread]);
-    
-    dispatch_async(dispatch_get_main_queue(), ^{ [self beginSheet:identities message:message]; });
-    dispatch_semaphore_wait(_sem, DISPATCH_TIME_FOREVER);
-    
-    if (_returnCode != NSModalResponseOK)
-    {
-        MSID_LOG_INFO_CORR(_correlationId, @"no certificate selected");
-        return NULL;
-    }
-    
-    SecIdentityRef identity = _panel.identity;
-    _panel = nil;
-    return identity;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self beginSheet:identities message:message];
+    });
 }
 
 - (void)sheetDidEnd:(NSWindow *)window
@@ -93,10 +81,19 @@
     (void)window;
     (void)contextInfo;
     
-    _returnCode = returnCode;
     _window = nil;
+    if (returnCode != NSModalResponseOK)
+    {
+        MSID_LOG_INFO_CORR(_correlationId, @"no certificate selected");
+        _completionHandler(NULL);
+        return;
+    }
+    
+    SecIdentityRef identity = _panel.identity;
+    _panel = nil;
+    _completionHandler(identity);
+    _completionHandler = nil;
     //[[NSNotificationCenter defaultCenter] removeObserver:self name:ADWebAuthDidFailNotification object:nil];
-    dispatch_semaphore_signal(_sem);
 }
 
 - (void)webAuthDidFail:(NSNotification *)aNotification

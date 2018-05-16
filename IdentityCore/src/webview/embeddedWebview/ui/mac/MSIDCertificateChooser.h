@@ -25,9 +25,10 @@
 
 @interface MSIDCertificateChooserHelper : NSObject
 
-+ (SecIdentityRef)showCertSelectionSheet:(NSArray *)identities
-                                    host:(NSString *)host
-                                 webview:(WKWebView *)webview
-                           correlationId:(NSUUID *)correlationId;
++ (void)showCertSelectionSheet:(NSArray *)identities
+                          host:(NSString *)host
+                       webview:(WKWebView *)webview
+                 correlationId:(NSUUID *)correlationId
+             completionHandler:(void (^)(SecIdentityRef identity))completionHandler;
 
 @end
