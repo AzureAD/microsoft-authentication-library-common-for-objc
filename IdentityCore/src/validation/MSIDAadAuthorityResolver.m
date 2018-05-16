@@ -55,11 +55,11 @@ static dispatch_queue_t s_aadValidationQueue;
     return self;
 }
 
-- (void)discoverAuthority:(NSURL *)authority
-        userPrincipalName:(__unused NSString *)upn
-                 validate:(BOOL)validate
-                  context:(id<MSIDRequestContext>)context
-          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
+- (void)resolveAuthority:(NSURL *)authority
+       userPrincipalName:(__unused NSString *)upn
+                validate:(BOOL)validate
+                 context:(id<MSIDRequestContext>)context
+         completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock

@@ -45,11 +45,11 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
     return s_cache;
 }
 
-- (void)discoverAuthority:(NSURL *)authority
-        userPrincipalName:(NSString *)upn
-                 validate:(BOOL)validate
-                  context:(id<MSIDRequestContext>)context
-          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
+- (void)resolveAuthority:(NSURL *)authority
+       userPrincipalName:(NSString *)upn
+                validate:(BOOL)validate
+                 context:(id<MSIDRequestContext>)context
+         completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
     if (!validate)
     {

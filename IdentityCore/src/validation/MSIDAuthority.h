@@ -54,11 +54,11 @@ extern NSString *const MSIDTrustedAuthorityWorldWide;
 + (NSURL *)cacheUrlForAuthority:(NSURL *)authority
                        tenantId:(NSString *)tenantId;
 
-+ (void)discoverAuthority:(NSURL *)authority
-        userPrincipalName:(NSString *)upn
-                 validate:(BOOL)validate
-                  context:(id<MSIDRequestContext>)context
-          completionBlock:(MSIDAuthorityInfoBlock)completionBlock;
++ (void)resolveAuthority:(NSURL *)authority
+       userPrincipalName:(NSString *)upn
+                validate:(BOOL)validate
+                 context:(id<MSIDRequestContext>)context
+         completionBlock:(MSIDAuthorityInfoBlock)completionBlock;
 
 + (void)loadOpenIdConfigurationInfo:(NSURL *)openIdConfigurationEndpoint
                             context:(id<MSIDRequestContext>)context

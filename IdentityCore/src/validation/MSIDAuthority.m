@@ -196,11 +196,11 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authority msidHostWithPortIfNecessary], tenantId]];
 }
 
-+ (void)discoverAuthority:(NSURL *)authority
-        userPrincipalName:(NSString *)upn
-                 validate:(BOOL)validate
-                  context:(id<MSIDRequestContext>)context
-          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
++ (void)resolveAuthority:(NSURL *)authority
+       userPrincipalName:(NSString *)upn
+                validate:(BOOL)validate
+                 context:(id<MSIDRequestContext>)context
+         completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
     NSError *error;
     if (![self isAuthorityFormatValid:authority context:nil error:&error])
@@ -232,11 +232,11 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
         resolver = [MSIDAadAuthorityResolver new];
     }
     
-    [resolver discoverAuthority:authority
-              userPrincipalName:upn
-                       validate:validate
-                        context:context
-                completionBlock:completionBlock];
+    [resolver resolveAuthority:authority
+             userPrincipalName:upn
+                      validate:validate
+                       context:context
+               completionBlock:completionBlock];
 }
 
 + (void)loadOpenIdConfigurationInfo:(NSURL *)openIdConfigurationEndpoint

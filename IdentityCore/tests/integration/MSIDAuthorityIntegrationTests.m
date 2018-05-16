@@ -76,15 +76,15 @@
     // Cache is empty, 'loadOpenIdConfigurationInfo' shoul make network request and save result into the cache (no network error).
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET OpenId Configuration Request"];
     [MSIDAuthority loadOpenIdConfigurationInfo:openIdConfigurationUrl context:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
-    {
-        XCTAssertNil(error);
-        XCTAssertNotNil(metadata);
-        XCTAssertTrue([metadata isKindOfClass:MSIDOpenIdProviderMetadata.class]);
-        XCTAssertEqualObjects(metadata.authorizationEndpoint.absoluteString, @"https://login.microsoftonline.com/common/oauth2/v2.0/authorize");
-        XCTAssertEqualObjects(metadata.tokenEndpoint.absoluteString, @"https://login.microsoftonline.com/common/oauth2/v2.0/token");
-        XCTAssertEqualObjects(metadata.issuer.absoluteString, @"https://login.microsoftonline.com/common/v2.0");
-        [expectation fulfill];
-    }];
+     {
+         XCTAssertNil(error);
+         XCTAssertNotNil(metadata);
+         XCTAssertTrue([metadata isKindOfClass:MSIDOpenIdProviderMetadata.class]);
+         XCTAssertEqualObjects(metadata.authorizationEndpoint.absoluteString, @"https://login.microsoftonline.com/common/oauth2/v2.0/authorize");
+         XCTAssertEqualObjects(metadata.tokenEndpoint.absoluteString, @"https://login.microsoftonline.com/common/oauth2/v2.0/token");
+         XCTAssertEqualObjects(metadata.issuer.absoluteString, @"https://login.microsoftonline.com/common/v2.0");
+         [expectation fulfill];
+     }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
@@ -159,11 +159,11 @@
     __auto_type upn = @"user@microsoft.com";
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover B2C Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/tfp/common/policy/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
@@ -180,11 +180,11 @@
     __auto_type upn = @"user@microsoft.com";
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover B2C Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
@@ -201,11 +201,11 @@
     __auto_type upn = @"user@microsoft.com";
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover B2C Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:NO
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:NO
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://example.com/tfp/common/policy/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://example.com/tfp/common/policy/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
@@ -244,11 +244,11 @@
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
@@ -285,11 +285,11 @@
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://example.com/common/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://example.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
@@ -327,11 +327,11 @@
     
     // 1st request
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
@@ -343,11 +343,11 @@
     
     // 2nd request
     expectation = [self expectationWithDescription:@"Get Authority Info From Cache"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
@@ -373,11 +373,11 @@
     
     // 1st request
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
@@ -406,11 +406,11 @@
     
     // 2nd request
     expectation = [self expectationWithDescription:@"Discover AAD Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
@@ -437,11 +437,11 @@
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
@@ -469,11 +469,11 @@
     
     // 1st request
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
@@ -485,11 +485,11 @@
     
     // 2nd request (no network call should happen)
     expectation = [self expectationWithDescription:@"Read Invalid Authority From Cache"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
@@ -527,11 +527,11 @@
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
@@ -550,11 +550,11 @@
     __auto_type upn = @"user@microsoft.com";
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:NO
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:NO
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
@@ -569,7 +569,7 @@
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
-
+    
     // On Prem Drs Response
     __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
@@ -580,7 +580,7 @@
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
-
+    
     // Web finger response.
     __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
@@ -589,20 +589,20 @@
                                     @"href" : @"https://login.windows.com/adfs/qwe"}]};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
-
+    
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
      }];
-
+    
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
@@ -631,11 +631,11 @@
     [MSIDTestURLSession addResponse:responseWithError];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertNil(openIdConfigurationEndpoint);
          XCTAssertFalse(validated);
@@ -664,7 +664,7 @@
     // Cloud Drs Response
     requestUrl = [@"https://enterpriseregistration.windows.net/microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
     __auto_type response = [MSIDTestURLResponse request:requestUrl
-                                    reponse:[NSHTTPURLResponse new]];
+                                                reponse:[NSHTTPURLResponse new]];
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
@@ -680,11 +680,11 @@
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
@@ -701,11 +701,11 @@
     __auto_type upn = @"user@microsoft.com";
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:NO
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:NO
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
@@ -743,11 +743,11 @@
     
     // 1st request
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
@@ -759,11 +759,11 @@
     
     // 2nd request
     expectation = [self expectationWithDescription:@"Discover ADFS Authority (Using Cache)"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.absoluteString);
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
@@ -801,11 +801,11 @@
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:upn
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
@@ -821,11 +821,11 @@
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:nil
-                            validate:YES
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:nil
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
@@ -841,11 +841,11 @@
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
-    [MSIDAuthority discoverAuthority:authority
-                   userPrincipalName:nil
-                            validate:NO
-                             context:nil
-                     completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:nil
+                           validate:NO
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);

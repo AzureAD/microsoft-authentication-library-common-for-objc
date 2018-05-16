@@ -28,11 +28,11 @@
 
 @implementation MSIDB2CAuthorityResolver
 
-- (void)discoverAuthority:(NSURL *)authority
-        userPrincipalName:(NSString *)upn
-                 validate:(BOOL)validate
-                  context:(id<MSIDRequestContext>)context
-          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
+- (void)resolveAuthority:(NSURL *)authority
+       userPrincipalName:(NSString *)upn
+                validate:(BOOL)validate
+                 context:(id<MSIDRequestContext>)context
+         completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
     if (validate && ![MSIDAuthority isKnownHost:authority])
     {

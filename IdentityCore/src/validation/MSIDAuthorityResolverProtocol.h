@@ -29,10 +29,10 @@ typedef void(^MSIDAuthorityInfoBlock)(NSURL *openIdConfigurationEndpoint, BOOL v
 
 @protocol MSIDAuthorityResolverProtocol <NSObject>
 
-- (void)discoverAuthority:(NSURL *)authority
-        userPrincipalName:(NSString *)upn
-                 validate:(BOOL)validate
-                  context:(id<MSIDRequestContext>)context
-          completionBlock:(MSIDAuthorityInfoBlock)completionBlock;
+- (void)resolveAuthority:(NSURL *)authority
+       userPrincipalName:(NSString *)upn
+                validate:(BOOL)validate
+                 context:(id<MSIDRequestContext>)context
+         completionBlock:(MSIDAuthorityInfoBlock)completionBlock;
 
 @end
