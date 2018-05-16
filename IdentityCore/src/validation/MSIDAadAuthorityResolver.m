@@ -56,7 +56,7 @@ static dispatch_queue_t s_aadValidationQueue;
 }
 
 - (void)discoverAuthority:(NSURL *)authority
-        userPrincipalName:(NSString *)upn
+        userPrincipalName:(__unused NSString *)upn
                  validate:(BOOL)validate
                   context:(id<MSIDRequestContext>)context
           completionBlock:(MSIDAuthorityInfoBlock)completionBlock
@@ -78,7 +78,7 @@ static dispatch_queue_t s_aadValidationQueue;
         // get a response back from the server, or timeout, or fail for any other reason
         __block dispatch_semaphore_t dsem = dispatch_semaphore_create(0);
         
-        [self sendDiscoverRequestWithAuthority:authority userPrincipalName:upn validate:validate context:context completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+        [self sendDiscoverRequestWithAuthority:authority validate:validate context:context completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
          {
              // Because we're on a serialized queue here to ensure that we don't have more then one
              // validation network request at a time, we want to jump off this queue as quick as
@@ -107,7 +107,6 @@ static dispatch_queue_t s_aadValidationQueue;
 #pragma mark - Private
 
 - (void)sendDiscoverRequestWithAuthority:(NSURL *)authority
-                       userPrincipalName:(NSString *)upn
                                 validate:(BOOL)validate
                                  context:(id<MSIDRequestContext>)context
                          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
