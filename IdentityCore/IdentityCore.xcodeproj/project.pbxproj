@@ -282,6 +282,7 @@
 		B2936F7A20ABF8310050C585 /* MSIDLegacyAccessTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2936F7820ABF8300050C585 /* MSIDLegacyAccessTokenTests.m */; };
 		B2936F7C20ABF9570050C585 /* MSIDLegacyRefreshTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2936F7B20ABF9570050C585 /* MSIDLegacyRefreshTokenTests.m */; };
 		B2936F7D20ABF9570050C585 /* MSIDLegacyRefreshTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2936F7B20ABF9570050C585 /* MSIDLegacyRefreshTokenTests.m */; };
+		B2936F7E20ABFC7E0050C585 /* MSIDAccountTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2361DE8A2048B6F8005FD48A /* MSIDAccountTests.m */; };
 		B2964BDD205083E80000BC95 /* MSIDAuthorityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2964BDC205083E80000BC95 /* MSIDAuthorityTests.m */; };
 		B2964BDE205083E80000BC95 /* MSIDAuthorityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2964BDC205083E80000BC95 /* MSIDAuthorityTests.m */; };
 		B2964BE1205103920000BC95 /* MSIDTokenFilteringHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2964BDF205103920000BC95 /* MSIDTokenFilteringHelper.h */; };
@@ -2045,6 +2046,7 @@
 				B2807FFB204CB16B00944D89 /* MSIDHelperTests.m in Sources */,
 				60BF06042051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */,
 				B2964BDD205083E80000BC95 /* MSIDAuthorityTests.m in Sources */,
+				B2936F7E20ABFC7E0050C585 /* MSIDAccountTests.m in Sources */,
 				B2936F7720ABF54E0050C585 /* MSIDLegacySingleResourceTokenTests.m in Sources */,
 				B2DD4B3B20A926820047A66E /* MSIDDefaultCredentialCacheKeyTests.m in Sources */,
 				D6D9A4BC1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
