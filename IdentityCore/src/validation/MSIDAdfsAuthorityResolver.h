@@ -26,6 +26,6 @@
 
 @interface MSIDAdfsAuthorityResolver : NSObject <MSIDAuthorityResolving>
 
-@property (class, readonly) NSCache *cache;
+@property (class, readonly, nonnull) NSCache *cache;
 
 @end

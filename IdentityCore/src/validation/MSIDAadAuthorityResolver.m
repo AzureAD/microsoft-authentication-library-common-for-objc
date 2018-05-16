@@ -61,6 +61,8 @@ static dispatch_queue_t s_aadValidationQueue;
                  context:(id<MSIDRequestContext>)context
          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
+    NSParameterAssert(completionBlock);
+    
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock
     MSIDAadAuthorityCacheRecord *record = [self.aadCache tryCheckCache:authority];
@@ -84,7 +86,7 @@ static dispatch_queue_t s_aadValidationQueue;
              // validation network request at a time, we want to jump off this queue as quick as
              // possible whenever we hit an error to unblock the queue
              dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                 if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
+                 completionBlock(openIdConfigurationEndpoint, validated, error);
              });
              
              dispatch_semaphore_signal(dsem);
@@ -111,6 +113,8 @@ static dispatch_queue_t s_aadValidationQueue;
                                  context:(id<MSIDRequestContext>)context
                          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
+    NSParameterAssert(completionBlock);
+    
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
     MSIDAadAuthorityCacheRecord *record = [self.aadCache checkCache:authority];
@@ -142,7 +146,7 @@ static dispatch_queue_t s_aadValidationQueue;
              __auto_type endpoint = validate ? nil : [MSIDNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority];
              error = validate ? error : nil;
              
-             if (completionBlock) completionBlock(endpoint, NO, error);
+             completionBlock(endpoint, NO, error);
              return;
          }
          
@@ -152,11 +156,11 @@ static dispatch_queue_t s_aadValidationQueue;
                                      context:context
                                        error:&error])
          {
-             if (completionBlock) completionBlock(nil, NO, error);
+             completionBlock(nil, NO, error);
              return;
          }
          
-         if (completionBlock) completionBlock(response.openIdConfigurationEndpoint, YES, nil);
+         completionBlock(response.openIdConfigurationEndpoint, YES, nil);
      }];
 }
 
@@ -164,7 +168,9 @@ static dispatch_queue_t s_aadValidationQueue;
            authority:(NSURL *)authority
      completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
-    if (completionBlock) completionBlock(record.openIdConfigurationEndpoint, record.validated, record.error);
+    NSParameterAssert(completionBlock);
+    
+    completionBlock(record.openIdConfigurationEndpoint, record.validated, record.error);
 }
 
 @end

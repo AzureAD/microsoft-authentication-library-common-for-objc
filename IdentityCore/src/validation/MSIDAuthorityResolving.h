@@ -25,14 +25,14 @@
 
 @protocol MSIDRequestContext;
 
-typedef void(^MSIDAuthorityInfoBlock)(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error);
+typedef void(^MSIDAuthorityInfoBlock)(NSURL * _Nullable openIdConfigurationEndpoint, BOOL validated, NSError * _Nullable error);
 
 @protocol MSIDAuthorityResolving <NSObject>
 
-- (void)resolveAuthority:(NSURL *)authority
-       userPrincipalName:(NSString *)upn
+- (void)resolveAuthority:(nonnull NSURL *)authority
+       userPrincipalName:(nullable NSString *)upn
                 validate:(BOOL)validate
-                 context:(id<MSIDRequestContext>)context
-         completionBlock:(MSIDAuthorityInfoBlock)completionBlock;
+                 context:(nullable id<MSIDRequestContext>)context
+         completionBlock:(nonnull MSIDAuthorityInfoBlock)completionBlock;
 
 @end

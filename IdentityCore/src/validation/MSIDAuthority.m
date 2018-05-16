@@ -202,16 +202,18 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
                  context:(id<MSIDRequestContext>)context
          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
+    NSParameterAssert(completionBlock);
+    
     NSError *error;
     if (![self isAuthorityFormatValid:authority context:nil error:&error])
     {
-        if (completionBlock) completionBlock(nil, NO, error);
+        completionBlock(nil, NO, error);
         return;
     }
     
     if (error)
     {
-        if (completionBlock) completionBlock(nil, NO, error);
+        completionBlock(nil, NO, error);
         return;
     }
     
@@ -243,12 +245,14 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
                             context:(id<MSIDRequestContext>)context
                     completionBlock:(MSIDOpenIdConfigurationInfoBlock)completionBlock
 {
+    NSParameterAssert(completionBlock);
+    
     __auto_type cacheKey = openIdConfigurationEndpoint.absoluteString.lowercaseString;
     __auto_type metadata = [s_openIdConfigurationCache objectForKey:cacheKey];
     
     if (metadata)
     {
-        if (completionBlock) completionBlock(metadata, nil);
+        completionBlock(metadata, nil);
         return;
     }
     
@@ -260,7 +264,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
             [s_openIdConfigurationCache setObject:metadata forKey:cacheKey];
         }
         
-        if (completionBlock) completionBlock(metadata, error);
+        completionBlock(metadata, error);
     }];
 }
 

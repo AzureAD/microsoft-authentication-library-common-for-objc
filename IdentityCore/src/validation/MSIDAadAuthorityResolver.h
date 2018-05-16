@@ -28,6 +28,6 @@
 
 @interface MSIDAadAuthorityResolver : NSObject <MSIDAuthorityResolving>
 
-@property (nonatomic) MSIDAadAuthorityCache *aadCache;
+@property (nonatomic, nonnull) MSIDAadAuthorityCache *aadCache;
 
 @end

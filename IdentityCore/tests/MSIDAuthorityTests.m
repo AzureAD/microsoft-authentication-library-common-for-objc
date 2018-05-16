@@ -38,7 +38,9 @@
 
 - (void)testIsADFSInstance_withNilEndpoint_shouldReturnNO
 {
-    BOOL result = [MSIDAuthority isADFSInstance:nil];
+    NSURL *authority = nil;
+    
+    BOOL result = [MSIDAuthority isADFSInstance:authority.absoluteString];
     
     XCTAssertFalse(result);
 }
@@ -75,7 +77,9 @@
 
 - (void)testIsADFSInstanceURL_withNilAuthority_shouldReturnNO
 {
-    BOOL result = [MSIDAuthority isADFSInstanceURL:nil];
+    NSURL *authority = nil;
+    
+    BOOL result = [MSIDAuthority isADFSInstanceURL:authority];
     
     XCTAssertFalse(result);
 }
@@ -105,7 +109,9 @@
 
 - (void)testIsConsumerInstanceURL_withNilAuthority_shouldReturnNO
 {
-    BOOL result = [MSIDAuthority isConsumerInstanceURL:nil];
+    NSURL *authority = nil;
+    
+    BOOL result = [MSIDAuthority isConsumerInstanceURL:authority];
     
     XCTAssertFalse(result);
 }
@@ -249,8 +255,9 @@
 - (void)testNormalizeAuthority_whenAuthorityIsNil_shouldReturnError
 {
     NSError *error;
+    NSURL *authority = nil;
     
-    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:nil context:nil error:&error];
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
     
     XCTAssertNil(updatedAuthority);
     XCTAssertNotNil(error);
