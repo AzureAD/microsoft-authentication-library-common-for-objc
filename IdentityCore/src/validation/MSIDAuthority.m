@@ -320,7 +320,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must specify a tenant or common.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have at least 2 path components.", nil, nil, nil, context.correlationId, nil);
         }
         return NO;
     }
