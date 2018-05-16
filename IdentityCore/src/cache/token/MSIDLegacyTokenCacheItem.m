@@ -48,7 +48,7 @@
 
 - (BOOL)isEqualToItem:(MSIDLegacyTokenCacheItem *)item
 {
-    BOOL result = YES;
+    BOOL result = [super isEqualToItem:item];
     result &= (!self.accessToken || !item.accessToken) || [self.accessToken isEqualToString:item.accessToken];
     result &= (!self.refreshToken || !item.refreshToken) || [self.refreshToken isEqualToString:item.refreshToken];
     result &= (!self.idToken || !item.idToken) || [self.idToken isEqualToString:item.idToken];

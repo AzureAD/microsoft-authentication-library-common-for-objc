@@ -25,6 +25,10 @@
 #import "MSIDRefreshableToken.h"
 
 @interface MSIDRefreshToken : MSIDBaseToken <MSIDRefreshableToken>
+{
+    NSString *_refreshToken;
+    NSString *_familyId;
+}
 
 @property (readwrite) NSString *refreshToken;
 @property (readwrite) NSString *familyId;

@@ -64,6 +64,8 @@
 // Additional fields
 @property (readwrite, nullable) NSDictionary *additionalInfo;
 
+- (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
+
 - (nullable MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType;
 
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;

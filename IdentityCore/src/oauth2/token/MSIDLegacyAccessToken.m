@@ -113,7 +113,7 @@
     cacheItem.cachedAt = self.cachedAt;
     cacheItem.secret = self.accessToken;
     cacheItem.target = self.resource;
-    cacheItem.credentialType = MSIDCredentialTypeLegacySingleResourceToken;
+    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
     cacheItem.accessToken = self.accessToken;
     cacheItem.idToken = self.idToken;
     cacheItem.oauthTokenType = self.accessTokenType;

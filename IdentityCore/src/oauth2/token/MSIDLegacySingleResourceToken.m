@@ -117,6 +117,7 @@
     MSIDLegacyTokenCacheItem *cacheItem = [super legacyTokenCacheItem];
     cacheItem.refreshToken = self.refreshToken;
     cacheItem.familyId = self.familyId;
+    cacheItem.credentialType = MSIDCredentialTypeLegacySingleResourceToken;
     return cacheItem;
 }
 

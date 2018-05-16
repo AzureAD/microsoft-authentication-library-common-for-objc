@@ -93,6 +93,7 @@
     {
         _idToken = tokenCacheItem.idToken;
         _authority = tokenCacheItem.authority;
+        _refreshToken = tokenCacheItem.refreshToken;
 
         MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_idToken];
         _legacyUserId = idTokenClaims.userId;
