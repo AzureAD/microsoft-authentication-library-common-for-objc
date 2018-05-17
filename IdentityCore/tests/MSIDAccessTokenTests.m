@@ -26,7 +26,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDAccessTokenTests : XCTestCase
 
@@ -314,3 +314,4 @@
 }
 
 @end
+

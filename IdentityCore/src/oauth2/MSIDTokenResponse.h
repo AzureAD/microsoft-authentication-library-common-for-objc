@@ -24,7 +24,7 @@
 #import "MSIDJsonObject.h"
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAccountType.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDError.h"
 
 @protocol MSIDRefreshableToken;

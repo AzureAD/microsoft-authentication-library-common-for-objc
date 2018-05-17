@@ -21,48 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRequestParameters.h"
-#import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDNetworkConfiguration.h"
 
-@implementation MSIDRequestParameters
+static NSTimeInterval const s_defaultTimeout = 30;
+static int const s_defaultRetryCount = 2;
 
-- (instancetype)copyWithZone:(NSZone*)zone
-{
-    MSIDRequestParameters *parameters = [[MSIDRequestParameters allocWithZone:zone] init];
-    parameters.authority = [_authority copyWithZone:zone];
-    parameters.redirectUri = [_redirectUri copyWithZone:zone];
-    parameters.target = [_target copyWithZone:zone];
-    parameters.clientId = [_clientId copyWithZone:zone];
-    
-    return parameters;
-}
+@implementation MSIDNetworkConfiguration
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target
+- (instancetype)init
 {
     self = [super init];
-    
     if (self)
     {
-        _authority = authority;
-        _redirectUri = redirectUri;
-        _clientId = clientId;
-        _target = target;
+        _timeout = s_defaultTimeout;
+        _retryCount = s_defaultRetryCount;
     }
-    
     return self;
 }
 
-- (NSString *)resource
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout retryCount:(int)retryCount
 {
-    return _target;
+    self = [super init];
+    if (self)
+    {
+        _timeout = timeout;
+        _retryCount = retryCount;
+    }
+    return self;
 }
 
-- (NSOrderedSet<NSString *> *)scopes
+- (instancetype)copyWithZone:(NSZone*)zone
 {
-    return [_target scopeSet];
+    MSIDNetworkConfiguration *configuration = [[MSIDNetworkConfiguration allocWithZone:zone] init];
+    configuration.timeout = _timeout;
+    configuration.retryCount = _retryCount;
+    
+    return configuration;
 }
+
 
 @end

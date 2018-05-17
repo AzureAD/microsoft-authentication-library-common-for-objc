@@ -27,7 +27,7 @@
 #import "MSIDTokenCacheItem.h"
 
 @class MSIDTokenResponse;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 
 /*!
  This is the base class for all possible tokens.
