@@ -317,11 +317,6 @@
     [self webAuthFailWithError:error];
 }
 
-- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error
-{
-    [self webAuthFailWithError:error];
-}
-
 - (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];

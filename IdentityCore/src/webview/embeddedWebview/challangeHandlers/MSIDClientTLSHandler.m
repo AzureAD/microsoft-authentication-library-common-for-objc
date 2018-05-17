@@ -145,7 +145,7 @@
                  MSID_LOG_INFO(context, @"No identity returned from cert chooser");
                  
                  // If no identity comes back then we can't handle the request
-                 completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+                 completionHandler(NSURLSessionAuthChallengeRejectProtectionSpace, nil);
                  return;
              }
              
