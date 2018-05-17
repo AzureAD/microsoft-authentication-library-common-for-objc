@@ -154,4 +154,11 @@
 - (nullable NSDictionary *)wipeInfoWithContext:(nullable id<MSIDRequestContext>)context
                                          error:(NSError * _Nullable * _Nullable)error;
 
+
+/*
+  Saves the latest wipe info
+ */
+- (BOOL)saveWipeInfoWithContext:(nullable id<MSIDRequestContext>)context
+                          error:(NSError * _Nullable * _Nullable)error;
+
 @end

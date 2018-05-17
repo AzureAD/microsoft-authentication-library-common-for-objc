@@ -431,4 +431,10 @@
     return [_dataSource wipeInfo:context error:error];
 }
 
+- (BOOL)saveWipeInfoWithContext:(nullable id<MSIDRequestContext>)context
+                          error:(NSError * _Nullable * _Nullable)error
+{
+    return [_dataSource saveWipeInfoWithContext:context error:error];
+}
+
 @end

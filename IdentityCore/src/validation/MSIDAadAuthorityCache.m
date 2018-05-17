@@ -346,7 +346,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     if (!cacheEnvironment)
     {
         MSID_LOG_WARN(context, @"No cached preferred_cache for environment");
-        return nil;
+        return environment;
     }
 
     return cacheEnvironment;

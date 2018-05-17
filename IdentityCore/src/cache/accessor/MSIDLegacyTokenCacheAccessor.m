@@ -199,6 +199,8 @@
                                                       context:(id<MSIDRequestContext>)context
                                                         error:(NSError **)error
 {
+    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     __auto_type items = [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 
@@ -223,6 +225,12 @@
                                                                    tokenType:MSIDCredentialTypeRefreshToken
                                                                  returnFirst:NO
                                                                     filterBy:filterBlock];
+
+    [self stopTelemetryLookupEvent:event
+                         tokenType:MSIDCredentialTypeRefreshToken
+                         withToken:nil
+                           success:[refreshTokens count] > 0
+                           context:context];
 
     NSMutableArray<MSIDAccount *> *resultAccounts = [NSMutableArray array];
 

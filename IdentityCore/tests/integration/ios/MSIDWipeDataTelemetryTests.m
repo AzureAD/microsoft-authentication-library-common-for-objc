@@ -27,7 +27,6 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
-#import "MSIDSharedTokenCache.h"
 #import "MSIDAccount.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDRefreshToken.h"
@@ -67,8 +66,8 @@
 {
     [MSIDKeychainTokenCache reset];
     _dataSource = [[MSIDKeychainTokenCache alloc] init];
-    _legacyCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource];
-    _defaultCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource];
+    _legacyCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
+    _defaultCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
     
     [super setUp];
 }
@@ -91,38 +90,37 @@
     
     // save a refresh token to keychain token cache
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:nil];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
-    
-    BOOL result = [_legacyCacheAccessor saveRefreshToken:token
-                                                 account:account
-                                                 context:reqContext
-                                                   error:&error];
+
+    BOOL result = [_legacyCacheAccessor saveSSOStateWithFactory:factory
+                                                  requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                        context:reqContext
+                                                          error:nil];
     XCTAssertNil(error);
-    
+
     // remove the refresh token to trigger wipe data being written
-    result = [_legacyCacheAccessor removeToken:token
-                                       account:account
-                                       context:reqContext
-                                         error:&error];
+    result = [_legacyCacheAccessor validateAndRemoveRefreshToken:token
+                                                         context:reqContext
+                                                           error:&error];
+
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    MSIDBaseToken *returnedToken = [_legacyCacheAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
-                                                                  account:account
-                                                            requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                                  context:reqContext
-                                                                    error:&error];
+    MSIDRefreshToken *returnedToken = [_legacyCacheAccessor getRefreshTokenWithAccount:account
+                                                                              familyId:nil
+                                                                         requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                               context:reqContext
+                                                                                 error:&error];
     
     // expect no token because it has been deleted
     XCTAssertNil(error);
     XCTAssertNil(returnedToken);
-    
-    
     
     // test if wipe data is logged in telemetry
     XCTestExpectation *expectation = [self expectationWithDescription:@"Find wipe data in telemetry."];
@@ -139,7 +137,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testWipeDataTelemetry_whenGetAllTokensOfTypeButNoneForLegacyCache_shouldLogWipeDataInTelemetry
+- (void)testWipeDataTelemetry_whenGetAllAccountsButNoneForLegacyCache_shouldLogWipeDataInTelemetry
 {
     // setup telemetry callback
     MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
@@ -157,31 +155,30 @@
     
     // save a refresh token to keychain token cache
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:nil];
+    MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_legacyCacheAccessor saveRefreshToken:token
-                                                 account:account
-                                                 context:reqContext
-                                                   error:&error];
+    BOOL result = [_legacyCacheAccessor saveSSOStateWithFactory:factory
+                                                  requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                        context:reqContext
+                                                          error:nil];
     XCTAssertNil(error);
     
     // remove the refresh token to trigger wipe data being written
-    result = [_legacyCacheAccessor removeToken:token
-                                       account:account
-                                       context:reqContext
-                                         error:&error];
+    result = [_legacyCacheAccessor validateAndRemoveRefreshToken:token
+                                                         context:reqContext
+                                                           error:&error];
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    NSArray *returnedTokens = [_legacyCacheAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
-                                                          withClientId:DEFAULT_TEST_CLIENT_ID
-                                                               context:reqContext
-                                                                 error:&error];
+    NSArray *returnedTokens = [_legacyCacheAccessor allFilteredAccountsForEnvironment:@"login.microsoftonline.com"
+                                                                             clientId:@"test_client_id"
+                                                                             familyId:nil
+                                                                              context:reqContext
+                                                                                error:&error];
     
     // expect no token because it has been deleted
     XCTAssertNil(error);
@@ -228,26 +225,26 @@
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
-    
-    BOOL result = [_defaultCacheAccessor saveRefreshToken:token
-                                                  account:account
-                                                  context:reqContext
-                                                    error:&error];
+
+    BOOL result = [_defaultCacheAccessor saveSSOStateWithFactory:factory
+                                                   requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                        response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                            context:reqContext
+                                                          error:nil];
     XCTAssertNil(error);
     
     // remove the refresh token to trigger wipe data being written
-    result = [_defaultCacheAccessor removeToken:token
-                                        account:account
-                                        context:reqContext
-                                          error:&error];
+    result = [_defaultCacheAccessor validateAndRemoveRefreshToken:token
+                                                          context:reqContext
+                                                            error:&error];
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    MSIDBaseToken *returnedToken = [_defaultCacheAccessor getTokenWithType:MSIDCredentialTypeRefreshToken
-                                                                   account:account
-                                                             requestParams:[MSIDTestRequestParams v1DefaultParams]
-                                                                   context:reqContext
-                                                                     error:&error];
+    MSIDRefreshToken *returnedToken = [_defaultCacheAccessor getRefreshTokenWithAccount:account
+                                                                               familyId:nil
+                                                                          requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                                context:reqContext
+                                                                                  error:&error];
     
     // expect no token because it has been deleted
     XCTAssertNil(error);
@@ -264,6 +261,7 @@
             && event.propertyMap[MSID_TELEMETRY_KEY_WIPE_TIME])
         {
             [expectation fulfill];
+            break;
         }
     }
     
@@ -289,31 +287,29 @@
     // save a refresh token to keychain token cache
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:@"some_uid.some_utid"];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_defaultCacheAccessor saveRefreshToken:token
-                                                  account:account
-                                                  context:reqContext
-                                                    error:&error];
+    BOOL result = [_defaultCacheAccessor saveSSOStateWithFactory:factory
+                                                   requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                        response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                         context:reqContext
+                                                           error:nil];
     XCTAssertNil(error);
     
     // remove the refresh token to trigger wipe data being written
-    result = [_defaultCacheAccessor removeToken:token
-                                        account:account
-                                        context:reqContext
-                                          error:&error];
+    result = [_defaultCacheAccessor validateAndRemoveRefreshToken:token
+                                                          context:reqContext
+                                                            error:&error];
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    NSArray *returnedTokens = [_defaultCacheAccessor getAllTokensOfType:MSIDCredentialTypeRefreshToken
-                                                           withClientId:DEFAULT_TEST_CLIENT_ID
-                                                                context:reqContext
-                                                                  error:&error];
-    
+    NSArray *returnedTokens = [_defaultCacheAccessor allFilteredAccountsForEnvironment:@"login.microsoftonline.com"
+                                                                              clientId:@"test_client_id"
+                                                                              familyId:nil
+                                                                               context:reqContext
+                                                                                 error:&error];
     // expect no token because it has been deleted
     XCTAssertNil(error);
     XCTAssertEqual(returnedTokens.count, 0);

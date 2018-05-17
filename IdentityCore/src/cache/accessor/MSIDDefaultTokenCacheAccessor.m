@@ -262,7 +262,11 @@
         [filteredAccounts addObject:account];
     }
 
-    [self stopCacheEvent:event withItem:nil success:resultCredentials != nil context:context];
+    [self stopTelemetryLookupEvent:event
+                         tokenType:MSIDCredentialTypeRefreshToken
+                         withToken:nil
+                           success:[resultCredentials count] > 0
+                           context:context];
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
@@ -564,6 +568,12 @@
 
     MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
     BOOL result = [_accountCredentialCache removeCredential:token.tokenCacheItem context:context error:error];
+
+    if (result && token.credentialType == MSIDCredentialTypeRefreshToken)
+    {
+        [_accountCredentialCache saveWipeInfoWithContext:context error:nil];
+    }
+
     [self stopCacheEvent:event withItem:token success:result context:context];
     return result;
 }
