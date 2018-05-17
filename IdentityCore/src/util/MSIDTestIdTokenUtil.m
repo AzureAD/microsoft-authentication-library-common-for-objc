@@ -94,6 +94,27 @@
     return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
 }
 
++ (NSString *)idTokenWithName:(NSString *)name
+                          upn:(NSString *)upn
+                     tenantId:(NSString *)tid
+             additionalClaims:(NSDictionary *)additionalClaims
+{
+    NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
+
+    NSMutableDictionary *idTokenClaims = [@{ @"iss" : @"issuer",
+                                             @"name" : name,
+                                             @"upn" : upn,
+                                             @"ver": @"1.0",
+                                             @"tid" : tid ? tid : [self defaultTenantId],
+                                             @"oid" : [self defaultUniqueId]} mutableCopy];
+
+    [idTokenClaims addEntriesFromDictionary:additionalClaims];
+
+    NSString *idTokenp2 = [idTokenClaims msidBase64UrlJson];
+
+    return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
+}
+
 + (NSString *)idTokenWithPreferredUsername:(NSString *)username
                                    subject:(NSString *)subject
 {
@@ -114,6 +135,20 @@
                                       subject:subject
                                     givenName:givenName
                                    familyName:familyName
+                                         name:@"Test Name"];
+}
+
++ (NSString *)idTokenWithPreferredUsername:(NSString *)username
+                                   subject:(NSString *)subject
+                                 givenName:(NSString *)givenName
+                                familyName:(NSString *)familyName
+                                      name:(NSString *)name
+{
+    return [self idTokenWithPreferredUsername:username
+                                      subject:subject
+                                    givenName:givenName
+                                   familyName:familyName
+                                         name:name
                                       version:@"2.0"];
 }
 
@@ -121,13 +156,14 @@
                                    subject:(NSString *)subject
                                  givenName:(NSString *)givenName
                                  familyName:(NSString *)familyName
+                                      name:(NSString *)name
                                     version:(NSString *)version
 {
     NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
     NSString *idTokenp2 = [@{ @"iss" : @"issuer",
                               @"given_name" : givenName,
                               @"family_name" : familyName,
-                              @"name" : @"Test name",
+                              @"name" : name,
                               @"preferred_username" : username,
                               @"sub" : subject,
                               @"ver": version

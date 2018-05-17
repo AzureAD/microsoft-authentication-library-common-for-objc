@@ -47,6 +47,11 @@
                           upn:(NSString *)upn
                      tenantId:(NSString *)tid;
 
++ (NSString *)idTokenWithName:(NSString *)name
+                          upn:(NSString *)upn
+                     tenantId:(NSString *)tid
+             additionalClaims:(NSDictionary *)additionalClaims;
+
 + (NSString *)idTokenWithPreferredUsername:(NSString *)username
                                    subject:(NSString *)subject;
 
@@ -59,6 +64,13 @@
                                    subject:(NSString *)subject
                                  givenName:(NSString *)givenName
                                 familyName:(NSString *)familyName
+                                      name:(NSString *)name;
+
++ (NSString *)idTokenWithPreferredUsername:(NSString *)username
+                                   subject:(NSString *)subject
+                                 givenName:(NSString *)givenName
+                                familyName:(NSString *)familyName
+                                      name:(NSString *)name
                                    version:(NSString *)version;
 
 @end

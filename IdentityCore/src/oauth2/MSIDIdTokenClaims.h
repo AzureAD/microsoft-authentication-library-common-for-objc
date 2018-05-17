@@ -47,6 +47,7 @@
 @property (readonly) NSString *uniqueId;
 @property (readonly) NSString *userId;
 @property (readonly) BOOL userIdDisplayable;
+@property (readonly) NSString *alternativeAccountId;
 
 // Convinience properties
 @property (readonly) NSString *rawIdToken;

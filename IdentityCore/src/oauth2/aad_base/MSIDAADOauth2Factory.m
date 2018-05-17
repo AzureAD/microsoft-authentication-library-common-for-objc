@@ -119,16 +119,18 @@
 
 #pragma mark - Tokens
 
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADTokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
+           fromResponse:(MSIDAADTokenResponse *)response
+                request:(MSIDRequestParameters *)requestParams
 {
-    if (![self checkResponseClass:response context:nil error:nil])
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response request:requestParams];
+
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response request:requestParams];
-    if (!response.extendedExpiresOnDate) { return accessToken; }
+    if (!response.extendedExpiresOnDate) return accessToken;
 
     NSMutableDictionary *additionalServerInfo = [accessToken.additionalServerInfo mutableCopy];
     additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY] = response.extendedExpiresOnDate;
@@ -137,32 +139,55 @@
     return accessToken;
 }
 
-- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDAADTokenResponse *)response
-                                       request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillLegacyToken:(MSIDLegacySingleResourceToken *)token
+           fromResponse:(MSIDAADTokenResponse *)response
+                request:(MSIDRequestParameters *)requestParams
 {
-    MSIDRefreshToken *refreshToken = [super refreshTokenFromResponse:response request:requestParams];
-    refreshToken.familyId = response.familyId;
-    return refreshToken;
+    BOOL result = [super fillLegacyToken:token fromResponse:response request:requestParams];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    token.familyId = response.familyId;
+    return token;
 }
 
-- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDAADTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillRefreshToken:(MSIDRefreshToken *)token
+            fromResponse:(MSIDAADTokenResponse *)response
+                 request:(MSIDRequestParameters *)requestParams
 {
-    MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response request:requestParams];
-    legacyToken.familyId = response.familyId;
-    return legacyToken;
+    BOOL result = [super fillRefreshToken:token fromResponse:response request:requestParams];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    token.familyId = response.familyId;
+    return token;
 }
 
-- (MSIDAccount *)accountFromResponse:(MSIDAADTokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillAccount:(MSIDAccount *)account
+       fromResponse:(MSIDAADTokenResponse *)response
+            request:(MSIDRequestParameters *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
-        return nil;
+        return NO;
     }
 
-    MSIDAccount *account = [super accountFromResponse:response request:requestParams];
+    BOOL result = [super fillAccount:account fromResponse:response request:requestParams];
+
+    if (!result)
+    {
+        return NO;
+    }
+
     account.clientInfo = response.clientInfo;
+    account.accountType = MSIDAccountTypeAADV2;
+    account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
     if (response.clientInfo.userIdentifier)
     {

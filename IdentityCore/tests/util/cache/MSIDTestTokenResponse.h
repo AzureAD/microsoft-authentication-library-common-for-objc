@@ -44,20 +44,24 @@
 
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponse;
 
-+ (MSIDAADV1TokenResponse *)v1TokenResponseWithAT:(NSString *)accessToken
-                                               rt:(NSString *)refreshToken
-                                         resource:(NSString *)resource
-                                              uid:(NSString *)uid
-                                             utid:(NSString *)utid
-                                              upn:(NSString *)upn
-                                         tenantId:(NSString *)tenantId;
++ (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithAdditionalFields:(NSDictionary *)additionalFields;
 
 + (MSIDAADV1TokenResponse *)v1TokenResponseWithAT:(NSString *)accessToken
                                                rt:(NSString *)refreshToken
                                          resource:(NSString *)resource
                                               uid:(NSString *)uid
                                              utid:(NSString *)utid
-                                          idToken:(NSString *)idToken;
+                                              upn:(NSString *)upn
+                                         tenantId:(NSString *)tenantId
+                                 additionalFields:(NSDictionary *)additionalFields;
+
++ (MSIDAADV1TokenResponse *)v1TokenResponseWithAT:(NSString *)accessToken
+                                               rt:(NSString *)refreshToken
+                                         resource:(NSString *)resource
+                                              uid:(NSString *)uid
+                                             utid:(NSString *)utid
+                                          idToken:(NSString *)idToken
+                                 additionalFields:(NSDictionary *)additionalFields;
 
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithoutClientInfo;
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithFamilyId:(NSString *)familyId;

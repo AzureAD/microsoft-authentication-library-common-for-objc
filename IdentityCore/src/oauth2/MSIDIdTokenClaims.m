@@ -109,4 +109,9 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     return self.preferredUsername ? self.preferredUsername : self.userId;
 }
 
+- (NSString *)alternativeAccountId
+{
+    return nil;
+}
+
 @end

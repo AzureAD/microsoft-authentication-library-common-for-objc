@@ -103,7 +103,10 @@
                                      request:(MSIDRequestParameters *)requestParams
 {
     MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] init];
-    return [self fillAccessToken:accessToken fromResponse:response request:requestParams];
+    BOOL result = [self fillAccessToken:accessToken fromResponse:response request:requestParams];
+
+    if (!result) return nil;
+    return accessToken;
 }
 
 - (MSIDLegacyAccessToken *)legacyAccessTokenFromResponse:(MSIDTokenResponse *)response
@@ -112,7 +115,7 @@
     MSIDLegacyAccessToken *accessToken = [[MSIDLegacyAccessToken alloc] init];
     BOOL result = [self fillLegacyAccessToken:accessToken fromResponse:response request:requestParams];
 
-    if (!result) { return nil; }
+    if (!result) return nil;
     return accessToken;
 }
 
@@ -122,7 +125,7 @@
     MSIDLegacyRefreshToken *refreshToken = [[MSIDLegacyRefreshToken alloc] init];
     BOOL result = [self fillLegacyRefreshToken:refreshToken fromResponse:response request:requestParams];
 
-    if (!result) { return nil; }
+    if (!result) return nil;
     return refreshToken;
 }
 
@@ -132,7 +135,7 @@
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
     BOOL result = [self fillRefreshToken:refreshToken fromResponse:response request:requestParams];
 
-    if (!result) { return nil; }
+    if (!result) return nil;
     return refreshToken;
 }
 
@@ -142,7 +145,7 @@
     MSIDIdToken *idToken = [[MSIDIdToken alloc] init];
     BOOL result = [self fillIDToken:idToken fromResponse:response request:requestParams];
 
-    if (!result) { return nil; }
+    if (!result) return nil;
     return idToken;
 }
 
@@ -152,7 +155,7 @@
     MSIDLegacySingleResourceToken *legacyToken = [[MSIDLegacySingleResourceToken alloc] init];
     BOOL result = [self fillLegacyToken:legacyToken fromResponse:response request:requestParams];
 
-    if (!result) { return nil; }
+    if (!result) return nil;
     return legacyToken;
 }
 
@@ -161,7 +164,7 @@
     MSIDAccount *account = [[MSIDAccount alloc] init];
     BOOL result = [self fillAccount:account fromResponse:response request:requestParams];
 
-    if (!result) { return nil; }
+    if (!result) return nil;
     return account;
 }
 
@@ -184,15 +187,15 @@
     return YES;
 }
 
-- (MSIDAccessToken *)fillAccessToken:(MSIDAccessToken *)token
-                        fromResponse:(MSIDTokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillAccessToken:(MSIDAccessToken *)token
+           fromResponse:(MSIDTokenResponse *)response
+                request:(MSIDRequestParameters *)requestParams
 {
     BOOL result = [self fillBaseToken:token fromResponse:response request:requestParams];
 
     if (!result)
     {
-        return nil;
+        return NO;
     }
 
     token.scopes = [response.target scopeSet];
@@ -201,7 +204,7 @@
     if (!token.accessToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
-        return nil;
+        return NO;
     }
 
     NSDate *expiresOn = response.expiryDate;
@@ -215,7 +218,7 @@
     token.expiresOn = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[expiresOn timeIntervalSince1970]];
     token.cachedAt = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[[NSDate date] timeIntervalSince1970]];
 
-    return token;
+    return YES;
 }
 
 - (BOOL)fillRefreshToken:(MSIDRefreshToken *)token

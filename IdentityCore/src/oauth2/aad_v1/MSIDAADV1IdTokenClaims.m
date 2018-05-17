@@ -32,7 +32,6 @@
 #define ID_TOKEN_IDP                @"idp"
 #define ID_TOKEN_OID                @"oid"
 #define ID_TOKEN_TID                @"tid"
-#define ID_TOKEN_GUEST_ID           @"altsecid"
 #define ID_TOKEN_UNIQUE_NAME        @"unique_name"
 #define ID_TOKEN_ALT_SEC_ID         @"altsecid"
 
@@ -42,9 +41,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UPN, upn)
 MSID_JSON_ACCESSOR(ID_TOKEN_IDP, identityProvider)
 MSID_JSON_ACCESSOR(ID_TOKEN_OID, objectId)
 MSID_JSON_ACCESSOR(ID_TOKEN_TID, tenantId)
-MSID_JSON_ACCESSOR(ID_TOKEN_GUEST_ID, guestId)
 MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
-MSID_JSON_ACCESSOR(ID_TOKEN_ALT_SEC_ID, alternativeAccountId)
 
 - (void)initDerivedProperties
 {
@@ -86,9 +83,9 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ALT_SEC_ID, alternativeAccountId)
         _userId = self.uniqueName;
         _userIdDisplayable = YES;
     }
-    else if (![NSString msidIsStringNilOrBlank:self.guestId])
+    else if (![NSString msidIsStringNilOrBlank:self.alternativeAccountId])
     {
-        _userId = self.guestId;
+        _userId = self.alternativeAccountId;
         _userIdDisplayable = NO;
     }
 
@@ -99,6 +96,11 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ALT_SEC_ID, alternativeAccountId)
 {
     return [super matchesLegacyUserId:legacyUserId]
     || [self.userId isEqualToString:legacyUserId];
+}
+
+- (NSString *)alternativeAccountId
+{
+    return _json[ID_TOKEN_ALT_SEC_ID];
 }
 
 @end

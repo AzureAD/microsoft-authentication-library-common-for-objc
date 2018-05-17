@@ -123,13 +123,19 @@
 
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponse
 {
+    return [self v1DefaultTokenResponseWithAdditionalFields:nil];
+}
+
++ (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithAdditionalFields:(NSDictionary *)additionalFields
+{
     return [self v1TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
                                     rt:DEFAULT_TEST_REFRESH_TOKEN
                               resource:DEFAULT_TEST_RESOURCE
                                    uid:DEFAULT_TEST_UID
                                   utid:DEFAULT_TEST_UTID
                                    upn:DEFAULT_TEST_ID_TOKEN_USERNAME
-                              tenantId:DEFAULT_TEST_UTID];
+                              tenantId:DEFAULT_TEST_UTID
+                      additionalFields:additionalFields];
 }
 
 + (MSIDAADV1TokenResponse *)v1TokenResponseWithAT:(NSString *)accessToken
@@ -139,9 +145,10 @@
                                              utid:(NSString *)utid
                                               upn:(NSString *)upn
                                          tenantId:(NSString *)tenantId
+                                 additionalFields:(NSDictionary *)additionalFields
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:upn tenantId:tenantId];
-    return [self v1TokenResponseWithAT:accessToken rt:refreshToken resource:resource uid:uid utid:utid idToken:idToken];
+    return [self v1TokenResponseWithAT:accessToken rt:refreshToken resource:resource uid:uid utid:utid idToken:idToken additionalFields:additionalFields];
 }
 
 + (MSIDAADV1TokenResponse *)v1TokenResponseWithAT:(NSString *)accessToken
@@ -150,17 +157,21 @@
                                               uid:(NSString *)uid
                                              utid:(NSString *)utid
                                           idToken:(NSString *)idToken
+                                 additionalFields:(NSDictionary *)additionalFields
 {
     NSString *clientInfoString = (uid && utid) ? [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson] : nil;
     
     NSMutableDictionary *jsonDictionary = [@{@"token_type": @"Bearer",
-                                             @"expires_in": @"3600"} mutableCopy];
+                                             @"expires_in": @"3600"
+                                             } mutableCopy];
     
     if (resource) jsonDictionary[@"resource"] = resource;
     if (accessToken) jsonDictionary[@"access_token"] = accessToken;
     if (refreshToken) jsonDictionary[@"refresh_token"] = refreshToken;
     if (idToken) jsonDictionary[@"id_token"] = idToken;
     if (clientInfoString) jsonDictionary[@"client_info"] = clientInfoString;
+
+    [jsonDictionary addEntriesFromDictionary:additionalFields];
     
     return [self v1TokenResponseFromJSONDictionary:jsonDictionary];
 }
@@ -172,7 +183,8 @@
                               resource:DEFAULT_TEST_RESOURCE
                                    uid:nil utid:nil
                                    upn:DEFAULT_TEST_ID_TOKEN_USERNAME
-                              tenantId:nil];
+                              tenantId:nil
+                      additionalFields:nil];
 }
 
 + (MSIDAADV1TokenResponse *)v1DefaultTokenResponseWithFamilyId:(NSString *)familyId
@@ -232,10 +244,28 @@
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:username subject:subject];
     
     NSString *scopesString = scopes.msidToString;
+
+    NSMutableDictionary *dictionary = [@{@"token_type": @"Bearer",
+                                         @"expires_in": @3600,
+                                         @"scope": scopesString
+                                         } mutableCopy];
+
+    if (accessToken)
+    {
+        dictionary[@"access_token"] = accessToken;
+    }
+
+    if (refreshToken)
+    {
+        dictionary[@"refresh_token"] = refreshToken;
+    }
+
+    if (idToken)
+    {
+        dictionary[@"id_token"] = idToken;
+    }
     
-    NSMutableString *jsonString = [NSMutableString stringWithFormat:@"{\"access_token\": \"%@\", \"token_type\": \"Bearer\",\"expires_in\": \"3600\", \"scope\": \"%@\", \"refresh_token\": \"%@\", \"id_token\": \"%@\"}", accessToken, scopesString, refreshToken, idToken];
-    
-    return [[MSIDTokenResponse alloc] initWithJSONData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] error:nil];
+    return [[MSIDTokenResponse alloc] initWithJSONDictionary:dictionary error:nil];
 }
 
 @end

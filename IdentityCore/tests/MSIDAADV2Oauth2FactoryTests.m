@@ -396,15 +396,16 @@
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
-    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman"];
-    NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Eric Cartman" preferredUsername:@"eric999" tenantId:@"contoso.com"];
+
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"user.read", nil];
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"at" RT:@"rt" scopes:scopes idToken:idToken uid:@"1" utid:@"1234-5678-90abcdefg" familyId:@"1"];
+
     MSIDRequestParameters *requestParameters =
     [[MSIDRequestParameters alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
                                          redirectUri:@"redirect uri"
                                             clientId:@"client id"
                                               target:@"target"];
-    MSIDAADV2TokenResponse *tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:nil];
 
     MSIDAccount *account = [factory accountFromResponse:tokenResponse request:requestParameters];
 
@@ -414,9 +415,10 @@
     XCTAssertNotNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeAADV2);
     XCTAssertEqualObjects(account.username, @"eric999");
-    XCTAssertEqualObjects(account.givenName, @"Eric");
-    XCTAssertEqualObjects(account.familyName, @"Cartman");
-    XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
+    XCTAssertNil(account.givenName, @"Eric");
+    XCTAssertNil(account.familyName, @"Cartman");
+    XCTAssertEqualObjects(account.name, @"Eric Cartman");
+    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/contoso.com");
 }
 
 @end

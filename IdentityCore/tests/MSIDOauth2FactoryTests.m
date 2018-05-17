@@ -39,6 +39,7 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccount.h"
+#import "MSIDLegacyRefreshToken.h"
 
 @interface MSIDOauth2FactoryTest : XCTestCase
 
@@ -210,6 +211,23 @@
 
     XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertNotNil(token.expiresOn);
+    XCTAssertNil(token.extendedExpireTime);
+}
+
+- (void)testAccessTokenFromResponse_whenOIDCTokenResponse_andNoAccessToken_shouldReturnNil
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+
+    MSIDTokenResponse *response = [MSIDTestTokenResponse defaultTokenResponseWithAT:nil
+                                                                                 RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                           username:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                            subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+
+    MSIDRequestParameters *params = [MSIDTestRequestParams defaultParams];
+
+    MSIDAccessToken *token = [factory accessTokenFromResponse:response request:params];
+    XCTAssertNil(token);
 }
 
 - (void)testRefreshTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -233,6 +251,22 @@
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertNil(token.familyId);
+}
+
+- (void)testRefreshTokenFromResponse_whenOIDCTokenResponse_andRefreshTokenNil_shouldReturnNil
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+
+    MSIDTokenResponse *response = [MSIDTestTokenResponse defaultTokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                 RT:nil
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                           username:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                            subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+
+    MSIDRequestParameters *params = [MSIDTestRequestParams defaultParams];
+
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:response request:params];
+    XCTAssertNil(token);
 }
 
 - (void)testLegacyTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -266,6 +300,72 @@
 
     XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertNotNil(token.expiresOn);
+    XCTAssertNil(token.familyId);
+    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
+    XCTAssertEqualObjects(token.legacyUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+}
+
+- (void)testLegacyAccessTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+
+    MSIDTokenResponse *response = [MSIDTestTokenResponse defaultTokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                 RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                           username:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                            subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+
+    MSIDRequestParameters *params = [MSIDTestRequestParams defaultParams];
+
+    MSIDLegacyAccessToken *token = [factory legacyAccessTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, params.authority);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertNil(token.clientInfo);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNotNil(token.cachedAt);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+
+    XCTAssertEqualObjects(token.idToken, idToken);
+
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
+
+    XCTAssertEqualObjects(token.scopes, scopes);
+    XCTAssertNotNil(token.expiresOn);
+    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
+    XCTAssertEqualObjects(token.legacyUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+}
+
+- (void)testLegacyRefreshTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+
+    MSIDTokenResponse *response = [MSIDTestTokenResponse defaultTokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                 RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                           username:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                            subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+
+    MSIDRequestParameters *params = [MSIDTestRequestParams defaultParams];
+
+    MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:response request:params];
+
+    XCTAssertEqualObjects(token.authority, params.authority);
+    XCTAssertEqualObjects(token.clientId, params.clientId);
+    XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertNil(token.clientInfo);
+    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+
+    XCTAssertEqualObjects(token.idToken, idToken);
+
+    XCTAssertNil(token.familyId);
+    XCTAssertEqualObjects(token.legacyUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
 }
 
 - (void)testIDTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -328,7 +428,7 @@
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
 
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman" name:@"Eric Cartman"];
     NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
     MSIDRequestParameters *requestParameters =
     [[MSIDRequestParameters alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
@@ -345,8 +445,11 @@
     XCTAssertNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertEqualObjects(account.username, @"eric999");
+    XCTAssertNil(account.middleName);
+    XCTAssertNil(account.alternativeAccountId);
     XCTAssertEqualObjects(account.givenName, @"Eric");
     XCTAssertEqualObjects(account.familyName, @"Cartman");
+    XCTAssertEqualObjects(account.name, @"Eric Cartman");
     XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
 

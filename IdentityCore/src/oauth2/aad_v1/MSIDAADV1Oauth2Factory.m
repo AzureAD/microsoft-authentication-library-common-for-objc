@@ -122,42 +122,19 @@
 
 #pragma mark - Tokens
 
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV1TokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
+           fromResponse:(MSIDAADV1TokenResponse *)response
+                request:(MSIDRequestParameters *)requestParams
 {
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response request:requestParams];
-    accessToken.resource = response.target ? response.target : requestParams.target;
-    return accessToken;
-}
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response request:requestParams];
 
-- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
-{
-    MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response request:requestParams];
-    legacyToken.resource = response.target ? response.target : requestParams.target;
-    return legacyToken;
-}
-
-- (MSIDLegacyAccessToken *)legacyAccessTokenFromResponse:(MSIDAADTokenResponse *)response
-                                                 request:(MSIDRequestParameters *)requestParams
-{
-    MSIDLegacyAccessToken *legacyToken = [super legacyAccessTokenFromResponse:response request:requestParams];
-    legacyToken.resource = response.target ? response.target : requestParams.target;
-    return legacyToken;
-}
-
-- (MSIDAccount *)accountFromResponse:(MSIDAADV1TokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
-{
-    if (![self checkResponseClass:response context:nil error:nil])
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
-    MSIDAccount *account = [super accountFromResponse:response request:requestParams];
-    MSIDAADV1IdTokenClaims *idToken = (MSIDAADV1IdTokenClaims *) response.idTokenObj;
-    account.alternativeAccountId = idToken.alternativeAccountId;
-    return account;
+    accessToken.resource = response.target ? response.target : requestParams.target;
+    return accessToken;
 }
 
 - (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken

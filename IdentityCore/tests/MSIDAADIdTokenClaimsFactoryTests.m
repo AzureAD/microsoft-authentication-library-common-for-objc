@@ -40,7 +40,7 @@
 
 - (void)testClaimsFromRawIDToken_whenAADV2IDToken_shouldReturnAADV2Claims
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"test" subject:@"sub" givenName:@"name" familyName:@"name2" version:@"2.0"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"test" subject:@"sub" givenName:@"name" familyName:@"name2" name:@"name name2" version:@"2.0"];
 
     MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken];
     XCTAssertTrue([claims isKindOfClass:[MSIDAADV2IdTokenClaims class]]);
@@ -48,7 +48,7 @@
 
 - (void)testClaimsFromRawIDToken_whenAADV1IDToken_shouldReturnAADV1Claims
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"test" subject:@"sub" givenName:@"name" familyName:@"name2" version:@"1.0"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"test" subject:@"sub" givenName:@"name" familyName:@"name2" name:@"name name2" version:@"1.0"];
 
     MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken];
     XCTAssertTrue([claims isKindOfClass:[MSIDAADV1IdTokenClaims class]]);

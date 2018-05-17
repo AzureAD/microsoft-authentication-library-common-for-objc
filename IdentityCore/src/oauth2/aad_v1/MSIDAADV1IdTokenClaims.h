@@ -33,8 +33,6 @@
 @property (readonly) NSString *identityProvider;
 @property (readonly) NSString *objectId;
 @property (readonly) NSString *tenantId;
-@property (readonly) NSString *guestId;
 @property (readonly) NSString *uniqueName;
-@property (readonly) NSString *alternativeAccountId;
 
 @end

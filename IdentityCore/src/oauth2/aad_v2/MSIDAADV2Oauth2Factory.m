@@ -104,10 +104,16 @@
 
 #pragma mark - Tokens
 
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
+           fromResponse:(MSIDAADV2TokenResponse *)response
+                request:(MSIDRequestParameters *)requestParams
 {
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response request:requestParams];
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response request:requestParams];
+
+    if (!result)
+    {
+        return NO;
+    }
 
     NSOrderedSet *responseScopes = response.scope.scopeSet;
 
@@ -132,15 +138,22 @@
     return accessToken;
 }
 
-- (MSIDAccount *)accountFromResponse:(MSIDAADV2TokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+- (BOOL)fillAccount:(MSIDAccount *)account
+       fromResponse:(MSIDAADV2TokenResponse *)response
+            request:(MSIDRequestParameters *)requestParams
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
-        return nil;
+        return NO;
     }
 
-    MSIDAccount *account = [super accountFromResponse:response request:requestParams];
+    BOOL result = [super fillAccount:account fromResponse:response request:requestParams];
+
+    if (!result)
+    {
+        return NO;
+    }
+
     MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
     account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
     return account;
