@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDTokenCacheDataSource.h"
 #import "MSIDCacheKey.h"
-#import "MSIDKeyedArchiverSerializer.h"
+#import "MSIDJsonSerializer.h"
 #import "MSIDCredentialCacheItem.h"
 
 #if TARGET_OS_IPHONE
@@ -50,7 +50,7 @@
     
 #if TARGET_OS_IPHONE
     self.dataSource = [MSIDKeychainTokenCache new];
-    self.serializer = [MSIDKeyedArchiverSerializer new];
+    self.serializer = [MSIDJsonSerializer new];
     self.generic = [@"some value" dataUsingEncoding:NSUTF8StringEncoding];
     
     [MSIDKeychainTokenCache reset];
@@ -72,7 +72,7 @@
 - (void)test_whenSetItemWithValidParameters_shouldReturnTrue
 {
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
-    token.accessToken = @"some token";
+    token.secret = @"some token";
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     
     BOOL result = [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
@@ -83,9 +83,8 @@
 - (void)test_whenSetItem_shouldGetSameItem
 {
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
-    token.accessToken = @"some token";
+    token.secret = @"some token";
     token.credentialType = MSIDCredentialTypeAccessToken;
-    token.oauthTokenType = @"token type";
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     
     BOOL result = [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
@@ -111,15 +110,17 @@
 - (void)testSetItem_whenItemAlreadyExistInKeychain_shouldUpdateIt
 {
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
-    token.accessToken = @"some token";
-    token.oauthTokenType = @"token type";
+    token.secret = @"some token";
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
-    token.accessToken = @"some token 2";
-    token2.oauthTokenType = @"token type";
+    token2.secret = @"some token 2";
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     
-    [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
-    [self.dataSource saveToken:token2 key:key serializer:self.serializer context:nil error:nil];
+    BOOL result = [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
+    XCTAssertTrue(result);
+
+    BOOL result2 = [self.dataSource saveToken:token2 key:key serializer:self.serializer context:nil error:nil];
+    XCTAssertTrue(result2);
+
     MSIDCredentialCacheItem *tokenResult = [self.dataSource tokenWithKey:key serializer:self.serializer context:nil error:nil];
     
     XCTAssertEqualObjects(tokenResult, token2);
@@ -129,17 +130,17 @@
 {
     // Item 1.
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
-    token1.oauthTokenType = @"token type";
+    token1.secret = @"secret1";
     MSIDCacheKey *key1 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:self.generic type:nil];
     [self.dataSource saveToken:token1 key:key1 serializer:self.serializer context:nil error:nil];
     // Item 2.
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
-    token2.oauthTokenType = @"token type";
+    token2.secret = @"secret2";
     MSIDCacheKey *key2 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:self.generic type:nil];
     [self.dataSource saveToken:token2 key:key2 serializer:self.serializer context:nil error:nil];
     // Item 3.
     MSIDCredentialCacheItem *token3 = [MSIDCredentialCacheItem new];
-    token3.oauthTokenType = @"token type";
+    token3.secret = @"secret3";
     MSIDCacheKey *key3 = [[MSIDCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" generic:self.generic type:nil];
     [self.dataSource saveToken:token3 key:key3 serializer:self.serializer context:nil error:nil];
     
@@ -159,7 +160,7 @@
 - (void)testRemoveItemWithKey_whenKeyIsValid_shouldRemoveItem
 {
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
-    token.accessToken = @"some token";
+    token.secret = @"some token";
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
     
@@ -178,7 +179,7 @@
 - (void)testRemoveItemWithKey_whenKeyIsValidWithType_shouldRemoveItem
 {
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
-    token.accessToken = @"some token";
+    token.secret = @"some token";
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
     
@@ -198,18 +199,22 @@
 {
     // Item 1.
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
+    token1.secret = @"secret1";
     MSIDCacheKey *key1 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:self.generic type:nil];
     [self.dataSource saveToken:token1 key:key1 serializer:self.serializer context:nil error:nil];
     // Item 2.
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
+    token2.secret = @"secret2";
     MSIDCacheKey *key2 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:self.generic type:nil];
     [self.dataSource saveToken:token2 key:key2 serializer:self.serializer context:nil error:nil];
     // Item 3.
     MSIDCredentialCacheItem *token3 = [MSIDCredentialCacheItem new];
+    token3.secret = @"secret3";
     MSIDCacheKey *key3 = [[MSIDCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" generic:self.generic type:nil];
     [self.dataSource saveToken:token3 key:key3 serializer:self.serializer context:nil error:nil];
     // Item 4.
     MSIDCredentialCacheItem *token4 = [MSIDCredentialCacheItem new];
+    token4.secret = @"secret4";
     MSIDCacheKey *key4 = [[MSIDCacheKey alloc] initWithAccount:@"test_account2" service:@"item4" generic:self.generic type:nil];
     [self.dataSource saveToken:token4 key:key4 serializer:self.serializer context:nil error:nil];
     
