@@ -29,6 +29,7 @@
 @protocol MSIDRequestContext;
 @protocol MSIDHttpRequestTelemetryProtocol;
 @protocol MSIDHttpRequestErrorHandlerProtocol;
+@class MSIDUrlSessionManager;
 
 /**
  Important: You need to call `finishAndInvalidate` method in `completionBlock` of `sendWithBlock:`.
@@ -43,6 +44,8 @@
     @protected id<MSIDHttpRequestTelemetryProtocol> _telemetry;
     @protected id<MSIDHttpRequestErrorHandlerProtocol> _errorHandler;
 }
+
+@property (nonatomic, nonnull) MSIDUrlSessionManager *sessionManager;
 
 @property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *parameters;
 

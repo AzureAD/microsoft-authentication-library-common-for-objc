@@ -28,13 +28,7 @@
 #import "MSIDHttpRequestErrorHandlerProtocol.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
-
-@interface MSIDHttpRequest () <NSURLSessionDelegate>
-
-@property (nonatomic) NSURLSessionConfiguration *sessionConfiguration;
-@property (nonatomic) NSURLSession *session;
-
-@end
+#import "MSIDUrlSessionManager.h"
 
 @implementation MSIDHttpRequest
 
@@ -44,8 +38,7 @@
     
     if (self)
     {
-        _sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        _session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
+        _sessionManager = MSIDUrlSessionManager.defaultManager;
         _responseSerializer = [MSIDJsonResponseSerializer new];
         _requestSerializer = [MSIDUrlRequestSerializer new];
         _telemetry = [MSIDHttpRequestTelemetry new];
@@ -64,7 +57,7 @@
     
     MSID_LOG_VERBOSE(self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));
     
-    [[self.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+    [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
       {
           MSID_LOG_VERBOSE(self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
           
@@ -106,16 +99,6 @@
               });
           }
       }] resume];
-}
-
-- (void)finishAndInvalidate
-{
-    [self.session finishTasksAndInvalidate];
-}
-
-- (void)cancel
-{
-    [self.session invalidateAndCancel];
 }
 
 @end

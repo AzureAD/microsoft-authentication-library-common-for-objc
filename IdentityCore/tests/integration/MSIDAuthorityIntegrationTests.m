@@ -449,7 +449,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1111 handler:nil];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testDiscoverAuthority_whenAuthroityIsInvalid_shoulStoreInvalidRecordInCache
@@ -481,7 +481,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1222 handler:nil];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
     
     // 2nd request (no network call should happen)
     expectation = [self expectationWithDescription:@"Read Invalid Authority From Cache"];
@@ -497,7 +497,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1222 handler:nil];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnownAADApiVersionV2_shouldReturnErrorNil

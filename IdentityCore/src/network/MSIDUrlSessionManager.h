@@ -23,10 +23,19 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+@class MSIDUrlSessionDelegate;
 
-@protocol MSIDHttpRequestProtocol <NSObject>
+@interface MSIDUrlSessionManager : NSObject
 
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+- (instancetype _Nullable)initWithConfiguration:(nonnull NSURLSessionConfiguration *)configuration
+                                        delegate:(nullable MSIDUrlSessionDelegate *)delegate NS_DESIGNATED_INITIALIZER;
+
+@property (class, nonnull) MSIDUrlSessionManager *defaultManager;
+@property (nonatomic, readonly, nonnull) NSURLSessionConfiguration *configuration;
+@property (nonatomic, readonly, nonnull) NSURLSession *session;
+@property (nonatomic, readonly, nullable) MSIDUrlSessionDelegate *delegate;
+
+- (instancetype _Nullable )init NS_UNAVAILABLE;
++ (instancetype _Nullable )new NS_UNAVAILABLE;
 
 @end
