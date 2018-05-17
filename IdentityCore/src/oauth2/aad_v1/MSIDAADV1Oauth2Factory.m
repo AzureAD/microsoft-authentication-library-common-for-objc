@@ -29,6 +29,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
 #import "MSIDAADV1IdTokenClaims.h"
+#import "MSIDOauth2Factory+Internal.h"
 
 @implementation MSIDAADV1Oauth2Factory
 

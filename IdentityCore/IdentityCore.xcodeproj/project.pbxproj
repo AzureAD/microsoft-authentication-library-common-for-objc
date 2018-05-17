@@ -287,6 +287,7 @@
 		B2936F8020ABFFC50050C585 /* MSIDAADOauth2FactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B26A0B922072B824006BD95A /* MSIDAADOauth2FactoryTests.m */; };
 		B2936F8120ABFFC80050C585 /* MSIDAADV1Oauth2FactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B26A0B952072B9CB006BD95A /* MSIDAADV1Oauth2FactoryTests.m */; };
 		B2936F8220ABFFCB0050C585 /* MSIDAADV2Oauth2FactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B26A0B982072BABD006BD95A /* MSIDAADV2Oauth2FactoryTests.m */; };
+		B2936F8720AD17370050C585 /* MSIDOauth2Factory+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = B2936F8620AD17370050C585 /* MSIDOauth2Factory+Internal.h */; };
 		B2964BDD205083E80000BC95 /* MSIDAuthorityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2964BDC205083E80000BC95 /* MSIDAuthorityTests.m */; };
 		B2964BDE205083E80000BC95 /* MSIDAuthorityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2964BDC205083E80000BC95 /* MSIDAuthorityTests.m */; };
 		B2964BE1205103920000BC95 /* MSIDTokenFilteringHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2964BDF205103920000BC95 /* MSIDTokenFilteringHelper.h */; };
@@ -728,6 +729,7 @@
 		B2936F4C20AA906C0050C585 /* MSIDLegacyTokenCacheItemTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLegacyTokenCacheItemTests.m; sourceTree = "<group>"; };
 		B2936F7820ABF8300050C585 /* MSIDLegacyAccessTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDLegacyAccessTokenTests.m; sourceTree = "<group>"; };
 		B2936F7B20ABF9570050C585 /* MSIDLegacyRefreshTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDLegacyRefreshTokenTests.m; sourceTree = "<group>"; };
+		B2936F8620AD17370050C585 /* MSIDOauth2Factory+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDOauth2Factory+Internal.h"; sourceTree = "<group>"; };
 		B2964BDC205083E80000BC95 /* MSIDAuthorityTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthorityTests.m; sourceTree = "<group>"; };
 		B2964BDF205103920000BC95 /* MSIDTokenFilteringHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTokenFilteringHelper.h; sourceTree = "<group>"; };
 		B2964BE0205103920000BC95 /* MSIDTokenFilteringHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenFilteringHelper.m; sourceTree = "<group>"; };
@@ -1134,6 +1136,7 @@
 		B210F4241FDDE12B005A8F76 /* oauth2 */ = {
 			isa = PBXGroup;
 			children = (
+				B2936F8620AD17370050C585 /* MSIDOauth2Factory+Internal.h */,
 				B26A0B7B2071ADCE006BD95A /* MSIDOauth2Factory.h */,
 				B26A0B7C2071ADCE006BD95A /* MSIDOauth2Factory.m */,
 				B210F42F1FDDE7EB005A8F76 /* MSIDTokenResponse.h */,
@@ -1685,6 +1688,7 @@
 				B297E1E620A12BDE00F370EC /* MSIDDefaultAccountCacheKey.h in Headers */,
 				B251CC3B2041058D005E0179 /* MSIDRefreshToken.h in Headers */,
 				B2CDB5851FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.h in Headers */,
+				B2936F8720AD17370050C585 /* MSIDOauth2Factory+Internal.h in Headers */,
 				96CD694F1FE849C800D41938 /* MSIDTokenRequest.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

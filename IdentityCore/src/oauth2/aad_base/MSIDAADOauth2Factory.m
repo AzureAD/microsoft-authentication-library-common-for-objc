@@ -34,6 +34,7 @@
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
 #import "MSIDLegacyRefreshToken.h"
+#import "MSIDOauth2Factory+Internal.h"
 
 @implementation MSIDAADOauth2Factory
 
