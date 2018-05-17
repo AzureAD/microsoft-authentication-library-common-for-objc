@@ -25,7 +25,7 @@
 #import "MSIDAADAuthorityMetadataRequest.h"
 #import "MSIDAuthority.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDNetworkConfiguration.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 static dispatch_queue_t s_aadValidationQueue;
 
@@ -130,7 +130,7 @@ static dispatch_queue_t s_aadValidationQueue;
         trustedHost = authority.msidHostWithPortIfNecessary;
     }
     
-    __auto_type endpoint = [MSIDNetworkConfiguration.defaultConfiguration.endpointProvider aadAuthorityDiscoveryEndpointWithHost:trustedHost];
+    __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider aadAuthorityDiscoveryEndpointWithHost:trustedHost];
     
     __auto_type *request = [[MSIDAADAuthorityMetadataRequest alloc] initWithEndpoint:endpoint authority:authority];
     request.context = context;
@@ -143,7 +143,7 @@ static dispatch_queue_t s_aadValidationQueue;
                  [self.aadCache addInvalidRecord:authority oauthError:error context:context];
              }
              
-             __auto_type endpoint = validate ? nil : [MSIDNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority];
+             __auto_type endpoint = validate ? nil : [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority];
              error = validate ? error : nil;
              
              completionBlock(endpoint, NO, error);

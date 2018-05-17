@@ -23,7 +23,7 @@
 #import "MSIDAADAuthorityMetadataRequest.h"
 #import "MSIDAADResponseSerializer.h"
 #import "MSIDAADRequestConfigurator.h"
-#import "MSIDNetworkConfiguration.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 @interface MSIDAADAuthorityMetadataResponseSerializer : MSIDAADResponseSerializer
 @end
@@ -83,8 +83,8 @@
         NSParameterAssert(authority);
         
         NSMutableDictionary *parameters = [NSMutableDictionary new];
-        parameters[@"api-version"] = MSIDNetworkConfiguration.defaultConfiguration.aadAuthorityDiscoveryApiVersion;
-        __auto_type authorizationEndpoint = [MSIDNetworkConfiguration.defaultConfiguration.endpointProvider oauth2AuthorizeEndpointWithUrl:authority].absoluteString;
+        parameters[@"api-version"] = MSIDAADNetworkConfiguration.defaultConfiguration.aadAuthorityDiscoveryApiVersion;
+        __auto_type authorizationEndpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider oauth2AuthorizeEndpointWithUrl:authority].absoluteString;
         parameters[@"authorization_endpoint"] = authorizationEndpoint;
         _parameters = parameters;
         

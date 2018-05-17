@@ -30,7 +30,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAadAuthorityCache+TestUtil.h"
 #import "MSIDAdfsAuthorityResolver.h"
-#import "MSIDNetworkConfiguration.h"
+#import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAADEndpointProvider.h"
 
 @interface MSIDAuthorityIntegrationTests : XCTestCase
@@ -52,8 +52,8 @@
     [[MSIDAadAuthorityCache sharedInstance] clear];
     [MSIDAdfsAuthorityResolver.cache removeAllObjects];
     
-    MSIDNetworkConfiguration.defaultConfiguration.endpointProvider = [MSIDAADEndpointProvider new];
-    MSIDNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider = [MSIDAADEndpointProvider new];
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
 }
 
 #pragma mark - loadOpenIdConfigurationInfo
@@ -502,7 +502,7 @@
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnownAADApiVersionV2_shouldReturnErrorNil
 {
-    MSIDNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
     
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";

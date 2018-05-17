@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDADFSType.h"
 
-@protocol MSIDEndpointProviding <NSObject>
+@protocol MSIDAADEndpointProviding <NSObject>
 
 - (NSURL *)oauth2AuthorizeEndpointWithUrl:(NSURL *)baseUrl;
 

@@ -23,7 +23,7 @@
 #import "MSIDDRSDiscoveryRequest.h"
 #import "MSIDAADResponseSerializer.h"
 #import "MSIDAADRequestConfigurator.h"
-#import "MSIDNetworkConfiguration.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 @interface MSIDDRSDiscoveryResponseSerializer : MSIDAADResponseSerializer
 @end
@@ -86,7 +86,7 @@
         _adfsType = adfsType;
         
         NSMutableDictionary *parameters = [NSMutableDictionary new];
-        parameters[@"api-version"] = MSIDNetworkConfiguration.defaultConfiguration.drsDiscoveryApiVersion;
+        parameters[@"api-version"] = MSIDAADNetworkConfiguration.defaultConfiguration.drsDiscoveryApiVersion;
         _parameters = parameters;
 
         NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];

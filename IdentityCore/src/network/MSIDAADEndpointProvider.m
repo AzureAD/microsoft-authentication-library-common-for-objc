@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAADEndpointProvider.h"
-#import "MSIDNetworkConfiguration.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 @implementation MSIDAADEndpointProvider
 
@@ -83,8 +83,8 @@
 
 - (NSString *)aadApiVersionWithDelimiter
 {
-    __auto_type apiVersion = MSIDNetworkConfiguration.defaultConfiguration.aadApiVersion ?: @"";
-    __auto_type delimiter = MSIDNetworkConfiguration.defaultConfiguration.aadApiVersion ? @"/" : @"";
+    __auto_type apiVersion = MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion ?: @"";
+    __auto_type delimiter = MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion ? @"/" : @"";
     
     return [NSString stringWithFormat:@"%@%@", apiVersion, delimiter];
 }

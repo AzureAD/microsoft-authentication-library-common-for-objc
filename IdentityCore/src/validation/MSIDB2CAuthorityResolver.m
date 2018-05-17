@@ -23,8 +23,8 @@
 
 #import "MSIDB2CAuthorityResolver.h"
 #import "MSIDAuthority.h"
-#import "MSIDNetworkConfiguration.h"
-#import "MSIDEndpointProviding.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAADEndpointProviding.h"
 
 @implementation MSIDB2CAuthorityResolver
 
@@ -41,7 +41,7 @@
         return;
     }
     
-    __auto_type endpoint = [MSIDNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority];
+    __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority];
     
     if (completionBlock) completionBlock(endpoint, validate, nil);
 }

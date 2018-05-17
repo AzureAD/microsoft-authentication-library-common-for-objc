@@ -21,18 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDNetworkConfiguration.h"
+#import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAADEndpointProvider.h"
 
-static MSIDNetworkConfiguration *s_defaultConfiguration;
+static MSIDAADNetworkConfiguration *s_defaultConfiguration;
 
-@implementation MSIDNetworkConfiguration
+@implementation MSIDAADNetworkConfiguration
 
 + (void)initialize
 {
-    if (self == [MSIDNetworkConfiguration self])
+    if (self == [MSIDAADNetworkConfiguration self])
     {
-        s_defaultConfiguration = [MSIDNetworkConfiguration new];
+        s_defaultConfiguration = [MSIDAADNetworkConfiguration new];
     }
 }
 
@@ -49,12 +49,12 @@ static MSIDNetworkConfiguration *s_defaultConfiguration;
     return self;
 }
 
-+ (MSIDNetworkConfiguration *)defaultConfiguration
++ (MSIDAADNetworkConfiguration *)defaultConfiguration
 {
     return s_defaultConfiguration;
 }
 
-+ (void)setDefaultConfiguration:(MSIDNetworkConfiguration *)defaultConfiguration
++ (void)setDefaultConfiguration:(MSIDAADNetworkConfiguration *)defaultConfiguration
 {
     s_defaultConfiguration = defaultConfiguration;
 }

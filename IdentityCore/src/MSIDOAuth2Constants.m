@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDOAuth2Constants.h"
-#import "MSIDNetworkConfiguration.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 NSString *const MSID_OAUTH2_ACCESS_TOKEN       = @"access_token";
 NSString *const MSID_OAUTH2_AUTHORIZATION      = @"authorization";
