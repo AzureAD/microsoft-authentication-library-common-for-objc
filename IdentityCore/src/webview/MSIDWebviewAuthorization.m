@@ -123,8 +123,8 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     @synchronized([MSIDWebviewAuthorization class])
     {
         if (s_currentWebSession) {
-            return NO;
-            
+            MSID_LOG_INFO(nil, @"Session is already running. Please wait or cancel the session before setting it new.");
+            return NO;   
         }
         s_currentWebSession = newWebSession;
         
@@ -209,27 +209,38 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     MSID_LOG_INFO(context, @"This is not a WPJ response - %@", (*error).localizedDescription);
     
     // Check for AAD response,
+    NSError *aadError = nil;
     MSIDWebAADAuthResponse *aadResponse = [[MSIDWebAADAuthResponse alloc] initWithParameters:parameters
                                                                                 requestState:requestState
                                                                                stateVerifier:stateVerifier
                                                                                      context:context
-                                                                                       error:error];
+                                                                                       error:&aadError];
     if (aadResponse)
     {
         aadResponse.url = url;
         return aadResponse;
     }
+    
+    if (aadError)
+    {
+        if (error) *error = aadError;
+        return nil;
+    }
+    
     MSID_LOG_INFO(context, @"This is not an AAD response - %@", (*error).localizedDescription);
     
     // It is then, a standard OAuth2 response
-    MSIDWebOAuth2Response *oauth2Response = [[MSIDWebOAuth2Response alloc] initWithParameters:parameters
-                                                                                      context:context
-                                                                                        error:error];
-    if (oauth2Response)
-    {
-        oauth2Response.url = url;
-        return oauth2Response;
-    }
+    //
+    // For now, there is no logic to really land here. As there is no definitive condition for response
+    // not being a AAD response.
+//    MSIDWebOAuth2Response *oauth2Response = [[MSIDWebOAuth2Response alloc] initWithParameters:parameters
+//                                                                                      context:context
+//                                                                                        error:error];
+//    if (oauth2Response)
+//    {
+//        oauth2Response.url = url;
+//        return oauth2Response;
+//    }
     
     // Any other errors are caught here
     if (error && !(*error))

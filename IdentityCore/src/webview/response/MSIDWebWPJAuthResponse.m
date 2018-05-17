@@ -43,20 +43,13 @@
         return nil;
     }
     
-    NSString *appInstallLink = parameters[@"app_link"];
-    if (!appInstallLink)
-    {
-        if (error){
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"Parameters is missing app_link", nil, nil, nil, context.correlationId, nil);
-        }
-        return nil;
-    }
-    
     self = [super init];
     if (self)
     {
-        _appInstallLink = appInstallLink;
+        _appInstallLink = parameters[@"app_link"];
         _upn = parameters[@"upn"];
+        
+        if (!_appInstallLink) MSID_LOG_INFO(context, @"Parameters is missing app_link");
     }
     
     return self;
