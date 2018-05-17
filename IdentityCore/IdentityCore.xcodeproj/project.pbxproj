@@ -154,6 +154,10 @@
 		6068303A20A3560F00CCA6AB /* MSIDPKeyAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 6068303820A33A9000CCA6AB /* MSIDPKeyAuthHandler.m */; };
 		60B3855E20A96E0600D546D0 /* MSIDWebviewUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B3855D20A96E0600D546D0 /* MSIDWebviewUIController.m */; };
 		60B3856020A96E2700D546D0 /* MSIDWebviewUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B3855F20A96E2700D546D0 /* MSIDWebviewUIController.m */; };
+		60B55FF120AE255800DDB46D /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60B55FEF20ADFA1B00DDB46D /* GSS.framework */; };
+		60B55FFE20AE26EC00DDB46D /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60B55FFD20AE26EC00DDB46D /* GSS.framework */; };
+		60B55FFF20AE28AE00DDB46D /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60B55FEF20ADFA1B00DDB46D /* GSS.framework */; };
+		60B5600020AE28CA00DDB46D /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60B55FFD20AE26EC00DDB46D /* GSS.framework */; };
 		60BF06042051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */; };
 		60BF06052051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */; };
 		60BF06072052023900DE7C1C /* MSIDWipeDataTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06062052023900DE7C1C /* MSIDWipeDataTelemetryTests.m */; };
@@ -693,6 +697,8 @@
 		60B3855C20A96DAA00D546D0 /* MSIDWebviewUIController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebviewUIController.h; sourceTree = "<group>"; };
 		60B3855D20A96E0600D546D0 /* MSIDWebviewUIController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewUIController.m; sourceTree = "<group>"; };
 		60B3855F20A96E2700D546D0 /* MSIDWebviewUIController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewUIController.m; sourceTree = "<group>"; };
+		60B55FEF20ADFA1B00DDB46D /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = System/Library/Frameworks/GSS.framework; sourceTree = SDKROOT; };
+		60B55FFD20AE26EC00DDB46D /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/GSS.framework; sourceTree = DEVELOPER_DIR; };
 		60BF06022051F95B00DE7C1C /* MSIDTelemetryTestDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryTestDispatcher.h; sourceTree = "<group>"; };
 		60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryTestDispatcher.m; sourceTree = "<group>"; };
 		60BF06062052023900DE7C1C /* MSIDWipeDataTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWipeDataTelemetryTests.m; sourceTree = "<group>"; };
@@ -1008,6 +1014,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60B5600020AE28CA00DDB46D /* GSS.framework in Frameworks */,
 				600E0EF32091264400BCD67D /* WebKit.framework in Frameworks */,
 				B2893CAF1FCF68B200E348E9 /* Security.framework in Frameworks */,
 				B2C17AEA1FC790420070A514 /* UIKit.framework in Frameworks */,
@@ -1020,6 +1027,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60B55FF120AE255800DDB46D /* GSS.framework in Frameworks */,
 				6068302B20A0B4B800CCA6AB /* SecurityInterface.framework in Frameworks */,
 				6068302920A0B45300CCA6AB /* Security.framework in Frameworks */,
 				606830072098C88800CCA6AB /* AppKit.framework in Frameworks */,
@@ -1031,6 +1039,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60B55FFF20AE28AE00DDB46D /* GSS.framework in Frameworks */,
 				6068302C20A0B4BF00CCA6AB /* SecurityInterface.framework in Frameworks */,
 				600E0EF72091270300BCD67D /* AppKit.framework in Frameworks */,
 				600E0EF42091264900BCD67D /* WebKit.framework in Frameworks */,
@@ -1062,6 +1071,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60B55FFE20AE26EC00DDB46D /* GSS.framework in Frameworks */,
 				96A3E9C120895CCE00BE5262 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1815,6 +1825,8 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				60B55FEF20ADFA1B00DDB46D /* GSS.framework */,
+				60B55FFD20AE26EC00DDB46D /* GSS.framework */,
 				6068302A20A0B4B800CCA6AB /* SecurityInterface.framework */,
 				6068302720A0B44200CCA6AB /* Security.framework */,
 				600E0EF5209126FC00BCD67D /* AppKit.framework */,
