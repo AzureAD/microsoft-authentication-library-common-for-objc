@@ -47,7 +47,7 @@
                          clientId:(NSString *)clientId
                            target:(NSString *)target
 {
-    return [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:redirectUri clientId:clientId target:target correlationId:nil];
+    return [self initWithAuthority:authority redirectUri:redirectUri clientId:clientId target:target correlationId:nil];
 }
 
 - (instancetype)initWithAuthority:(NSURL *)authority

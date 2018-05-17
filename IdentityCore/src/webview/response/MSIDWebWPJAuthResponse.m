@@ -35,8 +35,11 @@
                          error:(NSError **)error
 {
     // Check for WPJ response
-    if (![scheme isEqualToString:@"msauth://"])
+    if (![scheme isEqualToString:@"msauth"])
     {
+        if (error){
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"WPJ response should have msauth as a scheme", nil, nil, nil, context.correlationId, nil);
+        }
         return nil;
     }
     

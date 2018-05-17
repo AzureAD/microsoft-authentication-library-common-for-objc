@@ -178,28 +178,6 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     return parameters;
 }
 
-+ (NSError *)oauthErrorFromURL:(NSURL *)url
-{
-    NSDictionary *dictionary = [self.class queryParametersFromURL:url];
-    
-    NSUUID *correlationId = [dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
-    [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
-    
-    NSString *serverOAuth2Error = [dictionary objectForKey:MSID_OAUTH2_ERROR];
-    
-    if (serverOAuth2Error)
-    {
-        NSString *errorDescription = dictionary[MSID_OAUTH2_ERROR_DESCRIPTION];
-        NSString *subError = dictionary[MSID_OAUTH2_SUB_ERROR];
-        
-        MSIDErrorCode errorCode = MSIDErrorCodeForOAuthError(errorDescription, MSIDErrorAuthorizationFailed);
-        
-        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, nil);
-    }
-    
-    return nil;
-}
-
 
 + (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
                               requestState:(NSString *)requestState
@@ -210,10 +188,10 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     // This error case *really* shouldn't occur. If we're seeing it it's almost certainly a developer bug
     if ([NSString msidIsStringNilOrBlank:url.absoluteString])
     {
-        if (error){
+        if (error) {
             *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorNoAuthorizationResponse, @"No authorization response received from server.", nil, nil, nil, context.correlationId, nil);
-            return nil;
         }
+        return nil;
     }
     
     NSDictionary *parameters = [self.class queryParametersFromURL:url];
@@ -228,6 +206,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
         wpjResponse.url = url;
         return wpjResponse;
     }
+    MSID_LOG_INFO(context, @"This is not a WPJ response - %@", (*error).localizedDescription);
     
     // Check for AAD response,
     MSIDWebAADAuthResponse *aadResponse = [[MSIDWebAADAuthResponse alloc] initWithParameters:parameters
@@ -240,6 +219,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
         aadResponse.url = url;
         return aadResponse;
     }
+    MSID_LOG_INFO(context, @"This is not an AAD response - %@", (*error).localizedDescription);
     
     // It is then, a standard OAuth2 response
     MSIDWebOAuth2Response *oauth2Response = [[MSIDWebOAuth2Response alloc] initWithParameters:parameters
@@ -252,7 +232,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     }
     
     // Any other errors are caught here
-    if (error)
+    if (error && !(*error))
     {
         *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorBadAuthorizationResponse, @"No code or error in server response.", nil, nil, nil, context.correlationId, nil);
         
