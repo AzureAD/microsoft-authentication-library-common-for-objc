@@ -26,7 +26,7 @@
 #import "MSIDAccount.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDOauth2Factory.h"
 
 @interface MSIDTestCacheAccessor()
@@ -52,13 +52,13 @@
 
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)parameters
-                       account:(MSIDAccount *)account
-                      response:(MSIDTokenResponse *)response
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                configuration:(MSIDConfiguration *)configuration
+                      account:(MSIDAccount *)account
+                     response:(MSIDTokenResponse *)response
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
-    if (!parameters)
+    if (!configuration)
     {
         if (error)
         {
@@ -68,9 +68,9 @@
         return NO;
     }
     
-    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:parameters];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     
-    return [self saveTokenForAccount:account token:accessToken clientId:parameters.clientId authority:parameters.authority context:context error:error];
+    return [self saveTokenForAccount:account token:accessToken clientId:configuration.clientId authority:configuration.authority context:context error:error];
 }
 
 - (BOOL)saveRefreshToken:(MSIDRefreshToken *)refreshToken
@@ -88,14 +88,14 @@
 
 - (MSIDBaseToken *)getTokenWithType:(MSIDTokenType)tokenType
                             account:(MSIDAccount *)account
-                      requestParams:(MSIDRequestParameters *)parameters
+                      configuration:(MSIDConfiguration *)configuration
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
     return [self getTokenForAccount:account
                           tokenType:tokenType
-                           clientId:parameters.clientId
-                          authority:parameters.authority
+                           clientId:configuration.clientId
+                          authority:configuration.authority
                             context:context
                               error:error];
 }
@@ -270,7 +270,7 @@
                             tokenType:(MSIDTokenType)tokenType
                              clientId:(NSString *)clientId
                             authority:(NSURL *)authority
-                           context:(id<MSIDRequestContext>)context
+                              context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
     if (!clientId
@@ -372,7 +372,7 @@
     NSMutableArray *resultTokens = [NSMutableArray array];
     
     @synchronized (self) {
-       
+        
         // Filter out tokens based on the token type
         for (NSString *key in [_cacheContents allKeys])
         {
@@ -403,3 +403,4 @@
 }
 
 @end
+

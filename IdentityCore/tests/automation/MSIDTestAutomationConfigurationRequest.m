@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTestConfigurationRequest.h"
+#import "MSIDTestAutomationConfigurationRequest.h"
 
 /*! WW is a world wide entirely on-cloud account */
 MSIDTestAccountProvider MSIDTestAccountProviderWW = @"AzureCloud";
@@ -53,7 +53,7 @@ MSIDAppVersion MSIDAppVersionV1 = @"V1";
 MSIDAppVersion MSIDAppVersionV2 = @"V2";
 MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
 
-@implementation MSIDTestConfigurationRequest
+@implementation MSIDTestAutomationConfigurationRequest
 
 - (BOOL)federated
 {
@@ -104,7 +104,7 @@ MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
     return @"Member";
 }
 
-- (BOOL)isEqualToRequest:(MSIDTestConfigurationRequest *)request
+- (BOOL)isEqualToRequest:(MSIDTestAutomationConfigurationRequest *)request
 {
     if (!request)
     {
@@ -129,12 +129,12 @@ MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
         return YES;
     }
 
-    if (![object isKindOfClass:MSIDTestConfigurationRequest.class])
+    if (![object isKindOfClass:MSIDTestAutomationConfigurationRequest.class])
     {
         return NO;
     }
 
-    return [self isEqualToRequest:(MSIDTestConfigurationRequest *)object];
+    return [self isEqualToRequest:(MSIDTestAutomationConfigurationRequest *)object];
 }
 
 - (NSUInteger)hash
@@ -197,7 +197,7 @@ MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
 
 - (nonnull id)copyWithZone:(nullable NSZone *)zone
 {
-    MSIDTestConfigurationRequest *request = [[MSIDTestConfigurationRequest allocWithZone:zone] init];
+    MSIDTestAutomationConfigurationRequest *request = [[MSIDTestAutomationConfigurationRequest allocWithZone:zone] init];
     request->_accountFeatures = _accountFeatures;
     request->_accountProvider = _accountProvider;
     request->_needsMultipleUsers = _needsMultipleUsers;
@@ -205,9 +205,9 @@ MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
     return request;
 }
 
-+ (MSIDTestConfigurationRequest *)requestWithDictionary:(NSDictionary *)dictionary
++ (MSIDTestAutomationConfigurationRequest *)requestWithDictionary:(NSDictionary *)dictionary
 {
-    MSIDTestConfigurationRequest *request = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *request = [MSIDTestAutomationConfigurationRequest new];
     request.accountProvider = dictionary[@"account_provider"];
     request.accountFeatures = dictionary[@"account_features"];
     request.needsMultipleUsers = [dictionary[@"needs_multiple"] boolValue];

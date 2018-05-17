@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTestConfiguration.h"
+#import "MSIDTestAutomationConfiguration.h"
 
 @implementation MSIDTestAccount
 
@@ -123,9 +123,9 @@
 
 @end
 
-@implementation MSIDTestConfiguration
+@implementation MSIDTestAutomationConfiguration
 
-- (BOOL)isEqualToConfiguration:(MSIDTestConfiguration *)configuration
+- (BOOL)isEqualToConfiguration:(MSIDTestAutomationConfiguration *)configuration
 {
     if (!configuration)
     {
@@ -151,12 +151,12 @@
         return YES;
     }
 
-    if (![object isKindOfClass:MSIDTestConfiguration.class])
+    if (![object isKindOfClass:MSIDTestAutomationConfiguration.class])
     {
         return NO;
     }
 
-    return [self isEqualToConfiguration:(MSIDTestConfiguration *)object];
+    return [self isEqualToConfiguration:(MSIDTestAutomationConfiguration *)object];
 }
 
 - (NSUInteger)hash
@@ -253,12 +253,12 @@
     return redirectUris[0];
 }
 
-- (NSDictionary *)configParameters
+- (NSDictionary *)config
 {
-    return [self configParametersForAccount:nil];
+    return [self configForAccount:nil];
 }
 
-- (NSDictionary *)configParametersForAccount:(MSIDTestAccount *)account
+- (NSDictionary *)configForAccount:(MSIDTestAccount *)account
 {
     return @{@"authority" : [self authorityWithAccount:account],
              @"client_id" : self.clientId,
@@ -290,18 +290,18 @@
     return _authorityHost;
 }
 
-- (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
+- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration
 {
-    NSMutableDictionary *configParams = [[self configParameters] mutableCopy];
-    [configParams addEntriesFromDictionary:additionalParams];
+    NSMutableDictionary *configParams = [[self config] mutableCopy];
+    [configParams addEntriesFromDictionary:additionalConfiguration];
     return configParams;
 }
 
-- (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
+- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration
                                                account:(MSIDTestAccount *)account
 {
-    NSMutableDictionary *configParams = [[self configParametersForAccount:account] mutableCopy];
-    [configParams addEntriesFromDictionary:additionalParams];
+    NSMutableDictionary *configParams = [[self configForAccount:account] mutableCopy];
+    [configParams addEntriesFromDictionary:additionalConfiguration];
     return configParams;
 }
 

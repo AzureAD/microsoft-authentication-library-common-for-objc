@@ -105,36 +105,36 @@
 #pragma mark - Tokens
 
 - (MSIDBaseToken *)baseTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                 request:(MSIDRequestParameters *)requestParams
+                                 configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDBaseToken *baseToken = [super baseTokenFromResponse:response request:requestParams];
-    return [self fillAADV2BaseToken:baseToken fromResponse:response request:requestParams];
+    MSIDBaseToken *baseToken = [super baseTokenFromResponse:response configuration:configuration];
+    return [self fillAADV2BaseToken:baseToken fromResponse:response configuration:configuration];
 }
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+                                     configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response request:requestParams];
+    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response configuration:configuration];
 
     NSOrderedSet *responseScopes = response.scope.scopeSet;
 
     if (!response.scope)
     {
-        responseScopes = requestParams.scopes;
+        responseScopes = configuration.scopes;
     }
     else
     {
-        NSOrderedSet<NSString *> *reqScopes = requestParams.scopes;
+        NSOrderedSet<NSString *> *reqScopes = configuration.scopes;
 
         if (reqScopes.count == 1 && [reqScopes.firstObject.lowercaseString hasSuffix:@".default"])
         {
@@ -146,55 +146,56 @@
 
     accessToken.scopes = responseScopes;
 
-    return (MSIDAccessToken *) [self fillAADV2BaseToken:accessToken fromResponse:response request:requestParams];
+    return (MSIDAccessToken *) [self fillAADV2BaseToken:accessToken fromResponse:response configuration:configuration];
 }
 
 - (MSIDIdToken *)idTokenFromResponse:(MSIDAADTokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                             configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDIdToken *idToken = [super idTokenFromResponse:response request:requestParams];
-    return (MSIDIdToken *) [self fillAADV2BaseToken:idToken fromResponse:response request:requestParams];
+    MSIDIdToken *idToken = [super idTokenFromResponse:response configuration:configuration];
+    return (MSIDIdToken *) [self fillAADV2BaseToken:idToken fromResponse:response configuration:configuration];
 }
 
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDAADTokenResponse *)response
-                                       request:(MSIDRequestParameters *)requestParams
+                                       configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDRefreshToken *token = [super refreshTokenFromResponse:response request:requestParams];
-    return (MSIDRefreshToken *) [self fillAADV2BaseToken:token fromResponse:response request:requestParams];
+    MSIDRefreshToken *token = [super refreshTokenFromResponse:response configuration:configuration];
+    return (MSIDRefreshToken *) [self fillAADV2BaseToken:token fromResponse:response configuration:configuration];
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDAADTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+                                                   configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDLegacySingleResourceToken *token = [super legacyTokenFromResponse:response request:requestParams];
-    return (MSIDLegacySingleResourceToken *) [self fillAADV2BaseToken:token fromResponse:response request:requestParams];
+    MSIDLegacySingleResourceToken *token = [super legacyTokenFromResponse:response configuration:configuration];
+    return (MSIDLegacySingleResourceToken *) [self fillAADV2BaseToken:token fromResponse:response configuration:configuration];
 }
 
 - (MSIDAccount *)accountFromResponse:(MSIDAADV2TokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                             configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return nil;
     }
 
-    MSIDAccount *account = [super accountFromResponse:response request:requestParams];
+    MSIDAccount *account = [super accountFromResponse:response configuration:configuration];
     MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
+
     account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
     return account;
 }
@@ -203,7 +204,7 @@
 
 - (MSIDBaseToken *)fillAADV2BaseToken:(MSIDBaseToken *)baseToken
                          fromResponse:(MSIDAADTokenResponse *)response
-                              request:(MSIDRequestParameters *)requestParams
+                              configuration:(MSIDConfiguration *)configuration
 {
     MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
     baseToken.authority = [MSIDAuthority cacheUrlForAuthority:baseToken.authority tenantId:idToken.tenantId];
@@ -212,14 +213,14 @@
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                            Webview:(WKWebView *)webview
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
     return nil;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController
     return nil;

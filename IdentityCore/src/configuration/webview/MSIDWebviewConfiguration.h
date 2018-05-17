@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,28 +17,35 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDConfiguration.h"
 
-@class MSIDRequestParameters;
+@class MSIDPkce;
+@class MSIDClientInfo;
 
-@interface MSIDTestRequestParams : NSObject
+@interface MSIDWebviewConfiguration : MSIDConfiguration
 
-+ (MSIDRequestParameters *)defaultParams;
+// Common
 
-+ (MSIDRequestParameters *)paramsWithAuthority:(NSString *)authority
-                                      clientId:(NSString *)clientId
-                                   redirectUri:(NSString *)redirectUri
-                                        target:(NSString *)target;
+@property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
+@property (readwrite) NSString *promptBehavior;
+@property (readwrite) NSString *claims;
 
-+ (MSIDRequestParameters *)v1DefaultParams;
-+ (MSIDRequestParameters *)v2DefaultParams;
+// Is this only for V2?
+@property (readwrite) NSString *requestState;
 
-+ (MSIDRequestParameters *)v2DefaultParamsWithScopes:(NSOrderedSet<NSString *> *)scopes;
+@property (readwrite) MSIDPkce *pkce;
+@property (readwrite) MSIDClientInfo *clientInfo;
+
+// Priority start URL
+@property (readwrite) NSURL *explicitStartURL;
 
 @end
