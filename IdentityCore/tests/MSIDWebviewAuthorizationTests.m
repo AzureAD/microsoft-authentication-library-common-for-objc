@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDWebviewAuthorization.h"
+#import "MSIDTestWebviewInteractingViewController.h"
 
 @interface MSIDWebviewAuthorizationTests : XCTestCase
 
@@ -41,17 +42,17 @@
 }
 
 #pragma mark - Webview starting
-- (void)testStartSystemWebviewWebviewAuthWithConfiguration_whenNoSessionRunning_shouldStart
+- (void)testStartWebviewAuth_whenNoSessionRunning_shouldStart
+{
+ 
+}
+
+- (void)testStartWebviewAuth_whenSessionRunning_shouldNotStartAndReturnError
 {
     
 }
 
-- (void)testStartSystemWebviewWebviewAuthWithConfiguration_whenSessionRunning_shouldNotStartAndReturnError
-{
-    
-}
-
-- (void)testStartSystemWebviewWebviewAuthWithConfiguration_whenComplete_shouldHaveNoRunningSession
+- (void)testStartWebviewAuth_whenComplete_shouldHaveNoRunningSession
 {
     
 }

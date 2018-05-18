@@ -57,6 +57,7 @@
                                      completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 #endif
 
+// If this different per authorization setup (i.e./ v1 vs v2), move it to respective factory.
 + (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
                               requestState:(NSString *)requestState
                              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier

@@ -48,18 +48,6 @@
     XCTAssertEqual(error.code, MSIDErrorInvalidParameter);
 }
 
-- (void)testInit_whenAppLinkMissing_shouldReturnNilWithError
-{
-    NSError *error = nil;
-    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithScheme:@"msauth"
-                                                                           parameters:@{} context:nil error:&error];
-    
-    XCTAssertNil(response);
-    XCTAssertNotNil(error);
-    
-    XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorInvalidParameter);
-}
 
 - (void)testInit_whenGoodInput_shouldReturnResponsewithNoError
 {
