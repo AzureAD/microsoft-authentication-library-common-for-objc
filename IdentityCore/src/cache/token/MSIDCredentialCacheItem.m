@@ -112,7 +112,6 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
-    item.familyId = [self.familyId copyWithZone:zone];
     item.uniqueUserId = [self.uniqueUserId copyWithZone:zone];
     item.clientInfo = [self.clientInfo copyWithZone:zone];
     item.additionalInfo = [self.additionalInfo copyWithZone:zone];

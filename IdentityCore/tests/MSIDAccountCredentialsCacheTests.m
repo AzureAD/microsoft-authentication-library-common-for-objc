@@ -33,6 +33,7 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDDefaultAccountCacheQuery.h"
+#import "MSIDTestCacheDataSource.h"
 
 @interface MSIDAccountCredentialsCacheTests : XCTestCase
 
@@ -42,10 +43,20 @@
 
 @implementation MSIDAccountCredentialsCacheTests
 
+#pragma mark - Setup
+
 - (void)setUp
 {
-    MSIDKeychainTokenCache *keychainCache = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];
-    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:keychainCache];
+    id<MSIDTokenCacheDataSource> dataSource = nil;
+
+#if TARGET_OS_IOS
+    dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];
+#else
+    // TODO: this should be replaced with a real macOS datasource instead
+    dataSource = [[MSIDTestCacheDataSource alloc] init];
+#endif
+
+    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
     [super setUp];
 }
 
@@ -2027,6 +2038,7 @@
 
 #pragma mark - wipeInfoWithContext
 
+#if TARGET_OS_IOS
 - (void)testWipeInfoWithContext_whenNoWipeInfo_shouldReturnNil
 {
     NSError *error = nil;
@@ -2050,6 +2062,7 @@
     XCTAssertNotNil(wipeInfo[@"bundleId"]);
     XCTAssertNotNil(wipeInfo[@"wipeTime"]);
 }
+#endif
 
 #pragma mark - Helpers
 

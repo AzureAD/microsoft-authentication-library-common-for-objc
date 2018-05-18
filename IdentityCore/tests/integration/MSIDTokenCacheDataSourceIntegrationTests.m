@@ -26,6 +26,7 @@
 #import "MSIDCacheKey.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDLegacyTokenCacheKey.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -73,7 +74,7 @@
 {
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     token.secret = @"some token";
-    MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    MSIDCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     
     BOOL result = [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
     
@@ -85,7 +86,7 @@
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     token.secret = @"some token";
     token.credentialType = MSIDCredentialTypeAccessToken;
-    MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    MSIDCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     
     BOOL result = [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];
     XCTAssertTrue(result);

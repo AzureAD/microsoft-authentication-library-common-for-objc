@@ -24,6 +24,12 @@
 #import <Foundation/Foundation.h>
 
 @interface MSIDCacheKey : NSObject
+{
+    NSString *_account;
+    NSString *_service;
+    NSNumber *_type;
+    NSData *_generic;
+}
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDMacTokenCache.h"
-#import "MSIDCredentialCacheItem.h"
+#import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDCredentialItemSerializer.h"
 #import "MSIDAccountItemSerializer.h"
@@ -97,7 +97,7 @@ return NO; \
         NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
         // Maintain backward compatibility with ADAL.
         [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDLegacyTokenCacheKey.class];
-        [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDCredentialCacheItem.class];
+        [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDLegacyTokenCacheItem.class];
         [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
         [archiver encodeObject:wrapper forKey:NSKeyedArchiveRootObjectKey];
         [archiver finishEncoding];
@@ -123,7 +123,7 @@ return NO; \
         NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
         // Maintain backward compatibility with ADAL.
         [unarchiver setClass:MSIDLegacyTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
-        [unarchiver setClass:MSIDCredentialCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
+        [unarchiver setClass:MSIDLegacyTokenCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
         [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
         cache = [unarchiver decodeObjectOfClass:NSDictionary.class forKey:NSKeyedArchiveRootObjectKey];
         [unarchiver finishDecoding];

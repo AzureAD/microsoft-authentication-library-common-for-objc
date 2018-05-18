@@ -61,6 +61,21 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
             clientId.msidBase64UrlEncode];
 }
 
+- (instancetype)initWithAccount:(NSString *)account
+                        service:(NSString *)service
+                        generic:(NSData *)generic
+                           type:(NSNumber *)type
+{
+    self = [super initWithAccount:account service:service generic:generic type:type];
+
+    if (self)
+    {
+        [self setServiceKeyComponents];
+    }
+
+    return self;
+}
+
 - (instancetype)initWithAuthority:(NSURL *)authority
                          clientId:(NSString *)clientId
                          resource:(NSString *)resource
@@ -81,12 +96,12 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
 - (NSString *)account
 {
-    return [self adalAccountWithUserId:self.legacyUserId];
+    return _account ? _account : [self adalAccountWithUserId:self.legacyUserId];
 }
 
 - (NSString *)service
 {
-    return [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+    return _service ? _service : [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
 }
 
 - (NSData *)generic
@@ -108,10 +123,25 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
         return nil;
     }
 
-    self.authority = [NSURL URLWithString:[coder decodeObjectOfClass:[NSString class] forKey:@"authority"]];
-    self.resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-    self.clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-    self.legacyUserId = [coder decodeObjectOfClass:[NSString class] forKey:@"userId"];
+    _account = [coder decodeObjectOfClass:[NSString class] forKey:@"account"];
+    _service = [coder decodeObjectOfClass:[NSString class] forKey:@"service"];
+    _type = [coder decodeObjectOfClass:[NSNumber class] forKey:@"type"];
+    _legacyUserId = [coder decodeObjectOfClass:[NSString class] forKey:@"userId"];
+
+    // Backward compatibility with ADAL.
+    if (!_service)
+    {
+        NSString *authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+        self.authority = [NSURL URLWithString:authority];
+
+        NSString *resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
+        self.resource = resource;
+
+        NSString *clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+        self.clientId = clientId;
+
+        _service = self.service;
+    }
     
     return self;
 }
@@ -122,6 +152,11 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     [coder encodeObject:self.resource forKey:@"resource"];
     [coder encodeObject:self.clientId forKey:@"clientId"];
     [coder encodeObject:self.legacyUserId forKey:@"userId"];
+    [coder encodeObject:self.service forKey:@"service"];
+    [coder encodeObject:self.account forKey:@"account"];
+    [coder encodeObject:self.type forKey:@"type"];
+
+    [self setServiceKeyComponents];
 }
 
 #pragma mark - NSObject
@@ -171,10 +206,14 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey allocWithZone:zone] init];
-    key.authority = [self.authority copyWithZone:zone];
-    key.legacyUserId = [self.legacyUserId copyWithZone:zone];
-    key.resource = [self.resource copyWithZone:zone];
-    key.clientId = [self.clientId copyWithZone:zone];
+    key->_account = [self.account copyWithZone:zone];
+    key->_service = [self.service copyWithZone:zone];
+    key->_generic = [self.generic copyWithZone:zone];
+    key->_type = [self.type copyWithZone:zone];
+    key->_authority = [self.authority copyWithZone:zone];
+    key->_legacyUserId = [self.legacyUserId copyWithZone:zone];
+    key->_resource = [self.resource copyWithZone:zone];
+    key->_clientId = [self.clientId copyWithZone:zone];
     return key;
 }
 
@@ -196,6 +235,26 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 #endif
     
     return userId;
+}
+
+- (void)setServiceKeyComponents
+{
+    // Backward compatibility with ADAL.
+    if (_service)
+    {
+        NSArray<NSString *> * items = [_service componentsSeparatedByString:@"|"];
+        if (items.count == 4) // See s_adalServiceFormat.
+        {
+            NSString *authority = [items[1] msidBase64UrlDecode];
+            self.authority = [NSURL URLWithString:authority];
+
+            NSString *resource = [items[2] isEqualToString:s_nilKey] ? nil : [items[2] msidBase64UrlDecode];
+            self.resource = resource;
+
+            NSString *clientId = [items[3] msidBase64UrlDecode];
+            self.clientId = clientId;
+        }
+    }
 }
 
 @end

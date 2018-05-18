@@ -555,11 +555,6 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
     [query setObject:key.service forKey:(id)kSecAttrService];
     [query setObject:(key.account ? key.account : @"") forKey:(id)kSecAttrAccount];
-
-    if (key.generic)
-    {
-        [query setObject:key.generic forKey:(id)kSecAttrGeneric];
-    }
     
     if (key.type)
     {
@@ -567,11 +562,25 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     }
     
     MSID_LOG_INFO(context, @"Trying to update keychain item...");
-    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)@{(id)kSecValueData : itemData});
+
+    NSMutableDictionary *updateDictionary = [@{(id)kSecValueData : itemData} mutableCopy];
+
+    if (key.generic)
+    {
+        updateDictionary[(id)kSecAttrGeneric] = key.generic;
+    }
+
+    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)updateDictionary);
     MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
     if (status == errSecItemNotFound)
     {
         [query setObject:itemData forKey:(id)kSecValueData];
+
+        if (key.generic)
+        {
+            [query setObject:key.generic forKey:(id)kSecAttrGeneric];
+        }
+
         [query setObject:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(id)kSecAttrAccessible];
         
         MSID_LOG_INFO(context, @"Trying to add keychain item...");

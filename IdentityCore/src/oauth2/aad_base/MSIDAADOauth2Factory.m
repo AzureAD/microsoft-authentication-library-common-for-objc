@@ -131,13 +131,13 @@
         return NO;
     }
 
-    if (!response.extendedExpiresOnDate) return accessToken;
+    if (!response.extendedExpiresOnDate) return YES;
 
     NSMutableDictionary *additionalServerInfo = [accessToken.additionalServerInfo mutableCopy];
     additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY] = response.extendedExpiresOnDate;
     accessToken.additionalServerInfo = additionalServerInfo;
 
-    return accessToken;
+    return YES;
 }
 
 - (BOOL)fillLegacyToken:(MSIDLegacySingleResourceToken *)token
@@ -152,7 +152,7 @@
     }
 
     token.familyId = response.familyId;
-    return token;
+    return YES;
 }
 
 - (BOOL)fillRefreshToken:(MSIDRefreshToken *)token
@@ -167,7 +167,7 @@
     }
 
     token.familyId = response.familyId;
-    return token;
+    return YES;
 }
 
 - (BOOL)fillAccount:(MSIDAccount *)account
@@ -195,7 +195,7 @@
         account.uniqueUserId = response.clientInfo.userIdentifier;
     }
 
-    return account;
+    return YES;
 }
 
 #pragma mark - Fill token

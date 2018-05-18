@@ -26,6 +26,7 @@
 #import "MSIDClientInfo.h"
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 
 @implementation MSIDLegacyTokenCacheItem
 
@@ -124,7 +125,17 @@
 
     NSString *rawClientInfo = [coder decodeObjectOfClass:[NSString class] forKey:@"clientInfo"];
     self.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
-    self.uniqueUserId = self.clientInfo.userIdentifier ? self.clientInfo.userIdentifier : userInfo.userId;
+
+    NSString *uniqueUserId = [coder decodeObjectOfClass:[NSString class] forKey:@"uniqueUserId"];
+
+    if (uniqueUserId)
+    {
+        self.uniqueUserId = uniqueUserId;
+    }
+    else
+    {
+        self.uniqueUserId = self.clientInfo.userIdentifier ? self.clientInfo.userIdentifier : userInfo.userId;
+    }
 
     return self;
 }
@@ -151,6 +162,7 @@
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
     [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
     [coder encodeObject:self.clientInfo.rawClientInfo forKey:@"clientInfo"];
+    [coder encodeObject:self.uniqueUserId forKey:@"uniqueUserId"];
 }
 
 - (MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType
@@ -162,6 +174,9 @@
 
         case MSIDCredentialTypeRefreshToken:
             return [[MSIDLegacyRefreshToken alloc] initWithLegacyTokenCacheItem:self];
+
+        case MSIDCredentialTypeLegacySingleResourceToken:
+            return [[MSIDLegacySingleResourceToken alloc] initWithLegacyTokenCacheItem:self];
 
         default:
             return [super tokenWithType:credentialType];

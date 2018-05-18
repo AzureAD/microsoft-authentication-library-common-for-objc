@@ -94,9 +94,9 @@
     MSIDBaseToken *baseToken = [[MSIDBaseToken alloc] init];
     BOOL result = [self fillBaseToken:baseToken fromResponse:response request:requestParams];
 
-    if (result) { return baseToken; }
+    if (!result) return nil;
 
-    return nil;
+    return baseToken;
 }
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response

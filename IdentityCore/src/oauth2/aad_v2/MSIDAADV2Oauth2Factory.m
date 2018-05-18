@@ -136,7 +136,7 @@
 
     accessToken.scopes = responseScopes;
 
-    return accessToken;
+    return YES;
 }
 
 - (BOOL)fillAccount:(MSIDAccount *)account
@@ -157,7 +157,7 @@
 
     MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
     account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
-    return account;
+    return YES;
 }
 
 #pragma mark - Fill token
@@ -179,7 +179,7 @@
     MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
     baseToken.authority = [MSIDAuthority cacheUrlForAuthority:baseToken.authority tenantId:idToken.tenantId];
 
-    return baseToken;
+    return YES;
 }
 
 #pragma mark - Webview controllers

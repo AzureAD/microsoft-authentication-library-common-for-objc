@@ -135,7 +135,7 @@
     }
 
     accessToken.resource = response.target ? response.target : requestParams.target;
-    return accessToken;
+    return YES;
 }
 
 - (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken

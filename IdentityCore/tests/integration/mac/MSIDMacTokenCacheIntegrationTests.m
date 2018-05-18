@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDMacTokenCache.h"
 #import "MSIDCacheKey.h"
-#import "MSIDCredentialCacheItem.h"
+#import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDKeyedArchiverSerializer.h"
 
 @interface MSIDMacTokenCacheIntegrationTests : XCTestCase
@@ -48,7 +48,7 @@
 {
     MSIDMacTokenCache *macTokenCache = [MSIDMacTokenCache new];
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
-    MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
+    MSIDLegacyTokenCacheItem *token = [MSIDLegacyTokenCacheItem new];
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:nil service:@"test_service" generic:nil type:nil];
     NSError *error;
     
@@ -81,23 +81,19 @@
 {
     MSIDMacTokenCache *cache1 = [MSIDMacTokenCache new];
     // Item 1.
-    MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
-    token1.oauthTokenType = @"access token type";
+    MSIDLegacyTokenCacheItem *token1 = [MSIDLegacyTokenCacheItem new];
     MSIDCacheKey *key1 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     [cache1 saveToken:token1 key:key1 serializer:nil context:nil error:nil];
     // Item 2.
-    MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
-    token2.oauthTokenType = @"access token type";
+    MSIDLegacyTokenCacheItem *token2 = [MSIDLegacyTokenCacheItem new];
     MSIDCacheKey *key2 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:nil type:nil];
     [cache1 saveToken:token2 key:key2 serializer:nil context:nil error:nil];
     // Item 3.
-    MSIDCredentialCacheItem *token3 = [MSIDCredentialCacheItem new];
-    token3.oauthTokenType = @"access token type";
+    MSIDLegacyTokenCacheItem *token3 = [MSIDLegacyTokenCacheItem new];
     MSIDCacheKey *key3 = [[MSIDCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" generic:nil type:nil];
     [cache1 saveToken:token3 key:key3 serializer:nil context:nil error:nil];
     // Item 4.
-    MSIDCredentialCacheItem *token4 = [MSIDCredentialCacheItem new];
-    token4.oauthTokenType = @"access token type";
+    MSIDLegacyTokenCacheItem *token4 = [MSIDLegacyTokenCacheItem new];
     MSIDCacheKey *key4 = [[MSIDCacheKey alloc] initWithAccount:@"test_account2" service:@"item4" generic:nil type:nil];
     [cache1 saveToken:token4 key:key4 serializer:nil context:nil error:nil];
     NSError *error = nil;
@@ -117,19 +113,19 @@
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
     // Item 1.
-    MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
+    MSIDLegacyTokenCacheItem *token1 = [MSIDLegacyTokenCacheItem new];
     MSIDCacheKey *key1 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
     [cache saveToken:token1 key:key1 serializer:nil context:nil error:nil];
     // Item 2.
-    MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
+    MSIDLegacyTokenCacheItem *token2 = [MSIDLegacyTokenCacheItem new];
     MSIDCacheKey *key2 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:nil type:nil];
     [cache saveToken:token2 key:key2 serializer:nil context:nil error:nil];
     // Item 3.
-    MSIDCredentialCacheItem *token3 = [MSIDCredentialCacheItem new];
+    MSIDLegacyTokenCacheItem *token3 = [MSIDLegacyTokenCacheItem new];
     MSIDCacheKey *key3 = [[MSIDCacheKey alloc] initWithAccount:@"test_account2" service:@"item3" generic:nil type:nil];
     [cache saveToken:token3 key:key3 serializer:nil context:nil error:nil];
     // Item 4.
-    MSIDCredentialCacheItem *token4 = [MSIDCredentialCacheItem new];
+    MSIDLegacyTokenCacheItem *token4 = [MSIDLegacyTokenCacheItem new];
     MSIDCacheKey *key4 = [[MSIDCacheKey alloc] initWithAccount:@"test_account2" service:@"item4" generic:nil type:nil];
     [cache saveToken:token4 key:key4 serializer:nil context:nil error:nil];
 
