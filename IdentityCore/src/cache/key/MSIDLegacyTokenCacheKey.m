@@ -38,9 +38,9 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 #pragma mark - Helpers
 
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
-- (NSString *)getAttributeName:(NSString *)original
+- (NSString *)getAttributeName:(NSString *)attribute
 {
-    return ([NSString msidIsStringNilOrBlank:original]) ? s_nilKey : [original msidBase64UrlEncode];
+    return ([NSString msidIsStringNilOrBlank:attribute]) ? s_nilKey : [attribute msidBase64UrlEncode];
 }
 
 - (NSString *)serviceWithAuthority:(NSURL *)authority
