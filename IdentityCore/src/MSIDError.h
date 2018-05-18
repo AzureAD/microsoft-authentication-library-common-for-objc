@@ -69,8 +69,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorInvalidClient = -51015,
     MSIDErrorInvalidGrant = -51016,
     MSIDErrorInvalidParameter = -51017,
+    MSIDErrorUnsupportedFunctionality = -51018,
     MSIDErrorCodeFirst = MSIDErrorInternal,
-    MSIDErrorCodeLast = MSIDErrorInvalidParameter
+    MSIDErrorCodeLast = MSIDErrorUnsupportedFunctionality
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

@@ -82,7 +82,7 @@
     {
         BOOL result = [self saveAccessTokenWithFactory:factory requestParams:requestParams response:response context:context error:error];
 
-        if (!result) { return result; }
+        if (!result) return NO;
 
         return [self saveSSOStateWithFactory:factory requestParams:requestParams response:response context:context error:error];
     }
@@ -144,8 +144,8 @@
                                        context:context
                                          error:error])
         {
-            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", accessor);
-            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor, *error);
+            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", accessor.class);
+            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor.class, *error);
         }
     }
 
@@ -193,11 +193,11 @@
     return [_dataSource removeItemsWithKey:query context:nil error:error];
 }
 
-- (NSArray<MSIDAccount *> *)allFilteredAccountsForEnvironment:(NSString *)environment
-                                                     clientId:(NSString *)clientId
-                                                     familyId:(NSString *)familyId
-                                                      context:(id<MSIDRequestContext>)context
-                                                        error:(NSError **)error
+- (NSArray<MSIDAccount *> *)allAccountsForEnvironment:(NSString *)environment
+                                             clientId:(NSString *)clientId
+                                             familyId:(NSString *)familyId
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
     MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
@@ -212,8 +212,12 @@
             return NO;
         }
 
-        if (![tokenCacheItem.clientId isEqualToString:clientId]
-            && ![tokenCacheItem.familyId isEqualToString:familyId])
+        if (clientId && ![tokenCacheItem.clientId isEqualToString:clientId])
+        {
+            return NO;
+        }
+
+        if (familyId && ![tokenCacheItem.familyId isEqualToString:familyId])
         {
             return NO;
         }

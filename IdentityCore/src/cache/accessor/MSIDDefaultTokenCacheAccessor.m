@@ -85,6 +85,11 @@
                         error:(NSError **)error
 {
     // MSAL currently doesn't yet support broker
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"MSAL currently doesn't yet support broker", nil, nil, nil, nil, nil);
+    }
+
     return NO;
 }
 
@@ -111,8 +116,8 @@
                                        context:context
                                          error:error])
         {
-            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", accessor);
-            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor, *error);
+            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", accessor.class);
+            MSID_LOG_WARN_PII(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor.class, *error);
         }
     }
 
@@ -171,7 +176,7 @@
     MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     NSArray<MSIDCredentialCacheItem *> *cacheItems = [_accountCredentialCache getAllItemsWithContext:context error:error];
-    NSArray<MSIDBaseToken *> *tokens = [self tokensFromCacheItems:cacheItems];
+    NSArray<MSIDBaseToken *> *tokens = [self validTokensFromCacheItems:cacheItems];
 
     [self stopCacheEvent:event withItem:nil success:[cacheItems count] > 0 context:context];
 
@@ -220,16 +225,16 @@
                                      outAuthority:nil];
 }
 
-- (NSArray<MSIDAccount *> *)allFilteredAccountsForEnvironment:(NSString *)environment
-                                                     clientId:(NSString *)clientId
-                                                     familyId:(NSString *)familyId
-                                                      context:(id<MSIDRequestContext>)context
-                                                        error:(NSError **)error
+- (NSArray<MSIDAccount *> *)allAccountsForEnvironment:(NSString *)environment
+                                             clientId:(NSString *)clientId
+                                             familyId:(NSString *)familyId
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
     MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     NSArray<NSString *> *environmentAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:environment];
-    __auto_type accountsPerUserId = [self getAccountsPerUserId:environmentAliases context:context error:error];
+    __auto_type accountsPerUserId = [self getAccountsPerUserIdForAliases:environmentAliases context:context error:error];
 
     if (![accountsPerUserId count])
     {
@@ -270,11 +275,11 @@
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        [filteredAccounts addObjectsFromArray:[accessor allFilteredAccountsForEnvironment:environment
-                                                                                 clientId:clientId
-                                                                                 familyId:familyId
-                                                                                  context:context
-                                                                                    error:error]];
+        [filteredAccounts addObjectsFromArray:[accessor allAccountsForEnvironment:environment
+                                                                         clientId:clientId
+                                                                         familyId:familyId
+                                                                          context:context
+                                                                            error:error]];
     }
 
     return filteredAccounts;
@@ -402,7 +407,7 @@
 
     if (!accessToken)
     {
-        [self fillInternalErrorWithMessage:@"Tried to save access token, but no access token returned" context:context error:error];
+        [self fillInternalErrorWithMessage:@"Response does not contain an access token" context:context error:error];
         return NO;
     }
 
@@ -533,15 +538,10 @@
                                            outAuthority:outAuthority];
     }
 
-    if (tokenType != MSIDCredentialTypeRefreshToken)
+    // If a refresh token wasn't found and legacy user ID is available, try to look by legacy user id
+    if (!token && tokenType == MSIDCredentialTypeRefreshToken && ![NSString msidIsStringNilOrBlank:account.legacyUserId])
     {
         // Unless it's a refresh token, return whatever we already found
-        return token;
-    }
-
-    // If a refresh token wasn't found and legacy user ID is available, try to look by legacy user id
-    if (!token && ![NSString msidIsStringNilOrBlank:account.legacyUserId])
-    {
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", clientId, authority);
         MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyUserId, clientId, authority);
 
@@ -562,7 +562,7 @@
 {
     if (!token)
     {
-        [self fillInternalErrorWithMessage:@"Token not provided, cannot remove" context:context error:error];
+        [self fillInternalErrorWithMessage:@"Cannot remove token" context:context error:error];
         return NO;
     }
 
@@ -578,9 +578,9 @@
     return result;
 }
 
-- (NSMutableDictionary<NSString *, MSIDAccountCacheItem *> *)getAccountsPerUserId:(NSArray<NSString *> *)environmentAliases
-                                                                          context:(id<MSIDRequestContext>)context
-                                                                            error:(NSError **)error
+- (NSMutableDictionary<NSString *, MSIDAccountCacheItem *> *)getAccountsPerUserIdForAliases:(NSArray<NSString *> *)environmentAliases
+                                                                                    context:(id<MSIDRequestContext>)context
+                                                                                      error:(NSError **)error
 {
     MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
     accountsQuery.accountType = MSIDAccountTypeAADV2;
@@ -698,55 +698,53 @@
         return nil;
     }
 
-    if ([cacheItems count])
+    if (![cacheItems count])
     {
-        NSURL *authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
+        [self stopTelemetryLookupEvent:event tokenType:tokenType withToken:nil success:NO context:context];
+        return nil;
+    }
 
-        // TODO: This code should never be hit, because we now never have a case without authority
-        // Check and remove
-        if (!environment || !tenant)
+    NSURL *authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
+
+    // TODO: This code should never be hit, because we now never have a case without authority
+    // Check and remove
+    if (!environment || !tenant)
+    {
+        environment = cacheItems[0].environment;
+        tenant = cacheItems[0].realm;
+
+        authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
+
+        NSArray<NSString *> *environmentAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:environment];
+
+        for (MSIDCredentialCacheItem *cacheItem in cacheItems)
         {
-            environment = cacheItems[0].environment;
-            tenant = cacheItems[0].realm;
-
-            authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
-
-            NSArray<NSString *> *environmentAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:environment];
-
-            for (MSIDCredentialCacheItem *cacheItem in cacheItems)
+            if (![cacheItem.realm isEqualToString:tenant]
+                || ![cacheItem.environment msidIsEquivalentWithAnyAlias:environmentAliases])
             {
-                if (![cacheItem.realm isEqualToString:tenant]
-                    || ![cacheItem.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+                if (error)
                 {
-                    if (error)
-                    {
-                        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAmbiguousAuthority, @"Found multiple access tokens, which token to return is ambiguous! Please pass in authority if not provided.", nil, nil, nil, context.correlationId, nil);
-                    }
-
-                    [self stopTelemetryLookupEvent:event tokenType:tokenType withToken:nil success:NO context:context];
-
-                    return nil;
+                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAmbiguousAuthority, @"Found multiple access tokens, which token to return is ambiguous! Please pass in authority if not provided.", nil, nil, nil, context.correlationId, nil);
                 }
-            }
 
-            if (outAuthority)
-            {
-                *outAuthority = authority;
+                [self stopTelemetryLookupEvent:event tokenType:tokenType withToken:nil success:NO context:context];
+
+                return nil;
             }
         }
 
-        MSIDBaseToken *resultToken = [cacheItems[0] tokenWithType:tokenType];
-        resultToken.storageAuthority = resultToken.authority;
-        resultToken.authority = authority;
-
-        [self stopTelemetryLookupEvent:event tokenType:tokenType withToken:resultToken success:YES context:context];
-
-        return resultToken;
+        if (outAuthority)
+        {
+            *outAuthority = authority;
+        }
     }
 
-    [self stopTelemetryLookupEvent:event tokenType:tokenType withToken:nil success:NO context:context];
+    MSIDBaseToken *resultToken = [cacheItems[0] tokenWithType:tokenType];
+    resultToken.storageAuthority = resultToken.authority;
+    resultToken.authority = authority;
 
-    return nil;
+    [self stopTelemetryLookupEvent:event tokenType:tokenType withToken:resultToken success:YES context:context];
+    return resultToken;
 }
 
 - (MSIDBaseToken *)getRefreshTokenByLegacyUserId:(NSString *)legacyUserId
@@ -850,7 +848,7 @@
     return result;
 }
 
-- (NSArray<MSIDBaseToken *> *)tokensFromCacheItems:(NSArray<MSIDCredentialCacheItem *> *)cacheItems
+- (NSArray<MSIDBaseToken *> *)validTokensFromCacheItems:(NSArray<MSIDCredentialCacheItem *> *)cacheItems
 {
     NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];
 
