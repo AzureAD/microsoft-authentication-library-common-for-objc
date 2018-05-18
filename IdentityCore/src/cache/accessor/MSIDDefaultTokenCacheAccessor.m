@@ -256,15 +256,10 @@
 
     for (MSIDCredentialCacheItem *credentialCacheItem in resultCredentials)
     {
-        MSIDAccountCacheItem *accountCacheItem = accountsPerUserId[credentialCacheItem.uniqueUserId];
+        NSArray *accounts = accountsPerUserId[credentialCacheItem.uniqueUserId];
+        if (!accounts) continue;
 
-        if (!accountCacheItem) { continue; }
-
-        MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
-
-        if (!account) { continue; }
-
-        [filteredAccounts addObject:account];
+        [filteredAccounts addObjectsFromArray:accounts];
     }
 
     [self stopTelemetryLookupEvent:event
@@ -577,9 +572,9 @@
     return result;
 }
 
-- (NSMutableDictionary<NSString *, MSIDAccountCacheItem *> *)getAccountsPerUserIdForAliases:(NSArray<NSString *> *)environmentAliases
-                                                                                    context:(id<MSIDRequestContext>)context
-                                                                                      error:(NSError **)error
+- (NSMutableDictionary<NSString *, NSMutableArray *> *)getAccountsPerUserIdForAliases:(NSArray<NSString *> *)environmentAliases
+                                                                              context:(id<MSIDRequestContext>)context
+                                                                                error:(NSError **)error
 {
     MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
     accountsQuery.accountType = MSIDAccountTypeAADV2;
@@ -587,13 +582,23 @@
 
     NSArray<MSIDAccountCacheItem *> *resultAccounts = [_accountCredentialCache getAccountsWithQuery:accountsQuery context:context error:error];
 
-    NSMutableDictionary<NSString *, MSIDAccountCacheItem *> *accountsPerUserId = [NSMutableDictionary dictionary];
+    NSMutableDictionary<NSString *, NSMutableArray *> *accountsPerUserId = [NSMutableDictionary dictionary];
 
     for (MSIDAccountCacheItem *accountCacheItem in resultAccounts)
     {
-        if (accountCacheItem.uniqueUserId)
+        MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
+
+        if (account.uniqueUserId)
         {
-            accountsPerUserId[accountCacheItem.uniqueUserId] = accountCacheItem;
+            NSMutableArray *accounts = accountsPerUserId[account.uniqueUserId];
+
+            if (!accounts)
+            {
+                accounts = [NSMutableArray array];
+                accountsPerUserId[account.uniqueUserId] = accounts;
+            }
+
+            [accounts addObject:account];
         }
     }
 
