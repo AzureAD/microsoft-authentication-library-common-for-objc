@@ -808,8 +808,6 @@
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
-    query.target = @"user.sing";
-    query.targetMatchingOptions = Any;
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;

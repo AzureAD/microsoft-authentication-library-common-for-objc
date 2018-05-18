@@ -276,8 +276,6 @@
     query.credentialType = MSIDAccessTokenType;
     query.clientId = @"client";
     query.realm = @"contoso.com";
-    query.target = @"user.read user.write";
-    query.targetMatchingOptions = Any;
 
     XCTAssertFalse(query.exactMatch);
     XCTAssertEqualObjects(query.account, @"uid.utid-login.microsoftonline.com");

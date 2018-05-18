@@ -247,7 +247,7 @@
     credentialsQuery.credentialType = MSIDRefreshTokenType;
     credentialsQuery.clientId = clientId;
     credentialsQuery.familyId = familyId;
-    credentialsQuery.clientIdMatchingOptions = Any;
+    credentialsQuery.clientIdMatchingOptions = SuperSet;
     credentialsQuery.environmentAliases = environmentAliases;
 
     NSArray<MSIDCredentialCacheItem *> *resultCredentials = [_accountCredentialCache getCredentialsWithQuery:credentialsQuery legacyUserId:nil context:context error:error];
@@ -313,7 +313,6 @@
     query.clientId = clientId;
     query.uniqueUserId = account.uniqueUserId;
     query.environment = environment;
-    query.targetMatchingOptions = Any;
     query.matchAnyCredentialType = YES;
 
     BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];

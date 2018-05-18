@@ -228,14 +228,14 @@
     }
 
     switch (comparisonOptions) {
-        case Any:
-            return YES;
         case ExactStringMatch:
             return [self.target isEqualToString:target];
         case SubSet:
             return [[target scopeSet] isSubsetOfOrderedSet:[self.target scopeSet]];
         case Intersect:
             return [[target scopeSet] intersectsOrderedSet:[self.target scopeSet]];
+        default:
+            return NO;
     }
 
     return NO;
