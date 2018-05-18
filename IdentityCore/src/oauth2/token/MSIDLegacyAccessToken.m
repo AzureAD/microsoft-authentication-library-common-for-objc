@@ -84,7 +84,7 @@
 - (MSIDCredentialCacheItem *)tokenCacheItem
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
-    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.credentialType = MSIDAccessTokenType;
     return cacheItem;
 }
 
@@ -113,7 +113,7 @@
     cacheItem.cachedAt = self.cachedAt;
     cacheItem.secret = self.accessToken;
     cacheItem.target = self.resource;
-    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.accessToken = self.accessToken;
     cacheItem.idToken = self.idToken;
     cacheItem.oauthTokenType = self.accessTokenType;
@@ -131,7 +131,7 @@
 
 - (MSIDCredentialType)credentialType
 {
-    return MSIDCredentialTypeAccessToken;
+    return MSIDAccessTokenType;
 }
 
 #pragma mark - Description

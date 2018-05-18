@@ -167,7 +167,7 @@
 - (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    cacheItem.credentialType = MSIDCredentialTypeIDToken;
+    cacheItem.credentialType = MSIDIDTokenType;
     
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
@@ -176,7 +176,7 @@
 - (void)testInitWithTokenCacheItem_whenNoAccessToken_shouldReturnNil
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
@@ -192,7 +192,7 @@
 - (void)testInitWithTokenCacheItem_whenNoTarget_shouldReturnNil
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
@@ -208,7 +208,7 @@
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
@@ -241,7 +241,7 @@
     XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertEqualObjects(token.accessToken, @"token");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
-    XCTAssertEqual(token.credentialType, MSIDCredentialTypeAccessToken);
+    XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
 
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);

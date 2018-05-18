@@ -39,7 +39,7 @@
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.environment = @"login.microsoftonline.com";
-    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.realm = @"contoso.com";
     cacheItem.secret = DEFAULT_TEST_ACCESS_TOKEN;
@@ -83,7 +83,7 @@
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.environment = @"login.microsoftonline.com";
-    cacheItem.credentialType = MSIDCredentialTypeRefreshToken;
+    cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.secret = DEFAULT_TEST_REFRESH_TOKEN;
     cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
@@ -108,7 +108,7 @@
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.credentialType = MSIDCredentialTypeIDToken;
+    cacheItem.credentialType = MSIDIDTokenType;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.secret = DEFAULT_TEST_ID_TOKEN;
     cacheItem.uniqueUserId = @"uid.utid";
@@ -160,7 +160,7 @@
     
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
-    XCTAssertEqual(cacheItem.credentialType, MSIDCredentialTypeAccessToken);
+    XCTAssertEqual(cacheItem.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.target, DEFAULT_TEST_RESOURCE);
     XCTAssertEqualObjects(cacheItem.expiresOn, expiresOn);
@@ -194,7 +194,7 @@
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertNil(cacheItem.realm);
-    XCTAssertEqual(cacheItem.credentialType, MSIDCredentialTypeRefreshToken);
+    XCTAssertEqual(cacheItem.credentialType, MSIDRefreshTokenType);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(cacheItem.familyId, DEFAULT_TEST_FAMILY_ID);
@@ -222,7 +222,7 @@
     
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
-    XCTAssertEqual(cacheItem.credentialType, MSIDCredentialTypeIDToken);
+    XCTAssertEqual(cacheItem.credentialType, MSIDIDTokenType);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ID_TOKEN);
     XCTAssertEqualObjects(cacheItem.uniqueUserId, @"uid.utid");

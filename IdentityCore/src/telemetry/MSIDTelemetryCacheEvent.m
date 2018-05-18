@@ -50,15 +50,15 @@
 {
     switch (tokenType)
     {
-        case MSIDCredentialTypeAccessToken:
+        case MSIDAccessTokenType:
             [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_ACCESS_TOKEN];
             break;
             
-        case MSIDCredentialTypeRefreshToken:
+        case MSIDRefreshTokenType:
             [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_REFRESH_TOKEN];
             break;
             
-        case MSIDCredentialTypeLegacySingleResourceToken:
+        case MSIDLegacySingleResourceTokenType:
             [self setProperty:MSID_TELEMETRY_KEY_TOKEN_TYPE value:MSID_TELEMETRY_VALUE_ADFS_TOKEN];
             break;
             
@@ -117,13 +117,13 @@
     [self setTokenType:token.credentialType];
     [self setSpeInfo:token.additionalServerInfo[MSID_TELEMETRY_KEY_SPE_INFO]];
     
-    if (token.credentialType == MSIDCredentialTypeLegacySingleResourceToken)
+    if (token.credentialType == MSIDLegacySingleResourceTokenType)
     {
         [self setIsRT:MSID_TELEMETRY_VALUE_YES];
         [self setRTStatus:MSID_TELEMETRY_VALUE_TRIED];
     }
     
-    if (token.credentialType == MSIDCredentialTypeRefreshToken)
+    if (token.credentialType == MSIDRefreshTokenType)
     {
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *)token;
         

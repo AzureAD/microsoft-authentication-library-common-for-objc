@@ -51,12 +51,12 @@
     testItem.realm = @"contoso.com";
     testItem.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem.secret = @"id";
-    testItem.credentialType = MSIDCredentialTypeIDToken;
+    testItem.credentialType = MSIDIDTokenType;
     
     NSArray *input = @[testItem, testItem];
     
     NSArray *result = [MSIDTokenFilteringHelper filterTokenCacheItems:input
-                                                            tokenType:MSIDCredentialTypeIDToken
+                                                            tokenType:MSIDIDTokenType
                                                           returnFirst:YES
                                                              filterBy:^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
                                                                  return YES;
@@ -79,12 +79,12 @@
     testItem.realm = @"contoso.com";
     testItem.clientId = DEFAULT_TEST_CLIENT_ID;
     testItem.secret = @"id";
-    testItem.credentialType = MSIDCredentialTypeIDToken;
+    testItem.credentialType = MSIDIDTokenType;
     
     NSArray *input = @[testItem, testItem];
     
     NSArray *result = [MSIDTokenFilteringHelper filterTokenCacheItems:input
-                                                            tokenType:MSIDCredentialTypeIDToken
+                                                            tokenType:MSIDIDTokenType
                                                           returnFirst:NO
                                                              filterBy:^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
                                                                  return YES;

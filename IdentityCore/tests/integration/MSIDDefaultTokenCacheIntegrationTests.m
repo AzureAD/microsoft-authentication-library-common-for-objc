@@ -800,17 +800,17 @@
 
 - (NSArray *)getAllAccessTokens
 {
-    return [self getAllTokensWithType:MSIDCredentialTypeAccessToken];
+    return [self getAllTokensWithType:MSIDAccessTokenType];
 }
 
 - (NSArray *)getAllRefreshTokens
 {
-    return [self getAllTokensWithType:MSIDCredentialTypeRefreshToken];
+    return [self getAllTokensWithType:MSIDRefreshTokenType];
 }
 
 - (NSArray *)getAllIDTokens
 {
-    return [self getAllTokensWithType:MSIDCredentialTypeIDToken];
+    return [self getAllTokensWithType:MSIDIDTokenType];
 }
 
 - (NSArray *)getAllTokensWithType:(MSIDCredentialType)type

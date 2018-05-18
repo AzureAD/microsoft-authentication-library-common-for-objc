@@ -493,37 +493,37 @@
 
 - (NSArray *)allLegacySingleResourceTokens
 {
-    return [self allTokensWithType:MSIDCredentialTypeLegacySingleResourceToken
+    return [self allTokensWithType:MSIDLegacySingleResourceTokenType
                         serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allLegacyAccessTokens
 {
-    return [self allTokensWithType:MSIDCredentialTypeAccessToken
+    return [self allTokensWithType:MSIDAccessTokenType
                         serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allLegacyRefreshTokens
 {
-    return [self allTokensWithType:MSIDCredentialTypeRefreshToken
+    return [self allTokensWithType:MSIDRefreshTokenType
                         serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultAccessTokens
 {
-    return [self allTokensWithType:MSIDCredentialTypeAccessToken
+    return [self allTokensWithType:MSIDAccessTokenType
                         serializer:[[MSIDJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultRefreshTokens
 {
-    return [self allTokensWithType:MSIDCredentialTypeRefreshToken
+    return [self allTokensWithType:MSIDRefreshTokenType
                         serializer:[[MSIDJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultIDTokens
 {
-    return [self allTokensWithType:MSIDCredentialTypeIDToken
+    return [self allTokensWithType:MSIDIDTokenType
                         serializer:[[MSIDJsonSerializer alloc] init]];
 }
 

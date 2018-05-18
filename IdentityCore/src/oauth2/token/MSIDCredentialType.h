@@ -26,10 +26,10 @@
 typedef NS_ENUM(NSInteger, MSIDCredentialType)
 {
     MSIDCredentialTypeOther = 0,
-    MSIDCredentialTypeAccessToken = 1,
-    MSIDCredentialTypeRefreshToken = 2,
-    MSIDCredentialTypeIDToken = 3,
-    MSIDCredentialTypeLegacySingleResourceToken = 4
+    MSIDAccessTokenType = 1,
+    MSIDRefreshTokenType = 2,
+    MSIDIDTokenType = 3,
+    MSIDLegacySingleResourceTokenType = 4
 };
 
 @interface MSIDCredentialTypeHelpers : NSObject

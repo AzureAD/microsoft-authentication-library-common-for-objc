@@ -58,15 +58,15 @@
 
     switch (self.credentialType)
     {
-        case MSIDCredentialTypeAccessToken:
+        case MSIDAccessTokenType:
         {
             return [self serviceForAccessToken];
         }
-        case MSIDCredentialTypeRefreshToken:
+        case MSIDRefreshTokenType:
         {
             return [self serviceForRefreshToken];
         }
-        case MSIDCredentialTypeIDToken:
+        case MSIDIDTokenType:
         {
             return [self serviceForIDToken];
         }
@@ -104,7 +104,7 @@
 {
     if (self.clientId && self.realm)
     {
-        return [self serviceWithType:MSIDCredentialTypeIDToken clientID:self.clientId realm:self.realm target:nil];
+        return [self serviceWithType:MSIDIDTokenType clientID:self.clientId realm:self.realm target:nil];
     }
     return nil;
 }
@@ -125,7 +125,7 @@
 
     NSString *genericString = nil;
 
-    if (self.credentialType == MSIDCredentialTypeRefreshToken)
+    if (self.credentialType == MSIDRefreshTokenType)
     {
         genericString = [self credentialIdWithType:self.credentialType clientId:clientId realm:nil];
     }

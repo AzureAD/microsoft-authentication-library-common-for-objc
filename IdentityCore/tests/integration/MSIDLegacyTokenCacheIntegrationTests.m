@@ -163,7 +163,7 @@
     XCTAssertEqual([legacyTokensInCache count], 1);
     
     MSIDLegacySingleResourceToken *legacyToken = legacyTokensInCache[0];
-    XCTAssertEqual(legacyToken.credentialType, MSIDCredentialTypeLegacySingleResourceToken);
+    XCTAssertEqual(legacyToken.credentialType, MSIDLegacySingleResourceTokenType);
     XCTAssertEqualObjects(legacyToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(legacyToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
@@ -325,7 +325,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    XCTAssertEqual(token.credentialType, MSIDCredentialTypeAccessToken);
+    XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
 }
 
@@ -352,7 +352,7 @@
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     
-    XCTAssertEqual(token.credentialType, MSIDCredentialTypeAccessToken);
+    XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
 }
 
@@ -571,7 +571,7 @@
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     
-    XCTAssertEqual(token.credentialType, MSIDCredentialTypeLegacySingleResourceToken);
+    XCTAssertEqual(token.credentialType, MSIDLegacySingleResourceTokenType);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
@@ -931,17 +931,17 @@
 
 - (NSArray *)getAllLegacyAccessTokens
 {
-    return [self getAllTokensWithType:MSIDCredentialTypeAccessToken class:MSIDLegacyAccessToken.class];
+    return [self getAllTokensWithType:MSIDAccessTokenType class:MSIDLegacyAccessToken.class];
 }
 
 - (NSArray *)getAllLegacyRefreshTokens
 {
-    return [self getAllTokensWithType:MSIDCredentialTypeRefreshToken class:MSIDLegacyRefreshToken.class];
+    return [self getAllTokensWithType:MSIDRefreshTokenType class:MSIDLegacyRefreshToken.class];
 }
 
 - (NSArray *)getAllLegacyTokens
 {
-    return [self getAllTokensWithType:MSIDCredentialTypeLegacySingleResourceToken class:MSIDLegacySingleResourceToken.class];
+    return [self getAllTokensWithType:MSIDLegacySingleResourceTokenType class:MSIDLegacySingleResourceToken.class];
 }
 
 - (NSArray *)getAllTokensWithType:(MSIDCredentialType)type class:(Class)typeClass

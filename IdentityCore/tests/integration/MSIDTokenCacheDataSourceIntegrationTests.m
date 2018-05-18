@@ -85,7 +85,7 @@
 {
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     token.secret = @"some token";
-    token.credentialType = MSIDCredentialTypeAccessToken;
+    token.credentialType = MSIDAccessTokenType;
     MSIDCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     
     BOOL result = [self.dataSource saveToken:token key:key serializer:self.serializer context:nil error:nil];

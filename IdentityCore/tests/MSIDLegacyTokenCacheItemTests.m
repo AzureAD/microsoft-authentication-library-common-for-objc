@@ -41,7 +41,7 @@
     cacheItem.oauthTokenType = @"token type";
     cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
     cacheItem.clientId = @"client";
-    cacheItem.credentialType = MSIDCredentialTypeLegacySingleResourceToken;
+    cacheItem.credentialType = MSIDLegacySingleResourceTokenType;
     cacheItem.secret = @"at";
     cacheItem.target = @"resource";
     cacheItem.realm = @"contoso.com";
@@ -81,7 +81,7 @@
     NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
     XCTAssertEqualObjects(newItem.authority, authorityURL);
     XCTAssertEqualObjects(newItem.clientId, @"client");
-    XCTAssertEqual(newItem.credentialType, MSIDCredentialTypeLegacySingleResourceToken);
+    XCTAssertEqual(newItem.credentialType, MSIDLegacySingleResourceTokenType);
     XCTAssertEqualObjects(newItem.secret, @"at");
     XCTAssertEqualObjects(newItem.target, @"resource");
     XCTAssertEqualObjects(newItem.realm, @"contoso.com");
@@ -102,7 +102,7 @@
     cacheItem.oauthTokenType = @"token type";
     cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
     cacheItem.clientId = @"client";
-    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.secret = @"at";
     cacheItem.target = @"resource";
     cacheItem.realm = @"contoso.com";
@@ -140,7 +140,7 @@
     NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
     XCTAssertEqualObjects(newItem.authority, authorityURL);
     XCTAssertEqualObjects(newItem.clientId, @"client");
-    XCTAssertEqual(newItem.credentialType, MSIDCredentialTypeAccessToken);
+    XCTAssertEqual(newItem.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(newItem.secret, @"at");
     XCTAssertEqualObjects(newItem.target, @"resource");
     XCTAssertEqualObjects(newItem.realm, @"contoso.com");
@@ -160,7 +160,7 @@
     cacheItem.oauthTokenType = @"token type";
     cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
     cacheItem.clientId = @"client";
-    cacheItem.credentialType = MSIDCredentialTypeRefreshToken;
+    cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.secret = @"rt";
     cacheItem.target = @"resource";
     cacheItem.realm = @"contoso.com";
@@ -199,7 +199,7 @@
     NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
     XCTAssertEqualObjects(newItem.authority, authorityURL);
     XCTAssertEqualObjects(newItem.clientId, @"client");
-    XCTAssertEqual(newItem.credentialType, MSIDCredentialTypeRefreshToken);
+    XCTAssertEqual(newItem.credentialType, MSIDRefreshTokenType);
     XCTAssertEqualObjects(newItem.secret, @"rt");
     XCTAssertEqualObjects(newItem.target, @"resource");
     XCTAssertEqualObjects(newItem.realm, @"contoso.com");

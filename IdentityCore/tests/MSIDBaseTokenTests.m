@@ -182,7 +182,7 @@
 - (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    cacheItem.credentialType = MSIDCredentialTypeIDToken;
+    cacheItem.credentialType = MSIDIDTokenType;
     
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);

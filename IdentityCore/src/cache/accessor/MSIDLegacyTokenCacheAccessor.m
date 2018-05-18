@@ -226,12 +226,12 @@
     };
 
     NSArray *refreshTokens = [MSIDTokenFilteringHelper filterTokenCacheItems:items
-                                                                   tokenType:MSIDCredentialTypeRefreshToken
+                                                                   tokenType:MSIDRefreshTokenType
                                                                  returnFirst:NO
                                                                     filterBy:filterBlock];
 
     [self stopTelemetryLookupEvent:event
-                         tokenType:MSIDCredentialTypeRefreshToken
+                         tokenType:MSIDRefreshTokenType
                          withToken:nil
                            success:[refreshTokens count] > 0
                            context:context];
@@ -259,7 +259,7 @@
                                               error:(NSError **)error
 {
     return (MSIDLegacyAccessToken *)[self getTokenByLegacyUserId:account.legacyUserId
-                                                            type:MSIDCredentialTypeAccessToken
+                                                            type:MSIDAccessTokenType
                                                        authority:parameters.authority
                                                         clientId:parameters.clientId
                                                         resource:parameters.target
@@ -273,7 +273,7 @@
                                                               error:(NSError **)error
 {
     return (MSIDLegacySingleResourceToken *)[self getTokenByLegacyUserId:account.legacyUserId
-                                                                    type:MSIDCredentialTypeLegacySingleResourceToken
+                                                                    type:MSIDLegacySingleResourceTokenType
                                                                authority:parameters.authority clientId:parameters.clientId
                                                                 resource:parameters.target
                                                                  context:context
@@ -294,7 +294,7 @@
     MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.uniqueUserId, _PII_NULLIFY(token.refreshToken));
 
     MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.legacyUserId
-                                                                                             type:MSIDCredentialTypeRefreshToken
+                                                                                             type:MSIDRefreshTokenType
                                                                                         authority:token.authority
                                                                                          clientId:token.clientId
                                                                                          resource:nil
@@ -347,7 +347,7 @@
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyUserId, clientId, authority);
 
     MSIDLegacyRefreshToken *resultToken = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:account.legacyUserId
-                                                                                            type:MSIDCredentialTypeRefreshToken
+                                                                                            type:MSIDRefreshTokenType
                                                                                        authority:authority
                                                                                         clientId:clientId
                                                                                         resource:nil
@@ -363,7 +363,7 @@
         MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.uniqueUserId, clientId, authority);
 
         resultToken = (MSIDLegacyRefreshToken *) [self getTokenByUniqueUserId:account.uniqueUserId
-                                                                    tokenType:MSIDCredentialTypeRefreshToken
+                                                                    tokenType:MSIDRefreshTokenType
                                                                     authority:authority
                                                                      clientId:clientId
                                                                      resource:nil
@@ -551,7 +551,7 @@
     
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
 
-    if (result && token.credentialType == MSIDCredentialTypeRefreshToken)
+    if (result && token.credentialType == MSIDRefreshTokenType)
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
@@ -694,7 +694,7 @@
                          success:(BOOL)success
                          context:(id<MSIDRequestContext>)context
 {
-    if (!success && tokenType == MSIDCredentialTypeRefreshToken)
+    if (!success && tokenType == MSIDRefreshTokenType)
     {
         [event setWipeData:[_dataSource wipeInfo:context error:nil]];
     }

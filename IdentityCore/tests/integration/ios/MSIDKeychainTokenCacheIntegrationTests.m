@@ -104,7 +104,7 @@
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     token.secret = @"some token";
-    token.credentialType = MSIDCredentialTypeAccessToken;
+    token.credentialType = MSIDAccessTokenType;
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
@@ -155,10 +155,10 @@
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     token.secret = @"some token";
-    token.credentialType = MSIDCredentialTypeAccessToken;
+    token.credentialType = MSIDAccessTokenType;
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
     token2.secret = @"some token";
-    token2.credentialType = MSIDCredentialTypeAccessToken;
+    token2.credentialType = MSIDAccessTokenType;
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
@@ -321,7 +321,7 @@
     // Item 1.
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.secret = @"<tombstone>";
-    token1.credentialType = MSIDCredentialTypeRefreshToken;
+    token1.credentialType = MSIDRefreshTokenType;
     MSIDCacheKey *key1 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token1 key:key1 serializer:serializer context:nil error:nil];
     // Item 2.
@@ -348,7 +348,7 @@
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.secret = @"<tombstone>";
-    token1.credentialType = MSIDCredentialTypeRefreshToken;
+    token1.credentialType = MSIDRefreshTokenType;
     MSIDCacheKey *key1 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:self.generic type:nil];
     [keychainTokenCache saveToken:token1 key:key1 serializer:serializer context:nil error:nil];
     
@@ -374,7 +374,7 @@
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
-    token1.credentialType = MSIDCredentialTypeAccessToken;
+    token1.credentialType = MSIDAccessTokenType;
     token1.secret = @"at";
     
     NSData *generic1 = [@"generic1" dataUsingEncoding:NSUTF8StringEncoding];
@@ -382,7 +382,7 @@
     [keychainTokenCache saveToken:token1 key:key1 serializer:serializer context:nil error:nil];
     
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
-    token2.credentialType = MSIDCredentialTypeRefreshToken;
+    token2.credentialType = MSIDRefreshTokenType;
     token2.secret = @"rt";
     
     NSData *generic2 = [@"generic2" dataUsingEncoding:NSUTF8StringEncoding];
@@ -402,7 +402,7 @@
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
-    token1.credentialType = MSIDCredentialTypeAccessToken;
+    token1.credentialType = MSIDAccessTokenType;
     token1.secret = @"at";
     
     NSData *generic1 = [@"generic1" dataUsingEncoding:NSUTF8StringEncoding];
@@ -410,7 +410,7 @@
     [keychainTokenCache saveToken:token1 key:key1 serializer:serializer context:nil error:nil];
     
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
-    token2.credentialType = MSIDCredentialTypeRefreshToken;
+    token2.credentialType = MSIDRefreshTokenType;
     token2.secret = @"rt";
     
     NSData *generic2 = [@"generic2" dataUsingEncoding:NSUTF8StringEncoding];
@@ -430,7 +430,7 @@
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
-    token1.credentialType = MSIDCredentialTypeAccessToken;
+    token1.credentialType = MSIDAccessTokenType;
     token1.secret = @"at";
     
     NSData *generic1 = [@"generic1" dataUsingEncoding:NSUTF8StringEncoding];
@@ -438,7 +438,7 @@
     [keychainTokenCache saveToken:token1 key:key1 serializer:serializer context:nil error:nil];
     
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
-    token2.credentialType = MSIDCredentialTypeRefreshToken;
+    token2.credentialType = MSIDRefreshTokenType;
     token2.secret = @"rt";
     
     MSIDCacheKey *key2 = [[MSIDCacheKey alloc] initWithAccount:@"test_account2" service:@"service" generic:generic1 type:@1];
@@ -457,7 +457,7 @@
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
-    token1.credentialType = MSIDCredentialTypeAccessToken;
+    token1.credentialType = MSIDAccessTokenType;
     token1.secret = @"at";
     
     NSData *generic1 = [@"generic1" dataUsingEncoding:NSUTF8StringEncoding];
@@ -465,7 +465,7 @@
     [keychainTokenCache saveToken:token1 key:key1 serializer:serializer context:nil error:nil];
     
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
-    token2.credentialType = MSIDCredentialTypeRefreshToken;
+    token2.credentialType = MSIDRefreshTokenType;
     token2.secret = @"rt";
     
     MSIDCacheKey *key2 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"service2" generic:generic1 type:@1];
@@ -484,7 +484,7 @@
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
 
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
-    token1.credentialType = MSIDCredentialTypeAccessToken;
+    token1.credentialType = MSIDAccessTokenType;
     token1.secret = @"at";
 
     NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
@@ -504,7 +504,7 @@
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
 
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
-    token1.credentialType = MSIDCredentialTypeAccessToken;
+    token1.credentialType = MSIDAccessTokenType;
     token1.secret = @"at";
 
     NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];

@@ -95,7 +95,7 @@
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
     cacheItem.familyId = self.familyId;
-    cacheItem.credentialType = MSIDCredentialTypeLegacySingleResourceToken;
+    cacheItem.credentialType = MSIDLegacySingleResourceTokenType;
     return cacheItem;
 }
 
@@ -117,7 +117,7 @@
     MSIDLegacyTokenCacheItem *cacheItem = [super legacyTokenCacheItem];
     cacheItem.refreshToken = self.refreshToken;
     cacheItem.familyId = self.familyId;
-    cacheItem.credentialType = MSIDCredentialTypeLegacySingleResourceToken;
+    cacheItem.credentialType = MSIDLegacySingleResourceTokenType;
     return cacheItem;
 }
 
@@ -125,13 +125,13 @@
 
 - (MSIDCredentialType)credentialType
 {
-    return MSIDCredentialTypeLegacySingleResourceToken;
+    return MSIDLegacySingleResourceTokenType;
 }
 
 - (BOOL)supportsCredentialType:(MSIDCredentialType)credentialType
 {
     // Allow initializing single resource token with access token to support legacy ADAL scenarios
-    return [super supportsCredentialType:credentialType] || credentialType == MSIDCredentialTypeAccessToken;
+    return [super supportsCredentialType:credentialType] || credentialType == MSIDAccessTokenType;
 }
 
 #pragma mark - Description

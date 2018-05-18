@@ -186,7 +186,7 @@
 - (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    cacheItem.credentialType = MSIDCredentialTypeIDToken;
+    cacheItem.credentialType = MSIDIDTokenType;
     
     MSIDLegacyAccessToken *token = [[MSIDLegacyAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
@@ -195,7 +195,7 @@
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
@@ -230,7 +230,7 @@
 - (void)testInitWithLegacyTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
     MSIDLegacyTokenCacheItem *cacheItem = [MSIDLegacyTokenCacheItem new];
-    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.windows.net";
     cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];

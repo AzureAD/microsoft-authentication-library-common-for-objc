@@ -133,7 +133,7 @@
 {
     NSString *clientId = familyId ? nil : parameters.clientId;
 
-    MSIDBaseToken *refreshToken = [self getTokenWithType:MSIDCredentialTypeRefreshToken
+    MSIDBaseToken *refreshToken = [self getTokenWithType:MSIDRefreshTokenType
                                                  account:account
                                                authority:parameters.authority
                                                 clientId:clientId
@@ -191,7 +191,7 @@
                                         error:(NSError **)error
 {
     NSURL *outAuthority = nil;
-    MSIDAccessToken *accessToken = (MSIDAccessToken *) [self getTokenWithType:MSIDCredentialTypeAccessToken
+    MSIDAccessToken *accessToken = (MSIDAccessToken *) [self getTokenWithType:MSIDAccessTokenType
                                                                       account:account
                                                                     authority:parameters.authority
                                                                      clientId:parameters.clientId
@@ -214,7 +214,7 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
-    return (MSIDIdToken *) [self getTokenWithType:MSIDCredentialTypeIDToken
+    return (MSIDIdToken *) [self getTokenWithType:MSIDIDTokenType
                                           account:account
                                         authority:parameters.authority
                                          clientId:parameters.clientId
@@ -244,7 +244,7 @@
     }
 
     MSIDDefaultCredentialCacheQuery *credentialsQuery = [MSIDDefaultCredentialCacheQuery new];
-    credentialsQuery.credentialType = MSIDCredentialTypeRefreshToken;
+    credentialsQuery.credentialType = MSIDRefreshTokenType;
     credentialsQuery.clientId = clientId;
     credentialsQuery.familyId = familyId;
     credentialsQuery.clientIdMatchingOptions = Any;
@@ -268,7 +268,7 @@
     }
 
     [self stopTelemetryLookupEvent:event
-                         tokenType:MSIDCredentialTypeRefreshToken
+                         tokenType:MSIDRefreshTokenType
                          withToken:nil
                            success:[resultCredentials count] > 0
                            context:context];
@@ -337,7 +337,7 @@
     MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.uniqueUserId, _PII_NULLIFY(token.refreshToken));
 
     MSIDRefreshToken *tokenInCache = (MSIDRefreshToken *)[self getTokenWithAliasesByUniqueUserId:token.uniqueUserId
-                                                                                       tokenType:MSIDCredentialTypeRefreshToken
+                                                                                       tokenType:MSIDRefreshTokenType
                                                                                        authority:token.authority
                                                                                         clientId:token.clientId
                                                                                         familyId:token.familyId
@@ -492,7 +492,7 @@
     query.clientId = accessToken.clientId;
     query.target = [accessToken.scopes msidToString];
     query.targetMatchingOptions = Intersect;
-    query.credentialType = MSIDCredentialTypeAccessToken;
+    query.credentialType = MSIDAccessTokenType;
 
     BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
 
@@ -539,7 +539,7 @@
     }
 
     // If a refresh token wasn't found and legacy user ID is available, try to look by legacy user id
-    if (!token && tokenType == MSIDCredentialTypeRefreshToken && ![NSString msidIsStringNilOrBlank:account.legacyUserId])
+    if (!token && tokenType == MSIDRefreshTokenType && ![NSString msidIsStringNilOrBlank:account.legacyUserId])
     {
         // Unless it's a refresh token, return whatever we already found
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", clientId, authority);
@@ -569,7 +569,7 @@
     MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
     BOOL result = [_accountCredentialCache removeCredential:token.tokenCacheItem context:context error:error];
 
-    if (result && token.credentialType == MSIDCredentialTypeRefreshToken)
+    if (result && token.credentialType == MSIDRefreshTokenType)
     {
         [_accountCredentialCache saveWipeInfoWithContext:context error:nil];
     }
@@ -765,7 +765,7 @@
         MSIDDefaultCredentialCacheQuery *idTokensQuery = [MSIDDefaultCredentialCacheQuery new];
         idTokensQuery.environment = alias.msidHostWithPortIfNecessary;
         idTokensQuery.clientId = clientId;
-        idTokensQuery.credentialType = MSIDCredentialTypeIDToken;
+        idTokensQuery.credentialType = MSIDIDTokenType;
 
         NSArray<MSIDCredentialCacheItem *> *matchedIdTokens = [_accountCredentialCache getCredentialsWithQuery:idTokensQuery
                                                                                              legacyUserId:legacyUserId
@@ -780,7 +780,7 @@
             rtQuery.uniqueUserId = uniqueUserId;
             rtQuery.environment = alias.msidHostWithPortIfNecessary;
             rtQuery.clientId = clientId;
-            rtQuery.credentialType = MSIDCredentialTypeRefreshToken;
+            rtQuery.credentialType = MSIDRefreshTokenType;
 
             NSArray<MSIDCredentialCacheItem *> *rtCacheItems = [_accountCredentialCache getCredentialsWithQuery:rtQuery
                                                                                               legacyUserId:nil
@@ -790,18 +790,18 @@
             if ([rtCacheItems count])
             {
                 MSIDCredentialCacheItem *resultItem = rtCacheItems[0];
-                MSIDBaseToken *resultToken = [resultItem tokenWithType:MSIDCredentialTypeRefreshToken];
+                MSIDBaseToken *resultToken = [resultItem tokenWithType:MSIDRefreshTokenType];
                 resultToken.storageAuthority = resultToken.authority;
                 resultToken.authority = authority;
 
-                [self stopTelemetryLookupEvent:event tokenType:MSIDCredentialTypeRefreshToken withToken:resultToken success:YES context:context];
+                [self stopTelemetryLookupEvent:event tokenType:MSIDRefreshTokenType withToken:resultToken success:YES context:context];
 
                 return resultToken;
             }
         }
     }
 
-    [self stopTelemetryLookupEvent:event tokenType:MSIDCredentialTypeRefreshToken withToken:nil success:NO context:context];
+    [self stopTelemetryLookupEvent:event tokenType:MSIDRefreshTokenType withToken:nil success:NO context:context];
 
     return nil;
 }
@@ -889,7 +889,7 @@
                          success:(BOOL)success
                          context:(id<MSIDRequestContext>)context
 {
-    if (!success && tokenType == MSIDCredentialTypeRefreshToken)
+    if (!success && tokenType == MSIDRefreshTokenType)
     {
         [event setWipeData:[_accountCredentialCache wipeInfoWithContext:context error:nil]];
     }

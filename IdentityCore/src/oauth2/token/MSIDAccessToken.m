@@ -134,7 +134,7 @@ static uint64_t s_expirationBuffer = 300;
     cacheItem.cachedAt = self.cachedAt;
     cacheItem.secret = self.accessToken;
     cacheItem.target = self.target;
-    cacheItem.credentialType = MSIDCredentialTypeAccessToken;
+    cacheItem.credentialType = MSIDAccessTokenType;
     return cacheItem;
 }
 
@@ -142,7 +142,7 @@ static uint64_t s_expirationBuffer = 300;
 
 - (MSIDCredentialType)credentialType
 {
-    return MSIDCredentialTypeAccessToken;
+    return MSIDAccessTokenType;
 }
 
 #pragma mark - Expiry

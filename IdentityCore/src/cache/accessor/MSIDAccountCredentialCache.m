@@ -319,7 +319,7 @@
 
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
 
-    if (result && credential.credentialType == MSIDCredentialTypeRefreshToken)
+    if (result && credential.credentialType == MSIDRefreshTokenType)
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
 
@@ -327,7 +327,7 @@
         query.uniqueUserId = credential.uniqueUserId;
         query.environment = credential.environment;
         query.clientId = credential.clientId;
-        query.credentialType = MSIDCredentialTypeIDToken;
+        query.credentialType = MSIDIDTokenType;
 
         return [self removeCredetialsWithQuery:query context:context error:error];
     }

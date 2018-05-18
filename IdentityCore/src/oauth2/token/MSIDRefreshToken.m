@@ -110,7 +110,7 @@
 
 - (MSIDCredentialType)credentialType
 {
-    return MSIDCredentialTypeRefreshToken;
+    return MSIDRefreshTokenType;
 }
 
 #pragma mark - Description

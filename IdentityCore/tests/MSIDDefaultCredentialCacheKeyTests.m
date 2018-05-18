@@ -35,7 +35,7 @@
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
-                                                                                      credentialType:MSIDCredentialTypeAccessToken];
+                                                                                      credentialType:MSIDAccessTokenType];
 
     key.realm = @"contoso.com";
     key.target = @"user.read user.write";
@@ -53,7 +53,7 @@
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"UID.utid"
                                                                                          environment:@"LOGIN.microsoftonline.com"
                                                                                             clientId:@"CLIENT"
-                                                                                      credentialType:MSIDCredentialTypeAccessToken];
+                                                                                      credentialType:MSIDAccessTokenType];
 
     key.realm = @"CONTOSO.COM";
     key.target = @"User.read User.write";
@@ -71,10 +71,10 @@
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
-                                                                                      credentialType:MSIDCredentialTypeIDToken];
+                                                                                      credentialType:MSIDIDTokenType];
 
     key.realm = @"contoso.com";
-    key.credentialType = MSIDCredentialTypeIDToken;
+    key.credentialType = MSIDIDTokenType;
     
     XCTAssertEqualObjects(key.account, @"uid.utid-login.microsoftonline.com");
     XCTAssertEqualObjects(key.service, @"idtoken-client-contoso.com-");
@@ -89,7 +89,7 @@
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"UID.utid"
                                                                                          environment:@"login.MICROSOFTonline.com"
                                                                                             clientId:@"clieNT"
-                                                                                      credentialType:MSIDCredentialTypeIDToken];
+                                                                                      credentialType:MSIDIDTokenType];
 
     key.realm = @"contoso.COM";
 
@@ -106,7 +106,7 @@
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
-                                                                                      credentialType:MSIDCredentialTypeRefreshToken];
+                                                                                      credentialType:MSIDRefreshTokenType];
 
     XCTAssertEqualObjects(key.account, @"uid.utid-login.microsoftonline.com");
     XCTAssertEqualObjects(key.service, @"refreshtoken-client--");
@@ -121,7 +121,7 @@
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
-                                                                                      credentialType:MSIDCredentialTypeRefreshToken];
+                                                                                      credentialType:MSIDRefreshTokenType];
 
     key.familyId = @"familyID";
 

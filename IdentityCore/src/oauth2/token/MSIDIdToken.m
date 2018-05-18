@@ -97,7 +97,7 @@
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
     cacheItem.secret = self.rawIdToken;
-    cacheItem.credentialType = MSIDCredentialTypeIDToken;
+    cacheItem.credentialType = MSIDIDTokenType;
     return cacheItem;
 }
 
@@ -105,7 +105,7 @@
 
 - (MSIDCredentialType)credentialType
 {
-    return MSIDCredentialTypeIDToken;
+    return MSIDIDTokenType;
 }
 
 #pragma mark - Description

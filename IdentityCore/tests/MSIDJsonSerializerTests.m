@@ -48,7 +48,7 @@
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
     cacheItem.clientId = @"some clientId";
-    cacheItem.credentialType = MSIDCredentialTypeRefreshToken;
+    cacheItem.credentialType = MSIDRefreshTokenType;
     
     NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
     MSIDCredentialCacheItem *resultToken = [serializer deserializeCredentialCacheItem:data];

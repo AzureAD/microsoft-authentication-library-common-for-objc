@@ -169,13 +169,13 @@
 {
     switch (credentialType)
     {
-        case MSIDCredentialTypeAccessToken:
+        case MSIDAccessTokenType:
             return [[MSIDLegacyAccessToken alloc] initWithLegacyTokenCacheItem:self];
 
-        case MSIDCredentialTypeRefreshToken:
+        case MSIDRefreshTokenType:
             return [[MSIDLegacyRefreshToken alloc] initWithLegacyTokenCacheItem:self];
 
-        case MSIDCredentialTypeLegacySingleResourceToken:
+        case MSIDLegacySingleResourceTokenType:
             return [[MSIDLegacySingleResourceToken alloc] initWithLegacyTokenCacheItem:self];
 
         default:

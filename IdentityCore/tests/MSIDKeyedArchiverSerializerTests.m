@@ -48,7 +48,7 @@
     cacheItem.additionalInfo = @{@"spe_info" : @"test"};
     cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
     cacheItem.clientId = @"some clientId";
-    cacheItem.credentialType = MSIDCredentialTypeRefreshToken;
+    cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.oauthTokenType = @"access token type";
     
     NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
@@ -69,7 +69,7 @@
     cacheItem.additionalInfo = @{@"spe_info" : @"test"};
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.clientId = @"some clientId";
-    cacheItem.credentialType = MSIDCredentialTypeRefreshToken;
+    cacheItem.credentialType = MSIDRefreshTokenType;
 
     NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
     XCTAssertNil(data);

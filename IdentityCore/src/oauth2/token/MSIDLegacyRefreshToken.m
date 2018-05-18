@@ -81,7 +81,7 @@
 - (MSIDCredentialCacheItem *)tokenCacheItem
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
-    cacheItem.credentialType = MSIDCredentialTypeRefreshToken;
+    cacheItem.credentialType = MSIDRefreshTokenType;
     return cacheItem;
 }
 
@@ -105,7 +105,7 @@
 - (MSIDLegacyTokenCacheItem *)legacyTokenCacheItem
 {
     MSIDLegacyTokenCacheItem *cacheItem = [MSIDLegacyTokenCacheItem new];
-    cacheItem.credentialType = MSIDCredentialTypeRefreshToken;
+    cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.idToken = self.idToken;
     cacheItem.authority = self.storageAuthority ? self.storageAuthority : self.authority;
     cacheItem.environment = self.authority.msidHostWithPortIfNecessary;
@@ -122,7 +122,7 @@
 
 - (MSIDCredentialType)credentialType
 {
-    return MSIDCredentialTypeRefreshToken;
+    return MSIDRefreshTokenType;
 }
 
 #pragma mark - Description

@@ -197,19 +197,19 @@
 {
     switch (credentialType)
     {
-        case MSIDCredentialTypeAccessToken:
+        case MSIDAccessTokenType:
         {
             return [[MSIDAccessToken alloc] initWithTokenCacheItem:self];
         }
-        case MSIDCredentialTypeRefreshToken:
+        case MSIDRefreshTokenType:
         {
             return [[MSIDRefreshToken alloc] initWithTokenCacheItem:self];
         }
-        case MSIDCredentialTypeLegacySingleResourceToken:
+        case MSIDLegacySingleResourceTokenType:
         {
             return [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:self];
         }
-        case MSIDCredentialTypeIDToken:
+        case MSIDIDTokenType:
         {
             return [[MSIDIdToken alloc] initWithTokenCacheItem:self];
         }
@@ -260,7 +260,7 @@
     if (legacyUserId)
     {
         if (!self.secret
-            || self.credentialType != MSIDCredentialTypeIDToken)
+            || self.credentialType != MSIDIDTokenType)
         {
             return NO;
         }
