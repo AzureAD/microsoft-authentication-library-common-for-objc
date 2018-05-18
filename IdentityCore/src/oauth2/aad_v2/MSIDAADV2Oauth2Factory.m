@@ -223,7 +223,6 @@
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                      customWebview:(WKWebView *)webview
                                                            context:(id<MSIDRequestContext>)context
-                                                 completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
 
@@ -235,15 +234,13 @@
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                callbackURLScheme:(NSString *)callbackURLScheme
                                                          context:(id<MSIDRequestContext>)context
-                                               completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
 #if TARGET_OS_IPHONE
     // TODO: get authorization endpoint from authority validation cache.
     NSURL *startURL = [self startURLFromConfiguration:configuration];
     MSIDSystemWebviewController *webviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                                                          callbackURLScheme:callbackURLScheme
-                                                                                                   context:context
-                                                                                         completionHandler:completionHandler];
+                                                                                                   context:context];
     webviewController.requestState = configuration.requestState;
     webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
         return [requestState isEqualToString:dictionary[MSID_OAUTH2_STATE]];

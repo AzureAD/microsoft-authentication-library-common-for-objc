@@ -33,20 +33,14 @@
 @implementation MSIDSystemWebviewController
 {
     id<MSIDRequestContext> _context;
-    MSIDWebUICompletionHandler _completionHandler;
 
     MSIDSFAuthenticationSession *_authSession;
-
     MSIDSafariViewController *_safariViewController;
-
 }
-
-@synthesize parentViewController;
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
                          context:(id<MSIDRequestContext>)context
-               completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 {
     self = [super init];
     
@@ -55,13 +49,12 @@
         _startURL = startURL;
         _context = context;
         _callbackURLScheme = callbackURLScheme;
-        _completionHandler = completionHandler;
     }
     
     return self;
 }
 
-- (BOOL)start
+- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     if (!_startURL)
     {
@@ -71,30 +64,34 @@
     
     if (@available(iOS 11.0, *))
     {
-        _authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:_startURL
-                                                      callbackURLScheme:_callbackURLScheme
+        _authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:self.startURL
+                                                      callbackURLScheme:self.callbackURLScheme
+                                                           requestState:self.requestState
+                                                          stateVerifier:self.stateVerifier
                                                                 context:_context];
-        _authSession.webviewDelegate = self;
+
+        
         if (!_authSession)
         {
             MSID_LOG_ERROR(_context, @"Failed to create an auth session");
             return NO;
         }
         
-        return [_authSession start];
+        return [_authSession startWithCompletionHandler:completionHandler];
     }
 
     _safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                             requestState:self.requestState
+                                                            stateVerifier:self.stateVerifier
                                                                   context:_context];
-    _safariViewController.webviewDelegate = self;
-    
+
     if (!_safariViewController)
     {
         MSID_LOG_ERROR(_context, @"Failed to create an auth session");
         return NO;
     }
     
-    return [_safariViewController start];
+    return [_safariViewController startWithCompletionHandler:completionHandler];
 }
 
 - (void)cancel
@@ -124,16 +121,4 @@
     return [_safariViewController handleURLResponse:url];
 }
 
-- (void)handleAuthResponse:(NSURL *)url
-                     error:(NSError *)error
-{
-    NSError *authError = nil;
-    MSIDWebOAuth2Response *response = [MSIDWebviewAuthorization responseWithURL:url
-                                                                   requestState:self.requestState
-                                                                  stateVerifier:self.stateVerifier
-                                                                        context:_context
-                                                                          error:&authError];
-    
-    _completionHandler(response, error);
-}
 @end

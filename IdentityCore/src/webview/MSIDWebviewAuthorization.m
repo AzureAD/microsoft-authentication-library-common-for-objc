@@ -40,10 +40,12 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     void (^clearAppendedCompletionHandler)(MSIDWebOAuth2Response *, NSError *) =
     ^void(MSIDWebOAuth2Response *response, NSError *error)
     {
+        completionHandler(response, error);
+        
         @synchronized([MSIDWebviewAuthorization class]) {
             [MSIDWebviewAuthorization clearCurrentWebAuthSession];
         }
-        completionHandler(response, error);
+        
     };
     
     return clearAppendedCompletionHandler;
@@ -57,11 +59,10 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 {
     id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithConfiguration:configuration
                                                                                                  customWebview:nil
-                                                                                                       context:context
-                                                                                             completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
+                                                                                                       context:context];
     [self startWebviewAuth:embeddedWebviewController
                    context:context
-         completionHandler:completionHandler];
+         completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
 }
 
 + (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
@@ -72,11 +73,10 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 {
     id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithConfiguration:configuration
                                                                                                  customWebview:webview
-                                                                                                       context:context
-                                                                                             completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
+                                                                                                       context:context];
     [self startWebviewAuth:embeddedWebviewController
                    context:context
-         completionHandler:completionHandler];
+         completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
 }
 
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
@@ -87,13 +87,12 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     
     id<MSIDWebviewInteracting> systemWebviewController = [factory systemWebviewControllerWithConfiguration:configuration
                                                                                          callbackURLScheme:configuration.redirectUri
-                                                                                                   context:context
-                                                                                         completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
+                                                                                                   context:context];
 
     
     [self startWebviewAuth:systemWebviewController
                    context:context
-         completionHandler:completionHandler];
+         completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
 }
 
 
@@ -109,7 +108,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
         return;
     }
     
-    if (![s_currentWebSession start])
+    if (![s_currentWebSession startWithCompletionHandler:completionHandler])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, context.correlationId, nil);
         [self.class clearCurrentWebAuthSession];
@@ -200,7 +199,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithScheme:url.scheme
                                                                               parameters:parameters
                                                                                  context:context
-                                                                                   error:error];
+                                                                                   error:nil];
     if (wpjResponse)
     {
         wpjResponse.url = url;

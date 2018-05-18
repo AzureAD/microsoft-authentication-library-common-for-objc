@@ -272,7 +272,6 @@
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                            customWebview:(WKWebView *)webview
                                                                  context:(id<MSIDRequestContext>)context
-                                                       completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // TODO: return default
     return nil;
@@ -281,14 +280,12 @@
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                      callbackURLScheme:(NSString *)callbackURLScheme
                                                                context:(id<MSIDRequestContext>)context
-                                                     completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
 #if TARGET_OS_IPHONE
     NSURL *startURL = [self startURLFromConfiguration:configuration];
     return [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                callbackURLScheme:callbackURLScheme
-                                                         context:context
-                                               completionHandler:completionHandler];
+                                                         context:context];
 #else
     return nil;
 #endif

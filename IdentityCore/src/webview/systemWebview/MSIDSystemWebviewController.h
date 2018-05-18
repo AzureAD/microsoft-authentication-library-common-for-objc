@@ -28,26 +28,18 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
 
-@protocol MSIDSystemWebviewResponseDelegate
-
-- (void)handleAuthResponse:(NSURL *)url
-                     error:(NSError *)error;
-
-@end
-
-@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting, MSIDSystemWebviewResponseDelegate>
+@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
-                         context:(id<MSIDRequestContext>)context
-               completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+                         context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;
 
 @property (readonly) NSURL *startURL;
 @property (readonly) NSString *callbackURLScheme;
 
-@property MSIDWebUIStateVerifier stateVerifier;
 @property NSString *requestState;
+@property MSIDWebUIStateVerifier stateVerifier;
 
 @end

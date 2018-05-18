@@ -28,15 +28,16 @@
 #import <Foundation/Foundation.h>
 #import "MSIDSystemWebviewController.h"
 
-@interface MSIDSafariViewController : NSObject
+@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                     context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponse:(NSURL *)url;
-- (BOOL)start;
-- (void)cancel;
 
-@property(weak) id<MSIDSystemWebviewResponseDelegate> webviewDelegate;
+@property NSString *requestState;
+@property MSIDWebUIStateVerifier stateVerifier;
 
 @end

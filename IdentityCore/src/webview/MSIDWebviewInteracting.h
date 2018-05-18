@@ -30,16 +30,19 @@
 @class MSIDWebOAuth2Response;
 
 typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
-
 typedef BOOL (^MSIDWebUIStateVerifier)(NSDictionary *dictionary, NSString *requestState);
 
 @protocol MSIDWebviewInteracting
 
-- (BOOL)start;
+- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
 - (void)cancel;
 
+@optional
 #if TARGET_OS_IPHONE
 @property UIViewController *parentViewController;
 #endif
+
+@property MSIDWebUIStateVerifier stateVerifier;
+@property NSString *requestState;
 
 @end

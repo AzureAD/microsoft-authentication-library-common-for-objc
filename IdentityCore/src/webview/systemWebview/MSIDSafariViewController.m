@@ -30,6 +30,7 @@
 #import <SafariServices/SafariServices.h>
 #import "MSIDWebOAuth2Response.h"
 #import "UIApplication+MSIDExtensions.h"
+#import "MSIDWebviewAuthorization.h"
 
 @interface MSIDSafariViewController() <SFSafariViewControllerDelegate>
 
@@ -39,19 +40,25 @@
 {
     SFSafariViewController *_safariViewController;
     
-    NSURL *_url;
-
+    NSURL *_startURL;
+    
+    MSIDWebUICompletionHandler _completionHandler;
+    
     id<MSIDRequestContext> _context;
 }
 
 - (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                     context:(id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)
     {
-        _url = url;
+        _startURL = url;
         _context = context;
+        _requestState = requestState;
+        _stateVerifier = stateVerifier;
         
         _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
         _safariViewController.delegate = self;
@@ -66,7 +73,7 @@
     [self completeSessionWithResponse:nil context:_context error:error];
 }
 
-- (BOOL)start
+- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     UIViewController *viewController = [UIApplication msidCurrentViewController];
     if (!viewController)
@@ -74,6 +81,8 @@
         return NO;
     }
     
+    _completionHandler = completionHandler;
+
     dispatch_async(dispatch_get_main_queue(), ^{
         [viewController presentViewController:_safariViewController animated:YES completion:nil];
     });
@@ -112,11 +121,18 @@
 
     if (error)
     {
-        [self.webviewDelegate handleAuthResponse:nil error:error];
+        _completionHandler(nil, error);
         return YES;
     }
     
-    [self.webviewDelegate handleAuthResponse:url error:nil];
+    NSError *authError = nil;
+    MSIDWebOAuth2Response *response = [MSIDWebviewAuthorization responseWithURL:url
+                                                                   requestState:self.requestState
+                                                                  stateVerifier:self.stateVerifier
+                                                                        context:_context
+                                                                          error:&authError];
+
+    _completionHandler(response, authError);
     return YES;
 }
 

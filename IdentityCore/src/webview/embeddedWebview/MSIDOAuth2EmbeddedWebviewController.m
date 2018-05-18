@@ -33,7 +33,7 @@
 @synthesize  parentViewController;
 #endif
 
-- (BOOL)start
+- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     return NO;
 }

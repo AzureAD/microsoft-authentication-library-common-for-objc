@@ -28,16 +28,16 @@
 #import <Foundation/Foundation.h>
 #import "MSIDSystemWebviewController.h"
 
-@interface MSIDSFAuthenticationSession : NSObject
+@interface MSIDSFAuthenticationSession : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme
+               requestState:(NSString *)requestState
+              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                     context:(id<MSIDRequestContext>)context;
 
-- (BOOL)start;
-- (void)cancel;
-
-@property(weak) id<MSIDSystemWebviewResponseDelegate> webviewDelegate;
+@property NSString *requestState;
+@property MSIDWebUIStateVerifier stateVerifier;
 
 @end
 

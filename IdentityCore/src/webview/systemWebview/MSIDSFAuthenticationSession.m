@@ -35,32 +35,38 @@
     API_AVAILABLE(ios(11.0))
     SFAuthenticationSession *_authSession;
     
+    NSURL *_startURL;
+    NSString *_callbackURLScheme;
+
     id<MSIDRequestContext> _context;
 }
 
-
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme
+               requestState:(NSString *)requestState
+              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                     context:(id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)
     {
+        _startURL = url;
         _context = context;
-        _authSession = [self authSessionWithURL:url callbackURLScheme:callbackURLScheme];
+        _requestState = requestState;
+        _stateVerifier = stateVerifier;
     }
     
     return self;
 }
 
-- (id)authSessionWithURL:(NSURL *)url
-       callbackURLScheme:(NSString *)callbackURLScheme
+
+- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     if (@available(iOS 11.0, *))
     {
-        SFAuthenticationSession *session = [[SFAuthenticationSession alloc] initWithURL:url
-                                                                      callbackURLScheme:callbackURLScheme
-                                                                      completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error)
+        _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
+                                                  callbackURLScheme:_callbackURLScheme
+                                                  completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error)
                                             {
                                                 if (error)
                                                 {
@@ -68,30 +74,29 @@
                                                     {
                                                         error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
                                                     }
-                                                    
-                                                    [self.webviewDelegate handleAuthResponse:nil error:error];
+                                                    completionHandler(nil, error);
                                                     return;
                                                 }
-                                                
-                                                [self.webviewDelegate handleAuthResponse:callbackURL error:nil];
-                                            }];
-        return session;
-    }
-        
-    return nil;
-}
+                                
+                                                NSError *authError = nil;
+                                                MSIDWebOAuth2Response *response = [MSIDWebviewAuthorization responseWithURL:callbackURL
+                                                                                                               requestState:self.requestState
+                                                                                                              stateVerifier:self.stateVerifier
+                                                                                                                    context:_context
+                                                                                                                      error:&authError];
 
-- (BOOL)start
-{
-    return [_authSession start];
+                                                completionHandler(response, authError);
+                                            }];
+        return  [_authSession start];;
+    }
+    return NO;
 }
 
 
 - (void)cancel
 {
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceled, @"Authorization session was cancelled programatically", nil, nil, nil, _context.correlationId, nil);
-    
-    [self.webviewDelegate handleAuthResponse:nil error:error];
+    MSID_LOG_INFO(_context, @"Authorization session was cancelled programatically");
+    [_authSession cancel];
 }
 
 @end
