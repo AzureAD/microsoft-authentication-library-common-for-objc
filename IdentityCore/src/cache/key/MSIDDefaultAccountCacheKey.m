@@ -44,7 +44,7 @@ static NSInteger kAccountTypePrefix = 1000;
     {
         _uniqueUserId = uniqueUserId;
         _environment = environment;
-        _realm = realm;
+        _realm = realm ? realm : @"";
         _accountType = type;
     }
 

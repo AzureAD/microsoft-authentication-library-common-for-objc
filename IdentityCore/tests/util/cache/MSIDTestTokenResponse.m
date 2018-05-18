@@ -84,14 +84,24 @@
                                              utid:(NSString *)utid
                                          familyId:(NSString *)familyId
 {
-    NSString *clientInfoString = [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson];
+    NSString *clientInfoString = nil;
+
+    if (uid && utid)
+    {
+        clientInfoString = [@{ @"uid" : uid, @"utid" : utid} msidBase64UrlJson];
+    }
+
     NSString *scopesString = scopes.msidToString;
     
     NSMutableDictionary *jsonDictionary = [@{@"token_type": @"Bearer",
                                             @"expires_in": @"3600",
-                                            @"client_info": clientInfoString,
                                             @"scope": scopesString
                                              } mutableCopy];
+
+    if (clientInfoString)
+    {
+        jsonDictionary[@"client_info"] = clientInfoString;
+    }
     
     if (accessToken)
     {
