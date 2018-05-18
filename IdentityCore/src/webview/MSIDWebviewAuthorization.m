@@ -45,7 +45,6 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
         @synchronized([MSIDWebviewAuthorization class]) {
             [MSIDWebviewAuthorization clearCurrentWebAuthSession];
         }
-        
     };
     
     return clearAppendedCompletionHandler;
@@ -62,7 +61,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
                                                                                                        context:context];
     [self startWebviewAuth:embeddedWebviewController
                    context:context
-         completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
+         completionHandler:completionHandler];
 }
 
 + (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
@@ -76,7 +75,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
                                                                                                        context:context];
     [self startWebviewAuth:embeddedWebviewController
                    context:context
-         completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
+         completionHandler:completionHandler];
 }
 
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
@@ -92,7 +91,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     
     [self startWebviewAuth:systemWebviewController
                    context:context
-         completionHandler:[self clearAppendedCompletionHandler:completionHandler]];
+         completionHandler:completionHandler];
 }
 
 
@@ -108,10 +107,11 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
         return;
     }
     
-    if (![s_currentWebSession startWithCompletionHandler:completionHandler])
+    
+    if (![s_currentWebSession startWithCompletionHandler:[self clearAppendedCompletionHandler:completionHandler]])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, context.correlationId, nil);
-        [self.class clearCurrentWebAuthSession];
+        
         completionHandler(nil, error);
     }
 }
@@ -148,6 +148,10 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     }
 }
 
++ (id<MSIDWebviewInteracting>)currentSession
+{
+    return s_currentWebSession;
+}
 
 + (void)cancelCurrentWebAuthSession
 {
@@ -205,7 +209,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
         wpjResponse.url = url;
         return wpjResponse;
     }
-    MSID_LOG_INFO(context, @"This is not a WPJ response - %@", (*error).localizedDescription);
+    MSID_LOG_INFO(context, @"This is not a WPJ response");
     
     // Check for AAD response,
     NSError *aadError = nil;
@@ -226,7 +230,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
         return nil;
     }
     
-    MSID_LOG_INFO(context, @"This is not an AAD response - %@", (*error).localizedDescription);
+    MSID_LOG_INFO(context, @"This is not an AAD response");
     
     // It is then, a standard OAuth2 response
     //
@@ -241,12 +245,6 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
 //        return oauth2Response;
 //    }
     
-    // Any other errors are caught here
-    if (error && !(*error))
-    {
-        *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorBadAuthorizationResponse, @"No code or error in server response.", nil, nil, nil, context.correlationId, nil);
-        
-    }
     return nil;
 }
 

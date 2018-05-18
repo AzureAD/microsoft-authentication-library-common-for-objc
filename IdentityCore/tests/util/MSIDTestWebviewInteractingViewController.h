@@ -24,6 +24,9 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
 
-@interface MSIDTestWebviewInteractingViewController : NSObject// <MSIDWebviewInteracting>
+@interface MSIDTestWebviewInteractingViewController : NSObject<MSIDWebviewInteracting>
+
+@property NSTimeInterval successAfterInterval;
+@property BOOL actSystemWebviewController;
 
 @end

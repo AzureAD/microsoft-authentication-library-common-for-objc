@@ -31,6 +31,13 @@
 
 @implementation MSIDWebviewAuthorizationTests
 
+- (MSIDTestWebviewInteractingViewController *)testViewController:(NSTimeInterval)successAfter
+{
+    MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
+    testWebviewController.successAfterInterval = successAfter;
+    return testWebviewController;
+}
+
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -44,55 +51,153 @@
 #pragma mark - Webview starting
 - (void)testStartWebviewAuth_whenNoSessionRunning_shouldStart
 {
- 
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
+    [MSIDWebviewAuthorization startWebviewAuth:[self testViewController:0.1]
+                                       context:nil
+                             completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
+                                 XCTAssertNotNil(response);
+                                 XCTAssertNil(error);
+                                 [expectation fulfill];
+                             }];
+    
+    [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
+
 
 - (void)testStartWebviewAuth_whenSessionRunning_shouldNotStartAndReturnError
 {
-    
+    [MSIDWebviewAuthorization startWebviewAuth:[self testViewController:0.5]
+                                       context:nil
+                             completionHandler:nil];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
+    [MSIDWebviewAuthorization startWebviewAuth:[self testViewController:0.5]
+                                       context:nil
+                             completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
+                                 XCTAssertNil(response);
+                                 XCTAssertNotNil(error);
+                                 
+                                 XCTAssertEqual(error.code, MSIDErrorInteractiveSessionAlreadyRunning);
+                                 
+                                 [expectation fulfill];
+                             }];
+
+    [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
 
-- (void)testStartWebviewAuth_whenComplete_shouldHaveNoRunningSession
+
+#pragma mark - Session clearing
+- (void)testStartWebviewAuth_whenComplete_shouldClearSession
 {
+    MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
+    testWebviewController.successAfterInterval = 0.1;
     
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
+    [MSIDWebviewAuthorization startWebviewAuth:testWebviewController
+                                       context:nil
+                             completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
+                                 [expectation fulfill];
+                             }];
+    
+    [self waitForExpectationsWithTimeout:0.5 handler:nil];
+    
+    XCTAssertNil([MSIDWebviewAuthorization currentSession]);
 }
 
+- (void)testStartWebviewAuth_whenCompleteWithFail_shouldClearSession
+{
+    MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
+    testWebviewController.successAfterInterval = 0;
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
+    [MSIDWebviewAuthorization startWebviewAuth:testWebviewController
+                                       context:nil
+                             completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
+                                 [expectation fulfill];
+                             }];
+    
+    [self waitForExpectationsWithTimeout:0.5 handler:nil];
+    
+    XCTAssertNil([MSIDWebviewAuthorization currentSession]);
+}
 
 #pragma mark - Response handling
-- (void)testResponseWithURL_whenNilURL_shouldReturnNil
+- (void)testResponseWithURL_whenNilURL_shouldReturnNilAndError
 {
-    
+    NSError *error = nil;
+    XCTAssertNil([MSIDWebviewAuthorization responseWithURL:nil
+                                              requestState:nil
+                                             stateVerifier:nil
+                                                   context:nil
+                                                     error:&error]);
+    XCTAssertNotNil(error);
 }
 
 - (void)testResponseWithURL_whenWPJResponse_shouldReturnWPJAuthResponse
 {
+    NSError *error = nil;
+    __auto_type response = [MSIDWebviewAuthorization responseWithURL:[NSURL URLWithString:@"msauth://app_link=link&upn=upn"]
+                                                        requestState:nil
+                                                       stateVerifier:nil
+                                                             context:nil
+                                                               error:&error];
     
+    XCTAssertTrue([response isKindOfClass:MSIDWebWPJAuthResponse.class]);
+    XCTAssertNil(error);
 }
 
 - (void)testResponseWithURL_whenAADResponse_shouldReturnAADAuthResponse
 {
+    NSError *error = nil;
+    __auto_type response = [MSIDWebviewAuthorization responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
+                                                        requestState:nil
+                                                       stateVerifier:nil
+                                                             context:nil
+                                                               error:&error];
     
+    XCTAssertTrue([response isKindOfClass:MSIDWebAADAuthResponse.class]);
+    XCTAssertNil(error);
 }
-
-- (void)testResponseWithURL_whenError_shouldReturnNilAndError
-{
-    
-}
-
 
 
 #pragma mark - Others
 #if TARGET_OS_IPHONE
-- (void)testHandleURLResponseForSystemWebviewController_whenSystemWebviewControllerIsSet_shouldHandleURL
+- (void)testHandleURLResponseForSystemWebviewController_whenCurrentSessionIsSafari_shouldHandleURL
 {
+    MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
+    testWebviewController.successAfterInterval = 0.1;
+    testWebviewController.actSystemWebviewController = YES;
     
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
+    [MSIDWebviewAuthorization startWebviewAuth:testWebviewController
+                                       context:nil
+                             completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
+                                 XCTAssertTrue([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:nil]);
+                                 [expectation fulfill];
+                             }];
+    
+    [self waitForExpectationsWithTimeout:0.5 handler:nil];
+}
+
+- (void)testHandleURLResponseForSystemWebviewController_whenCurrentSessionIsNotSafari_shouldHandleURL
+{
+    MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
+    testWebviewController.successAfterInterval = 0.1;
+    testWebviewController.actSystemWebviewController = NO;
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
+    [MSIDWebviewAuthorization startWebviewAuth:testWebviewController
+                                       context:nil
+                             completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
+                                 XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:nil]);
+                                 [expectation fulfill];
+                             }];
+    
+    [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
 
 
-
 #endif
-
-
 
 
 @end

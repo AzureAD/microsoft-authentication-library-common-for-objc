@@ -83,7 +83,8 @@ MSIDWebUIStateVerifier stateVerifierYES = ^BOOL(NSDictionary *dictionary, NSStri
     XCTAssertEqual(error.code, MSIDErrorInvalidState);
 }
 
-- (void)testInit_whenStateVerifierMissingWithValidParams_shouldReturnResponse
+
+- (void)testInit_whenNoStateVerifierWithValidParams_shouldReturnResponse
 {
     NSError *error;
     MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithParameters:@{
@@ -91,7 +92,7 @@ MSIDWebUIStateVerifier stateVerifierYES = ^BOOL(NSDictionary *dictionary, NSStri
                                                                                             MSID_OAUTH2_STATE : @"state",
                                                                                             MSID_AUTH_CLOUD_INSTANCE_HOST_NAME : @"cloudHost"
                                                                                             }
-                                                                             requestState:@"state"
+                                                                             requestState:nil
                                                                             stateVerifier:nil context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
@@ -99,7 +100,6 @@ MSIDWebUIStateVerifier stateVerifierYES = ^BOOL(NSDictionary *dictionary, NSStri
     XCTAssertEqualObjects(response.authorizationCode, @"code");
     XCTAssertEqualObjects(response.cloudHostName, @"cloudHost");
 }
-
 
 
 @end

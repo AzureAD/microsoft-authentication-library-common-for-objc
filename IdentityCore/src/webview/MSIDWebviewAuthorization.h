@@ -64,6 +64,7 @@
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error;
 
++ (id<MSIDWebviewInteracting>)currentSession;
 + (void)cancelCurrentWebAuthSession;
 
 // This is for system webview auth session on iOS 10 - Thus, a SafariViewController
