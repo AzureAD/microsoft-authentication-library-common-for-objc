@@ -23,7 +23,10 @@
 
 #import "MSIDTestWebviewInteractingViewController.h"
 #import "MSIDWebviewAuthorization.h"
+
+#if TARGET_OS_IPHONE
 #import "MSIDSystemWebviewController.h"
+#endif
 
 @implementation MSIDTestWebviewInteractingViewController
 
@@ -55,11 +58,12 @@
 
 - (BOOL)isKindOfClass:(Class)aClass
 {
+#if TARGET_OS_IPHONE
     if (self.actSystemWebviewController)
     {
-        
         return (aClass == MSIDSystemWebviewController.class);
     }
+#endif
     return NO;
 }
 
