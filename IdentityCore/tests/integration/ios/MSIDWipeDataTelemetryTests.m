@@ -31,7 +31,7 @@
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDTestTokenResponse.h"
-#import "MSIDTestRequestParams.h"
+#import "MSIDTestConfiguration.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -90,7 +90,7 @@
     
     // save a refresh token to keychain token cache
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:nil];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
@@ -98,7 +98,7 @@
     NSError *error = nil;
 
     BOOL result = [_legacyCacheAccessor saveSSOStateWithFactory:factory
-                                                  requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                  configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                        response:[MSIDTestTokenResponse v1DefaultTokenResponse]
                                                         context:reqContext
                                                           error:nil];
@@ -114,7 +114,7 @@
     // read the refresh token in order to log wipe data in telemetry
     MSIDRefreshToken *returnedToken = [_legacyCacheAccessor getRefreshTokenWithAccount:account
                                                                               familyId:nil
-                                                                         requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                         configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                                context:reqContext
                                                                                  error:&error];
     
@@ -155,13 +155,13 @@
     
     // save a refresh token to keychain token cache
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
     BOOL result = [_legacyCacheAccessor saveSSOStateWithFactory:factory
-                                                  requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                  configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                        response:[MSIDTestTokenResponse v1DefaultTokenResponse]
                                                         context:reqContext
                                                           error:nil];
@@ -219,7 +219,7 @@
     
     // save a refresh token to keychain token cache
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         uniqueUserId:@"some_uid.some_utid"];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
@@ -227,10 +227,10 @@
     NSError *error = nil;
 
     BOOL result = [_defaultCacheAccessor saveSSOStateWithFactory:factory
-                                                   requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                   configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                            context:reqContext
-                                                          error:nil];
+                                                         context:reqContext
+                                                           error:nil];
     XCTAssertNil(error);
     
     // remove the refresh token to trigger wipe data being written
@@ -242,7 +242,7 @@
     // read the refresh token in order to log wipe data in telemetry
     MSIDRefreshToken *returnedToken = [_defaultCacheAccessor getRefreshTokenWithAccount:account
                                                                                familyId:nil
-                                                                          requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                                          configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                                 context:reqContext
                                                                                   error:&error];
     
@@ -286,13 +286,13 @@
     
     // save a refresh token to keychain token cache
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] request:[MSIDTestRequestParams v1DefaultParams]];
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
     BOOL result = [_defaultCacheAccessor saveSSOStateWithFactory:factory
-                                                   requestParams:[MSIDTestRequestParams v1DefaultParams]
+                                                   configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
                                                          context:reqContext
                                                            error:nil];

@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDOauth2Factory;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @class MSIDTokenResponse;
 @class MSIDRefreshToken;
@@ -45,7 +45,7 @@
  All tokens include: access tokens, refresh tokens, id tokens, accounts depending on the SDK
  */
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                requestParams:(MSIDRequestParameters *)requestParams
+                configuration:(MSIDConfiguration *)configuration
                      response:(MSIDTokenResponse *)response
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error;
@@ -65,14 +65,14 @@
  This method saves only the SSO artifacts to the cache based on the broker response.
  */
 - (BOOL)saveSSOStateWithFactory:(MSIDOauth2Factory *)factory
-                  requestParams:(MSIDRequestParameters *)requestParams
+                  configuration:(MSIDConfiguration *)configuration
                        response:(MSIDTokenResponse *)response
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
 
 - (MSIDRefreshToken *)getRefreshTokenWithAccount:(id<MSIDAccountIdentifiers>)account
                                         familyId:(NSString *)familyId
-                                   requestParams:(MSIDRequestParameters *)parameters
+                                   configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 

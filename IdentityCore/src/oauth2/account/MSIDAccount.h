@@ -26,7 +26,7 @@
 #import "MSIDAccountIdentifiers.h"
 
 @class MSIDAccountCacheItem;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @class MSIDTokenResponse;
 @class MSIDClientInfo;
 

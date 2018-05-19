@@ -29,19 +29,19 @@
 @class MSIDLegacyRefreshToken;
 @class MSIDLegacySingleResourceToken;
 @protocol MSIDAccountIdentifiers;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @class MSIDLegacyAccessToken;
 
 @interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDCacheAccessor>
 
 - (MSIDLegacyAccessToken *)getAccessTokenForAccount:(id<MSIDAccountIdentifiers>)account
-                                      requestParams:(MSIDRequestParameters *)parameters
+                                      configuration:(MSIDConfiguration *)configuration
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error;
 
 - (MSIDLegacySingleResourceToken *)getSingleResourceTokenForAccount:(id<MSIDAccountIdentifiers>)account
-                                                      requestParams:(MSIDRequestParameters *)parameters
+                                                      configuration:(MSIDConfiguration *)configuration
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error;
 

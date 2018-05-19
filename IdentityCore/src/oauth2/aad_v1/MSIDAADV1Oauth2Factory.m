@@ -125,24 +125,24 @@
 
 - (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
            fromResponse:(MSIDAADV1TokenResponse *)response
-                request:(MSIDRequestParameters *)requestParams
+          configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [super fillAccessToken:accessToken fromResponse:response request:requestParams];
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response configuration:configuration];
 
     if (!result)
     {
         return NO;
     }
 
-    accessToken.resource = response.target ? response.target : requestParams.target;
+    accessToken.resource = response.target ? response.target : configuration.target;
     return YES;
 }
 
 - (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken
          fromResponse:(MSIDAADTokenResponse *)response
-              request:(MSIDRequestParameters *)requestParams
+        configuration:(MSIDConfiguration *)configuration
 {
-    if (![super fillBaseToken:baseToken fromResponse:response request:requestParams])
+    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
     {
         return NO;
     }
@@ -156,14 +156,14 @@
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                            Webview:(WKWebView *)webview
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
     return nil;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController
     return nil;

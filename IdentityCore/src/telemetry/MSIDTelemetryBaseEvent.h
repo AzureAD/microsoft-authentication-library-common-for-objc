@@ -29,6 +29,7 @@
 }
 
 - (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 - (instancetype)initWithName:(NSString*)eventName
                    requestId:(NSString*)requestId

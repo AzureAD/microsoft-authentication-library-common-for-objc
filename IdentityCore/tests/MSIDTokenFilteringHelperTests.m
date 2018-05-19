@@ -31,7 +31,7 @@
 #import "MSIDBaseToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDTestCacheIdentifiers.h"
-#import "MSIDTestRequestParams.h"
+#import "MSIDTestConfiguration.h"
 #import "MSIDAccount.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDIdToken.h"
@@ -130,3 +130,4 @@
 }
 
 @end
+

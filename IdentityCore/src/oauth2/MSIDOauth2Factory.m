@@ -57,7 +57,7 @@
         }
         return NO;
     }
-
+    
     if (response.error)
     {
         if (error)
@@ -73,7 +73,7 @@
         }
         return NO;
     }
-
+    
     if ([NSString msidIsStringNilOrBlank:response.accessToken])
     {
         if (error)
@@ -82,17 +82,17 @@
         }
         return NO;
     }
-
+    
     return YES;
 }
 
 #pragma mark - Tokens
 
 - (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response
-                                 request:(MSIDRequestParameters *)requestParams
+                           configuration:(MSIDConfiguration *)configuration
 {
     MSIDBaseToken *baseToken = [[MSIDBaseToken alloc] init];
-    BOOL result = [self fillBaseToken:baseToken fromResponse:response request:requestParams];
+    BOOL result = [self fillBaseToken:baseToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
 
@@ -100,69 +100,69 @@
 }
 
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response
-                                     request:(MSIDRequestParameters *)requestParams
+                               configuration:(MSIDConfiguration *)configuration
 {
     MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] init];
-    BOOL result = [self fillAccessToken:accessToken fromResponse:response request:requestParams];
+    BOOL result = [self fillAccessToken:accessToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
     return accessToken;
 }
 
 - (MSIDLegacyAccessToken *)legacyAccessTokenFromResponse:(MSIDTokenResponse *)response
-                                                 request:(MSIDRequestParameters *)requestParams
+                                           configuration:(MSIDConfiguration *)configuration
 {
     MSIDLegacyAccessToken *accessToken = [[MSIDLegacyAccessToken alloc] init];
-    BOOL result = [self fillLegacyAccessToken:accessToken fromResponse:response request:requestParams];
+    BOOL result = [self fillLegacyAccessToken:accessToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
     return accessToken;
 }
 
 - (MSIDLegacyRefreshToken *)legacyRefreshTokenFromResponse:(MSIDTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+                                             configuration:(MSIDConfiguration *)configuration
 {
     MSIDLegacyRefreshToken *refreshToken = [[MSIDLegacyRefreshToken alloc] init];
-    BOOL result = [self fillLegacyRefreshToken:refreshToken fromResponse:response request:requestParams];
+    BOOL result = [self fillLegacyRefreshToken:refreshToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
     return refreshToken;
 }
 
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response
-                                       request:(MSIDRequestParameters *)requestParams
+                                 configuration:(MSIDConfiguration *)configuration
 {
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
-    BOOL result = [self fillRefreshToken:refreshToken fromResponse:response request:requestParams];
+    BOOL result = [self fillRefreshToken:refreshToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
     return refreshToken;
 }
 
 - (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response
-                             request:(MSIDRequestParameters *)requestParams
+                       configuration:(MSIDConfiguration *)configuration
 {
     MSIDIdToken *idToken = [[MSIDIdToken alloc] init];
-    BOOL result = [self fillIDToken:idToken fromResponse:response request:requestParams];
+    BOOL result = [self fillIDToken:idToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
     return idToken;
 }
 
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
-                                                   request:(MSIDRequestParameters *)requestParams
+                                             configuration:(MSIDConfiguration *)configuration
 {
     MSIDLegacySingleResourceToken *legacyToken = [[MSIDLegacySingleResourceToken alloc] init];
-    BOOL result = [self fillLegacyToken:legacyToken fromResponse:response request:requestParams];
+    BOOL result = [self fillLegacyToken:legacyToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
     return legacyToken;
 }
 
-- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams
+- (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration
 {
     MSIDAccount *account = [[MSIDAccount alloc] init];
-    BOOL result = [self fillAccount:account fromResponse:response request:requestParams];
+    BOOL result = [self fillAccount:account fromResponse:response configuration:configuration];
 
     if (!result) return nil;
     return account;
@@ -172,16 +172,16 @@
 
 - (BOOL)fillBaseToken:(MSIDBaseToken *)token
          fromResponse:(MSIDTokenResponse *)response
-              request:(MSIDRequestParameters *)requestParams
+        configuration:(MSIDConfiguration *)configuration
 {
     if (!response
-        || !requestParams)
+        || !configuration)
     {
         return NO;
     }
-
-    token.authority = requestParams.authority;
-    token.clientId = requestParams.clientId;
+    
+    token.authority = configuration.authority;
+    token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
     token.uniqueUserId = response.idTokenObj.userId;
     return YES;
@@ -189,32 +189,31 @@
 
 - (BOOL)fillAccessToken:(MSIDAccessToken *)token
            fromResponse:(MSIDTokenResponse *)response
-                request:(MSIDRequestParameters *)requestParams
+          configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [self fillBaseToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillBaseToken:token fromResponse:response configuration:configuration];
 
     if (!result)
     {
         return NO;
     }
-
+    
     token.scopes = [response.target scopeSet];
     token.accessToken = response.accessToken;
-
+    
     if (!token.accessToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
         return NO;
     }
-
     NSDate *expiresOn = response.expiryDate;
-
+    
     if (!expiresOn)
     {
         MSID_LOG_WARN(nil, @"The server did not return the expiration time for the access token.");
         expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
     }
-
+    
     token.expiresOn = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[expiresOn timeIntervalSince1970]];
     token.cachedAt = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[[NSDate date] timeIntervalSince1970]];
 
@@ -223,22 +222,22 @@
 
 - (BOOL)fillRefreshToken:(MSIDRefreshToken *)token
             fromResponse:(MSIDTokenResponse *)response
-                 request:(MSIDRequestParameters *)requestParams
+           configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [self fillBaseToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillBaseToken:token fromResponse:response configuration:configuration];
 
     if (!result)
     {
         return NO;
     }
-
+    
     if (!response.isMultiResource)
     {
         return NO;
     }
-
+    
     token.refreshToken = response.refreshToken;
-
+    
     if (!token.refreshToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize refresh token when missing refresh token field");
@@ -250,17 +249,17 @@
 
 - (BOOL)fillIDToken:(MSIDIdToken *)token
        fromResponse:(MSIDTokenResponse *)response
-            request:(MSIDRequestParameters *)requestParams
+      configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [self fillBaseToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillBaseToken:token fromResponse:response configuration:configuration];
 
     if (!result)
     {
         return NO;
     }
-
+    
     token.rawIdToken = response.idToken;
-
+    
     if (!token.rawIdToken)
     {
         MSID_LOG_ERROR(nil, @"Trying to initialize ID token when missing ID token field");
@@ -272,15 +271,15 @@
 
 - (BOOL)fillLegacyToken:(MSIDLegacySingleResourceToken *)token
            fromResponse:(MSIDTokenResponse *)response
-                request:(MSIDRequestParameters *)requestParams
+          configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [self fillAccessToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillAccessToken:token fromResponse:response configuration:configuration];
 
     if (!result)
     {
         return NO;
     }
-
+    
     token.refreshToken = response.refreshToken;
     token.idToken = response.idToken;
     token.legacyUserId = response.idTokenObj.userId;
@@ -290,9 +289,9 @@
 
 - (BOOL)fillLegacyAccessToken:(MSIDLegacyAccessToken *)token
                  fromResponse:(MSIDTokenResponse *)response
-                      request:(MSIDRequestParameters *)requestParams
+                configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [self fillAccessToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillAccessToken:token fromResponse:response configuration:configuration];
 
     if (!result)
     {
@@ -307,9 +306,9 @@
 
 - (BOOL)fillLegacyRefreshToken:(MSIDLegacyRefreshToken *)token
                   fromResponse:(MSIDTokenResponse *)response
-                       request:(MSIDRequestParameters *)requestParams
+                 configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [self fillRefreshToken:token fromResponse:response request:requestParams];
+    BOOL result = [self fillRefreshToken:token fromResponse:response configuration:configuration];
 
     if (!result)
     {
@@ -323,7 +322,7 @@
 
 - (BOOL)fillAccount:(MSIDAccount *)account
        fromResponse:(MSIDTokenResponse *)response
-            request:(MSIDRequestParameters *)requestParams
+      configuration:(MSIDConfiguration *)configuration
 {
     account.uniqueUserId = response.idTokenObj.userId;
 
@@ -337,24 +336,25 @@
     account.familyName = response.idTokenObj.familyName;
     account.middleName = response.idTokenObj.middleName;
     account.name = response.idTokenObj.name;
-    account.authority = requestParams.authority;
+    account.authority = configuration.authority;
     account.accountType = response.accountType;
     account.legacyUserId = response.idTokenObj.userId;
     return YES;
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                      customWebview:(WKWebView *)webview
 {
     // TODO: return default
     return nil;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
 {
     // TODO: return default
     return nil;
 }
 
 @end
+

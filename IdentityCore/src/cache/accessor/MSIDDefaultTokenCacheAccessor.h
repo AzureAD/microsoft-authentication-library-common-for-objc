@@ -25,7 +25,7 @@
 #import "MSIDCacheAccessor.h"
 
 @protocol MSIDAccountIdentifiers;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @class MSIDRefreshToken;
 @class MSIDAccessToken;
@@ -35,12 +35,12 @@
 @interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDCacheAccessor>
 
 - (MSIDAccessToken *)getAccessTokenForAccount:(id<MSIDAccountIdentifiers>)account
-                                requestParams:(MSIDRequestParameters *)parameters
+                                configuration:(MSIDConfiguration *)configuration
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError **)error;
 
 - (MSIDIdToken *)getIDTokenForAccount:(id<MSIDAccountIdentifiers>)account
-                        requestParams:(MSIDRequestParameters *)parameters
+                        configuration:(MSIDConfiguration *)configuration
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
 

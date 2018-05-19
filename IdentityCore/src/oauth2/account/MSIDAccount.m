@@ -26,7 +26,7 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAccountCacheItem.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDClientInfo.h"
 #import "MSIDClientInfo.h"

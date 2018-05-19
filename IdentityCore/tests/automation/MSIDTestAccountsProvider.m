@@ -82,8 +82,8 @@
         NSDictionary *requestDict = additionalConf[@"request"];
         NSDictionary *configurationDict = additionalConf[@"configuration"];
 
-        MSIDTestConfigurationRequest *request = [MSIDTestConfigurationRequest requestWithDictionary:requestDict];
-        MSIDTestConfiguration *configuration = [[MSIDTestConfiguration alloc] initWithJSONDictionary:configurationDict];
+        MSIDTestAutomationConfigurationRequest *request = [MSIDTestAutomationConfigurationRequest requestWithDictionary:requestDict];
+        MSIDTestAutomationConfiguration *configuration = [[MSIDTestAutomationConfiguration alloc] initWithJSONDictionary:configurationDict];
         additionalConfsDictionary[request] = configuration;
     }
 
@@ -94,8 +94,8 @@
 
 }
 
-- (void)configurationWithRequest:(MSIDTestConfigurationRequest *)request
-               completionHandler:(void (^)(MSIDTestConfiguration *configuration))completionHandler
+- (void)configurationWithRequest:(MSIDTestAutomationConfigurationRequest *)request
+               completionHandler:(void (^)(MSIDTestAutomationConfiguration *configuration))completionHandler
 {
     if (_cachedConfigurations[request])
     {
@@ -122,7 +122,7 @@
               return;
           }
 
-          MSIDTestConfiguration *configuration = [[MSIDTestConfiguration alloc] initWithJSONResponseData:data];
+          MSIDTestAutomationConfiguration *configuration = [[MSIDTestAutomationConfiguration alloc] initWithJSONResponseData:data];
           self->_cachedConfigurations[request] = configuration;
 
           if (completionHandler)

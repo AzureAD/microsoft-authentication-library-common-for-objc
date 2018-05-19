@@ -28,7 +28,7 @@
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDUserInformation.h"
 #import "NSDate+MSIDExtensions.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static uint64_t s_expirationBuffer = 300;

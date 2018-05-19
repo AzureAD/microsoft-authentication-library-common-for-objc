@@ -22,12 +22,8 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenFilteringHelper.h"
-#import "MSIDAccessToken.h"
 #import "MSIDCredentialCacheItem.h"
-#import "MSIDAccount.h"
-#import "MSIDAadAuthorityCache.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDAADIdTokenClaimsFactory.h"
+
 
 @implementation MSIDTokenFilteringHelper
 

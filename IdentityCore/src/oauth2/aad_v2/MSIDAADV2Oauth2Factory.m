@@ -107,9 +107,9 @@
 
 - (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
            fromResponse:(MSIDAADV2TokenResponse *)response
-                request:(MSIDRequestParameters *)requestParams
+          configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [super fillAccessToken:accessToken fromResponse:response request:requestParams];
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response configuration:configuration];
 
     if (!result)
     {
@@ -120,11 +120,11 @@
 
     if (!response.scope)
     {
-        responseScopes = requestParams.scopes;
+        responseScopes = configuration.scopes;
     }
     else
     {
-        NSOrderedSet<NSString *> *reqScopes = requestParams.scopes;
+        NSOrderedSet<NSString *> *reqScopes = configuration.scopes;
 
         if (reqScopes.count == 1 && [reqScopes.firstObject.lowercaseString hasSuffix:@".default"])
         {
@@ -141,14 +141,14 @@
 
 - (BOOL)fillAccount:(MSIDAccount *)account
        fromResponse:(MSIDAADV2TokenResponse *)response
-            request:(MSIDRequestParameters *)requestParams
+      configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return NO;
     }
 
-    BOOL result = [super fillAccount:account fromResponse:response request:requestParams];
+    BOOL result = [super fillAccount:account fromResponse:response configuration:configuration];
 
     if (!result)
     {
@@ -164,9 +164,9 @@
 
 - (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken
          fromResponse:(MSIDAADTokenResponse *)response
-              request:(MSIDRequestParameters *)requestParams
+        configuration:(MSIDConfiguration *)configuration
 {
-    if (![super fillBaseToken:baseToken fromResponse:response request:requestParams])
+    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
     {
         return NO;
     }
@@ -183,14 +183,14 @@
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                            Webview:(WKWebView *)webview
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
     return nil;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDRequestParameters *)requestParams
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController
     return nil;

@@ -29,11 +29,11 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAccountCredentialCache.h"
+#import "MSIDConfiguration.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
-#import "MSIDRequestParameters.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDBrokerResponse.h"
@@ -66,23 +66,23 @@
 }
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                requestParams:(MSIDRequestParameters *)requestParams
+                configuration:(MSIDConfiguration *)configuration
                      response:(MSIDTokenResponse *)response
                       context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+                        error:(NSError *__autoreleasing *)error
 {
-    BOOL result = [self saveAccessTokenWithFactory:factory requestParams:requestParams response:response context:context error:error];
+    BOOL result = [self saveAccessTokenWithFactory:factory configuration:configuration response:response context:context error:error];
 
     if (!result) return result;
-    
-    return [self saveSSOStateWithFactory:factory requestParams:requestParams response:response context:context error:error];
+
+    return [self saveSSOStateWithFactory:factory configuration:configuration response:response context:context error:error];
 }
 
 - (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
                brokerResponse:(MSIDBrokerResponse *)response
              saveSSOStateOnly:(BOOL)saveSSOStateOnly
                       context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+                        error:(NSError *__autoreleasing *)error
 {
     // MSAL currently doesn't yet support broker
     if (error)
@@ -94,14 +94,14 @@
 }
 
 - (BOOL)saveSSOStateWithFactory:(MSIDOauth2Factory *)factory
-                  requestParams:(MSIDRequestParameters *)requestParams
+                  configuration:(MSIDConfiguration *)configuration
                        response:(MSIDTokenResponse *)response
                         context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+                          error:(NSError *__autoreleasing *)error
 {
-    BOOL result = [self saveIDTokenWithFactory:factory requestParams:requestParams response:response context:context error:error];
-    result &= [self saveRefreshTokenWithFactory:factory requestParams:requestParams response:response context:context error:error];
-    result &= [self saveAccountWithFactory:factory requestParams:requestParams response:response context:context error:error];
+    BOOL result = [self saveIDTokenWithFactory:factory configuration:configuration response:response context:context error:error];
+    result &= [self saveRefreshTokenWithFactory:factory configuration:configuration response:response context:context error:error];
+    result &= [self saveAccountWithFactory:factory configuration:configuration response:response context:context error:error];
 
     if (!result)
     {
@@ -111,7 +111,7 @@
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
         if (![accessor saveSSOStateWithFactory:factory
-                                 requestParams:requestParams
+                                 configuration:configuration
                                       response:response
                                        context:context
                                          error:error])
@@ -125,17 +125,18 @@
 }
 
 
+
 - (MSIDRefreshToken *)getRefreshTokenWithAccount:(id<MSIDAccountIdentifiers>)account
                                         familyId:(NSString *)familyId
-                                   requestParams:(MSIDRequestParameters *)parameters
+                                   configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+                                           error:(NSError *__autoreleasing *)error
 {
-    NSString *clientId = familyId ? nil : parameters.clientId;
+    NSString *clientId = familyId ? nil : configuration.clientId;
 
     MSIDBaseToken *refreshToken = [self getTokenWithType:MSIDRefreshTokenType
                                                  account:account
-                                               authority:parameters.authority
+                                               authority:configuration.authority
                                                 clientId:clientId
                                                 familyId:familyId
                                                   target:nil
@@ -149,7 +150,7 @@
         {
             MSIDRefreshToken *refreshToken = [accessor getRefreshTokenWithAccount:account
                                                                          familyId:familyId
-                                                                    requestParams:parameters
+                                                                    configuration:configuration
                                                                           context:context
                                                                             error:error];
 
@@ -186,38 +187,38 @@
 #pragma mark - Public
 
 - (MSIDAccessToken *)getAccessTokenForAccount:(id<MSIDAccountIdentifiers>)account
-                                requestParams:(MSIDRequestParameters *)parameters
+                                configuration:(MSIDConfiguration *)configuration
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError **)error
 {
     NSURL *outAuthority = nil;
     MSIDAccessToken *accessToken = (MSIDAccessToken *) [self getTokenWithType:MSIDAccessTokenType
                                                                       account:account
-                                                                    authority:parameters.authority
-                                                                     clientId:parameters.clientId
+                                                                    authority:configuration.authority
+                                                                     clientId:configuration.clientId
                                                                      familyId:nil
-                                                                       target:parameters.target
+                                                                       target:configuration.target
                                                                       context:context
                                                                         error:error
                                                                  outAuthority:&outAuthority];
 
-    if (accessToken && !parameters.authority)
+    if (accessToken && !configuration.authority)
     {
-        parameters.authority = outAuthority;
+        configuration.authority = outAuthority;
     }
 
     return accessToken;
 }
 
 - (MSIDIdToken *)getIDTokenForAccount:(id<MSIDAccountIdentifiers>)account
-                        requestParams:(MSIDRequestParameters *)parameters
+                        configuration:(MSIDConfiguration *)configuration
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
     return (MSIDIdToken *) [self getTokenWithType:MSIDIDTokenType
                                           account:account
-                                        authority:parameters.authority
-                                         clientId:parameters.clientId
+                                        authority:configuration.authority
+                                         clientId:configuration.clientId
                                          familyId:nil
                                            target:nil
                                           context:context
@@ -392,13 +393,12 @@
 #pragma mark - Internal
 
 - (BOOL)saveAccessTokenWithFactory:(MSIDOauth2Factory *)factory
-                     requestParams:(MSIDRequestParameters *)requestParams
+                     configuration:(MSIDConfiguration *)configuration
                           response:(MSIDTokenResponse *)response
                            context:(id<MSIDRequestContext>)context
                              error:(NSError **)error
 {
-    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response request:requestParams];
-
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     if (!accessToken)
     {
         [self fillInternalErrorWithMessage:@"Response does not contain an access token" context:context error:error];
@@ -414,12 +414,12 @@
 }
 
 - (BOOL)saveIDTokenWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
+                 configuration:(MSIDConfiguration *)configuration
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    MSIDIdToken *idToken = [factory idTokenFromResponse:response request:requestParams];
+    MSIDIdToken *idToken = [factory idTokenFromResponse:response configuration:configuration];
 
     if (idToken)
     {
@@ -430,12 +430,12 @@
 }
 
 - (BOOL)saveRefreshTokenWithFactory:(MSIDOauth2Factory *)factory
-                      requestParams:(MSIDRequestParameters *)requestParams
+                      configuration:(MSIDConfiguration *)configuration
                            response:(MSIDTokenResponse *)response
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
-    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response request:requestParams];
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response configuration:configuration];
 
     if (!refreshToken)
     {
@@ -459,12 +459,12 @@
 }
 
 - (BOOL)saveAccountWithFactory:(MSIDOauth2Factory *)factory
-                 requestParams:(MSIDRequestParameters *)requestParams
+                 configuration:(MSIDConfiguration *)configuration
                       response:(MSIDTokenResponse *)response
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    MSIDAccount *account = [factory accountFromResponse:response request:requestParams];
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
 
     if (account)
     {
@@ -841,7 +841,6 @@
     }
 
     MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
-
     MSIDAccountCacheItem *cacheItem = account.accountCacheItem;
     cacheItem.environment = [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:cacheItem.environment context:context];
 

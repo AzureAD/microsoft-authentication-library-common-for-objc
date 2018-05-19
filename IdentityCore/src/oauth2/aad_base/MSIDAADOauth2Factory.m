@@ -122,9 +122,9 @@
 
 - (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
            fromResponse:(MSIDAADTokenResponse *)response
-                request:(MSIDRequestParameters *)requestParams
+          configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [super fillAccessToken:accessToken fromResponse:response request:requestParams];
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response configuration:configuration];
 
     if (!result)
     {
@@ -142,9 +142,9 @@
 
 - (BOOL)fillLegacyToken:(MSIDLegacySingleResourceToken *)token
            fromResponse:(MSIDAADTokenResponse *)response
-                request:(MSIDRequestParameters *)requestParams
+          configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [super fillLegacyToken:token fromResponse:response request:requestParams];
+    BOOL result = [super fillLegacyToken:token fromResponse:response configuration:configuration];
 
     if (!result)
     {
@@ -157,9 +157,9 @@
 
 - (BOOL)fillRefreshToken:(MSIDRefreshToken *)token
             fromResponse:(MSIDAADTokenResponse *)response
-                 request:(MSIDRequestParameters *)requestParams
+           configuration:(MSIDConfiguration *)configuration
 {
-    BOOL result = [super fillRefreshToken:token fromResponse:response request:requestParams];
+    BOOL result = [super fillRefreshToken:token fromResponse:response configuration:configuration];
 
     if (!result)
     {
@@ -172,14 +172,14 @@
 
 - (BOOL)fillAccount:(MSIDAccount *)account
        fromResponse:(MSIDAADTokenResponse *)response
-            request:(MSIDRequestParameters *)requestParams
+      configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return NO;
     }
 
-    BOOL result = [super fillAccount:account fromResponse:response request:requestParams];
+    BOOL result = [super fillAccount:account fromResponse:response configuration:configuration];
 
     if (!result)
     {
@@ -202,9 +202,9 @@
 
 - (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken
          fromResponse:(MSIDAADTokenResponse *)response
-              request:(MSIDRequestParameters *)requestParams
+        configuration:(MSIDConfiguration *)configuration
 {
-    if (![super fillBaseToken:baseToken fromResponse:response request:requestParams])
+    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
     {
         return NO;
     }

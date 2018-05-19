@@ -26,10 +26,10 @@
 @interface MSIDOauth2Factory()
 
 // Helpers
-- (BOOL)fillBaseToken:(MSIDBaseToken *)token fromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (BOOL)fillRefreshToken:(MSIDRefreshToken *)token fromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (BOOL)fillAccessToken:(MSIDAccessToken *)token fromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (BOOL)fillAccount:(MSIDAccount *)account fromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
-- (BOOL)fillLegacyToken:(MSIDLegacySingleResourceToken *)token fromResponse:(MSIDTokenResponse *)response request:(MSIDRequestParameters *)requestParams;
+- (BOOL)fillBaseToken:(MSIDBaseToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (BOOL)fillRefreshToken:(MSIDRefreshToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (BOOL)fillAccessToken:(MSIDAccessToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (BOOL)fillAccount:(MSIDAccount *)account fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (BOOL)fillLegacyToken:(MSIDLegacySingleResourceToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
 @end
