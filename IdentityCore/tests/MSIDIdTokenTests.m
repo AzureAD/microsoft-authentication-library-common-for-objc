@@ -83,8 +83,8 @@
 
 - (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDRefreshTokenType;
     
     MSIDIdToken *token = [[MSIDIdToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
@@ -92,12 +92,12 @@
 
 - (void)testInitWithTokenCacheItem_whenNoIdToken_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeIDToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDIDTokenType;
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.username = @"test";
     cacheItem.uniqueUserId = @"uid.utid";
     cacheItem.clientId = @"client id";
     
@@ -107,27 +107,26 @@
 
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeIDToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDIDTokenType;
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.username = @"test";
     cacheItem.uniqueUserId = @"uid.utid";
     cacheItem.clientId = @"client id";
-    cacheItem.idToken = @"id token";
+    cacheItem.secret = @"id token";
     
     MSIDIdToken *token = [[MSIDIdToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
-    XCTAssertEqualObjects(token.username, @"test");
     XCTAssertEqualObjects(token.rawIdToken, @"id token");
     
-    MSIDTokenCacheItem *newCacheItem = [token tokenCacheItem];
+    MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
 }
 
@@ -141,7 +140,6 @@
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
     [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
-    [token setValue:@"username" forKey:@"username"];
     [token setValue:@"idToken" forKey:@"rawIdToken"];
     
     return token;

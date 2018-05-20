@@ -29,6 +29,7 @@
 #define ID_TOKEN_TENANT_ID           @"tid"
 #define ID_TOKEN_VERSION             @"ver"
 #define ID_TOKEN_HOME_OBJECT_ID      @"home_oid"
+#define ID_TOKEN_ALT_SEC_ID          @"altsecid"
 
 @implementation MSIDAADV2IdTokenClaims
 
@@ -59,6 +60,16 @@ MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
 {
     return [super matchesLegacyUserId:legacyUserId]
         || [self.objectId isEqualToString:legacyUserId];
+}
+
+- (NSString *)alternativeAccountId
+{
+    return _json[ID_TOKEN_ALT_SEC_ID];
+}
+
+- (NSString *)realm
+{
+    return self.tenantId;
 }
 
 @end

@@ -31,6 +31,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
+#import "MSIDOauth2Factory+Internal.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -104,27 +105,16 @@
 
 #pragma mark - Tokens
 
-- (MSIDBaseToken *)baseTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                 configuration:(MSIDConfiguration *)configuration
+- (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
+           fromResponse:(MSIDAADV2TokenResponse *)response
+          configuration:(MSIDConfiguration *)configuration
 {
-    if (![self checkResponseClass:response context:nil error:nil])
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response configuration:configuration];
+
+    if (!result)
     {
-        return nil;
+        return NO;
     }
-
-    MSIDBaseToken *baseToken = [super baseTokenFromResponse:response configuration:configuration];
-    return [self fillAADV2BaseToken:baseToken fromResponse:response configuration:configuration];
-}
-
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                     configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return nil;
-    }
-
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response configuration:configuration];
 
     NSOrderedSet *responseScopes = response.scope.scopeSet;
 
@@ -145,71 +135,45 @@
     }
 
     accessToken.scopes = responseScopes;
+    accessToken.authority = [MSIDAuthority cacheUrlForAuthority:accessToken.authority tenantId:response.idTokenObj.realm];
 
-    return (MSIDAccessToken *) [self fillAADV2BaseToken:accessToken fromResponse:response configuration:configuration];
+    return YES;
 }
 
-- (MSIDIdToken *)idTokenFromResponse:(MSIDAADTokenResponse *)response
-                             configuration:(MSIDConfiguration *)configuration
+- (BOOL)fillIDToken:(MSIDIdToken *)token
+       fromResponse:(MSIDTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
+{
+    BOOL result = [super fillIDToken:token fromResponse:response configuration:configuration];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
+
+    return YES;
+}
+
+- (BOOL)fillAccount:(MSIDAccount *)account
+       fromResponse:(MSIDAADV2TokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
-        return nil;
+        return NO;
     }
 
-    MSIDIdToken *idToken = [super idTokenFromResponse:response configuration:configuration];
-    return (MSIDIdToken *) [self fillAADV2BaseToken:idToken fromResponse:response configuration:configuration];
-}
+    BOOL result = [super fillAccount:account fromResponse:response configuration:configuration];
 
-- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDAADTokenResponse *)response
-                                       configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
-    MSIDRefreshToken *token = [super refreshTokenFromResponse:response configuration:configuration];
-    return (MSIDRefreshToken *) [self fillAADV2BaseToken:token fromResponse:response configuration:configuration];
-}
-
-- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDAADTokenResponse *)response
-                                                   configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return nil;
-    }
-
-    MSIDLegacySingleResourceToken *token = [super legacyTokenFromResponse:response configuration:configuration];
-    return (MSIDLegacySingleResourceToken *) [self fillAADV2BaseToken:token fromResponse:response configuration:configuration];
-}
-
-- (MSIDAccount *)accountFromResponse:(MSIDAADV2TokenResponse *)response
-                             configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return nil;
-    }
-
-    MSIDAccount *account = [super accountFromResponse:response configuration:configuration];
-    MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
-
-    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
-    return account;
-}
-
-#pragma mark - Fill token
-
-- (MSIDBaseToken *)fillAADV2BaseToken:(MSIDBaseToken *)baseToken
-                         fromResponse:(MSIDAADTokenResponse *)response
-                              configuration:(MSIDConfiguration *)configuration
-{
-    MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
-    baseToken.authority = [MSIDAuthority cacheUrlForAuthority:baseToken.authority tenantId:idToken.tenantId];
-
-    return baseToken;
+    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:response.idTokenObj.realm];
+    return YES;
 }
 
 #pragma mark - Webview controllers

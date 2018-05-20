@@ -100,8 +100,11 @@ NSString *const MSID_SPE_INFO_CACHE_KEY                  = @"spe_info";
 NSString *const MSID_RESOURCE_RT_CACHE_KEY               = @"resource_refresh_token";
 NSString *const MSID_ACCOUNT_ID_CACHE_KEY                = @"authority_account_id";
 NSString *const MSID_AUTHORITY_TYPE_CACHE_KEY            = @"authority_type";
-NSString *const MSID_FIRST_NAME_CACHE_KEY                = @"first_name";
-NSString *const MSID_LAST_NAME_CACHE_KEY                 = @"last_name";
+NSString *const MSID_GIVEN_NAME_CACHE_KEY                = @"given_name";
+NSString *const MSID_MIDDLE_NAME_CACHE_KEY               = @"middle_name";
+NSString *const MSID_FAMILY_NAME_CACHE_KEY               = @"family_name";
+NSString *const MSID_NAME_CACHE_KEY                      = @"name";
+NSString *const MSID_ALTERNATIVE_ACCOUNT_ID_KEY          = @"alternative_account_id";
 
 NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"accesstoken";
 NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"refreshtoken";

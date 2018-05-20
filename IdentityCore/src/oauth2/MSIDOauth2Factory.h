@@ -26,9 +26,11 @@
 @class MSIDTokenResponse;
 @class MSIDBaseToken;
 @class MSIDAccessToken;
+@class MSIDLegacyAccessToken;
 @class MSIDRefreshToken;
 @class MSIDIdToken;
 @class MSIDLegacySingleResourceToken;
+@class MSIDLegacyRefreshToken;
 @class MSIDAccount;
 @class MSIDConfiguration;
 @class WKWebView;
@@ -50,6 +52,8 @@
 // Tokens
 - (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDLegacyAccessToken *)legacyAccessTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDLegacyRefreshToken *)legacyRefreshTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;

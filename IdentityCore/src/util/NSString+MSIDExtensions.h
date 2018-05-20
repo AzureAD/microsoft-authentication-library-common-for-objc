@@ -59,4 +59,6 @@
 
 - (NSOrderedSet<NSString *> *)scopeSet;
 
+- (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases;
+
 @end

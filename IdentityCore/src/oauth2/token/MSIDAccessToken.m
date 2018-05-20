@@ -50,9 +50,7 @@ static uint64_t s_expirationBuffer = 300;
     item->_cachedAt = [_cachedAt copyWithZone:zone];
     item->_accessToken = [_accessToken copyWithZone:zone];
     item->_target = [_target copyWithZone:zone];
-    item->_idToken = [_idToken copyWithZone:zone];
-    item->_accessTokenType = [_accessTokenType copyWithZone:zone];
-    
+
     return item;
 }
 
@@ -78,10 +76,8 @@ static uint64_t s_expirationBuffer = 300;
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.expiresOn.hash;
     hash = hash * 31 + self.accessToken.hash;
-    hash = hash * 31 + self.resource.hash;
-    hash = hash * 31 + self.scopes.hash;
+    hash = hash * 31 + self.target.hash;
     hash = hash * 31 + self.cachedAt.hash;
-    hash = hash * 31 + self.accessTokenType.hash;
     return hash;
 }
 
@@ -95,18 +91,15 @@ static uint64_t s_expirationBuffer = 300;
     BOOL result = [super isEqualToItem:token];
     result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
     result &= (!self.accessToken && !token.accessToken) || [self.accessToken isEqualToString:token.accessToken];
-    result &= (!self.resource && !token.resource) || [self.resource isEqualToString:token.resource];
-    result &= (!self.scopes && !token.scopes) || [self.scopes isEqualToOrderedSet:token.scopes];
+    result &= (!self.target && !token.target) || [self.target isEqualToString:token.target];
     result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
-    result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
-    result &= (!self.accessTokenType && !token.accessTokenType) || [self.accessTokenType isEqualToString:token.accessTokenType];
-    
+
     return result;
 }
 
 #pragma mark - Cache
 
-- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem
+- (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem
 {
     self = [super initWithTokenCacheItem:tokenCacheItem];
     
@@ -114,16 +107,14 @@ static uint64_t s_expirationBuffer = 300;
     {
         _expiresOn = tokenCacheItem.expiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
-        _accessToken = tokenCacheItem.accessToken;
-        _accessTokenType = tokenCacheItem.oauthTokenType;
-        
+        _accessToken = tokenCacheItem.secret;
+
         if (!_accessToken)
         {
             MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
             return nil;
         }
         
-        _idToken = tokenCacheItem.idToken;
         _target = tokenCacheItem.target;
         
         if (!_target)
@@ -136,29 +127,33 @@ static uint64_t s_expirationBuffer = 300;
     return self;
 }
 
-- (MSIDTokenCacheItem *)tokenCacheItem
+- (MSIDCredentialCacheItem *)tokenCacheItem
 {
-    MSIDTokenCacheItem *cacheItem = [super tokenCacheItem];
+    MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
     cacheItem.expiresOn = self.expiresOn;
     cacheItem.cachedAt = self.cachedAt;
-    cacheItem.accessToken = self.accessToken;
-    cacheItem.idToken = self.idToken;
+    cacheItem.secret = self.accessToken;
     cacheItem.target = self.target;
-    cacheItem.oauthTokenType = self.accessTokenType;
+    cacheItem.credentialType = MSIDAccessTokenType;
     return cacheItem;
 }
 
 #pragma mark - Token type
 
-- (MSIDTokenType)tokenType
+- (MSIDCredentialType)credentialType
 {
-    return MSIDTokenTypeAccessToken;
+    return MSIDAccessTokenType;
 }
 
 #pragma mark - Expiry
 
 - (BOOL)isExpired;
 {
+    if (self.cachedAt && [[NSDate date] compare:self.cachedAt] == NSOrderedAscending)
+    {
+        return YES;
+    }
+
     NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:s_expirationBuffer];
     return [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
 }
@@ -208,7 +203,7 @@ static uint64_t s_expirationBuffer = 300;
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, target=%@, id token=%@)", _PII_NULLIFY(_accessToken), _expiresOn, _target, _PII_NULLIFY(_idToken)];
+    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, target=%@)", _PII_NULLIFY(_accessToken), _expiresOn, _target];
 }
 
 @end

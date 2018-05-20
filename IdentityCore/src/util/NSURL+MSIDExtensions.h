@@ -26,7 +26,6 @@
 @property (readonly, nonatomic) NSDictionary *msidFragmentParameters;
 
 - (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL;
-- (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSURL *> *)aliases;
 
 - (NSString *)msidHostWithPortIfNecessary;
 - (NSString *)msidTenant;

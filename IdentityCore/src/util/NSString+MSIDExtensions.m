@@ -367,4 +367,21 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return scope;
 }
 
+- (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases
+{
+    if (!aliases)
+    {
+        return NO;
+    }
+
+    for (NSString *alias in aliases)
+    {
+        if ([self caseInsensitiveCompare:alias] == NSOrderedSame)
+        {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @end

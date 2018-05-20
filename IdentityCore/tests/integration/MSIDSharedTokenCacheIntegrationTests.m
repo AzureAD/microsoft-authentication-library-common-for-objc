@@ -92,7 +92,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    XCTAssertEqual(token.tokenType, MSIDTokenTypeAccessToken);
+    XCTAssertEqual(token.credentialType, MSIDCredentialTypeAccessToken);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     
     // Check that a refresh token is returned back
@@ -103,7 +103,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(refreshToken);
-    XCTAssertEqual(refreshToken.tokenType, MSIDTokenTypeRefreshToken);
+    XCTAssertEqual(refreshToken.credentialType, MSIDCredentialTypeRefreshToken);
     XCTAssertEqualObjects(refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
 
@@ -174,7 +174,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    XCTAssertEqual(token.tokenType, MSIDTokenTypeAccessToken);
+    XCTAssertEqual(token.credentialType, MSIDCredentialTypeAccessToken);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     
     // Check that a refresh token is returned back
@@ -185,7 +185,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(refreshToken);
-    XCTAssertEqual(refreshToken.tokenType, MSIDTokenTypeRefreshToken);
+    XCTAssertEqual(refreshToken.credentialType, MSIDCredentialTypeRefreshToken);
     XCTAssertEqualObjects(refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
 

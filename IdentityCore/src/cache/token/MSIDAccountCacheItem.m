@@ -22,95 +22,156 @@
 // THE SOFTWARE.
 
 #import "MSIDAccountCacheItem.h"
+#import "MSIDClientInfo.h"
+
+@interface MSIDAccountCacheItem()
+
+@property (readwrite) NSDictionary *json;
+
+@end
 
 @implementation MSIDAccountCacheItem
 
-#pragma mark - NSSecureCoding
+#pragma mark - Equal
 
-- (instancetype)initWithCoder:(NSCoder *)coder
+- (BOOL)isEqual:(id)object
 {
-    if (!(self = [super initWithCoder:coder]))
+    if (self == object)
     {
-        return nil;
+        return YES;
     }
-    
-    _legacyUserIdentifier = [coder decodeObjectOfClass:[NSString class] forKey:@"legacy_user_id"];
-    
-    _accountType = [MSIDAccountTypeHelpers accountTypeFromString:[coder decodeObjectOfClass:[NSString class] forKey:@"authority_type"]];
-    
-    _firstName = [coder decodeObjectOfClass:[NSString class] forKey:@"first_name"];
-    _lastName = [coder decodeObjectOfClass:[NSString class] forKey:@"last_name"];
-    
-    return self;
+
+    if (![object isKindOfClass:self.class])
+    {
+        return NO;
+    }
+
+    return [self isEqualToItem:(MSIDAccountCacheItem *)object];
 }
 
-- (void)encodeWithCoder:(NSCoder *)coder
+- (BOOL)isEqualToItem:(MSIDAccountCacheItem *)item
 {
-    [super encodeWithCoder:coder];
-    
-    [coder encodeObject:_legacyUserIdentifier forKey:@"legacy_user_id"];
-    [coder encodeObject:[MSIDAccountTypeHelpers accountTypeAsString:_accountType] forKey:@"authority_type"];
-    [coder encodeObject:_firstName forKey:@"first_name"];
-    [coder encodeObject:_lastName forKey:@"last_name"];
+    BOOL result = YES;
+    result &= self.accountType == item.accountType;
+    result &= (!self.uniqueUserId || !item.uniqueUserId) || [self.uniqueUserId isEqualToString:item.uniqueUserId];
+    result &= (!self.legacyUserId || !item.legacyUserId) || [self.legacyUserId isEqualToString:item.legacyUserId];
+    result &= (!self.username || !item.username) || [self.username isEqualToString:item.username];
+    result &= (!self.givenName || !item.givenName) || [self.givenName isEqualToString:item.givenName];
+    result &= (!self.middleName || !item.middleName) || [self.middleName isEqualToString:item.middleName];
+    result &= (!self.familyName || !item.familyName) || [self.familyName isEqualToString:item.familyName];
+    result &= (!self.name || !item.name) || [self.name isEqualToString:item.name];
+    result &= (!self.realm || !item.realm) || [self.realm isEqualToString:item.realm];
+    result &= (!self.clientInfo || !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
+    result &= (!self.environment || !item.environment) || [self.environment isEqualToString:item.environment];
+    result &= (!self.alternativeAccountId || !item.alternativeAccountId) || [self.alternativeAccountId isEqualToString:item.alternativeAccountId];
+    return result;
+}
+
+#pragma mark - NSObject
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = [super hash];
+    hash = hash * 31 + self.accountType;
+    hash = hash * 31 + self.uniqueUserId.hash;
+    hash = hash * 31 + self.legacyUserId.hash;
+    hash = hash * 31 + self.username.hash;
+    hash = hash * 31 + self.givenName.hash;
+    hash = hash * 31 + self.middleName.hash;
+    hash = hash * 31 + self.familyName.hash;
+    hash = hash * 31 + self.name.hash;
+    hash = hash * 31 + self.realm.hash;
+    hash = hash * 31 + self.clientInfo.hash;
+    hash = hash * 31 + self.environment.hash;
+    hash = hash * 31 + self.alternativeAccountId.hash;
+    return hash;
+}
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAccountCacheItem *item = [[self class] allocWithZone:zone];
+    item.accountType = self.accountType;
+    item.uniqueUserId = [self.uniqueUserId copyWithZone:zone];
+    item.legacyUserId = [self.legacyUserId copyWithZone:zone];
+    item.username = [self.username copyWithZone:zone];
+    item.givenName = [self.givenName copyWithZone:zone];
+    item.middleName = [self.middleName copyWithZone:zone];
+    item.familyName = [self.familyName copyWithZone:zone];
+    item.name = [self.name copyWithZone:zone];
+    item.realm = [self.realm copyWithZone:zone];
+    item.clientInfo = [self.clientInfo copyWithZone:zone];
+    item.environment = [self.environment copyWithZone:zone];
+    item.alternativeAccountId = [self.alternativeAccountId copyWithZone:zone];
+    return item;
 }
 
 #pragma mark - JSON
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    if (!(self = [super initWithJSONDictionary:json error:error]))
+    if (!(self = [super init]))
     {
         return nil;
     }
-    
-    // Authority account ID
-    _legacyUserIdentifier = json[MSID_ACCOUNT_ID_CACHE_KEY];
-    
-    /* Optional fields */
-    // First name
-    _firstName = json[MSID_FIRST_NAME_CACHE_KEY];
-    
-    // Last name
-    _lastName = json[MSID_LAST_NAME_CACHE_KEY];
-    
-    // Account type
+
+    if (!json)
+    {
+        MSID_LOG_WARN(nil, @"Tried to decode an account cache item from nil json");
+        return nil;
+    }
+
+    _json = json;
+
     _accountType = [MSIDAccountTypeHelpers accountTypeFromString:json[MSID_AUTHORITY_TYPE_CACHE_KEY]];
-    
-    // Extensibility
-    _additionalAccountFields = json;
-    
+
+    if (!_accountType)
+    {
+        MSID_LOG_WARN(nil, @"No account type present in the JSON for credential");
+        return nil;
+    }
+
+    _legacyUserId = json[MSID_ACCOUNT_ID_CACHE_KEY];
+    _uniqueUserId = json[MSID_UNIQUE_ID_CACHE_KEY];
+    _username = json[MSID_USERNAME_CACHE_KEY];
+    _givenName = json[MSID_GIVEN_NAME_CACHE_KEY];
+    _middleName = json[MSID_MIDDLE_NAME_CACHE_KEY];
+    _familyName = json[MSID_FAMILY_NAME_CACHE_KEY];
+    _name = json[MSID_NAME_CACHE_KEY];
+    _realm = json[MSID_REALM_CACHE_KEY];
+    _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:json[MSID_CLIENT_INFO_CACHE_KEY] error:nil];
+    _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
+    _alternativeAccountId = json[MSID_ALTERNATIVE_ACCOUNT_ID_KEY];
     return self;
 }
 
 - (NSDictionary *)jsonDictionary
 {    
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+
+    if (_json)
+    {
+        [dictionary addEntriesFromDictionary:_json];
+    }
     
     if (_additionalAccountFields)
     {
         [dictionary addEntriesFromDictionary:_additionalAccountFields];
     }
     
-    // Parent JSON
-    [dictionary addEntriesFromDictionary:[super jsonDictionary]];
-    
-    /* Mandatory fields */
-    // Tenant
-    dictionary[MSID_REALM_CACHE_KEY] = _authority.msidTenant;
-    
-    // Authority account ID
-    dictionary[MSID_ACCOUNT_ID_CACHE_KEY] = _legacyUserIdentifier;
-    
-    /* Optional fields */
-    // First name
-    dictionary[MSID_FIRST_NAME_CACHE_KEY] = _firstName;
-    
-    // Last name
-    dictionary[MSID_LAST_NAME_CACHE_KEY] = _lastName;
-    
-    // Account type
     dictionary[MSID_AUTHORITY_TYPE_CACHE_KEY] = [MSIDAccountTypeHelpers accountTypeAsString:_accountType];
-    
+    dictionary[MSID_UNIQUE_ID_CACHE_KEY] = _uniqueUserId;
+    dictionary[MSID_ACCOUNT_ID_CACHE_KEY] = _legacyUserId;
+    dictionary[MSID_USERNAME_CACHE_KEY] = _username;
+    dictionary[MSID_GIVEN_NAME_CACHE_KEY] = _givenName;
+    dictionary[MSID_MIDDLE_NAME_CACHE_KEY] = _middleName;
+    dictionary[MSID_FAMILY_NAME_CACHE_KEY] = _familyName;
+    dictionary[MSID_NAME_CACHE_KEY] = _name;
+    dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _environment;
+    dictionary[MSID_REALM_CACHE_KEY] = _realm;
+    dictionary[MSID_CLIENT_INFO_CACHE_KEY] = _clientInfo.rawClientInfo;
+    dictionary[MSID_ALTERNATIVE_ACCOUNT_ID_KEY] = _alternativeAccountId;
     return dictionary;
 }
 
@@ -122,6 +183,30 @@
     [allAdditionalFields addEntriesFromDictionary:account.additionalAccountFields];
     [allAdditionalFields addEntriesFromDictionary:_additionalAccountFields];
     _additionalAccountFields = allAdditionalFields;
+}
+
+#pragma mark - Query
+
+- (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
+                    environment:(nullable NSString *)environment
+             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
+{
+    if (uniqueUserId && ![self.uniqueUserId isEqualToString:uniqueUserId])
+    {
+        return NO;
+    }
+
+    if (environment && ![self.environment isEqualToString:environment])
+    {
+        return NO;
+    }
+
+    if (environmentAliases && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    {
+        return NO;
+    }
+
+    return YES;
 }
 
 @end

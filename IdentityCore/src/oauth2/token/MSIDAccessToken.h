@@ -24,16 +24,14 @@
 #import "MSIDBaseToken.h"
 
 @interface MSIDAccessToken : MSIDBaseToken
+{
+    NSString *_accessToken;
+}
 
 @property (readwrite) NSDate *expiresOn;
 @property (readonly) NSDate *extendedExpireTime;
 @property (readwrite) NSDate *cachedAt;
 @property (readwrite) NSString *accessToken;
-
-@property (readwrite) NSString *accessTokenType;
-
-// Id token is necessary for backward ADAL compatibility
-@property (readwrite) NSString *idToken;
 
 // v1 access tokens are scoped down to resources
 @property (readwrite) NSString *resource;
