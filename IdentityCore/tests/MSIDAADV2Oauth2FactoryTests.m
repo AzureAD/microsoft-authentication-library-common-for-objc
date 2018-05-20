@@ -410,7 +410,7 @@
     XCTAssertEqualObjects(account.legacyUserId, @"eric999");
     XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
     XCTAssertNotNil(account.clientInfo);
-    XCTAssertEqual(account.accountType, MSIDAccountTypeAADV2);
+    XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account.username, @"eric999");
     XCTAssertNil(account.givenName, @"Eric");
     XCTAssertNil(account.familyName, @"Cartman");

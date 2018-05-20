@@ -415,7 +415,7 @@
     XCTAssertEqualObjects(account.legacyUserId, @"eric_cartman@upn.com");
     XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(account.clientInfo, clientInfo);
-    XCTAssertEqual(account.accountType, MSIDAccountTypeAADV2);
+    XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account.username, @"eric_cartman@upn.com");
     XCTAssertNil(account.givenName);
     XCTAssertNil(account.familyName);

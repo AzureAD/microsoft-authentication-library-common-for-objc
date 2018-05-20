@@ -592,7 +592,7 @@
                                                                                 error:(NSError **)error
 {
     MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
-    accountsQuery.accountType = MSIDAccountTypeAADV2;
+    accountsQuery.accountType = MSIDAccountTypeMSSTS;
     accountsQuery.environmentAliases = environmentAliases;
 
     NSArray<MSIDAccountCacheItem *> *resultAccounts = [_accountCredentialCache getAccountsWithQuery:accountsQuery context:context error:error];

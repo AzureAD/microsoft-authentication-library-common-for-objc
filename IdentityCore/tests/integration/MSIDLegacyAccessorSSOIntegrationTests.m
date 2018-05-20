@@ -265,7 +265,7 @@
     XCTAssertEqual([accounts count], 1);
 
     MSIDAccount *account = accounts[0];
-    XCTAssertEqual(account.accountType, MSIDAccountTypeAADV2);
+    XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account.username, @"upn@test.com");
     XCTAssertNil(account.givenName);
     XCTAssertNil(account.middleName);
@@ -596,7 +596,7 @@
     XCTAssertEqual([accounts count], 1);
 
     MSIDAccount *account = accounts[0];
-    XCTAssertEqual(account.accountType, MSIDAccountTypeAADV2);
+    XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account.username, @"upn@test.com");
     XCTAssertNil(account.givenName);
     XCTAssertNil(account.middleName);
@@ -692,7 +692,7 @@
     XCTAssertEqual([accounts count], 1);
 
     MSIDAccount *account = accounts[0];
-    XCTAssertEqual(account.accountType, MSIDAccountTypeAADV2);
+    XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account.username, @"upn@test.com");
     XCTAssertNil(account.givenName);
     XCTAssertNil(account.middleName);

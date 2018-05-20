@@ -250,7 +250,7 @@
         account.legacyUserId = refreshToken.legacyUserId;
         account.uniqueUserId = refreshToken.uniqueUserId;
         account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
-        account.accountType = MSIDAccountTypeAADV2;
+        account.accountType = MSIDAccountTypeMSSTS;
 
         [resultAccounts addObject:account];
     }

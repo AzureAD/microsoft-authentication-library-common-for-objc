@@ -199,7 +199,7 @@
 - (MSIDAccount *)createAccount
 {
     MSIDAccount *account = [MSIDAccount new];
-    account.accountType = MSIDAccountTypeAADV2;
+    account.accountType = MSIDAccountTypeMSSTS;
     account.uniqueUserId = @"uid.utid";
     account.legacyUserId = @"legacy";
     account.authority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];

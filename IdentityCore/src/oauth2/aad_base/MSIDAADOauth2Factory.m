@@ -187,7 +187,7 @@
     }
 
     account.clientInfo = response.clientInfo;
-    account.accountType = MSIDAccountTypeAADV2;
+    account.accountType = MSIDAccountTypeMSSTS;
     account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
     if (response.clientInfo.userIdentifier)

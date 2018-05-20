@@ -35,7 +35,7 @@
     MSIDDefaultAccountCacheKey *cacheKey = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:@"uid.utid"
                                                                                         environment:@"login.microsoftonline.com"
                                                                                               realm:@"contoso.com"
-                                                                                               type:MSIDAccountTypeAADV2];
+                                                                                               type:MSIDAccountTypeMSSTS];
 
     cacheKey.username = @"username";
 

@@ -1509,7 +1509,7 @@
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:@"uid.utid"
                                                                                    environment:@"login.microsoftonline.com"
                                                                                          realm:@"contoso.com"
-                                                                                          type:MSIDAccountTypeAADV2];
+                                                                                          type:MSIDAccountTypeMSSTS];
 
     NSError *error = nil;
     MSIDAccountCacheItem *resultItem = [self.cache getAccount:key context:nil error:&error];
@@ -1526,7 +1526,7 @@
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:@"uid.utid"
                                                                                    environment:@"login.microsoftonline.com"
                                                                                          realm:@"contoso.com"
-                                                                                          type:MSIDAccountTypeAADV2];
+                                                                                          type:MSIDAccountTypeMSSTS];
 
     NSError *error = nil;
     MSIDAccountCacheItem *resultItem = [self.cache getAccount:key context:nil error:&error];
@@ -1547,7 +1547,7 @@
     [self saveAccount:item2];
 
     NSError *error = nil;
-    NSArray *results = [self.cache getAllAccountsWithType:MSIDAccountTypeAADV2 context:nil error:&error];
+    NSArray *results = [self.cache getAllAccountsWithType:MSIDAccountTypeMSSTS context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertTrue([results count] == 1);
@@ -1571,7 +1571,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(removeResult);
 
-    NSArray *results = [self.cache getAllAccountsWithType:MSIDAccountTypeAADV2 context:nil error:&error];
+    NSArray *results = [self.cache getAllAccountsWithType:MSIDAccountTypeMSSTS context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertTrue([results count] == 1);
@@ -1653,7 +1653,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *allAccounts = [self.cache getAllAccountsWithType:MSIDAccountTypeAADV2 context:nil error:&error];
+    NSArray *allAccounts = [self.cache getAllAccountsWithType:MSIDAccountTypeMSSTS context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allAccounts);
     XCTAssertTrue([allAccounts count] == 1);
@@ -1674,7 +1674,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *allAccounts = [self.cache getAllAccountsWithType:MSIDAccountTypeAADV2 context:nil error:&error];
+    NSArray *allAccounts = [self.cache getAllAccountsWithType:MSIDAccountTypeMSSTS context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allAccounts);
     XCTAssertTrue([allAccounts count] == 2);
@@ -2083,7 +2083,7 @@
 - (MSIDAccountCacheItem *)createTestAccountCacheItem
 {
     MSIDAccountCacheItem *item = [MSIDAccountCacheItem new];
-    item.accountType = MSIDAccountTypeAADV2;
+    item.accountType = MSIDAccountTypeMSSTS;
     item.uniqueUserId = @"uid.utid";
     item.environment = @"login.microsoftonline.com";
     item.realm = @"contoso.com";

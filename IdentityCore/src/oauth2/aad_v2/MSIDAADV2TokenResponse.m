@@ -35,7 +35,7 @@
 
 - (MSIDAccountType)accountType
 {
-    return MSIDAccountTypeAADV2;
+    return MSIDAccountTypeMSSTS;
 }
 
 @end

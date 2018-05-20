@@ -205,7 +205,7 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Get all accounts with type %@", [MSIDAccountTypeHelpers accountTypeAsString:type]);
 
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
-    query.accountType = MSIDAccountTypeAADV2;
+    query.accountType = MSIDAccountTypeMSSTS;
 
     return [_dataSource accountsWithKey:query serializer:_serializer context:context error:error];
 }

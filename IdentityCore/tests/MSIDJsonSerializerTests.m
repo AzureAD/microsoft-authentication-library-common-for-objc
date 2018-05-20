@@ -106,7 +106,7 @@
     cacheItem.familyName = @"Smith";
     cacheItem.givenName = @"Test";
     cacheItem.legacyUserId = @"upn";
-    cacheItem.accountType = MSIDAccountTypeAADV2;
+    cacheItem.accountType = MSIDAccountTypeMSSTS;
     
     NSData *data = [serializer serializeAccountCacheItem:cacheItem];
     MSIDAccountCacheItem *resultItem = [serializer deserializeAccountCacheItem:data];
