@@ -114,7 +114,7 @@
     cacheItem.clientId = self.clientId;
     cacheItem.clientInfo = self.clientInfo;
     cacheItem.additionalInfo = self.additionalServerInfo;
-    cacheItem.uniqueUserId = self.uniqueUserId;
+    cacheItem.homeAccountId = self.homeAccountId;
     cacheItem.refreshToken = self.refreshToken;
     cacheItem.familyId = self.familyId;
     cacheItem.secret = self.refreshToken;

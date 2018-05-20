@@ -77,7 +77,7 @@
 
 #pragma mark - Saving
 
-- (void)testSaveTokensWithRequestParams_whenUniqueUserIdNil_shouldReturnError
+- (void)testSaveTokensWithRequestParams_whenHomeAccountIdNil_shouldReturnError
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     NSOrderedSet *set = [NSOrderedSet orderedSetWithObjects:@"user.read", nil];
@@ -402,7 +402,7 @@
 - (void)testGetTokenWithType_whenTypeAccessNoItemsInCache_shouldReturnNil
 {
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
 
     NSError *error = nil;
     MSIDAccessToken *token = [_cacheAccessor getAccessTokenForAccount:account
@@ -419,7 +419,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
@@ -505,7 +505,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
@@ -536,7 +536,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
@@ -568,7 +568,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
@@ -616,7 +616,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
 
     // Save token
     [_cacheAccessor saveTokensWithFactory:factory
@@ -645,7 +645,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
 
     // save token 1
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
@@ -682,7 +682,7 @@
 - (void)testGetTokenWithType_whenTypeRefreshNoItemsInCache_shouldReturnNil
 {
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
 
     NSError *error = nil;
 
@@ -702,7 +702,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
 
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil
-                                                        uniqueUserId:@"1.1234-5678-90abcdefg"];
+                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
     [_cacheAccessor saveSSOStateWithFactory:factory
                               configuration:[MSIDTestConfiguration v2DefaultConfiguration]
                                    response:[MSIDTestTokenResponse v2DefaultTokenResponse]
@@ -734,7 +734,7 @@
 
 
     MSIDAccount *queryAccount = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                             uniqueUserId:nil];
+                                                             homeAccountId:nil];
 
     NSError *error = nil;
     MSIDRefreshToken *returnedToken = [_cacheAccessor getRefreshTokenWithAccount:queryAccount

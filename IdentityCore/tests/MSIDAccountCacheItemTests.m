@@ -45,7 +45,7 @@
     cacheItem.givenName = @"First name";
     cacheItem.familyName = @"Last name";
     cacheItem.accountType = MSIDAccountTypeAADV1;
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.username = @"username";
     cacheItem.alternativeAccountId = @"alt";
     cacheItem.name = @"test user";
@@ -58,7 +58,7 @@
                                          @"family_name": @"Last name",
                                          @"test": @"test2",
                                          @"test3": @"test4",
-                                         @"unique_user_id": @"uid.utid",
+                                         @"home_account_id": @"uid.utid",
                                          @"username": @"username",
                                          @"alternative_account_id": @"alt",
                                          @"name": @"test user"
@@ -79,7 +79,7 @@
                                      @"family_name": @"Last name",
                                      @"test": @"test2",
                                      @"test3": @"test4",
-                                     @"unique_user_id": @"uid.utid",
+                                     @"home_account_id": @"uid.utid",
                                      @"username": @"username",
                                      @"alternative_account_id": @"alt",
                                      @"name": @"test user"
@@ -97,7 +97,7 @@
     XCTAssertEqualObjects(cacheItem.familyName, @"Last name");
     XCTAssertEqualObjects(cacheItem.name, @"test user");
     XCTAssertEqualObjects(cacheItem.alternativeAccountId, @"alt");
-    XCTAssertEqualObjects(cacheItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(cacheItem.username, @"username");
 }
 

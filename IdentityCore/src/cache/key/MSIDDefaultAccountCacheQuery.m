@@ -27,7 +27,7 @@
 
 - (NSString *)account
 {
-    if (self.uniqueUserId && self.environment)
+    if (self.homeAccountId && self.environment)
     {
         return [super account];
     }
@@ -47,7 +47,7 @@
 
 - (BOOL)exactMatch
 {
-    return self.uniqueUserId && self.environment && self.realm;
+    return self.homeAccountId && self.environment && self.realm;
 }
 
 @end

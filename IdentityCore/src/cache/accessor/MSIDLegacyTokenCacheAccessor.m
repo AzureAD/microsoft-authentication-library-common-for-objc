@@ -248,7 +248,7 @@
     {
         MSIDAccount *account = [MSIDAccount new];
         account.legacyUserId = refreshToken.legacyUserId;
-        account.uniqueUserId = refreshToken.uniqueUserId;
+        account.homeAccountId = refreshToken.homeAccountId;
         account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
         account.accountType = MSIDAccountTypeMSSTS;
 
@@ -299,7 +299,7 @@
     }
 
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
-    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.uniqueUserId, _PII_NULLIFY(token.refreshToken));
+    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.homeAccountId, _PII_NULLIFY(token.refreshToken));
 
     MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.primaryUserId
                                                                                              type:MSIDRefreshTokenType
@@ -364,15 +364,15 @@
 
     // If no legacy user ID available, or no token found by legacy user ID, try to look by unique user ID
     if (!resultToken
-        && ![NSString msidIsStringNilOrBlank:account.uniqueUserId])
+        && ![NSString msidIsStringNilOrBlank:account.homeAccountId])
     {
         authority = [MSIDAuthority universalAuthorityURL:authority];
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", clientId, authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.uniqueUserId, clientId, authority);
+        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.homeAccountId, clientId, authority);
 
         *error = nil;
 
-        resultToken = (MSIDLegacyRefreshToken *) [self getTokenByUniqueUserId:account.uniqueUserId
+        resultToken = (MSIDLegacyRefreshToken *) [self getTokenByHomeAccountId:account.homeAccountId
                                                                     tokenType:MSIDRefreshTokenType
                                                                     authority:authority
                                                                      clientId:clientId
@@ -623,20 +623,20 @@
     return nil;
 }
 
-- (MSIDBaseToken *)getTokenByUniqueUserId:(NSString *)uniqueUserId
-                                tokenType:(MSIDCredentialType)tokenType
-                                authority:(NSURL *)authority
-                                 clientId:(NSString *)clientId
-                                 resource:(NSString *)resource
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+- (MSIDBaseToken *)getTokenByHomeAccountId:(NSString *)homeAccountId
+                                 tokenType:(MSIDCredentialType)tokenType
+                                 authority:(NSURL *)authority
+                                  clientId:(NSString *)clientId
+                                  resource:(NSString *)resource
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
 {
     NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
     
     for (NSURL *alias in aliases)
     {
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@", alias, clientId, resource);
-        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@, unique userId %@", alias, clientId, resource, uniqueUserId);
+        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@, unique userId %@", alias, clientId, resource, homeAccountId);
 
         MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
         query.authority = alias;
@@ -653,7 +653,7 @@
         }
         
         BOOL (^filterBlock)(MSIDCredentialCacheItem *cacheItem) = ^BOOL(MSIDCredentialCacheItem *cacheItem) {
-            return [cacheItem.uniqueUserId isEqualToString:uniqueUserId];
+            return [cacheItem.homeAccountId isEqualToString:homeAccountId];
         };
         
         NSArray *matchedTokens = [MSIDTokenFilteringHelper filterTokenCacheItems:tokens

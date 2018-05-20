@@ -32,7 +32,7 @@
 
 - (void)testAccountTokenCacheKey_withAllParameters_shouldReturnKey
 {
-    MSIDDefaultAccountCacheKey *cacheKey = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultAccountCacheKey *cacheKey = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                         environment:@"login.microsoftonline.com"
                                                                                               realm:@"contoso.com"
                                                                                                type:MSIDAccountTypeMSSTS];

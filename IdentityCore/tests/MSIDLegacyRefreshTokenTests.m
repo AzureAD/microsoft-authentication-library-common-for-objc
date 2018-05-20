@@ -139,7 +139,7 @@
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"token";
     
@@ -157,7 +157,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.familyId, @"1");
     
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
@@ -172,7 +172,7 @@
     cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"rt";
     cacheItem.accessToken = @"at";
@@ -199,7 +199,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.familyId, @"1");
     XCTAssertEqualObjects(token.refreshToken, @"rt");
     XCTAssertEqualObjects(token.idToken, idToken);
@@ -219,7 +219,7 @@
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
+    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
     [token setValue:@"idtoken" forKey:@"idToken"];
     [token setValue:@"refreshToken" forKey:@"refreshToken"];
     [token setValue:@"1" forKey:@"familyId"];

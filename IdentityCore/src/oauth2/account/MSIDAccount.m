@@ -39,7 +39,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAccount *item = [[self.class allocWithZone:zone] init];
-    item->_uniqueUserId = [_uniqueUserId copyWithZone:zone];
+    item->_homeAccountId = [_homeAccountId copyWithZone:zone];
     item->_legacyUserId = [_legacyUserId copyWithZone:zone];
     item->_accountType = _accountType;
     item->_authority = [_authority copyWithZone:zone];
@@ -73,7 +73,7 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = 0;
-    hash = hash * 31 + self.uniqueUserId.hash;
+    hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.legacyUserId.hash;
     hash = hash * 31 + self.accountType;
     hash = hash * 31 + self.authority.hash;
@@ -89,7 +89,7 @@
     }
     
     BOOL result = YES;
-    result &= (!self.uniqueUserId && !account.uniqueUserId) || [self.uniqueUserId isEqualToString:account.uniqueUserId];
+    result &= (!self.homeAccountId && !account.homeAccountId) || [self.homeAccountId isEqualToString:account.homeAccountId];
     result &= (!self.legacyUserId && !account.legacyUserId) || [self.legacyUserId isEqualToString:account.legacyUserId];
     result &= self.accountType == account.accountType;
     result &= (!self.alternativeAccountId && !account.alternativeAccountId) || [self.alternativeAccountId isEqualToString:account.alternativeAccountId];
@@ -103,7 +103,7 @@
                           clientInfo:(MSIDClientInfo *)clientInfo
 {
     self = [self initWithLegacyUserId:legacyUserId
-                         uniqueUserId:clientInfo.userIdentifier];
+                         homeAccountId:clientInfo.userIdentifier];
     
     if (self)
     {
@@ -114,7 +114,7 @@
 }
 
 - (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
-                        uniqueUserId:(NSString *)userIdentifier
+                        homeAccountId:(NSString *)homeAccountId
 {
     if (!(self = [self init]))
     {
@@ -122,7 +122,7 @@
     }
     
     _legacyUserId = legacyUserId;
-    _uniqueUserId = userIdentifier;
+    _homeAccountId = homeAccountId;
     
     return self;
 }
@@ -147,7 +147,7 @@
         _middleName = cacheItem.middleName;
         _name = cacheItem.name;
         _username = cacheItem.username;
-        _uniqueUserId = cacheItem.uniqueUserId;
+        _homeAccountId = cacheItem.homeAccountId;
         _clientInfo = cacheItem.clientInfo;
         _alternativeAccountId = cacheItem.alternativeAccountId;
 
@@ -175,7 +175,7 @@
 
     cacheItem.realm = self.authority.msidTenant;
     cacheItem.username = self.username;
-    cacheItem.uniqueUserId = self.uniqueUserId;
+    cacheItem.homeAccountId = self.homeAccountId;
     cacheItem.legacyUserId = self.legacyUserId;
     cacheItem.accountType = self.accountType;
     cacheItem.givenName = self.givenName;
@@ -191,8 +191,8 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"(authority=%@ username=%@ uniqueUserId=%@ clientInfo=%@ accountType=%@ legacyUserId=%@)",
-            _authority, _username, _uniqueUserId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _legacyUserId];
+    return [NSString stringWithFormat:@"(authority=%@ username=%@ homeAccountId=%@ clientInfo=%@ accountType=%@ legacyUserId=%@)",
+            _authority, _username, _homeAccountId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _legacyUserId];
 }
 
 @end

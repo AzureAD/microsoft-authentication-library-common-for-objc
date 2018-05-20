@@ -152,8 +152,8 @@
 
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -183,8 +183,8 @@
 
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -209,8 +209,8 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -251,8 +251,8 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -274,8 +274,8 @@
 
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     

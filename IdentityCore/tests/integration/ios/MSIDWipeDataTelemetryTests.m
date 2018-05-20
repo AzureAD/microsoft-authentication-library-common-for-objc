@@ -93,7 +93,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:nil];
+                                                        homeAccountId:nil];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
@@ -222,7 +222,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        uniqueUserId:@"some_uid.some_utid"];
+                                                        homeAccountId:@"some_uid.some_utid"];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;

@@ -25,7 +25,7 @@
 
 @protocol MSIDAccountIdentifiers <NSObject>
 
-@property NSString *uniqueUserId;
+@property NSString *homeAccountId;
 @property NSString *legacyUserId;
 
 @end

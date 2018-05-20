@@ -56,7 +56,7 @@
 @property (readwrite, nullable) NSString *familyId;
 
 // Unique user ID
-@property (readwrite, nonnull) NSString *uniqueUserId;
+@property (readwrite, nonnull) NSString *homeAccountId;
 
 // Client info
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
@@ -70,9 +70,9 @@
 
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;
 
-- (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
-                    environment:(nullable NSString *)environment
-             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
+- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
+                     environment:(nullable NSString *)environment
+              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
 
 - (BOOL)matchesWithLegacyUserId:(nullable NSString *)legacyUserId
                     environment:(nullable NSString *)environment

@@ -35,7 +35,7 @@
 @property (readwrite) MSIDAccountType accountType;
 
 // Primary user identifier
-@property (readwrite) NSString *uniqueUserId;
+@property (readwrite) NSString *homeAccountId;
 
 // Legacy user identifier
 @property (readwrite) NSString *legacyUserId;
@@ -60,7 +60,7 @@
                         clientInfo:(MSIDClientInfo *)clientInfo;
 
 - (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
-                        uniqueUserId:(NSString *)userIdentifier;
+                       homeAccountId:(NSString *)homeAccountId;
 
 - (instancetype)initWithAccountCacheItem:(MSIDAccountCacheItem *)cacheItem;
 

@@ -33,16 +33,16 @@ static NSInteger kAccountTypePrefix = 1000;
     return @(kAccountTypePrefix + accountType);
 }
 
-- (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
-                         environment:(NSString *)environment
-                               realm:(NSString *)realm
-                                type:(MSIDAccountType)type
+- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
+                          environment:(NSString *)environment
+                                realm:(NSString *)realm
+                                 type:(MSIDAccountType)type
 {
     self = [super init];
 
     if (self)
     {
-        _uniqueUserId = uniqueUserId;
+        _homeAccountId = homeAccountId;
         _environment = environment;
         _realm = realm ? realm : @"";
         _accountType = type;
@@ -63,7 +63,7 @@ static NSInteger kAccountTypePrefix = 1000;
 
 - (NSString *)account
 {
-    NSString *uniqueId = self.uniqueUserId.msidTrimmedString.lowercaseString;
+    NSString *uniqueId = self.homeAccountId.msidTrimmedString.lowercaseString;
 
     return [NSString stringWithFormat:@"%@%@%@",
             uniqueId, keyDelimiter, self.environment];

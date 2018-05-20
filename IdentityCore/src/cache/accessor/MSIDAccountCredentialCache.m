@@ -84,14 +84,14 @@
 
     if (!cacheQuery.exactMatch)
     {
-        BOOL shouldMatchAccount = !cacheQuery.uniqueUserId || !cacheQuery.environment;
+        BOOL shouldMatchAccount = !cacheQuery.homeAccountId || !cacheQuery.environment;
 
         NSMutableArray *filteredResults = [NSMutableArray array];
 
         for (MSIDCredentialCacheItem *cacheItem in results)
         {
             if (shouldMatchAccount
-                && ![cacheItem matchesWithUniqueUserId:cacheQuery.uniqueUserId
+                && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
                                            environment:cacheQuery.environment
                                     environmentAliases:cacheQuery.environmentAliases])
             {
@@ -157,7 +157,7 @@
     assert(cacheQuery);
 
     MSID_LOG_VERBOSE(context, @"(Default cache) Get accounts with environment %@", cacheQuery.environment);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get accounts with environment %@, unique user id %@", cacheQuery.environment, cacheQuery.uniqueUserId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get accounts with environment %@, unique user id %@", cacheQuery.environment, cacheQuery.homeAccountId);
 
     NSArray<MSIDAccountCacheItem *> *cacheItems = [_dataSource accountsWithKey:cacheQuery serializer:_serializer context:context error:error];
 
@@ -165,12 +165,12 @@
     {
         NSMutableArray<MSIDAccountCacheItem *> *filteredResults = [NSMutableArray array];
 
-        BOOL shouldMatchAccount = !cacheQuery.uniqueUserId || !cacheQuery.environment;
+        BOOL shouldMatchAccount = !cacheQuery.homeAccountId || !cacheQuery.environment;
 
         for (MSIDAccountCacheItem *cacheItem in cacheItems)
         {
             if (shouldMatchAccount
-                && ![cacheItem matchesWithUniqueUserId:cacheQuery.uniqueUserId
+                && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
                                            environment:cacheQuery.environment
                                     environmentAliases:cacheQuery.environmentAliases])
             {
@@ -228,9 +228,9 @@
     assert(credential);
 
     MSID_LOG_VERBOSE(context, @"(Default cache) Saving token %@ with environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credential.credentialType], credential.environment, credential.realm, credential.clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.uniqueUserId, credential.environment, credential.environment, credential.clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.homeAccountId, credential.environment, credential.environment, credential.clientId);
 
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
                                                                                          environment:credential.environment
                                                                                             clientId:credential.clientId
                                                                                       credentialType:credential.credentialType];
@@ -256,7 +256,7 @@
     MSID_LOG_VERBOSE(context, @"(Default cache) Saving account with environment %@", account.environment);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving account %@", account);
 
-    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:account.uniqueUserId
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
                                                                                    environment:account.environment
                                                                                          realm:account.realm
                                                                                           type:account.accountType];
@@ -287,7 +287,7 @@
     assert(cacheQuery);
 
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, cacheQuery.uniqueUserId, cacheQuery.target);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, cacheQuery.homeAccountId, cacheQuery.target);
 
     if (cacheQuery.exactMatch)
     {
@@ -308,9 +308,9 @@
     assert(credential);
 
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing credential %@ with environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credential.credentialType], credential.environment, credential.realm, credential.clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.uniqueUserId, credential.environment, credential.realm, credential.clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.homeAccountId, credential.environment, credential.realm, credential.clientId);
 
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:credential.uniqueUserId
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
                                                                                          environment:credential.environment
                                                                                             clientId:credential.clientId
                                                                                       credentialType:credential.credentialType];
@@ -325,7 +325,7 @@
         [_dataSource saveWipeInfoWithContext:context error:nil];
 
         MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-        query.uniqueUserId = credential.uniqueUserId;
+        query.homeAccountId = credential.homeAccountId;
         query.environment = credential.environment;
         query.clientId = credential.clientId;
         query.credentialType = MSIDIDTokenType;
@@ -344,7 +344,7 @@
     assert(cacheQuery);
 
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing accounts with environment %@, realm %@", cacheQuery.environment, cacheQuery.realm);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing accounts with environment %@, realm %@, unique user id %@", cacheQuery.environment, cacheQuery.realm, cacheQuery.uniqueUserId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing accounts with environment %@, realm %@, unique user id %@", cacheQuery.environment, cacheQuery.realm, cacheQuery.homeAccountId);
 
     if (cacheQuery.exactMatch)
     {
@@ -363,9 +363,9 @@
     assert(account);
 
     MSID_LOG_VERBOSE(context, @"(Default cache) Removing account with environment %@", account.environment);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, account.uniqueUserId, account.username);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, account.homeAccountId, account.username);
 
-    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:account.uniqueUserId
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
                                                                                    environment:account.environment
                                                                                          realm:account.realm
                                                                                           type:account.accountType];

@@ -38,7 +38,7 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
     query.target = @"user.read";
@@ -55,7 +55,7 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDIDTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
     query.target = @"user.read";
@@ -72,7 +72,7 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDRefreshTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
     query.target = @"user.read";
@@ -90,7 +90,7 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDRefreshTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
     query.target = @"user.read";
@@ -108,7 +108,7 @@
 - (void)testDefaultCredentialCacheQuery_whenMatchAnyTypeAndAccessToken_allParametersSet_shouldNotBeExactMatch
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
     query.target = @"user.read";
@@ -124,7 +124,7 @@
 - (void)testDefaultCredentialCacheQuery_whenMatchAnyTypeAndIDToken_allParametersSet_shouldNotBeExactMatch
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
     query.clientId = @"client";
@@ -139,7 +139,7 @@
 - (void)testDefaultCredentialCacheQuery_whenMatchAnyTypeAndRefreshToken_allParametersSet_shouldNotBeExactMatch
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
     query.matchAnyCredentialType = YES;
@@ -150,7 +150,7 @@
     XCTAssertNil(query.generic);
 }
 
-- (void)testDefaultCredentialCacheQuery_whenNoUniqueUserId_shouldReturnNilAccount
+- (void)testDefaultCredentialCacheQuery_whenNoHomeAccountId_shouldReturnNilAccount
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.environment = @"login.microsoftonline.com";
@@ -166,7 +166,7 @@
 - (void)testDefaultCredentialCacheQuery_whenNoEnvironment_shouldReturnNilAccount
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.credentialType = MSIDRefreshTokenType;
 
     XCTAssertFalse(query.exactMatch);
@@ -179,7 +179,7 @@
 - (void)testDefaultCredentialCacheQuery_whenRefreshToken_andNoClientId_shouldReturnNilServiceNilGeneric
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.credentialType = MSIDRefreshTokenType;
 
@@ -193,7 +193,7 @@
 - (void)testDefaultCredentialCacheQuery_whenIDToken_andNoClientId_shouldReturnNilServiceNilGeneric
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
     query.credentialType = MSIDIDTokenType;
@@ -208,7 +208,7 @@
 - (void)testDefaultCredentialCacheQuery_whenIDToken_andNoRealm_shouldReturnNilServiceNilGeneric
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
     query.credentialType = MSIDIDTokenType;
@@ -223,7 +223,7 @@
 - (void)testDefaultCredentialCacheQuery_whenAccessToken_andNoClientId_shouldReturnNilServiceNilGeneric
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.credentialType = MSIDAccessTokenType;
     query.realm = @"contoso.com";
@@ -239,7 +239,7 @@
 - (void)testDefaultCredentialCacheQuery_whenAccessToken_andNoRealm_shouldReturnNilServiceNilGeneric
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.credentialType = MSIDAccessTokenType;
     query.clientId = @"client";
@@ -255,7 +255,7 @@
 - (void)testDefaultCredentialCacheQuery_whenAccessToken_andNoTarget_shouldReturnNilServiceAndNonNilGenetic
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.credentialType = MSIDAccessTokenType;
     query.clientId = @"client";
@@ -271,7 +271,7 @@
 - (void)testDefaultCredentialCacheQuery_whenAccessToken_andTargetMatchingAny_shouldReturnNilServiceAndNonNilGenetic
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.credentialType = MSIDAccessTokenType;
     query.clientId = @"client";

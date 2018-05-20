@@ -83,7 +83,7 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
     query.realm = @"contoso.com";
@@ -103,7 +103,7 @@
     // First save the token
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
     item.credentialType = MSIDAccessTokenType;
-    item.uniqueUserId = @"uid.utid";
+    item.homeAccountId = @"uid.utid";
     item.environment = @"login.microsoftonline.com";
     item.realm = @"contoso.com";
     item.target = @"user.read user.write";
@@ -114,7 +114,7 @@
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
     query.realm = @"contoso.com";
@@ -133,7 +133,7 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDRefreshTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
     query.realm = @"contoso.com";
@@ -152,7 +152,7 @@
     // First save the token
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
     item.credentialType = MSIDRefreshTokenType;
-    item.uniqueUserId = @"uid.utid";
+    item.homeAccountId = @"uid.utid";
     item.environment = @"login.microsoftonline.com";
     item.clientId = @"client";
     item.secret = @"rt";
@@ -161,7 +161,7 @@
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDRefreshTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
 
@@ -178,7 +178,7 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDIDTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
     query.realm = @"contoso.com";
@@ -197,7 +197,7 @@
     // First save the token
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
     item.credentialType = MSIDIDTokenType;
-    item.uniqueUserId = @"uid.utid";
+    item.homeAccountId = @"uid.utid";
     item.environment = @"login.microsoftonline.com";
     item.realm = @"contoso.com";
     item.clientId = @"client";
@@ -207,7 +207,7 @@
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDIDTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
     query.realm = @"contoso.com";
@@ -221,20 +221,20 @@
     XCTAssertEqualObjects(results[0], item);
 }
 
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andAccessTokenQuery_matchByUniqueUserId_shouldReturnItems
+- (void)testGetCredentialsWithQuery_whenNotExactMatch_andAccessTokenQuery_matchByHomeAccountId_shouldReturnItems
 {
     MSIDCredentialCacheItem *accessToken = [self createTestAccessTokenCacheItem];
     [self saveItem:accessToken];
 
     // Save second non-matching token
     MSIDCredentialCacheItem *accessToken2 = [self createTestAccessTokenCacheItem];
-    accessToken2.uniqueUserId = @"uid.utid2";
+    accessToken2.homeAccountId = @"uid.utid2";
     [self saveItem:accessToken2];
 
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
@@ -245,20 +245,20 @@
     XCTAssertEqualObjects(results[0], accessToken);
 }
 
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andRefreshTokenQuery_matchByUniqueUserId_shouldReturnItems
+- (void)testGetCredentialsWithQuery_whenNotExactMatch_andRefreshTokenQuery_matchByHomeAccountId_shouldReturnItems
 {
     MSIDCredentialCacheItem *refreshToken = [self createTestRefreshTokenCacheItem];
     [self saveItem:refreshToken];
 
     // Save second non-matching token
     MSIDCredentialCacheItem *refreshToken2 = [self createTestRefreshTokenCacheItem];
-    refreshToken2.uniqueUserId = @"uid.utid2";
+    refreshToken2.homeAccountId = @"uid.utid2";
     [self saveItem:refreshToken2];
 
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDRefreshTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
@@ -269,20 +269,20 @@
     XCTAssertEqualObjects(results[0], refreshToken);
 }
 
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andIDTokenQuery_matchByUniqueUserId_shouldReturnItems
+- (void)testGetCredentialsWithQuery_whenNotExactMatch_andIDTokenQuery_matchByHomeAccountId_shouldReturnItems
 {
     MSIDCredentialCacheItem *idToken = [self createTestIDTokenCacheItem];
     [self saveItem:idToken];
 
     // Save second non-matching token
     MSIDCredentialCacheItem *idToken2 = [self createTestIDTokenCacheItem];
-    idToken2.uniqueUserId = @"uid.utid2";
+    idToken2.homeAccountId = @"uid.utid2";
     [self saveItem:idToken2];
 
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDIDTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
@@ -867,14 +867,14 @@
     XCTAssertEqualObjects(results[0], accessToken);
 }
 
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andAccessTokenQuery_matchAnythingButByUniqueUserId_shouldReturnItems
+- (void)testGetCredentialsWithQuery_whenNotExactMatch_andAccessTokenQuery_matchAnythingButByHomeAccountId_shouldReturnItems
 {
     MSIDCredentialCacheItem *accessToken = [self createTestAccessTokenCacheItem];
     [self saveItem:accessToken];
 
     // Save second non-matching token
     MSIDCredentialCacheItem *accessToken2 = [self createTestAccessTokenCacheItem];
-    accessToken2.uniqueUserId = @"uid.utid2";
+    accessToken2.homeAccountId = @"uid.utid2";
     [self saveItem:accessToken2];
 
     // Now query
@@ -895,14 +895,14 @@
     XCTAssertTrue([results containsObject:accessToken2]);
 }
 
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andRefreshTokenQuery_matchByAnythingButUniqueUserId_shouldReturnItems
+- (void)testGetCredentialsWithQuery_whenNotExactMatch_andRefreshTokenQuery_matchByAnythingButHomeAccountId_shouldReturnItems
 {
     MSIDCredentialCacheItem *refreshToken = [self createTestRefreshTokenCacheItem];
     [self saveItem:refreshToken];
 
     // Save second non-matching token
     MSIDCredentialCacheItem *refreshToken2 = [self createTestRefreshTokenCacheItem];
-    refreshToken2.uniqueUserId = @"uid.utid2";
+    refreshToken2.homeAccountId = @"uid.utid2";
     [self saveItem:refreshToken2];
 
     // Now query
@@ -921,14 +921,14 @@
     XCTAssertTrue([results containsObject:refreshToken2]);
 }
 
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andIDTokenQuery_matchByAnythingButUniqueUserId_shouldReturnItems
+- (void)testGetCredentialsWithQuery_whenNotExactMatch_andIDTokenQuery_matchByAnythingButHomeAccountId_shouldReturnItems
 {
     MSIDCredentialCacheItem *idToken = [self createTestIDTokenCacheItem];
     [self saveItem:idToken];
 
     // Save second non-matching token
     MSIDCredentialCacheItem *idToken2 = [self createTestIDTokenCacheItem];
-    idToken2.uniqueUserId = @"uid.utid2";
+    idToken2.homeAccountId = @"uid.utid2";
     [self saveItem:idToken2];
 
     // Now query
@@ -964,7 +964,7 @@
     query.clientId = @"client";
     query.target = @"user.read user.write";
     query.realm = @"contoso.com";
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
@@ -990,7 +990,7 @@
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDRefreshTokenType;
     query.clientId = @"client";
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
@@ -1016,7 +1016,7 @@
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDIDTokenType;
     query.clientId = @"client";
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.realm = @"contoso.com";
 
     XCTAssertFalse(query.exactMatch);
@@ -1044,7 +1044,7 @@
     query.credentialType = MSIDAccessTokenType;
     query.clientId = @"client";
     query.target = @"user.read user.write";
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
 
     XCTAssertFalse(query.exactMatch);
@@ -1071,7 +1071,7 @@
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDIDTokenType;
     query.clientId = @"client";
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
 
     XCTAssertFalse(query.exactMatch);
@@ -1096,7 +1096,7 @@
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDRefreshTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
 
     XCTAssertFalse(query.exactMatch);
@@ -1123,7 +1123,7 @@
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
     query.target = @"user.read user.write";
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
 
@@ -1150,7 +1150,7 @@
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDRefreshTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
 
     XCTAssertFalse(query.exactMatch);
@@ -1176,7 +1176,7 @@
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDIDTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
 
@@ -1203,7 +1203,7 @@
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
     query.clientId = @"client";
@@ -1225,7 +1225,7 @@
     MSIDCredentialCacheItem *refreshToken = [self createTestRefreshTokenCacheItem];
     [self saveItem:refreshToken];
 
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDAccessTokenType];
@@ -1245,7 +1245,7 @@
     MSIDCredentialCacheItem *item = [self createTestAccessTokenCacheItem];
     [self saveItem:item];
 
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDAccessTokenType];
@@ -1264,7 +1264,7 @@
     MSIDCredentialCacheItem *accessToken = [self createTestAccessTokenCacheItem];
     [self saveItem:accessToken];
 
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDRefreshTokenType];
@@ -1281,7 +1281,7 @@
     MSIDCredentialCacheItem *item = [self createTestRefreshTokenCacheItem];
     [self saveItem:item];
 
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDRefreshTokenType];
@@ -1298,7 +1298,7 @@
     MSIDCredentialCacheItem *item = [self createTestRefreshTokenCacheItem:@"family"];
     [self saveItem:item];
 
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDRefreshTokenType];
@@ -1317,7 +1317,7 @@
     MSIDCredentialCacheItem *item = [self createTestRefreshTokenCacheItem];
     [self saveItem:item];
 
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDIDTokenType];
@@ -1335,7 +1335,7 @@
     MSIDCredentialCacheItem *item = [self createTestIDTokenCacheItem];
     [self saveItem:item];
 
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDIDTokenType];
@@ -1506,7 +1506,7 @@
 
 - (void)testGetAccountWithKey_whenNoItemsInCache_shouldReturnNil
 {
-    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                    environment:@"login.microsoftonline.com"
                                                                                          realm:@"contoso.com"
                                                                                           type:MSIDAccountTypeMSSTS];
@@ -1523,7 +1523,7 @@
     MSIDAccountCacheItem *item = [self createTestAccountCacheItem];
     [self saveAccount:item];
 
-    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                    environment:@"login.microsoftonline.com"
                                                                                          realm:@"contoso.com"
                                                                                           type:MSIDAccountTypeMSSTS];
@@ -1543,7 +1543,7 @@
 
     MSIDAccountCacheItem *item2 = [self createTestAccountCacheItem];
     item2.accountType = MSIDAccountTypeMSA;
-    item2.uniqueUserId = @"uid.utid2";
+    item2.homeAccountId = @"uid.utid2";
     [self saveAccount:item2];
 
     NSError *error = nil;
@@ -1563,7 +1563,7 @@
 
     MSIDAccountCacheItem *item2 = [self createTestAccountCacheItem];
     item2.accountType = MSIDAccountTypeMSA;
-    item2.uniqueUserId = @"uid.utid2";
+    item2.homeAccountId = @"uid.utid2";
     [self saveAccount:item2];
 
     NSError *error = nil;
@@ -1589,15 +1589,15 @@
     NSError *error = nil;
 
     MSIDCredentialCacheItem *item2 = [self createTestIDTokenCacheItem];
-    item2.uniqueUserId = @"uid.utid2";
+    item2.homeAccountId = @"uid.utid2";
     [self saveItem:item2];
 
     MSIDCredentialCacheItem *item3 = [self createTestRefreshTokenCacheItem];
-    item3.uniqueUserId = @"uid.utid2";
+    item3.homeAccountId = @"uid.utid2";
     [self saveItem:item3];
 
     MSIDCredentialCacheItem *item4 = [self createTestAccessTokenCacheItem];
-    item4.uniqueUserId = @"uid.utid2";
+    item4.homeAccountId = @"uid.utid2";
     [self saveItem:item4];
 
     NSArray *removalArray = @[item2, item3, item4];
@@ -1644,7 +1644,7 @@
     NSError *error = nil;
 
     MSIDAccountCacheItem *item2 = [self createTestAccountCacheItem];
-    item2.uniqueUserId = @"uid.utid2";
+    item2.homeAccountId = @"uid.utid2";
     [self saveAccount:item2];
 
     NSArray *removalArray = @[item2];
@@ -1667,7 +1667,7 @@
     NSError *error = nil;
 
     MSIDAccountCacheItem *item2 = [self createTestAccountCacheItem];
-    item2.uniqueUserId = @"uid.utid2";
+    item2.homeAccountId = @"uid.utid2";
     [self saveAccount:item2];
 
     BOOL result = [self.cache removeAllAccounts:[NSArray array] context:nil error:&error];
@@ -1745,14 +1745,14 @@
     [self saveAccount:[self createTestAccountCacheItem]];
 
     MSIDAccountCacheItem *account2 = [self createTestAccountCacheItem];
-    account2.uniqueUserId = @"uid.utid2";
+    account2.homeAccountId = @"uid.utid2";
 
     [self saveAccount:account2];
 
     NSError *error = nil;
 
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
-    query.uniqueUserId = @"uid.utid2";
+    query.homeAccountId = @"uid.utid2";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
     XCTAssertTrue(query.exactMatch);
@@ -1764,19 +1764,19 @@
     XCTAssertEqualObjects(results[0], account2);
 }
 
-- (void)testGetAccountsWithQuery_whenQueryNotExactMatch_andMatchingByUniqueUserId_shouldReturnAccount
+- (void)testGetAccountsWithQuery_whenQueryNotExactMatch_andMatchingByHomeAccountId_shouldReturnAccount
 {
     [self saveAccount:[self createTestAccountCacheItem]];
 
     MSIDAccountCacheItem *account2 = [self createTestAccountCacheItem];
-    account2.uniqueUserId = @"uid.utid2";
+    account2.homeAccountId = @"uid.utid2";
 
     [self saveAccount:account2];
 
     NSError *error = nil;
 
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
-    query.uniqueUserId = @"uid.utid2";
+    query.homeAccountId = @"uid.utid2";
     XCTAssertFalse(query.exactMatch);
 
     NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
@@ -1859,14 +1859,14 @@
     [self saveAccount:[self createTestAccountCacheItem]];
 
     MSIDAccountCacheItem *account2 = [self createTestAccountCacheItem];
-    account2.uniqueUserId = @"uid.utid2";
+    account2.homeAccountId = @"uid.utid2";
 
     [self saveAccount:account2];
 
     NSError *error = nil;
 
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
-    query.uniqueUserId = @"uid.utid2";
+    query.homeAccountId = @"uid.utid2";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
     XCTAssertTrue(query.exactMatch);
@@ -1890,7 +1890,7 @@
     [self saveAccount:[self createTestAccountCacheItem]];
 
     MSIDAccountCacheItem *account2 = [self createTestAccountCacheItem];
-    account2.uniqueUserId = @"uid.utid2";
+    account2.homeAccountId = @"uid.utid2";
 
     [self saveAccount:account2];
 
@@ -1919,7 +1919,7 @@
     [self saveItem:[self createTestAccessTokenCacheItem]];
 
     MSIDCredentialCacheItem *token2 = [self createTestAccessTokenCacheItem];
-    token2.uniqueUserId = @"uid.utid2";
+    token2.homeAccountId = @"uid.utid2";
     [self saveItem:token2];
 
     [self saveItem:[self createTestRefreshTokenCacheItem]];
@@ -1927,7 +1927,7 @@
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
     query.realm = @"contoso.com";
-    query.uniqueUserId = @"uid.utid2";
+    query.homeAccountId = @"uid.utid2";
     query.environment = @"login.microsoftonline.com";
     query.target = @"user.read user.write";
     query.clientId = @"client";
@@ -1951,14 +1951,14 @@
     [self saveItem:[self createTestRefreshTokenCacheItem]];
 
     MSIDCredentialCacheItem *token2 = [self createTestRefreshTokenCacheItem];
-    token2.uniqueUserId = @"uid.utid2";
+    token2.homeAccountId = @"uid.utid2";
     [self saveItem:token2];
 
     [self saveItem:[self createTestIDTokenCacheItem]];
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDRefreshTokenType;
-    query.uniqueUserId = @"uid.utid2";
+    query.homeAccountId = @"uid.utid2";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
     XCTAssertTrue(query.exactMatch);
@@ -1981,14 +1981,14 @@
     [self saveItem:[self createTestIDTokenCacheItem]];
 
     MSIDCredentialCacheItem *token2 = [self createTestIDTokenCacheItem];
-    token2.uniqueUserId = @"uid.utid2";
+    token2.homeAccountId = @"uid.utid2";
     [self saveItem:token2];
 
     [self saveItem:[self createTestRefreshTokenCacheItem]];
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDIDTokenType;
-    query.uniqueUserId = @"uid.utid2";
+    query.homeAccountId = @"uid.utid2";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
     query.realm = @"contoso.com";
@@ -2012,7 +2012,7 @@
     [self saveItem:[self createTestAccessTokenCacheItem]];
 
     MSIDCredentialCacheItem *token2 = [self createTestAccessTokenCacheItem];
-    token2.uniqueUserId = @"uid.utid2";
+    token2.homeAccountId = @"uid.utid2";
     [self saveItem:token2];
 
     [self saveItem:[self createTestRefreshTokenCacheItem]];
@@ -2084,7 +2084,7 @@
 {
     MSIDAccountCacheItem *item = [MSIDAccountCacheItem new];
     item.accountType = MSIDAccountTypeMSSTS;
-    item.uniqueUserId = @"uid.utid";
+    item.homeAccountId = @"uid.utid";
     item.environment = @"login.microsoftonline.com";
     item.realm = @"contoso.com";
     item.givenName = @"test user";
@@ -2097,7 +2097,7 @@
 {
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
     item.credentialType = MSIDAccessTokenType;
-    item.uniqueUserId = @"uid.utid";
+    item.homeAccountId = @"uid.utid";
     item.environment = @"login.microsoftonline.com";
     item.realm = @"contoso.com";
     item.clientId = @"client";
@@ -2115,7 +2115,7 @@
 {
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
     item.credentialType = MSIDRefreshTokenType;
-    item.uniqueUserId = @"uid.utid";
+    item.homeAccountId = @"uid.utid";
     item.environment = @"login.microsoftonline.com";
     item.clientId = @"client";
     item.familyId = @"family";
@@ -2133,7 +2133,7 @@
 {
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
     item.credentialType = MSIDIDTokenType;
-    item.uniqueUserId = @"uid.utid";
+    item.homeAccountId = @"uid.utid";
     item.environment = @"login.microsoftonline.com";
     item.clientId = @"client";
     item.realm = @"contoso.com";

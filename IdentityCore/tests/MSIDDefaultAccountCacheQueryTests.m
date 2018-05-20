@@ -32,7 +32,7 @@
 
 - (void)testAccountCacheQuery_withAllParameters_shouldReturnKey
 {
-    MSIDDefaultAccountCacheQuery *query = [[MSIDDefaultAccountCacheQuery alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultAccountCacheQuery *query = [[MSIDDefaultAccountCacheQuery alloc] initWithHomeAccountId:@"uid.utid"
                                                                                         environment:@"login.microsoftonline.com"
                                                                                               realm:@"contoso.com"
                                                                                                type:MSIDAccountTypeMSSTS];
@@ -46,7 +46,7 @@
     XCTAssertTrue(query.exactMatch);
 }
 
-- (void)testAccountCacheQuery_whenNoUniqueUserId_shouldReturnNoExactMatch
+- (void)testAccountCacheQuery_whenNoHomeAccountId_shouldReturnNoExactMatch
 {
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
     query.environment = @"login.microsoftonline.com";
@@ -63,7 +63,7 @@
 - (void)testAccountCacheQuery_whenNoEnvironment_shouldReturnNoExactMatch
 {
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.realm = @"contoso.com";
     query.accountType = MSIDAccountTypeMSSTS;
 
@@ -77,7 +77,7 @@
 - (void)testAccountCacheQuery_whenNoRealm_shouldReturnNoExactMatch
 {
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.accountType = MSIDAccountTypeMSSTS;
 

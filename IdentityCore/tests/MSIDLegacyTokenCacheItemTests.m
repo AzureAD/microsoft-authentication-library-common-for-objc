@@ -54,7 +54,7 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.familyId = @"family";
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
 
     NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
 
@@ -89,7 +89,7 @@
     XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, @"family");
-    XCTAssertEqualObjects(newItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(newItem.clientInfo, clientInfoObj);
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }
@@ -114,7 +114,7 @@
 
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
 
     NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
 
@@ -147,7 +147,7 @@
     XCTAssertEqualObjects(newItem.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
-    XCTAssertEqualObjects(newItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(newItem.clientInfo, clientInfoObj);
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }
@@ -173,7 +173,7 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.familyId = @"family";
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
 
     NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
 
@@ -207,7 +207,7 @@
     XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, @"family");
-    XCTAssertEqualObjects(newItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(newItem.clientInfo, clientInfoObj);
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }

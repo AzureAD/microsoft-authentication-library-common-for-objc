@@ -38,7 +38,7 @@
 {
     NSURL *_authority;
     NSString *_clientId;
-    NSString *_uniqueUserId;
+    NSString *_homeAccountId;
     MSIDClientInfo *_clientInfo;
     NSDictionary *_additionalServerInfo;
 }
@@ -52,7 +52,7 @@
  */
 @property (readwrite) NSURL *storageAuthority;
 @property (readwrite) NSString *clientId;
-@property (readwrite) NSString *uniqueUserId;
+@property (readwrite) NSString *homeAccountId;
 
 @property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSDictionary *additionalServerInfo;

@@ -59,7 +59,7 @@
     XCTAssertNil(clientInfo);
 }
 
-- (void)testUserIdentifier_whenUniqueUserIdentifier_shouldReturnUserIndentifier
+- (void)testUserIdentifier_whenHomeAccountId_shouldReturnUserIndentifier
 {
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     

@@ -71,13 +71,13 @@
 
 #pragma mark - Tests
 
-- (void)testInitWithLegacyUserIdUniqueUserId_shouldInitAccountAndSetProperties
+- (void)testInitWithLegacyUserIdHomeAccountId_shouldInitAccountAndSetProperties
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"legacy user id" uniqueUserId:@"some id"];
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"legacy user id" homeAccountId:@"some id"];
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
-    XCTAssertEqualObjects(account.uniqueUserId, @"some id");
+    XCTAssertEqualObjects(account.homeAccountId, @"some id");
     XCTAssertNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertNil(account.username);
@@ -96,7 +96,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
-    XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(account.clientInfo, clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertNil(account.username);
@@ -115,7 +115,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
-    XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(account.clientInfo, clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertNil(account.username);
@@ -128,7 +128,7 @@
 
 - (void)testAccountCacheItem_shouldReturnProperCacheItem
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"legacy user id" uniqueUserId:@"some id"];
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"legacy user id" homeAccountId:@"some id"];
     [account setValue:[@"https://login.microsoftonline.com/common" msidUrl] forKey:@"authority"];
     [account setValue:@"eric999" forKey:@"username"];
     [account setValue:@"Eric" forKey:@"givenName"];
@@ -139,7 +139,7 @@
     
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.legacyUserId, @"legacy user id");
-    XCTAssertEqualObjects(cacheItem.uniqueUserId, @"some id");
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"some id");
     XCTAssertEqualObjects(cacheItem.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(cacheItem.username, @"eric999");
     XCTAssertEqualObjects(cacheItem.givenName, @"Eric");
@@ -151,7 +151,7 @@
 {
     MSIDAccountCacheItem *cacheItem = [MSIDAccountCacheItem new];
     cacheItem.legacyUserId = @"legacy user id";
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
     cacheItem.username = @"eric999";
@@ -168,7 +168,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
-    XCTAssertEqualObjects(account.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
     XCTAssertEqual(account.accountType, MSIDAccountTypeMSA);
     XCTAssertEqualObjects(account.username, @"eric999");
     XCTAssertEqualObjects(account.givenName, @"Eric");
@@ -200,7 +200,7 @@
 {
     MSIDAccount *account = [MSIDAccount new];
     account.accountType = MSIDAccountTypeMSSTS;
-    account.uniqueUserId = @"uid.utid";
+    account.homeAccountId = @"uid.utid";
     account.legacyUserId = @"legacy";
     account.authority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
     account.storageAuthority = [NSURL URLWithString:@"https://login.windows2.net/contoso.com"];

@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDDefaultCredentialCacheKey : MSIDCacheKey
 
-@property (nullable, nonatomic) NSString *uniqueUserId;
+@property (nullable, nonatomic) NSString *homeAccountId;
 @property (nullable, nonatomic) NSString *environment;
 @property (nullable, nonatomic) NSString *realm;
 @property (nullable, nonatomic) NSString *clientId;
@@ -37,14 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *target;
 @property (nonatomic) MSIDCredentialType credentialType;
 
-- (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
-                         environment:(NSString *)environment
-                            clientId:(NSString *)clientId
-                      credentialType:(MSIDCredentialType)type;
+- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
+                          environment:(NSString *)environment
+                             clientId:(NSString *)clientId
+                       credentialType:(MSIDCredentialType)type;
 
 - (NSString *)serviceWithType:(MSIDCredentialType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm target:(nullable NSString *)target;
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type clientId:(NSString *)clientId realm:(nullable NSString *)realm;
-- (NSString *)accountIdWithUniqueUserId:(NSString *)uniqueId environment:(NSString *)environment;
+- (NSString *)accountIdWithHomeAccountId:(NSString *)homeAccountId environment:(NSString *)environment;
 - (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType;
 
 NS_ASSUME_NONNULL_END

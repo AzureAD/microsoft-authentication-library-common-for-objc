@@ -41,9 +41,9 @@
 
 - (NSString *)account
 {
-    if (self.uniqueUserId && self.environment)
+    if (self.homeAccountId && self.environment)
     {
-        return [self accountIdWithUniqueUserId:self.uniqueUserId environment:self.environment];
+        return [self accountIdWithHomeAccountId:self.homeAccountId environment:self.environment];
     }
 
     return nil;
