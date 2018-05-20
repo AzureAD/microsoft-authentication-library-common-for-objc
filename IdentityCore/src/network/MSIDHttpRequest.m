@@ -28,7 +28,7 @@
 #import "MSIDHttpRequestErrorHandlerProtocol.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
-#import "MSIDUrlSessionManager.h"
+#import "MSIDURLSessionManager.h"
 
 @implementation MSIDHttpRequest
 
@@ -38,7 +38,7 @@
     
     if (self)
     {
-        _sessionManager = MSIDUrlSessionManager.defaultManager;
+        _sessionManager = MSIDURLSessionManager.defaultManager;
         _responseSerializer = [MSIDJsonResponseSerializer new];
         _requestSerializer = [MSIDUrlRequestSerializer new];
         _telemetry = [MSIDHttpRequestTelemetry new];

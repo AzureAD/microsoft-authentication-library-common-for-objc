@@ -23,6 +23,19 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDUrlSessionDelegate : NSObject <NSURLSessionDelegate>
+@class MSIDURLSessionDelegate;
+
+@interface MSIDURLSessionManager : NSObject
+
+- (instancetype _Nullable)initWithConfiguration:(nonnull NSURLSessionConfiguration *)configuration
+                                        delegate:(nullable MSIDURLSessionDelegate *)delegate NS_DESIGNATED_INITIALIZER;
+
+@property (class, nonnull) MSIDURLSessionManager *defaultManager;
+@property (nonatomic, readonly, nonnull) NSURLSessionConfiguration *configuration;
+@property (nonatomic, readonly, nonnull) NSURLSession *session;
+@property (nonatomic, readonly, nullable) MSIDURLSessionDelegate *delegate;
+
+- (instancetype _Nullable )init NS_UNAVAILABLE;
++ (instancetype _Nullable )new NS_UNAVAILABLE;
 
 @end

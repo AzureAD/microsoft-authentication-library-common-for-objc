@@ -21,25 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDUrlSessionManager.h"
-#import "MSIDUrlSessionDelegate.h"
+#import "MSIDURLSessionManager.h"
+#import "MSIDURLSessionDelegate.h"
 
-static MSIDUrlSessionManager *s_defaultManager = nil;
+static MSIDURLSessionManager *s_defaultManager = nil;
 
-@implementation MSIDUrlSessionManager
+@implementation MSIDURLSessionManager
 
 + (void)initialize
 {
-    if (self == [MSIDUrlSessionManager self])
+    if (self == [MSIDURLSessionManager self])
     {
         __auto_type configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        s_defaultManager = [[MSIDUrlSessionManager alloc] initWithConfiguration:configuration
-                                                                       delegate:[MSIDUrlSessionDelegate new]];
+        s_defaultManager = [[MSIDURLSessionManager alloc] initWithConfiguration:configuration
+                                                                       delegate:[MSIDURLSessionDelegate new]];
     }
 }
 
 - (instancetype _Nullable )initWithConfiguration:(nonnull NSURLSessionConfiguration *)configuration
-                                        delegate:(nullable MSIDUrlSessionDelegate *)delegate
+                                        delegate:(nullable MSIDURLSessionDelegate *)delegate
 {
     self = [super init];
     if (self)
@@ -57,12 +57,12 @@ static MSIDUrlSessionManager *s_defaultManager = nil;
     [_session invalidateAndCancel];
 }
 
-+ (MSIDUrlSessionManager *)defaultManager
++ (MSIDURLSessionManager *)defaultManager
 {
     return s_defaultManager;
 }
 
-+ (void)setDefaultManager:(MSIDUrlSessionManager *)defaultManager
++ (void)setDefaultManager:(MSIDURLSessionManager *)defaultManager
 {
     s_defaultManager = defaultManager;
 }
