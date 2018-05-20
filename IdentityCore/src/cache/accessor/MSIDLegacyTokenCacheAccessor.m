@@ -288,7 +288,7 @@
                                                                    error:error];
 }
 
-- (BOOL)validateAndRemoveRefreshToken:(MSIDRefreshToken *)token
+- (BOOL)validateAndRemoveRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {

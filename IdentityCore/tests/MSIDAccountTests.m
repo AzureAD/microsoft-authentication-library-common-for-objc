@@ -149,7 +149,7 @@
     MSIDClientInfo *clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.clientInfo = clientInfo;
     
-    MSIDAccount *account = [[MSIDAccount alloc]  initWithAccountCacheItem:cacheItem];
+    MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:cacheItem];
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.localAccountId, @"local account id");
