@@ -49,4 +49,52 @@
     return self;
 }
 
+#pragma mark - Copy
+
+- (instancetype)copyWithZone:(NSZone *)zone
+{
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier allocWithZone:zone] init];
+    account.legacyAccountId = [_legacyAccountId copyWithZone:zone];
+    account.homeAccountId = [_homeAccountId copyWithZone:zone];
+    return account;
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+
+    if (![object isKindOfClass:MSIDAccountIdentifier.class])
+    {
+        return NO;
+    }
+
+    return [self isEqualToItem:(MSIDAccountIdentifier *)object];
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = 0;
+    hash = hash * 31 + self.homeAccountId.hash;
+    hash = hash * 31 + self.legacyAccountId.hash;
+    return hash;
+}
+
+- (BOOL)isEqualToItem:(MSIDAccountIdentifier *)account
+{
+    if (!account)
+    {
+        return NO;
+    }
+
+    BOOL result = YES;
+    result &= (!self.homeAccountId && !account.homeAccountId) || [self.homeAccountId isEqualToString:account.homeAccountId];
+    result &= (!self.legacyAccountId && !account.legacyAccountId) || [self.legacyAccountId isEqualToString:account.legacyAccountId];
+    return result;
+}
+
 @end

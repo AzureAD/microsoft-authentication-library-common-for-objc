@@ -25,7 +25,7 @@
 
 @class MSIDClientInfo;
 
-@interface MSIDAccountIdentifier : NSObject
+@interface MSIDAccountIdentifier : NSObject <NSCopying>
 
 @property (nonatomic, readwrite) NSString *homeAccountId;
 @property (nonatomic, readwrite) NSString *legacyAccountId;
