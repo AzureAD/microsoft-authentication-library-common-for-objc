@@ -41,7 +41,7 @@
     cacheItem.realm = @"contoso.com";
     cacheItem.additionalAccountFields = @{@"test": @"test2",
                                           @"test3": @"test4"};
-    cacheItem.legacyUserId = @"legacy-user-id";
+    cacheItem.localAccountId = @"0000004-0000004-000004";
     cacheItem.givenName = @"First name";
     cacheItem.familyName = @"Last name";
     cacheItem.accountType = MSIDAccountTypeAADV1;
@@ -53,7 +53,7 @@
     NSDictionary *expectedDictionary = @{@"authority_type": @"AAD",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"realm": @"contoso.com",
-                                         @"authority_account_id": @"legacy-user-id",
+                                         @"local_account_id": @"0000004-0000004-000004",
                                          @"given_name": @"First name",
                                          @"family_name": @"Last name",
                                          @"test": @"test2",
@@ -74,7 +74,7 @@
     NSDictionary *jsonDictionary = @{@"authority_type": @"AAD",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"realm": @"contoso.com",
-                                     @"authority_account_id": @"legacy-user-id",
+                                     @"local_account_id": @"0000004-0000004-000004",
                                      @"given_name": @"First name",
                                      @"family_name": @"Last name",
                                      @"test": @"test2",
@@ -92,7 +92,7 @@
     XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
     XCTAssertEqual(cacheItem.accountType, MSIDAccountTypeAADV1);
-    XCTAssertEqualObjects(cacheItem.legacyUserId, @"legacy-user-id");
+    XCTAssertEqualObjects(cacheItem.localAccountId, @"0000004-0000004-000004");
     XCTAssertEqualObjects(cacheItem.givenName, @"First name");
     XCTAssertEqualObjects(cacheItem.familyName, @"Last name");
     XCTAssertEqualObjects(cacheItem.name, @"test user");

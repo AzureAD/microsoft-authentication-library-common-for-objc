@@ -2088,7 +2088,7 @@
     item.environment = @"login.microsoftonline.com";
     item.realm = @"contoso.com";
     item.givenName = @"test user";
-    item.legacyUserId = @"test 2";
+    item.localAccountId = @"test 2";
 
     return item;
 }

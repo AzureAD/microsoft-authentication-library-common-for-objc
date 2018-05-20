@@ -41,6 +41,7 @@
     MSIDAccount *item = [[self.class allocWithZone:zone] init];
     item->_homeAccountId = [_homeAccountId copyWithZone:zone];
     item->_legacyUserId = [_legacyUserId copyWithZone:zone];
+    item->_localAccountId = [_localAccountId copyWithZone:zone];
     item->_accountType = _accountType;
     item->_authority = [_authority copyWithZone:zone];
     item->_username = [_username copyWithZone:zone];
@@ -140,7 +141,7 @@
             return nil;
         }
         
-        _legacyUserId = cacheItem.legacyUserId;
+        _legacyUserId = cacheItem.username;
         _accountType = cacheItem.accountType;
         _givenName = cacheItem.givenName;
         _familyName = cacheItem.familyName;
@@ -150,6 +151,7 @@
         _homeAccountId = cacheItem.homeAccountId;
         _clientInfo = cacheItem.clientInfo;
         _alternativeAccountId = cacheItem.alternativeAccountId;
+        _localAccountId = cacheItem.localAccountId;
 
         NSString *environment = cacheItem.environment;
         NSString *tenant = cacheItem.realm;
@@ -176,7 +178,7 @@
     cacheItem.realm = self.authority.msidTenant;
     cacheItem.username = self.username;
     cacheItem.homeAccountId = self.homeAccountId;
-    cacheItem.legacyUserId = self.legacyUserId;
+    cacheItem.localAccountId = self.localAccountId;
     cacheItem.accountType = self.accountType;
     cacheItem.givenName = self.givenName;
     cacheItem.middleName = self.middleName;
@@ -191,8 +193,8 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"(authority=%@ username=%@ homeAccountId=%@ clientInfo=%@ accountType=%@ legacyUserId=%@)",
-            _authority, _username, _homeAccountId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _legacyUserId];
+    return [NSString stringWithFormat:@"(authority=%@ username=%@ homeAccountId=%@ clientInfo=%@ accountType=%@ legacyUserId=%@ localAccountId=%@)",
+            _authority, _username, _homeAccountId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _legacyUserId, _localAccountId];
 }
 
 @end

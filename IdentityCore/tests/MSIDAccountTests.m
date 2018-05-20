@@ -134,11 +134,12 @@
     [account setValue:@"Eric" forKey:@"givenName"];
     [account setValue:@"Cartman" forKey:@"familyName"];
     [account setValue:@(MSIDAccountTypeMSA) forKey:@"accountType"];
+    [account setValue:@"local account id" forKey:@"localAccountId"];
     
     MSIDAccountCacheItem *cacheItem = [account accountCacheItem];
     
     XCTAssertNotNil(cacheItem);
-    XCTAssertEqualObjects(cacheItem.legacyUserId, @"legacy user id");
+    XCTAssertEqualObjects(cacheItem.localAccountId, @"local account id");
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"some id");
     XCTAssertEqualObjects(cacheItem.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(cacheItem.username, @"eric999");
@@ -150,7 +151,7 @@
 - (void)testInitWithAccountCacheItem_shouldInitAccountAndSetProperties
 {
     MSIDAccountCacheItem *cacheItem = [MSIDAccountCacheItem new];
-    cacheItem.legacyUserId = @"legacy user id";
+    cacheItem.localAccountId = @"local account id";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
@@ -167,8 +168,9 @@
     MSIDAccount *account = [[MSIDAccount alloc]  initWithAccountCacheItem:cacheItem];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
+    XCTAssertEqualObjects(account.localAccountId, @"local account id");
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.legacyUserId, @"eric999");
     XCTAssertEqual(account.accountType, MSIDAccountTypeMSA);
     XCTAssertEqualObjects(account.username, @"eric999");
     XCTAssertEqualObjects(account.givenName, @"Eric");

@@ -122,7 +122,7 @@
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.homeAccountId = @"test";
-    cacheItem.legacyUserId = @"upn";
+    cacheItem.localAccountId = @"00004-00004-0004";
     
     NSData *data = [serializer serializeAccountCacheItem:cacheItem];
     XCTAssertNil(data);

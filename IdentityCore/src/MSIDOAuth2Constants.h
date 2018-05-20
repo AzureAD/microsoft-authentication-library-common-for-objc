@@ -98,7 +98,7 @@ extern NSString *const MSID_CACHED_AT_CACHE_KEY;
 extern NSString *const MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY;
 extern NSString *const MSID_SPE_INFO_CACHE_KEY;
 extern NSString *const MSID_RESOURCE_RT_CACHE_KEY;
-extern NSString *const MSID_ACCOUNT_ID_CACHE_KEY;
+extern NSString *const MSID_LOCAL_ACCOUNT_ID_CACHE_KEY;
 extern NSString *const MSID_AUTHORITY_TYPE_CACHE_KEY;
 extern NSString *const MSID_GIVEN_NAME_CACHE_KEY;
 extern NSString *const MSID_MIDDLE_NAME_CACHE_KEY;

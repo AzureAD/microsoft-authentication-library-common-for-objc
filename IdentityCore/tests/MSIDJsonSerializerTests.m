@@ -105,7 +105,7 @@
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.familyName = @"Smith";
     cacheItem.givenName = @"Test";
-    cacheItem.legacyUserId = @"upn";
+    cacheItem.localAccountId = @"00004-00004-00004";
     cacheItem.accountType = MSIDAccountTypeMSSTS;
     
     NSData *data = [serializer serializeAccountCacheItem:cacheItem];

@@ -36,6 +36,7 @@
 
 // Primary user identifier
 @property (readwrite) NSString *homeAccountId;
+@property (readwrite) NSString *localAccountId;
 
 // Legacy user identifier
 @property (readwrite) NSString *legacyUserId;

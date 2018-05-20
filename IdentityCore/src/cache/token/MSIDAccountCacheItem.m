@@ -54,7 +54,7 @@
     BOOL result = YES;
     result &= self.accountType == item.accountType;
     result &= (!self.homeAccountId || !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
-    result &= (!self.legacyUserId || !item.legacyUserId) || [self.legacyUserId isEqualToString:item.legacyUserId];
+    result &= (!self.localAccountId || !item.localAccountId) || [self.localAccountId isEqualToString:item.localAccountId];
     result &= (!self.username || !item.username) || [self.username isEqualToString:item.username];
     result &= (!self.givenName || !item.givenName) || [self.givenName isEqualToString:item.givenName];
     result &= (!self.middleName || !item.middleName) || [self.middleName isEqualToString:item.middleName];
@@ -74,7 +74,7 @@
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.accountType;
     hash = hash * 31 + self.homeAccountId.hash;
-    hash = hash * 31 + self.legacyUserId.hash;
+    hash = hash * 31 + self.localAccountId.hash;
     hash = hash * 31 + self.username.hash;
     hash = hash * 31 + self.givenName.hash;
     hash = hash * 31 + self.middleName.hash;
@@ -94,7 +94,7 @@
     MSIDAccountCacheItem *item = [[self class] allocWithZone:zone];
     item.accountType = self.accountType;
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
-    item.legacyUserId = [self.legacyUserId copyWithZone:zone];
+    item.localAccountId = [self.localAccountId copyWithZone:zone];
     item.username = [self.username copyWithZone:zone];
     item.givenName = [self.givenName copyWithZone:zone];
     item.middleName = [self.middleName copyWithZone:zone];
@@ -132,7 +132,7 @@
         return nil;
     }
 
-    _legacyUserId = json[MSID_ACCOUNT_ID_CACHE_KEY];
+    _localAccountId = json[MSID_LOCAL_ACCOUNT_ID_CACHE_KEY];
     _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     _username = json[MSID_USERNAME_CACHE_KEY];
     _givenName = json[MSID_GIVEN_NAME_CACHE_KEY];
@@ -162,7 +162,7 @@
     
     dictionary[MSID_AUTHORITY_TYPE_CACHE_KEY] = [MSIDAccountTypeHelpers accountTypeAsString:_accountType];
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
-    dictionary[MSID_ACCOUNT_ID_CACHE_KEY] = _legacyUserId;
+    dictionary[MSID_LOCAL_ACCOUNT_ID_CACHE_KEY] = _localAccountId;
     dictionary[MSID_USERNAME_CACHE_KEY] = _username;
     dictionary[MSID_GIVEN_NAME_CACHE_KEY] = _givenName;
     dictionary[MSID_MIDDLE_NAME_CACHE_KEY] = _middleName;

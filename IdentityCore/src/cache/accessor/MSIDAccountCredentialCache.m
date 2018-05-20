@@ -257,9 +257,9 @@
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving account %@", account);
 
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
-                                                                                   environment:account.environment
-                                                                                         realm:account.realm
-                                                                                          type:account.accountType];
+                                                                                    environment:account.environment
+                                                                                          realm:account.realm
+                                                                                           type:account.accountType];
 
     key.username = account.username;
 
