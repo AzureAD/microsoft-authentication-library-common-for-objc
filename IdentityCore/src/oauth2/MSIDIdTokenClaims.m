@@ -114,4 +114,9 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     return nil;
 }
 
+- (NSString *)realm
+{
+    return nil;
+}
+
 @end

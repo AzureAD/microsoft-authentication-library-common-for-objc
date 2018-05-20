@@ -99,6 +99,12 @@
                         context:(id<MSIDRequestContext>)context
                           error:(NSError *__autoreleasing *)error
 {
+    if (!response)
+    {
+        [self fillInternalErrorWithMessage:@"No token response provided" context:context error:error];
+        return NO;
+    }
+
     BOOL result = [self saveIDTokenWithFactory:factory configuration:configuration response:response context:context error:error];
     result &= [self saveRefreshTokenWithFactory:factory configuration:configuration response:response context:context error:error];
     result &= [self saveAccountWithFactory:factory configuration:configuration response:response context:context error:error];
@@ -232,6 +238,8 @@
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
+    NSMutableSet *filteredAccountsSet = [NSMutableSet set];
+
     MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     NSArray<NSString *> *environmentAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:environment];
@@ -253,14 +261,12 @@
 
     NSArray<MSIDCredentialCacheItem *> *resultCredentials = [_accountCredentialCache getCredentialsWithQuery:credentialsQuery legacyUserId:nil context:context error:error];
 
-    NSMutableArray *filteredAccounts = [NSMutableArray array];
-
     for (MSIDCredentialCacheItem *credentialCacheItem in resultCredentials)
     {
         NSArray *accounts = accountsPerUserId[credentialCacheItem.uniqueUserId];
         if (!accounts) continue;
 
-        [filteredAccounts addObjectsFromArray:accounts];
+        [filteredAccountsSet addObjectsFromArray:accounts];
     }
 
     [self stopTelemetryLookupEvent:event
@@ -271,14 +277,14 @@
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        [filteredAccounts addObjectsFromArray:[accessor allAccountsForEnvironment:environment
-                                                                         clientId:clientId
-                                                                         familyId:familyId
-                                                                          context:context
-                                                                            error:error]];
+        [filteredAccountsSet addObjectsFromArray:[accessor allAccountsForEnvironment:environment
+                                                                            clientId:clientId
+                                                                            familyId:familyId
+                                                                             context:context
+                                                                               error:error]];
     }
 
-    return filteredAccounts;
+    return [filteredAccountsSet allObjects];
 }
 
 - (BOOL)removeAccount:(MSIDAccount *)account
@@ -303,6 +309,14 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
+    if (!account
+        || !environment
+        || !clientId)
+    {
+        [self fillInternalErrorWithMessage:@"Missing parameter, please provide account, clientId and environment" context:context error:error];
+        return NO;
+    }
+
     MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
@@ -439,7 +453,7 @@
 
     if (!refreshToken)
     {
-        return NO;
+        return YES;
     }
 
     if (![NSString msidIsStringNilOrBlank:refreshToken.familyId])
@@ -542,6 +556,7 @@
         token = [self getRefreshTokenByLegacyUserId:account.legacyUserId
                                           authority:authority
                                            clientId:clientId
+                                           familyId:familyId
                                             context:context
                                               error:error];
     }
@@ -658,6 +673,7 @@
 
         if (token)
         {
+            token.authority = authority;
             return token;
         }
     }
@@ -754,6 +770,7 @@
 - (MSIDBaseToken *)getRefreshTokenByLegacyUserId:(NSString *)legacyUserId
                                        authority:(NSURL *)authority
                                         clientId:(NSString *)clientId
+                                        familyId:(NSString *)familyId
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
@@ -784,6 +801,7 @@
             rtQuery.uniqueUserId = uniqueUserId;
             rtQuery.environment = alias.msidHostWithPortIfNecessary;
             rtQuery.clientId = clientId;
+            rtQuery.familyId = familyId;
             rtQuery.credentialType = MSIDRefreshTokenType;
 
             NSArray<MSIDCredentialCacheItem *> *rtCacheItems = [_accountCredentialCache getCredentialsWithQuery:rtQuery

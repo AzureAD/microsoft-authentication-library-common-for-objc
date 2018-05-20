@@ -127,6 +127,11 @@
     return cacheItem;
 }
 
+- (NSString *)primaryUserId
+{
+    return self.legacyUserId;
+}
+
 #pragma mark - Token type
 
 - (MSIDCredentialType)credentialType

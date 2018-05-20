@@ -103,4 +103,9 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
     return _json[ID_TOKEN_ALT_SEC_ID];
 }
 
+- (NSString *)realm
+{
+    return self.tenantId;
+}
+
 @end

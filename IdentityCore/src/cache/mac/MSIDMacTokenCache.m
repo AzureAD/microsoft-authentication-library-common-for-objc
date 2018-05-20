@@ -515,5 +515,13 @@ return NO; \
     return newKey;
 }
 
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
+{
+    MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
+    [self clear];
+    return YES;
+}
+
 @end
 

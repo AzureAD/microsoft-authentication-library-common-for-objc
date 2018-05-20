@@ -80,7 +80,7 @@
     item.refreshToken = [self.refreshToken copyWithZone:zone];
     item.idToken = [self.idToken copyWithZone:zone];
     item.authority = [self.authority copyWithZone:zone];
-    item.authority = [self.oauthTokenType copyWithZone:zone];
+    item.oauthTokenType = [self.oauthTokenType copyWithZone:zone];
     return item;
 }
 

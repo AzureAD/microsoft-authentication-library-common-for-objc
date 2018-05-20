@@ -77,13 +77,7 @@
     hash = hash * 31 + self.legacyUserId.hash;
     hash = hash * 31 + self.accountType;
     hash = hash * 31 + self.authority.hash;
-    hash = hash * 31 + self.username.hash;
-    hash = hash * 31 + self.givenName.hash;
-    hash = hash * 31 + self.middleName.hash;
-    hash = hash * 31 + self.familyName.hash;
-    hash = hash * 31 + self.name.hash;
     hash = hash * 31 + self.alternativeAccountId.hash;
-    hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
     return hash;
 }
 
@@ -99,14 +93,7 @@
     result &= (!self.legacyUserId && !account.legacyUserId) || [self.legacyUserId isEqualToString:account.legacyUserId];
     result &= self.accountType == account.accountType;
     result &= (!self.alternativeAccountId && !account.alternativeAccountId) || [self.alternativeAccountId isEqualToString:account.alternativeAccountId];
-    result &= (!self.username && !account.username) || [self.username isEqualToString:account.username];
-    result &= (!self.givenName && !account.givenName) || [self.givenName isEqualToString:account.givenName];
-    result &= (!self.middleName && !account.middleName) || [self.middleName isEqualToString:account.middleName];
-    result &= (!self.familyName && !account.familyName) || [self.familyName isEqualToString:account.familyName];
-    result &= (!self.name && !account.name) || [self.name isEqualToString:account.name];
     result &= (!self.authority && !account.authority) || [self.authority isEqual:account.authority];
-
-    result &= (!self.clientInfo.rawClientInfo && !account.clientInfo.rawClientInfo) || [self.clientInfo.rawClientInfo isEqualToString:account.clientInfo.rawClientInfo];
     return result;
 }
 

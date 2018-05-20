@@ -82,6 +82,7 @@
                 clientId:(nullable NSString *)clientId
                 familyId:(nullable NSString *)familyId
                   target:(nullable NSString *)target
-          targetMatching:(MSIDComparisonOptions)matchingOptions;
+          targetMatching:(MSIDComparisonOptions)matchingOptions
+        clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions;
 
 @end

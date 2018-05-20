@@ -30,6 +30,8 @@
 #import "MSIDAccount.h"
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDOauth2Factory+Internal.h"
+#import "MSIDAuthority.h"
+#import "MSIDIdToken.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -152,6 +154,37 @@
         return NO;
     }
 
+    return YES;
+}
+
+- (BOOL)fillAccount:(MSIDAccount *)account
+       fromResponse:(MSIDTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
+{
+    if (![super fillAccount:account fromResponse:response configuration:configuration])
+    {
+        return NO;
+    }
+
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return NO;
+    }
+
+    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:response.idTokenObj.realm];
+    return YES;
+}
+
+- (BOOL)fillIDToken:(MSIDIdToken *)token
+       fromResponse:(MSIDTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
+{
+    if (![super fillIDToken:token fromResponse:response configuration:configuration])
+    {
+        return NO;
+    }
+
+    token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
     return YES;
 }
 

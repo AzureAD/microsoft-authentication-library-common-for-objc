@@ -174,7 +174,7 @@
     cacheItem.additionalInfo = @{@"test": @"test2"};
     cacheItem.uniqueUserId = @"uid.utid";
     cacheItem.clientId = @"client id";
-    cacheItem.secret = @"at";
+    cacheItem.secret = @"rt";
     cacheItem.accessToken = @"at";
     cacheItem.refreshToken = @"rt";
 

@@ -29,6 +29,7 @@
 
 @property (readwrite) NSString *idToken;
 @property (readwrite) NSString *legacyUserId;
+@property (readwrite) NSString *realm;
 
 - (instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem;
 - (MSIDLegacyTokenCacheItem *)legacyTokenCacheItem;

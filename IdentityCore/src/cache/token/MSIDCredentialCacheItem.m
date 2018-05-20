@@ -297,15 +297,27 @@
                 familyId:(nullable NSString *)familyId
                   target:(nullable NSString *)target
           targetMatching:(MSIDComparisonOptions)matchingOptions
+        clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions
 {
-    if (clientId && ![self.clientId isEqualToString:clientId])
+    if (clientIDMatchingOptions == SuperSet)
     {
-        return NO;
+        if (![self.clientId isEqualToString:clientId]
+            && ![self.familyId isEqualToString:familyId])
+        {
+            return NO;
+        }
     }
-
-    if (familyId && ![self.familyId isEqualToString:familyId])
+    else
     {
-        return NO;
+        if (clientId && ![self.clientId isEqualToString:clientId])
+        {
+            return NO;
+        }
+
+        if (familyId && ![self.familyId isEqualToString:familyId])
+        {
+            return NO;
+        }
     }
 
     if (realm && ![self.realm isEqualToString:realm])

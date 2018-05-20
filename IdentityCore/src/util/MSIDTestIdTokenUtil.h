@@ -73,4 +73,12 @@
                                       name:(NSString *)name
                                    version:(NSString *)version;
 
++ (NSString *)idTokenWithPreferredUsername:(NSString *)username
+                                   subject:(NSString *)subject
+                                 givenName:(NSString *)givenName
+                                familyName:(NSString *)familyName
+                                      name:(NSString *)name
+                                   version:(NSString *)version
+                                       tid:(NSString *)tid;
+
 @end

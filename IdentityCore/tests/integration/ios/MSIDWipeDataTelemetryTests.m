@@ -38,6 +38,7 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDLegacyRefreshToken.h"
 
 @interface MSIDTestRequestContext : NSObject <MSIDRequestContext>
 

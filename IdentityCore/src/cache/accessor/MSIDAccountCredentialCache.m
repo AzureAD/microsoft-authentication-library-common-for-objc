@@ -110,7 +110,8 @@
                                     clientId:cacheQuery.clientId
                                     familyId:cacheQuery.familyId
                                       target:cacheQuery.target
-                              targetMatching:cacheQuery.targetMatchingOptions])
+                              targetMatching:cacheQuery.targetMatchingOptions
+                            clientIdMatching:cacheQuery.clientIdMatchingOptions])
             {
                 continue;
             }
@@ -377,16 +378,7 @@
                    error:(NSError * _Nullable * _Nullable)error
 {
     MSID_LOG_WARN(context, @"(Default cache) Clearing the whole cache, this method should only be called in tests");
-    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.matchAnyCredentialType = YES;
-    BOOL result = [_dataSource removeItemsWithKey:query context:context error:error];
-
-    if (!result)
-    {
-        return NO;
-    }
-
-    return [_dataSource removeItemsWithKey:[MSIDDefaultAccountCacheQuery new] context:context error:error];
+    return [_dataSource clearWithContext:context error:error];
 }
 
 - (BOOL)removeAllCredentials:(nonnull NSArray<MSIDCredentialCacheItem *> *)credentials

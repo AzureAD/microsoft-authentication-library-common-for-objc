@@ -135,6 +135,23 @@
     }
 
     accessToken.scopes = responseScopes;
+    accessToken.authority = [MSIDAuthority cacheUrlForAuthority:accessToken.authority tenantId:response.idTokenObj.realm];
+
+    return YES;
+}
+
+- (BOOL)fillIDToken:(MSIDIdToken *)token
+       fromResponse:(MSIDTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
+{
+    BOOL result = [super fillIDToken:token fromResponse:response configuration:configuration];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
 
     return YES;
 }
@@ -155,30 +172,7 @@
         return NO;
     }
 
-    MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
-    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
-    return YES;
-}
-
-#pragma mark - Fill token
-
-- (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken
-         fromResponse:(MSIDAADTokenResponse *)response
-        configuration:(MSIDConfiguration *)configuration
-{
-    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
-    {
-        return NO;
-    }
-
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return NO;
-    }
-
-    MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
-    baseToken.authority = [MSIDAuthority cacheUrlForAuthority:baseToken.authority tenantId:idToken.tenantId];
-
+    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:response.idTokenObj.realm];
     return YES;
 }
 

@@ -174,6 +174,11 @@
     return cacheItem;
 }
 
+- (NSString *)primaryUserId
+{
+    return self.uniqueUserId;
+}
+
 #pragma mark - Description
 
 - (NSString *)description

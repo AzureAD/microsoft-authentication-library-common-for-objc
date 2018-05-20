@@ -41,6 +41,7 @@
 #import "MSIDBrokerResponse.h"
 #import "MSIDTokenFilteringHelper.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDIdTokenClaims.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -125,6 +126,12 @@
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error
 {
+    if (!response)
+    {
+        [self fillInternalErrorWithMessage:@"No response provided" context:context error:error];
+        return NO;
+    }
+
     BOOL result = [self saveRefreshTokenWithFactory:factory
                                       configuration:configuration
                                            response:response
@@ -189,8 +196,7 @@
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error
 {
-    MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
-    return [_dataSource removeItemsWithKey:query context:nil error:error];
+    return [_dataSource clearWithContext:context error:error];
 }
 
 - (NSArray<MSIDAccount *> *)allAccountsForEnvironment:(NSString *)environment
@@ -236,19 +242,20 @@
                            success:[refreshTokens count] > 0
                            context:context];
 
-    NSMutableArray<MSIDAccount *> *resultAccounts = [NSMutableArray array];
+    NSMutableSet *resultAccounts = [NSMutableSet set];
 
     for (MSIDLegacyRefreshToken *refreshToken in refreshTokens)
     {
         MSIDAccount *account = [MSIDAccount new];
         account.legacyUserId = refreshToken.legacyUserId;
         account.uniqueUserId = refreshToken.uniqueUserId;
-        account.authority = refreshToken.authority;
+        account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
+        account.accountType = MSIDAccountTypeAADV2;
 
         [resultAccounts addObject:account];
     }
 
-    return resultAccounts;
+    return [resultAccounts allObjects];
 }
 
 #pragma mark - Public
@@ -281,7 +288,7 @@
                                                                    error:error];
 }
 
-- (BOOL)validateAndRemoveRefreshToken:(MSIDLegacyRefreshToken *)token
+- (BOOL)validateAndRemoveRefreshToken:(MSIDRefreshToken *)token
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
@@ -294,7 +301,7 @@
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
     MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.uniqueUserId, _PII_NULLIFY(token.refreshToken));
 
-    MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.legacyUserId
+    MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.primaryUserId
                                                                                              type:MSIDRefreshTokenType
                                                                                         authority:token.authority
                                                                                          clientId:token.clientId
@@ -307,7 +314,7 @@
         MSID_LOG_VERBOSE(context, @"Found refresh token in cache and it's the latest version, removing token");
         MSID_LOG_VERBOSE_PII(context, @"Found refresh token in cache and it's the latest version, removing token %@", token);
 
-        return [self removeToken:token userId:token.legacyUserId context:context error:error];
+        return [self removeToken:token userId:token.primaryUserId context:context error:error];
     }
 
     return YES;
@@ -362,6 +369,8 @@
         authority = [MSIDAuthority universalAuthorityURL:authority];
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", clientId, authority);
         MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.uniqueUserId, clientId, authority);
+
+        *error = nil;
 
         resultToken = (MSIDLegacyRefreshToken *) [self getTokenByUniqueUserId:account.uniqueUserId
                                                                     tokenType:MSIDRefreshTokenType
@@ -530,7 +539,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Token not provided", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Token not provided", nil, nil, nil, context.correlationId, nil);
         }
         
         return NO;

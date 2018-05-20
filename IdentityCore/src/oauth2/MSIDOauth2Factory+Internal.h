@@ -29,6 +29,7 @@
 - (BOOL)fillBaseToken:(MSIDBaseToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (BOOL)fillRefreshToken:(MSIDRefreshToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (BOOL)fillAccessToken:(MSIDAccessToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (BOOL)fillIDToken:(MSIDIdToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (BOOL)fillAccount:(MSIDAccount *)account fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (BOOL)fillLegacyToken:(MSIDLegacySingleResourceToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 

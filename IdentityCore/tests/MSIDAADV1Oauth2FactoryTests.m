@@ -288,7 +288,7 @@
     
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -422,7 +422,7 @@
     XCTAssertEqualObjects(account.name, @"Eric");
     XCTAssertNil(account.middleName);
     XCTAssertEqualObjects(account.alternativeAccountId, @"::live.com::XXXXXX");
-    XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
+    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tenantId");
 }
 
 - (void)testAccessTokenFromResponse_whenV1ResponseAndNoResourceInRequest_shouldUseResourceInRequest

@@ -600,6 +600,29 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return status == errSecSuccess;
 }
 
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
+{
+    MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
+
+    NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
+    MSID_LOG_INFO(context, @"Trying to delete keychain items...");
+    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
+
+    if (status != errSecSuccess && status != errSecItemNotFound)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
+
+        return NO;
+    }
+
+    return YES;
+}
 
 @end
 

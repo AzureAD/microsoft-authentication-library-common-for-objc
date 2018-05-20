@@ -97,6 +97,7 @@
 
         MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_idToken];
         _legacyUserId = idTokenClaims.userId;
+        _realm = idTokenClaims.realm;
     }
 
     return self;
@@ -115,7 +116,14 @@
     cacheItem.additionalInfo = self.additionalServerInfo;
     cacheItem.uniqueUserId = self.uniqueUserId;
     cacheItem.refreshToken = self.refreshToken;
+    cacheItem.familyId = self.familyId;
+    cacheItem.secret = self.refreshToken;
     return cacheItem;
+}
+
+- (NSString *)primaryUserId
+{
+    return self.legacyUserId;
 }
 
 #pragma mark - Token type

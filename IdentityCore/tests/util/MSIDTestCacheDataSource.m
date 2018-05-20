@@ -481,6 +481,12 @@
     return resultItems;
 }
 
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
+{
+    [self reset];
+    return YES;
+}
+
 #pragma mark - Test methods
 
 - (void)reset

@@ -51,6 +51,7 @@
 
 // Convinience properties
 @property (readonly) NSString *rawIdToken;
+@property (readonly) NSString *realm;
 
 - (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
 - (BOOL)matchesLegacyUserId:(NSString *)legacyUserId;

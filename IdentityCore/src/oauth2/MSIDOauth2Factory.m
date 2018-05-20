@@ -317,6 +317,7 @@
 
     token.idToken = response.idToken;
     token.legacyUserId = response.idTokenObj.userId;
+    token.realm = response.idTokenObj.realm;
     return YES;
 }
 

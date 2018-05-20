@@ -155,9 +155,26 @@
 + (NSString *)idTokenWithPreferredUsername:(NSString *)username
                                    subject:(NSString *)subject
                                  givenName:(NSString *)givenName
+                                familyName:(NSString *)familyName
+                                      name:(NSString *)name
+                                   version:(NSString *)version
+{
+    return [self idTokenWithPreferredUsername:username
+                                      subject:subject
+                                    givenName:givenName
+                                   familyName:familyName
+                                         name:name
+                                      version:version
+                                          tid:@"contoso.com"];
+}
+
++ (NSString *)idTokenWithPreferredUsername:(NSString *)username
+                                   subject:(NSString *)subject
+                                 givenName:(NSString *)givenName
                                  familyName:(NSString *)familyName
                                       name:(NSString *)name
                                     version:(NSString *)version
+                                       tid:(NSString *)tid
 {
     NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
     NSString *idTokenp2 = [@{ @"iss" : @"issuer",
@@ -166,7 +183,8 @@
                               @"name" : name,
                               @"preferred_username" : username,
                               @"sub" : subject,
-                              @"ver": version
+                              @"ver": version,
+                              @"tid": tid
                               } msidBase64UrlJson];
     return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
 }
