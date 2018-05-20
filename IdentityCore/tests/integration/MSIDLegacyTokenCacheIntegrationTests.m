@@ -39,6 +39,7 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDLegacyRefreshToken.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDLegacyTokenCacheTests : XCTestCase
 {
@@ -287,8 +288,8 @@
 
 - (void)testTokenWithType_withAccessTokenType_whenNoItemsInCache_shouldReturnNil
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"some id"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"some id"];
     
     NSError *error = nil;
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
@@ -303,8 +304,8 @@
 - (void)testGetAccessToken_withAccountWithoutUPN_whenOnlyOneTokenInCache_shouldReturnToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"some id"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"some id"];
     
     // Save token
     NSError *error = nil;
@@ -316,7 +317,7 @@
                                      error:&error];
     XCTAssertNil(error);
     
-    account.legacyUserId = nil;
+    account.legacyAccountId = nil;
 
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
@@ -333,8 +334,8 @@
 - (void)testGetAccessTokenAfterSaving_withCorrectAccountAndParameters_shouldReturnToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"some id"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"some id"];
     
     // Save token
     NSError *error = nil;
@@ -360,8 +361,8 @@
 - (void)testGetAccessToken_withMultipleTokensInCacheWithDifferentResources_andCorrectAccountAndParameters_shouldReturnCorrectToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"some id"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"some id"];
     
     // Save first token
     NSError *error = nil;
@@ -412,8 +413,8 @@
 - (void)testGetAccessToken_withMultipleTokensInCacheWithDifferentAuthorities_andCorrectAccountAndParameters_shouldReturnCorrectToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"some id"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"some id"];
     
     // Save first token
     NSError *error = nil;
@@ -454,8 +455,8 @@
 - (void)testGetAccessToken_withMultipleTokensInCacheWithDifferentClientIds_andCorrectAccountAndParameters_shouldReturnCorrectToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"some id"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"some id"];
     
     // Save first token
     NSError *error = nil;
@@ -500,8 +501,8 @@
 - (void)testGetAccessToken_withMultipleTokensInCacheWithDifferentUsers_andCorrectAccountAndParameters_shouldReturnCorrectToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"some id"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"some id"];
     
     // Save first token
     NSError *error = nil;
@@ -550,8 +551,8 @@
 - (void)testGetLegacyToken_withCorrectAccountAndParameters_shouldReturnToken
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@""
-                                                        homeAccountId:nil];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@""
+                                                                              homeAccountId:nil];
     
     // Save legacy token response
     NSError *error = nil;
@@ -579,8 +580,8 @@
 
 - (void)testGetSharedRTForAccount_whenNoItemsInCache_shouldReturnNil
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"some id"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"some id"];
     
     NSError *error = nil;
 
@@ -600,8 +601,8 @@
     MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     token.storageAuthority = token.authority;
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:nil];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:nil];
     
     // Save token
     NSError *error = nil;
@@ -632,8 +633,8 @@
     MSIDRefreshToken *firstToken = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     firstToken.storageAuthority = firstToken.authority;
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:nil];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:nil];
     
     // Save token
     NSError *error = nil;
@@ -682,8 +683,8 @@
     MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     token.storageAuthority = token.authority;
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Save token
     NSError *error = nil;
@@ -696,8 +697,8 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    account = [[MSIDAccount alloc] initWithLegacyUserId:nil
-                                           homeAccountId:@"1.1234-5678-90abcdefg"];
+    account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil
+                                                       homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Check that correct token is returned
     MSIDRefreshToken *returnedToken = [_legacyAccessor getRefreshTokenWithAccount:account
@@ -717,8 +718,8 @@
     MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     token.storageAuthority = token.authority;
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Save token
     NSError *error = nil;
@@ -732,8 +733,8 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    account = [[MSIDAccount alloc] initWithLegacyUserId:nil
-                                           homeAccountId:@"1.1234-5678-90abcdefg"];
+    account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil
+                                                       homeAccountId:@"1.1234-5678-90abcdefg"];
     
     MSIDConfiguration *organizationConfiguration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/organizations"
                                                                                             clientId:DEFAULT_TEST_CLIENT_ID
@@ -755,8 +756,8 @@
 - (void)testGetSharedRTForAccountAfterSaving_whenConsumerAuthority_shouldReturnNil
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Save token
     NSError *error = nil;
@@ -790,8 +791,8 @@
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                        homeAccountId:nil];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:nil];
     
     // Save first token
     NSError *error = nil;
@@ -804,7 +805,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    account.legacyUserId = @"user Id 2";
+    account.legacyAccountId = @"user Id 2";
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:@"at"
                                                                             rt:@"rt 2"
@@ -824,8 +825,8 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    account = [[MSIDAccount alloc] initWithLegacyUserId:nil
-                                           homeAccountId:@"1.1234-5678-90abcdefg"];
+    account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil
+                                                       homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Check that correct token is returned
     MSIDRefreshToken *returnedToken = [_legacyAccessor getRefreshTokenWithAccount:account

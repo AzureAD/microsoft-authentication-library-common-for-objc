@@ -30,7 +30,7 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDClientInfo.h"
 #import "MSIDClientInfo.h"
-#import "MSIDClientInfo.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDAccount
 
@@ -40,7 +40,6 @@
 {
     MSIDAccount *item = [[self.class allocWithZone:zone] init];
     item->_homeAccountId = [_homeAccountId copyWithZone:zone];
-    item->_legacyUserId = [_legacyUserId copyWithZone:zone];
     item->_localAccountId = [_localAccountId copyWithZone:zone];
     item->_accountType = _accountType;
     item->_authority = [_authority copyWithZone:zone];
@@ -75,7 +74,6 @@
 {
     NSUInteger hash = 0;
     hash = hash * 31 + self.homeAccountId.hash;
-    hash = hash * 31 + self.legacyUserId.hash;
     hash = hash * 31 + self.accountType;
     hash = hash * 31 + self.authority.hash;
     hash = hash * 31 + self.alternativeAccountId.hash;
@@ -91,41 +89,10 @@
     
     BOOL result = YES;
     result &= (!self.homeAccountId && !account.homeAccountId) || [self.homeAccountId isEqualToString:account.homeAccountId];
-    result &= (!self.legacyUserId && !account.legacyUserId) || [self.legacyUserId isEqualToString:account.legacyUserId];
     result &= self.accountType == account.accountType;
     result &= (!self.alternativeAccountId && !account.alternativeAccountId) || [self.alternativeAccountId isEqualToString:account.alternativeAccountId];
     result &= (!self.authority && !account.authority) || [self.authority isEqual:account.authority];
     return result;
-}
-
-#pragma mark - Init
-
-- (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
-                          clientInfo:(MSIDClientInfo *)clientInfo
-{
-    self = [self initWithLegacyUserId:legacyUserId
-                         homeAccountId:clientInfo.userIdentifier];
-    
-    if (self)
-    {
-        _clientInfo = clientInfo;
-    }
-    
-    return self;
-}
-
-- (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
-                        homeAccountId:(NSString *)homeAccountId
-{
-    if (!(self = [self init]))
-    {
-        return nil;
-    }
-    
-    _legacyUserId = legacyUserId;
-    _homeAccountId = homeAccountId;
-    
-    return self;
 }
 
 #pragma mark - Cache
@@ -141,7 +108,6 @@
             return nil;
         }
         
-        _legacyUserId = cacheItem.username;
         _accountType = cacheItem.accountType;
         _givenName = cacheItem.givenName;
         _familyName = cacheItem.familyName;
@@ -189,12 +155,18 @@
     return cacheItem;
 }
 
+- (MSIDAccountIdentifier *)accountIdentifier
+{
+    return [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:self.username
+                                                    homeAccountId:self.homeAccountId];
+}
+
 #pragma mark - Description
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"(authority=%@ username=%@ homeAccountId=%@ clientInfo=%@ accountType=%@ legacyUserId=%@ localAccountId=%@)",
-            _authority, _username, _homeAccountId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _legacyUserId, _localAccountId];
+    return [NSString stringWithFormat:@"(authority=%@ username=%@ homeAccountId=%@ clientInfo=%@ accountType=%@ localAccountId=%@)",
+            _authority, _username, _homeAccountId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _localAccountId];
 }
 
 @end

@@ -440,7 +440,6 @@
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyUserId, @"subject");
     XCTAssertEqualObjects(account.homeAccountId, @"subject");
     XCTAssertNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);

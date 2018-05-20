@@ -32,6 +32,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDTestIdTokenUtil.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDAccountTests : XCTestCase
 
@@ -73,17 +74,11 @@
 
 - (void)testInitWithLegacyUserIdHomeAccountId_shouldInitAccountAndSetProperties
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"legacy user id" homeAccountId:@"some id"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy user id" homeAccountId:@"some id"];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
+    XCTAssertEqualObjects(account.legacyAccountId, @"legacy user id");
     XCTAssertEqualObjects(account.homeAccountId, @"some id");
-    XCTAssertNil(account.clientInfo);
-    XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
-    XCTAssertNil(account.username);
-    XCTAssertNil(account.givenName);
-    XCTAssertNil(account.familyName);
-    XCTAssertNil(account.authority);
 }
 
 - (void)testInitWithLegacyUserIdClientInfo_shouldInitAccountAndSetProperties
@@ -92,17 +87,11 @@
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"legacy user id" clientInfo:clientInfo];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy user id" clientInfo:clientInfo];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
+    XCTAssertEqualObjects(account.legacyAccountId, @"legacy user id");
     XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
-    XCTAssertEqualObjects(account.clientInfo, clientInfo);
-    XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
-    XCTAssertNil(account.username);
-    XCTAssertNil(account.givenName);
-    XCTAssertNil(account.familyName);
-    XCTAssertNil(account.authority);
 }
 
 - (void)testInitWithTokenResponseRequestParams_shouldInitAccountAndSetProperties
@@ -111,24 +100,18 @@
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"legacy user id" clientInfo:clientInfo];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy user id" clientInfo:clientInfo];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyUserId, @"legacy user id");
+    XCTAssertEqualObjects(account.legacyAccountId, @"legacy user id");
     XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
-    XCTAssertEqualObjects(account.clientInfo, clientInfo);
-    XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
-    XCTAssertNil(account.username);
-    XCTAssertNil(account.givenName);
-    XCTAssertNil(account.familyName);
-    XCTAssertNil(account.authority);
 }
 
 #pragma mark - MSIDAccountCacheItem <-> MSIDAccount
 
 - (void)testAccountCacheItem_shouldReturnProperCacheItem
 {
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"legacy user id" homeAccountId:@"some id"];
+    MSIDAccount *account = [MSIDAccount new];
     [account setValue:[@"https://login.microsoftonline.com/common" msidUrl] forKey:@"authority"];
     [account setValue:@"eric999" forKey:@"username"];
     [account setValue:@"Eric" forKey:@"givenName"];
@@ -170,7 +153,6 @@
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.localAccountId, @"local account id");
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account.legacyUserId, @"eric999");
     XCTAssertEqual(account.accountType, MSIDAccountTypeMSA);
     XCTAssertEqualObjects(account.username, @"eric999");
     XCTAssertEqualObjects(account.givenName, @"Eric");
@@ -203,7 +185,7 @@
     MSIDAccount *account = [MSIDAccount new];
     account.accountType = MSIDAccountTypeMSSTS;
     account.homeAccountId = @"uid.utid";
-    account.legacyUserId = @"legacy";
+    account.localAccountId = @"local";
     account.authority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
     account.storageAuthority = [NSURL URLWithString:@"https://login.windows2.net/contoso.com"];
     account.username = @"username";

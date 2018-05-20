@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDCacheAccessor.h"
 
-@protocol MSIDAccountIdentifiers;
+@class MSIDAccountIdentifier;
 @class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @class MSIDRefreshToken;
@@ -34,12 +34,12 @@
 
 @interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDCacheAccessor>
 
-- (MSIDAccessToken *)getAccessTokenForAccount:(id<MSIDAccountIdentifiers>)account
+- (MSIDAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
                                 configuration:(MSIDConfiguration *)configuration
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError **)error;
 
-- (MSIDIdToken *)getIDTokenForAccount:(id<MSIDAccountIdentifiers>)account
+- (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)account
                         configuration:(MSIDConfiguration *)configuration
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
@@ -48,7 +48,7 @@
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error;
 
-- (BOOL)removeAllTokensForAccount:(id<MSIDAccountIdentifiers>)account
+- (BOOL)removeAllTokensForAccount:(MSIDAccountIdentifier *)account
                       environment:(NSString *)environment
                          clientId:(NSString *)clientId
                           context:(id<MSIDRequestContext>)context

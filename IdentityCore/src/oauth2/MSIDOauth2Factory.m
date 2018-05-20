@@ -339,7 +339,6 @@
     account.name = response.idTokenObj.name;
     account.authority = configuration.authority;
     account.accountType = response.accountType;
-    account.legacyUserId = response.idTokenObj.userId;
     account.localAccountId = response.idTokenObj.uniqueId;
     return YES;
 }

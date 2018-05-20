@@ -47,6 +47,7 @@
 #import "MSIDAADIdTokenClaimsFactory.h"
 #import "MSIDMacTokenCache.h"
 #import "MSIDTestCacheDataSource.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDDefaultAccessorSSOIntegrationTests : XCTestCase
 {
@@ -199,7 +200,6 @@
     XCTAssertEqualObjects(account.name, @"Hello World");
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.legacyUserId, @"upn@test.com");
     XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
 }
 
@@ -279,7 +279,6 @@
     XCTAssertEqualObjects(account.name, @"Hello World");
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.legacyUserId, @"upn@test.com");
     XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
 
     // Now check legacy accessor
@@ -560,7 +559,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.read"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil homeAccountId:@"uid2.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:@"uid2.utid"];
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
@@ -620,7 +619,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.read"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil homeAccountId:@"uid2.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:@"uid2.utid"];
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
@@ -677,7 +676,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.read"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil homeAccountId:@"uid2.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:@"uid2.utid"];
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:@"3"
@@ -738,7 +737,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.read"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil homeAccountId:@"uid2.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:@"uid2.utid"];
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:@"3"
@@ -799,7 +798,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.read"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil homeAccountId:@"uid2.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:@"uid2.utid"];
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:@"3"
@@ -860,7 +859,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.read"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil homeAccountId:@"uid2.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:@"uid2.utid"];
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
@@ -921,7 +920,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.read"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:nil homeAccountId:@"uid2.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:@"uid2.utid"];
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:@"3"
@@ -965,7 +964,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"graph"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"upn@test.com" homeAccountId:nil];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:nil];
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
@@ -1040,7 +1039,6 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.homeAccountId, @"uid2.utid");
-    XCTAssertEqualObjects(account.legacyUserId, @"upn@test.com");
 }
 
 - (void)testAllAccountsWithEnvironment_whenFamilyIdProvided_andTokensInPrimaryCache_shouldReturnAccounts
@@ -1069,7 +1067,6 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account.legacyUserId, @"upn@test.com");
 }
 
 - (void)testAllAccountsWithEnvironment_whenNoFamilyId_andTokensInBothCaches_shouldReturnAccounts
@@ -1110,7 +1107,6 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account.legacyUserId, @"upn@test.com");
     XCTAssertEqualObjects(account.givenName, @"Hello");
     XCTAssertEqualObjects(account.familyName, @"World");
     XCTAssertEqualObjects(account.username, @"upn@test.com");
@@ -1155,7 +1151,6 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account.legacyUserId, @"upn@test.com");
     XCTAssertEqualObjects(account.givenName, @"Hello");
     XCTAssertEqualObjects(account.familyName, @"World");
     XCTAssertEqualObjects(account.username, @"upn@test.com");
@@ -1205,7 +1200,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.write"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"upn@test.com" homeAccountId:@"uid.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
     NSError *error = nil;
     MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account configuration:configuration context:nil error:&error];
 
@@ -1257,7 +1252,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.write"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"upn@test.com" homeAccountId:@"uid.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
     NSError *error = nil;
     MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account configuration:configuration context:nil error:&error];
 
@@ -1309,7 +1304,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.write"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"upn@test.com" homeAccountId:@"uid.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
     NSError *error = nil;
     MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account configuration:configuration context:nil error:&error];
 
@@ -1559,7 +1554,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"graph"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"upn@test.com" homeAccountId:@"uid.utid"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                         familyId:nil
                                                                    configuration:configuration
@@ -1620,7 +1615,7 @@
                                                                              redirectUri:nil
                                                                                   target:@"user.write"];
 
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:@"upn@test.com" homeAccountId:@"uid.utid2"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid2"];
     NSError *error = nil;
     MSIDIdToken *idToken = [_defaultAccessor getIDTokenForAccount:account configuration:configuration context:nil error:&error];
 
@@ -1694,7 +1689,7 @@
 - (void)testRemoveAllTokensForAccount_whenNilClientId_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_defaultAccessor removeAllTokensForAccount:[MSIDAccount new] environment:@"login.microsoftonline.com" clientId:nil context:nil error:&error];
+    BOOL result = [_defaultAccessor removeAllTokensForAccount:[MSIDAccountIdentifier new] environment:@"login.microsoftonline.com" clientId:nil context:nil error:&error];
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInternal);
@@ -1703,7 +1698,7 @@
 - (void)testRemoveAllTokensForAccount_whenNilEnvironment_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_defaultAccessor removeAllTokensForAccount:[MSIDAccount new] environment:nil clientId:@"test" context:nil error:&error];
+    BOOL result = [_defaultAccessor removeAllTokensForAccount:[MSIDAccountIdentifier new] environment:nil clientId:@"test" context:nil error:&error];
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInternal);
@@ -1753,7 +1748,11 @@
 
     MSIDAccount *account = accounts[0];
 
-    BOOL result = [_defaultAccessor removeAllTokensForAccount:account environment:@"login.windows.net" clientId:@"test_client_id" context:nil error:&error];
+    MSIDAccountIdentifier *identifier = [MSIDAccountIdentifier new];
+    identifier.homeAccountId = account.homeAccountId;
+    identifier.legacyAccountId = account.username;
+
+    BOOL result = [_defaultAccessor removeAllTokensForAccount:identifier environment:@"login.windows.net" clientId:@"test_client_id" context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 

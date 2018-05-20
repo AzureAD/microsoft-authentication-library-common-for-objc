@@ -21,11 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAccountIdentifier.h"
+#import "MSIDClientInfo.h"
 
-@protocol MSIDAccountIdentifiers <NSObject>
+@implementation MSIDAccountIdentifier
 
-@property NSString *homeAccountId;
-@property NSString *legacyUserId;
+#pragma mark - Init
+
+- (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
+                             clientInfo:(MSIDClientInfo *)clientInfo
+{
+    return [self initWithLegacyAccountId:legacyAccountId
+                           homeAccountId:clientInfo.userIdentifier];
+}
+
+- (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
+                          homeAccountId:(NSString *)homeAccountId
+{
+    if (!(self = [self init]))
+    {
+        return nil;
+    }
+
+    _legacyAccountId = legacyAccountId;
+    _homeAccountId = homeAccountId;
+
+    return self;
+}
 
 @end

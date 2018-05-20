@@ -22,22 +22,18 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDCredentialType.h"
-#import "MSIDDefaultCredentialCacheKey.h"
 
-typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
-    ExactStringMatch,
-    SubSet,
-    Intersect,
-    SuperSet
-};
+@class MSIDClientInfo;
 
-@interface MSIDDefaultCredentialCacheQuery : MSIDDefaultCredentialCacheKey
+@interface MSIDAccountIdentifier : NSObject
 
-@property (nonatomic) MSIDComparisonOptions targetMatchingOptions;
-@property (nonatomic) MSIDComparisonOptions clientIdMatchingOptions;
-@property (nonatomic) BOOL matchAnyCredentialType;
-@property (nonatomic, readonly) BOOL exactMatch;
-@property (nonatomic) NSArray<NSString *> *environmentAliases;
+@property (nonatomic, readwrite) NSString *homeAccountId;
+@property (nonatomic, readwrite) NSString *legacyAccountId;
+
+- (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
+                             clientInfo:(MSIDClientInfo *)clientInfo;
+
+- (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
+                          homeAccountId:(NSString *)homeAccountId;
 
 @end

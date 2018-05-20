@@ -42,6 +42,7 @@
 #import "MSIDTokenFilteringHelper.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDIdTokenClaims.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -159,7 +160,7 @@
     return YES;
 }
 
-- (MSIDRefreshToken *)getRefreshTokenWithAccount:(id<MSIDAccountIdentifiers>)account
+- (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
                                         familyId:(NSString *)familyId
                                    configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
@@ -247,11 +248,10 @@
     for (MSIDLegacyRefreshToken *refreshToken in refreshTokens)
     {
         MSIDAccount *account = [MSIDAccount new];
-        account.legacyUserId = refreshToken.legacyUserId;
         account.homeAccountId = refreshToken.homeAccountId;
         account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
         account.accountType = MSIDAccountTypeMSSTS;
-
+        account.username = refreshToken.legacyUserId;
         [resultAccounts addObject:account];
     }
 
@@ -260,12 +260,12 @@
 
 #pragma mark - Public
 
-- (MSIDLegacyAccessToken *)getAccessTokenForAccount:(id<MSIDAccountIdentifiers>)account
+- (MSIDLegacyAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
                                       configuration:(MSIDConfiguration *)configuration
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
-    return (MSIDLegacyAccessToken *)[self getTokenByLegacyUserId:account.legacyUserId
+    return (MSIDLegacyAccessToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                             type:MSIDAccessTokenType
                                                        authority:configuration.authority
                                                         clientId:configuration.clientId
@@ -274,12 +274,12 @@
                                                            error:error];
 }
 
-- (MSIDLegacySingleResourceToken *)getSingleResourceTokenForAccount:(id<MSIDAccountIdentifiers>)account
+- (MSIDLegacySingleResourceToken *)getSingleResourceTokenForAccount:(MSIDAccountIdentifier *)account
                                                       configuration:(MSIDConfiguration *)configuration
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error
 {
-    return (MSIDLegacySingleResourceToken *)[self getTokenByLegacyUserId:account.legacyUserId
+    return (MSIDLegacySingleResourceToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                                     type:MSIDLegacySingleResourceTokenType
                                                                authority:configuration.authority
                                                                 clientId:configuration.clientId
@@ -340,7 +340,7 @@
 
 #pragma mark - Internal
 
-- (MSIDLegacyRefreshToken *)getRefreshTokenForAccountImpl:(id<MSIDAccountIdentifiers>)account
+- (MSIDLegacyRefreshToken *)getRefreshTokenForAccountImpl:(MSIDAccountIdentifier *)account
                                                 authority:(NSURL *)authority
                                                  clientId:(NSString *)clientId
                                                   context:(id<MSIDRequestContext>)context
@@ -352,9 +352,9 @@
     }
 
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", clientId, authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyUserId, clientId, authority);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, clientId, authority);
 
-    MSIDLegacyRefreshToken *resultToken = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:account.legacyUserId
+    MSIDLegacyRefreshToken *resultToken = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                                                             type:MSIDRefreshTokenType
                                                                                        authority:authority
                                                                                         clientId:clientId

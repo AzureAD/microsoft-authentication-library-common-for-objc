@@ -38,6 +38,7 @@
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDBrokerResponse.h"
 #import "MSIDDefaultAccountCacheQuery.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -132,7 +133,7 @@
 
 
 
-- (MSIDRefreshToken *)getRefreshTokenWithAccount:(id<MSIDAccountIdentifiers>)account
+- (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
                                         familyId:(NSString *)familyId
                                    configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
@@ -192,7 +193,7 @@
 
 #pragma mark - Public
 
-- (MSIDAccessToken *)getAccessTokenForAccount:(id<MSIDAccountIdentifiers>)account
+- (MSIDAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
                                 configuration:(MSIDConfiguration *)configuration
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError **)error
@@ -216,7 +217,7 @@
     return accessToken;
 }
 
-- (MSIDIdToken *)getIDTokenForAccount:(id<MSIDAccountIdentifiers>)account
+- (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)account
                         configuration:(MSIDConfiguration *)configuration
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
@@ -303,7 +304,7 @@
     return result;
 }
 
-- (BOOL)removeAllTokensForAccount:(id<MSIDAccountIdentifiers>)account
+- (BOOL)removeAllTokensForAccount:(MSIDAccountIdentifier *)account
                       environment:(NSString *)environment
                          clientId:(NSString *)clientId
                           context:(id<MSIDRequestContext>)context
@@ -516,7 +517,7 @@
 
 // Retrieval
 - (MSIDBaseToken *)getTokenWithType:(MSIDCredentialType)tokenType
-                            account:(id<MSIDAccountIdentifiers>)account
+                            account:(MSIDAccountIdentifier *)account
                           authority:(NSURL *)authority
                            clientId:(NSString *)clientId
                            familyId:(NSString *)familyId
@@ -547,13 +548,13 @@
     }
 
     // If a refresh token wasn't found and legacy user ID is available, try to look by legacy user id
-    if (!token && tokenType == MSIDRefreshTokenType && ![NSString msidIsStringNilOrBlank:account.legacyUserId])
+    if (!token && tokenType == MSIDRefreshTokenType && ![NSString msidIsStringNilOrBlank:account.legacyAccountId])
     {
         // Unless it's a refresh token, return whatever we already found
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", clientId, authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyUserId, clientId, authority);
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, clientId, authority);
 
-        token = [self getRefreshTokenByLegacyUserId:account.legacyUserId
+        token = [self getRefreshTokenByLegacyUserId:account.legacyAccountId
                                           authority:authority
                                            clientId:clientId
                                            familyId:familyId

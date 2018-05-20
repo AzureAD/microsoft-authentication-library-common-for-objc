@@ -412,7 +412,6 @@
 
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyUserId, @"eric_cartman@upn.com");
     XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(account.clientInfo, clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
