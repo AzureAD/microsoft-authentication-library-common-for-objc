@@ -118,6 +118,7 @@
     [account setValue:@"Cartman" forKey:@"familyName"];
     [account setValue:@(MSIDAccountTypeMSA) forKey:@"accountType"];
     [account setValue:@"local account id" forKey:@"localAccountId"];
+    [account setValue:@"some id" forKey:@"homeAccountId"];
     
     MSIDAccountCacheItem *cacheItem = [account accountCacheItem];
     
