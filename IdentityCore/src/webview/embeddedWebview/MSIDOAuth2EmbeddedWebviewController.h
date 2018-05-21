@@ -40,7 +40,6 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 - (id)initWithStartUrl:(NSURL *)startUrl
                 endURL:(NSURL *)endUrl
                webview:(WKWebView *)webview
-               context:(id<MSIDRequestContext>)context
-            completion:(MSIDWebUICompletionHandler)completionHandler;
+               context:(id<MSIDRequestContext>)context;
 
 @end

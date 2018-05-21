@@ -31,24 +31,14 @@
 
 @synthesize parentViewController;
 
-- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    
-}
-
-- (BOOL)start
-{
-    return YES;
+    return NO;
 }
 
 - (void)cancel
 {
     
 }
-
-- (void)startWithURL:(NSURL *)startURL completion:(MSIDWebUICompletionHandler)completionHandler {
-    
-}
-
 
 @end

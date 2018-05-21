@@ -60,7 +60,6 @@
                 endURL:(NSURL *)endUrl
                webview:(WKWebView *)webview
                context:(id<MSIDRequestContext>)context
-            completion:(MSIDWebUICompletionHandler)completionHandler
 {
     self = [super initWithContext:context];
     
@@ -69,9 +68,6 @@
         self.webView = webview;
         _startUrl = startUrl;
         _endUrl = endUrl;
-        
-        // Save the completion block
-        _completionHandler = [completionHandler copy];
         
         _completionLock = [[NSLock alloc] init];
         self.complete = NO;
@@ -86,17 +82,20 @@
     self.webView = nil;
 }
 
-- (BOOL)start
+- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // If we're not on the main thread when trying to kick up the UI then
     // dispatch over to the main thread.
     if (![NSThread isMainThread])
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self start];
+            [self startWithCompletionHandler:completionHandler];
         });
         return YES;
     }
+    
+    // Save the completion block
+    _completionHandler = [completionHandler copy];
     
     NSError *error = nil;
     [self loadView:&error];

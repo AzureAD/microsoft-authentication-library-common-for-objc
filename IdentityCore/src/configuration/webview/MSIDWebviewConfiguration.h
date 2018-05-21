@@ -44,6 +44,10 @@
 @property (readwrite) NSString *requestState;
 
 @property (readwrite) MSIDPkce *pkce;
+
+// User information
+@property (readwrite) NSString *utid;
+@property (readwrite) NSString *uid;
 @property (readwrite) MSIDClientInfo *clientInfo;
 
 // Priority start URL

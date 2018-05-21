@@ -26,35 +26,56 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
 #import "MSIDWebviewConfiguration.h"
+#import "MSIDWebviewInteracting.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebAADAuthResponse.h"
 
 @class WKWebView;
-@class MSIDOauth2Factory;
-
-@protocol MSIDWebviewInteracting;
 
 @interface MSIDWebviewAuthorization : NSObject
 
 + (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                              factory:(MSIDOauth2Factory *)factory
-                                              context:(id<MSIDRequestContext>)context
-                                    completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+                                          factory:(MSIDOauth2Factory *)factory
+                                          context:(id<MSIDRequestContext>)context
+                                completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
 + (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                     webview:(WKWebView *)webview
-                                                     factory:(MSIDOauth2Factory *)factory
-                                                     context:(id<MSIDRequestContext>)context
-                                           completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+                                                 webview:(WKWebView *)webview
+                                                 factory:(MSIDOauth2Factory *)factory
+                                                 context:(id<MSIDRequestContext>)context
+                                       completionHandler:(MSIDWebUICompletionHandler)completionHandler;
 
-+ (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                                   factory:(MSIDOauth2Factory *)factory;
+#if TARGET_OS_IPHONE
++ (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                               factory:(MSIDOauth2Factory *)factory
+                                               context:(id<MSIDRequestContext>)context
+                                     completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+#endif
 
+// If this different per authorization setup (i.e./ v1 vs v2), move it to respective factory.
 + (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
                               requestState:(NSString *)requestState
                              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error;
 
++ (id<MSIDWebviewInteracting>)currentSession;
++ (void)cancelCurrentWebAuthSession;
+
+// This is for system webview auth session on iOS 10 - Thus, a SafariViewController
++ (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
+
+// This can be utilized for having a custom webview controller.
++ (void)startWebviewAuth:(id<MSIDWebviewInteracting>)webviewController
+                 context:(id<MSIDRequestContext>)context
+       completionHandler:(MSIDWebUICompletionHandler)completionHandler;
+
+
 @end
+
 

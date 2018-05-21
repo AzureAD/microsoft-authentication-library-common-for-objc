@@ -155,14 +155,13 @@
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                            customWebview:(WKWebView *)webview
                                                                  context:(id<MSIDRequestContext>)context
-                                                       completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     NSURL *startURL = [self startURLFromConfiguration:configuration];
     MSIDOAuth2EmbeddedWebviewController *webviewController =
     [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartUrl:startURL
                                                            endURL:[NSURL URLWithString:[configuration redirectUri]]
                                                           webview:webview
-                                                          context:context completion:completionHandler];
+                                                          context:context];
     
     webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
         //Just log the state

@@ -30,6 +30,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
+#import "MSIDWebviewConfiguration.h"
 
 @implementation MSIDOauth2Factory
 
@@ -270,7 +271,6 @@
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                            customWebview:(WKWebView *)webview
                                                                  context:(id<MSIDRequestContext>)context
-                                                       completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // TODO: return default
     return nil;
@@ -279,16 +279,13 @@
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                      callbackURLScheme:(NSString *)callbackURLScheme
                                                                context:(id<MSIDRequestContext>)context
-                                                     completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    // TODO: return default
     return nil;
 }
 
 - (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration
 {
-    // TODO: generate start url for OAuth 2
-    return nil;
+    return configuration.explicitStartURL;
 }
 
 @end

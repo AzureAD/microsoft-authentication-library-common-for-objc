@@ -216,7 +216,6 @@
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                            customWebview:(WKWebView *)webview
                                                                  context:(id<MSIDRequestContext>)context
-                                                       completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
     return nil;
@@ -225,7 +224,6 @@
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                      callbackURLScheme:(NSString *)callbackURLScheme
                                                                context:(id<MSIDRequestContext>)context
-                                                     completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController
     return nil;
