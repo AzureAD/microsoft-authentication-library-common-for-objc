@@ -28,7 +28,7 @@
 
 @interface MSIDWebviewUIController ( ) <NSWindowDelegate>
 {
-    NSProgressIndicator *_laodingIndicator;
+    NSProgressIndicator *_loadingIndicator;
 }
 
 @end
@@ -59,13 +59,13 @@
     
     // Customize the UI
     [webView setAutoresizingMask:NSViewHeightSizable | NSViewWidthSizable];
-    _laodingIndicator = [self prepareLoadingIndicator];
+    _loadingIndicator = [self prepareLoadingIndicator];
     self.window = window;
     
     // Append webview and loading indicator
     _webView = webView;
     [rootView addSubview:_webView];
-    [rootView addSubview:_laodingIndicator];
+    [rootView addSubview:_loadingIndicator];
     
     return YES;
 }
@@ -83,15 +83,15 @@
 
 - (void)showLoadingIndicator
 {
-    [_laodingIndicator setHidden:NO];
-    [_laodingIndicator startAnimation:nil];
+    [_loadingIndicator setHidden:NO];
+    [_loadingIndicator startAnimation:nil];
     [self.window.contentView setNeedsDisplay:YES];
 }
 
 - (void)dismissLoadingIndicator
 {
-    [_laodingIndicator setHidden:YES];
-    [_laodingIndicator stopAnimation:nil];
+    [_loadingIndicator setHidden:YES];
+    [_loadingIndicator stopAnimation:nil];
 }
 
 - (NSWindow *)obtainSignInWindow

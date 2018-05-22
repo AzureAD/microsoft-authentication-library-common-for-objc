@@ -26,7 +26,7 @@
 
 @interface MSIDWebviewUIController ( )
 {
-    UIActivityIndicatorView *_laodingIndicator;
+    UIActivityIndicatorView *_loadingIndicator;
     __weak UIViewController *_parentController;
     UIModalPresentationStyle _presentationType;
 }
@@ -71,13 +71,13 @@
     // Customize the UI
     [webView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [self setupCancelButton];
-    _laodingIndicator = [self prepareLoadingIndicator:rootView];
+    _loadingIndicator = [self prepareLoadingIndicator:rootView];
     self.view = rootView;
     
     // Append webview and loading indicator
     _webView = webView;
     [rootView addSubview:_webView];
-    [rootView addSubview:_laodingIndicator];
+    [rootView addSubview:_loadingIndicator];
     
     return YES;
 }
@@ -110,14 +110,14 @@
 
 - (void)showLoadingIndicator
 {
-    [_laodingIndicator setHidden:NO];
-    [_laodingIndicator startAnimating];
+    [_loadingIndicator setHidden:NO];
+    [_loadingIndicator startAnimating];
 }
 
 - (void)dismissLoadingIndicator
 {
-    [_laodingIndicator setHidden:YES];
-    [_laodingIndicator stopAnimating];
+    [_loadingIndicator setHidden:YES];
+    [_loadingIndicator stopAnimating];
 }
 
 - (BOOL)obtainParentController
