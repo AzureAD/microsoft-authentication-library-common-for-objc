@@ -127,13 +127,8 @@
 
 - (BOOL)loadView:(NSError **)error
 {
-    BOOL result = YES;
-    
-    if (!self.webView)
-    {
-        // create and load the view if not provided
-        result = [self createAndLoadView:error];
-    }
+    // create and load the view if not provided
+    BOOL result = [super loadView:error];
     
     self.webView.navigationDelegate = self;
     

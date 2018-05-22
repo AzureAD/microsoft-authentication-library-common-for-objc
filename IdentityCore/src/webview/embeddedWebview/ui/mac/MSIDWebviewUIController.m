@@ -50,10 +50,6 @@
 {
     if (_webView)
     {
-        [_webView setFrameLoadDelegate:self];
-        [_webView setResourceLoadDelegate:self];
-        [_webView setPolicyDelegate:self];
-        
         return YES;
     }
     
