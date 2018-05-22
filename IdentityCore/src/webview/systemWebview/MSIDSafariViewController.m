@@ -31,6 +31,9 @@
 #import "MSIDWebOAuth2Response.h"
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDWebviewAuthorization.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @interface MSIDSafariViewController() <SFSafariViewControllerDelegate>
 
@@ -45,6 +48,9 @@
     MSIDWebUICompletionHandler _completionHandler;
     
     id<MSIDRequestContext> _context;
+    
+    NSString *_telemetryRequestId;
+    MSIDTelemetryUIEvent *_telemetryEvent;
 }
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -83,6 +89,14 @@
     
     _completionHandler = completionHandler;
 
+    _telemetryRequestId = [_context telemetryRequestId];
+    
+    [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
+    _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
+                                                         context:_context];
+    
+    [_telemetryEvent setIsCancelled:NO];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [viewController presentViewController:_safariViewController animated:YES completion:nil];
     });
@@ -131,7 +145,9 @@
                                                                   stateVerifier:self.stateVerifier
                                                                         context:_context
                                                                           error:&authError];
-
+    
+    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
+    
     _completionHandler(response, authError);
     return YES;
 }

@@ -29,6 +29,9 @@
 #import <SafariServices/SafariServices.h>
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDWebOAuth2Response.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @implementation MSIDSFAuthenticationSession
 {
@@ -39,6 +42,9 @@
     NSString *_callbackURLScheme;
 
     id<MSIDRequestContext> _context;
+    
+    NSString *_telemetryRequestId;
+    MSIDTelemetryUIEvent *_telemetryEvent;
 }
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -62,6 +68,13 @@
 
 - (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
+    _telemetryRequestId = [_context telemetryRequestId];
+    [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
+    _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
+                                                         context:_context];
+    
+    [_telemetryEvent setIsCancelled:NO];
+    
     if (@available(iOS 11.0, *))
     {
         _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
@@ -74,6 +87,8 @@
                                                     {
                                                         error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
                                                     }
+                                                    
+                                                    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
                                                     completionHandler(nil, error);
                                                     return;
                                                 }
@@ -84,7 +99,7 @@
                                                                                                               stateVerifier:self.stateVerifier
                                                                                                                     context:_context
                                                                                                                       error:&authError];
-
+                                                [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
                                                 completionHandler(response, authError);
                                             }];
         return  [_authSession start];;
@@ -96,6 +111,7 @@
 - (void)cancel
 {
     MSID_LOG_INFO(_context, @"Authorization session was cancelled programatically");
+    [_telemetryEvent setIsCancelled:YES];
     [_authSession cancel];
 }
 

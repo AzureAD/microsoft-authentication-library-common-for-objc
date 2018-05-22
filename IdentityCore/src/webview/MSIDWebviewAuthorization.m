@@ -30,6 +30,7 @@
 #import "MSIDSystemWebviewController.h"
 #import "MSIDError.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDTelemetry.h"
 
 @implementation MSIDWebviewAuthorization
 

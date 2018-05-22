@@ -36,6 +36,7 @@
 
     MSIDSFAuthenticationSession *_authSession;
     MSIDSafariViewController *_safariViewController;
+
 }
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
