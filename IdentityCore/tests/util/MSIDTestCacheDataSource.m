@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDTestCacheDataSource.h"
-#import "MSIDTokenCacheKey.h"
+#import "MSIDCacheKey.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDLegacySingleResourceToken.h"
@@ -65,9 +65,9 @@
 
 #pragma mark - MSIDTokenCacheDataSource
 
-- (BOOL)saveToken:(MSIDTokenCacheItem *)item
-              key:(MSIDTokenCacheKey *)key
-       serializer:(id<MSIDTokenItemSerializer>)serializer
+- (BOOL)saveToken:(MSIDCredentialCacheItem *)item
+              key:(MSIDCacheKey *)key
+       serializer:(id<MSIDCredentialItemSerializer>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
@@ -83,7 +83,7 @@
         return NO;
     }
     
-    NSData *serializedItem = [serializer serializeTokenCacheItem:item];
+    NSData *serializedItem = [serializer serializeCredentialCacheItem:item];
     return [self saveItemData:serializedItem
                           key:key
                     cacheKeys:_tokenKeys
@@ -92,8 +92,8 @@
                         error:error];
 }
 
-- (MSIDTokenCacheItem *)tokenWithKey:(MSIDTokenCacheKey *)key
-                          serializer:(id<MSIDTokenItemSerializer>)serializer
+- (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
+                          serializer:(id<MSIDCredentialItemSerializer>)serializer
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
@@ -113,11 +113,11 @@
                                      context:context
                                        error:error];
 
-    MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:itemData];
+    MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:itemData];
     return token;
 }
 
-- (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
+- (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
@@ -155,8 +155,8 @@
     return YES;
 }
 
-- (NSArray<MSIDTokenCacheItem *> *)tokensWithKey:(MSIDTokenCacheKey *)key
-                                      serializer:(id<MSIDTokenItemSerializer>)serializer
+- (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
+                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
@@ -180,7 +180,7 @@
     
     for (NSData *itemData in items)
     {
-        MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:itemData];
+        MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:itemData];
         
         if (token)
         {
@@ -205,7 +205,7 @@
 }
 
 - (BOOL)saveAccount:(MSIDAccountCacheItem *)item
-                key:(MSIDTokenCacheKey *)key
+                key:(MSIDCacheKey *)key
          serializer:(id<MSIDAccountItemSerializer>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
@@ -230,7 +230,7 @@
                         error:error];
 }
 
-- (MSIDAccountCacheItem *)accountWithKey:(MSIDTokenCacheKey *)key
+- (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
                               serializer:(id<MSIDAccountItemSerializer>)serializer
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
@@ -255,7 +255,7 @@
     return token;
 }
 
-- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDTokenCacheKey *)key
+- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
                                           serializer:(id<MSIDAccountItemSerializer>)serializer
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error
@@ -293,19 +293,19 @@
 
 #pragma mark - Helpers
 
-- (NSString *)uniqueIdFromKey:(MSIDTokenCacheKey *)key
+- (NSString *)uniqueIdFromKey:(MSIDCacheKey *)key
 {
     // Simulate keychain behavior by using account and service as unique key
     return [NSString stringWithFormat:@"%@_%@", key.account, key.service];
 }
 
-- (NSString *)keyComponentsStringFromKey:(MSIDTokenCacheKey *)key
+- (NSString *)keyComponentsStringFromKey:(MSIDCacheKey *)key
 {
     NSString *generic = key.generic ? [[NSString alloc] initWithData:key.generic encoding:NSUTF8StringEncoding] : nil;
     return [NSString stringWithFormat:@"%@_%@_%@_%@", key.account, key.service, key.type, generic];
 }
 
-- (NSString *)regexFromKey:(MSIDTokenCacheKey *)key
+- (NSString *)regexFromKey:(MSIDCacheKey *)key
 {
     NSString *accountStr = key.account ?
         [self absoluteRegexFromString:key.account] : @".*";
@@ -330,7 +330,7 @@
 
 #pragma mark - Private
 
-- (NSData *)itemDataWithKey:(MSIDTokenCacheKey *)key
+- (NSData *)itemDataWithKey:(MSIDCacheKey *)key
              keysDictionary:(NSDictionary *)cacheKeys
           contentDictionary:(NSDictionary *)cacheContent
                     context:(id<MSIDRequestContext>)context
@@ -362,7 +362,7 @@
 }
 
 - (BOOL)saveItemData:(NSData *)serializedItem
-                 key:(MSIDTokenCacheKey *)key
+                 key:(MSIDCacheKey *)key
            cacheKeys:(NSMutableDictionary *)cacheKeys
         cacheContent:(NSMutableDictionary *)cacheContent
              context:(id<MSIDRequestContext>)context
@@ -410,7 +410,7 @@
     return YES;
 }
 
-- (NSArray<NSData *> *)itemsWithKey:(MSIDTokenCacheKey *)key
+- (NSArray<NSData *> *)itemsWithKey:(MSIDCacheKey *)key
                      keysDictionary:(NSDictionary *)cacheKeys
                   contentDictionary:(NSDictionary *)cacheContent
                             context:(id<MSIDRequestContext>)context
@@ -481,6 +481,12 @@
     return resultItems;
 }
 
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
+{
+    [self reset];
+    return YES;
+}
+
 #pragma mark - Test methods
 
 - (void)reset
@@ -493,42 +499,42 @@
 
 - (NSArray *)allLegacySingleResourceTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeLegacySingleResourceToken
+    return [self allTokensWithType:MSIDLegacySingleResourceTokenType
                         serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allLegacyAccessTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAccessToken
+    return [self allTokensWithType:MSIDAccessTokenType
                         serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allLegacyRefreshTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeRefreshToken
+    return [self allTokensWithType:MSIDRefreshTokenType
                         serializer:[[MSIDKeyedArchiverSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultAccessTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeAccessToken
+    return [self allTokensWithType:MSIDAccessTokenType
                         serializer:[[MSIDJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultRefreshTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeRefreshToken
+    return [self allTokensWithType:MSIDRefreshTokenType
                         serializer:[[MSIDJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultIDTokens
 {
-    return [self allTokensWithType:MSIDTokenTypeIDToken
+    return [self allTokensWithType:MSIDIDTokenType
                         serializer:[[MSIDJsonSerializer alloc] init]];
 }
 
-- (NSArray *)allTokensWithType:(MSIDTokenType)type
-                    serializer:(id<MSIDTokenItemSerializer>)serializer
+- (NSArray *)allTokensWithType:(MSIDCredentialType)type
+                    serializer:(id<MSIDCredentialItemSerializer>)serializer
 {
     NSMutableArray *results = [NSMutableArray array];
     
@@ -536,7 +542,7 @@
         
         for (NSData *tokenData in [_tokenContents allValues])
         {
-            MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:tokenData];
+            MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:tokenData];
             
             if (token)
             {

@@ -24,8 +24,10 @@
 #import <XCTest/XCTest.h>
 #import "MSIDKeyedArchiverSerializer.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDLegacyTokenCacheItem.h"
+#import "MSIDClientInfo.h"
 
 @interface MSIDKeyedArchiverSerializerTests : XCTestCase
 
@@ -39,28 +41,45 @@
 {
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     
-    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] init];
+    MSIDLegacyTokenCacheItem *cacheItem = [[MSIDLegacyTokenCacheItem alloc] init];
     cacheItem.refreshToken = @"refresh token value";
     cacheItem.familyId = @"familyId value";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"spe_info" : @"test"};
     cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
     cacheItem.clientId = @"some clientId";
-    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
+    cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.oauthTokenType = @"access token type";
     
-    NSData *data = [serializer serializeTokenCacheItem:cacheItem];
-    MSIDTokenCacheItem *resultToken = [serializer deserializeTokenCacheItem:data];
+    NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
+    MSIDCredentialCacheItem *resultToken = [serializer deserializeCredentialCacheItem:data];
     
     XCTAssertNotNil(data);
     XCTAssertEqualObjects(resultToken, cacheItem);
+}
+
+- (void)test_whenSerializeCredential_shouldReturnNil
+{
+    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+
+    MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] init];
+    cacheItem.secret = @"refresh token value";
+    cacheItem.familyId = @"familyId value";
+    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    cacheItem.additionalInfo = @{@"spe_info" : @"test"};
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.clientId = @"some clientId";
+    cacheItem.credentialType = MSIDRefreshTokenType;
+
+    NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
+    XCTAssertNil(data);
 }
 
 - (void)testSerialize_whenTokenNil_shouldReturnNil
 {
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     
-    NSData *data = [serializer serializeTokenCacheItem:nil];
+    NSData *data = [serializer serializeCredentialCacheItem:nil];
     
     XCTAssertNil(data);
 }
@@ -69,7 +88,7 @@
 {
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     
-    NSData *data = [serializer serializeTokenCacheItem:[MSIDTokenCacheItem new]];
+    NSData *data = [serializer serializeCredentialCacheItem:[MSIDLegacyTokenCacheItem new]];
     
     XCTAssertNotNil(data);
 }
@@ -78,7 +97,7 @@
 {
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     
-    MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:nil];
+    MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:nil];
     
     XCTAssertNil(token);
 }
@@ -88,29 +107,25 @@
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
-    MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:data];
+    MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:data];
     
     XCTAssertNil(token);
 }
 
 #pragma mark - Account
 
-- (void)test_whenSerializeAccountCacheItem_shouldReturnSameAccountOnDeserialize
+- (void)test_whenSerializeAccountCacheItem_shouldReturnNil
 {
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
-    cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
-    cacheItem.lastName = @"last name";
-    cacheItem.legacyUserIdentifier = @"upn";
-    cacheItem.firstName = @"name";
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.uniqueUserId = @"test";
+    cacheItem.legacyUserId = @"upn";
     
     NSData *data = [serializer serializeAccountCacheItem:cacheItem];
-    MSIDAccountCacheItem *resultItem = [serializer deserializeAccountCacheItem:data];
-    
-    XCTAssertNotNil(data);
-    XCTAssertEqualObjects(resultItem, cacheItem);
+    XCTAssertNil(data);
 }
 
 - (void)testSerializeAccountCacheItem_whenAccountNil_shouldReturnNil
@@ -122,37 +137,9 @@
     XCTAssertNil(data);
 }
 
-- (void)testSerializeAccountCacheItem_whenAccountWithDefaultProperties_shouldReturnNotNilData
-{
-    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
-    
-    NSData *data = [serializer serializeAccountCacheItem:[MSIDAccountCacheItem new]];
-    
-    XCTAssertNotNil(data);
-}
-
-- (void)testDeserializeAccountCacheItem_whenDataNilNil_shouldReturnNil
-{
-    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
-    
-    MSIDAccountCacheItem *account = [serializer deserializeAccountCacheItem:nil];
-    
-    XCTAssertNil(account);
-}
-
-- (void)testDeserializeAccountCacheItem_whenDataInvalid_shouldReturnNil
-{
-    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
-    NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
-    
-    MSIDAccountCacheItem *token = [serializer deserializeAccountCacheItem:data];
-    
-    XCTAssertNil(token);
-}
-
 #pragma mark - Wipe data
 
-- (void)testDeserializeTokenCacheItem_whenWipeData_shouldReturnNil
+- (void)testDeserializeCredentialCacheItem_whenWipeData_shouldReturnNil
 {
     NSDictionary *wipeInfo = @{ @"bundleId" : @"bundleId",
                                 @"wipeTime" : [NSDate date]
@@ -161,7 +148,7 @@
     NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
     
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
-    MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:wipeData];
+    MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:wipeData];
     
     XCTAssertNil(token);
 }

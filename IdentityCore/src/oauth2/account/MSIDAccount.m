@@ -28,6 +28,8 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDClientInfo.h"
+#import "MSIDClientInfo.h"
+#import "MSIDClientInfo.h"
 
 @implementation MSIDAccount
 
@@ -36,14 +38,17 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAccount *item = [[self.class allocWithZone:zone] init];
+    item->_uniqueUserId = [_uniqueUserId copyWithZone:zone];
     item->_legacyUserId = [_legacyUserId copyWithZone:zone];
-    item->_clientInfo = [_clientInfo copyWithZone:zone];
-    item->_firstName = [_firstName copyWithZone:zone];
-    item->_lastName = [_lastName copyWithZone:zone];
-    item->_username = [_username copyWithZone:zone];
     item->_accountType = _accountType;
     item->_authority = [_authority copyWithZone:zone];
-    
+    item->_username = [_username copyWithZone:zone];
+    item->_givenName = [_givenName copyWithZone:zone];
+    item->_middleName = [_middleName copyWithZone:zone];
+    item->_familyName = [_familyName copyWithZone:zone];
+    item->_name = [_name copyWithZone:zone];
+    item->_clientInfo = [_clientInfo copyWithZone:zone];
+    item->_alternativeAccountId = [_alternativeAccountId copyWithZone:zone];
     return item;
 }
 
@@ -67,13 +72,11 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = 0;
+    hash = hash * 31 + self.uniqueUserId.hash;
     hash = hash * 31 + self.legacyUserId.hash;
-    hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
-    hash = hash * 31 + self.firstName.hash;
-    hash = hash * 31 + self.lastName.hash;
     hash = hash * 31 + self.accountType;
-    hash = hash * 31 + self.username.hash;
     hash = hash * 31 + self.authority.hash;
+    hash = hash * 31 + self.alternativeAccountId.hash;
     return hash;
 }
 
@@ -85,15 +88,11 @@
     }
     
     BOOL result = YES;
-    result &= (!self.legacyUserId && !account.legacyUserId) || [self.legacyUserId isEqualToString:account.legacyUserId];
-    result &= (!self.clientInfo.rawClientInfo && !account.clientInfo.rawClientInfo) || [self.clientInfo.rawClientInfo isEqualToString:account.clientInfo.rawClientInfo];
-    result &= (!self.firstName && !account.firstName) || [self.firstName isEqualToString:account.firstName];
-    result &= (!self.lastName && !account.lastName) || [self.lastName isEqualToString:account.lastName];
-    result &= (!self.username && !account.username) || [self.username isEqualToString:account.username];
     result &= (!self.uniqueUserId && !account.uniqueUserId) || [self.uniqueUserId isEqualToString:account.uniqueUserId];
-    result &= (!self.authority && !account.authority) || [self.authority isEqual:account.authority];
+    result &= (!self.legacyUserId && !account.legacyUserId) || [self.legacyUserId isEqualToString:account.legacyUserId];
     result &= self.accountType == account.accountType;
-    
+    result &= (!self.alternativeAccountId && !account.alternativeAccountId) || [self.alternativeAccountId isEqualToString:account.alternativeAccountId];
+    result &= (!self.authority && !account.authority) || [self.authority isEqual:account.authority];
     return result;
 }
 
@@ -140,14 +139,21 @@
             return nil;
         }
         
-        _legacyUserId = cacheItem.legacyUserIdentifier;
+        _legacyUserId = cacheItem.legacyUserId;
         _accountType = cacheItem.accountType;
-        _firstName = cacheItem.firstName;
-        _lastName = cacheItem.lastName;
-        _authority = cacheItem.authority;
+        _givenName = cacheItem.givenName;
+        _familyName = cacheItem.familyName;
+        _middleName = cacheItem.middleName;
+        _name = cacheItem.name;
         _username = cacheItem.username;
         _uniqueUserId = cacheItem.uniqueUserId;
         _clientInfo = cacheItem.clientInfo;
+        _alternativeAccountId = cacheItem.alternativeAccountId;
+
+        NSString *environment = cacheItem.environment;
+        NSString *tenant = cacheItem.realm;
+
+        _authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
     }
     
     return self;
@@ -156,13 +162,25 @@
 - (MSIDAccountCacheItem *)accountCacheItem
 {
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
-    cacheItem.authority = self.authority;
+
+    if (self.storageAuthority)
+    {
+        cacheItem.environment = self.storageAuthority.msidHostWithPortIfNecessary;
+    }
+    else
+    {
+        cacheItem.environment = self.authority.msidHostWithPortIfNecessary;
+    }
+
+    cacheItem.realm = self.authority.msidTenant;
     cacheItem.username = self.username;
     cacheItem.uniqueUserId = self.uniqueUserId;
-    cacheItem.legacyUserIdentifier = self.legacyUserId;
+    cacheItem.legacyUserId = self.legacyUserId;
     cacheItem.accountType = self.accountType;
-    cacheItem.firstName = self.firstName;
-    cacheItem.lastName = self.lastName;
+    cacheItem.givenName = self.givenName;
+    cacheItem.middleName = self.middleName;
+    cacheItem.name = self.name;
+    cacheItem.familyName = self.familyName;
     cacheItem.clientInfo = self.clientInfo;
     
     return cacheItem;

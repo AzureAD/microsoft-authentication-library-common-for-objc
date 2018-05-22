@@ -62,4 +62,6 @@
 /*! Generate a URL-safe string of random data */
 + (NSString *)randomUrlSafeStringOfSize:(NSUInteger)size;
 
+- (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases;
+
 @end

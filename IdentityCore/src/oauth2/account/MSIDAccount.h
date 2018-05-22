@@ -22,29 +22,39 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDCacheItem.h"
 #import "MSIDAccountType.h"
+#import "MSIDAccountIdentifiers.h"
 
 @class MSIDAccountCacheItem;
 @class MSIDConfiguration;
 @class MSIDTokenResponse;
+@class MSIDClientInfo;
 
-@interface MSIDAccount : NSObject <NSCopying>
+@interface MSIDAccount : NSObject <NSCopying, MSIDAccountIdentifiers>
 
-// Legacy user identifier
-@property (readwrite) NSString *legacyUserId;
-@property (readwrite) MSIDClientInfo *clientInfo;
+@property (readwrite) MSIDAccountType accountType;
 
 // Primary user identifier
 @property (readwrite) NSString *uniqueUserId;
 
-@property (readwrite) MSIDAccountType accountType;
+// Legacy user identifier
+@property (readwrite) NSString *legacyUserId;
+@property (readwrite) NSURL *authority;
+/*
+ 'storageAuthority' is used only for latter token deletion.
+ We can not use 'authority' because cache item could be saved with
+ 'preferred authority' and it might not be equal to provided 'authority'.
+ */
+@property (readwrite) NSURL *storageAuthority;
 
 @property (readwrite) NSString *username;
-@property (readwrite) NSString *firstName;
-@property (readwrite) NSString *lastName;
+@property (readwrite) NSString *givenName;
+@property (readwrite) NSString *middleName;
+@property (readwrite) NSString *familyName;
+@property (readwrite) NSString *name;
 
-@property (readwrite) NSURL *authority;
+@property (readwrite) MSIDClientInfo *clientInfo;
+@property (readwrite) NSString *alternativeAccountId;
 
 - (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
                         clientInfo:(MSIDClientInfo *)clientInfo;
