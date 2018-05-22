@@ -23,22 +23,19 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAccountType.h"
-#import "MSIDAccountIdentifiers.h"
 
 @class MSIDAccountCacheItem;
 @class MSIDConfiguration;
 @class MSIDTokenResponse;
 @class MSIDClientInfo;
+@class MSIDAccountIdentifier;
 
-@interface MSIDAccount : NSObject <NSCopying, MSIDAccountIdentifiers>
+@interface MSIDAccount : NSObject <NSCopying>
 
 @property (readwrite) MSIDAccountType accountType;
 
-// Primary user identifier
-@property (readwrite) NSString *uniqueUserId;
-
-// Legacy user identifier
-@property (readwrite) NSString *legacyUserId;
+@property (readwrite) NSString *homeAccountId;
+@property (readwrite) NSString *localAccountId;
 @property (readwrite) NSURL *authority;
 /*
  'storageAuthority' is used only for latter token deletion.
@@ -56,14 +53,9 @@
 @property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSString *alternativeAccountId;
 
-- (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
-                        clientInfo:(MSIDClientInfo *)clientInfo;
-
-- (instancetype)initWithLegacyUserId:(NSString *)legacyUserId
-                        uniqueUserId:(NSString *)userIdentifier;
-
 - (instancetype)initWithAccountCacheItem:(MSIDAccountCacheItem *)cacheItem;
 
 - (MSIDAccountCacheItem *)accountCacheItem;
+- (MSIDAccountIdentifier *)accountIdentifier;
 
 @end

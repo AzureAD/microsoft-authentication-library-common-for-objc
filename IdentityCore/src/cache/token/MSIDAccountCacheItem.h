@@ -29,9 +29,9 @@
 @interface MSIDAccountCacheItem : NSObject <NSCopying, MSIDJsonSerializable>
 
 @property (readwrite) MSIDAccountType accountType;
-@property (readwrite, nonnull) NSString *uniqueUserId;
+@property (readwrite, nonnull) NSString *homeAccountId;
 @property (readwrite, nonnull) NSString *environment;
-@property (readwrite, nullable) NSString *legacyUserId;
+@property (readwrite, nullable) NSString *localAccountId;
 @property (readwrite, nullable) NSString *username;
 @property (readwrite, nullable) NSString *givenName;
 @property (readwrite, nullable) NSString *middleName;
@@ -45,8 +45,8 @@
 
 - (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
 
-- (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
-                    environment:(nullable NSString *)environment
-             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
+- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
+                     environment:(nullable NSString *)environment
+              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
 
 @end

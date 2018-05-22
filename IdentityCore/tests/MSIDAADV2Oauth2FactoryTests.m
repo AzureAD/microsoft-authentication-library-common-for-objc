@@ -180,8 +180,8 @@
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -201,8 +201,8 @@
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -229,8 +229,8 @@
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -252,8 +252,8 @@
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -276,8 +276,8 @@
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.uniqueUserId, uniqueUserId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -407,10 +407,9 @@
 
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyUserId, @"eric999");
-    XCTAssertEqualObjects(account.uniqueUserId, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertNotNil(account.clientInfo);
-    XCTAssertEqual(account.accountType, MSIDAccountTypeAADV2);
+    XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account.username, @"eric999");
     XCTAssertNil(account.givenName, @"Eric");
     XCTAssertNil(account.familyName, @"Cartman");

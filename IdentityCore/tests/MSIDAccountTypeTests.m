@@ -38,7 +38,7 @@
 
 - (void)testAccountTypeAsString_whenAADV2Type_shouldReturnAADV2TypeString
 {
-    NSString *result = [MSIDAccountTypeHelpers accountTypeAsString:MSIDAccountTypeAADV2];
+    NSString *result = [MSIDAccountTypeHelpers accountTypeAsString:MSIDAccountTypeMSSTS];
     XCTAssertEqualObjects(result, @"MSSTS");
 }
 
@@ -63,7 +63,7 @@
 - (void)testAccountTypeFromString_whenAADV2Type_shouldReturnAADV2TypeString
 {
     MSIDAccountType result = [MSIDAccountTypeHelpers accountTypeFromString:@"MSSTS"];
-    XCTAssertEqual(result, MSIDAccountTypeAADV2);
+    XCTAssertEqual(result, MSIDAccountTypeMSSTS);
 }
 
 - (void)testAccountTypeFromString_whenMSAType_shouldReturnMSATypeString

@@ -118,7 +118,7 @@
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     
     MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
@@ -132,7 +132,7 @@
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"refresh token";
 
@@ -142,7 +142,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.refreshToken, @"refresh token");
     
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
@@ -158,7 +158,7 @@
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
+    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
     [token setValue:@"refreshToken" forKey:@"refreshToken"];
     [token setValue:@"familyId" forKey:@"familyId"];
 

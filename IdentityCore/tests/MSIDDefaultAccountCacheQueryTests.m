@@ -32,10 +32,10 @@
 
 - (void)testAccountCacheQuery_withAllParameters_shouldReturnKey
 {
-    MSIDDefaultAccountCacheQuery *query = [[MSIDDefaultAccountCacheQuery alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultAccountCacheQuery *query = [[MSIDDefaultAccountCacheQuery alloc] initWithHomeAccountId:@"uid.utid"
                                                                                         environment:@"login.microsoftonline.com"
                                                                                               realm:@"contoso.com"
-                                                                                               type:MSIDAccountTypeAADV2];
+                                                                                               type:MSIDAccountTypeMSSTS];
 
     query.username = @"username";
 
@@ -46,12 +46,12 @@
     XCTAssertTrue(query.exactMatch);
 }
 
-- (void)testAccountCacheQuery_whenNoUniqueUserId_shouldReturnNoExactMatch
+- (void)testAccountCacheQuery_whenNoHomeAccountId_shouldReturnNoExactMatch
 {
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
-    query.accountType = MSIDAccountTypeAADV2;
+    query.accountType = MSIDAccountTypeMSSTS;
 
     XCTAssertFalse(query.exactMatch);
     XCTAssertNil(query.account);
@@ -63,9 +63,9 @@
 - (void)testAccountCacheQuery_whenNoEnvironment_shouldReturnNoExactMatch
 {
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.realm = @"contoso.com";
-    query.accountType = MSIDAccountTypeAADV2;
+    query.accountType = MSIDAccountTypeMSSTS;
 
     XCTAssertFalse(query.exactMatch);
     XCTAssertNil(query.account);
@@ -77,9 +77,9 @@
 - (void)testAccountCacheQuery_whenNoRealm_shouldReturnNoExactMatch
 {
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
-    query.uniqueUserId = @"uid.utid";
+    query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
-    query.accountType = MSIDAccountTypeAADV2;
+    query.accountType = MSIDAccountTypeMSSTS;
 
     XCTAssertFalse(query.exactMatch);
     XCTAssertEqualObjects(query.account, @"uid.utid-login.microsoftonline.com");

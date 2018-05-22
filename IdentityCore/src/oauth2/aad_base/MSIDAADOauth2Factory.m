@@ -187,12 +187,12 @@
     }
 
     account.clientInfo = response.clientInfo;
-    account.accountType = MSIDAccountTypeAADV2;
+    account.accountType = MSIDAccountTypeMSSTS;
     account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
     if (response.clientInfo.userIdentifier)
     {
-        account.uniqueUserId = response.clientInfo.userIdentifier;
+        account.homeAccountId = response.clientInfo.userIdentifier;
     }
 
     return YES;
@@ -218,7 +218,7 @@
 
     if (response.clientInfo.userIdentifier)
     {
-        baseToken.uniqueUserId = response.clientInfo.userIdentifier;
+        baseToken.homeAccountId = response.clientInfo.userIdentifier;
     }
 
     if (response.speInfo)

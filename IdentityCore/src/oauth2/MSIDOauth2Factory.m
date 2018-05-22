@@ -183,7 +183,7 @@
     token.authority = configuration.authority;
     token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
-    token.uniqueUserId = response.idTokenObj.userId;
+    token.homeAccountId = response.idTokenObj.userId;
     return YES;
 }
 
@@ -325,9 +325,9 @@
        fromResponse:(MSIDTokenResponse *)response
       configuration:(MSIDConfiguration *)configuration
 {
-    account.uniqueUserId = response.idTokenObj.userId;
+    account.homeAccountId = response.idTokenObj.userId;
 
-    if (!account.uniqueUserId)
+    if (!account.homeAccountId)
     {
         return NO;
     }
@@ -339,7 +339,7 @@
     account.name = response.idTokenObj.name;
     account.authority = configuration.authority;
     account.accountType = response.accountType;
-    account.legacyUserId = response.idTokenObj.userId;
+    account.localAccountId = response.idTokenObj.uniqueId;
     return YES;
 }
 

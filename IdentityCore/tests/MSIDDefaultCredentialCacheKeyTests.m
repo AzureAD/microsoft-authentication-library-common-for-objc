@@ -32,7 +32,7 @@
 
 - (void)testDefaultKeyForAccessToken_withRealm_shouldReturnKey
 {
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDAccessTokenType];
@@ -50,7 +50,7 @@
 
 - (void)testDefaultKeyForAccessToken_withUpperCaseComponents_shouldReturnKeyLowerCase
 {
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"UID.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"UID.utid"
                                                                                          environment:@"LOGIN.microsoftonline.com"
                                                                                             clientId:@"CLIENT"
                                                                                       credentialType:MSIDAccessTokenType];
@@ -68,7 +68,7 @@
 
 - (void)testKeyForIDToken_withAllParameters_shouldReturnKey
 {
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDIDTokenType];
@@ -86,7 +86,7 @@
 
 - (void)testKeyForIDToken_withAllParametersUpperCase_shouldReturnKeyLowerCase
 {
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"UID.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"UID.utid"
                                                                                          environment:@"login.MICROSOFTonline.com"
                                                                                             clientId:@"clieNT"
                                                                                       credentialType:MSIDIDTokenType];
@@ -103,7 +103,7 @@
 
 - (void)testKeyForRefreshToken_withAllParameters_shouldReturnKey
 {
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDRefreshTokenType];
@@ -118,7 +118,7 @@
 
 - (void)testKeyForRefreshToken_withFamilyId_shouldReturnKeyWithFamilyId
 {
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithUniqueUserId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                          environment:@"login.microsoftonline.com"
                                                                                             clientId:@"client"
                                                                                       credentialType:MSIDRefreshTokenType];

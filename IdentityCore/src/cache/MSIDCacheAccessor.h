@@ -28,7 +28,7 @@
 @protocol MSIDRequestContext;
 @class MSIDTokenResponse;
 @class MSIDRefreshToken;
-@protocol MSIDAccountIdentifiers;
+@class MSIDAccountIdentifier;
 @protocol MSIDRefreshableToken;
 @protocol MSIDTokenCacheDataSource;
 @class MSIDBrokerResponse;
@@ -70,7 +70,7 @@
                         context:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
 
-- (MSIDRefreshToken *)getRefreshTokenWithAccount:(id<MSIDAccountIdentifiers>)account
+- (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
                                         familyId:(NSString *)familyId
                                    configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
