@@ -45,7 +45,6 @@
 // User information
 @property (readwrite) NSString *utid;
 @property (readwrite) NSString *uid;
-@property (readwrite) MSIDClientInfo *clientInfo;
 
 // Priority start URL
 @property (readwrite) NSURL *explicitStartURL;

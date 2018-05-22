@@ -30,15 +30,17 @@
 @implementation MSIDWebWPJAuthResponse
 
 - (instancetype)initWithScheme:(NSString *)scheme
+                          host:(NSString *)host
                     parameters:(NSDictionary *)parameters
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
-    // Check for WPJ response
-    if (![scheme isEqualToString:@"msauth"])
+    // Check for WPJ or broker response
+    if (![scheme isEqualToString:@"msauth"]
+        || !([host isEqualToString:@"broker"] || [host isEqualToString:@"wpj"]))
     {
         if (error){
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"WPJ response should have msauth as a scheme", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"WPJ response should have msauth as a scheme and wpj/broker as a host", nil, nil, nil, context.correlationId, nil);
         }
         return nil;
     }
@@ -48,8 +50,6 @@
     {
         _appInstallLink = parameters[@"app_link"];
         _upn = parameters[@"upn"];
-        
-        if (!_appInstallLink) MSID_LOG_INFO(context, @"Parameters is missing app_link");
     }
     
     return self;

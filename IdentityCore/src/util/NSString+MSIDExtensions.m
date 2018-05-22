@@ -337,9 +337,8 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     // input length shouldn't be this big
     if (inputData.length > UINT32_MAX)
     {
-        @throw [NSException exceptionWithName: NSInvalidArgumentException
-                                       reason:@"Please provide a valid string(length too big) parameter." \
-                                     userInfo:nil];  \
+        MSID_LOG_WARN(nil, @"Input length is too big to convert SHA256 data");
+        return nil;
     }
     CC_SHA256(inputData.bytes, (uint32_t)inputData.length, outData.mutableBytes);
     

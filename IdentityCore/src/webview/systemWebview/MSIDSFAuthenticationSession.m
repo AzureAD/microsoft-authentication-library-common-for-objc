@@ -73,8 +73,6 @@
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                          context:_context];
     
-    [_telemetryEvent setIsCancelled:NO];
-    
     if (@available(iOS 11.0, *))
     {
         _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
@@ -86,6 +84,7 @@
                                                     if (error.code == SFAuthenticationErrorCanceledLogin)
                                                     {
                                                         error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
+                                                        [_telemetryEvent setIsCancelled:YES];
                                                     }
                                                     
                                                     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
@@ -102,7 +101,7 @@
                                                 [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
                                                 completionHandler(response, authError);
                                             }];
-        return  [_authSession start];;
+        return  [_authSession start];
     }
     return NO;
 }
@@ -112,6 +111,7 @@
 {
     MSID_LOG_INFO(_context, @"Authorization session was cancelled programatically");
     [_telemetryEvent setIsCancelled:YES];
+    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     [_authSession cancel];
 }
 

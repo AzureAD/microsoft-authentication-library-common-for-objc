@@ -202,6 +202,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     
     // Check if this is a WPJ response
     MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithScheme:url.scheme
+                                                                                    host:url.host
                                                                               parameters:parameters
                                                                                  context:context
                                                                                    error:nil];

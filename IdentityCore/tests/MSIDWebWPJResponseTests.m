@@ -39,6 +39,7 @@
 {
     NSError *error = nil;
     MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithScheme:@"https"
+                                                                                 host:@"wpj"
                                                                            parameters:nil context:nil error:&error];
     
     XCTAssertNil(response);
@@ -53,6 +54,7 @@
 {
     NSError *error = nil;
     MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithScheme:@"msauth"
+                                                                                 host:@"wpj"
                                                                            parameters:@{
                                                                                         @"app_link":@"https://link",
                                                                                         @"upn":@"user@sample.com"

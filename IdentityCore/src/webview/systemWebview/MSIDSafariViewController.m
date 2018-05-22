@@ -95,8 +95,6 @@
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                          context:_context];
     
-    [_telemetryEvent setIsCancelled:NO];
-    
     dispatch_async(dispatch_get_main_queue(), ^{
         [viewController presentViewController:_safariViewController animated:YES completion:nil];
     });
@@ -120,23 +118,16 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError *)error
 {
-    if ([NSThread isMainThread])
-    {
+    dispatch_async(dispatch_get_main_queue(), ^{
         [_safariViewController dismissViewControllerAnimated:YES completion:nil];
-    }
-    else
-    {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [_safariViewController dismissViewControllerAnimated:YES completion:nil];
-        });
-    }
+    });
     
     _safariViewController = nil;
 
     if (error)
     {
         _completionHandler(nil, error);
-        return YES;
+        return NO;
     }
     
     NSError *authError = nil;
@@ -158,7 +149,7 @@
 {
     // user cancel
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
-    
+    [_telemetryEvent setIsCancelled:YES];
     [self completeSessionWithResponse:nil
                               context:_context error:error];
 }
