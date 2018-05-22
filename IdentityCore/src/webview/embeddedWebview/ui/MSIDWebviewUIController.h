@@ -38,7 +38,7 @@ NSWindowController
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;
 
-- (BOOL)createAndLoadView:(NSError **)error;
+- (BOOL)loadView:(NSError **)error;
 - (void)presentView;
 - (void)dismissWebview:(void (^)(void))completion;
 - (void)showLoadingIndicator;

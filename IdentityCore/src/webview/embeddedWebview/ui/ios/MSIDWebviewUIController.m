@@ -23,12 +23,17 @@
 
 #import "MSIDWebviewUIController.h"
 #import "UIApplication+MSIDExtensions.h"
+#import "MSIDAppExtensionUtil.h"
 
 @interface MSIDWebviewUIController ( )
 {
     UIActivityIndicatorView *_loadingIndicator;
     __weak UIViewController *_parentController;
     UIModalPresentationStyle _presentationType;
+    
+    UIBackgroundTaskIdentifier _bgTask;
+    id _bgObserver;
+    id _foregroundObserver;
 }
 
 @end
@@ -46,8 +51,20 @@
     return self;
 }
 
-- (BOOL)createAndLoadView:(NSError **)error;
+- (BOOL)loadView:(NSError **)error;
 {
+    /* Start background transition tracking,
+     so we can start a background task, when app transitions to background */
+    if (![MSIDAppExtensionUtil isExecutingInAppExtension])
+    {
+        [self startTrackingBackroundAppTransition];
+    }
+    
+    if (_webView)
+    {
+        return YES;
+    }
+    
     // Get UI container to hold the webview
     // Need parent controller to proceed
     if (![self obtainParentController])
@@ -158,6 +175,110 @@
 - (void)cancel
 {
     // Overridden in subclass with cancel logic
+}
+
+#pragma mark - Background task
+
+- (void)startTrackingBackroundAppTransition
+{
+    if (_bgObserver)
+    {
+        return;
+    }
+    
+    _bgObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification
+                                                                    object:nil
+                                                                     queue:nil
+                                                                usingBlock:^(__unused NSNotification *notification)
+                   {
+                       MSID_LOG_VERBOSE(_context, @"Application will resign active");
+                       [self startTrackingForegroundAppTransition];
+                       [self startBackgroundTask];
+                   }];
+}
+
+- (void)stopTrackingBackgroundAppTransition
+{
+    if (_bgObserver)
+    {
+        MSID_LOG_VERBOSE(_context, @"Stop background application tracking");
+        [[NSNotificationCenter defaultCenter] removeObserver:_bgObserver];
+        _bgObserver = nil;
+    }
+}
+
+- (void)startTrackingForegroundAppTransition
+{
+    if (_foregroundObserver)
+    {
+        return;
+    }
+    
+    _foregroundObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification
+                                                                            object:nil
+                                                                             queue:nil
+                                                                        usingBlock:^(__unused NSNotification * _Nonnull note) {
+                                                                            
+                                                                            MSID_LOG_VERBOSE(_context, @"Application did become active");
+                                                                            [self stopBackgroundTask];
+                                                                            [self stopTrackingForegroundAppTransition];
+                                                                        }];
+}
+
+- (void)stopTrackingForegroundAppTransition
+{
+    if (_foregroundObserver)
+    {
+        MSID_LOG_VERBOSE(_context, @"Stop foreground application tracking");
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:_foregroundObserver];
+        _foregroundObserver = nil;
+    }
+}
+
+/*
+ Background task execution:
+ https://forums.developer.apple.com/message/253232#253232
+ */
+
+- (void)startBackgroundTask
+{
+    if (_bgTask != UIBackgroundTaskInvalid)
+    {
+        // Background task already started
+        return;
+    }
+    
+    MSID_LOG_INFO(_context, @"Start background app task");
+    
+    _bgTask = [[MSIDAppExtensionUtil sharedApplication] beginBackgroundTaskWithName:@"Interactive login"
+                                                                  expirationHandler:^{
+                                                                      MSID_LOG_INFO(_context, @"Background task expired");
+                                                                      [self stopBackgroundTask];
+                                                                      [self stopTrackingForegroundAppTransition];
+                                                                  }];
+}
+
+- (void)stopBackgroundTask
+{
+    if (_bgTask == UIBackgroundTaskInvalid)
+    {
+        // Background task already ended or not started
+        return;
+    }
+    
+    MSID_LOG_INFO(_context, @"Stop background task");
+    [[MSIDAppExtensionUtil sharedApplication] endBackgroundTask:_bgTask];
+    _bgTask = UIBackgroundTaskInvalid;
+}
+
+- (void)cleanupBackgroundTask
+{
+    [self stopTrackingBackgroundAppTransition];
+    
+    // If authentication is stopped while app is in background
+    [self stopTrackingForegroundAppTransition];
+    [self stopBackgroundTask];
 }
 
 @end
