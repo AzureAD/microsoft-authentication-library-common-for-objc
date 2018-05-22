@@ -24,7 +24,6 @@
 #import <Foundation/Foundation.h>
 #import "MSIDCredentialType.h"
 #import "MSIDDefaultCredentialCacheKey.h"
-#import "MSIDAccountIdentifiers.h"
 
 typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
     ExactStringMatch,

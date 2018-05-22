@@ -123,7 +123,7 @@
     cacheItem.clientId = self.clientId;
     cacheItem.clientInfo = self.clientInfo;
     cacheItem.additionalInfo = self.additionalServerInfo;
-    cacheItem.uniqueUserId = self.uniqueUserId;
+    cacheItem.homeAccountId = self.homeAccountId;
     return cacheItem;
 }
 

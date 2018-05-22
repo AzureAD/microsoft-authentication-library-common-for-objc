@@ -181,7 +181,7 @@
     cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.target = @"target";
     
@@ -197,7 +197,7 @@
     cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"access token";
     
@@ -214,7 +214,7 @@
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     NSDate *extExpireTime = [NSDate date];
     cacheItem.additionalInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"token";
 
@@ -233,7 +233,7 @@
     NSDictionary *additionalServerInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
     XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
     XCTAssertEqualObjects(token.extendedExpireTime, extExpireTime);
-    XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
     XCTAssertEqualObjects(token.cachedAt, cachedAt);
     XCTAssertEqualObjects(token.resource, @"target");
@@ -317,7 +317,7 @@
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
+    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
     [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
     [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
     [token setValue:@"token" forKey:@"accessToken"];

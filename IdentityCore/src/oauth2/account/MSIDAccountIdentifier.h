@@ -23,9 +23,17 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol MSIDAccountIdentifiers <NSObject>
+@class MSIDClientInfo;
 
-@property NSString *uniqueUserId;
-@property NSString *legacyUserId;
+@interface MSIDAccountIdentifier : NSObject <NSCopying>
+
+@property (nonatomic, readwrite) NSString *homeAccountId;
+@property (nonatomic, readwrite) NSString *legacyAccountId;
+
+- (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
+                             clientInfo:(MSIDClientInfo *)clientInfo;
+
+- (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
+                          homeAccountId:(NSString *)homeAccountId;
 
 @end

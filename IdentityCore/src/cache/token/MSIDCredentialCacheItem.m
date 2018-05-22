@@ -72,7 +72,7 @@
     result &= (!self.expiresOn || !item.expiresOn) || [self.expiresOn isEqual:item.expiresOn];
     result &= (!self.cachedAt || !item.cachedAt) || [self.cachedAt isEqual:item.cachedAt];
     result &= (!self.familyId || !item.familyId) || [self.familyId isEqualToString:item.familyId];
-    result &= (!self.uniqueUserId || !item.uniqueUserId) || [self.uniqueUserId isEqualToString:item.uniqueUserId];
+    result &= (!self.homeAccountId || !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= (!self.clientInfo || !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
     result &= (!self.additionalInfo || !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
     return result;
@@ -92,7 +92,7 @@
     hash = hash * 31 + self.expiresOn.hash;
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
-    hash = hash * 31 + self.uniqueUserId.hash;
+    hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.clientInfo.hash;
     hash = hash * 31 + self.additionalInfo.hash;
     return hash;
@@ -112,7 +112,7 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
-    item.uniqueUserId = [self.uniqueUserId copyWithZone:zone];
+    item.homeAccountId = [self.homeAccountId copyWithZone:zone];
     item.clientInfo = [self.clientInfo copyWithZone:zone];
     item.additionalInfo = [self.additionalInfo copyWithZone:zone];
     return item;
@@ -151,7 +151,7 @@
     _expiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXPIRES_ON_CACHE_KEY]];
     _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_CACHED_AT_CACHE_KEY]];
     _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
-    _uniqueUserId = json[MSID_UNIQUE_ID_CACHE_KEY];
+    _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:json[MSID_CLIENT_INFO_CACHE_KEY] error:nil];
     
     // Additional Info
@@ -184,7 +184,7 @@
     dictionary[MSID_EXPIRES_ON_CACHE_KEY] = _expiresOn.msidDateToTimestamp;
     dictionary[MSID_CACHED_AT_CACHE_KEY] = _cachedAt.msidDateToTimestamp;
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;
-    dictionary[MSID_UNIQUE_ID_CACHE_KEY] = _uniqueUserId;
+    dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_CLIENT_INFO_CACHE_KEY] = _clientInfo.rawClientInfo;
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
     dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = [_additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] msidDateToTimestamp];
@@ -241,11 +241,11 @@
     return NO;
 }
 
-- (BOOL)matchesWithUniqueUserId:(nullable NSString *)uniqueUserId
-                    environment:(nullable NSString *)environment
-             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
+- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
+                     environment:(nullable NSString *)environment
+              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
-    if (uniqueUserId && ![self.uniqueUserId isEqualToString:uniqueUserId])
+    if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
     {
         return NO;
     }

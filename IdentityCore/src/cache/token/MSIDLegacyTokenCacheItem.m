@@ -126,15 +126,15 @@
     NSString *rawClientInfo = [coder decodeObjectOfClass:[NSString class] forKey:@"clientInfo"];
     self.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
 
-    NSString *uniqueUserId = [coder decodeObjectOfClass:[NSString class] forKey:@"uniqueUserId"];
+    NSString *homeAccountId = [coder decodeObjectOfClass:[NSString class] forKey:@"homeAccountId"];
 
-    if (uniqueUserId)
+    if (homeAccountId)
     {
-        self.uniqueUserId = uniqueUserId;
+        self.homeAccountId = homeAccountId;
     }
     else
     {
-        self.uniqueUserId = self.clientInfo.userIdentifier ? self.clientInfo.userIdentifier : userInfo.userId;
+        self.homeAccountId = self.clientInfo.userIdentifier ? self.clientInfo.userIdentifier : userInfo.userId;
     }
 
     return self;
@@ -162,7 +162,7 @@
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
     [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
     [coder encodeObject:self.clientInfo.rawClientInfo forKey:@"clientInfo"];
-    [coder encodeObject:self.uniqueUserId forKey:@"uniqueUserId"];
+    [coder encodeObject:self.homeAccountId forKey:@"homeAccountId"];
 }
 
 - (MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType

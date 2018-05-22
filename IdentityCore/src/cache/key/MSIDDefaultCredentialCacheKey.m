@@ -69,14 +69,14 @@ static NSInteger kCredentialTypePrefix = 2000;
 }
 
 // kSecAttrAccount - account_id (<unique_id>-<environment>)
-- (NSString *)accountIdWithUniqueUserId:(NSString *)uniqueId
-                            environment:(NSString *)environment
+- (NSString *)accountIdWithHomeAccountId:(NSString *)homeAccountId
+                             environment:(NSString *)environment
 {
-    uniqueId = uniqueId.msidTrimmedString.lowercaseString;
+    homeAccountId = homeAccountId.msidTrimmedString.lowercaseString;
     environment = environment.msidTrimmedString.lowercaseString;
 
     return [NSString stringWithFormat:@"%@%@%@",
-            uniqueId, keyDelimiter, environment];
+            homeAccountId, keyDelimiter, environment];
 }
 
 - (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType
@@ -86,7 +86,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 
 #pragma mark - Public
 
-- (instancetype)initWithUniqueUserId:(NSString *)uniqueUserId
+- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
                          environment:(NSString *)environment
                             clientId:(NSString *)clientId
                       credentialType:(MSIDCredentialType)type
@@ -95,7 +95,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 
     if (self)
     {
-        _uniqueUserId = uniqueUserId;
+        _homeAccountId = homeAccountId;
         _environment = environment;
         _clientId = clientId;
         _credentialType = type;
@@ -117,7 +117,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 
 - (NSString *)account
 {
-    return [self accountIdWithUniqueUserId:self.uniqueUserId environment:self.environment];
+    return [self accountIdWithHomeAccountId:self.homeAccountId environment:self.environment];
 }
 
 - (NSString *)service

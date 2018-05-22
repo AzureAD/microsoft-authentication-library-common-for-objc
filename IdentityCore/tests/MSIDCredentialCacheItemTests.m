@@ -43,7 +43,7 @@
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.realm = @"contoso.com";
     cacheItem.secret = DEFAULT_TEST_ACCESS_TOKEN;
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
 
     NSDate *expiresOn = [NSDate date];
     NSDate *cachedAt = [NSDate date];
@@ -72,7 +72,7 @@
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"extended_expires_on": extExpiresOnString,
                                          @"spe_info": @"2",
-                                         @"unique_user_id": @"uid.utid"
+                                         @"home_account_id": @"uid.utid"
                                          };
     
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
@@ -87,7 +87,7 @@
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.secret = DEFAULT_TEST_REFRESH_TOKEN;
     cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
     cacheItem.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
     
@@ -96,7 +96,7 @@
                                          @"secret": DEFAULT_TEST_REFRESH_TOKEN,
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"family_id": DEFAULT_TEST_FAMILY_ID,
-                                         @"unique_user_id": @"uid.utid",
+                                         @"home_account_id": @"uid.utid",
                                          @"client_info": clientInfo
                                          };
     
@@ -111,7 +111,7 @@
     cacheItem.credentialType = MSIDIDTokenType;
     cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     cacheItem.secret = DEFAULT_TEST_ID_TOKEN;
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
     cacheItem.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
     
@@ -121,7 +121,7 @@
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"realm": @"contoso.com",
                                          @"client_info": clientInfo,
-                                         @"unique_user_id": @"uid.utid"
+                                         @"home_account_id": @"uid.utid"
                                          };
     
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
@@ -151,7 +151,7 @@
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"extended_expires_on": extExpiresOnString,
                                      @"spe_info": @"2",
-                                     @"unique_user_id": @"uid.utid",
+                                     @"home_account_id": @"uid.utid",
                                      @"client_info": clientInfo
                                      };
     
@@ -169,7 +169,7 @@
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ACCESS_TOKEN);
     NSDictionary *additionalInfo = @{@"spe_info": @"2", @"extended_expires_on": extExpiresOn};
     XCTAssertEqualObjects(cacheItem.additionalInfo, additionalInfo);
-    XCTAssertEqualObjects(cacheItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
 
     MSIDClientInfo *clientInfoObj = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
     XCTAssertEqualObjects(cacheItem.clientInfo, clientInfoObj);
@@ -184,7 +184,7 @@
                                      @"secret": DEFAULT_TEST_REFRESH_TOKEN,
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"family_id": DEFAULT_TEST_FAMILY_ID,
-                                     @"unique_user_id": @"uid.utid",
+                                     @"home_account_id": @"uid.utid",
                                      @"client_info": clientInfo
                                      };
     
@@ -198,7 +198,7 @@
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(cacheItem.familyId, DEFAULT_TEST_FAMILY_ID);
-    XCTAssertEqualObjects(cacheItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
 
     MSIDClientInfo *clientInfoObj = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
     XCTAssertEqualObjects(cacheItem.clientInfo, clientInfoObj);
@@ -213,7 +213,7 @@
                                      @"secret": DEFAULT_TEST_ID_TOKEN,
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"realm": @"contoso.com",
-                                     @"unique_user_id": @"uid.utid",
+                                     @"home_account_id": @"uid.utid",
                                      @"client_info": clientInfo
                                      };
     
@@ -225,7 +225,7 @@
     XCTAssertEqual(cacheItem.credentialType, MSIDIDTokenType);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ID_TOKEN);
-    XCTAssertEqualObjects(cacheItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
 
     MSIDClientInfo *clientInfoObj = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];

@@ -41,11 +41,11 @@
     cacheItem.realm = @"contoso.com";
     cacheItem.additionalAccountFields = @{@"test": @"test2",
                                           @"test3": @"test4"};
-    cacheItem.legacyUserId = @"legacy-user-id";
+    cacheItem.localAccountId = @"0000004-0000004-000004";
     cacheItem.givenName = @"First name";
     cacheItem.familyName = @"Last name";
     cacheItem.accountType = MSIDAccountTypeAADV1;
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.username = @"username";
     cacheItem.alternativeAccountId = @"alt";
     cacheItem.name = @"test user";
@@ -53,12 +53,12 @@
     NSDictionary *expectedDictionary = @{@"authority_type": @"AAD",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"realm": @"contoso.com",
-                                         @"authority_account_id": @"legacy-user-id",
+                                         @"local_account_id": @"0000004-0000004-000004",
                                          @"given_name": @"First name",
                                          @"family_name": @"Last name",
                                          @"test": @"test2",
                                          @"test3": @"test4",
-                                         @"unique_user_id": @"uid.utid",
+                                         @"home_account_id": @"uid.utid",
                                          @"username": @"username",
                                          @"alternative_account_id": @"alt",
                                          @"name": @"test user"
@@ -74,12 +74,12 @@
     NSDictionary *jsonDictionary = @{@"authority_type": @"AAD",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"realm": @"contoso.com",
-                                     @"authority_account_id": @"legacy-user-id",
+                                     @"local_account_id": @"0000004-0000004-000004",
                                      @"given_name": @"First name",
                                      @"family_name": @"Last name",
                                      @"test": @"test2",
                                      @"test3": @"test4",
-                                     @"unique_user_id": @"uid.utid",
+                                     @"home_account_id": @"uid.utid",
                                      @"username": @"username",
                                      @"alternative_account_id": @"alt",
                                      @"name": @"test user"
@@ -92,12 +92,12 @@
     XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
     XCTAssertEqual(cacheItem.accountType, MSIDAccountTypeAADV1);
-    XCTAssertEqualObjects(cacheItem.legacyUserId, @"legacy-user-id");
+    XCTAssertEqualObjects(cacheItem.localAccountId, @"0000004-0000004-000004");
     XCTAssertEqualObjects(cacheItem.givenName, @"First name");
     XCTAssertEqualObjects(cacheItem.familyName, @"Last name");
     XCTAssertEqualObjects(cacheItem.name, @"test user");
     XCTAssertEqualObjects(cacheItem.alternativeAccountId, @"alt");
-    XCTAssertEqualObjects(cacheItem.uniqueUserId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(cacheItem.username, @"username");
 }
 

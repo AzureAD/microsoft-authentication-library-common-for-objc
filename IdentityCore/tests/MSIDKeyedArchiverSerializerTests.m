@@ -121,8 +121,8 @@
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.environment = @"login.microsoftonline.com";
-    cacheItem.uniqueUserId = @"test";
-    cacheItem.legacyUserId = @"upn";
+    cacheItem.homeAccountId = @"test";
+    cacheItem.localAccountId = @"00004-00004-0004";
     
     NSData *data = [serializer serializeAccountCacheItem:cacheItem];
     XCTAssertNil(data);

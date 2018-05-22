@@ -181,7 +181,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
 }
@@ -202,7 +202,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
@@ -246,7 +246,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
@@ -285,7 +285,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
@@ -321,7 +321,7 @@
 
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
@@ -355,7 +355,7 @@
 
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
@@ -384,7 +384,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.uniqueUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     
@@ -415,7 +415,7 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
-    XCTAssertEqualObjects(token.uniqueUserId, @"subject");
+    XCTAssertEqualObjects(token.homeAccountId, @"subject");
     
     NSDictionary *expectedAdditionalInfo = @{@"additional_key1": @"additional_value1",
                                              @"additional_key2": @"additional_value2"};
@@ -442,8 +442,7 @@
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyUserId, @"subject");
-    XCTAssertEqualObjects(account.uniqueUserId, @"subject");
+    XCTAssertEqualObjects(account.homeAccountId, @"subject");
     XCTAssertNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertEqualObjects(account.username, @"eric999");
