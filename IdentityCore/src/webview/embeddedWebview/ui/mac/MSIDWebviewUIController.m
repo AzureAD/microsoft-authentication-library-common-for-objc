@@ -46,8 +46,17 @@
     return self;
 }
 
-- (BOOL)createAndLoadView:(NSError **)error
+- (BOOL)loadView:(NSError **)error
 {
+    if (_webView)
+    {
+        [_webView setFrameLoadDelegate:self];
+        [_webView setResourceLoadDelegate:self];
+        [_webView setPolicyDelegate:self];
+        
+        return YES;
+    }
+    
     // Get UI container to hold the webview
     NSWindow *window = [self obtainSignInWindow];
     NSView *rootView = window.contentView;
