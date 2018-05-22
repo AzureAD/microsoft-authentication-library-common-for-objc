@@ -301,11 +301,13 @@
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
     MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.homeAccountId, _PII_NULLIFY(token.refreshToken));
 
+    MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
+
     MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.primaryUserId
-                                                                                             type:MSIDRefreshTokenType
+                                                                                             type:cacheItem.credentialType
                                                                                         authority:token.authority
-                                                                                         clientId:token.clientId
-                                                                                         resource:nil
+                                                                                         clientId:cacheItem.clientId
+                                                                                         resource:cacheItem.target
                                                                                           context:context
                                                                                             error:error];
 
