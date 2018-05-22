@@ -133,10 +133,23 @@
     XCTAssertNotNil(error);
 }
 
-- (void)testResponseWithURL_whenWPJResponse_shouldReturnWPJAuthResponse
+- (void)testResponseWithURL_whenWPJResponseWithBrokerHost_shouldReturnWPJAuthResponse
 {
     NSError *error = nil;
-    __auto_type response = [MSIDWebviewAuthorization responseWithURL:[NSURL URLWithString:@"msauth://app_link=link&upn=upn"]
+    __auto_type response = [MSIDWebviewAuthorization responseWithURL:[NSURL URLWithString:@"msauth://broker?app_link=link&upn=upn"]
+                                                        requestState:nil
+                                                       stateVerifier:nil
+                                                             context:nil
+                                                               error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebWPJAuthResponse.class]);
+    XCTAssertNil(error);
+}
+
+- (void)testResponseWithURL_whenWPJResponseWithWPJHost_shouldReturnWPJAuthResponse
+{
+    NSError *error = nil;
+    __auto_type response = [MSIDWebviewAuthorization responseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link&upn=upn"]
                                                         requestState:nil
                                                        stateVerifier:nil
                                                              context:nil
