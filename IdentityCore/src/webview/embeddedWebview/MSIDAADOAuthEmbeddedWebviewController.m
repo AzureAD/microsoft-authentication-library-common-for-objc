@@ -26,9 +26,12 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
-#import "MSIDAppExtensionUtil.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
+
+#if TARGET_OS_IPHONE
+#import "MSIDAppExtensionUtil.h"
+#endif
 
 @implementation MSIDAADOAuthEmbeddedWebviewController
 
