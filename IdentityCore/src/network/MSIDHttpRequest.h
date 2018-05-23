@@ -27,7 +27,7 @@
 @protocol MSIDRequestSerialization;
 @protocol MSIDResponseSerialization;
 @protocol MSIDRequestContext;
-@protocol MSIDHttpRequestTelemetryProtocol;
+@protocol MSIDHttpRequestTelemetryHandling;
 @protocol MSIDHttpRequestErrorHandling;
 @class MSIDURLSessionManager;
 
@@ -41,7 +41,7 @@
     @protected NSURLRequest *_urlRequest;
     @protected id<MSIDRequestSerialization> _requestSerializer;
     @protected id<MSIDResponseSerialization> _responseSerializer;
-    @protected id<MSIDHttpRequestTelemetryProtocol> _telemetry;
+    @protected id<MSIDHttpRequestTelemetryHandling> _telemetry;
     @protected id<MSIDHttpRequestErrorHandling> _errorHandler;
 }
 
@@ -55,7 +55,7 @@
 
 @property (nonatomic, nonnull) id<MSIDResponseSerialization> responseSerializer;
 
-@property (nonatomic, nullable) id<MSIDHttpRequestTelemetryProtocol> telemetry;
+@property (nonatomic, nullable) id<MSIDHttpRequestTelemetryHandling> telemetry;
 
 @property (nonatomic, nullable) id<MSIDHttpRequestErrorHandling> errorHandler;
 

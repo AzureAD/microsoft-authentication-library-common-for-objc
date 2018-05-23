@@ -22,11 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDHttpRequestTelemetryProtocol.h"
+#import "MSIDHttpRequestTelemetryHandling.h"
 
 @class MSIDTelemetry;
 
-@interface MSIDHttpRequestTelemetry : NSObject <MSIDHttpRequestTelemetryProtocol>
+@interface MSIDHttpRequestTelemetry : NSObject <MSIDHttpRequestTelemetryHandling>
 
 @property (nonatomic, nonnull) MSIDTelemetry *telemetry;
 
