@@ -28,7 +28,7 @@ typedef NS_ENUM(NSInteger, MSIDAccountType)
     MSIDAccountTypeOther,
     MSIDAccountTypeAADV1,
     MSIDAccountTypeMSA,
-    MSIDAccountTypeAADV2
+    MSIDAccountTypeMSSTS
 };
 
 @interface MSIDAccountTypeHelpers : NSObject

@@ -22,11 +22,44 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedCacheAccessor.h"
+#import "MSIDCacheAccessor.h"
 
-@interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDSharedCacheAccessor>
+@class MSIDAccountIdentifier;
+@class MSIDConfiguration;
+@protocol MSIDRequestContext;
+@class MSIDRefreshToken;
+@class MSIDAccessToken;
+@class MSIDAccount;
+@class MSIDIdToken;
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
+@interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDCacheAccessor>
+
+- (MSIDAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
+                                configuration:(MSIDConfiguration *)configuration
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError **)error;
+
+- (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)account
+                        configuration:(MSIDConfiguration *)configuration
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
+
+- (BOOL)removeAccount:(MSIDAccount *)account
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error;
+
+- (BOOL)removeAllTokensForAccount:(MSIDAccountIdentifier *)account
+                      environment:(NSString *)environment
+                         clientId:(NSString *)clientId
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error;
+
+- (BOOL)validateAndRemoveRefreshToken:(MSIDRefreshToken *)token
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
+
+- (BOOL)removeAccessToken:(MSIDAccessToken *)token
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error;
 
 @end

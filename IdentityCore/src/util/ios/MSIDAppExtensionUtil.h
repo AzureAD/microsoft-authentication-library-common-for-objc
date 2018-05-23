@@ -34,4 +34,3 @@
 + (void)sharedApplicationOpenURL:(NSURL *)url;
 
 @end
-

@@ -24,6 +24,8 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDAADTokenResponse.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
+#import "MSIDLegacyTokenCacheItem.h"
 
 @implementation MSIDLegacySingleResourceToken
 
@@ -34,7 +36,6 @@
     MSIDLegacySingleResourceToken *item = [super copyWithZone:zone];
     item->_refreshToken = [_refreshToken copyWithZone:zone];
     item->_familyId = [_familyId copyWithZone:zone];
-    
     return item;
 }
 
@@ -73,44 +74,64 @@
     BOOL result = [super isEqualToItem:token];
     result &= (!self.refreshToken && !token.refreshToken) || [self.refreshToken isEqualToString:token.refreshToken];
     result &= (!self.familyId && !token.familyId) || [self.familyId isEqualToString:token.familyId];
-    
     return result;
 }
 
 #pragma mark - Cache
 
-- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem
+- (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem
 {
     self = [super initWithTokenCacheItem:tokenCacheItem];
     
     if (self)
     {
-        _refreshToken = tokenCacheItem.refreshToken;
         _familyId = tokenCacheItem.familyId;
     }
     
     return self;
 }
 
-- (MSIDTokenCacheItem *)tokenCacheItem
+- (MSIDCredentialCacheItem *)tokenCacheItem
 {
-    MSIDTokenCacheItem *cacheItem = [super tokenCacheItem];
+    MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
+    cacheItem.familyId = self.familyId;
+    cacheItem.credentialType = MSIDLegacySingleResourceTokenType;
+    return cacheItem;
+}
+
+- (instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem
+{
+    self = [super initWithLegacyTokenCacheItem:tokenCacheItem];
+
+    if (self)
+    {
+        _refreshToken = tokenCacheItem.refreshToken;
+        _familyId = tokenCacheItem.familyId;
+    }
+
+    return self;
+}
+
+- (MSIDLegacyTokenCacheItem *)legacyTokenCacheItem
+{
+    MSIDLegacyTokenCacheItem *cacheItem = [super legacyTokenCacheItem];
     cacheItem.refreshToken = self.refreshToken;
     cacheItem.familyId = self.familyId;
+    cacheItem.credentialType = MSIDLegacySingleResourceTokenType;
     return cacheItem;
 }
 
 #pragma mark - Token type
 
-- (MSIDTokenType)tokenType
+- (MSIDCredentialType)credentialType
 {
-    return MSIDTokenTypeLegacySingleResourceToken;
+    return MSIDLegacySingleResourceTokenType;
 }
 
-- (BOOL)supportsTokenType:(MSIDTokenType)tokenType
+- (BOOL)supportsCredentialType:(MSIDCredentialType)credentialType
 {
     // Allow initializing single resource token with access token to support legacy ADAL scenarios
-    return [super supportsTokenType:tokenType] || tokenType == MSIDTokenTypeAccessToken;
+    return [super supportsCredentialType:credentialType] || credentialType == MSIDAccessTokenType;
 }
 
 #pragma mark - Description
@@ -118,7 +139,7 @@
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(refresh token=%@)", _PII_NULLIFY(_refreshToken)];
+    return [baseDescription stringByAppendingFormat:@"(refresh token=%@, family id=%@)", _PII_NULLIFY(_refreshToken), _familyId];
 }
 
 @end

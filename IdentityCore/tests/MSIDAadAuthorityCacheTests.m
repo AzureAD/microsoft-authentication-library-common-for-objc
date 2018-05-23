@@ -65,7 +65,7 @@
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     
-    XCTAssertNil([cache checkCache:[NSURL URLWithString:@"  "]]);
+    XCTAssertNil([cache checkCache:@"  "]);
     XCTAssertTrue([cache tryWriteLock]);
 }
 
@@ -73,7 +73,7 @@
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     
-    XCTAssertNil([cache checkCache:[NSURL URLWithString:@"https://somedomain.com"]]);
+    XCTAssertNil([cache checkCache:@"somedomain.com"]);
     XCTAssertTrue([cache tryWriteLock]);
 }
 
@@ -82,7 +82,7 @@
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     cache.recordMap = @{ @"somedomain.com" : [MSIDAadAuthorityCacheRecord new] };
     
-    MSIDAadAuthorityCacheRecord *record = [cache checkCache:[NSURL URLWithString:@"https://somedomain.com"]];
+    MSIDAadAuthorityCacheRecord *record = [cache checkCache:@"somedomain.com"];
     
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
@@ -94,7 +94,7 @@
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     cache.recordMap = @{ @"somedomain.com" : [MSIDAadAuthorityCacheRecord new] };
     
-    MSIDAadAuthorityCacheRecord *record = [cache tryCheckCache:[NSURL URLWithString:@"https://somedomain.com"]];
+    MSIDAadAuthorityCacheRecord *record = [cache tryCheckCache:@"somedomain.com"];
     
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
@@ -108,7 +108,7 @@
     XCTAssertTrue([cache grabReadLock]);
     
     // tryCheckCache should still be able to read the cache even if the read lock is being held
-    MSIDAadAuthorityCacheRecord *record = [cache tryCheckCache:[NSURL URLWithString:@"https://somedomain.com"]];
+    MSIDAadAuthorityCacheRecord *record = [cache tryCheckCache:@"somedomain.com"];
     
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
@@ -122,7 +122,7 @@
     
     // The write lock prevents any readers until it gets unlocked, so this should prevent tryCheckCache
     // from accessing the cache and it should immediately return nil.
-    MSIDAadAuthorityCacheRecord *record = [cache tryCheckCache:[NSURL URLWithString:@"https://somedomain.com"]];
+    MSIDAadAuthorityCacheRecord *record = [cache tryCheckCache:@"somedomain.com"];
     
     XCTAssertNil(record);
 }

@@ -34,7 +34,6 @@
 @interface MSIDWebviewConfiguration : MSIDConfiguration
 
 // Common
-
 @property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
 @property (readwrite) NSString *extraQueryParametersString;
 @property (readwrite) NSString *promptBehavior;
@@ -42,13 +41,11 @@
 
 // Is this only for V2?
 @property (readwrite) NSString *requestState;
-
 @property (readwrite) MSIDPkce *pkce;
 
 // User information
 @property (readwrite) NSString *utid;
 @property (readwrite) NSString *uid;
-@property (readwrite) MSIDClientInfo *clientInfo;
 
 // Priority start URL
 @property (readwrite) NSURL *explicitStartURL;

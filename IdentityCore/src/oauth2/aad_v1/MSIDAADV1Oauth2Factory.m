@@ -32,6 +32,12 @@
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDWebviewConfiguration.h"
 
+#import "MSIDAADV1IdTokenClaims.h"
+#import "MSIDOauth2Factory+Internal.h"
+#import "MSIDAuthority.h"
+#import "MSIDIdToken.h"
+
+
 @implementation MSIDAADV1Oauth2Factory
 
 #pragma mark - Helpers
@@ -124,37 +130,74 @@
 
 #pragma mark - Tokens
 
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV1TokenResponse *)response
-                                     configuration:(MSIDConfiguration *)configuration
+- (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
+           fromResponse:(MSIDAADV1TokenResponse *)response
+          configuration:(MSIDConfiguration *)configuration
 {
-    if (![self checkResponseClass:response context:nil error:nil])
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response configuration:configuration];
+
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response configuration:configuration];
     accessToken.resource = response.target ? response.target : configuration.target;
-
-    return accessToken;
+    return YES;
 }
 
-- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
-                                             configuration:(MSIDConfiguration *)configuration
+- (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken
+         fromResponse:(MSIDAADTokenResponse *)response
+        configuration:(MSIDConfiguration *)configuration
 {
-    if (![self checkResponseClass:response context:nil error:nil])
+    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
     {
-        return nil;
+        return NO;
     }
 
-    MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response configuration:configuration];
-    legacyToken.resource = response.target ? response.target : configuration.target;
-    return legacyToken;
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)fillAccount:(MSIDAccount *)account
+       fromResponse:(MSIDTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
+{
+    if (![super fillAccount:account fromResponse:response configuration:configuration])
+    {
+        return NO;
+    }
+
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return NO;
+    }
+
+    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:response.idTokenObj.realm];
+    return YES;
+}
+
+- (BOOL)fillIDToken:(MSIDIdToken *)token
+       fromResponse:(MSIDTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
+{
+    if (![super fillIDToken:token fromResponse:response configuration:configuration])
+    {
+        return NO;
+    }
+
+    token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
+    return YES;
 }
 
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                           customWebview:(WKWebView *)webview
-                                                                 context:(id<MSIDRequestContext>)context
+                                                     customWebview:(WKWebView *)webview
+                                                           context:(id<MSIDRequestContext>)context
+                                                 completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     NSURL *startURL = [self startURLFromConfiguration:configuration];
     MSIDOAuth2EmbeddedWebviewController *webviewController =
@@ -185,7 +228,11 @@
     return webviewController;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
+
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                               callbackURLScheme:(NSString *)callbackURLScheme
+                                                         context:(id<MSIDRequestContext>)context
+                                               completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // Create MSIDSystemWebviewRequest and create SystemWebviewController
     return nil;

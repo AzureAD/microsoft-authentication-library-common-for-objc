@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenType.h"
+#import "MSIDCredentialType.h"
 #import "MSIDClientInfo.h"
-#import "MSIDTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 
 @class MSIDTokenResponse;
 @class MSIDConfiguration;
@@ -38,13 +38,12 @@
 {
     NSURL *_authority;
     NSString *_clientId;
-    NSString *_uniqueUserId;
+    NSString *_homeAccountId;
     MSIDClientInfo *_clientInfo;
     NSDictionary *_additionalServerInfo;
-    NSString *_username;
 }
 
-@property (readonly) MSIDTokenType tokenType;
+@property (readonly) MSIDCredentialType credentialType;
 @property (readwrite) NSURL *authority;
 /*
  'storageAuthority' is used only for latter token deletion.
@@ -53,18 +52,16 @@
  */
 @property (readwrite) NSURL *storageAuthority;
 @property (readwrite) NSString *clientId;
+@property (readwrite) NSString *homeAccountId;
 
 @property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSDictionary *additionalServerInfo;
+@property (readonly) NSString *primaryUserId;
 
-// User info
-@property (readwrite) NSString *uniqueUserId;
-@property (readwrite) NSString *username;
+- (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem;
+- (MSIDCredentialCacheItem *)tokenCacheItem;
 
-- (instancetype)initWithTokenCacheItem:(MSIDTokenCacheItem *)tokenCacheItem;
-- (MSIDTokenCacheItem *)tokenCacheItem;
-
-- (BOOL)supportsTokenType:(MSIDTokenType)tokenType;
+- (BOOL)supportsCredentialType:(MSIDCredentialType)credentialType;
 - (BOOL)isEqualToItem:(MSIDBaseToken *)item;
 
 @end

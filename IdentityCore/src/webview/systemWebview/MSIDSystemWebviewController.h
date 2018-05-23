@@ -30,4 +30,16 @@
 
 @interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
 
+- (instancetype)initWithStartURL:(NSURL *)startURL
+               callbackURLScheme:(NSString *)callbackURLScheme
+                         context:(id<MSIDRequestContext>)context;
+
+- (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;
+
+@property (readonly) NSURL *startURL;
+@property (readonly) NSString *callbackURLScheme;
+
+@property NSString *requestState;
+@property MSIDWebUIStateVerifier stateVerifier;
+
 @end

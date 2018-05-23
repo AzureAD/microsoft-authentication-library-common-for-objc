@@ -26,19 +26,100 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDSystemWebviewController.h"
+#import "MSIDSFAuthenticationSession.h"
+#import "MSIDSafariViewController.h"
+#import "MSIDWebviewAuthorization.h"
 
 @implementation MSIDSystemWebviewController
+{
+    id<MSIDRequestContext> _context;
 
-@synthesize parentViewController;
+    MSIDSFAuthenticationSession *_authSession;
+    MSIDSafariViewController *_safariViewController;
+
+}
+
+- (instancetype)initWithStartURL:(NSURL *)startURL
+               callbackURLScheme:(NSString *)callbackURLScheme
+                         context:(id<MSIDRequestContext>)context
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _startURL = startURL;
+        _context = context;
+        _callbackURLScheme = callbackURLScheme;
+    }
+    
+    return self;
+}
 
 - (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    return NO;
+    if (!_startURL)
+    {
+        MSID_LOG_ERROR(_context, @"Attemped to start with nil URL");
+        return NO;
+    }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:self.startURL
+                                                      callbackURLScheme:self.callbackURLScheme
+                                                           requestState:self.requestState
+                                                          stateVerifier:self.stateVerifier
+                                                                context:_context];
+
+        
+        if (!_authSession)
+        {
+            MSID_LOG_ERROR(_context, @"Failed to create an auth session");
+            return NO;
+        }
+        
+        return [_authSession startWithCompletionHandler:completionHandler];
+    }
+
+    _safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                             requestState:self.requestState
+                                                            stateVerifier:self.stateVerifier
+                                                                  context:_context];
+
+    if (!_safariViewController)
+    {
+        MSID_LOG_ERROR(_context, @"Failed to create an auth session");
+        return NO;
+    }
+    
+    return [_safariViewController startWithCompletionHandler:completionHandler];
 }
 
 - (void)cancel
 {
+    if (@available(iOS 11.0, *))
+        [_authSession cancel];
+    else
+        [_safariViewController cancel];
+}
+
+- (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
+{
+    if (!url)
+    {
+        MSID_LOG_ERROR(_context, @"nil passed into the MSID Web handle response.");
+        return NO;
+    }
     
+    if (@available(iOS 11.0, *)) { return NO; }
+    
+    if (!_safariViewController)
+    {
+        MSID_LOG_ERROR(_context, @"Received MSID web response without a current session running.");
+        return NO;
+    }
+    
+    return [_safariViewController handleURLResponse:url];
 }
 
 @end

@@ -23,6 +23,7 @@
 
 #import "MSIDConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDPkce.h"
 
 @implementation MSIDConfiguration
 

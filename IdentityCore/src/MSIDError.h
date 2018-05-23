@@ -69,27 +69,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorInvalidClient = -51015,
     MSIDErrorInvalidGrant = -51016,
     MSIDErrorInvalidParameter = -51017,
-    
-    /*!
-     The user or application failed to authenticate in the interactive flow.
-     Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
-     dictionary for more detailed information about the specific error.
-     */
-    MSIDErrorAuthorizationFailed = -52018,
-    
-    /*!
-     The state returned by the server does not match the state that was sent to
-     the server at the beginning of the authorization attempt.
-     */
-    MSIDErrorInvalidState = -52501,
-    /*!
-     Interaction required errors occur because of a wide variety of errors
-     returned by the authentication service.
-     */
-    MSIDErrorMismatchedUser             = -52101,
-    MSIDErrorNoAuthorizationResponse    = -52102,
-    MSIDErrorBadAuthorizationResponse   = -52103,
-    
+    MSIDErrorUnsupportedFunctionality = -51018,
     
     MSIDErrorUserCancel = -51019,
     /*!
@@ -110,8 +90,29 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorNoMainViewController = -51023,
     MSIDServerNonHttpsRedirect = -51024,
     
+    /*!
+     The user or application failed to authenticate in the interactive flow.
+     Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
+     dictionary for more detailed information about the specific error.
+     */
+    MSIDErrorAuthorizationFailed = -52018,
+    
+    /*!
+     Interaction required errors occur because of a wide variety of errors
+     returned by the authentication service.
+     */
+    MSIDErrorMismatchedUser             = -52101,
+    MSIDErrorNoAuthorizationResponse    = -52102,
+    MSIDErrorBadAuthorizationResponse   = -52103,
+    
+    /*!
+     The state returned by the server does not match the state that was sent to
+     the server at the beginning of the authorization attempt.
+     */
+    MSIDErrorInvalidState = -52501,
+
     MSIDErrorCodeFirst = MSIDErrorInternal,
-    MSIDErrorCodeLast = MSIDServerNonHttpsRedirect
+    MSIDErrorCodeLast = MSIDErrorInvalidState
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

@@ -32,63 +32,36 @@
 
 @implementation MSIDAccountCacheItemTests
 
-#pragma mark - Keyed archiver
-
-- (void)testKeyedArchivingAccount_whenAllFieldsSet_shouldReturnSameAccountOnDeserialize
-{
-    MSIDAccountCacheItem *cacheItem = [MSIDAccountCacheItem new];
-    cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    cacheItem.username = DEFAULT_TEST_ID_TOKEN_USERNAME;
-    cacheItem.uniqueUserId = DEFAULT_TEST_ID_TOKEN_USERNAME;
-    
-    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
-    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfoString error:nil];
-    cacheItem.clientInfo = clientInfo;
-    cacheItem.legacyUserIdentifier = @"legacy-user-id";
-    cacheItem.firstName = @"First name";
-    cacheItem.lastName = @"Last name";
-    
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
-    
-    XCTAssertNotNil(data);
-    
-    MSIDAccountCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    
-    XCTAssertNotNil(newItem);
-    
-    XCTAssertEqualObjects(newItem.authority, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
-    XCTAssertEqualObjects(newItem.username, DEFAULT_TEST_ID_TOKEN_USERNAME);
-    XCTAssertEqualObjects(newItem.clientInfo, clientInfo);
-    
-    NSString *uniqueUserId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(newItem.uniqueUserId, uniqueUserId);
-    XCTAssertEqualObjects(newItem.legacyUserIdentifier, @"legacy-user-id");
-    XCTAssertEqualObjects(newItem.firstName, @"First name");
-    XCTAssertEqualObjects(newItem.lastName, @"Last name");
-}
-
 #pragma mark - JSON serialization
 
 - (void)testJSONDictionary_whenAccount_andAllFieldsSet_shouldReturnJSONDictionary
 {
     MSIDAccountCacheItem *cacheItem = [MSIDAccountCacheItem new];
-    cacheItem.authority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
+    cacheItem.environment = DEFAULT_TEST_ENVIRONMENT;
+    cacheItem.realm = @"contoso.com";
     cacheItem.additionalAccountFields = @{@"test": @"test2",
                                           @"test3": @"test4"};
-    cacheItem.legacyUserIdentifier = @"legacy-user-id";
-    cacheItem.firstName = @"First name";
-    cacheItem.lastName = @"Last name";
+    cacheItem.localAccountId = @"0000004-0000004-000004";
+    cacheItem.givenName = @"First name";
+    cacheItem.familyName = @"Last name";
     cacheItem.accountType = MSIDAccountTypeAADV1;
+    cacheItem.homeAccountId = @"uid.utid";
+    cacheItem.username = @"username";
+    cacheItem.alternativeAccountId = @"alt";
+    cacheItem.name = @"test user";
     
-    NSDictionary *expectedDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                         @"authority_type": @"AAD",
+    NSDictionary *expectedDictionary = @{@"authority_type": @"AAD",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
-                                         @"realm": @"common",
-                                         @"authority_account_id": @"legacy-user-id",
-                                         @"first_name": @"First name",
-                                         @"last_name": @"Last name",
+                                         @"realm": @"contoso.com",
+                                         @"local_account_id": @"0000004-0000004-000004",
+                                         @"given_name": @"First name",
+                                         @"family_name": @"Last name",
                                          @"test": @"test2",
-                                         @"test3": @"test4"
+                                         @"test3": @"test4",
+                                         @"home_account_id": @"uid.utid",
+                                         @"username": @"username",
+                                         @"alternative_account_id": @"alt",
+                                         @"name": @"test user"
                                          };
     
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
@@ -98,26 +71,34 @@
 
 - (void)testInitWithJSONDictionary_whenAccount_andAllFieldsSet_shouldAccountCacheItem
 {
-    NSDictionary *jsonDictionary = @{@"authority": DEFAULT_TEST_AUTHORITY,
-                                     @"authority_type": @"AAD",
+    NSDictionary *jsonDictionary = @{@"authority_type": @"AAD",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
-                                     @"realm": @"common",
-                                     @"authority_account_id": @"legacy-user-id",
-                                     @"first_name": @"First name",
-                                     @"last_name": @"Last name",
+                                     @"realm": @"contoso.com",
+                                     @"local_account_id": @"0000004-0000004-000004",
+                                     @"given_name": @"First name",
+                                     @"family_name": @"Last name",
                                      @"test": @"test2",
-                                     @"test3": @"test4"
+                                     @"test3": @"test4",
+                                     @"home_account_id": @"uid.utid",
+                                     @"username": @"username",
+                                     @"alternative_account_id": @"alt",
+                                     @"name": @"test user"
                                      };
     
     NSError *error = nil;
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
     
     XCTAssertNotNil(cacheItem);
-    NSURL *expectedAuthority = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY];
-    XCTAssertEqualObjects(cacheItem.authority, expectedAuthority);
-    XCTAssertEqualObjects(cacheItem.legacyUserIdentifier, @"legacy-user-id");
-    XCTAssertEqualObjects(cacheItem.firstName, @"First name");
-    XCTAssertEqualObjects(cacheItem.lastName, @"Last name");
+    XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
+    XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
+    XCTAssertEqual(cacheItem.accountType, MSIDAccountTypeAADV1);
+    XCTAssertEqualObjects(cacheItem.localAccountId, @"0000004-0000004-000004");
+    XCTAssertEqualObjects(cacheItem.givenName, @"First name");
+    XCTAssertEqualObjects(cacheItem.familyName, @"Last name");
+    XCTAssertEqualObjects(cacheItem.name, @"test user");
+    XCTAssertEqualObjects(cacheItem.alternativeAccountId, @"alt");
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.username, @"username");
 }
 
 #pragma mark - Additional fields handling

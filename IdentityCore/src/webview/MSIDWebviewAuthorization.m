@@ -30,6 +30,7 @@
 #import "MSIDSystemWebviewController.h"
 #import "MSIDError.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDTelemetry.h"
 
 @implementation MSIDWebviewAuthorization
 
@@ -86,7 +87,6 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
                                                                                          callbackURLScheme:configuration.redirectUri
                                                                                                    context:context];
     
-    
     [self startWebviewAuth:systemWebviewController
                    context:context
          completionHandler:completionHandler];
@@ -121,7 +121,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     {
         if (s_currentWebSession) {
             MSID_LOG_INFO(nil, @"Session is already running. Please wait or cancel the session before setting it new.");
-            return NO;
+            return NO;   
         }
         s_currentWebSession = newWebSession;
         
@@ -197,6 +197,7 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     
     // Check if this is a WPJ response
     MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithScheme:url.scheme
+                                                                                    host:url.host
                                                                               parameters:parameters
                                                                                  context:context
                                                                                    error:nil];
@@ -232,21 +233,32 @@ static id<MSIDWebviewInteracting> s_currentWebSession = nil;
     //
     // For now, there is no logic to really land here. As there is no definitive condition for response
     // not being a AAD response.
-    //    MSIDWebOAuth2Response *oauth2Response = [[MSIDWebOAuth2Response alloc] initWithParameters:parameters
-    //                                                                                      context:context
-    //                                                                                        error:error];
-    //    if (oauth2Response)
-    //    {
-    //        oauth2Response.url = url;
-    //        return oauth2Response;
-    //    }
+//    MSIDWebOAuth2Response *oauth2Response = [[MSIDWebOAuth2Response alloc] initWithParameters:parameters
+//                                                                                      context:context
+//                                                                                        error:error];
+//    if (oauth2Response)
+//    {
+//        oauth2Response.url = url;
+//        return oauth2Response;
+//    }
     
     return nil;
 }
 
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 {
+#if TARGET_OS_IPHONE
+    @synchronized([MSIDWebviewAuthorization class])
+    {
+        if (s_currentWebSession &&
+            [(NSObject *)s_currentWebSession isKindOfClass:MSIDSystemWebviewController.class])
+        {
+            return [((MSIDSystemWebviewController *)s_currentWebSession) handleURLResponseForSafariViewController:url];
+        }
+    }
+#endif
     return NO;
 }
+
 
 @end

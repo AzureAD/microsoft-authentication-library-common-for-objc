@@ -21,38 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheKey.h"
-
-@interface MSIDLegacyTokenCacheKey : MSIDTokenCacheKey <NSCopying, NSSecureCoding>
+#import "MSIDCacheKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/*!
- Key for ADFS user tokens, account will be @""
- */
-+ (MSIDLegacyTokenCacheKey *)keyForLegacySingleResourceTokenWithAuthority:(NSURL *)authority
-                                                                 clientId:(NSString *)clientId
-                                                                 resource:(NSString *)resource;
+@interface MSIDLegacyTokenCacheKey : MSIDCacheKey <NSCopying, NSSecureCoding>
 
-/*!
- Key for ADAL tokens
- 1. access tokens - single resource, one authority, one clientId and one upn.
- 2. FRT & MRRT - null authority, one authority, one clientId and one legacyUserId.
- */
-+ (MSIDLegacyTokenCacheKey *)keyWithAuthority:(NSURL *)authority
-                                     clientId:(NSString *)clientId
-                                     resource:(nullable NSString *)resource
-                                 legacyUserId:(NSString *)legacyUserId;
+@property (nullable, nonatomic) NSURL *authority;
+@property (nullable, nonatomic) NSString *clientId;
+@property (nullable, nonatomic) NSString *resource;
+@property (nullable, nonatomic) NSString *legacyUserId;
 
-/*!
- Query for ADAL tokens
- 1. access tokens - single resource, one authority, one clientId and one upn.
- 2. FRT & MRRT - null authority, one authority, one clientId and one legacyUserId.
- */
-+ (MSIDLegacyTokenCacheKey *)queryWithAuthority:(nullable NSURL *)authority
-                                       clientId:(nullable NSString *)clientId
-                                       resource:(nullable NSString *)resource
-                                   legacyUserId:(nullable NSString *)legacyUserId;
+- (instancetype)initWithAuthority:(NSURL *)authority
+                         clientId:(NSString *)clientId
+                         resource:(nullable NSString *)resource
+                     legacyUserId:(NSString *)legacyUserId;
+
+- (NSString *)serviceWithAuthority:(NSURL *)authority
+                          resource:(nullable NSString *)resource
+                          clientId:(NSString *)clientId;
+
+- (NSString *)adalAccountWithUserId:(NSString *)userId;
 
 NS_ASSUME_NONNULL_END
 

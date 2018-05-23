@@ -32,6 +32,16 @@
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
 
+#import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDPkce.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDSystemWebviewController.h"
+#import "MSIDDeviceId.h"
+#import "MSIDWebviewConfiguration.h"
+
+#import "MSIDOauth2Factory+Internal.h"
+
+
 @implementation MSIDAADV2Oauth2Factory
 
 #pragma mark - Helpers
@@ -104,27 +114,16 @@
 
 #pragma mark - Tokens
 
-- (MSIDBaseToken *)baseTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                 configuration:(MSIDConfiguration *)configuration
+- (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
+           fromResponse:(MSIDAADV2TokenResponse *)response
+          configuration:(MSIDConfiguration *)configuration
 {
-    if (![self checkResponseClass:response context:nil error:nil])
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response configuration:configuration];
+
+    if (!result)
     {
-        return nil;
+        return NO;
     }
-
-    MSIDBaseToken *baseToken = [super baseTokenFromResponse:response configuration:configuration];
-    return [self fillAADV2BaseToken:baseToken fromResponse:response configuration:configuration];
-}
-
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV2TokenResponse *)response
-                                     configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return nil;
-    }
-
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response configuration:configuration];
 
     NSOrderedSet *responseScopes = response.scope.scopeSet;
 
@@ -145,93 +144,137 @@
     }
 
     accessToken.scopes = responseScopes;
+    accessToken.authority = [MSIDAuthority cacheUrlForAuthority:accessToken.authority tenantId:response.idTokenObj.realm];
 
-    return (MSIDAccessToken *) [self fillAADV2BaseToken:accessToken fromResponse:response configuration:configuration];
+    return YES;
 }
 
-- (MSIDIdToken *)idTokenFromResponse:(MSIDAADTokenResponse *)response
-                             configuration:(MSIDConfiguration *)configuration
+- (BOOL)fillIDToken:(MSIDIdToken *)token
+       fromResponse:(MSIDTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
+{
+    BOOL result = [super fillIDToken:token fromResponse:response configuration:configuration];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
+
+    return YES;
+}
+
+- (BOOL)fillAccount:(MSIDAccount *)account
+       fromResponse:(MSIDAADV2TokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
-        return nil;
+        return NO;
     }
 
-    MSIDIdToken *idToken = [super idTokenFromResponse:response configuration:configuration];
-    return (MSIDIdToken *) [self fillAADV2BaseToken:idToken fromResponse:response configuration:configuration];
-}
+    BOOL result = [super fillAccount:account fromResponse:response configuration:configuration];
 
-- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDAADTokenResponse *)response
-                                       configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
-    MSIDRefreshToken *token = [super refreshTokenFromResponse:response configuration:configuration];
-    return (MSIDRefreshToken *) [self fillAADV2BaseToken:token fromResponse:response configuration:configuration];
-}
-
-- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDAADTokenResponse *)response
-                                                   configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return nil;
-    }
-
-    MSIDLegacySingleResourceToken *token = [super legacyTokenFromResponse:response configuration:configuration];
-    return (MSIDLegacySingleResourceToken *) [self fillAADV2BaseToken:token fromResponse:response configuration:configuration];
-}
-
-- (MSIDAccount *)accountFromResponse:(MSIDAADV2TokenResponse *)response
-                             configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return nil;
-    }
-
-    MSIDAccount *account = [super accountFromResponse:response configuration:configuration];
-    MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
-
-    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:idToken.tenantId];
-    return account;
-}
-
-#pragma mark - Fill token
-
-- (MSIDBaseToken *)fillAADV2BaseToken:(MSIDBaseToken *)baseToken
-                         fromResponse:(MSIDAADTokenResponse *)response
-                              configuration:(MSIDConfiguration *)configuration
-{
-    MSIDAADV2IdTokenClaims *idToken = (MSIDAADV2IdTokenClaims *) response.idTokenObj;
-    baseToken.authority = [MSIDAuthority cacheUrlForAuthority:baseToken.authority tenantId:idToken.tenantId];
-
-    return baseToken;
+    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:response.idTokenObj.realm];
+    return YES;
 }
 
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                           customWebview:(WKWebView *)webview
-                                                                 context:(id<MSIDRequestContext>)context
+                                                     customWebview:(WKWebView *)webview
+                                                           context:(id<MSIDRequestContext>)context
 {
     // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
+
+    
     return nil;
 }
 
+
 - (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                     callbackURLScheme:(NSString *)callbackURLScheme
-                                                               context:(id<MSIDRequestContext>)context
+                                               callbackURLScheme:(NSString *)callbackURLScheme
+                                                         context:(id<MSIDRequestContext>)context
 {
-    // Create MSIDSystemWebviewRequest and create SystemWebviewController
+#if TARGET_OS_IPHONE
+    // TODO: get authorization endpoint from authority validation cache.
+    NSURL *startURL = [self startURLFromConfiguration:configuration];
+    MSIDSystemWebviewController *webviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
+                                                                                         callbackURLScheme:callbackURLScheme
+                                                                                                   context:context];
+    webviewController.requestState = configuration.requestState;
+    webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
+        return [requestState isEqualToString:dictionary[MSID_OAUTH2_STATE]];
+    };
+    return webviewController;
+#else
     return nil;
+#endif
+}
+
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
+{
+    NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
+    if (configuration.extraQueryParameters)
+    {
+        [parameters addEntriesFromDictionary:configuration.extraQueryParameters];
+    }
+    
+    NSOrderedSet<NSString *> *allScopes = configuration.scopes;
+    parameters[MSID_OAUTH2_CLIENT_ID] = configuration.clientId;
+    parameters[MSID_OAUTH2_SCOPE] = [allScopes msidToString];
+    parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
+    parameters[MSID_OAUTH2_REDIRECT_URI] = configuration.redirectUri;
+    parameters[MSID_OAUTH2_CORRELATION_ID_REQUEST] = [configuration.correlationId UUIDString];
+    parameters[MSID_OAUTH2_LOGIN_HINT] = configuration.loginHint;
+    
+    // PKCE
+    parameters[MSID_OAUTH2_CODE_CHALLENGE] = configuration.pkce.codeChallenge;
+    parameters[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = configuration.pkce.codeChallengeMethod;
+    
+    NSDictionary *msalId = [MSIDDeviceId deviceId];
+    [parameters addEntriesFromDictionary:msalId];
+    
+    parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
+    
+    return parameters;
 }
 
 - (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration
 {
-    return nil;
+    if (configuration.explicitStartURL)
+    {
+        return configuration.explicitStartURL;
+    }
+    
+    NSURLComponents *urlComponents = [NSURLComponents new];
+    urlComponents.scheme = @"https";
+    
+    // get this from cache: authorizationendpoint if possible
+    urlComponents.host = configuration.authority.host;
+    urlComponents.path = [configuration.authority.path stringByAppendingString:MSID_OAUTH2_V2_AUTHORIZE_SUFFIX];
+
+    NSMutableDictionary <NSString *, NSString *> *parameters = [self authorizationParametersFromConfiguration:configuration];
+    
+    if (configuration.sliceParameters)
+    {
+        [parameters addEntriesFromDictionary:configuration.sliceParameters];
+    }
+
+    [parameters msidSetObjectIfNotNil:configuration.uid forKey:MSID_OAUTH2_LOGIN_REQ];
+    [parameters msidSetObjectIfNotNil:configuration.utid forKey:MSID_OAUTH2_DOMAIN_REQ];
+    
+    parameters[MSID_OAUTH2_STATE] = configuration.requestState;
+    
+    urlComponents.queryItems = [parameters urlQueryItemsArray];
+    urlComponents.percentEncodedQuery = [parameters msidURLFormEncode];
+    
+    return urlComponents.URL;
 }
 
 @end

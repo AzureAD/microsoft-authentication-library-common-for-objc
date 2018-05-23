@@ -36,13 +36,16 @@
                              error:(NSError **)error
 {
     // Verify state
-    BOOL stateVerified = stateVerifier(parameters, requestState);
-    if (!stateVerified)
+    if (stateVerifier && requestState)
     {
-        if (error){
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, context.correlationId, nil);
+        BOOL stateVerified = stateVerifier(parameters, requestState);
+        if (!stateVerified)
+        {
+            if (error){
+                *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, context.correlationId, nil);
+            }
+            return nil;
         }
-        return nil;
     }
     
     self = [super initWithParameters:parameters context:context error:error];

@@ -22,9 +22,8 @@
 // THE SOFTWARE.
 
 #import <UIKit/UIKit.h>
-
-#import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
+#import "UIApplication+MSIDExtensions.h"
 
 @implementation UIApplication ( internal )
 
@@ -64,4 +63,3 @@
 }
 
 @end
-

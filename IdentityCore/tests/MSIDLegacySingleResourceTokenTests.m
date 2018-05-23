@@ -24,6 +24,8 @@
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDLegacySingleResourceToken.h"
+#import "MSIDLegacyTokenCacheItem.h"
+#import "MSIDTestIdTokenUtil.h"
 
 @interface MSIDLegacySingleResourceTokenTests : XCTestCase
 
@@ -223,8 +225,8 @@
 
 - (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeIDToken;
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDIDTokenType;
     
     MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
@@ -232,24 +234,21 @@
 
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeLegacySingleResourceToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDLegacySingleResourceTokenType;
+    cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.username = @"test";
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
-    cacheItem.accessToken = @"token";
+    cacheItem.secret = @"token";
     
     NSDate *expiresOn = [NSDate date];
     NSDate *cachedAt = [NSDate date];
     
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
-    cacheItem.idToken = @"ID TOKEN";
     cacheItem.target = @"target";
-    cacheItem.refreshToken = @"refresh token";
     cacheItem.familyId = @"1";
     
     MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:cacheItem];
@@ -258,17 +257,64 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
-    XCTAssertEqualObjects(token.username, @"test");
+    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
     XCTAssertEqualObjects(token.cachedAt, cachedAt);
-    XCTAssertEqualObjects(token.idToken, @"ID TOKEN");
     XCTAssertEqualObjects(token.resource, @"target");
-    XCTAssertEqualObjects(token.refreshToken, @"refresh token");
     XCTAssertEqualObjects(token.accessToken, @"token");
     XCTAssertEqualObjects(token.familyId, @"1");
     
-    MSIDTokenCacheItem *newCacheItem = [token tokenCacheItem];
+    MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
+    XCTAssertEqualObjects(cacheItem, newCacheItem);
+}
+
+- (void)testInitWithLegacyTokenCacheItem_whenAllFieldsSet_shouldReturnToken
+{
+    MSIDLegacyTokenCacheItem *cacheItem = [MSIDLegacyTokenCacheItem new];
+    cacheItem.credentialType = MSIDLegacySingleResourceTokenType;
+    cacheItem.environment = @"login.windows.net";
+    cacheItem.realm = @"contoso.com";
+    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.homeAccountId = @"uid.utid";
+    cacheItem.clientId = @"client id";
+    cacheItem.secret = @"at";
+    cacheItem.accessToken = @"at";
+    cacheItem.refreshToken = @"rt";
+
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test" upn:@"testuser@upn.com" tenantId:@"contoso.com"];
+
+    cacheItem.idToken = idToken;
+
+    cacheItem.authority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
+    cacheItem.oauthTokenType = @"token type";
+
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+
+    cacheItem.expiresOn = expiresOn;
+    cacheItem.cachedAt = cachedAt;
+    cacheItem.target = @"target";
+    cacheItem.familyId = @"1";
+
+    MSIDLegacySingleResourceToken *token = [[MSIDLegacySingleResourceToken alloc] initWithLegacyTokenCacheItem:cacheItem];
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.windows.net/contoso.com"]);
+    XCTAssertEqualObjects(token.clientId, @"client id");
+    XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
+    XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.expiresOn, expiresOn);
+    XCTAssertEqualObjects(token.cachedAt, cachedAt);
+    XCTAssertEqualObjects(token.resource, @"target");
+    XCTAssertEqualObjects(token.familyId, @"1");
+    XCTAssertEqualObjects(token.accessToken, @"at");
+    XCTAssertEqualObjects(token.refreshToken, @"rt");
+    XCTAssertEqualObjects(token.idToken, idToken);
+    XCTAssertEqualObjects(token.legacyUserId, @"testuser@upn.com");
+    XCTAssertEqualObjects(token.accessTokenType, @"token type");
+
+    MSIDCredentialCacheItem *newCacheItem = [token legacyTokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
 }
 
@@ -282,8 +328,7 @@
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
-    [token setValue:@"username" forKey:@"username"];
+    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
     [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
     [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
     [token setValue:@"token" forKey:@"accessToken"];

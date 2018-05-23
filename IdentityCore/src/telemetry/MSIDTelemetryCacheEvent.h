@@ -22,11 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDTelemetryBaseEvent.h"
-#import "MSIDTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 
 @interface MSIDTelemetryCacheEvent : MSIDTelemetryBaseEvent
 
-- (void)setTokenType:(MSIDTokenType)tokenType;
+- (void)setTokenType:(MSIDCredentialType)tokenType;
 - (void)setStatus:(NSString *)status;
 - (void)setIsRT:(NSString *)isRT;
 - (void)setIsMRRT:(NSString *)isMRRT;

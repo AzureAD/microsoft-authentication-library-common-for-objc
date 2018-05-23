@@ -70,7 +70,7 @@
 // This is for system webview auth session on iOS 10 - Thus, a SafariViewController
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 
-// This can be utilized for having a custom webview controller.
+// This can be utilized for having a custom webview controller. 
 + (void)startWebviewAuth:(id<MSIDWebviewInteracting>)webviewController
                  context:(id<MSIDRequestContext>)context
        completionHandler:(MSIDWebUICompletionHandler)completionHandler;

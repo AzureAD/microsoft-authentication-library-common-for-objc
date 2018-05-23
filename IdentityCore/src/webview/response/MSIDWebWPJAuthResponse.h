@@ -29,7 +29,10 @@
 
 @interface MSIDWebWPJAuthResponse : MSIDWebOAuth2Response
 
+- (instancetype)initWithParameters:(NSDictionary *)parameters context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error NS_UNAVAILABLE;
+
 - (instancetype)initWithScheme:(NSString *)scheme
+                          host:(NSString *)host
                     parameters:(NSDictionary *)parameters
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error;

@@ -26,6 +26,8 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebOAuth2Response.h"
+#import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebWPJAuthResponse.h"
 
 @implementation MSIDWebOAuth2Response
 
@@ -38,6 +40,10 @@
     
     if (!authCode && !oauthError)
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"Unexpected error has occured. There is no auth code nor an error", nil, nil, nil, context.correlationId, nil);
+        }
         return nil;
     }
     
@@ -58,20 +64,21 @@
     NSUUID *correlationId = [parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
     [[NSUUID alloc] initWithUUIDString:[parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
     
-    NSString *serverOAuth2Error = [parameters objectForKey:MSID_OAUTH2_ERROR];
-    //login_required  ; has error_description
-    //access_denied ; has error_subcode
-    
+    NSString *serverOAuth2Error = [parameters objectForKey:MSID_OAUTH2_ERROR];\
+
     if (serverOAuth2Error)
     {
+        //login_required  ; has error_description
+        //access_denied ; has error_subcode
         NSString *errorDescription = parameters[MSID_OAUTH2_ERROR_DESCRIPTION];
         if (!errorDescription)
         {
+            //
             errorDescription = parameters[MSID_OAUTH2_ERROR_SUBCODE];
         }
         
         NSString *subError = parameters[MSID_OAUTH2_SUB_ERROR];
-        MSIDErrorCode errorCode = MSIDErrorCodeForOAuthError(errorDescription, MSIDErrorAuthorizationFailed);
+        MSIDErrorCode errorCode = MSIDErrorCodeForOAuthError(serverOAuth2Error, MSIDErrorAuthorizationFailed);
         
         return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, nil);
     }
@@ -80,3 +87,4 @@
 }
 
 @end
+
