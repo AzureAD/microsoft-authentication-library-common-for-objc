@@ -34,17 +34,8 @@
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDChallengeHandler.h"
-#import "MSIDNTLMHandler.h"
 #import "MSIDAuthority.h"
 #import "MSIDWorkPlaceJoinConstants.h"
-
-#if TARGET_OS_IPHONE
-#import "MSIDAppExtensionUtil.h"
-#import "MSIDPKeyAuthHandler.h"
-#else
-#define DEFAULT_WINDOW_WIDTH 420
-#define DEFAULT_WINDOW_HEIGHT 650
-#endif
 
 @implementation MSIDOAuth2EmbeddedWebviewController
 {
@@ -101,7 +92,7 @@
     [self loadView:&error];
     if (error)
     {
-        [self endWebAuthenticationWithError:error orURL:nil];
+        [self endWebAuthWithError:error orURL:nil];
         return YES;
     }
     
@@ -122,7 +113,7 @@
     
     // Dispatch the completion block
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user/application has cancelled the authorization.", nil, nil, nil, self.context.correlationId, nil);
-    [self endWebAuthenticationWithError:error orURL:nil];
+    [self endWebAuthWithError:error orURL:nil];
 }
 
 - (BOOL)loadView:(NSError **)error
@@ -135,8 +126,8 @@
     return result;
 }
 
-- (BOOL)endWebAuthenticationWithError:(NSError *)error
-                                orURL:(NSURL *)endURL
+- (BOOL)endWebAuthWithError:(NSError *)error
+                      orURL:(NSURL *)endURL
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self dismissWebview:^{[self dispatchCompletionBlock:error URL:endURL];}];
@@ -197,86 +188,11 @@
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     NSURL *requestUrl = navigationAction.request.URL;
-    NSString *requestUrlString = [requestUrl.absoluteString lowercaseString];
     
     MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestUrl] ? requestUrl.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestUrl.host);
     
-    // Stop at the end URL.
-    if ([requestUrlString hasPrefix:[_endUrl.absoluteString lowercaseString]] ||
-        [[[requestUrl scheme] lowercaseString] isEqualToString:@"msauth"])
-    {
-        self.complete = YES;
-        
-        NSURL *url = navigationAction.request.URL;
-        [self webAuthDidCompleteWithURL:url];
-        
-        decisionHandler(WKNavigationActionPolicyCancel);
-        return;
-    }
-    
-    if ([requestUrlString isEqualToString:@"about:blank"])
-    {
-        decisionHandler(WKNavigationActionPolicyAllow);
-        return;
-    }
-    
-    if ([[[requestUrl scheme] lowercaseString] isEqualToString:@"browser"])
-    {
-        self.complete = YES;
-        requestUrlString = [requestUrlString stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
-        
-#if TARGET_OS_IPHONE
-        if (![MSIDAppExtensionUtil isExecutingInAppExtension])
-        {
-            [self cancel];
-            [MSIDAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:requestUrlString]];
-        }
-        else
-        {
-            MSID_LOG_INFO(self.context, @"unable to redirect to browser from extension");
-        }
-#else
-        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestUrlString]];
-#endif
-        
-        decisionHandler(WKNavigationActionPolicyCancel);
-        return;
-    }
-    
-#if TARGET_OS_IPHONE
-    // check for pkeyauth challenge.
-    if ([requestUrlString hasPrefix:[kMSIDPKeyAuthUrn lowercaseString]])
-    {
-        decisionHandler(WKNavigationActionPolicyCancel);
-        [MSIDPKeyAuthHandler handleChallenge:requestUrl.absoluteString
-                                     context:self.context
-                           completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
-                               if (!challengeResponse)
-                               {
-                                   [self endWebAuthenticationWithError:error orURL:nil];
-                                   return;
-                               }
-                               [self loadRequest:challengeResponse];
-                           }];
-        return;
-    }
-#endif
-    
-    // redirecting to non-https url is not allowed
-    if (![[[requestUrl scheme] lowercaseString] isEqualToString:@"https"])
-    {
-        MSID_LOG_INFO(self.context, @"Server is redirecting to a non-https url");
-        self.complete = YES;
-        
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, self.context.correlationId, nil);
-        [self endWebAuthenticationWithError:error orURL:nil];
-        
-        decisionHandler(WKNavigationActionPolicyCancel);
-        return;
-    }
-    
-    decisionHandler(WKNavigationActionPolicyAllow);
+    [self decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(null_unspecified WKNavigation *)navigation
@@ -326,12 +242,12 @@
                         completionHandler:completionHandler];
 }
 
-- (void)webAuthDidCompleteWithURL:(NSURL *)endURL
+- (void)completeWebAuthWithURL:(NSURL *)endURL
 {
-    MSID_LOG_INFO(self.context, @"-webAuthDidCompleteWithURL: %@", [MSIDAuthority isKnownHost:endURL] ? endURL.host : @"unknown host");
-    MSID_LOG_INFO_PII(self.context, @"-webAuthDidCompleteWithURL: %@", endURL);
+    MSID_LOG_INFO(self.context, @"-completeWebAuthWithURL: %@", [MSIDAuthority isKnownHost:endURL] ? endURL.host : @"unknown host");
+    MSID_LOG_INFO_PII(self.context, @"-completeWebAuthWithURL: %@", endURL);
     
-    [self endWebAuthenticationWithError:nil orURL:endURL];
+    [self endWebAuthWithError:nil orURL:endURL];
 }
 
 // Authentication failed somewhere
@@ -358,7 +274,48 @@
     MSID_LOG_ERROR(self.context, @"-webAuthFailWithError error code %ld", (long)error.code);
     MSID_LOG_ERROR_PII(self.context, @"-webAuthFailWithError: %@", error);
     
-    [self endWebAuthenticationWithError:error orURL:nil];
+    [self endWebAuthWithError:error orURL:nil];
+}
+
+- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
+                                webview:(WKWebView *)webView
+                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    NSURL *requestUrl = navigationAction.request.URL;
+    NSString *requestUrlString = [requestUrl.absoluteString lowercaseString];
+    
+    // Stop at the end URL.
+    if ([requestUrlString hasPrefix:[_endUrl.absoluteString lowercaseString]])
+    {
+        self.complete = YES;
+        
+        NSURL *url = navigationAction.request.URL;
+        [self completeWebAuthWithURL:url];
+        
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    
+    if ([requestUrlString isEqualToString:@"about:blank"])
+    {
+        decisionHandler(WKNavigationActionPolicyAllow);
+        return;
+    }
+    
+    // redirecting to non-https url is not allowed
+    if (![[[requestUrl scheme] lowercaseString] isEqualToString:@"https"])
+    {
+        MSID_LOG_INFO(self.context, @"Server is redirecting to a non-https url");
+        self.complete = YES;
+        
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, self.context.correlationId, nil);
+        [self endWebAuthWithError:error orURL:nil];
+        
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    
+    decisionHandler(WKNavigationActionPolicyAllow);
 }
 
 #pragma mark - Loading Indicator

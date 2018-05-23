@@ -29,7 +29,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
 #import "MSIDDeviceId.h"
-#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewConfiguration.h"
 
 #import "MSIDAADV1IdTokenClaims.h"
@@ -199,11 +199,11 @@
                                                            context:(id<MSIDRequestContext>)context
 {
     NSURL *startURL = [self startURLFromConfiguration:configuration];
-    MSIDOAuth2EmbeddedWebviewController *webviewController =
-    [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartUrl:startURL
-                                                           endURL:[NSURL URLWithString:[configuration redirectUri]]
-                                                          webview:webview
-                                                          context:context];
+    MSIDAADOAuthEmbeddedWebviewController *webviewController =
+    [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartUrl:startURL
+                                                             endURL:[NSURL URLWithString:[configuration redirectUri]]
+                                                            webview:webview
+                                                            context:context];
     
     webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
         //Just log the state

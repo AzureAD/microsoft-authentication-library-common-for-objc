@@ -25,28 +25,10 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import <WebKit/WebKit.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDWebviewUIController.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
-@interface MSIDOAuth2EmbeddedWebviewController :
-MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
-
-@property MSIDWebUIStateVerifier stateVerifier;
-@property NSString *requestState;
+@interface MSIDAADOAuthEmbeddedWebviewController : MSIDOAuth2EmbeddedWebviewController
 
 - (id)init NS_UNAVAILABLE;
-- (id)initWithStartUrl:(NSURL *)startUrl
-                endURL:(NSURL *)endUrl
-               webview:(WKWebView *)webview
-               context:(id<MSIDRequestContext>)context;
-
-- (void)loadRequest:(NSURLRequest *)request;
-- (void)completeWebAuthWithURL:(NSURL *)endURL;
-- (BOOL)endWebAuthWithError:(NSError *)error orURL:(NSURL *)endURL;
-- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-                                webview:(WKWebView *)webView
-                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
 
 @end
