@@ -197,7 +197,6 @@
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                      customWebview:(WKWebView *)webview
                                                            context:(id<MSIDRequestContext>)context
-                                                 completionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     NSURL *startURL = [self startURLFromConfiguration:configuration];
     MSIDOAuth2EmbeddedWebviewController *webviewController =

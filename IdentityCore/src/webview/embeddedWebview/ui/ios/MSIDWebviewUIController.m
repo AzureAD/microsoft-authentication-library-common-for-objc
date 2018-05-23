@@ -51,6 +51,11 @@
     return self;
 }
 
+-(void)dealloc
+{
+    [self cleanupBackgroundTask];
+}
+
 - (BOOL)loadView:(NSError **)error;
 {
     /* Start background transition tracking,
@@ -111,6 +116,8 @@
 
 - (void)dismissWebview:(void (^)(void))completion
 {
+    [self cleanupBackgroundTask];
+    
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
     if (_parentController)
