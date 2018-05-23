@@ -28,7 +28,7 @@
 @protocol MSIDResponseSerialization;
 @protocol MSIDRequestContext;
 @protocol MSIDHttpRequestTelemetryProtocol;
-@protocol MSIDHttpRequestErrorHandlerProtocol;
+@protocol MSIDHttpRequestErrorHandling;
 @class MSIDURLSessionManager;
 
 /**
@@ -42,7 +42,7 @@
     @protected id<MSIDRequestSerialization> _requestSerializer;
     @protected id<MSIDResponseSerialization> _responseSerializer;
     @protected id<MSIDHttpRequestTelemetryProtocol> _telemetry;
-    @protected id<MSIDHttpRequestErrorHandlerProtocol> _errorHandler;
+    @protected id<MSIDHttpRequestErrorHandling> _errorHandler;
 }
 
 @property (nonatomic, nonnull) MSIDURLSessionManager *sessionManager;
@@ -57,7 +57,7 @@
 
 @property (nonatomic, nullable) id<MSIDHttpRequestTelemetryProtocol> telemetry;
 
-@property (nonatomic, nullable) id<MSIDHttpRequestErrorHandlerProtocol> errorHandler;
+@property (nonatomic, nullable) id<MSIDHttpRequestErrorHandling> errorHandler;
 
 @property (nonatomic, nullable) id<MSIDRequestContext> context;
 

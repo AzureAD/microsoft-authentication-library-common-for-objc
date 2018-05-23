@@ -25,7 +25,7 @@
 #import "MSIDJsonResponseSerializer.h"
 #import "MSIDUrlRequestSerializer.h"
 #import "MSIDHttpRequestTelemetryProtocol.h"
-#import "MSIDHttpRequestErrorHandlerProtocol.h"
+#import "MSIDHttpRequestErrorHandling.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
 #import "MSIDURLSessionManager.h"

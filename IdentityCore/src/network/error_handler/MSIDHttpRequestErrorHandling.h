@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDHttpRequestProtocol.h"
 
-@protocol MSIDHttpRequestErrorHandlerProtocol <NSObject>
+@protocol MSIDHttpRequestErrorHandling <NSObject>
 
 - (void)handleError:(NSError * )error
        httpResponse:(NSHTTPURLResponse *)httpResponse
