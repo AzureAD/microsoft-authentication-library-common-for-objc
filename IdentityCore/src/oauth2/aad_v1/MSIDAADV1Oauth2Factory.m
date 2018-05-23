@@ -203,6 +203,7 @@
     [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartUrl:startURL
                                                              endURL:[NSURL URLWithString:[configuration redirectUri]]
                                                             webview:webview
+                                                      configuration:configuration
                                                             context:context];
     
     webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {

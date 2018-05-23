@@ -38,10 +38,6 @@ typedef BOOL (^MSIDWebUIStateVerifier)(NSDictionary *dictionary, NSString *reque
 - (void)cancel;
 
 @optional
-#if TARGET_OS_IPHONE
-@property UIViewController *parentViewController;
-#endif
-
 @property MSIDWebUIStateVerifier stateVerifier;
 @property NSString *requestState;
 

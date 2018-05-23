@@ -50,6 +50,7 @@
 - (id)initWithStartUrl:(NSURL *)startUrl
                 endURL:(NSURL *)endUrl
                webview:(WKWebView *)webview
+         configuration:(MSIDWebviewConfiguration *)configuration
                context:(id<MSIDRequestContext>)context
 {
     self = [super initWithContext:context];
@@ -62,6 +63,11 @@
         
         _completionLock = [[NSLock alloc] init];
         self.complete = NO;
+        
+#if TARGET_OS_IPHONE
+        self.parentController = configuration.parentController;
+        self.presentationType = configuration.presentationType;
+#endif
     }
     
     return self;

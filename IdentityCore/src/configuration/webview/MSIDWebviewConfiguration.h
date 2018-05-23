@@ -50,4 +50,9 @@
 // Priority start URL
 @property (readwrite) NSURL *explicitStartURL;
 
+#if TARGET_OS_IPHONE
+@property (weak) UIViewController *parentController;
+@property (readwrite)UIModalPresentationStyle presentationType;
+#endif
+
 @end

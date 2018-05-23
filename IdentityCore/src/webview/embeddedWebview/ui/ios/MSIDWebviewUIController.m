@@ -28,8 +28,6 @@
 @interface MSIDWebviewUIController ( )
 {
     UIActivityIndicatorView *_loadingIndicator;
-    __weak UIViewController *_parentController;
-    UIModalPresentationStyle _presentationType;
     
     UIBackgroundTaskIdentifier _bgTask;
     id _bgObserver;

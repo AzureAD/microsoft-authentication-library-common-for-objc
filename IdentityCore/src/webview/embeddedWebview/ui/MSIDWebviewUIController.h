@@ -35,6 +35,10 @@ NSWindowController
 @property id<MSIDRequestContext> context;
 @property BOOL loading;
 @property BOOL complete;
+#if TARGET_OS_IPHONE
+@property (weak) UIViewController *parentController;
+@property UIModalPresentationStyle presentationType;
+#endif
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;
 
