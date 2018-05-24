@@ -385,6 +385,12 @@ return NO; \
     {
         return YES;
     }
+
+    if (!key.service)
+    {
+        [self.cache[@"tokens"] removeObjectForKey:userId];
+        return YES;
+    }
     
     if (![userTokens objectForKey:[self legacyKeyWithoutAccount:key]])
     {

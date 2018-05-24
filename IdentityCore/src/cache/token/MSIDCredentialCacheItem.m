@@ -284,7 +284,7 @@
         return NO;
     }
 
-    if (environmentAliases && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
     {
         return NO;
     }
@@ -299,7 +299,7 @@
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions
 {
-    if (clientIDMatchingOptions == SuperSet)
+    if (clientIDMatchingOptions == SuperSet && (clientId || familyId))
     {
         if (![self.clientId isEqualToString:clientId]
             && ![self.familyId isEqualToString:familyId])
