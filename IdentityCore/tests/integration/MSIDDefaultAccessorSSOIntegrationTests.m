@@ -1723,7 +1723,6 @@
     XCTAssertNil(error);
 
     accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net" clientId:@"test_client_id" familyId:nil context:nil error:&error];
-    XCTAssertNil(accounts);
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 0);
 }
