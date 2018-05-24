@@ -304,11 +304,11 @@
     return result;
 }
 
-- (BOOL)removeAllTokensForAccount:(MSIDAccountIdentifier *)account
-                      environment:(NSString *)environment
-                         clientId:(NSString *)clientId
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+                 environment:(NSString *)environment
+                    clientId:(NSString *)clientId
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error
 {
     if (!account
         || !environment
@@ -327,6 +327,17 @@
     query.matchAnyCredentialType = YES;
 
     BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
+    accountsQuery.homeAccountId = account.homeAccountId;
+    accountsQuery.environment = environment;
+
+    result = [_accountCredentialCache removeAccountsWithQuery:accountsQuery context:context error:error];
 
     [self stopCacheEvent:event withItem:nil success:result context:context];
     return result;

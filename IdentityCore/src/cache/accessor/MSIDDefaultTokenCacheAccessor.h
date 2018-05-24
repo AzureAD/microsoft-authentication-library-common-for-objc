@@ -48,11 +48,11 @@
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error;
 
-- (BOOL)removeAllTokensForAccount:(MSIDAccountIdentifier *)account
-                      environment:(NSString *)environment
-                         clientId:(NSString *)clientId
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error;
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+                 environment:(NSString *)environment
+                    clientId:(NSString *)clientId
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error;
 
 - (BOOL)validateAndRemoveRefreshToken:(MSIDRefreshToken *)token
                               context:(id<MSIDRequestContext>)context

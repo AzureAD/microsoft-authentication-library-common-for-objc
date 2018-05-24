@@ -1675,37 +1675,49 @@
     XCTAssertEqual([accounts count], 0);
 }
 
-#pragma mark - RemoveAllTokensForAccount
+#pragma mark - clearCacheForAccount
 
-- (void)testRemoveAllTokensForAccount_whenNilAccount_shouldReturnError
+- (void)testClearCacheForAccount_whenNilAccount_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_defaultAccessor removeAllTokensForAccount:nil environment:@"login.microsoftonline.com" clientId:@"test_client_id" context:nil error:&error];
+    BOOL result = [_defaultAccessor clearCacheForAccount:nil environment:@"login.microsoftonline.com" clientId:@"test_client_id" context:nil error:&error];
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInternal);
 }
 
-- (void)testRemoveAllTokensForAccount_whenNilClientId_shouldReturnError
+- (void)testClearCacheForAccount_whenNilClientId_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_defaultAccessor removeAllTokensForAccount:[MSIDAccountIdentifier new] environment:@"login.microsoftonline.com" clientId:nil context:nil error:&error];
+    BOOL result = [_defaultAccessor clearCacheForAccount:[MSIDAccountIdentifier new] environment:@"login.microsoftonline.com" clientId:nil context:nil error:&error];
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInternal);
 }
 
-- (void)testRemoveAllTokensForAccount_whenNilEnvironment_shouldReturnError
+- (void)testClearCacheForAccount_whenNilEnvironment_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_defaultAccessor removeAllTokensForAccount:[MSIDAccountIdentifier new] environment:nil clientId:@"test" context:nil error:&error];
+    BOOL result = [_defaultAccessor clearCacheForAccount:[MSIDAccountIdentifier new] environment:nil clientId:@"test" context:nil error:&error];
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInternal);
 }
 
-- (void)testRemoveAllTokenForAccount_whenAccountProvided_shouldRemoveTokens
+- (void)testClearCacheForAccount_whenAccountProvided_shouldRemoveTokens
 {
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing"
+                  inputScopes:@"user.sing"
+                          uid:@"uid2"
+                         utid:@"utid2"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+
     [self saveResponseWithUPN:@"upn@test.com"
                      clientId:@"test_client_id"
                     authority:@"https://login.windows.net/common"
@@ -1735,35 +1747,64 @@
 
     XCTAssertNotNil(accounts);
     XCTAssertNil(error);
-    XCTAssertEqual([accounts count], 1);
+    XCTAssertEqual([accounts count], 2);
 
     NSArray *allATs = [self getAllAccessTokens];
-    XCTAssertEqual([allATs count], 2);
+    XCTAssertEqual([allATs count], 3);
 
     NSArray *allRTs = [self getAllRefreshTokens];
-    XCTAssertEqual([allRTs count], 1);
+    XCTAssertEqual([allRTs count], 2);
 
     NSArray *allIDs = [self getAllIDTokens];
-    XCTAssertEqual([allIDs count], 1);
+    XCTAssertEqual([allIDs count], 2);
 
-    MSIDAccount *account = accounts[0];
+    MSIDAccount *account = nil;
+
+    for (MSIDAccount *accountInCache in accounts)
+    {
+        if ([accountInCache.homeAccountId isEqualToString:@"uid.utid"])
+        {
+            account = accountInCache;
+            break;
+        }
+    }
+
+    XCTAssertNotNil(account);
 
     MSIDAccountIdentifier *identifier = [MSIDAccountIdentifier new];
     identifier.homeAccountId = account.homeAccountId;
     identifier.legacyAccountId = account.username;
 
-    BOOL result = [_defaultAccessor removeAllTokensForAccount:identifier environment:@"login.windows.net" clientId:@"test_client_id" context:nil error:&error];
+    BOOL result = [_defaultAccessor clearCacheForAccount:identifier environment:@"login.windows.net" clientId:@"test_client_id" context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
     allATs = [self getAllAccessTokens];
-    XCTAssertEqual([allATs count], 0);
+    XCTAssertEqual([allATs count], 1);
+
+    MSIDAccessToken *accessToken = allATs[0];
+    XCTAssertEqualObjects(accessToken.homeAccountId, @"uid2.utid2");
 
     allRTs = [self getAllRefreshTokens];
-    XCTAssertEqual([allRTs count], 0);
+    XCTAssertEqual([allRTs count], 1);
+
+    MSIDRefreshToken *refreshToken = allRTs[0];
+    XCTAssertEqualObjects(refreshToken.homeAccountId, @"uid2.utid2");
 
     allIDs = [self getAllIDTokens];
-    XCTAssertEqual([allIDs count], 0);
+    XCTAssertEqual([allIDs count], 1);
+    MSIDIdToken *idToken = allIDs[0];
+    XCTAssertEqualObjects(idToken.homeAccountId, @"uid2.utid2");
+
+    accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net"
+                                                  clientId:@"test_client_id"
+                                                  familyId:nil
+                                                   context:nil
+                                                     error:&error];
+    XCTAssertEqual([accounts count], 1);
+
+    MSIDAccount *remainingAccount = accounts[0];
+    XCTAssertEqualObjects(remainingAccount.homeAccountId, @"uid2.utid2");
 }
 
 #pragma mark - Helpers
