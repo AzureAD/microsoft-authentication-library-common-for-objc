@@ -330,6 +330,7 @@
 
     if (!result)
     {
+        [self stopCacheEvent:event withItem:nil success:NO context:context];
         return NO;
     }
 

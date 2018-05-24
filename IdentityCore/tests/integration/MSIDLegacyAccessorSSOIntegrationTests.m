@@ -2048,7 +2048,7 @@
              additionalFields:nil
                      accessor:_nonSSOAccessor];
 
-    // Save first token
+    // Save second token
     [self saveResponseWithUPN:@"upn2@test.com"
                      clientId:@"test_client_id"
                     authority:@"https://login.windows.net/common"
