@@ -246,7 +246,7 @@
     NSArray<NSString *> *environmentAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:environment];
     __auto_type accountsPerUserId = [self getAccountsPerUserIdForAliases:environmentAliases context:context error:error];
 
-    if (![accountsPerUserId count])
+    if (!accountsPerUserId)
     {
         MSID_LOG_INFO(context, @"No accounts found, returning!");
         [self stopCacheEvent:event withItem:nil success:NO context:context];
