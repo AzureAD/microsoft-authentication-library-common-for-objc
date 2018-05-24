@@ -70,8 +70,21 @@
                                                      callbackURLScheme:(NSString *)callbackURLScheme
                                                                context:(id<MSIDRequestContext>)context;
 
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration;
 - (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration;
 
+// If this different per authorization setup (i.e./ v1 vs v2), implement it in subclasses.
+- (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
+                              requestState:(NSString *)requestState
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
+
+
+
+- (BOOL)verifyState:(NSString *)requestState
+         parameters:(NSDictionary *)parameters;
+
+- (NSString *)requestState;
 
 @end
 

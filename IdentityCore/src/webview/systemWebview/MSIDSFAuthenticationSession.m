@@ -49,8 +49,6 @@
 
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme
-               requestState:(NSString *)requestState
-              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                     context:(id<MSIDRequestContext>)context
 {
     self = [super init];
@@ -58,8 +56,6 @@
     {
         _startURL = url;
         _context = context;
-        _requestState = requestState;
-        _stateVerifier = stateVerifier;
     }
     
     return self;
@@ -86,20 +82,10 @@
                                                         error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
                                                         [_telemetryEvent setIsCancelled:YES];
                                                     }
-                                                    
-                                                    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
-                                                    completionHandler(nil, error);
-                                                    return;
                                                 }
-                                
-                                                NSError *authError = nil;
-                                                MSIDWebOAuth2Response *response = [MSIDWebviewAuthorization responseWithURL:callbackURL
-                                                                                                               requestState:self.requestState
-                                                                                                              stateVerifier:self.stateVerifier
-                                                                                                                    context:_context
-                                                                                                                      error:&authError];
+
                                                 [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
-                                                completionHandler(response, authError);
+                                                completionHandler(callbackURL, error);
                                             }];
         return  [_authSession start];
     }

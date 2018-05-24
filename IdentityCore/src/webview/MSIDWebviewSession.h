@@ -26,28 +26,19 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDConfiguration.h"
 
-@class MSIDPkce;
-@class MSIDClientInfo;
+@protocol MSIDWebviewInteracting;
+@class MSIDOauth2Factory;
 
-@interface MSIDWebviewConfiguration : MSIDConfiguration
+@interface MSIDWebviewSession : NSObject
 
-// Common
-@property (readwrite) NSURL *authorizationEndpoint;
+@property id<MSIDWebviewInteracting> webviewController;
+@property MSIDOauth2Factory *factory;
+@property NSString *requestState;
 
-@property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
-@property (readwrite) NSString *promptBehavior;
-@property (readwrite) NSString *claims;
+- (instancetype)init NS_UNAVAILABLE;
 
-// Is this only for V2?
-@property (readwrite) MSIDPkce *pkce;
-
-// User information
-@property (readwrite) NSString *utid;
-@property (readwrite) NSString *uid;
-
-// Priority start URL
-@property (readwrite) NSURL *explicitStartURL;
-
+- (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
+                                  factory:(MSIDOauth2Factory *)factory
+                             requestState:(NSString *)requestState;
 @end

@@ -32,12 +32,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme
-               requestState:(NSString *)requestState
-              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                     context:(id<MSIDRequestContext>)context;
-
-@property NSString *requestState;
-@property MSIDWebUIStateVerifier stateVerifier;
 
 @end
 

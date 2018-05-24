@@ -29,8 +29,7 @@
 
 @class MSIDWebOAuth2Response;
 
-typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
-typedef BOOL (^MSIDWebUIStateVerifier)(NSDictionary *dictionary, NSString *requestState);
+typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
 
 @protocol MSIDWebviewInteracting
 
@@ -41,8 +40,5 @@ typedef BOOL (^MSIDWebUIStateVerifier)(NSDictionary *dictionary, NSString *reque
 #if TARGET_OS_IPHONE
 @property UIViewController *parentViewController;
 #endif
-
-@property MSIDWebUIStateVerifier stateVerifier;
-@property NSString *requestState;
 
 @end

@@ -207,10 +207,6 @@
     MSIDSystemWebviewController *webviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                                                          callbackURLScheme:callbackURLScheme
                                                                                                    context:context];
-    webviewController.requestState = configuration.requestState;
-    webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
-        return [requestState isEqualToString:dictionary[MSID_OAUTH2_STATE]];
-    };
     return webviewController;
 #else
     return nil;
@@ -219,63 +215,15 @@
 
 - (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
 {
-    NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
-    if (configuration.extraQueryParameters)
-    {
-        [parameters addEntriesFromDictionary:configuration.extraQueryParameters];
-    }
+    
+    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration];
     
     NSOrderedSet<NSString *> *allScopes = configuration.scopes;
-    parameters[MSID_OAUTH2_CLIENT_ID] = configuration.clientId;
     parameters[MSID_OAUTH2_SCOPE] = [allScopes msidToString];
-    parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
-    parameters[MSID_OAUTH2_REDIRECT_URI] = configuration.redirectUri;
-    parameters[MSID_OAUTH2_CORRELATION_ID_REQUEST] = [configuration.correlationId UUIDString];
-    parameters[MSID_OAUTH2_LOGIN_HINT] = configuration.loginHint;
-    
-    // PKCE
-    parameters[MSID_OAUTH2_CODE_CHALLENGE] = configuration.pkce.codeChallenge;
-    parameters[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = configuration.pkce.codeChallengeMethod;
-    
-    NSDictionary *msalId = [MSIDDeviceId deviceId];
-    [parameters addEntriesFromDictionary:msalId];
-    
     parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
+    parameters[@"haschrome"] = @"1";
     
     return parameters;
-}
-
-
-- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration
-{
-    if (configuration.explicitStartURL)
-    {
-        return configuration.explicitStartURL;
-    }
-    
-    NSURLComponents *urlComponents = [NSURLComponents new];
-    urlComponents.scheme = @"https";
-    
-    // get this from cache: authorizationendpoint if possible
-    urlComponents.host = configuration.authority.host;
-    urlComponents.path = [configuration.authority.path stringByAppendingString:MSID_OAUTH2_V2_AUTHORIZE_SUFFIX];
-
-    NSMutableDictionary <NSString *, NSString *> *parameters = [self authorizationParametersFromConfiguration:configuration];
-    
-    if (configuration.sliceParameters)
-    {
-        [parameters addEntriesFromDictionary:configuration.sliceParameters];
-    }
-
-    [parameters msidSetObjectIfNotNil:configuration.uid forKey:MSID_OAUTH2_LOGIN_REQ];
-    [parameters msidSetObjectIfNotNil:configuration.utid forKey:MSID_OAUTH2_DOMAIN_REQ];
-    
-    parameters[MSID_OAUTH2_STATE] = configuration.requestState;
-    
-    urlComponents.queryItems = [parameters urlQueryItemsArray];
-    urlComponents.percentEncodedQuery = [parameters msidURLFormEncode];
-    
-    return urlComponents.URL;
 }
 
 @end

@@ -31,13 +31,10 @@
 @interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithURL:(NSURL *)url
-               requestState:(NSString *)requestState
-              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                     context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponse:(NSURL *)url;
 
 @property NSString *requestState;
-@property MSIDWebUIStateVerifier stateVerifier;
 
 @end

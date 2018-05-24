@@ -28,6 +28,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
 
+@class MSIDOauth2Factory;
+
 @interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
@@ -39,7 +41,5 @@
 @property (readonly) NSURL *startURL;
 @property (readonly) NSString *callbackURLScheme;
 
-@property NSString *requestState;
-@property MSIDWebUIStateVerifier stateVerifier;
 
 @end
