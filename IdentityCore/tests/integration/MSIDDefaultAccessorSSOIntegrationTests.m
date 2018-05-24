@@ -1450,7 +1450,7 @@
     MSIDAccessToken *secondToken = accessTokens[1];
 
     NSError *error = nil;
-    BOOL result = [_defaultAccessor removeAccessToken:secondToken context:nil error:&error];
+    BOOL result = [_defaultAccessor removeToken:secondToken context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -1462,10 +1462,63 @@
     XCTAssertEqual([remaininRefreshTokens count], 1);
 }
 
+- (void)testRemoveIDToken_whenTokenProvided_shouldRemoveToken
+{
+    // Save first token
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id2"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+
+    // Save first token
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing"
+                  inputScopes:@"user.sing"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+
+    NSArray *accessTokens = [self getAllAccessTokens];
+    XCTAssertEqual([accessTokens count], 2);
+
+    NSArray *refreshTokens = [self getAllRefreshTokens];
+    XCTAssertEqual([refreshTokens count], 2);
+
+    NSArray *idTokens = [self getAllIDTokens];
+    XCTAssertEqual([idTokens count], 2);
+
+    MSIDIdToken *firstToken = idTokens[0];
+    MSIDIdToken *secondToken = idTokens[1];
+
+    NSError *error = nil;
+    BOOL result = [_defaultAccessor removeToken:secondToken context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *remainingIDTokens = [self getAllIDTokens];
+    XCTAssertEqual([remainingIDTokens count], 1);
+    XCTAssertEqualObjects(remainingIDTokens[0], firstToken);
+
+    NSArray *remaininRefreshTokens = [self getAllRefreshTokens];
+    XCTAssertEqual([remaininRefreshTokens count], 2);
+}
+
 - (void)testRemoveAccessToken_whenNilTokenProvided_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_defaultAccessor removeAccessToken:nil context:nil error:&error];
+    BOOL result = [_defaultAccessor removeToken:nil context:nil error:&error];
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInternal);

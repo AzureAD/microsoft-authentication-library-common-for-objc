@@ -379,13 +379,6 @@
     return YES;
 }
 
-- (BOOL)removeAccessToken:(MSIDAccessToken *)token
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
-{
-    return [self removeToken:token context:context error:error];
-}
-
 #pragma mark - Input validation
 
 - (BOOL)checkUserIdentifier:(NSString *)userIdentifier

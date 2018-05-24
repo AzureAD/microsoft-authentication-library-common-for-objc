@@ -58,8 +58,8 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
 
-- (BOOL)removeAccessToken:(MSIDAccessToken *)token
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error;
+- (BOOL)removeToken:(MSIDBaseToken *)token
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error;
 
 @end

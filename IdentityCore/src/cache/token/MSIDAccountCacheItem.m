@@ -201,7 +201,7 @@
         return NO;
     }
 
-    if (environmentAliases && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
     {
         return NO;
     }
