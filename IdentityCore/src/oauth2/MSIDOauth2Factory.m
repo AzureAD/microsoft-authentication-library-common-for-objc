@@ -349,7 +349,7 @@
 }
 
 #pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
+- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithStartURL:(NSURL *)startURL
                                                            customWebview:(WKWebView *)webview
                                                                  context:(id<MSIDRequestContext>)context
 {
@@ -357,12 +357,11 @@
     return nil;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
+- (id<MSIDWebviewInteracting>)systemWebviewControllerWithStartURL:(NSURL *)startURL
                                                      callbackURLScheme:(NSString *)callbackURLScheme
                                                                context:(id<MSIDRequestContext>)context
 {
 #if TARGET_OS_IPHONE
-    NSURL *startURL = [self startURLFromConfiguration:configuration];
     return [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                callbackURLScheme:callbackURLScheme
                                                          context:context];
@@ -372,6 +371,7 @@
 }
 
 - (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
+                                                                             requestState:(NSString *)state
 {
     NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
     
@@ -400,16 +400,19 @@
     
     parameters[MSID_OAUTH2_CLAIMS] = configuration.claims;
     
+    // State
+    parameters[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
+    
     return parameters;
 }
 
-- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration
+- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state
 {
     if (!configuration) return nil;
     if (configuration.explicitStartURL) return configuration.explicitStartURL;
     
     NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:configuration.authorizationEndpoint resolvingAgainstBaseURL:NO];
-    NSDictionary *parameters = [self authorizationParametersFromConfiguration:configuration];
+    NSDictionary *parameters = [self authorizationParametersFromConfiguration:configuration requestState:state];
     
     urlComponents.queryItems = [parameters urlQueryItemsArray];
     urlComponents.percentEncodedQuery = [parameters msidURLFormEncode];
@@ -433,15 +436,9 @@
     }
     
     // check state
-    if (requestState)
+    if (![self verifyState:requestState parameters:parameters NSError:error])
     {
-        if (![self verifyState:requestState parameters:parameters])
-        {
-            if (error) {
-                *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, context.correlationId, nil);
-            }
-            return nil;
-        }
+        return nil;
     }
     
     // return base response
@@ -458,11 +455,21 @@
 
 - (BOOL)verifyState:(NSString *)requestState
          parameters:(NSDictionary *)parameters
+            NSError:(NSError **)error
 {
-    if (!requestState || !parameters) { return NO;}
+    if (!requestState) return YES;
     
     NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
-    return [stateReceived.msidBase64UrlDecode isEqualToString:requestState];
+    BOOL result = [stateReceived.msidBase64UrlDecode isEqualToString:requestState];
+    
+    if (!result)
+    {
+        if (error) {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, nil, nil);
+        }
+    }
+    
+    return result;
 }
 
 - (NSString *)requestState

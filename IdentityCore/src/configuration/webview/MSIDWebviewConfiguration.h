@@ -50,4 +50,14 @@
 // Priority start URL
 @property (readwrite) NSURL *explicitStartURL;
 
+- (instancetype)initWithAuthority:(NSURL *)authority
+            authorizationEndpoint:(NSURL *)authorizationEndpoint
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target
+                    correlationId:(NSUUID *)correlationId;
+
+- (instancetype)initWithAuthority:(NSURL *)authority redirectUri:(NSString *)redirectUri clientId:(NSString *)clientId target:(NSString *)target correlationId:(NSUUID *)correlationId NS_UNAVAILABLE;
+- (instancetype)initWithAuthority:(NSURL *)authority redirectUri:(NSString *)redirectUri clientId:(NSString *)clientId target:(NSString *)target NS_UNAVAILABLE;
+
 @end

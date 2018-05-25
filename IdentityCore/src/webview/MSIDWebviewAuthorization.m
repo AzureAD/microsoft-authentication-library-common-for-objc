@@ -31,6 +31,8 @@
 #import "MSIDError.h"
 #import "NSURL+MSIDExtensions.h"
 #import "MSIDTelemetry.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDSystemWebviewController.h"
 
 @implementation MSIDWebviewAuthorization
 
@@ -41,11 +43,15 @@ static MSIDWebviewSession *s_currentSession = nil;
                                           context:(id<MSIDRequestContext>)context
                                 completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithConfiguration:configuration
-                                                                                                 customWebview:nil
-                                                                                                       context:context];
+    NSString *state = [factory requestState];
+    NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
+    (void)startURL;
+    (void)state;
+    
+    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] init];
     [self startWebviewAuth:embeddedWebviewController
                    factory:factory
+              requestState:state
                    context:context
          completionHandler:completionHandler];
 }
@@ -56,11 +62,15 @@ static MSIDWebviewSession *s_currentSession = nil;
                                                  context:(id<MSIDRequestContext>)context
                                        completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    id<MSIDWebviewInteracting> embeddedWebviewController = [factory embeddedWebviewControllerWithConfiguration:configuration
-                                                                                                 customWebview:webview
-                                                                                                       context:context];
+    NSString *state = [factory requestState];
+    NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
+    (void)startURL;
+    (void)state;
+    
+    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] init];
     [self startWebviewAuth:embeddedWebviewController
                    factory:factory
+              requestState:state
                    context:context
          completionHandler:completionHandler];
 }
@@ -70,14 +80,16 @@ static MSIDWebviewSession *s_currentSession = nil;
                                                context:(id<MSIDRequestContext>)context
                                      completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
+    NSString *state = [factory requestState];
+    NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
     
-    id<MSIDWebviewInteracting> systemWebviewController = [factory systemWebviewControllerWithConfiguration:configuration
-                                                                                         callbackURLScheme:configuration.redirectUri
-                                                                                                   context:context];
+    MSIDSystemWebviewController *systemWebviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
+                                                                                               callbackURLScheme:configuration.redirectUri
+                                                                                                         context:context];
 
-    
     [self startWebviewAuth:systemWebviewController
                    factory:factory
+              requestState:state
                    context:context
          completionHandler:completionHandler];
 }
@@ -85,10 +97,11 @@ static MSIDWebviewSession *s_currentSession = nil;
 
 + (void)startWebviewAuth:(id<MSIDWebviewInteracting>)webviewController
                  factory:(MSIDOauth2Factory *)factory
+            requestState:(NSString *)state
                  context:(id<MSIDRequestContext>)context
        completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    if (![self setCurrentWebSession:webviewController factory:factory])
+    if (![self setCurrentWebSession:webviewController startURL:webviewController.startURL factory:factory requestState:state])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Only one interactive session is allowed at a time.", nil, nil, nil, context.correlationId, nil);
         
@@ -124,7 +137,10 @@ static MSIDWebviewSession *s_currentSession = nil;
 
 
 + (BOOL)setCurrentWebSession:(id<MSIDWebviewInteracting>)newWebSession
+                    startURL:(NSURL *)startURL
                      factory:(MSIDOauth2Factory *)factory
+                requestState:(NSString *)state
+
 {
     @synchronized([MSIDWebviewAuthorization class])
     {
@@ -134,8 +150,9 @@ static MSIDWebviewSession *s_currentSession = nil;
         }
 
         s_currentSession = [[MSIDWebviewSession alloc] initWithWebviewController:newWebSession
+                                                                        startURL:startURL
                                                                          factory:factory
-                                                                    requestState:[factory requestState]];
+                                                                    requestState:state];
      
         return YES;
     }
@@ -174,76 +191,6 @@ static MSIDWebviewSession *s_currentSession = nil;
         }
     }
 }
-
-
-
-//
-//+ (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
-//                              requestState:(NSString *)requestState
-//                             stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
-//                                   context:(id<MSIDRequestContext>)context
-//                                     error:(NSError **)error
-//{
-//    // This error case *really* shouldn't occur. If we're seeing it it's almost certainly a developer bug
-//    if ([NSString msidIsStringNilOrBlank:url.absoluteString])
-//    {
-//        if (error) {
-//            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorNoAuthorizationResponse, @"No authorization response received from server.", nil, nil, nil, context.correlationId, nil);
-//        }
-//        return nil;
-//    }
-//    
-//    NSDictionary *parameters = [self.class queryParametersFromURL:url];
-//    
-//    // Check if this is a WPJ response
-//    MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithScheme:url.scheme
-//                                                                                    host:url.host
-//                                                                              parameters:parameters
-//                                                                                 context:context
-//                                                                                   error:nil];
-//    if (wpjResponse)
-//    {
-//        wpjResponse.url = url;
-//        return wpjResponse;
-//    }
-//    MSID_LOG_INFO(context, @"This is not a WPJ response");
-//    
-//    // Check for AAD response,
-//    NSError *aadError = nil;
-//    MSIDWebAADAuthResponse *aadResponse = [[MSIDWebAADAuthResponse alloc] initWithParameters:parameters
-//                                                                                requestState:requestState
-//                                                                               stateVerifier:stateVerifier
-//                                                                                     context:context
-//                                                                                       error:&aadError];
-//    if (aadResponse)
-//    {
-//        aadResponse.url = url;
-//        return aadResponse;
-//    }
-//    
-//    if (aadError)
-//    {
-//        if (error) *error = aadError;
-//        return nil;
-//    }
-//    
-//    MSID_LOG_INFO(context, @"This is not an AAD response");
-//    
-//    // It is then, a standard OAuth2 response
-//    //
-//    // For now, there is no logic to really land here. As there is no definitive condition for response
-//    // not being a AAD response.
-////    MSIDWebOAuth2Response *oauth2Response = [[MSIDWebOAuth2Response alloc] initWithParameters:parameters
-////                                                                                      context:context
-////                                                                                        error:error];
-////    if (oauth2Response)
-////    {
-////        oauth2Response.url = url;
-////        return oauth2Response;
-////    }
-//    
-//    return nil;
-//}
 
 
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;

@@ -66,6 +66,7 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebOAuth2Response *response
 // This can be utilized for having a custom webview controller. 
 + (void)startWebviewAuth:(id<MSIDWebviewInteracting>)webviewController
                  factory:(MSIDOauth2Factory *)factory
+            requestState:(NSString *)state
                  context:(id<MSIDRequestContext>)context
        completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 

@@ -30,14 +30,16 @@
 @implementation MSIDWebviewSession
 
 - (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
+                                 startURL:(NSURL *)startURL
                                   factory:(MSIDOauth2Factory *)factory
-                             requestState:(NSString *)requestState
+                             requestState:(NSString *)state
 {
     self = [super init];
     if (self) {
-        self.webviewController = webviewController;
-        self.factory = factory;
-        self.requestState = requestState;
+        _webviewController = webviewController;
+        _factory = factory;
+        _startURL = startURL;
+        _requestState = state;
     }
     return self;
 }

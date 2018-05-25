@@ -29,4 +29,18 @@
 
 @implementation MSIDWebviewConfiguration
 
+- (instancetype)initWithAuthority:(NSURL *)authority
+            authorizationEndpoint:(NSURL *)authorizationEndpoint
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target
+                    correlationId:(NSUUID *)correlationId
+{
+    self = [super initWithAuthority:authority redirectUri:redirectUri clientId:clientId target:target correlationId:correlationId];
+    if (self)
+    {
+        _authorizationEndpoint = authorizationEndpoint;
+    }
+    return self;
+}
 @end

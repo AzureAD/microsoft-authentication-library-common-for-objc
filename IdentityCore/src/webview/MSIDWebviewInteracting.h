@@ -36,6 +36,8 @@ typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
 - (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
 - (void)cancel;
 
+- (NSURL *)startURL;
+
 @optional
 #if TARGET_OS_IPHONE
 @property UIViewController *parentViewController;

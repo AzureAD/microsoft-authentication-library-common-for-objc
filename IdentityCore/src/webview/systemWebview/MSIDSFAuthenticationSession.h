@@ -34,5 +34,8 @@
           callbackURLScheme:(NSString *)callbackURLScheme
                     context:(id<MSIDRequestContext>)context;
 
+@property (readonly) NSURL *startURL;
+@property (readonly) NSString *callbackURLScheme;
+
 @end
 

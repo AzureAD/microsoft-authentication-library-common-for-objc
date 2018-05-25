@@ -35,6 +35,6 @@
 
 - (BOOL)handleURLResponse:(NSURL *)url;
 
-@property NSString *requestState;
+@property (readonly) NSURL *startURL;
 
 @end

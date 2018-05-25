@@ -41,5 +41,4 @@
 @property (readonly) NSURL *startURL;
 @property (readonly) NSString *callbackURLScheme;
 
-
 @end
