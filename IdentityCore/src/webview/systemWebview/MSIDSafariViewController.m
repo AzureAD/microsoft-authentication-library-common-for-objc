@@ -115,11 +115,11 @@
                               error:(NSError *)error
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_safariViewController dismissViewControllerAnimated:YES completion:nil];
+        [_safariViewController dismissViewControllerAnimated:YES completion:^{
+            _safariViewController = nil;
+        }];
     });
     
-    _safariViewController = nil;
-
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
     if (error)
