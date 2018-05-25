@@ -71,8 +71,8 @@
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error;
 
-- (NSString *)requestState;
-- (BOOL)verifyState:(NSString *)requestState
+- (NSString *)generateStateValue;
+- (BOOL)verifyState:(NSString *)state
          parameters:(NSDictionary *)parameters
             NSError:(NSError **)error;
 

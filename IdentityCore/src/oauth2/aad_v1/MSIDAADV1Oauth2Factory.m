@@ -192,8 +192,14 @@
 
 #pragma mark - Webview controllers
 - (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
+                                                                             requestState:(NSString *)state
 {
-    return nil;
+    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
+                                                                                                 requestState:state];
+    
+    // add other missing pieces here.
+    
+    return parameters;
 }
 
 

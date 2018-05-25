@@ -30,7 +30,6 @@
 @implementation MSIDWebviewSession
 
 - (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
-                                 startURL:(NSURL *)startURL
                                   factory:(MSIDOauth2Factory *)factory
                              requestState:(NSString *)state
 {
@@ -38,7 +37,6 @@
     if (self) {
         _webviewController = webviewController;
         _factory = factory;
-        _startURL = startURL;
         _requestState = state;
     }
     return self;

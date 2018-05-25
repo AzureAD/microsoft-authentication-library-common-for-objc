@@ -34,14 +34,11 @@
 
 @property id<MSIDWebviewInteracting> webviewController;
 @property MSIDOauth2Factory *factory;
-
-@property NSURL *startURL;
 @property NSString *requestState;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
-                                 startURL:(NSURL *)startURL
                                   factory:(MSIDOauth2Factory *)factory
                              requestState:(NSString *)state;
                              

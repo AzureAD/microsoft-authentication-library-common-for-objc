@@ -348,27 +348,7 @@
     return YES;
 }
 
-#pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithStartURL:(NSURL *)startURL
-                                                           customWebview:(WKWebView *)webview
-                                                                 context:(id<MSIDRequestContext>)context
-{
-    // TODO: return default
-    return nil;
-}
-
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithStartURL:(NSURL *)startURL
-                                                     callbackURLScheme:(NSString *)callbackURLScheme
-                                                               context:(id<MSIDRequestContext>)context
-{
-#if TARGET_OS_IPHONE
-    return [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
-                                               callbackURLScheme:callbackURLScheme
-                                                         context:context];
-#else
-    return nil;
-#endif
-}
+#pragma mark
 
 - (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
                                                                              requestState:(NSString *)state
@@ -453,14 +433,14 @@
     return response;
 }
 
-- (BOOL)verifyState:(NSString *)requestState
+- (BOOL)verifyState:(NSString *)state
          parameters:(NSDictionary *)parameters
             NSError:(NSError **)error
 {
-    if (!requestState) return YES;
+    if (!state) return YES;
     
     NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
-    BOOL result = [stateReceived.msidBase64UrlDecode isEqualToString:requestState];
+    BOOL result = [stateReceived.msidBase64UrlDecode isEqualToString:state];
     
     if (!result)
     {
@@ -472,7 +452,7 @@
     return result;
 }
 
-- (NSString *)requestState
+- (NSString *)generateStateValue
 {
     return [[NSUUID UUID] UUIDString];
 }

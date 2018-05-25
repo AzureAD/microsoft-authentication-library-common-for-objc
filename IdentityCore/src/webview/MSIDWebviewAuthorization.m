@@ -43,17 +43,17 @@ static MSIDWebviewSession *s_currentSession = nil;
                                           context:(id<MSIDRequestContext>)context
                                 completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    NSString *state = [factory requestState];
-    NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
-    (void)startURL;
-    (void)state;
-    
-    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] init];
-    [self startWebviewAuth:embeddedWebviewController
-                   factory:factory
-              requestState:state
-                   context:context
-         completionHandler:completionHandler];
+//    NSString *state = [factory generateStateValue];
+//    NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
+//    (void)startURL;
+//    (void)state;
+//
+//    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] init];
+//    [self startWebviewAuth:embeddedWebviewController
+//                   factory:factory
+//              requestState:state
+//                   context:context
+//         completionHandler:completionHandler];
 }
 
 + (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
@@ -62,17 +62,17 @@ static MSIDWebviewSession *s_currentSession = nil;
                                                  context:(id<MSIDRequestContext>)context
                                        completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    NSString *state = [factory requestState];
-    NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
-    (void)startURL;
-    (void)state;
-    
-    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] init];
-    [self startWebviewAuth:embeddedWebviewController
-                   factory:factory
-              requestState:state
-                   context:context
-         completionHandler:completionHandler];
+//    NSString *state = [factory generateStateValue];
+//    NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
+//    (void)startURL;
+//    (void)state;
+//
+//    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] init];
+//    [self startWebviewAuth:embeddedWebviewController
+//                   factory:factory
+//              requestState:state
+//                   context:context
+//         completionHandler:completionHandler];
 }
 
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
@@ -80,35 +80,32 @@ static MSIDWebviewSession *s_currentSession = nil;
                                                context:(id<MSIDRequestContext>)context
                                      completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    NSString *state = [factory requestState];
+    NSString *state = [factory generateStateValue];
     NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
-    
+
     MSIDSystemWebviewController *systemWebviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                                                                callbackURLScheme:configuration.redirectUri
                                                                                                          context:context];
 
-    [self startWebviewAuth:systemWebviewController
-                   factory:factory
-              requestState:state
-                   context:context
-         completionHandler:completionHandler];
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWebviewController
+                                                                                factory:factory
+                                                                           requestState:state];
+
+    [self startSession:session context:context completionHandler:completionHandler];
 }
 
 
-+ (void)startWebviewAuth:(id<MSIDWebviewInteracting>)webviewController
-                 factory:(MSIDOauth2Factory *)factory
-            requestState:(NSString *)state
-                 context:(id<MSIDRequestContext>)context
-       completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
++ (void)startSession:(MSIDWebviewSession *)session
+             context:(id<MSIDRequestContext>)context
+   completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    if (![self setCurrentWebSession:webviewController startURL:webviewController.startURL factory:factory requestState:state])
+    if (![self setCurrentWebSession:session])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Only one interactive session is allowed at a time.", nil, nil, nil, context.correlationId, nil);
-        
         completionHandler(nil, error);
         return;
     }
-    
+
     void (^startCompletionBlock)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *error) {
         if (error) {
             completionHandler(nil, error);
@@ -136,10 +133,7 @@ static MSIDWebviewSession *s_currentSession = nil;
 }
 
 
-+ (BOOL)setCurrentWebSession:(id<MSIDWebviewInteracting>)newWebSession
-                    startURL:(NSURL *)startURL
-                     factory:(MSIDOauth2Factory *)factory
-                requestState:(NSString *)state
++ (BOOL)setCurrentWebSession:(MSIDWebviewSession *)session
 
 {
     @synchronized([MSIDWebviewAuthorization class])
@@ -149,10 +143,7 @@ static MSIDWebviewSession *s_currentSession = nil;
             return NO;   
         }
 
-        s_currentSession = [[MSIDWebviewSession alloc] initWithWebviewController:newWebSession
-                                                                        startURL:startURL
-                                                                         factory:factory
-                                                                    requestState:state];
+        s_currentSession = session;
      
         return YES;
     }
