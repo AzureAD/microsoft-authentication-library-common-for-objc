@@ -21,12 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDURLSessionDelegate.h"
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
-
-@protocol MSIDHttpRequestProtocol <NSObject>
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+@implementation MSIDURLSessionDelegate
 
 @end

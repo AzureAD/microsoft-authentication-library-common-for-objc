@@ -28,7 +28,7 @@
 #import "MSIDTestURLSession.h"
 #import "MSIDTestURLResponse.h"
 #import "MSIDTestContext.h"
-#import "MSIDHttpRequestErrorHandlerProtocol.h"
+#import "MSIDHttpRequestErrorHandling.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
 
@@ -49,7 +49,7 @@
 
 @end
 
-@interface MSIDTestErrorHandler : NSObject <MSIDHttpRequestErrorHandlerProtocol>
+@interface MSIDTestErrorHandler : NSObject <MSIDHttpRequestErrorHandling>
 
 @property (nonatomic) int handleErrorInvokedCounts;
 @property (nonatomic) NSError *passedError;

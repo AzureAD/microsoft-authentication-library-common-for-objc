@@ -23,10 +23,6 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
-
-@protocol MSIDHttpRequestProtocol <NSObject>
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+@interface MSIDURLSessionDelegate : NSObject <NSURLSessionDelegate>
 
 @end
