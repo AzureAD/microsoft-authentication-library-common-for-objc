@@ -34,6 +34,7 @@
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDSystemWebviewController.h"
 
+
 @implementation MSIDWebviewAuthorization
 
 static MSIDWebviewSession *s_currentSession = nil;
@@ -75,6 +76,7 @@ static MSIDWebviewSession *s_currentSession = nil;
 //         completionHandler:completionHandler];
 }
 
+#if TARGET_OS_IPHONE
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                                factory:(MSIDOauth2Factory *)factory
                                                context:(id<MSIDRequestContext>)context
@@ -93,7 +95,7 @@ static MSIDWebviewSession *s_currentSession = nil;
 
     [self startSession:session context:context completionHandler:completionHandler];
 }
-
+#endif
 
 + (void)startSession:(MSIDWebviewSession *)session
              context:(id<MSIDRequestContext>)context

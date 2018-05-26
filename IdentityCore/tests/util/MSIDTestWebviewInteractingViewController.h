@@ -26,7 +26,13 @@
 
 @interface MSIDTestWebviewInteractingViewController : NSObject<MSIDWebviewInteracting>
 
+// Time after which the start call will return a successful response.
+// If set to zero, will indicate unsuccessful response.
 @property NSTimeInterval successAfterInterval;
-@property BOOL actSystemWebviewController;
+
+// BOOL to indicate whether or not this class will act as MSIDSafariViewController
+@property BOOL actAsSafariViewController;
+
+@property NSURL *startURL;
 
 @end

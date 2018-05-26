@@ -219,8 +219,11 @@
     }
     
     // check state
-    if (![self verifyState:requestState parameters:parameters NSError:error])
+    if (![self verifyRequestState:requestState parameters:parameters])
     {
+        if (error) {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, nil, nil);
+        }
         return nil;
     }
     

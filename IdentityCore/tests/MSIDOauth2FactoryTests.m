@@ -40,6 +40,8 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccount.h"
 #import "MSIDLegacyRefreshToken.h"
+#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebviewConfiguration.h"
 
 @interface MSIDOauth2FactoryTest : XCTestCase
 
@@ -453,6 +455,65 @@
     XCTAssertEqualObjects(account.name, @"Eric Cartman");
     XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
+
+
+#pragma mark - Webview (startURL)
+- (void)testStartURL_whenValidParams_shouldContainQPs
+{
+
+}
+
+
+#pragma mark - Webview (Response)
+- (void)testResponseWithURL_whenNilURL_shouldReturnNilAndError
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:nil requestState:nil context:nil error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+}
+
+
+- (void)testResponseWithURL_whenOAuth2Response_shouldReturnAADAuthResponse
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
+                                       requestState:nil context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebOAuth2Response.class]);
+    XCTAssertNil(error);
+}
+
+
+#pragma mark - Webview (State verifier)
+- (void)testVerifyRequestState_whenNoRequestState_shouldSucceed
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    XCTAssertTrue([factory verifyRequestState:nil parameters:@{ MSID_OAUTH2_STATE : @"value"}]);
+}
+
+- (void)testVerifyRequestState_whenStateReceivedMatches_shouldSucceed
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    NSString *requestStateDecoded = @"value";
+    XCTAssertTrue([factory verifyRequestState:requestStateDecoded parameters:@{ MSID_OAUTH2_STATE : requestStateDecoded.msidBase64UrlEncode }]);
+}
+
+
+- (void)testVerifyRequestState_whenStateReceivedDoesNotMatch_shouldFail
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    XCTAssertFalse([factory verifyRequestState:@"value1" parameters:@{ MSID_OAUTH2_STATE : @"value2"}]);
+}
+
+
+
+
 
 @end
 

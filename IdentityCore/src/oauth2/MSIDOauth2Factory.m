@@ -416,8 +416,11 @@
     }
     
     // check state
-    if (![self verifyState:requestState parameters:parameters NSError:error])
+    if (![self verifyRequestState:requestState parameters:parameters])
     {
+        if (error) {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, nil, nil);
+        }
         return nil;
     }
     
@@ -433,23 +436,13 @@
     return response;
 }
 
-- (BOOL)verifyState:(NSString *)state
-         parameters:(NSDictionary *)parameters
-            NSError:(NSError **)error
+- (BOOL)verifyRequestState:(NSString *)state
+                parameters:(NSDictionary *)parameters
 {
     if (!state) return YES;
     
     NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
-    BOOL result = [stateReceived.msidBase64UrlDecode isEqualToString:state];
-    
-    if (!result)
-    {
-        if (error) {
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, nil, nil);
-        }
-    }
-    
-    return result;
+    return [stateReceived.msidBase64UrlDecode isEqualToString:state];
 }
 
 - (NSString *)generateStateValue

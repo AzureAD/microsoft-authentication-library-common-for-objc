@@ -72,9 +72,8 @@
                                      error:(NSError **)error;
 
 - (NSString *)generateStateValue;
-- (BOOL)verifyState:(NSString *)state
-         parameters:(NSDictionary *)parameters
-            NSError:(NSError **)error;
+- (BOOL)verifyRequestState:(NSString *)state
+                parameters:(NSDictionary *)parameters;
 
 
 @end
