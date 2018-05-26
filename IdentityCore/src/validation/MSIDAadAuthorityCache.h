@@ -28,24 +28,13 @@
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorityCacheRecord.h"
 
-@interface MSIDAadAuthorityCacheRecord : MSIDAuthorityCacheRecord
-
-@property NSString *networkHost;
-@property NSString *cacheHost;
-@property NSArray<NSString *> *aliases;
-
-@end
-
-@interface MSIDAadAuthorityCache : NSObject
-{
-    NSMutableDictionary<NSString *, MSIDAadAuthorityCacheRecord *> *_recordMap;
-    pthread_rwlock_t _rwLock;
-}
+@interface MSIDAadAuthorityCache : NSCache
 
 + (MSIDAadAuthorityCache *)sharedInstance;
 
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
                           context:(id<MSIDRequestContext>)context;
+
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority
                         context:(id<MSIDRequestContext>)context;
 /*!
@@ -61,11 +50,9 @@
               authority:(NSURL *)authority
                 context:(id<MSIDRequestContext>)context
                   error:(NSError * __autoreleasing *)error;
+
 - (void)addInvalidRecord:(NSURL *)authority
               oauthError:(NSError *)oauthError
                  context:(id<MSIDRequestContext>)context;
-
-- (MSIDAadAuthorityCacheRecord *)tryCheckCache:(NSURL *)authority;
-- (MSIDAadAuthorityCacheRecord *)checkCache:(NSURL *)authority;
 
 @end

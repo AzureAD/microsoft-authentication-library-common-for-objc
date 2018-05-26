@@ -29,6 +29,7 @@
 #include <pthread.h>
 #import "MSIDError.h"
 #import "MSIDAuthority.h"
+#import "MSIDAadAuthorityCacheRecord.h"
 
 #define CHECK_CLASS_TYPE(_CHK, _CLS, _ERROR) \
     if (![_CHK isKindOfClass:[_CLS class]]) { \
@@ -38,29 +39,7 @@
         return NO; \
     }
 
-@implementation MSIDAadAuthorityCacheRecord
-
-@end
-
 @implementation MSIDAadAuthorityCache
-
-- (id)init
-{
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    _recordMap = [NSMutableDictionary new];
-    pthread_rwlock_init(&_rwLock, NULL);
-    
-    return self;
-}
-
-- (void)dealloc
-{
-    pthread_rwlock_destroy(&_rwLock);
-}
 
 + (MSIDAadAuthorityCache *)sharedInstance
 {
@@ -85,9 +64,7 @@
         CHECK_CLASS_TYPE(metadata, NSArray, @"JSON metadata from authority validation is not an array");
     }
     
-    [self getWriteLock];
     BOOL ret = [self processImpl:metadata authority:authority openIdConfigEndpoint:openIdConfigEndpoint context:context error:error];
-    pthread_rwlock_unlock(&_rwLock);
     
     return ret;
 }
@@ -176,7 +153,7 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
         __auto_type aliases = record.aliases;
         for (NSString *alias in aliases)
         {
-            _recordMap[alias] = record;
+            [self setObject:record forKey:alias];
         }
 
         MSID_LOG_INFO_PII(context, @"(%@, %@) : %@", record.networkHost, record.cacheHost, aliases);
@@ -184,14 +161,15 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
     
     // In case the authority we were looking for wasn't in the metadata
     NSString *authorityHost = authority.msidHostWithPortIfNecessary;
-    if (!_recordMap[authorityHost])
+    
+    if (![self objectForKey:authorityHost])
     {
         __auto_type record = [MSIDAadAuthorityCacheRecord new];
         record.validated = YES;
         record.cacheHost = authorityHost;
         record.networkHost = authorityHost;
         
-        _recordMap[authorityHost] = record;
+        [self setObject:record forKey:authorityHost];
     }
     
     return YES;
@@ -201,13 +179,11 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
               oauthError:(NSError *)oauthError
                  context:(id<MSIDRequestContext>)context
 {
-    [self getWriteLock];
     MSID_LOG_WARN(context, @"Caching Invalid AAD Instance");
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
-    _recordMap[authority.msidHostWithPortIfNecessary] = record;
-    pthread_rwlock_unlock(&_rwLock);
+    [self setObject:record forKey:authority.msidHostWithPortIfNecessary];
 }
 
 #pragma mark -
@@ -215,52 +191,7 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
 
 - (MSIDAadAuthorityCacheRecord *)checkCacheImpl:(NSURL *)authority
 {
-    __auto_type record = _recordMap[authority.msidHostWithPortIfNecessary];
-    pthread_rwlock_unlock(&_rwLock);
-    
-    return record;
-}
-
-- (MSIDAadAuthorityCacheRecord *)tryCheckCache:(NSURL *)authority
-{
-    if (pthread_rwlock_tryrdlock(&_rwLock) == 0)
-    {
-        return [self checkCacheImpl:authority];
-    }
-    
-    return nil;
-}
-
-- (MSIDAadAuthorityCacheRecord *)checkCache:(NSURL *)authority
-{
-    int status = pthread_rwlock_rdlock(&_rwLock);
-    // This should be an extremely rare condition, and typically only happens if something
-    // (a memory stomper bug) stomps on the rw lock. In that case we're in a really bad state anyways
-    // and should expect to fail soon.
-    if (status != 0)
-    {
-        MSID_LOG_ERROR(nil, @"Failed to grab authority cache read lock. Error code %d", status);
-        @throw [NSException exceptionWithName:@"ADALException"
-                                       reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
-                                     userInfo:nil];
-    }
-    
-    return [self checkCacheImpl:authority];
-}
-
-
-- (BOOL)getWriteLock
-{
-    int status = pthread_rwlock_wrlock(&_rwLock);
-    if (status != 0)
-    {
-        MSID_LOG_ERROR(nil, @"Failed to grab authority cache write lock. Error code %d", status);
-        @throw [NSException exceptionWithName:@"ADALException"
-                                       reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
-                                     userInfo:nil];
-    }
-    
-    return YES;
+    return [self objectForKey:authority.msidHostWithPortIfNecessary];
 }
 
 static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
@@ -357,7 +288,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 
 - (NSURL *)networkUrlForAuthorityImpl:(NSURL *)authority
 {
-    __auto_type record = [self checkCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.msidHostWithPortIfNecessary];
     if (!record)
     {
         return nil;
@@ -368,7 +299,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 
 - (NSURL *)cacheUrlForAuthorityImpl:(NSURL *)authority
 {
-    __auto_type record = [self checkCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.msidHostWithPortIfNecessary];
     if (!record)
     {
         return nil;
@@ -381,7 +312,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 {
     NSMutableArray<NSURL *> *authorities = [NSMutableArray new];
     
-    __auto_type record = [self checkCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.msidHostWithPortIfNecessary];
     if (!record)
     {
         [authorities addObject:authority];

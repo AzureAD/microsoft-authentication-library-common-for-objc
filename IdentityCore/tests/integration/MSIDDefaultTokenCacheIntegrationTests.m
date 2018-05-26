@@ -37,7 +37,6 @@
 #import "MSIDConfiguration.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDAadAuthorityCache+TestUtil.h"
 #import "MSIDAadAuthorityCache.h"
 
 @interface MSIDDefaultTokenCacheIntegrationTests : XCTestCase
@@ -63,7 +62,7 @@
 {
     [super tearDown];
     
-    [[MSIDAadAuthorityCache sharedInstance] clear];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
 }
 
 #pragma mark - Saving
