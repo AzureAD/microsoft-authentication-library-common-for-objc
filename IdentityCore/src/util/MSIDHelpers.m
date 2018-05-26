@@ -48,6 +48,11 @@
     return normalized.length ? normalized : nil;
 }
 
+//+ (NSString *)msidAddQueryParamToURLString:(NSString *)paramKey paramValue:(NSString *)paramValue url:(NSString *)urlString
+//{
+//    
+//}
+
 + (NSString *)msidAddClientVersionToURLString:(NSString *)urlString;
 {
     NSURL *url = [NSURL URLWithString:urlString];

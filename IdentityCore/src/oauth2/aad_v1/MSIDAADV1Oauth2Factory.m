@@ -257,7 +257,7 @@
     
     [queryParams addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     
-    NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@",
+    NSMutableString *startUrl = [NSMutableString stringWithFormat:@"%@?%@",
                                  [configuration.authority.absoluteString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX], [queryParams msidURLFormEncode]];
     
     // we expect extraQueryParameters to be URL form encoded

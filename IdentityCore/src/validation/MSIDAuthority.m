@@ -38,7 +38,8 @@ static NSSet<NSString *> *s_trustedHostList;
                          @"login-us.microsoftonline.com",
                          @"login.cloudgovapi.us",
                          @"login.microsoftonline.com",
-                         @"login.microsoftonline.de", nil];
+                         @"login.microsoftonline.de",
+                         @"login.microsoftonline.us", nil];
 }
 
 + (BOOL)isKnownHost:(NSURL *)url

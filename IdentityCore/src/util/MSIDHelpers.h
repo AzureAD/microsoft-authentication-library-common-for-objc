@@ -28,6 +28,7 @@
 /*! Returns integer value if the passed object can be converted to integer, 0 otherwise */
 + (NSInteger)msidIntegerValue:(id)value;
 + (NSString *)normalizeUserId:(NSString *)userId;
+//+ (NSString *)msidAddQueryParamToURLString:(NSDictionary *)params url:(NSString *)urlString;
 + (NSString *)msidAddClientVersionToURLString:(NSString *)urlString;
 
 @end
