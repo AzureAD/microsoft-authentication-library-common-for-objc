@@ -41,10 +41,8 @@
     else
     {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.successAfterInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithParameters:@{ MSID_OAUTH2_CODE : @"authCode" }
-                                                                                        context:nil
-                                                                                          error:nil];
-            completionHandler(response, nil);
+            
+            completionHandler([NSURL URLWithString:@"https://contoso.microsoft.com?code=SOMECODE&cloud_instance_host_name=SOME_HOST_NAME"], nil);
         });
     }
     
@@ -56,10 +54,11 @@
     
 }
 
+
 - (BOOL)isKindOfClass:(Class)aClass
 {
 #if TARGET_OS_IPHONE
-    if (self.actSystemWebviewController)
+    if (self.actAsSafariViewController)
     {
         return (aClass == MSIDSystemWebviewController.class);
     }
@@ -69,29 +68,8 @@
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
 {
-    return self.actSystemWebviewController;
+    return self.actAsSafariViewController;
 }
 
 @end
-
-
-
-/*
- typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
- typedef BOOL (^MSIDWebUIStateVerifier)(NSDictionary *dictionary, NSString *requestState);
- 
- @protocol MSIDWebviewInteracting
- 
- - (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
- - (void)cancel;
- 
- @optional
- #if TARGET_OS_IPHONE
- @property UIViewController *parentViewController;
- #endif
- 
- @property MSIDWebUIStateVerifier stateVerifier;
- @property NSString *requestState;
-
- */
 

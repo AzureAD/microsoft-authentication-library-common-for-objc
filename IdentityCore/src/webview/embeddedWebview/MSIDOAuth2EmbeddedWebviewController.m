@@ -39,9 +39,8 @@
 
 @implementation MSIDOAuth2EmbeddedWebviewController
 {
-    NSURL *_startUrl;
     NSURL *_endUrl;
-    void (^_completionHandler)(MSIDWebOAuth2Response *response, NSError *error);
+    MSIDWebUICompletionHandler _completionHandler;
     
     NSLock *_completionLock;
     NSTimer *_spinnerTimer; // Used for managing the activity spinner
@@ -58,7 +57,7 @@
     if (self)
     {
         self.webView = webview;
-        _startUrl = startUrl;
+        _startURL = startUrl;
         _endUrl = endUrl;
         
         _completionLock = [[NSLock alloc] init];
@@ -102,7 +101,7 @@
         return YES;
     }
     
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_startUrl];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
 #if TARGET_OS_IPHONE
     // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
     // It swallows the challenge response rather than sending it to server.
@@ -156,22 +155,11 @@
     
     if ( _completionHandler )
     {
-        void (^completionHandler)(MSIDWebOAuth2Response *response, NSError *error) = _completionHandler;
+        MSIDWebUICompletionHandler completionHandler = _completionHandler;
         _completionHandler = nil;
         
-        MSIDWebOAuth2Response *response = nil;
-        NSError *systemError = error;
-        if (!systemError)
-        {
-            response = [MSIDWebviewAuthorization responseWithURL:url
-                                                    requestState:self.requestState
-                                                   stateVerifier:self.stateVerifier
-                                                         context:self.context
-                                                           error:&systemError];
-        }
-        
         dispatch_async( dispatch_get_main_queue(), ^{
-            completionHandler(response, error);
+            completionHandler(url, error);
         });
     }
     

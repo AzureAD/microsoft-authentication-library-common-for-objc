@@ -30,24 +30,9 @@
 @implementation MSIDWebAADAuthResponse
 
 - (instancetype)initWithParameters:(NSDictionary *)parameters
-                      requestState:(NSString *)requestState
-                     stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                            context:(id<MSIDRequestContext>)context
                              error:(NSError **)error
 {
-    // Verify state
-    if (stateVerifier && requestState)
-    {
-        BOOL stateVerified = stateVerifier(parameters, requestState);
-        if (!stateVerified)
-        {
-            if (error){
-                *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, context.correlationId, nil);
-            }
-            return nil;
-        }
-    }
-    
     self = [super initWithParameters:parameters context:context error:error];
     if (self)
     {

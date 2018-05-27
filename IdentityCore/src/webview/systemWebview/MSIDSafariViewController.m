@@ -54,8 +54,6 @@
 }
 
 - (instancetype)initWithURL:(NSURL *)url
-               requestState:(NSString *)requestState
-              stateVerifier:(MSIDWebUIStateVerifier)stateVerifier
                     context:(id<MSIDRequestContext>)context
 {
     self = [super init];
@@ -63,8 +61,6 @@
     {
         _startURL = url;
         _context = context;
-        _requestState = requestState;
-        _stateVerifier = stateVerifier;
         
         _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
         _safariViewController.delegate = self;
@@ -119,27 +115,20 @@
                               error:(NSError *)error
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_safariViewController dismissViewControllerAnimated:YES completion:nil];
+        [_safariViewController dismissViewControllerAnimated:YES completion:^{
+            _safariViewController = nil;
+        }];
     });
     
-    _safariViewController = nil;
-
+    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
+    
     if (error)
     {
         _completionHandler(nil, error);
         return NO;
     }
     
-    NSError *authError = nil;
-    MSIDWebOAuth2Response *response = [MSIDWebviewAuthorization responseWithURL:url
-                                                                   requestState:self.requestState
-                                                                  stateVerifier:self.stateVerifier
-                                                                        context:_context
-                                                                          error:&authError];
-    
-    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
-    
-    _completionHandler(response, authError);
+    _completionHandler(url, nil);
     return YES;
 }
 

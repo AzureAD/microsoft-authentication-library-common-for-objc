@@ -41,6 +41,9 @@
 
 #import "MSIDOauth2Factory+Internal.h"
 
+#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebAADAuthResponse.h"
+
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -185,96 +188,62 @@
     return YES;
 }
 
-#pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                     customWebview:(WKWebView *)webview
-                                                           context:(id<MSIDRequestContext>)context
-{
-    // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
-
-    
-    return nil;
-}
-
-
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                               callbackURLScheme:(NSString *)callbackURLScheme
-                                                         context:(id<MSIDRequestContext>)context
-{
-#if TARGET_OS_IPHONE
-    // TODO: get authorization endpoint from authority validation cache.
-    NSURL *startURL = [self startURLFromConfiguration:configuration];
-    MSIDSystemWebviewController *webviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
-                                                                                         callbackURLScheme:callbackURLScheme
-                                                                                                   context:context];
-    webviewController.requestState = configuration.requestState;
-    webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
-        return [requestState isEqualToString:dictionary[MSID_OAUTH2_STATE]];
-    };
-    return webviewController;
-#else
-    return nil;
-#endif
-}
-
+#pragma mark - Webview
 - (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
+                                                                             requestState:(NSString *)state
 {
-    NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
-    if (configuration.extraQueryParameters)
-    {
-        [parameters addEntriesFromDictionary:configuration.extraQueryParameters];
-    }
+    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
+                                                                                                 requestState:state];
     
     NSOrderedSet<NSString *> *allScopes = configuration.scopes;
-    parameters[MSID_OAUTH2_CLIENT_ID] = configuration.clientId;
     parameters[MSID_OAUTH2_SCOPE] = [allScopes msidToString];
-    parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
-    parameters[MSID_OAUTH2_REDIRECT_URI] = configuration.redirectUri;
-    parameters[MSID_OAUTH2_CORRELATION_ID_REQUEST] = [configuration.correlationId UUIDString];
-    parameters[MSID_OAUTH2_LOGIN_HINT] = configuration.loginHint;
-    
-    // PKCE
-    parameters[MSID_OAUTH2_CODE_CHALLENGE] = configuration.pkce.codeChallenge;
-    parameters[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = configuration.pkce.codeChallengeMethod;
-    
-    NSDictionary *msalId = [MSIDDeviceId deviceId];
-    [parameters addEntriesFromDictionary:msalId];
-    
     parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
+    parameters[@"haschrome"] = @"1";
     
     return parameters;
 }
 
-- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration
+#pragma mark - Webview response parsing
+- (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
+                              requestState:(NSString *)requestState
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
 {
-    if (configuration.explicitStartURL)
+    // Check for auth response
+    // Try both the URL and the fragment parameters:
+    NSDictionary *parameters = [url msidFragmentParameters];
+    if (parameters.count == 0)
     {
-        return configuration.explicitStartURL;
+        parameters = [url msidQueryParameters];
     }
     
-    NSURLComponents *urlComponents = [NSURLComponents new];
-    urlComponents.scheme = @"https";
-    
-    // get this from cache: authorizationendpoint if possible
-    urlComponents.host = configuration.authority.host;
-    urlComponents.path = [configuration.authority.path stringByAppendingString:MSID_OAUTH2_V2_AUTHORIZE_SUFFIX];
-
-    NSMutableDictionary <NSString *, NSString *> *parameters = [self authorizationParametersFromConfiguration:configuration];
-    
-    if (configuration.sliceParameters)
+    // check state
+    if (![self verifyRequestState:requestState parameters:parameters])
     {
-        [parameters addEntriesFromDictionary:configuration.sliceParameters];
+        if (error) {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, nil, nil);
+        }
+        return nil;
     }
+    
+    MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithScheme:url.scheme
+                                                                                    host:url.host
+                                                                              parameters:parameters
+                                                                                 context:context
+                                                                                   error:nil];
+    
+    if (wpjResponse) return wpjResponse;
 
-    [parameters msidSetObjectIfNotNil:configuration.uid forKey:MSID_OAUTH2_LOGIN_REQ];
-    [parameters msidSetObjectIfNotNil:configuration.utid forKey:MSID_OAUTH2_DOMAIN_REQ];
+    NSError *responseCreationError = nil;
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithParameters:parameters
+                                                                                  context:context
+                                                                                    error:&responseCreationError];
+    if (responseCreationError) {
+        if (error)  *error = responseCreationError;
+        return nil;
+    }
     
-    parameters[MSID_OAUTH2_STATE] = configuration.requestState;
-    
-    urlComponents.queryItems = [parameters urlQueryItemsArray];
-    urlComponents.percentEncodedQuery = [parameters msidURLFormEncode];
-    
-    return urlComponents.URL;
+    return response;
 }
 
 @end

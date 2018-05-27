@@ -30,13 +30,6 @@
 
 @implementation MSIDWebAADAuthResponseTests
 
-MSIDWebUIStateVerifier stateVerifierNO = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
-    return NO;
-};
-MSIDWebUIStateVerifier stateVerifierYES = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
-    return YES;
-};
-
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -48,16 +41,14 @@ MSIDWebUIStateVerifier stateVerifierYES = ^BOOL(NSDictionary *dictionary, NSStri
 }
 
 
-- (void)testInit_whenStateVerifierSucceedsWithValidParams_shouldReturnResponse
+- (void)testInit_whenAllValuesExist_shouldContainResponseWithAllValues
 {
     NSError *error;
     MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithParameters:@{
                                                                                             MSID_OAUTH2_CODE : @"code",
-                                                                                            MSID_OAUTH2_STATE : @"state",
                                                                                             MSID_AUTH_CLOUD_INSTANCE_HOST_NAME : @"cloudHost"
                                                                                             }
-                                                                             requestState:@"state"
-                                                                            stateVerifier:stateVerifierYES context:nil error:&error];
+                                                                                  context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
@@ -66,39 +57,18 @@ MSIDWebUIStateVerifier stateVerifierYES = ^BOOL(NSDictionary *dictionary, NSStri
 }
 
 
-- (void)testInit_whenStateVerifierFailsWithValidParams_shouldReturnNilWithError
+- (void)testInit_whenNoCloudHostInstanceNameExist_shouldNotContainCloudInstanceHostName
 {
     NSError *error;
     MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithParameters:@{
                                                                                             MSID_OAUTH2_CODE : @"code",
-                                                                                            MSID_OAUTH2_STATE : @"state",
-                                                                                            MSID_AUTH_CLOUD_INSTANCE_HOST_NAME : @"cloudHost"
                                                                                             }
-                                                                             requestState:@"state"
-                                                                            stateVerifier:stateVerifierNO context:nil error:&error];
-    XCTAssertNil(response);
-    XCTAssertNotNil(error);
-    
-    XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorInvalidState);
-}
-
-
-- (void)testInit_whenNoStateVerifierWithValidParams_shouldReturnResponse
-{
-    NSError *error;
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithParameters:@{
-                                                                                            MSID_OAUTH2_CODE : @"code",
-                                                                                            MSID_OAUTH2_STATE : @"state",
-                                                                                            MSID_AUTH_CLOUD_INSTANCE_HOST_NAME : @"cloudHost"
-                                                                                            }
-                                                                             requestState:nil
-                                                                            stateVerifier:nil context:nil error:&error];
+                                                                                  context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
     XCTAssertEqualObjects(response.authorizationCode, @"code");
-    XCTAssertEqualObjects(response.cloudHostName, @"cloudHost");
+    XCTAssertNil(response.cloudHostName);
 }
 
 

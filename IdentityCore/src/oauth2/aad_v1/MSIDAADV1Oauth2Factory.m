@@ -37,6 +37,9 @@
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
 
+#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebAADAuthResponse.h"
+
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -193,94 +196,18 @@
     return YES;
 }
 
-#pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                     customWebview:(WKWebView *)webview
-                                                           context:(id<MSIDRequestContext>)context
+#pragma mark - Webview
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
+                                                                             requestState:(NSString *)state
 {
-    NSURL *startURL = [self startURLFromConfiguration:configuration];
-    MSIDAADOAuthEmbeddedWebviewController *webviewController =
-    [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartUrl:startURL
-                                                             endURL:[NSURL URLWithString:[configuration redirectUri]]
-                                                            webview:webview
-                                                      configuration:configuration
-                                                            context:context];
+    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
+                                                                                                 requestState:state];
     
-    webviewController.stateVerifier = ^BOOL(NSDictionary *dictionary, NSString *requestState) {
-        //Just log the state
-        NSDictionary *state = [NSDictionary msidURLFormDecode:[[dictionary objectForKey:MSID_OAUTH2_STATE] msidBase64UrlDecode]];
-        if (state.count != 0)
-        {
-            NSString *authorizationServer = [state objectForKey:@"a"];
-            NSString *resource            = [state objectForKey:@"r"];
-            
-            if (![NSString msidIsStringNilOrBlank:authorizationServer] && ![NSString msidIsStringNilOrBlank:resource])
-            {
-                MSID_LOG_VERBOSE_PII(context, @"The authorization server returned the following state: %@", state);
-            }
-        }
-        MSID_LOG_WARN(context, @"Missing or invalid state returned");
-        MSID_LOG_WARN_PII(context, @"Missing or invalid state returned state: %@", state);
-        
-        return YES;
-    };
+    parameters[MSID_OAUTH2_RESOURCE] = configuration.resource;
+    parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
+    parameters[@"haschrome"] = @"1";
     
-    return webviewController;
-}
-
-
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                               callbackURLScheme:(NSString *)callbackURLScheme
-                                                         context:(id<MSIDRequestContext>)context
-                                               completionHandler:(MSIDWebUICompletionHandler)completionHandler
-{
-    // Create MSIDSystemWebviewRequest and create SystemWebviewController
-    return nil;
-}
-
-- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration
-{
-    NSString* state = [self encodeProtocolState:configuration];
-    
-    // if value is nil, it won't appear in the dictionary
-    NSMutableDictionary *queryParams = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                        MSID_OAUTH2_CODE, MSID_OAUTH2_RESPONSE_TYPE,
-                                        [configuration clientId], MSID_OAUTH2_CLIENT_ID,
-                                        [configuration resource], MSID_OAUTH2_RESOURCE,
-                                        [configuration redirectUri], MSID_OAUTH2_REDIRECT_URI,
-                                        state, MSID_OAUTH2_STATE,
-                                        configuration.promptBehavior, @"prompt",
-                                        @"1", @"haschrome", //to hide back button in UI
-                                        [NSString msidIsStringNilOrBlank:configuration.loginHint] ? nil : configuration.loginHint, MSID_OAUTH2_LOGIN_HINT,
-                                        [configuration.correlationId UUIDString], MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE,
-                                        nil];
-    
-    [queryParams addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-    
-    NSMutableString *startUrl = [NSMutableString stringWithFormat:@"%@?%@",
-                                 [configuration.authority.absoluteString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX], [queryParams msidURLFormEncode]];
-    
-    // we expect extraQueryParameters to be URL form encoded
-    if (![NSString msidIsStringNilOrBlank:configuration.extraQueryParametersString])
-    {
-        //Add the '&' for the additional params if not there already:
-        if ([configuration.extraQueryParametersString hasPrefix:@"&"])
-        {
-            [startUrl appendString:configuration.extraQueryParametersString.msidTrimmedString];
-        }
-        else
-        {
-            [startUrl appendFormat:@"&%@", configuration.extraQueryParametersString.msidTrimmedString];
-        }
-    }
-    
-    // we expect claims to be URL form encoded
-    if (![NSString msidIsStringNilOrBlank:configuration.claims])
-    {
-        [startUrl appendFormat:@"&claims=%@", configuration.claims];
-    }
-    
-    return [NSURL URLWithString:startUrl];
+    return parameters;
 }
 
 // Encodes the state parameter for a protocol message
@@ -288,6 +215,65 @@
 {
     return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[configuration authority], @"a", [configuration resource], @"r", nil]
              msidURLFormEncode] msidBase64UrlEncode];
+}
+
+#pragma mark - Webview response parsing
+- (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
+                              requestState:(NSString *)requestState
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
+{
+    // Check for auth response
+    // Try both the URL and the fragment parameters:
+    NSDictionary *parameters = [url msidFragmentParameters];
+    if (parameters.count == 0)
+    {
+        parameters = [url msidQueryParameters];
+    }
+    
+    // check state
+    if (![self verifyRequestState:requestState parameters:parameters])
+    {
+        if (error) {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, nil, nil);
+        }
+        return nil;
+    }
+    
+    MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithScheme:url.scheme
+                                                                                    host:url.host
+                                                                              parameters:parameters
+                                                                                 context:context
+                                                                                   error:nil];
+    
+    if (wpjResponse) return wpjResponse;
+    
+    NSError *responseCreationError = nil;
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithParameters:parameters
+                                                                                  context:context
+                                                                                    error:&responseCreationError];
+    if (responseCreationError) {
+        if (error)  *error = responseCreationError;
+        return nil;
+    }
+    
+    return response;
+}
+
+- (BOOL)verifyRequestState:(NSString *)state
+                parameters:(NSDictionary *)parameters
+{
+    if (!state) return YES;
+    
+    //Just log the state
+    NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
+    if (![stateReceived.msidBase64UrlDecode isEqualToString:state])
+    {
+        MSID_LOG_WARN(nil, @"Missing or invalid state returned");
+        MSID_LOG_WARN_PII(nil, @"Missing or invalid state returned state: %@", state);
+    }
+    
+    return YES;
 }
 
 @end

@@ -29,17 +29,14 @@
 
 @class MSIDWebOAuth2Response;
 
-typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
-typedef BOOL (^MSIDWebUIStateVerifier)(NSDictionary *dictionary, NSString *requestState);
+typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
 
 @protocol MSIDWebviewInteracting
 
 - (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
 - (void)cancel;
 
-@optional
-@property MSIDWebUIStateVerifier stateVerifier;
-@property NSString *requestState;
+- (NSURL *)startURL;
 
 @end
 

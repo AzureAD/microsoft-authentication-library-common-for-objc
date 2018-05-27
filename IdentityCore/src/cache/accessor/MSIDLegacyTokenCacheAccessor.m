@@ -213,7 +213,7 @@
     NSArray<NSString *> *environmentAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:environment];
 
     BOOL (^filterBlock)(MSIDCredentialCacheItem *tokenCacheItem) = ^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
-        if (![tokenCacheItem.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+        if ([environmentAliases count] && ![tokenCacheItem.environment msidIsEquivalentWithAnyAlias:environmentAliases])
         {
             return NO;
         }
@@ -326,6 +326,32 @@
                     error:(NSError **)error
 {
     return [self removeToken:token userId:token.legacyUserId context:context error:error];
+}
+
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error
+{
+    if (!account.legacyAccountId)
+    {
+        [self fillInternalErrorWithMessage:@"Can't clear cache without user id" context:context error:error];
+        return NO;
+    }
+
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Clearing cache with account");
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Clearing cache with account %@", account.legacyAccountId);
+
+    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+
+    MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
+    query.legacyUserId = account.legacyAccountId;
+
+    BOOL result = [_dataSource removeItemsWithKey:query context:context error:error];
+
+    [_dataSource saveWipeInfoWithContext:context error:nil];
+
+    [self stopTelemetryEvent:event withItem:nil success:result context:context];
+    return result;
 }
 
 #pragma mark - Input validation

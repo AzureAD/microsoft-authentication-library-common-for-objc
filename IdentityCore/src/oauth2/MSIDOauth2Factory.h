@@ -61,16 +61,19 @@
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
-// Webviews
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                           customWebview:(WKWebView *)webview
-                                                                 context:(id<MSIDRequestContext>)context;
+// Webview related
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state;
+- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state;
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                     callbackURLScheme:(NSString *)callbackURLScheme
-                                                               context:(id<MSIDRequestContext>)context;
+// If this different per authorization setup (i.e./ v1 vs v2), implement it in subclasses.
+- (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
+                              requestState:(NSString *)requestState
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
 
-- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration;
+- (NSString *)generateStateValue;
+- (BOOL)verifyRequestState:(NSString *)state
+                parameters:(NSDictionary *)parameters;
 
 @end
 

@@ -29,6 +29,7 @@
 #import "MSIDSFAuthenticationSession.h"
 #import "MSIDSafariViewController.h"
 #import "MSIDWebviewAuthorization.h"
+#import "MSIDOauth2Factory.h"
 
 @implementation MSIDSystemWebviewController
 {
@@ -36,7 +37,8 @@
 
     MSIDSFAuthenticationSession *_authSession;
     MSIDSafariViewController *_safariViewController;
-
+    
+    MSIDOauth2Factory *_factory;
 }
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
@@ -67,8 +69,6 @@
     {
         _authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:self.startURL
                                                       callbackURLScheme:self.callbackURLScheme
-                                                           requestState:self.requestState
-                                                          stateVerifier:self.stateVerifier
                                                                 context:_context];
 
         
@@ -82,8 +82,6 @@
     }
 
     _safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
-                                                             requestState:self.requestState
-                                                            stateVerifier:self.stateVerifier
                                                                   context:_context];
 
     if (!_safariViewController)

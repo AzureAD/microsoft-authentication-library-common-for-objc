@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,24 +17,29 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
+#import "MSIDWebviewSession.h"
 
-@interface MSIDTestWebviewInteractingViewController : NSObject<MSIDWebviewInteracting>
+@implementation MSIDWebviewSession
 
-// Time after which the start call will return a successful response.
-// If set to zero, will indicate unsuccessful response.
-@property NSTimeInterval successAfterInterval;
-
-// BOOL to indicate whether or not this class will act as MSIDSafariViewController
-@property BOOL actAsSafariViewController;
-
-@property NSURL *startURL;
+- (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
+                                  factory:(MSIDOauth2Factory *)factory
+                             requestState:(NSString *)state
+{
+    self = [super init];
+    if (self) {
+        _webviewController = webviewController;
+        _factory = factory;
+        _requestState = state;
+    }
+    return self;
+}
 
 @end

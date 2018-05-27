@@ -74,7 +74,7 @@
                  completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
                  
                  NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user has cancelled the NTLM prompt.", nil, nil, nil, context.correlationId, nil);
-                 [webview.navigationDelegate webView:webview didFailProvisionalNavigation:nil withError:error];
+                 [webview.navigationDelegate webView:webview didFailNavigation:nil withError:error];
              }
          }];
     }//@synchronized

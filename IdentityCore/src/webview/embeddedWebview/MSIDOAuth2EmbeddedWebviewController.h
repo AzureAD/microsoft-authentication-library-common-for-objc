@@ -34,9 +34,6 @@
 @interface MSIDOAuth2EmbeddedWebviewController :
 MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 
-@property MSIDWebUIStateVerifier stateVerifier;
-@property NSString *requestState;
-
 - (id)init NS_UNAVAILABLE;
 - (id)initWithStartUrl:(NSURL *)startUrl
                 endURL:(NSURL *)endUrl
@@ -50,5 +47,7 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
+
+@property (readonly) NSURL *startURL;
 
 @end

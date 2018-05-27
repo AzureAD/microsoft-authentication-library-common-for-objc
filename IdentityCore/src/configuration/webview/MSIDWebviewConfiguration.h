@@ -34,13 +34,14 @@
 @interface MSIDWebviewConfiguration : MSIDConfiguration
 
 // Common
+@property (readwrite) NSURL *authorizationEndpoint;
+
 @property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
 @property (readwrite) NSString *extraQueryParametersString;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
 
 // Is this only for V2?
-@property (readwrite) NSString *requestState;
 @property (readwrite) MSIDPkce *pkce;
 
 // User information
@@ -54,5 +55,15 @@
 @property (weak) UIViewController *parentController;
 @property (readwrite)UIModalPresentationStyle presentationType;
 #endif
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+            authorizationEndpoint:(NSURL *)authorizationEndpoint
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target
+                    correlationId:(NSUUID *)correlationId;
+
+- (instancetype)initWithAuthority:(NSURL *)authority redirectUri:(NSString *)redirectUri clientId:(NSString *)clientId target:(NSString *)target correlationId:(NSUUID *)correlationId NS_UNAVAILABLE;
+- (instancetype)initWithAuthority:(NSURL *)authority redirectUri:(NSString *)redirectUri clientId:(NSString *)clientId target:(NSString *)target NS_UNAVAILABLE;
 
 @end
