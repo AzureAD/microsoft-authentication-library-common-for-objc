@@ -145,17 +145,21 @@ static dispatch_queue_t s_aadValidationQueue;
              return;
          }
          
-         if (![self.aadCache processMetadata:response.metadata
-                        openIdConfigEndpoint:response.openIdConfigurationEndpoint
-                                   authority:authority
-                                     context:context
-                                       error:&error])
+         [self.aadCache processMetadata:response.metadata
+                   openIdConfigEndpoint:response.openIdConfigurationEndpoint
+                              authority:authority
+                                context:context
+                             completion:^(BOOL result, NSError *error)
          {
-             completionBlock(nil, NO, error);
-             return;
-         }
-         
-         completionBlock(response.openIdConfigurationEndpoint, YES, nil);
+             if (result)
+             {
+                 completionBlock(response.openIdConfigurationEndpoint, YES, nil);
+             }
+             else
+             {
+                 completionBlock(nil, NO, error);
+             }
+         }];
      }];
 }
 

@@ -53,20 +53,19 @@
     return singleton;
 }
 
-- (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
+- (void)processMetadata:(NSArray<NSDictionary *> *)metadata
    openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
               authority:(NSURL *)authority
                 context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+             completion:(void (^)(BOOL result, NSError *error))completion
 {
-    if (metadata != nil)
-    {
-        CHECK_CLASS_TYPE(metadata, NSArray, @"JSON metadata from authority validation is not an array");
-    }
-    
-    BOOL ret = [self processImpl:metadata authority:authority openIdConfigEndpoint:openIdConfigEndpoint context:context error:error];
-    
-    return ret;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSError *error;
+        BOOL result = [self processImpl:metadata authority:authority openIdConfigEndpoint:openIdConfigEndpoint context:context error:&error];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(result, error);
+        });
+    });
 }
 
 static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id<MSIDRequestContext> context, NSError * __autoreleasing *error)
@@ -108,6 +107,11 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
             context:(id<MSIDRequestContext>)context
               error:(NSError * __autoreleasing *)error
 {
+    if (metadata != nil)
+    {
+        CHECK_CLASS_TYPE(metadata, NSArray, @"JSON metadata from authority validation is not an array");
+    }
+    
     if (metadata.count == 0)
     {
         MSID_LOG_INFO(context, @"No metadata returned from authority validation");

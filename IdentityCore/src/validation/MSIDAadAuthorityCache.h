@@ -45,11 +45,11 @@
  */
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
 
-- (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
+- (void)processMetadata:(NSArray<NSDictionary *> *)metadata
    openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
               authority:(NSURL *)authority
                 context:(id<MSIDRequestContext>)context
-                  error:(NSError * __autoreleasing *)error;
+             completion:(void (^)(BOOL result, NSError *error))completion;
 
 - (void)addInvalidRecord:(NSURL *)authority
               oauthError:(NSError *)oauthError
