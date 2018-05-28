@@ -26,7 +26,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDOAuth2Constants.h"

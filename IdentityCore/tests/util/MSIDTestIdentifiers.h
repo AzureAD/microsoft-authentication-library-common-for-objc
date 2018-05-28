@@ -25,6 +25,7 @@
 #define DEFAULT_TEST_UTID @"1234-5678-90abcdefg"
 #define DEFAULT_TEST_RESOURCE @"https://graph.microsoft.com/"
 #define DEFAULT_TEST_AUTHORITY @"https://login.microsoftonline.com/common"
+#define DEFAULT_TEST_AUTHORIZATION_ENDPOINT @"https://login.microsoftonline.com/common/common/oauth2/authorize"
 #define DEFAULT_TEST_ENVIRONMENT @"login.microsoftonline.com"
 #define DEFAULT_TEST_CLIENT_ID @"test_client_id"
 #define DEFAULT_TEST_SCOPE @"https://graph.microsoft.com/mail.read"
@@ -36,3 +37,6 @@
 #define DEFAULT_TEST_ID_TOKEN @"id_token"
 #define DEFAULT_TEST_FAMILY_ID @"family"
 #define DEFAULT_TEST_ID_TOKEN_SUBJECT @"sub"
+#define DEFAULT_TEST_REDIRECT_SCHEME   @"msid"DEFAULT_TEST_CLIENT_ID
+#define DEFAULT_TEST_REDIRECT_URI      DEFAULT_TEST_REDIRECT_SCHEME"://auth"
+#define DEFAULT_TEST_SLICE_PARAMS_DICT  @{ @"slice" : @"myslice" }

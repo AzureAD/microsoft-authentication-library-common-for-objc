@@ -37,7 +37,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDTestTokenResponse.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
 

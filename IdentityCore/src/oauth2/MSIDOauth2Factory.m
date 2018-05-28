@@ -365,6 +365,7 @@
         [parameters addEntriesFromDictionary:configuration.extraQueryParameters];
     }
     
+    parameters[MSID_OAUTH2_SCOPE] = MSID_OAUTH2_SCOPE_OPENID_VALUE;
     parameters[MSID_OAUTH2_CLIENT_ID] = configuration.clientId;
     parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
     parameters[MSID_OAUTH2_REDIRECT_URI] = configuration.redirectUri;
