@@ -25,4 +25,74 @@
 
 @implementation MSIDURLSessionDelegate
 
+#pragma mark - NSURLSessionDelegate
+
+- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
+ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential))completionHandler
+{
+    NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
+    
+    MSID_LOG_VERBOSE(nil, @"%@ - %@. Previous challenge failure count: %ld", @"session:didReceiveChallenge:completionHandler", authMethod, (long)challenge.previousFailureCount);
+    
+    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+    __block NSURLCredential *credential = nil;
+    
+    if (self.sessionDidReceiveAuthenticationChallengeBlock)
+    {
+        disposition = self.sessionDidReceiveAuthenticationChallengeBlock(session, challenge, &credential);
+    }
+    
+    if (completionHandler)
+    {
+        completionHandler(disposition, credential);
+    }
+}
+
+#pragma mark - NSURLSessionTaskDelegate
+
+- (void)URLSession:(NSURLSession *)session
+              task:(NSURLSessionTask *)task
+didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
+ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
+{
+    NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
+    
+    MSID_LOG_VERBOSE(nil, @"%@ - %@. Previous challenge failure count: %ld", @"session:task:didReceiveChallenge:completionHandler", authMethod, (long)challenge.previousFailureCount);
+    
+    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+    __block NSURLCredential *credential = nil;
+    
+    if (self.taskDidReceiveAuthenticationChallengeBlock)
+    {
+        disposition = self.taskDidReceiveAuthenticationChallengeBlock(session, task, challenge, &credential);
+    }
+    
+    if (completionHandler)
+    {
+        completionHandler(disposition, credential);
+    }
+}
+
+- (void)URLSession:(NSURLSession *)session
+              task:(NSURLSessionTask *)task
+willPerformHTTPRedirection:(NSHTTPURLResponse *)response
+        newRequest:(NSURLRequest *)request
+ completionHandler:(void (^)(NSURLRequest *))completionHandler
+{
+    MSID_LOG_INFO(nil, @"Redirecting to %@", _PII_NULLIFY(request.URL.absoluteString));
+    MSID_LOG_INFO_PII(nil, @"Redirecting to %@", request.URL.absoluteString);
+    
+    NSURLRequest *redirectRequest = request;
+    
+    if (self.taskWillPerformHTTPRedirectionBlock)
+    {
+        redirectRequest = self.taskWillPerformHTTPRedirectionBlock(session, task, response, request);
+    }
+    
+    if (completionHandler)
+    {
+        completionHandler(redirectRequest);
+    }
+}
+
 @end

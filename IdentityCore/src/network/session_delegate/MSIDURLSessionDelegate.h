@@ -23,6 +23,16 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDURLSessionDelegate : NSObject <NSURLSessionDelegate>
+typedef NSURLSessionAuthChallengeDisposition (^MSIDURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
+
+typedef NSURLRequest *(^MSIDURLSessionTaskWillPerformHTTPRedirectionBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLResponse *response, NSURLRequest *request);
+
+typedef NSURLSessionAuthChallengeDisposition (^MSIDURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
+
+@interface MSIDURLSessionDelegate : NSObject <NSURLSessionDelegate, NSURLSessionTaskDelegate>
+
+@property (nonatomic, copy) MSIDURLSessionDidReceiveAuthenticationChallengeBlock sessionDidReceiveAuthenticationChallengeBlock;
+@property (nonatomic, copy) MSIDURLSessionTaskDidReceiveAuthenticationChallengeBlock taskDidReceiveAuthenticationChallengeBlock;
+@property (nonatomic, copy) MSIDURLSessionTaskWillPerformHTTPRedirectionBlock taskWillPerformHTTPRedirectionBlock;
 
 @end
