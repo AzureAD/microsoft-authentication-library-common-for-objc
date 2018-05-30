@@ -29,7 +29,7 @@
 {
     if (self.legacyUserId)
     {
-        return [self adalAccountWithUserId:self.legacyUserId].stringByRemovingPadding;
+        return [self adalAccountWithUserId:self.legacyUserId];
     }
 
     return nil;
@@ -40,7 +40,7 @@
     if (self.authority
         && self.clientId)
     {
-        return [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId].stringByRemovingPadding;
+        return [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
     }
 
     return nil;
