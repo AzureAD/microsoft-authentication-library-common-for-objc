@@ -40,7 +40,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
 - (NSString *)getAttributeName:(NSString *)attribute
 {
-    return ([NSString msidIsStringNilOrBlank:attribute]) ? s_nilKey : [attribute msidBase64UrlEncode];
+    return ([NSString msidIsStringNilOrBlank:attribute]) ? s_nilKey : [attribute msidBase64UrlEncode].stringByRemovingPadding;
 }
 
 - (NSString *)serviceWithAuthority:(NSURL *)authority
@@ -56,9 +56,9 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
     return [NSString stringWithFormat:s_adalServiceFormat,
             s_adalLibraryString,
-            authorityString.msidBase64UrlEncode,
+            authorityString.msidBase64UrlEncode.stringByRemovingPadding,
             [self getAttributeName:resource],
-            clientId.msidBase64UrlEncode];
+            clientId.msidBase64UrlEncode.stringByRemovingPadding];
 }
 
 - (instancetype)initWithAccount:(NSString *)account
@@ -96,12 +96,12 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
 - (NSString *)account
 {
-    return _account ? _account : [self adalAccountWithUserId:self.legacyUserId];
+    return _account ? _account : [self adalAccountWithUserId:self.legacyUserId].stringByRemovingPadding;
 }
 
 - (NSString *)service
 {
-    return _service ? _service : [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+    return _service ? _service : [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId].stringByRemovingPadding;
 }
 
 - (NSData *)generic
@@ -256,5 +256,11 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
         }
     }
 }
+
+- (NSString *)removePaddingFromDecodedString:(NSString *)paddedString
+{
+    return [paddedString stringByReplacingOccurrencesOfString:@"=" withString:@""];
+}
+
 
 @end

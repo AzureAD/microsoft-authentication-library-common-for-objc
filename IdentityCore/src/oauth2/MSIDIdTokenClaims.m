@@ -63,6 +63,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     }
     
     NSData *decoded =  [[parts[1] msidBase64UrlDecode] dataUsingEncoding:NSUTF8StringEncoding];
+    
     NSError *error = nil;
     if (!(self = [super initWithJSONData:decoded error:&error]))
     {

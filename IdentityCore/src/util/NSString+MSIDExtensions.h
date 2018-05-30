@@ -43,7 +43,7 @@
 - (NSString *)msidUrlFormEncode;
 
 /*! Converts base64 String to NSData */
-+ (NSData *)msidBase64UrlDecodeData:(NSString *)encodedString;
+//+ (NSData *)msidBase64UrlDecodeData:(NSString *)encodedString;
 
 /*! Converts NSData to base64 String */
 + (NSString *)msidBase64UrlEncodeData:(NSData *)data;
@@ -60,5 +60,8 @@
 - (NSOrderedSet<NSString *> *)scopeSet;
 
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases;
+
+/*! Removes padding for Base64 encoded string */
+- (NSString *)stringByRemovingPadding;
 
 @end
