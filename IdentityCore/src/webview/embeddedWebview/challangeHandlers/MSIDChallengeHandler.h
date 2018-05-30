@@ -31,7 +31,7 @@
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler;
 
-+ (void)registerHandler:(id)handler
++ (void)registerHandler:(Class<MSIDChallengeHandling>)handler
              authMethod:(NSString *)authMethod;
 
 + (void)resetHandlers;

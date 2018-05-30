@@ -40,10 +40,9 @@
                     privateKey:(SecKeyRef)privateKey
 
 {
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
+    if (!(identity && certificateIssuer && certificate && certificateSubject && certificateData && privateKey)) return nil;
+    
+    if (!(self = [super init])) return nil;
     
     // ARC is not aware of Core Foundation objects, so they still have to be
     // manually retained and released.

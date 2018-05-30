@@ -41,6 +41,7 @@
 {
     NSURL *_endUrl;
     MSIDWebUICompletionHandler _completionHandler;
+    NSDictionary<NSString *, NSString *> *_customHeaders;
     
     NSLock *_completionLock;
     NSTimer *_spinnerTimer; // Used for managing the activity spinner
@@ -59,6 +60,7 @@
         self.webView = webview;
         _startURL = startUrl;
         _endUrl = endUrl;
+        _customHeaders = configuration.customHeaders;
         
         _completionLock = [[NSLock alloc] init];
         self.complete = NO;
@@ -97,17 +99,13 @@
     [self loadView:&error];
     if (error)
     {
-        [self endWebAuthWithError:error orURL:nil];
+        [self endWebAuthWithURL:nil error:error];
         return YES;
     }
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-#if TARGET_OS_IPHONE
-    // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
-    // It swallows the challenge response rather than sending it to server.
-    // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
-    [request addValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
-#endif
+    for (NSString *headerKey in _customHeaders) [request addValue:_customHeaders[headerKey] forHTTPHeaderField:headerKey];
+
     [self startRequest:request];
     return YES;
 }
@@ -118,7 +116,7 @@
     
     // Dispatch the completion block
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user/application has cancelled the authorization.", nil, nil, nil, self.context.correlationId, nil);
-    [self endWebAuthWithError:error orURL:nil];
+    [self endWebAuthWithURL:nil error:error];
 }
 
 - (BOOL)loadView:(NSError **)error
@@ -131,17 +129,15 @@
     return result;
 }
 
-- (BOOL)endWebAuthWithError:(NSError *)error
-                      orURL:(NSURL *)endURL
+- (BOOL)endWebAuthWithURL:(NSURL *)endURL
+                    error:(NSError *)error
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self dismissWebview:^{[self dispatchCompletionBlock:error URL:endURL];}];
-    });
+    [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
     
     return YES;
 }
 
-- (void)dispatchCompletionBlock:(NSError *)error URL:(NSURL *)url
+- (void)dispatchCompletionBlock:(NSURL *)url error:(NSError *)error
 {
     // NOTE: It is possible that competition between a successful completion
     //       and the user cancelling the authentication dialog can
@@ -241,7 +237,7 @@
     MSID_LOG_INFO(self.context, @"-completeWebAuthWithURL: %@", [MSIDAuthority isKnownHost:endURL] ? endURL.host : @"unknown host");
     MSID_LOG_INFO_PII(self.context, @"-completeWebAuthWithURL: %@", endURL);
     
-    [self endWebAuthWithError:nil orURL:endURL];
+    [self endWebAuthWithURL:endURL error:nil];
 }
 
 // Authentication failed somewhere
@@ -268,7 +264,7 @@
     MSID_LOG_ERROR(self.context, @"-webAuthFailWithError error code %ld", (long)error.code);
     MSID_LOG_ERROR_PII(self.context, @"-webAuthFailWithError: %@", error);
     
-    [self endWebAuthWithError:error orURL:nil];
+    [self endWebAuthWithURL:nil error:error];
 }
 
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
@@ -297,13 +293,13 @@
     }
     
     // redirecting to non-https url is not allowed
-    if (![[[requestUrl scheme] lowercaseString] isEqualToString:@"https"])
+    if (![requestUrl.scheme.lowercaseString isEqualToString:@"https"])
     {
         MSID_LOG_INFO(self.context, @"Server is redirecting to a non-https url");
         self.complete = YES;
         
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, self.context.correlationId, nil);
-        [self endWebAuthWithError:error orURL:nil];
+        [self endWebAuthWithURL:nil error:error];
         
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
@@ -314,10 +310,8 @@
 
 #pragma mark - Loading Indicator
 
-- (void)onStartLoadingIndicator:(id)sender
+- (void)onStartLoadingIndicator:(__unused id)sender
 {
-    (void)sender;
-    
     if (self.loading)
     {
         [self showLoadingIndicator];

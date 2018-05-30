@@ -48,44 +48,39 @@
     return normalized.length ? normalized : nil;
 }
 
-//+ (NSString *)msidAddQueryParamToURLString:(NSString *)paramKey paramValue:(NSString *)paramValue url:(NSString *)urlString
-//{
-//    
-//}
-
-+ (NSString *)msidAddClientVersionToURLString:(NSString *)urlString;
++ (NSString *)msidAddToURLString:(NSString *)urlString withParameters:(NSDictionary<NSString *, NSString *> *)params
 {
     NSURL *url = [NSURL URLWithString:urlString];
-    if (!url)
-    {
-        return nil;
-    }
+    if (!url) return nil;
     
-    // Pull apart the request URL and add the ADAL Client version to the query parameters
     NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-    if (!components)
+    if (!components) return nil;
+    
+    NSMutableDictionary *newQuery = [[NSMutableDictionary alloc] init];
+    
+    NSDictionary *oldQuery = [url msidQueryParameters];
+    if (oldQuery)
     {
-        return nil;
+        [newQuery addEntriesFromDictionary:oldQuery];
     }
     
-    NSString *query = [components percentEncodedQuery];
-    // Don't bother adding it if it's already there
-    if (query && [query containsString:MSID_VERSION_KEY])
+    if (params)
     {
-        return [url absoluteString];
+        [newQuery addEntriesFromDictionary:params];
     }
     
-    NSString *clientVersionString = [NSString stringWithFormat:@"&%@=%@", MSID_VERSION_KEY, MSIDDeviceId.deviceId[MSID_VERSION_KEY]];
-    if (query)
+    NSArray<NSURLQueryItem *> *queryItems = [newQuery urlQueryItemsArray];
+    if (queryItems && queryItems.count > 0)
     {
-        [components setPercentEncodedQuery:[query stringByAppendingString:clientVersionString]];
-    }
-    else
-    {
-        [components setPercentEncodedQuery:clientVersionString];
+        components.queryItems = queryItems;
     }
     
     return [[components URL] absoluteString];
+}
+
++ (NSString *)msidAddClientVersionToURLString:(NSString *)urlString;
+{
+    return [self msidAddToURLString:urlString withParameters:@{MSID_VERSION_KEY:MSIDDeviceId.deviceId[MSID_VERSION_KEY]}];
 }
 
 @end

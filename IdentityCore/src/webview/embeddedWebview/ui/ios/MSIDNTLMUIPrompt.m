@@ -42,12 +42,12 @@ __weak static UIAlertController *_presentedPrompt = nil;
     });
 }
 
-+ (void)presentPrompt:(void (^)(NSString *username, NSString *password))block
++ (void)presentPrompt:(void (^)(NSString *username, NSString *password, BOOL cancel))block
 {
     
     if ([MSIDAppExtensionUtil isExecutingInAppExtension])
     {
-        block(nil, nil);
+        block(nil, nil, YES);
         return;
     }
     
@@ -55,7 +55,7 @@ __weak static UIAlertController *_presentedPrompt = nil;
         UIViewController *viewController = [UIApplication msidCurrentViewController];
         if (!viewController)
         {
-            block(nil, nil);
+            block(nil, nil, YES);
             return;
         }
         
@@ -69,22 +69,20 @@ __weak static UIAlertController *_presentedPrompt = nil;
         UIAlertAction *cancelAction =
         [UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"Cancel", nil, bundle, nil)
                                  style:UIAlertActionStyleCancel
-                               handler:^(UIAlertAction * _Nonnull action)
+                               handler:^(__unused UIAlertAction * _Nonnull action)
          {
-             (void)action;
-             block(nil, nil);
+             block(nil, nil, YES);
          }];
         
         UIAlertAction *loginAction =
         [UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"Login", nil, bundle, nil)
                                  style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction * _Nonnull action)
+                               handler:^(__unused UIAlertAction * _Nonnull action)
          {
-             (void)action;
              UITextField *username = alert.textFields.firstObject;
              UITextField *password = alert.textFields.lastObject;
              
-             block(username.text, password.text);
+             block(username.text, password.text, NO);
          }];
         
         [alert addAction:cancelAction];

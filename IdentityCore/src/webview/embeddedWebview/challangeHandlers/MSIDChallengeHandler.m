@@ -54,7 +54,7 @@ static NSMutableDictionary *s_handlers = nil;
                      completionHandler:completionHandler];
 }
 
-+ (void)registerHandler:(id)handler
++ (void)registerHandler:(Class<MSIDChallengeHandling>)handler
              authMethod:(NSString *)authMethod
 {
     if (!handler || !authMethod)

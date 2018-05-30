@@ -35,6 +35,22 @@
 
 @implementation MSIDAADOAuthEmbeddedWebviewController
 
+- (id)initWithStartUrl:(NSURL *)startUrl
+                endURL:(NSURL *)endUrl
+               webview:(WKWebView *)webview
+         configuration:(MSIDWebviewConfiguration *)configuration
+               context:(id<MSIDRequestContext>)context
+{
+    #if TARGET_OS_IPHONE
+        // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
+        // It swallows the challenge response rather than sending it to server.
+        // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
+        [configuration.customHeaders setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
+    #endif
+    
+    return [super initWithStartUrl:startUrl endURL:endUrl webview:webview configuration:configuration context:context];
+}
+
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
@@ -44,7 +60,7 @@
     NSString *requestUrlString = [requestUrl.absoluteString lowercaseString];
     
     // Stop at broker
-    if ([[[requestUrl scheme] lowercaseString] isEqualToString:@"msauth"])
+    if ([requestUrl.scheme.lowercaseString isEqualToString:@"msauth"])
     {
         self.complete = YES;
         
@@ -55,7 +71,7 @@
         return;
     }
     
-    if ([[[requestUrl scheme] lowercaseString] isEqualToString:@"browser"])
+    if ([requestUrl.scheme.lowercaseString isEqualToString:@"browser"])
     {
         self.complete = YES;
         requestUrlString = [requestUrlString stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
@@ -88,7 +104,7 @@
                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
                                if (!challengeResponse)
                                {
-                                   [self endWebAuthWithError:error orURL:nil];
+                                   [self endWebAuthWithURL:nil error:error];
                                    return;
                                }
                                [self loadRequest:challengeResponse];

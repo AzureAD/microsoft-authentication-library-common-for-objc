@@ -163,9 +163,8 @@
 }
 
 // Authentication was cancelled by the user
-- (IBAction)onCancel:(id)sender
+- (IBAction)onCancel:(__unused id)sender
 {
-    (void)sender;
     [self cancel];
 }
 

@@ -53,9 +53,16 @@
         MSID_LOG_INFO(nil, @"Attempting to handle NTLM challenge");
         MSID_LOG_INFO_PII(nil, @"Attempting to handle NTLM challenge host: %@", challenge.protectionSpace.host);
         
-        [MSIDNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password)
+        [MSIDNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password, BOOL cancel)
          {
-             if (username)
+             if (cancel)
+             {
+                 MSID_LOG_INFO(context, @"NTLM challenge cancelled");
+                 MSID_LOG_INFO_PII(context, @"NTLM challenge cancelled - host: %@", challenge.protectionSpace.host);
+                 
+                 completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+             }
+             else
              {
                  NSURLCredential *credential = [NSURLCredential credentialWithUser:username
                                                                           password:password
@@ -65,16 +72,6 @@
                  
                  MSID_LOG_INFO(context, @"NTLM credentials added");
                  MSID_LOG_INFO_PII(context, @"NTLM credentials added - host: %@", challenge.protectionSpace.host);
-             }
-             else
-             {
-                 MSID_LOG_INFO(context, @"NTLM challenge cancelled");
-                 MSID_LOG_INFO_PII(context, @"NTLM challenge cancelled - host: %@", challenge.protectionSpace.host);
-                 
-                 completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
-                 
-                 NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user has cancelled the NTLM prompt.", nil, nil, nil, context.correlationId, nil);
-                 [webview.navigationDelegate webView:webview didFailNavigation:nil withError:error];
              }
          }];
     }//@synchronized

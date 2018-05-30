@@ -48,7 +48,7 @@ __weak static NSAlert *_presentedPrompt = nil;
     });
 }
 
-+ (void)presentPrompt:(void (^)(NSString *username, NSString *password))completionHandler
++ (void)presentPrompt:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSAlert *alert = [NSAlert new];
@@ -72,11 +72,11 @@ __weak static NSAlert *_presentedPrompt = nil;
                  NSString *username = [view.usernameField stringValue];
                  NSString *password = [view.passwordField stringValue];
                  
-                 completionHandler(username, password);
+                 completionHandler(username, password, NO);
              }
              else
              {
-                 completionHandler(nil, nil);
+                 completionHandler(nil, nil, YES);
              }
          }];
         

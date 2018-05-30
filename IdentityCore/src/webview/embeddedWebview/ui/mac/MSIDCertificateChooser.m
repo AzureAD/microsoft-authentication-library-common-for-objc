@@ -74,13 +74,10 @@
     });
 }
 
-- (void)sheetDidEnd:(NSWindow *)window
+- (void)sheetDidEnd:(__unused NSWindow *)window
          returnCode:(NSInteger)returnCode
-        contextInfo:(void *)contextInfo
+        contextInfo:(__unused void *)contextInfo
 {
-    (void)window;
-    (void)contextInfo;
-    
     _window = nil;
     if (returnCode != NSModalResponseOK)
     {
@@ -96,10 +93,8 @@
     //[[NSNotificationCenter defaultCenter] removeObserver:self name:ADWebAuthDidFailNotification object:nil];
 }
 
-- (void)webAuthDidFail:(NSNotification *)aNotification
+- (void)webAuthDidFail:(__unused NSNotification *)aNotification
 {
-    (void)aNotification;
-    
     if (!_panel || !_window)
     {
         return;

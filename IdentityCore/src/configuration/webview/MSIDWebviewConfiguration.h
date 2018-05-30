@@ -37,9 +37,9 @@
 @property (readwrite) NSURL *authorizationEndpoint;
 
 @property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
-@property (readwrite) NSString *extraQueryParametersString;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
+@property (readwrite) NSDictionary<NSString *, NSString *> *customHeaders;
 
 // Is this only for V2?
 @property (readwrite) MSIDPkce *pkce;

@@ -29,7 +29,6 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
 #import "MSIDDeviceId.h"
-#import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewConfiguration.h"
 
 #import "MSIDAADV1IdTokenClaims.h"
@@ -208,13 +207,6 @@
     parameters[@"haschrome"] = @"1";
     
     return parameters;
-}
-
-// Encodes the state parameter for a protocol message
-- (NSString *)encodeProtocolState:(MSIDWebviewConfiguration *)configuration
-{
-    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[configuration authority], @"a", [configuration resource], @"r", nil]
-             msidURLFormEncode] msidBase64UrlEncode];
 }
 
 #pragma mark - Webview response parsing

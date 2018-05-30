@@ -69,9 +69,7 @@
     
     // Go over all credentials that can be found
     gss_iter_creds(&minor, 0, GSS_KRB5_MECHANISM,
-                   ^(gss_iter_OID mechOid, gss_cred_id_t credential) {
-                       
-                       (void)mechOid;
+                   ^(__unused gss_iter_OID mechOid, gss_cred_id_t credential) {
                        
                        if (credential == GSS_C_NO_CREDENTIAL)
                        {

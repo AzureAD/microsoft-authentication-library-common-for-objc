@@ -43,7 +43,7 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 
 - (void)loadRequest:(NSURLRequest *)request;
 - (void)completeWebAuthWithURL:(NSURL *)endURL;
-- (BOOL)endWebAuthWithError:(NSError *)error orURL:(NSURL *)endURL;
+- (BOOL)endWebAuthWithURL:(NSURL *)endURL error:(NSError *)error;
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;

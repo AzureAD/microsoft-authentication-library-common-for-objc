@@ -140,10 +140,8 @@
 }
 
 // Authentication was cancelled by the user by closing the window
-- (void)windowWillClose:(NSNotification *)notification
+- (void)windowWillClose:(__unused NSNotification *)notification
 {
-    (void)notification;
-    
     // If window is closed by us because web auth is completed, we simply return;
     // otherwise cancel the webauth because it is closed by users.
     if (_complete)

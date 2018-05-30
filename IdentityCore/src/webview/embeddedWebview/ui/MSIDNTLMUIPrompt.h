@@ -25,7 +25,7 @@
 
 @interface MSIDNTLMUIPrompt : NSObject
 
-+ (void)presentPrompt:(void (^)(NSString *username, NSString *password))completionHandler;
++ (void)presentPrompt:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
 + (void)dismissPrompt;
 
 @end

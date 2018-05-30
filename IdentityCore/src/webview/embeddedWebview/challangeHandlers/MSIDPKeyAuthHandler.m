@@ -35,16 +35,16 @@
 {
     MSID_LOG_INFO(context, @"Handling PKeyAuth Challenge.");
     
-    NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
+    NSArray *parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
-    NSDictionary* queryParamsMap = [NSDictionary msidURLFormDecode:qp];
-    NSString* submitUrl = [MSIDHelpers msidAddClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
+    NSDictionary *queryParamsMap = [NSDictionary msidURLFormDecode:qp];
+    NSString *submitUrl = [MSIDHelpers msidAddClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
     
     NSArray *authorityParts = [submitUrl componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
     
-    NSError* error = nil;
-    NSString* authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
+    NSError *error = nil;
+    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
                                                           challengeData:queryParamsMap
                                                                 context:context
                                                                   error:&error];
@@ -54,7 +54,7 @@
         return NO;
     }
     
-    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:submitUrl]];
+    NSMutableURLRequest *responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:submitUrl]];
     
     [responseUrl setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];

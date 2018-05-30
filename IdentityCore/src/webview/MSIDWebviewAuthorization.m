@@ -31,7 +31,7 @@
 #import "MSIDError.h"
 #import "NSURL+MSIDExtensions.h"
 #import "MSIDTelemetry.h"
-#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDSystemWebviewController.h"
 
 
@@ -59,15 +59,13 @@ static MSIDWebviewSession *s_currentSession = nil;
 {
     NSString *state = [factory generateStateValue];
     NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
-    (void)startURL;
-    (void)state;
 
-    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController
-    = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartUrl:startURL
-                                                             endURL:[NSURL URLWithString:[configuration redirectUri]]
-                                                            webview:webview
-                                                      configuration:configuration
-                                                            context:context];
+    MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
+    = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartUrl:startURL
+                                                               endURL:[NSURL URLWithString:[configuration redirectUri]]
+                                                              webview:webview
+                                                        configuration:configuration
+                                                              context:context];
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:factory
