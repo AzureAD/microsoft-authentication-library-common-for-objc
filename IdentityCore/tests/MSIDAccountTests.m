@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDAccount.h"
 #import "MSIDAccountCacheItem.h"
 #import "NSDictionary+MSIDTestUtil.h"

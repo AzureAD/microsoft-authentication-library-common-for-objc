@@ -59,7 +59,7 @@
 {
     MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
     testWebviewController.successAfterInterval = 0.0;
-    
+
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDOauth2Factory new]
                                                                            requestState:nil];
@@ -70,7 +70,7 @@
 - (void)testStartSession_whenNoSessionRunning_shouldStart
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
-    
+
     [MSIDWebviewAuthorization startSession:[self sessionWithSuccessfulResponse]
                                    context:nil
                          completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
@@ -78,7 +78,7 @@
                              XCTAssertNil(error);
                              [expectation fulfill];
                          }];
-    
+
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
 
@@ -86,15 +86,15 @@
 - (void)testStartSession_whenNewSessionAfterCompletion_shouldStart
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
-    
+
     [MSIDWebviewAuthorization startSession:[self sessionWithSuccessfulResponse]
                                    context:nil
                          completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
                              [expectation fulfill];
                          }];
-    
+
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
-    
+
     expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:[self sessionWithSuccessfulResponse]
                                    context:nil
@@ -103,24 +103,24 @@
                              XCTAssertNil(error);
                              [expectation fulfill];
                          }];
-    
+
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
 
 
 - (void)testStartSession_whenSessionRunning_shouldNotStartAndReturnError
 {
-    [MSIDWebviewAuthorization startSession:[self sessionWithSuccessfulResponse]
-                                   context:nil
-                         completionHandler:nil];
-
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil];
+    XCTAssertTrue([MSIDWebviewAuthorization setCurrentWebSession:session]);
+    
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
+    
     [MSIDWebviewAuthorization startSession:[self sessionWithSuccessfulResponse]
                                    context:nil
                          completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
                              XCTAssertNil(response);
                              XCTAssertNotNil(error);
-                             
+
                              XCTAssertEqual(error.code, MSIDErrorInteractiveSessionAlreadyRunning);
                              
                              [expectation fulfill];
@@ -159,25 +159,37 @@
     XCTAssertNil([MSIDWebviewAuthorization currentSession]);
 }
 
-#pragma mark - Others
+
+- (void)testCancelCurrentSession_whenCurrentSession_shouldClearCurrentSession
+{
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil];
+    [MSIDWebviewAuthorization setCurrentWebSession:session];
+    
+    [MSIDWebviewAuthorization cancelCurrentSession];
+    
+    XCTAssertNil([MSIDWebviewAuthorization currentSession]);
+}
+
+
+#pragma mark - Handle response
 #if TARGET_OS_IPHONE
 - (void)testHandleURLResponseForSystemWebviewController_whenCurrentSessionIsSafari_shouldHandleURL
 {
     MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
     testWebviewController.successAfterInterval = 0.5;
     testWebviewController.actAsSafariViewController = YES;
-    
+
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDOauth2Factory new]
                                                                            requestState:nil];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
                                    context:nil
                          completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
                              [expectation fulfill];
                          }];
-    
+
     XCTAssertTrue([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:nil]);
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
@@ -187,18 +199,18 @@
     MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
     testWebviewController.successAfterInterval = 0.5;
     testWebviewController.actAsSafariViewController = NO;
-    
+
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDOauth2Factory new]
                                                                            requestState:nil];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
                                    context:nil
                          completionHandler:^(MSIDWebOAuth2Response *response, NSError *error) {
                              [expectation fulfill];
                          }];
-    
+
     XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:nil]);
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }

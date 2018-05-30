@@ -30,7 +30,7 @@
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDBaseToken.h"
 #import "MSIDAccessToken.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDTestConfiguration.h"
 #import "MSIDAccount.h"
 #import "MSIDTestIdTokenUtil.h"
