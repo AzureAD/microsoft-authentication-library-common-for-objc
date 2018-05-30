@@ -111,6 +111,35 @@
     XCTAssertEqualObjects(decoded, _ORIGINAL); \
 }
 
+- (void)testBase64
+{
+    NSString* encodeEmpty = [@"" msidBase64UrlEncode];
+    XCTAssertEqualObjects(encodeEmpty, @"");
+    
+    NSString* decodeEmpty = [@"" msidBase64UrlDecode];
+    XCTAssertEqualObjects(decodeEmpty, @"");
+    
+    //15 characters, aka 3k:
+    NSString* test1 = @"1$)=- \t\r\nfoo%^!";
+    VERIFY_BASE64(test1, @"MSQpPS0gCQ0KZm9vJV4h");
+    
+    //16 characters, aka 3k + 1:
+    NSString* test2 = [test1 stringByAppendingString:@"@"];
+    VERIFY_BASE64(test2, @"MSQpPS0gCQ0KZm9vJV4hQA");
+    
+    //17 characters, aka 3k + 2:
+    NSString* test3 = [test2 stringByAppendingString:@"<"];
+    VERIFY_BASE64(test3, @"MSQpPS0gCQ0KZm9vJV4hQDw");
+    
+    //Ensure that URL encoded is in place through encoding correctly the '+' and '/' signs (just in case)
+    VERIFY_BASE64(@"++++/////", @"KysrKy8vLy8v");
+    
+    //Decode invalid:
+    XCTAssertFalse([@" " msidBase64UrlDecode].length, "Contains non-suppurted character < 128");
+    XCTAssertFalse([@"™" msidBase64UrlDecode].length, "Contains characters beyond 128");
+    XCTAssertFalse([@"денят" msidBase64UrlDecode].length, "Contains unicode characters.");
+}
+
 
 - (void)testmsidURLFormDecode
 {
