@@ -75,15 +75,16 @@
     [self completeSessionWithResponse:nil context:_context error:error];
 }
 
-- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     UIViewController *viewController = [UIApplication msidCurrentViewController];
     if (!viewController)
     {
-        return NO;
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session - current viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);
+        completionHandler(nil, error);
     }
     
-    _completionHandler = completionHandler;
+    _completionHandler = [completionHandler copy];
 
     _telemetryRequestId = [_context telemetryRequestId];
     
@@ -94,8 +95,6 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [viewController presentViewController:_safariViewController animated:YES completion:nil];
     });
-    
-    return YES;
 }
 
 

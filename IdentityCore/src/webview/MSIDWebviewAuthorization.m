@@ -126,12 +126,7 @@ static MSIDWebviewSession *s_currentSession = nil;
         [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
     };
     
-    if (![s_currentSession.webviewController startWithCompletionHandler:startCompletionBlock])
-    {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, context.correlationId, nil);
-        
-        completionHandler(nil, error);
-    }
+    [s_currentSession.webviewController startWithCompletionHandler:startCompletionBlock];
 }
 
 

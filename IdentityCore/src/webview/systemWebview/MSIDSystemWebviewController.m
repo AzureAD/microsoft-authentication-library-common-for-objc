@@ -57,12 +57,13 @@
     return self;
 }
 
-- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     if (!_startURL)
     {
-        MSID_LOG_ERROR(_context, @"Attemped to start with nil URL");
-        return NO;
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidParameter, @"Attemped to start with nil URL", nil, nil, nil, _context.correlationId, nil);
+        completionHandler(nil, error);
+        return;
     }
     
     if (@available(iOS 11.0, *))
@@ -71,27 +72,28 @@
                                                       callbackURLScheme:self.callbackURLScheme
                                                                 context:_context];
 
-        
-        if (!_authSession)
+        if (_authSession)
         {
-            MSID_LOG_ERROR(_context, @"Failed to create an auth session");
-            return NO;
+            [_authSession startWithCompletionHandler:completionHandler];
+            return;
         }
-        
-        return [_authSession startWithCompletionHandler:completionHandler];
     }
-
-    _safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
-                                                                  context:_context];
-
-    if (!_safariViewController)
+    else
     {
-        MSID_LOG_ERROR(_context, @"Failed to create an auth session");
-        return NO;
+        _safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                                     context:_context];
+        
+        if (_safariViewController)
+        {
+            [_safariViewController startWithCompletionHandler:completionHandler];
+            return;
+        }
     }
     
-    return [_safariViewController startWithCompletionHandler:completionHandler];
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to create an auth session", nil, nil, nil, _context.correlationId, nil);
+    completionHandler(nil, error);
 }
+
 
 - (void)cancel
 {
