@@ -134,7 +134,9 @@
 {
     self.complete = YES;
     
-    [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
+    });
     
     return YES;
 }
