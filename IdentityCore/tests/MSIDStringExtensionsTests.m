@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "MSIDIdTokenClaims.h"
 
 @interface ADTestNSStringHelperMethods : XCTestCase
 
@@ -138,6 +139,7 @@
     XCTAssertFalse([@"™" msidBase64UrlDecode].length, "Contains characters beyond 128");
     XCTAssertFalse([@"денят" msidBase64UrlDecode].length, "Contains unicode characters.");
 }
+
 
 - (void)testmsidURLFormDecode
 {

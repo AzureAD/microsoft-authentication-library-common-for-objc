@@ -61,4 +61,7 @@
 
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases;
 
+/*! Removes padding for Base64 encoded string */
+- (NSString *)msidStringByRemovingPadding;
+
 @end
