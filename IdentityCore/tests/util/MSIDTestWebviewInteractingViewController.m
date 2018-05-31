@@ -31,7 +31,7 @@
 @implementation MSIDTestWebviewInteractingViewController
 
 
-- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     if (self.successAfterInterval == 0)
     {
@@ -45,8 +45,6 @@
             completionHandler([NSURL URLWithString:@"https://contoso.microsoft.com?code=SOMECODE&cloud_instance_host_name=SOME_HOST_NAME"], nil);
         });
     }
-    
-    return YES;
 }
 
 - (void)cancel
