@@ -132,6 +132,8 @@
 - (BOOL)endWebAuthWithURL:(NSURL *)endURL
                     error:(NSError *)error
 {
+    self.complete = YES;
+    
     [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
     
     return YES;
@@ -277,8 +279,6 @@
     // Stop at the end URL.
     if ([requestUrlString hasPrefix:[_endUrl.absoluteString lowercaseString]])
     {
-        self.complete = YES;
-        
         NSURL *url = navigationAction.request.URL;
         [self completeWebAuthWithURL:url];
         
@@ -296,7 +296,6 @@
     if (![requestUrl.scheme.lowercaseString isEqualToString:@"https"])
     {
         MSID_LOG_INFO(self.context, @"Server is redirecting to a non-https url");
-        self.complete = YES;
         
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, self.context.correlationId, nil);
         [self endWebAuthWithURL:nil error:error];
