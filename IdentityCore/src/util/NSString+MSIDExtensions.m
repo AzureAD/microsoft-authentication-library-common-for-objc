@@ -42,9 +42,7 @@ typedef unsigned char byte;
     NSUInteger paddedLength = encodedString.length + (4 - (encodedString.length % 4));
     NSString *paddedString = [encodedString stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
     
-    NSData *data = [[NSData alloc]
-                    initWithBase64EncodedString:paddedString
-                    options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:paddedString options:0];
     
     return data;
 }
@@ -59,18 +57,15 @@ typedef unsigned char byte;
 /// </remarks>
 - (NSString *)msidBase64UrlDecode
 {
-    NSUInteger paddedLength = self.length + (4 - (self.length % 4));
-    NSString *paddedString = [self stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
-    
-    NSData *data = [[NSData alloc]
-                    initWithBase64EncodedString:paddedString
-                    options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    NSData *data = [self.class msidBase64UrlDecodeData:self];
     
     if (!data) return nil;
     
     char lastByte;
-    [data getBytes:&lastByte range:NSMakeRange([data length]-1, 1)];
+    [data getBytes:&lastByte range:NSMakeRange([data length] - 1, 1)];
     
+    // We need to check for null terminated string data by looking at the last bit.
+    // If we call initWithData on null-terminated, we get back a nil string.
     if (lastByte == 0x0) {
         //string is null-terminated
         return [NSString stringWithUTF8String:[data bytes]];
@@ -92,14 +87,14 @@ typedef unsigned char byte;
 + (NSString *)msidBase64UrlEncodeData:(NSData *)data
 {
     NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    return [[string dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed].stringByRemovingPadding;
+    return [[string dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed].msidStringByRemovingPadding;
 }
 
 
 // Base64 URL encodes a string
 - (NSString *)msidBase64UrlEncode
 {
-    return [[self dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed].stringByRemovingPadding;
+    return [[self dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed].msidStringByRemovingPadding;
 }
 
 
@@ -218,7 +213,7 @@ typedef unsigned char byte;
     return NO;
 }
 
-- (NSString *)stringByRemovingPadding
+- (NSString *)msidStringByRemovingPadding
 {
     return [self stringByReplacingOccurrencesOfString:@"=" withString:@""];
 }

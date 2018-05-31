@@ -257,10 +257,5 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     }
 }
 
-- (NSString *)removePaddingFromDecodedString:(NSString *)paddedString
-{
-    return [paddedString stringByReplacingOccurrencesOfString:@"=" withString:@""];
-}
-
 
 @end
