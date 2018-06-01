@@ -41,12 +41,23 @@
          configuration:(MSIDWebviewConfiguration *)configuration
                context:(id<MSIDRequestContext>)context
 {
-    #if TARGET_OS_IPHONE
-        // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
-        // It swallows the challenge response rather than sending it to server.
-        // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
-        [configuration.customHeaders setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
-    #endif
+#if TARGET_OS_IPHONE
+    // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
+    // It swallows the challenge response rather than sending it to server.
+    // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
+    NSMutableDictionary *headers;
+    if (configuration.customHeaders)
+    {
+        headers = [[NSMutableDictionary alloc] initWithDictionary:configuration.customHeaders];
+    }
+    else
+    {
+        headers = [NSMutableDictionary new];
+    }
+    [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
+    
+    configuration.customHeaders = headers;
+#endif
     
     return [super initWithStartUrl:startUrl endURL:endUrl webview:webview configuration:configuration context:context];
 }

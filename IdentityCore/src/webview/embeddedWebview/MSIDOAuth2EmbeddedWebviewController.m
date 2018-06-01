@@ -252,6 +252,13 @@
         return;
     }
     
+    if ([error.domain isEqualToString:NSURLErrorDomain] && NSURLErrorCancelled == error.code)
+    {
+        //This is a common error that webview generates and could be ignored.
+        //See this thread for details: https://discussions.apple.com/thread/1727260
+        return;
+    }
+    
     // Ignore WebKitError 102 for OAuth 2.0 flow.
     if ([error.domain isEqualToString:@"WebKitErrorDomain"] && error.code == 102)
     {
