@@ -88,6 +88,7 @@
                                                 completionHandler(callbackURL, error);
                                             }];
         [_authSession start];
+        return;
     }
     
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
