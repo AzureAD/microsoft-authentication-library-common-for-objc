@@ -464,7 +464,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:nil requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:nil requestState:nil verifyState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -476,7 +476,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"msauth://wpj?upn=fakeuser%40contoso.com"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"msauth://wpj?upn=fakeuser%40contoso.com"] requestState:nil verifyState:NO context:nil error:&error];
 
     XCTAssertNotNil(response);
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJAuthResponse.class]);
@@ -490,7 +490,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=https%3a%2f%2fcontoso.com"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=https%3a%2f%2fcontoso.com"] requestState:nil verifyState:NO context:nil error:&error];
     
     XCTAssertNotNil(response);
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJAuthResponse.class]);
@@ -505,7 +505,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com?code=somecode&cloud_instance_host_name=https%3a%2f%2fcontoso.com"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com?code=somecode&cloud_instance_host_name=https%3a%2f%2fcontoso.com"] requestState:nil verifyState:NO context:nil error:&error];
     
     XCTAssertNotNil(response);
     XCTAssertTrue([response isKindOfClass:MSIDWebAADAuthResponse.class]);
@@ -521,7 +521,7 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com"] requestState:nil verifyState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);

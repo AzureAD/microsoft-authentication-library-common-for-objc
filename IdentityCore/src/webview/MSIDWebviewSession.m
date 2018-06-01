@@ -33,11 +33,24 @@
                                   factory:(MSIDOauth2Factory *)factory
                              requestState:(NSString *)state
 {
+    return [self initWithWebviewController:webviewController
+                                   factory:factory
+                              requestState:state
+                               verifyState:NO];
+}
+
+
+- (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
+                                  factory:(MSIDOauth2Factory *)factory
+                             requestState:(NSString *)state
+                              verifyState:(BOOL)verifyState
+{
     self = [super init];
     if (self) {
         _webviewController = webviewController;
         _factory = factory;
         _requestState = state;
+        _verifyState = verifyState;
     }
     return self;
 }

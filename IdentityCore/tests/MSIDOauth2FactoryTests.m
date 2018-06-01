@@ -533,7 +533,7 @@
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:nil requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:nil requestState:nil verifyState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -546,9 +546,45 @@
     
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
-                                       requestState:nil context:nil error:&error];
+                                       requestState:nil
+                                        verifyState:NO
+                                            context:nil
+                                              error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebOAuth2Response.class]);
+    XCTAssertNil(error);
+}
+
+
+- (void)testResponseWithURL_whenStateVerificationFailsAndVerifyStateIsYES_shouldReturnNilWithError
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com?code=authcode&state=wrongstate"]
+                                       requestState:@"somerequeststate"
+                                        verifyState:YES
+                                            context:nil
+                                              error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidState);
+}
+
+
+- (void)testResponseWithURL_whenStateVerificationFailsAndVerifyStateIsNO_shouldReturnResponse
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com?code=authcode&state=wrongstate"]
+                                       requestState:@"somerequeststate"
+                                        verifyState:NO
+                                            context:nil
+                                              error:&error];
+    
+    XCTAssertNotNil(response);
     XCTAssertNil(error);
 }
 
@@ -558,17 +594,21 @@
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com"]
+                                       requestState:nil
+                                        verifyState:NO
+                                            context:nil
+                                              error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
 }
 
 #pragma mark - Webview (State verifier)
-- (void)testVerifyRequestState_whenNoRequestState_shouldSucceed
+- (void)testVerifyRequestState_whenNoRequestState_shouldFail
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    XCTAssertTrue([factory verifyRequestState:nil parameters:@{ MSID_OAUTH2_STATE : @"value"}]);
+    XCTAssertFalse([factory verifyRequestState:nil parameters:@{ MSID_OAUTH2_STATE : @"value"}]);
 }
 
 
@@ -583,7 +623,7 @@
 - (void)testVerifyRequestState_whenStateReceivedDoesNotMatch_shouldFail
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    XCTAssertFalse([factory verifyRequestState:@"value1" parameters:@{ MSID_OAUTH2_STATE : @"value2"}]);
+    XCTAssertFalse([factory verifyRequestState:@"value1" parameters:@{ MSID_OAUTH2_STATE : @"value2" }]);
 }
 
 

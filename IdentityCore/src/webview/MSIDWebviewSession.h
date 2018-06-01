@@ -35,11 +35,13 @@
 @property id<MSIDWebviewInteracting> webviewController;
 @property MSIDOauth2Factory *factory;
 @property NSString *requestState;
+@property BOOL verifyState;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
                                   factory:(MSIDOauth2Factory *)factory
-                             requestState:(NSString *)state;
+                             requestState:(NSString *)state
+                              verifyState:(BOOL)verifyState;
                              
 @end

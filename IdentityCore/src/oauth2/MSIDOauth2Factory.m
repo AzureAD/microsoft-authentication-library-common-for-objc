@@ -405,6 +405,7 @@
 #pragma mark - Webview response parsing
 - (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
                               requestState:(NSString *)requestState
+                               verifyState:(BOOL)verifyState
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error
 {
@@ -416,13 +417,18 @@
         parameters = [url msidQueryParameters];
     }
     
-    // check state
+    // check state, if verifyState is enabled, stop if verification fails.
+    // otherwise, log and continue.
     if (![self verifyRequestState:requestState parameters:parameters])
     {
-        if (error) {
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, nil, nil);
+        if (verifyState)
+        {
+            if (error) {
+                *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, context.correlationId, nil);
+            }
+            return nil;
         }
-        return nil;
+        MSID_LOG_WARN(context, @"State returned from the server does not match");
     }
     
     // return base response
@@ -437,14 +443,13 @@
     return response;
 }
 
-- (BOOL)verifyRequestState:(NSString *)state
+- (BOOL)verifyRequestState:(NSString *)requestState
                 parameters:(NSDictionary *)parameters
 {
-    if (!state) return YES;
-    
     NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
-    return [stateReceived.msidBase64UrlDecode isEqualToString:state];
+    return [requestState isEqualToString:stateReceived.msidBase64UrlDecode];
 }
+
 
 - (NSString *)generateStateValue
 {

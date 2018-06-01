@@ -91,7 +91,8 @@ static MSIDWebviewSession *s_currentSession = nil;
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWebviewController
                                                                                 factory:factory
-                                                                           requestState:state];
+                                                                           requestState:state
+                                                                            verifyState:configuration.verifyState];
 
     [self startSession:session context:context completionHandler:completionHandler];
 }
@@ -119,6 +120,7 @@ static MSIDWebviewSession *s_currentSession = nil;
         
         MSIDWebOAuth2Response *response = [s_currentSession.factory responseWithURL:callbackURL
                                                                        requestState:s_currentSession.requestState
+                                                                        verifyState:s_currentSession.verifyState
                                                                             context:nil
                                                                               error:&responseError];
         

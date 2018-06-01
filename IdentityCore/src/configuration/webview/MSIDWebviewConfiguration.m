@@ -40,6 +40,7 @@
     if (self)
     {
         _authorizationEndpoint = authorizationEndpoint;
+        _verifyState = NO;
     }
     return self;
 }

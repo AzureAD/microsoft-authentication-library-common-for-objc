@@ -68,6 +68,7 @@
 // If this different per authorization setup (i.e./ v1 vs v2), implement it in subclasses.
 - (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
                               requestState:(NSString *)requestState
+                               verifyState:(BOOL)verifyState
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error;
 

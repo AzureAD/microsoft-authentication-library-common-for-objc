@@ -40,7 +40,11 @@
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
 
-// Is this only for V2?
+// State verifier: Recommended verifier for state value of the response.
+//  Set to YES to stop if verifying state fails
+@property (readwrite) BOOL verifyState;
+
+// PKCE Support
 @property (readwrite) MSIDPkce *pkce;
 
 // User information
