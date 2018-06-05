@@ -35,8 +35,8 @@
 MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 
 - (id)init NS_UNAVAILABLE;
-- (id)initWithStartUrl:(NSURL *)startUrl
-                endURL:(NSURL *)endUrl
+- (id)initWithStartURL:(NSURL *)startURL
+                endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          configuration:(MSIDWebviewConfiguration *)configuration
                context:(id<MSIDRequestContext>)context;

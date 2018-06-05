@@ -61,7 +61,7 @@ static MSIDWebviewSession *s_currentSession = nil;
     NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
 
     MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
-    = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartUrl:startURL
+    = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:startURL
                                                                endURL:[NSURL URLWithString:[configuration redirectUri]]
                                                               webview:webview
                                                         configuration:configuration

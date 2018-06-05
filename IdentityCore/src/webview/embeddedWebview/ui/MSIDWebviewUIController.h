@@ -50,5 +50,3 @@ NSWindowController
 - (void)cancel;
 
 @end
-
-

@@ -35,4 +35,3 @@
                                  isSha2:(BOOL)isSha2;
 
 @end
-

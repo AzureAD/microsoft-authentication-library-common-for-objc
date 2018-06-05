@@ -51,5 +51,3 @@
 - (BOOL)isWorkPlaceJoined;
 
 @end
-
-

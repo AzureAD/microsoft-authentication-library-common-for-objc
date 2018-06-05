@@ -59,4 +59,3 @@
 @property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 
 @end
-

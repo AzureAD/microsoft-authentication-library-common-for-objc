@@ -26,4 +26,3 @@
 @interface MSIDTLSHandler : NSObject <MSIDChallengeHandling>
 
 @end
-

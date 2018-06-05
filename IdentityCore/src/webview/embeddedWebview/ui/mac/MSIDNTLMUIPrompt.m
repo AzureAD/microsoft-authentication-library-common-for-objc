@@ -26,9 +26,6 @@
 #import "MSIDCredentialCollectionController.h"
 
 @interface MSIDNTLMUIPrompt ()
-{
-    
-}
 
 @end
 
@@ -90,4 +87,3 @@ __weak static NSAlert *_presentedPrompt = nil;
 }
 
 @end
-

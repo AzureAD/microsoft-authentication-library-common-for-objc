@@ -39,4 +39,3 @@ typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
 - (NSURL *)startURL;
 
 @end
-

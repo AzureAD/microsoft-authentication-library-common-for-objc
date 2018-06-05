@@ -35,8 +35,8 @@
 
 @implementation MSIDAADOAuthEmbeddedWebviewController
 
-- (id)initWithStartUrl:(NSURL *)startUrl
-                endURL:(NSURL *)endUrl
+- (id)initWithStartURL:(NSURL *)startURL
+                endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          configuration:(MSIDWebviewConfiguration *)configuration
                context:(id<MSIDRequestContext>)context
@@ -59,7 +59,7 @@
     configuration.customHeaders = headers;
 #endif
     
-    return [super initWithStartUrl:startUrl endURL:endUrl webview:webview configuration:configuration context:context];
+    return [super initWithStartURL:startURL endURL:endURL webview:webview configuration:configuration context:context];
 }
 
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
@@ -67,11 +67,11 @@
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     //AAD specific policy for handling navigation action
-    NSURL *requestUrl = navigationAction.request.URL;
-    NSString *requestUrlString = [requestUrl.absoluteString lowercaseString];
+    NSURL *requestURL = navigationAction.request.URL;
+    NSString *requestURLString = [requestURL.absoluteString lowercaseString];
     
     // Stop at broker
-    if ([requestUrl.scheme.lowercaseString isEqualToString:@"msauth"])
+    if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"])
     {
         self.complete = YES;
         
@@ -82,23 +82,23 @@
         return;
     }
     
-    if ([requestUrl.scheme.lowercaseString isEqualToString:@"browser"])
+    if ([requestURL.scheme.lowercaseString isEqualToString:@"browser"])
     {
         self.complete = YES;
-        requestUrlString = [requestUrlString stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+        requestURLString = [requestURLString stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
         
 #if TARGET_OS_IPHONE
         if (![MSIDAppExtensionUtil isExecutingInAppExtension])
         {
             [self cancel];
-            [MSIDAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:requestUrlString]];
+            [MSIDAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:requestURLString]];
         }
         else
         {
             MSID_LOG_INFO(self.context, @"unable to redirect to browser from extension");
         }
 #else
-        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestUrlString]];
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestURLString]];
 #endif
         
         decisionHandler(WKNavigationActionPolicyCancel);
@@ -107,10 +107,10 @@
     
 #if TARGET_OS_IPHONE
     // check for pkeyauth challenge.
-    if ([requestUrlString hasPrefix:[kMSIDPKeyAuthUrn lowercaseString]])
+    if ([requestURLString hasPrefix:[kMSIDPKeyAuthUrn lowercaseString]])
     {
         decisionHandler(WKNavigationActionPolicyCancel);
-        [MSIDPKeyAuthHandler handleChallenge:requestUrl.absoluteString
+        [MSIDPKeyAuthHandler handleChallenge:requestURL.absoluteString
                                      context:self.context
                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
                                if (!challengeResponse)

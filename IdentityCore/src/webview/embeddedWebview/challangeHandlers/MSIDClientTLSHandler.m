@@ -57,10 +57,7 @@
     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     return NO;
 #else
-    else
-    {
-        return [self handleCertAuthChallenge:challenge webview:webview context:context completionHandler:completionHandler];
-    }
+    return [self handleCertAuthChallenge:challenge webview:webview context:context completionHandler:completionHandler];
 #endif
 }
 
@@ -124,7 +121,7 @@
     NSString *host = challenge.protectionSpace.host;
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
     
-    // Otherwise check if a preferred identity is set for this host
+    // Check if a preferred identity is set for this host
     SecIdentityRef identity = SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
     
     if (!identity)
@@ -230,5 +227,3 @@
 #endif
 
 @end
-
-

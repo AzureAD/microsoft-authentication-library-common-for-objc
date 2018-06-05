@@ -28,7 +28,6 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
-#import "MSIDDeviceId.h"
 #import "MSIDWebviewConfiguration.h"
 
 #import "MSIDAADV1IdTokenClaims.h"
@@ -195,7 +194,7 @@
     return YES;
 }
 
-#pragma mark - Webview
+#pragma mark - Webview controllers
 - (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
                                                                              requestState:(NSString *)state
 {

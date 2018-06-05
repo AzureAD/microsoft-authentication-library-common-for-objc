@@ -26,20 +26,14 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDOAuth2EmbeddedWebviewController.h"
-#import "MSIDTelemetry+Internal.h"
-#import "MSIDTelemetryUIEvent.h"
-#import "MSIDTelemetryEventStrings.h"
-#import "MSIDAadAuthorityCache.h"
 #import "MSIDError.h"
-#import "MSIDWebOAuth2Response.h"
-#import "MSIDWebviewAuthorization.h"
 #import "MSIDChallengeHandler.h"
 #import "MSIDAuthority.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 
 @implementation MSIDOAuth2EmbeddedWebviewController
 {
-    NSURL *_endUrl;
+    NSURL *_endURL;
     MSIDWebUICompletionHandler _completionHandler;
     NSDictionary<NSString *, NSString *> *_customHeaders;
     
@@ -47,8 +41,8 @@
     NSTimer *_spinnerTimer; // Used for managing the activity spinner
 }
 
-- (id)initWithStartUrl:(NSURL *)startUrl
-                endURL:(NSURL *)endUrl
+- (id)initWithStartURL:(NSURL *)startURL
+                endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          configuration:(MSIDWebviewConfiguration *)configuration
                context:(id<MSIDRequestContext>)context
@@ -58,8 +52,8 @@
     if (self)
     {
         self.webView = webview;
-        _startURL = startUrl;
-        _endUrl = endUrl;
+        _startURL = startURL;
+        _endURL = endURL;
         _customHeaders = configuration.customHeaders;
         
         _completionLock = [[NSLock alloc] init];
@@ -114,7 +108,7 @@
 {
     MSID_LOG_INFO(self.context, @"Cancel Web Auth...");
     
-    // Dispatch the completion block
+    // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"The user/application has cancelled the authorization.", nil, nil, nil, self.context.correlationId, nil);
     [self endWebAuthWithURL:nil error:error];
 }
@@ -181,10 +175,10 @@
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-    NSURL *requestUrl = navigationAction.request.URL;
+    NSURL *requestURL = navigationAction.request.URL;
     
-    MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestUrl] ? requestUrl.host : @"unknown host");
-    MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestUrl.host);
+    MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestURL] ? requestURL.host : @"unknown host");
+    MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestURL.host);
     
     [self decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
@@ -282,11 +276,11 @@
                                 webview:(WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-    NSURL *requestUrl = navigationAction.request.URL;
-    NSString *requestUrlString = [requestUrl.absoluteString lowercaseString];
+    NSURL *requestURL = navigationAction.request.URL;
+    NSString *requestURLString = [requestURL.absoluteString lowercaseString];
     
     // Stop at the end URL.
-    if ([requestUrlString hasPrefix:[_endUrl.absoluteString lowercaseString]])
+    if ([requestURLString hasPrefix:[_endURL.absoluteString lowercaseString]])
     {
         NSURL *url = navigationAction.request.URL;
         [self completeWebAuthWithURL:url];
@@ -295,14 +289,14 @@
         return;
     }
     
-    if ([requestUrlString isEqualToString:@"about:blank"])
+    if ([requestURLString isEqualToString:@"about:blank"])
     {
         decisionHandler(WKNavigationActionPolicyAllow);
         return;
     }
     
     // redirecting to non-https url is not allowed
-    if (![requestUrl.scheme.lowercaseString isEqualToString:@"https"])
+    if (![requestURL.scheme.lowercaseString isEqualToString:@"https"])
     {
         MSID_LOG_INFO(self.context, @"Server is redirecting to a non-https url");
         
@@ -345,4 +339,3 @@
 }
 
 @end
-

@@ -143,4 +143,3 @@ static void releaseName(gss_name_t *name)
 }
 
 @end
-

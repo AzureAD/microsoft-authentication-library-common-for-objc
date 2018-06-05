@@ -64,7 +64,7 @@
     NSUUID *correlationId = [parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
     [[NSUUID alloc] initWithUUIDString:[parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
     
-    NSString *serverOAuth2Error = [parameters objectForKey:MSID_OAUTH2_ERROR];\
+    NSString *serverOAuth2Error = [parameters objectForKey:MSID_OAUTH2_ERROR];
 
     if (serverOAuth2Error)
     {
