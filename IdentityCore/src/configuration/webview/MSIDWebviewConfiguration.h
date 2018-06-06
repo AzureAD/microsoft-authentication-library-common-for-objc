@@ -27,9 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDConfiguration.h"
-
-@class MSIDPkce;
-@class MSIDClientInfo;
+#import "MSIDPkce.h"
 
 @interface MSIDWebviewConfiguration : MSIDConfiguration
 

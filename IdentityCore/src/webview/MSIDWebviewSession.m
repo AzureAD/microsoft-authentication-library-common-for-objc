@@ -30,7 +30,7 @@
 @implementation MSIDWebviewSession
 
 - (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
-                                  factory:(MSIDOauth2Factory *)factory
+                                  factory:(MSIDWebviewFactory *)factory
                              requestState:(NSString *)state
 {
     return [self initWithWebviewController:webviewController
@@ -41,7 +41,7 @@
 
 
 - (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
-                                  factory:(MSIDOauth2Factory *)factory
+                                  factory:(MSIDWebviewFactory *)factory
                              requestState:(NSString *)state
                               verifyState:(BOOL)verifyState
 {

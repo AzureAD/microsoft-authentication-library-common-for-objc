@@ -28,19 +28,19 @@
 #import <Foundation/Foundation.h>
 
 @protocol MSIDWebviewInteracting;
-@class MSIDOauth2Factory;
+@class MSIDWebviewFactory;
 
 @interface MSIDWebviewSession : NSObject
 
 @property id<MSIDWebviewInteracting> webviewController;
-@property MSIDOauth2Factory *factory;
+@property MSIDWebviewFactory *factory;
 @property NSString *requestState;
 @property BOOL verifyState;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
-                                  factory:(MSIDOauth2Factory *)factory
+                                  factory:(MSIDWebviewFactory *)factory
                              requestState:(NSString *)state
                               verifyState:(BOOL)verifyState;
                              

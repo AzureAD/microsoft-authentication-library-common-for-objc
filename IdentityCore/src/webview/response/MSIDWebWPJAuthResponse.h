@@ -25,17 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebviewResponse.h"
 
-@interface MSIDWebWPJAuthResponse : MSIDWebOAuth2Response
-
-- (instancetype)initWithParameters:(NSDictionary *)parameters context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error NS_UNAVAILABLE;
-
-- (instancetype)initWithScheme:(NSString *)scheme
-                          host:(NSString *)host
-                    parameters:(NSDictionary *)parameters
-                       context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error;
+@interface MSIDWebWPJAuthResponse : MSIDWebviewResponse
 
 @property NSString *upn;
 @property NSString *appInstallLink;

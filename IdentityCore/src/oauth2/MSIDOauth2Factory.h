@@ -35,7 +35,7 @@
 @class MSIDAccount;
 @class MSIDConfiguration;
 @class MSIDWebviewConfiguration;
-@class WKWebView;
+@class MSIDWebviewFactory;
 
 @protocol MSIDRequestContext;
 @protocol MSIDWebviewInteracting;
@@ -62,19 +62,7 @@
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
 // Webview related
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state;
-- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state;
-
-// If this different per authorization setup (i.e./ v1 vs v2), implement it in subclasses.
-- (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
-                              requestState:(NSString *)requestState
-                               verifyState:(BOOL)verifyState
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error;
-
-- (NSString *)generateStateValue;
-- (BOOL)verifyRequestState:(NSString *)state
-                parameters:(NSDictionary *)parameters;
+- (MSIDWebviewFactory *)webviewFactory;
 
 
 @end

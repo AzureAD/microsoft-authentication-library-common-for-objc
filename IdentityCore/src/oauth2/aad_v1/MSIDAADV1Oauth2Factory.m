@@ -34,6 +34,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
 
+#import "MSIDAADV1WebviewFactory.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -190,17 +191,10 @@
     return YES;
 }
 
-#pragma mark - Webview controllers
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                                             requestState:(NSString *)state
+#pragma mark - Webview
+- (MSIDWebviewFactory *)webviewFactory
 {
-    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
-                                                                                                 requestState:state];
-    
-    // add other missing pieces here.
-    
-    return parameters;
+    return [[MSIDAADV1WebviewFactory alloc] init];
 }
-
 
 @end

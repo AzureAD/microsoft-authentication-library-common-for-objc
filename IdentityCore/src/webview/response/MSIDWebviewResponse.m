@@ -25,36 +25,32 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebviewResponse.h"
+#import "NSURL+MSIDExtensions.h"
 
-@implementation MSIDWebWPJAuthResponse
+@implementation MSIDWebviewResponse
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    self = [super initWithURL:url context:context error:error];
+    self = [super init];
     if (self)
     {
-        NSString *scheme = url.scheme;
-        NSString *host = url.host;
+        _url = url;
         
-        // Check for WPJ or broker response
-        if (!([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"]))
+        // Check for auth response
+        // Try both the URL and the fragment parameters:
+        NSDictionary *parameters = [url msidFragmentParameters];
+        if (parameters.count == 0)
         {
-            if (error){
-                *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"WPJ response should have msauth as a scheme and wpj/broker as a host", nil, nil, nil, context.correlationId, nil);
-            }
-            return nil;
+            parameters = [url msidQueryParameters];
         }
         
-        _appInstallLink = self.parameters[@"app_link"];
-        _upn = self.parameters[@"upn"];
+        _parameters = parameters;
     }
     
     return self;
 }
-
-
 
 @end

@@ -36,24 +36,27 @@
 @class WKWebView;
 @protocol MSIDWebviewInteracting;
 
-typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
+typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, NSError *error);
 
 @interface MSIDWebviewAuthorization : NSObject
 
 + (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                          factory:(MSIDOauth2Factory *)factory
+                                    oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
+                                      verifyState:(BOOL)verifyState
                                           context:(id<MSIDRequestContext>)context
                                 completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
 + (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                 factory:(MSIDOauth2Factory *)factory
+                                           oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
+                                             verifyState:(BOOL)verifyState
                                                  webview:(WKWebView *)webview
                                                  context:(id<MSIDRequestContext>)context
                                        completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
 #if TARGET_OS_IPHONE
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                               factory:(MSIDOauth2Factory *)factory
+                                         oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
+                                           verifyState:(BOOL)verifyState 
                                                context:(id<MSIDRequestContext>)context
                                      completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 #endif
@@ -66,11 +69,13 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebOAuth2Response *response
 
 // This can be utilized for having a custom webview controller, and for testing.
 + (void)startSession:(MSIDWebviewSession *)session
+         verifyState:(BOOL)verifyState 
              context:(id<MSIDRequestContext>)context
    completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
 @property (class, readonly) MSIDWebviewSession *currentSession;
 
 @end
+
 
 

@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,20 +15,29 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewResponse.h"
+#import "MSIDAADV1WebviewFactory.h"
 
-@interface MSIDWebOAuth2Response : MSIDWebviewResponse
+@implementation MSIDAADV1WebviewFactory
 
-@property NSString *authorizationCode;
-@property NSError *oauthError;
+- (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration verifyState:(BOOL)verifyState customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
+{
+    return nil;
+}
+
+- (NSMutableDictionary<NSString *,NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state
+{
+    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
+                                                                                                 requestState:state];
+    
+    // Do custom parameters for AAD V1
+    return parameters;
+}
+
 
 @end
