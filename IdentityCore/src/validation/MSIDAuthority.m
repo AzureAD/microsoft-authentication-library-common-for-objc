@@ -32,19 +32,19 @@
 static NSSet<NSString *> *s_trustedHostList;
 
 // Trusted authorities
-NSString *const ADTrustedAuthority             = @"login.windows.net";
-NSString *const ADTrustedAuthorityUS           = @"login.microsoftonline.us";
-NSString *const ADTrustedAuthorityChina        = @"login.chinacloudapi.cn";
-NSString *const ADTrustedAuthorityGermany      = @"login.microsoftonline.de";
-NSString *const ADTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
-NSString *const ADTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
-NSString *const ADTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
+NSString *const MSIDTrustedAuthority             = @"login.windows.net";
+NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
+NSString *const MSIDTrustedAuthorityChina        = @"login.chinacloudapi.cn";
+NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
+NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
+NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
+NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
 
 + (void)initialize
 {
-    s_trustedHostList = [NSSet setWithObjects:ADTrustedAuthority, ADTrustedAuthorityUS,
-                         ADTrustedAuthorityChina, ADTrustedAuthorityGermany,
-                         ADTrustedAuthorityWorldWide, ADTrustedAuthorityUSGovernment, ADTrustedAuthorityCloudGovApi, nil];
+    s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority, MSIDTrustedAuthorityUS,
+                         MSIDTrustedAuthorityChina, MSIDTrustedAuthorityGermany,
+                         MSIDTrustedAuthorityWorldWide, MSIDTrustedAuthorityUSGovernment, MSIDTrustedAuthorityCloudGovApi, nil];
 }
 
 + (BOOL)isKnownHost:(NSURL *)url
