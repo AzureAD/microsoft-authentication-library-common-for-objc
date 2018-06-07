@@ -27,8 +27,6 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @protocol MSIDRequestContext;
 
 @interface MSIDWebviewResponse : NSObject
@@ -37,8 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSURL *url;
 
 - (instancetype)initWithURL:(NSURL *)url
-                    context:(nullable id<MSIDRequestContext>)context
+                    context:(id<MSIDRequestContext>)context
                       error:(NSError **)error;
 
-NS_ASSUME_NONNULL_END
 @end

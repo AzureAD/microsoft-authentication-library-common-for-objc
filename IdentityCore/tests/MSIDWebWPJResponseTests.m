@@ -38,13 +38,13 @@
 - (void)testInit_whenWrongScheme_shouldReturnNilWithError
 {
     NSError *error = nil;
-    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithScheme:@"https"
-                                                                                 host:@"wpj"
-                                                                           parameters:nil context:nil error:&error];
-    
+    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://wpj"]]
+                                                                           context:nil
+                                                                             error:&error];
+
     XCTAssertNil(response);
     XCTAssertNotNil(error);
-    
+
     XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorInvalidParameter);
 }
@@ -53,20 +53,15 @@
 - (void)testInit_whenGoodInput_shouldReturnResponsewithNoError
 {
     NSError *error = nil;
-    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithScheme:@"msauth"
-                                                                                 host:@"wpj"
-                                                                           parameters:@{
-                                                                                        @"app_link":@"https://link",
-                                                                                        @"upn":@"user@sample.com"
-                                                                                        }
-                                                                              context:nil
-                                                                                error:&error];
-    
+    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&upn=user"]]
+                                                                           context:nil
+                                                                             error:&error];
+
     XCTAssertNotNil(response);
     XCTAssertNil(error);
-    
-    XCTAssertEqualObjects(response.upn, @"user@sample.com");
-    XCTAssertEqualObjects(response.appInstallLink, @"https://link");   
+
+    XCTAssertEqualObjects(response.upn, @"user");
+    XCTAssertEqualObjects(response.appInstallLink, @"applink");
 
 }
 

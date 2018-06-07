@@ -38,15 +38,17 @@
 - (void)testInitWithParameters_whenNoAuthCodeAndNoError_shouldReturnNilAndInvalidParameterError
 {
     NSError *error = nil;
-    XCTAssertNil([[MSIDWebOAuth2Response alloc] initWithParameters:@{} context:nil error:&error]);
+    XCTAssertNil([[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://contoso.com"]
+                                                    context:nil error:&error]);
     XCTAssertEqual(error.code, MSIDErrorInvalidParameter);
 }
 
 - (void)testInitWithParameters_whenAuthCode_shouldReturnAuthCode
 {
     NSError *error = nil;
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithParameters:@{MSID_OAUTH2_CODE : @"authCode"}
-                                                                                context:nil error:&error];
+    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://contoso.com?code=authCode"]
+                                                                         context:nil
+                                                                           error:&error];
     
     XCTAssertEqualObjects(response.authorizationCode, @"authCode");
     XCTAssertNil(response.oauthError);
@@ -59,14 +61,20 @@
     NSString *errorString = @"invalid_grant";
     NSString *errorDescription = @"error description";
     NSString *subError = @"suberror";
+
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
+    urlComponents.queryItems = @{
+                                 MSID_OAUTH2_ERROR : errorString,
+                                 MSID_OAUTH2_ERROR_DESCRIPTION : errorDescription,
+                                 MSID_OAUTH2_SUB_ERROR : subError,
+                                 }.urlQueryItemsArray;
     
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithParameters:@{
-                                                                                          MSID_OAUTH2_ERROR : errorString,
-                                                                                          MSID_OAUTH2_ERROR_DESCRIPTION : errorDescription,
-                                                                                          MSID_OAUTH2_SUB_ERROR : subError,
-                                                                                          }
-                                                                                context:nil
-                                                                                  error:&error];
+    
+    
+    
+    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:urlComponents.URL
+                                                                         context:nil
+                                                                           error:&error];
     
     XCTAssertNil(response.authorizationCode);
     XCTAssertNil(error);

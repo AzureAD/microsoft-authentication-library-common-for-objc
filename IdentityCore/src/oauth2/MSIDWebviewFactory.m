@@ -26,9 +26,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebviewSession.h"
-
 #import <WebKit/WebKit.h>
-
 #import "MSIDSystemWebviewController.h"
 
 @implementation MSIDWebviewFactory
@@ -40,6 +38,7 @@
     return nil;
 }
 
+#if TARGET_OS_IPHONE
 - (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration verifyState:(BOOL)verifyState context:(id<MSIDRequestContext>)context
 {
     NSString *state = [self generateStateValue];
@@ -55,7 +54,7 @@
                                                                             verifyState:verifyState];
     return session;
 }
-
+#endif
 
 #pragma mark - Webview helpers
 
@@ -100,6 +99,8 @@
 {
     if (!configuration) return nil;
     if (configuration.explicitStartURL) return configuration.explicitStartURL;
+    
+    if (!configuration.authorizationEndpoint) return nil;
     
     NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:configuration.authorizationEndpoint resolvingAgainstBaseURL:NO];
     NSDictionary *parameters = [self authorizationParametersFromConfiguration:configuration requestState:state];

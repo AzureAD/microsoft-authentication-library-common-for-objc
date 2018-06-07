@@ -34,6 +34,14 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
+    if (!url)
+    {
+        if (error){
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"Trying to create a response with nil", nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
     self = [super init];
     if (self)
     {
