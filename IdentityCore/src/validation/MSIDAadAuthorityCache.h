@@ -27,8 +27,9 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorityCacheRecord.h"
+#import "MSIDCache.h"
 
-@interface MSIDAadAuthorityCache : NSCache
+@interface MSIDAadAuthorityCache : MSIDCache
 
 + (MSIDAadAuthorityCache *)sharedInstance;
 

@@ -28,7 +28,7 @@
 #import "MSIDAuthorityCacheRecord.h"
 
 static NSString *const s_kTrustedRelation = @"http://schemas.microsoft.com/rel/trusted-realm";
-static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
+static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
 
 @implementation MSIDAdfsAuthorityResolver
 
@@ -36,11 +36,11 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
 {
     if (self == [MSIDAdfsAuthorityResolver self])
     {
-        s_cache = [NSCache new];
+        s_cache = [MSIDCache new];
     }
 }
 
-+ (NSCache *)cache
++ (MSIDCache *)cache
 {
     return s_cache;
 }

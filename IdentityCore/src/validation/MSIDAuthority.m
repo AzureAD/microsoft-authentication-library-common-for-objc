@@ -39,7 +39,7 @@
 #import "MSIDOpenIdConfigurationInfoRequest.h"
 
 static NSSet<NSString *> *s_trustedHostList;
-static NSCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
+static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
 
 // Trusted authorities
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
@@ -63,11 +63,11 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
                              MSIDTrustedAuthorityWorldWide,
                              MSIDTrustedAuthorityUSGovernment,
                              MSIDTrustedAuthorityCloudGovApi, nil];
-        s_openIdConfigurationCache = [NSCache new];
+        s_openIdConfigurationCache = [MSIDCache new];
     }
 }
 
-+ (NSCache *)openIdConfigurationCache
++ (MSIDCache *)openIdConfigurationCache
 {
     return s_openIdConfigurationCache;
 }
