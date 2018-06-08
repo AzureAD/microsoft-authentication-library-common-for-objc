@@ -70,6 +70,24 @@
 }
 
 #pragma mark - Webview starting
+- (void)testStartSession_whenSessionIsNil_shouldReturnErrorAtCompletionHandler
+{
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
+    
+    [MSIDWebviewAuthorization startSession:nil
+                               verifyState:NO
+                                   context:nil
+                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                             XCTAssertNil(response);
+                             XCTAssertNotNil(error);
+                             XCTAssertEqual(error.code, MSIDErrorInvalidRequest);
+                             
+                             [expectation fulfill];
+                         }];
+    
+    [self waitForExpectationsWithTimeout:0.5 handler:nil];
+}
+
 - (void)testStartSession_whenNoSessionRunning_shouldStart
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];

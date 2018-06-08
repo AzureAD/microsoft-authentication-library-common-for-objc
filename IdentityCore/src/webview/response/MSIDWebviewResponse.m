@@ -37,7 +37,7 @@
     if (!url)
     {
         if (error){
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"Trying to create a response with nil", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"Trying to create a response with nil URL", nil, nil, nil, context.correlationId, nil);
         }
         return nil;
     }

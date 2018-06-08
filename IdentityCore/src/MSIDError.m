@@ -61,7 +61,7 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_scope"] == NSOrderedSame)
     {
-        return MSIDErrorInvalidParameter;
+        return MSIDErrorInvalidScope;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame)
     {

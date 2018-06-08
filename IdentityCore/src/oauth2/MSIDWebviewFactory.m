@@ -28,6 +28,7 @@
 #import "MSIDWebviewSession.h"
 #import <WebKit/WebKit.h>
 #import "MSIDSystemWebviewController.h"
+#import "MSIDPkce.h"
 
 @implementation MSIDWebviewFactory
 
@@ -43,9 +44,10 @@
 {
     NSString *state = [self generateStateValue];
     NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
+    NSURL *redirectURL = [NSURL URLWithString:configuration.redirectUri];
     
     MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
-                                                                                 callbackURLScheme:configuration.redirectUri
+                                                                                 callbackURLScheme:redirectURL.scheme
                                                                                            context:context];
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWVC
@@ -81,8 +83,11 @@
     parameters[MSID_OAUTH2_LOGIN_HINT] = configuration.loginHint;
     
     // PKCE
-    parameters[MSID_OAUTH2_CODE_CHALLENGE] = configuration.pkce.codeChallenge;
-    parameters[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = configuration.pkce.codeChallengeMethod;
+    if (configuration.pkce)
+    {
+        parameters[MSID_OAUTH2_CODE_CHALLENGE] = configuration.pkce.codeChallenge;
+        parameters[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = configuration.pkce.codeChallengeMethod;
+    }
     
     NSDictionary *msalId = [MSIDDeviceId deviceId];
     [parameters addEntriesFromDictionary:msalId];

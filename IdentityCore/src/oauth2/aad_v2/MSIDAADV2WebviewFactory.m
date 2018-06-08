@@ -43,6 +43,10 @@
     NSOrderedSet<NSString *> *allScopes = configuration.scopes;
     parameters[MSID_OAUTH2_SCOPE] = [NSString stringWithFormat:@"%@ %@", MSID_OAUTH2_SCOPE_OPENID_VALUE,  [allScopes msidToString]];
     parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
+    
+    parameters[MSID_OAUTH2_LOGIN_REQ] = configuration.uid;
+    parameters[MSID_OAUTH2_DOMAIN_REQ] = configuration.utid;
+    
     parameters[@"haschrome"] = @"1";
     
     return parameters;

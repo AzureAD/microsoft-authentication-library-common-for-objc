@@ -26,15 +26,21 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDConfiguration.h"
-#import "MSIDPkce.h"
 
-@interface MSIDWebviewConfiguration : MSIDConfiguration
+@class MSIDPkce;
+
+@interface MSIDWebviewConfiguration : NSObject
 
 // Common
 @property (readwrite) NSURL *authorizationEndpoint;
+@property (readwrite) NSString *redirectUri;
+@property (readwrite) NSString *clientId;
+@property (readwrite) NSString *resource;
+@property (readwrite) NSOrderedSet<NSString *> *scopes;
+@property (readwrite) NSUUID *correlationId;
 
 @property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
+@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
 
@@ -43,23 +49,23 @@
 @property (readwrite) BOOL verifyState;
 
 // PKCE Support
-@property (readwrite) MSIDPkce *pkce;
+@property (readonly) MSIDPkce *pkce;
 
 // User information
+@property (readwrite) NSString *loginHint;
 @property (readwrite) NSString *utid;
 @property (readwrite) NSString *uid;
 
 // Priority start URL
 @property (readwrite) NSURL *explicitStartURL;
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-            authorizationEndpoint:(NSURL *)authorizationEndpoint
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target
-                    correlationId:(NSUUID *)correlationId;
+- (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint
+                                  redirectUri:(NSString *)redirectUri
+                                     clientId:(NSString *)clientId
+                                     resource:(NSString *)resource
+                                       scopes:(NSOrderedSet<NSString *> *)scopes
+                                correlationId:(NSUUID *)correlationId
+                                   enablePkce:(BOOL)enablePkce;
 
-- (instancetype)initWithAuthority:(NSURL *)authority redirectUri:(NSString *)redirectUri clientId:(NSString *)clientId target:(NSString *)target correlationId:(NSUUID *)correlationId NS_UNAVAILABLE;
-- (instancetype)initWithAuthority:(NSURL *)authority redirectUri:(NSString *)redirectUri clientId:(NSString *)clientId target:(NSString *)target NS_UNAVAILABLE;
 
 @end

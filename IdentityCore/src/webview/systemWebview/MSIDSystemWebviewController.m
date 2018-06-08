@@ -34,17 +34,25 @@
 @implementation MSIDSystemWebviewController
 {
     id<MSIDRequestContext> _context;
-
-    MSIDSFAuthenticationSession *_authSession;
-    MSIDSafariViewController *_safariViewController;
-    
-    MSIDOauth2Factory *_factory;
+    id<MSIDWebviewInteracting> _session;
 }
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
                          context:(id<MSIDRequestContext>)context
 {
+    if (!startURL)
+    {
+        MSID_LOG_WARN(context, @"Attemped to start with nil URL");
+        return nil;
+    }
+    
+    if (!callbackURLScheme)
+    {
+        MSID_LOG_WARN(context, @"Attemped to start with invalid redirect uri");
+        return nil;
+    }
+    
     self = [super init];
     
     if (self)
@@ -59,35 +67,23 @@
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    if (!_startURL)
-    {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidParameter, @"Attemped to start with nil URL", nil, nil, nil, _context.correlationId, nil);
-        completionHandler(nil, error);
-        return;
-    }
-    
     if (@available(iOS 11.0, *))
     {
-        _authSession = [[MSIDSFAuthenticationSession alloc] initWithURL:self.startURL
-                                                      callbackURLScheme:self.callbackURLScheme
-                                                                context:_context];
+        _session = [[MSIDSFAuthenticationSession alloc] initWithURL:self.startURL
+                                                  callbackURLScheme:self.callbackURLScheme
+                                                            context:_context];
 
-        if (_authSession)
-        {
-            [_authSession startWithCompletionHandler:completionHandler];
-            return;
-        }
     }
     else
     {
-        _safariViewController = [[MSIDSafariViewController alloc] initWithURL:_startURL
-                                                                     context:_context];
-        
-        if (_safariViewController)
-        {
-            [_safariViewController startWithCompletionHandler:completionHandler];
-            return;
-        }
+        _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                         context:_context];
+    }
+    
+    if (_session)
+    {
+        [_session startWithCompletionHandler:completionHandler];
+        return;
     }
     
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to create an auth session", nil, nil, nil, _context.correlationId, nil);
@@ -97,10 +93,7 @@
 
 - (void)cancel
 {
-    if (@available(iOS 11.0, *))
-        [_authSession cancel];
-    else
-        [_safariViewController cancel];
+    [_session cancel];
 }
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
@@ -111,15 +104,18 @@
         return NO;
     }
     
-    if (@available(iOS 11.0, *)) { return NO; }
-    
-    if (!_safariViewController)
+    if (!_session)
     {
         MSID_LOG_ERROR(_context, @"Received MSID web response without a current session running.");
         return NO;
     }
     
-    return [_safariViewController handleURLResponse:url];
+    if ([(NSObject *)_session isKindOfClass:MSIDSystemWebviewController.class])
+    {
+        return [((MSIDSystemWebviewController *)_session) handleURLResponseForSafariViewController:url];
+    }
+    
+    return NO;
 }
 
 @end

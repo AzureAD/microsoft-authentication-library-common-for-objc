@@ -56,12 +56,15 @@
 - (void)testStartURL_whenExplicitStartURL_shouldReturnStartURL
 {
 
-    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
-                                                                     authorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
-                                                                               redirectUri:DEFAULT_TEST_REDIRECT_URI
-                                                                                  clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                    target:DEFAULT_TEST_SCOPE
-                                                                             correlationId:nil];
+    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
+                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
+                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                              resource:nil
+                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                                         correlationId:nil
+                                                                                            enablePkce:NO];
+                                        
+                                        
     config.explicitStartURL = [NSURL URLWithString:@"https://contoso.com"];
 
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
@@ -74,18 +77,17 @@
 {
     __block NSUUID *correlationId = [NSUUID new];
 
-    MSIDPkce *pkce = [[MSIDPkce alloc] init];
-
-    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
-                                                                     authorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
-                                                                               redirectUri:DEFAULT_TEST_REDIRECT_URI
-                                                                                  clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                    target:DEFAULT_TEST_SCOPE
-                                                                             correlationId:correlationId];
+    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
+                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
+                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                              resource:nil
+                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                                         correlationId:correlationId
+                                                                                            enablePkce:YES];
+    
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     config.promptBehavior = @"login";
     config.claims = @"claim";
-    config.pkce = pkce;
     config.utid = DEFAULT_TEST_UTID;
     config.uid = DEFAULT_TEST_UID;
     config.sliceParameters = DEFAULT_TEST_SLICE_PARAMS_DICT;

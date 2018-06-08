@@ -97,6 +97,14 @@ static MSIDWebviewSession *s_currentSession = nil;
              context:(id<MSIDRequestContext>)context
    completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
+    // check session nil
+    if (!session)
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidRequest, @"Interactive session failed to create.", nil, nil, nil, context.correlationId, nil);
+        completionHandler(nil, error);
+        return;
+    }
+    
     if (![self setCurrentWebSession:session])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Only one interactive session is allowed at a time.", nil, nil, nil, context.correlationId, nil);
