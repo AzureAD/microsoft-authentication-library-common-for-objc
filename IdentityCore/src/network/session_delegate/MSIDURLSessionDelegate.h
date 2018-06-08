@@ -22,12 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDChallengeHandling.h"
 
-typedef NSURLSessionAuthChallengeDisposition (^MSIDURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
+typedef void (^MSIDURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, ChallengeCompletionHandler completionHandler);
 
-typedef NSURLRequest *(^MSIDURLSessionTaskWillPerformHTTPRedirectionBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLResponse *response, NSURLRequest *request);
+typedef void (^MSIDHttpRedirectionCompletionHandler)(NSURLRequest *);
 
-typedef NSURLSessionAuthChallengeDisposition (^MSIDURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
+typedef void (^MSIDURLSessionTaskWillPerformHTTPRedirectionBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLResponse *response, NSURLRequest *request, MSIDHttpRedirectionCompletionHandler completionHandler);
+
+typedef void (^MSIDURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, ChallengeCompletionHandler completionHandler);
 
 @interface MSIDURLSessionDelegate : NSObject <NSURLSessionDelegate, NSURLSessionTaskDelegate>
 

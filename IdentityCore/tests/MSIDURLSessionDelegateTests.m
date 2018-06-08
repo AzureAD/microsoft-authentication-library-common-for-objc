@@ -68,12 +68,11 @@
     __auto_type challendge = [NSURLAuthenticationChallenge new];
     __auto_type credential = [NSURLCredential new];
     
-    delegate.sessionDidReceiveAuthenticationChallengeBlock = ^NSURLSessionAuthChallengeDisposition(NSURLSession *s, NSURLAuthenticationChallenge *ch, NSURLCredential *__autoreleasing *cr)
+    delegate.sessionDidReceiveAuthenticationChallengeBlock = ^void (NSURLSession *s, NSURLAuthenticationChallenge *ch, ChallengeCompletionHandler completionHandler)
     {
         XCTAssertEqual(session, s);
         XCTAssertEqual(challendge, ch);
-        *cr = credential;
-        return NSURLSessionAuthChallengeUseCredential;
+        completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     };
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"session:didReceiveChallenge:completionHandler"];
@@ -116,13 +115,12 @@
     __auto_type credential = [NSURLCredential new];
     __auto_type task = [NSURLSessionTask new];
     
-    delegate.taskDidReceiveAuthenticationChallengeBlock = ^NSURLSessionAuthChallengeDisposition(NSURLSession *s, NSURLSessionTask *t, NSURLAuthenticationChallenge *ch, NSURLCredential *__autoreleasing *cr)
+    delegate.taskDidReceiveAuthenticationChallengeBlock = ^void (NSURLSession *s, NSURLSessionTask *t, NSURLAuthenticationChallenge *ch, ChallengeCompletionHandler completionHandler)
     {
         XCTAssertEqual(session, s);
         XCTAssertEqual(task, t);
         XCTAssertEqual(challendge, ch);
-        *cr = credential;
-        return NSURLSessionAuthChallengeUseCredential;
+        completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     };
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"session:didReceiveChallenge:completionHandler"];

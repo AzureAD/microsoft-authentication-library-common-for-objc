@@ -28,23 +28,19 @@
 #pragma mark - NSURLSessionDelegate
 
 - (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
- completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential))completionHandler
+ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
     MSID_LOG_VERBOSE(nil, @"%@ - %@. Previous challenge failure count: %ld", @"session:didReceiveChallenge:completionHandler", authMethod, (long)challenge.previousFailureCount);
     
-    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-    __block NSURLCredential *credential = nil;
-    
     if (self.sessionDidReceiveAuthenticationChallengeBlock)
     {
-        disposition = self.sessionDidReceiveAuthenticationChallengeBlock(session, challenge, &credential);
+        self.sessionDidReceiveAuthenticationChallengeBlock(session, challenge, completionHandler);
     }
-    
-    if (completionHandler)
+    else if (completionHandler)
     {
-        completionHandler(disposition, credential);
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     }
 }
 
@@ -59,17 +55,13 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     
     MSID_LOG_VERBOSE(nil, @"%@ - %@. Previous challenge failure count: %ld", @"session:task:didReceiveChallenge:completionHandler", authMethod, (long)challenge.previousFailureCount);
     
-    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-    __block NSURLCredential *credential = nil;
-    
     if (self.taskDidReceiveAuthenticationChallengeBlock)
     {
-        disposition = self.taskDidReceiveAuthenticationChallengeBlock(session, task, challenge, &credential);
+        self.taskDidReceiveAuthenticationChallengeBlock(session, task, challenge, completionHandler);
     }
-    
-    if (completionHandler)
+    else if (completionHandler)
     {
-        completionHandler(disposition, credential);
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     }
 }
 
@@ -82,16 +74,13 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     MSID_LOG_INFO(nil, @"Redirecting to %@", _PII_NULLIFY(request.URL.absoluteString));
     MSID_LOG_INFO_PII(nil, @"Redirecting to %@", request.URL.absoluteString);
     
-    NSURLRequest *redirectRequest = request;
-    
     if (self.taskWillPerformHTTPRedirectionBlock)
     {
-        redirectRequest = self.taskWillPerformHTTPRedirectionBlock(session, task, response, request);
+        self.taskWillPerformHTTPRedirectionBlock(session, task, response, request, completionHandler);
     }
-    
-    if (completionHandler)
+    else if (completionHandler)
     {
-        completionHandler(redirectRequest);
+        completionHandler(request);
     }
 }
 
