@@ -32,6 +32,8 @@
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -186,6 +188,37 @@
 
     token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
     return YES;
+}
+
+- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+{
+    // Validate generic authority, so we don't cache with "organizations" as it's not supported on AAD v1
+    NSURL *authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
+    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
+}
+
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+{
+    if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
+    {
+        // AAD v1 doesn't support consumer authority
+        return @[];
+    }
+
+    NSMutableArray *lookupAuthorities = [NSMutableArray array];
+
+    // Validate generic authority, so we don't lookup cache with "organizations" as it's not supported on AAD v1
+    if ([MSIDAuthority isTenantless:originalAuthority])
+    {
+        [lookupAuthorities addObject:[MSIDAuthority universalAuthorityURL:originalAuthority]];
+    }
+    else
+    {
+        [lookupAuthorities addObject:originalAuthority];
+        [lookupAuthorities addObject:[MSIDAuthority commonAuthorityWithURL:originalAuthority]];
+    }
+
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthorities:lookupAuthorities];
 }
 
 #pragma mark - Webview controllers

@@ -32,6 +32,7 @@
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
 #import "MSIDOauth2Factory+Internal.h"
+#import "MSIDAadAuthorityCache.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -174,6 +175,16 @@
 
     account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:response.idTokenObj.realm];
     return YES;
+}
+
+- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:originalAuthority context:context];
+}
+
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
 }
 
 #pragma mark - Webview controllers

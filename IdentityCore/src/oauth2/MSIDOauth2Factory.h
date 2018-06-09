@@ -59,6 +59,12 @@
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
+// Cache URL and aliases
+- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context;
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context;
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context;
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context;
+
 // Webviews
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                      customWebview:(WKWebView *)webview;

@@ -32,15 +32,18 @@
 @class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @class MSIDLegacyAccessToken;
+@class MSIDOauth2Factory;
 
 @interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDCacheAccessor>
 
 - (MSIDLegacyAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
+                                            factory:(MSIDOauth2Factory *)factory
                                       configuration:(MSIDConfiguration *)configuration
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error;
 
 - (MSIDLegacySingleResourceToken *)getSingleResourceTokenForAccount:(MSIDAccountIdentifier *)account
+                                                            factory:(MSIDOauth2Factory *)factory
                                                       configuration:(MSIDConfiguration *)configuration
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error;

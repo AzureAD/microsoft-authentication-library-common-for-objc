@@ -343,6 +343,26 @@
     return YES;
 }
 
+- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+{
+    return originalAuthority;
+}
+
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+{
+    return @[originalAuthority];
+}
+
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+{
+    return @[originalAuthority];
+}
+
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
+{
+    return @[originalEnvironment];
+}
+
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                      customWebview:(WKWebView *)webview

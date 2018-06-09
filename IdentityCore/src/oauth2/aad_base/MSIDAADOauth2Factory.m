@@ -35,6 +35,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDOauth2Factory+Internal.h"
+#import "MSIDAadAuthorityCache.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -116,6 +117,16 @@
     {
         MSID_LOG_INFO_CORR(requestCorrelationId, @"Missing correlation id - No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
     }
+}
+
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
+}
+
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
 }
 
 #pragma mark - Tokens

@@ -98,6 +98,25 @@
     return authorityURL;
 }
 
++ (NSURL *)commonAuthorityWithURL:(NSURL *)authorityURL
+{
+    if (!authorityURL)
+    {
+        return nil;
+    }
+
+    NSArray *paths = authorityURL.pathComponents;
+
+    if ([paths count] >= 2)
+    {
+        NSURLComponents *components = [NSURLComponents componentsWithURL:authorityURL resolvingAgainstBaseURL:NO];
+        components.path = @"/common";
+        return [components URL];
+    }
+
+    return authorityURL;
+}
+
 + (BOOL)isTenantless:(NSURL *)authority
 {
     NSArray *authorityURLPaths = authority.pathComponents;

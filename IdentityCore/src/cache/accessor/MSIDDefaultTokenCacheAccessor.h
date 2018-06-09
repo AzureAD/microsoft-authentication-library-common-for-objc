@@ -55,6 +55,7 @@
                        error:(NSError **)error;
 
 - (BOOL)validateAndRemoveRefreshToken:(MSIDRefreshToken *)token
+                              factory:(MSIDOauth2Factory *)factory
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
 

@@ -63,6 +63,7 @@
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
 
 - (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)environment;
+- (NSArray<NSURL *> *)cacheAliasesForAuthorities:(NSArray<NSURL *> *)authorities;
 
 - (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
               authority:(NSURL *)authority
