@@ -119,12 +119,17 @@
     }
 }
 
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+- (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:originalEnvironment context:context];
+}
+
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
 {
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
 }
 
-- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
 {
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
 }

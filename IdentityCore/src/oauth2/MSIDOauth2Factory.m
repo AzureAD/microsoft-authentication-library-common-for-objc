@@ -348,17 +348,22 @@
     return originalAuthority;
 }
 
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+- (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
+{
+    return originalEnvironment;
+}
+
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
 {
     return @[originalAuthority];
 }
 
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
     return @[originalAuthority];
 }
 
-- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
 {
     return @[originalEnvironment];
 }

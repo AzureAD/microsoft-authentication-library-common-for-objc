@@ -197,7 +197,7 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
 }
 
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
     if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
     {
@@ -210,10 +210,12 @@
     // Validate generic authority, so we don't lookup cache with "organizations" as it's not supported on AAD v1
     if ([MSIDAuthority isTenantless:originalAuthority])
     {
+        // If it's a tenantless authority, just lookup common
         [lookupAuthorities addObject:[MSIDAuthority universalAuthorityURL:originalAuthority]];
     }
     else
     {
+        // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
         [lookupAuthorities addObject:originalAuthority];
         [lookupAuthorities addObject:[MSIDAuthority commonAuthorityWithURL:originalAuthority]];
     }

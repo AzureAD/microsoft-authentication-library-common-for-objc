@@ -27,7 +27,6 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
-#import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDConfiguration.h"
 #import "MSIDTokenResponse.h"
@@ -214,7 +213,7 @@
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     __auto_type items = [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 
-    NSArray<NSString *> *environmentAliases = [factory cacheAliasesForEnvironment:environment context:context];
+    NSArray<NSString *> *environmentAliases = [factory cacheAliasesForEnvironment:environment];
 
     BOOL (^filterBlock)(MSIDCredentialCacheItem *tokenCacheItem) = ^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
         if ([environmentAliases count] && ![tokenCacheItem.environment msidIsEquivalentWithAnyAlias:environmentAliases])
@@ -269,7 +268,7 @@
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
-    NSArray *aliases = [factory cacheAliasesForAuthority:configuration.authority context:context];
+    NSArray *aliases = [factory cacheAliasesForAuthority:configuration.authority];
 
     return (MSIDLegacyAccessToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                             type:MSIDAccessTokenType
@@ -287,7 +286,7 @@
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error
 {
-    NSArray *aliases = [factory cacheAliasesForAuthority:configuration.authority context:context];
+    NSArray *aliases = [factory cacheAliasesForAuthority:configuration.authority];
 
     return (MSIDLegacySingleResourceToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                                     type:MSIDLegacySingleResourceTokenType
@@ -390,7 +389,7 @@
                                                     error:(NSError **)error
 {
     NSString *clientId = familyId ? [MSIDCacheKey familyClientId:familyId] : configuration.clientId;
-    NSArray<NSURL *> *aliases = [factory refreshTokenLookupAuthorities:configuration.authority context:context];
+    NSArray<NSURL *> *aliases = [factory refreshTokenLookupAuthorities:configuration.authority];
 
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", clientId, aliases);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, clientId, aliases);
