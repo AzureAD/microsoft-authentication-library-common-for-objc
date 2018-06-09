@@ -35,11 +35,13 @@
 @interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDCacheAccessor>
 
 - (MSIDAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
+                                      factory:(MSIDOauth2Factory *)factory
                                 configuration:(MSIDConfiguration *)configuration
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError **)error;
 
 - (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)account
+                              factory:(MSIDOauth2Factory *)factory
                         configuration:(MSIDConfiguration *)configuration
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
