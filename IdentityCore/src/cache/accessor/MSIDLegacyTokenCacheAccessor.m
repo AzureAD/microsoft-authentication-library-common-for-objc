@@ -81,6 +81,7 @@
 {
     if (response.isMultiResource)
     {
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving multi resource refresh token");
         BOOL result = [self saveAccessTokenWithFactory:factory configuration:configuration response:response context:context error:error];
 
         if (!result) return NO;
@@ -89,6 +90,7 @@
     }
     else
     {
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving single resource refresh token");
         return [self saveLegacySingleResourceTokenWithFactory:factory configuration:configuration response:response context:context error:error];
     }
 }
@@ -99,6 +101,8 @@
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error
 {
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
+
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:response.authority]
                                                                         redirectUri:nil
                                                                            clientId:response.clientId
@@ -131,6 +135,8 @@
         [self fillInternalErrorWithMessage:@"No response provided" context:context error:error];
         return NO;
     }
+
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving SSO state");
 
     BOOL result = [self saveRefreshTokenWithFactory:factory
                                       configuration:configuration
@@ -166,6 +172,9 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get refresh token with authority %@, clientId %@, familyID %@", configuration.authority, configuration.clientId, familyId);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Get refresh token with authority %@, clientId %@, familyID %@, account %@", configuration.authority, configuration.clientId, familyId, account.homeAccountId);
+
     MSIDRefreshToken *refreshToken = [self getRefreshTokenForAccountImpl:account
                                                                 familyId:familyId
                                                                  factory:factory
@@ -186,6 +195,7 @@
 
             if (refreshToken)
             {
+                MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found refresh token in a different accessor %@", [accessor class]);
                 return refreshToken;
             }
         }
@@ -208,6 +218,8 @@
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get accounts with environment %@, clientId %@, familyId %@", environment, clientId, familyId);
+
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
@@ -241,10 +253,12 @@
 
     if ([refreshTokens count] == 0)
     {
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found no refresh tokens");
         [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
     }
     else
     {
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found %d refresh tokens", [refreshTokens count]);
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
 
@@ -658,6 +672,7 @@
 
         if (cacheItem)
         {
+            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found token");
             MSIDBaseToken *token = [cacheItem tokenWithType:type];
             token.storageAuthority = token.authority;
             token.authority = authority;
@@ -719,6 +734,7 @@
         
         if ([matchedTokens count])
         {
+            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found token");
             MSIDBaseToken *token = matchedTokens[0];
             token.storageAuthority = token.authority;
             token.authority = authority;

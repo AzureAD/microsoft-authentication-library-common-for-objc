@@ -72,6 +72,8 @@
                       context:(id<MSIDRequestContext>)context
                         error:(NSError *__autoreleasing *)error
 {
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving multi resource refresh token");
+
     BOOL result = [self saveAccessTokenWithFactory:factory configuration:configuration response:response context:context error:error];
 
     if (!result) return result;
@@ -105,6 +107,8 @@
         [self fillInternalErrorWithMessage:@"No token response provided" context:context error:error];
         return NO;
     }
+
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving SSO state");
 
     BOOL result = [self saveIDTokenWithFactory:factory configuration:configuration response:response context:context error:error];
     result &= [self saveRefreshTokenWithFactory:factory configuration:configuration response:response context:context error:error];
@@ -194,6 +198,7 @@
 
         if (refreshToken)
         {
+            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found refresh token in a different accessor %@", [accessor class]);
             return refreshToken;
         }
     }
@@ -271,6 +276,8 @@
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@", environment, clientId, familyId);
+
     NSMutableSet *filteredAccountsSet = [NSMutableSet set];
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
@@ -353,6 +360,9 @@
         [self fillInternalErrorWithMessage:@"Missing parameter, please provide account, clientId and environment" context:context error:error];
         return NO;
     }
+
+    MSID_LOG_VERBOSE(context, @"Clearing cache for environment: %@, client ID %@", environment, clientId);
+    MSID_LOG_VERBOSE(context, @"Clearing cache for environment: %@, client ID %@, account %@", environment, clientId, account.homeAccountId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
@@ -651,6 +661,7 @@
 
             if (resultToken)
             {
+                MSID_LOG_VERBOSE(context, @"(Default accessor) Found %lu tokens", (unsigned long)[cacheItems count]);
                 resultToken.storageAuthority = resultToken.authority;
                 resultToken.authority = authority;
                 [MSIDTelemetry stopCacheEvent:event withItem:resultToken success:YES context:context];
@@ -715,6 +726,7 @@
 
             if ([rtCacheItems count])
             {
+                MSID_LOG_VERBOSE(context, @"(Default accessor) Found %lu refresh tokens", (unsigned long)[rtCacheItems count]);
                 MSIDCredentialCacheItem *resultItem = rtCacheItems[0];
                 MSIDBaseToken *resultToken = [resultItem tokenWithType:MSIDRefreshTokenType];
                 resultToken.storageAuthority = resultToken.authority;
