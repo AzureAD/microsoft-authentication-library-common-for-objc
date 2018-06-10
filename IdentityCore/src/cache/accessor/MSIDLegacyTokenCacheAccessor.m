@@ -24,7 +24,6 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDLegacySingleResourceToken.h"
-#import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDLegacyTokenCacheKey.h"
@@ -42,6 +41,7 @@
 #import "NSString+MSIDExtensions.h"
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDTelemetry+Cache.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -208,7 +208,7 @@
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     __auto_type items = [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
@@ -239,11 +239,14 @@
                                                                  returnFirst:NO
                                                                     filterBy:filterBlock];
 
-    [self stopTelemetryLookupEvent:event
-                         tokenType:MSIDRefreshTokenType
-                         withToken:nil
-                           success:[refreshTokens count] > 0
-                           context:context];
+    if ([refreshTokens count] == 0)
+    {
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
+    }
+    else
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
+    }
 
     NSMutableSet *resultAccounts = [NSMutableSet set];
 
@@ -355,7 +358,7 @@
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Clearing cache with account");
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Clearing cache with account %@", account.legacyAccountId);
 
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     query.legacyUserId = account.legacyAccountId;
@@ -364,7 +367,7 @@
 
     [_dataSource saveWipeInfoWithContext:context error:nil];
 
-    [self stopTelemetryEvent:event withItem:nil success:result context:context];
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
 }
 
@@ -528,7 +531,7 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
     
     NSURL *newAuthority = [factory cacheURLFromAuthority:token.authority context:context];
     
@@ -551,8 +554,7 @@
                                  context:context
                                    error:error];
 
-    [self stopTelemetryEvent:event withItem:token success:result context:context];
-    
+    [MSIDTelemetry stopCacheEvent:event withItem:token success:result context:context];
     return result;
 }
 
@@ -594,7 +596,7 @@
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Removing token with clientId %@, authority %@", token.clientId, token.authority);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Removing token %@ with account %@", token, userId);
 
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
     
     MSIDCredentialCacheItem *cacheItem = token.tokenCacheItem;
  
@@ -612,7 +614,7 @@
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
     
-    [self stopTelemetryEvent:event withItem:nil success:result context:context];
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
 }
 
@@ -627,7 +629,7 @@
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     for (NSURL *alias in aliases)
     {
@@ -649,7 +651,7 @@
         
         if (cacheError)
         {
-            [self stopTelemetryLookupEvent:event tokenType:type withToken:nil success:NO context:context];
+            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
             if (error) *error = cacheError;
             return nil;
         }
@@ -659,12 +661,19 @@
             MSIDBaseToken *token = [cacheItem tokenWithType:type];
             token.storageAuthority = token.authority;
             token.authority = authority;
-            [self stopTelemetryLookupEvent:event tokenType:type withToken:token success:YES context:context];
+            [MSIDTelemetry stopCacheEvent:event withItem:token success:YES context:context];
             return token;
         }
     }
 
-    [self stopTelemetryLookupEvent:event tokenType:type withToken:nil success:NO context:context];
+    if (type == MSIDRefreshTokenType)
+    {
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
+    }
+    else
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+    }
     return nil;
 }
 
@@ -677,6 +686,8 @@
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error
 {
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+
     for (NSURL *alias in aliases)
     {
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@", alias, clientId, resource);
@@ -692,6 +703,7 @@
         
         if (cacheError)
         {
+            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
             if (error) *error = cacheError;
             return nil;
         }
@@ -710,53 +722,13 @@
             MSIDBaseToken *token = matchedTokens[0];
             token.storageAuthority = token.authority;
             token.authority = authority;
+            [MSIDTelemetry stopCacheEvent:event withItem:token success:YES context:context];
             return token;
         }
     }
-    
+
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
     return nil;
-}
-
-#pragma mark - Telemetry helpers
-
-- (MSIDTelemetryCacheEvent *)startCacheEventWithName:(NSString *)cacheEventName
-                                             context:(id<MSIDRequestContext>)context
-{
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:cacheEventName];
-
-    return [[MSIDTelemetryCacheEvent alloc] initWithName:cacheEventName context:context];
-}
-
-- (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
-                  withItem:(MSIDBaseToken *)token
-                   success:(BOOL)success
-                   context:(id<MSIDRequestContext>)context
-{
-    [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
-    if (token)
-    {
-        [event setToken:token];
-    }
-    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
-                                        event:event];
-}
-
-- (void)stopTelemetryLookupEvent:(MSIDTelemetryCacheEvent *)event
-                       tokenType:(MSIDCredentialType)tokenType
-                       withToken:(MSIDBaseToken *)token
-                         success:(BOOL)success
-                         context:(id<MSIDRequestContext>)context
-{
-    if (!success && tokenType == MSIDRefreshTokenType)
-    {
-        [event setWipeData:[_dataSource wipeInfo:context error:nil]];
-    }
-    
-    [self stopTelemetryEvent:event
-                    withItem:token
-                     success:success
-                     context:context];
 }
 
 @end

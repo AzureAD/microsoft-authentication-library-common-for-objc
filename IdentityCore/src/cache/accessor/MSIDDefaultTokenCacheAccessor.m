@@ -38,6 +38,7 @@
 #import "MSIDBrokerResponse.h"
 #import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDTelemetry+Cache.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -209,13 +210,12 @@
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
                                              error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     NSArray<MSIDCredentialCacheItem *> *cacheItems = [_accountCredentialCache getAllItemsWithContext:context error:error];
     NSArray<MSIDBaseToken *> *tokens = [self validTokensFromCacheItems:cacheItems];
 
-    [self stopCacheEvent:event withItem:nil success:[cacheItems count] > 0 context:context];
-
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:[cacheItems count] > 0 context:context];
     return tokens;
 }
 
@@ -273,7 +273,7 @@
 {
     NSMutableSet *filteredAccountsSet = [NSMutableSet set];
 
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     NSArray<NSString *> *environmentAliases = [factory cacheAliasesForEnvironment:environment];
     __auto_type accountsPerUserId = [self getAccountsPerUserIdForAliases:environmentAliases context:context error:error];
@@ -281,7 +281,7 @@
     if (!accountsPerUserId)
     {
         MSID_LOG_INFO(context, @"No accounts found, returning!");
-        [self stopCacheEvent:event withItem:nil success:NO context:context];
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
         return nil;
     }
 
@@ -302,11 +302,14 @@
         [filteredAccountsSet addObjectsFromArray:accounts];
     }
 
-    [self stopTelemetryLookupEvent:event
-                         tokenType:MSIDRefreshTokenType
-                         withToken:nil
-                           success:[resultCredentials count] > 0
-                           context:context];
+    if ([resultCredentials count] == 0)
+    {
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
+    }
+    else
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
+    }
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
@@ -331,9 +334,9 @@
         return NO;
     }
 
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
     BOOL result = [_accountCredentialCache removeAccount:account.accountCacheItem context:context error:error];
-    [self stopCacheEvent:event withItem:nil success:result context:context];
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
 }
 
@@ -351,7 +354,7 @@
         return NO;
     }
 
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.clientId = clientId;
@@ -363,7 +366,7 @@
 
     if (!result)
     {
-        [self stopCacheEvent:event withItem:nil success:NO context:context];
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
         return NO;
     }
 
@@ -372,8 +375,7 @@
     accountsQuery.environment = environment;
 
     result = [_accountCredentialCache removeAccountsWithQuery:accountsQuery context:context error:error];
-
-    [self stopCacheEvent:event withItem:nil success:result context:context];
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
 }
 
@@ -571,7 +573,7 @@
         return NO;
     }
 
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
     BOOL result = [_accountCredentialCache removeCredential:token.tokenCacheItem context:context error:error];
 
     if (result && token.credentialType == MSIDRefreshTokenType)
@@ -579,7 +581,7 @@
         [_accountCredentialCache saveWipeInfoWithContext:context error:nil];
     }
 
-    [self stopCacheEvent:event withItem:token success:result context:context];
+    [MSIDTelemetry stopCacheEvent:event withItem:token success:result context:context];
     return result;
 }
 
@@ -624,7 +626,7 @@
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     NSArray<NSString *> *aliases = [factory cacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
 
@@ -639,7 +641,7 @@
         if (cacheError)
         {
             if (error) *error = cacheError;
-            [self stopTelemetryLookupEvent:event tokenType:cacheQuery.credentialType withToken:nil success:NO context:context];
+            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
             return nil;
         }
 
@@ -651,14 +653,20 @@
             {
                 resultToken.storageAuthority = resultToken.authority;
                 resultToken.authority = authority;
-
-                [self stopTelemetryLookupEvent:event tokenType:cacheQuery.credentialType withToken:resultToken success:YES context:context];
+                [MSIDTelemetry stopCacheEvent:event withItem:resultToken success:YES context:context];
                 return resultToken;
             }
         }
     }
 
-    [self stopTelemetryLookupEvent:event tokenType:cacheQuery.credentialType withToken:nil success:YES context:context];
+    if (cacheQuery.credentialType == MSIDRefreshTokenType)
+    {
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
+    }
+    else
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+    }
     return nil;
 }
 
@@ -670,7 +678,7 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     NSArray<NSURL *> *aliases = [factory cacheAliasesForAuthority:authority];
 
@@ -711,16 +719,13 @@
                 MSIDBaseToken *resultToken = [resultItem tokenWithType:MSIDRefreshTokenType];
                 resultToken.storageAuthority = resultToken.authority;
                 resultToken.authority = authority;
-
-                [self stopTelemetryLookupEvent:event tokenType:MSIDRefreshTokenType withToken:resultToken success:YES context:context];
-
+                [MSIDTelemetry stopCacheEvent:event withItem:resultToken success:YES context:context];
                 return resultToken;
             }
         }
     }
 
-    [self stopTelemetryLookupEvent:event tokenType:MSIDRefreshTokenType withToken:nil success:NO context:context];
-
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
     return nil;
 }
 
@@ -734,15 +739,13 @@
         return NO;
     }
 
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
 
     MSIDCredentialCacheItem *cacheItem = token.tokenCacheItem;
     cacheItem.environment = [factory cacheEnvironmentFromEnvironment:cacheItem.environment context:context];
 
     BOOL result = [_accountCredentialCache saveCredential:cacheItem context:context error:error];
-    
-    [self stopCacheEvent:event withItem:token success:result context:context];
-    
+    [MSIDTelemetry stopCacheEvent:event withItem:token success:result context:context];
     return result;
 }
 
@@ -756,14 +759,12 @@
         return NO;
     }
 
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
     MSIDAccountCacheItem *cacheItem = account.accountCacheItem;
     cacheItem.environment = [factory cacheEnvironmentFromEnvironment:account.authority.msidHostWithPortIfNecessary context:context];
 
     BOOL result = [_accountCredentialCache saveAccount:cacheItem context:context error:error];
-
-    [self stopCacheEvent:event withItem:nil success:result context:context];
-
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
 }
 
@@ -778,45 +779,6 @@
     }
 
     return tokens;
-}
-
-#pragma mark - Telemetry helpers
-
-- (MSIDTelemetryCacheEvent *)startCacheEventWithName:(NSString *)cacheEventName
-                                             context:(id<MSIDRequestContext>)context
-{
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:cacheEventName];
-
-    return [[MSIDTelemetryCacheEvent alloc] initWithName:cacheEventName context:context];
-}
-
-- (void)stopCacheEvent:(MSIDTelemetryCacheEvent *)event
-              withItem:(MSIDBaseToken *)token
-               success:(BOOL)success
-               context:(id<MSIDRequestContext>)context
-{
-    [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
-    if (token) {[event setToken:token];}
-    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
-                                        event:event];
-}
-
-- (void)stopTelemetryLookupEvent:(MSIDTelemetryCacheEvent *)event
-                       tokenType:(MSIDCredentialType)tokenType
-                       withToken:(MSIDBaseToken *)token
-                         success:(BOOL)success
-                         context:(id<MSIDRequestContext>)context
-{
-    if (!success && tokenType == MSIDRefreshTokenType)
-    {
-        [event setWipeData:[_accountCredentialCache wipeInfoWithContext:context error:nil]];
-    }
-    
-    [self stopCacheEvent:event
-                withItem:token
-                 success:success
-                context:context];
 }
 
 @end
