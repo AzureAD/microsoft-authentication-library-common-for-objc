@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDCredentialType.h"
 
 @class MSIDTokenResponse;
 @class MSIDBaseToken;
@@ -60,7 +61,10 @@
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
 // Cache URL and aliases
-- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context;
+- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority
+                  credentialType:(MSIDCredentialType)type
+                         context:(id<MSIDRequestContext>)context;
+
 - (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context;
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority;
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority;

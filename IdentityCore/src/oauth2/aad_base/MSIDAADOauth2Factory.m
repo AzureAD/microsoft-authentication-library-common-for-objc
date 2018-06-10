@@ -124,6 +124,13 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:originalEnvironment context:context];
 }
 
+- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority
+                  credentialType:(MSIDCredentialType)type
+                         context:(id<MSIDRequestContext>)context
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:originalAuthority context:context];
+}
+
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
 {
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];

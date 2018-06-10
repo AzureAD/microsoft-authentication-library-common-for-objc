@@ -177,11 +177,6 @@
     return YES;
 }
 
-- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
-{
-    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:originalAuthority context:context];
-}
-
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];

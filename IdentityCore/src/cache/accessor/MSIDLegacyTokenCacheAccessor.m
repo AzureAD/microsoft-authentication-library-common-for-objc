@@ -258,7 +258,7 @@
     }
     else
     {
-        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found %d refresh tokens", [refreshTokens count]);
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found %lu refresh tokens", (unsigned long)[refreshTokens count]);
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
 
@@ -547,7 +547,7 @@
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
     
-    NSURL *newAuthority = [factory cacheURLFromAuthority:token.authority context:context];
+    NSURL *newAuthority = [factory cacheURLFromAuthority:token.authority credentialType:token.credentialType context:context];
     
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving token %@ with authority %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:tokenCacheItem.credentialType], newAuthority, tokenCacheItem.clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving token %@ for account %@ with authority %@, clientID %@", tokenCacheItem, userId, newAuthority, tokenCacheItem.clientId);

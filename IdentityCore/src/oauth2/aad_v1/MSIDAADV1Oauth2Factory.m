@@ -190,10 +190,21 @@
     return YES;
 }
 
-- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority
+                  credentialType:(MSIDCredentialType)type
+                         context:(id<MSIDRequestContext>)context
 {
-    // Validate generic authority, so we don't cache with "organizations" as it's not supported on AAD v1
-    NSURL *authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
+    NSURL *authority = nil;
+
+    if (type == MSIDRefreshTokenType)
+    {
+        authority = [MSIDAuthority commonAuthorityWithURL:originalAuthority];
+    }
+    else
+    {
+        authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
+    }
+
     return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
 }
 

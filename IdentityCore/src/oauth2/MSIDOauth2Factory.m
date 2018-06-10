@@ -343,7 +343,9 @@
     return YES;
 }
 
-- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context
+- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority
+                  credentialType:(MSIDCredentialType)type
+                         context:(id<MSIDRequestContext>)context
 {
     return originalAuthority;
 }
