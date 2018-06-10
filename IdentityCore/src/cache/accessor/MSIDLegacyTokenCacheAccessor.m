@@ -546,30 +546,40 @@
             error:(NSError **)error
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
-    
-    NSURL *newAuthority = [factory cacheURLFromAuthority:token.authority credentialType:token.credentialType context:context];
-    
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving token %@ with authority %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:tokenCacheItem.credentialType], newAuthority, tokenCacheItem.clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving token %@ for account %@ with authority %@, clientID %@", tokenCacheItem, userId, newAuthority, tokenCacheItem.clientId);
-    
-    // The authority used to retrieve the item over the network can differ from the preferred authority used to
-    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
-    // it with we switch it out before saving it to cache.
-    tokenCacheItem.authority = newAuthority;
 
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:newAuthority
-                                                                             clientId:tokenCacheItem.clientId
-                                                                             resource:tokenCacheItem.target
-                                                                         legacyUserId:userId];
-    
-    BOOL result = [_dataSource saveToken:tokenCacheItem
-                                     key:key
-                              serializer:_serializer
-                                 context:context
-                                   error:error];
+    NSArray *aliases = [factory cacheURLsFromAuthority:token.authority credentialType:token.credentialType context:context];
 
-    [MSIDTelemetry stopCacheEvent:event withItem:token success:result context:context];
-    return result;
+    for (NSURL *alias in aliases)
+    {
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving token %@ with authority %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:tokenCacheItem.credentialType], alias, tokenCacheItem.clientId);
+        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving token %@ for account %@ with authority %@, clientID %@", tokenCacheItem, userId, alias, tokenCacheItem.clientId);
+
+        // The authority used to retrieve the item over the network can differ from the preferred authority used to
+        // cache the item. As it would be awkward to cache an item using an authority other then the one we store
+        // it with we switch it out before saving it to cache.
+        tokenCacheItem.authority = alias;
+
+        MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:alias
+                                                                                 clientId:tokenCacheItem.clientId
+                                                                                 resource:tokenCacheItem.target
+                                                                             legacyUserId:userId];
+
+        BOOL result = [_dataSource saveToken:tokenCacheItem
+                                         key:key
+                                  serializer:_serializer
+                                     context:context
+                                       error:error];
+
+        if (!result)
+        {
+            [MSIDTelemetry stopCacheEvent:event withItem:token success:NO context:context];
+            MSID_LOG_VERBOSE(context, @"Failed to save token with alias: %@", alias);
+            return NO;
+        }
+    }
+
+    [MSIDTelemetry stopCacheEvent:event withItem:token success:YES context:context];
+    return YES;
 }
 
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context

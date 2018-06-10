@@ -190,27 +190,27 @@
     return YES;
 }
 
-- (NSURL *)cacheURLFromAuthority:(NSURL *)originalAuthority
-                  credentialType:(MSIDCredentialType)type
-                         context:(id<MSIDRequestContext>)context
+- (NSArray<NSURL *> *)cacheURLsFromAuthority:(NSURL *)originalAuthority
+                              credentialType:(MSIDCredentialType)type
+                                     context:(id<MSIDRequestContext>)context
 {
     if (!originalAuthority)
     {
-        return nil;
+        return @[];
     }
 
-    NSURL *authority = nil;
+    NSURL *authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
 
     if (type == MSIDRefreshTokenType)
     {
-        authority = [MSIDAuthority commonAuthorityWithURL:originalAuthority];
+        NSURL *commonAuthority = [MSIDAuthority commonAuthorityWithURL:originalAuthority];
+        return @[[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context],
+                 [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:commonAuthority context:context]];
     }
     else
     {
-        authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
+        return @[[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context]];
     }
-
-    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
 }
 
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
