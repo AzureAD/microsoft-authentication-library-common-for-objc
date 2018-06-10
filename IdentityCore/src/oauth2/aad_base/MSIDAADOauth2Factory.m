@@ -141,6 +141,11 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
 }
 
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
+}
+
 #pragma mark - Tokens
 
 - (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken

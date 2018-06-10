@@ -177,11 +177,6 @@
     return YES;
 }
 
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
-{
-    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
-}
-
 #pragma mark - Webview controllers
 - (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
                                                            Webview:(WKWebView *)webview

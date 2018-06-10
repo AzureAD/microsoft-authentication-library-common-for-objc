@@ -357,16 +357,31 @@
 
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
 {
+    if (!originalAuthority)
+    {
+        return @[];
+    }
+
     return @[originalAuthority];
 }
 
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
+    if (!originalAuthority)
+    {
+        return @[];
+    }
+
     return @[originalAuthority];
 }
 
 - (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
 {
+    if (!originalEnvironment)
+    {
+        return @[];
+    }
+
     return @[originalEnvironment];
 }
 

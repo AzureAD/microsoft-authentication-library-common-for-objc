@@ -194,6 +194,11 @@
                   credentialType:(MSIDCredentialType)type
                          context:(id<MSIDRequestContext>)context
 {
+    if (!originalAuthority)
+    {
+        return nil;
+    }
+
     NSURL *authority = nil;
 
     if (type == MSIDRefreshTokenType)
@@ -210,6 +215,11 @@
 
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
+    if (!originalAuthority)
+    {
+        return @[];
+    }
+
     if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
     {
         // AAD v1 doesn't support consumer authority
