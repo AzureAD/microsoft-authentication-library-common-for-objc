@@ -636,7 +636,7 @@
     XCTAssertEqualObjects(token, returnedToken);
 }
 
-- (void)testGetSharedRTForAccountAfterSaving_whenMultipleRTsWithDifferentAuthorities_shouldSaveOneTokenAndReturnOneToken
+- (void)testGetSharedRTForAccountAfterSaving_whenMultipleRTsWithDifferentAuthorities_shouldSaveTwoTokensAndReturnCorrectToken
 {
     // Save first token
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
@@ -685,7 +685,7 @@
     XCTAssertEqualObjects(firstToken, returnedToken);
     
     NSArray *allRTs = [self getAllLegacyRefreshTokens];
-    XCTAssertEqual([allRTs count], 1);
+    XCTAssertEqual([allRTs count], 2);
 }
 
 - (void)testGetSharedRTForAccountAfterSaving_whenAccountWithUidUtidProvided_shouldReturnToken
