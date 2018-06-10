@@ -36,6 +36,7 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -124,13 +125,6 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:originalEnvironment context:context];
 }
 
-- (NSArray<NSURL *> *)cacheURLsFromAuthority:(NSURL *)originalAuthority
-                              credentialType:(MSIDCredentialType)type
-                                     context:(id<MSIDRequestContext>)context
-{
-    return @[[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:originalAuthority context:context]];
-}
-
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
 {
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
@@ -141,9 +135,51 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
 }
 
+- (NSArray<NSURL *> *)cacheURLsFromAuthority:(NSURL *)originalAuthority
+                              credentialType:(MSIDCredentialType)type
+                                     context:(id<MSIDRequestContext>)context
+{
+    if (!originalAuthority)
+    {
+        return @[];
+    }
+
+    NSURL *authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
+
+    if (type == MSIDRefreshTokenType)
+    {
+        NSURL *commonAuthority = [MSIDAuthority commonAuthorityWithURL:originalAuthority];
+        return @[[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context],
+                 [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:commonAuthority context:context]];
+    }
+    else
+    {
+        return @[[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context]];
+    }
+}
+
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
-    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
+    if (!originalAuthority)
+    {
+        return @[];
+    }
+
+    NSMutableArray *lookupAuthorities = [NSMutableArray array];
+
+    if ([MSIDAuthority isTenantless:originalAuthority])
+    {
+        // If it's a tenantless authority, lookupb by universal "common" authority, which is supported by both v1 and v2
+        [lookupAuthorities addObject:[MSIDAuthority universalAuthorityURL:originalAuthority]];
+    }
+    else
+    {
+        // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
+        [lookupAuthorities addObject:originalAuthority];
+        [lookupAuthorities addObject:[MSIDAuthority commonAuthorityWithURL:originalAuthority]];
+    }
+
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthorities:lookupAuthorities];
 }
 
 #pragma mark - Tokens

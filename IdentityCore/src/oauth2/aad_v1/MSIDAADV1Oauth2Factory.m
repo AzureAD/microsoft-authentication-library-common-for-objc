@@ -190,58 +190,15 @@
     return YES;
 }
 
-- (NSArray<NSURL *> *)cacheURLsFromAuthority:(NSURL *)originalAuthority
-                              credentialType:(MSIDCredentialType)type
-                                     context:(id<MSIDRequestContext>)context
-{
-    if (!originalAuthority)
-    {
-        return @[];
-    }
-
-    NSURL *authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
-
-    if (type == MSIDRefreshTokenType)
-    {
-        NSURL *commonAuthority = [MSIDAuthority commonAuthorityWithURL:originalAuthority];
-        return @[[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context],
-                 [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:commonAuthority context:context]];
-    }
-    else
-    {
-        return @[[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context]];
-    }
-}
-
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
-    if (!originalAuthority)
-    {
-        return @[];
-    }
-
     if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
     {
         // AAD v1 doesn't support consumer authority
         return @[];
     }
 
-    NSMutableArray *lookupAuthorities = [NSMutableArray array];
-
-    // Validate generic authority, so we don't lookup cache with "organizations" as it's not supported on AAD v1
-    if ([MSIDAuthority isTenantless:originalAuthority])
-    {
-        // If it's a tenantless authority, just lookup common
-        [lookupAuthorities addObject:[MSIDAuthority universalAuthorityURL:originalAuthority]];
-    }
-    else
-    {
-        // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
-        [lookupAuthorities addObject:originalAuthority];
-        [lookupAuthorities addObject:[MSIDAuthority commonAuthorityWithURL:originalAuthority]];
-    }
-
-    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthorities:lookupAuthorities];
+    return [super refreshTokenLookupAuthorities:originalAuthority];
 }
 
 #pragma mark - Webview controllers
