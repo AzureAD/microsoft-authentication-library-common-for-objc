@@ -40,6 +40,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAADV2Oauth2Factory.h"
 
 @interface MSIDTestRequestContext : NSObject <MSIDRequestContext>
 
@@ -116,6 +117,7 @@
     // read the refresh token in order to log wipe data in telemetry
     MSIDRefreshToken *returnedToken = [_legacyCacheAccessor getRefreshTokenWithAccount:account
                                                                               familyId:nil
+                                                                               factory:[MSIDAADV1Oauth2Factory new]
                                                                          configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                                context:reqContext
                                                                                  error:&error];
@@ -179,6 +181,7 @@
     NSArray *returnedTokens = [_legacyCacheAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
                                                                      clientId:@"test_client_id"
                                                                      familyId:nil
+                                                                      factory:[MSIDAADV1Oauth2Factory new]
                                                                       context:reqContext
                                                                         error:&error];
     
@@ -237,6 +240,7 @@
     
     // remove the refresh token to trigger wipe data being written
     result = [_defaultCacheAccessor validateAndRemoveRefreshToken:token
+                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                           context:reqContext
                                                             error:&error];
     XCTAssertNil(error);
@@ -244,6 +248,7 @@
     // read the refresh token in order to log wipe data in telemetry
     MSIDRefreshToken *returnedToken = [_defaultCacheAccessor getRefreshTokenWithAccount:account
                                                                                familyId:nil
+                                                                                factory:[MSIDAADV2Oauth2Factory new]
                                                                           configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                                 context:reqContext
                                                                                   error:&error];
@@ -302,6 +307,7 @@
     
     // remove the refresh token to trigger wipe data being written
     result = [_defaultCacheAccessor validateAndRemoveRefreshToken:token
+                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                           context:reqContext
                                                             error:&error];
     XCTAssertNil(error);
@@ -310,6 +316,7 @@
     NSArray *returnedTokens = [_defaultCacheAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
                                                                       clientId:@"test_client_id"
                                                                       familyId:nil
+                                                                       factory:[MSIDAADV2Oauth2Factory new]
                                                                        context:reqContext
                                                                          error:&error];
     // expect no token because it has been deleted

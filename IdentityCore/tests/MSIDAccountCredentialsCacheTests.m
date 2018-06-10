@@ -2037,12 +2037,11 @@
 #pragma mark - wipeInfoWithContext
 
 #if TARGET_OS_IOS
-- (void)testWipeInfoWithContext_whenNoWipeInfo_shouldReturnNil
+- (void)testWipeInfoWithContext_whenNoWipeInfo_shouldReturnNilAndNilError
 {
     NSError *error = nil;
     NSDictionary *wipeInfo = [self.cache wipeInfoWithContext:nil error:&error];
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, errSecItemNotFound);
+    XCTAssertNil(error);
     XCTAssertNil(wipeInfo);
 }
 

@@ -186,7 +186,7 @@
     NSArray *allTokens = [_nonSSOAccessor allTokensWithContext:nil error:nil];
     XCTAssertEqual([allTokens count], 3);
 
-    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 1);
@@ -265,7 +265,7 @@
     NSArray *allTokens = [_nonSSOAccessor allTokensWithContext:nil error:nil];
     XCTAssertEqual([allTokens count], 3);
 
-    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 1);
@@ -362,6 +362,7 @@
     NSArray *clientAccounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
                                                                clientId:@"test_client_id"
                                                                familyId:nil
+                                                                factory:[MSIDAADV2Oauth2Factory new]
                                                                 context:nil
                                                                   error:&error];
 
@@ -370,6 +371,7 @@
     NSArray *familyAccounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
                                                                clientId:nil
                                                                familyId:@"2"
+                                                                factory:[MSIDAADV2Oauth2Factory new]
                                                                 context:nil
                                                                   error:&error];
 
@@ -378,6 +380,7 @@
     NSArray *allAccounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
                                                             clientId:@"test_client_id"
                                                             familyId:@"2"
+                                                             factory:[MSIDAADV2Oauth2Factory new]
                                                              context:nil
                                                                error:&error];
 
@@ -462,7 +465,7 @@
     NSArray *defaultIDTokens = [self getAllIDTokens];
     XCTAssertEqual([defaultIDTokens count], 1);
 
-    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
     XCTAssertNotNil(accounts);
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
@@ -510,7 +513,7 @@
     NSArray *defaultIDTokens = [self getAllIDTokens];
     XCTAssertEqual([defaultIDTokens count], 1);
 
-    NSArray *allAccounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil context:nil error:&error];
+    NSArray *allAccounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual([allAccounts count], 0);
@@ -563,6 +566,7 @@
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                                     configuration:configuration
                                                                           context:nil
                                                                            error:&error];
@@ -623,6 +627,7 @@
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                                     configuration:configuration
                                                                           context:nil
                                                                             error:&error];
@@ -680,6 +685,7 @@
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:@"3"
+                                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                                     configuration:configuration
                                                                           context:nil
                                                                             error:&error];
@@ -741,6 +747,7 @@
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:@"3"
+                                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                                     configuration:configuration
                                                                           context:nil
                                                                             error:&error];
@@ -802,6 +809,7 @@
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:@"3"
+                                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                                     configuration:configuration
                                                                           context:nil
                                                                             error:&error];
@@ -863,6 +871,7 @@
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                                     configuration:configuration
                                                                           context:nil
                                                                             error:&error];
@@ -924,6 +933,7 @@
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:@"3"
+                                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                                     configuration:configuration
                                                                           context:nil
                                                                             error:&error];
@@ -968,6 +978,7 @@
     NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                                     configuration:configuration
                                                                           context:nil
                                                                             error:&error];
@@ -1031,6 +1042,7 @@
     NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net"
                                                           clientId:@"test_client_id"
                                                           familyId:nil
+                                                            factory:[MSIDAADV2Oauth2Factory new]
                                                            context:nil
                                                              error:&error];
 
@@ -1059,6 +1071,7 @@
     NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net"
                                                           clientId:nil
                                                           familyId:@"3"
+                                                            factory:[MSIDAADV2Oauth2Factory new]
                                                            context:nil
                                                              error:&error];
 
@@ -1099,6 +1112,7 @@
     NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net"
                                                           clientId:@"test_client_id"
                                                           familyId:nil
+                                                            factory:[MSIDAADV2Oauth2Factory new]
                                                            context:nil
                                                              error:&error];
 
@@ -1143,6 +1157,7 @@
     NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net"
                                                            clientId:@"test_client_id2"
                                                            familyId:@"3"
+                                                            factory:[MSIDAADV2Oauth2Factory new]
                                                             context:nil
                                                               error:&error];
 
@@ -1202,115 +1217,13 @@
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
     NSError *error = nil;
-    MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account configuration:configuration context:nil error:&error];
+    MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account factory:[MSIDAADV2Oauth2Factory new] configuration:configuration context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accessToken);
     XCTAssertEqualObjects(accessToken.accessToken, @"access token");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.windows.net/utid");
-}
-
-- (void)testGetAccessTokenForAccount_whenAccessTokensInPrimaryCache_andNoAuthority_shouldReturnToken
-{
-    // Save first token
-    [self saveResponseWithUPN:@"upn@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.net/common"
-               responseScopes:@"user.read user.write"
-                  inputScopes:@"user.read user.write"
-                          uid:@"uid"
-                         utid:@"utid"
-                  accessToken:@"access token"
-                 refreshToken:@"refresh token"
-                     familyId:nil
-                     accessor:_nonSSOAccessor];
-
-    // Save second token
-    [self saveResponseWithUPN:@"upn@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.net/common"
-               responseScopes:@"user.sing"
-                  inputScopes:@"user.sing"
-                          uid:@"uid"
-                         utid:@"utid"
-                  accessToken:@"access token 2"
-                 refreshToken:@"refresh token"
-                     familyId:nil
-                     accessor:_nonSSOAccessor];
-
-    // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
-    XCTAssertEqual([refreshTokens count], 1);
-
-    NSArray *accessTokens = [self getAllAccessTokens];
-    XCTAssertEqual([accessTokens count], 2);
-
-    // Get token
-    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
-                                                                                clientId:@"test_client_id"
-                                                                             redirectUri:nil
-                                                                                  target:@"user.write"];
-
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
-    NSError *error = nil;
-    MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account configuration:configuration context:nil error:&error];
-
-    XCTAssertNil(error);
-    XCTAssertNotNil(accessToken);
-    XCTAssertEqualObjects(accessToken.accessToken, @"access token");
-    XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
-    XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.windows.net/utid");
-}
-
-- (void)testGetAccessTokenForAccount_whenAccessTokensInPrimaryCache_andAmbigiousAuthority_shouldReturnNilAndError
-{
-    // Save first token
-    [self saveResponseWithUPN:@"upn@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.com/common"
-               responseScopes:@"user.read user.write"
-                  inputScopes:@"user.read user.write"
-                          uid:@"uid"
-                         utid:@"utid"
-                  accessToken:@"access token"
-                 refreshToken:@"refresh token"
-                     familyId:nil
-                     accessor:_nonSSOAccessor];
-
-    // Save second token
-    [self saveResponseWithUPN:@"upn@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.net/common"
-               responseScopes:@"user.read user.write"
-                  inputScopes:@"user.read user.write"
-                          uid:@"uid"
-                         utid:@"utid"
-                  accessToken:@"access token 2"
-                 refreshToken:@"refresh token"
-                     familyId:nil
-                     accessor:_nonSSOAccessor];
-
-    // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
-    XCTAssertEqual([refreshTokens count], 2);
-
-    NSArray *accessTokens = [self getAllAccessTokens];
-    XCTAssertEqual([accessTokens count], 2);
-
-    // Get token
-    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
-                                                                                clientId:@"test_client_id"
-                                                                             redirectUri:nil
-                                                                                  target:@"user.write"];
-
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
-    NSError *error = nil;
-    MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account configuration:configuration context:nil error:&error];
-
-    XCTAssertNotNil(error);
-    XCTAssertNil(accessToken);
-    XCTAssertEqual(error.code, MSIDErrorAmbiguousAuthority);
 }
 
 #pragma mark - Remove
@@ -1318,7 +1231,7 @@
 - (void)testValidateAndRemoveRefreshToken_whenNilTokenProvided_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_defaultAccessor validateAndRemoveRefreshToken:nil context:nil error:&error];
+    BOOL result = [_defaultAccessor validateAndRemoveRefreshToken:nil factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInternal);
@@ -1346,7 +1259,7 @@
     refreshToken.refreshToken = @"outdated refresh token";
 
     NSError *error = nil;
-    BOOL result = [_defaultAccessor validateAndRemoveRefreshToken:refreshToken context:nil error:&error];
+    BOOL result = [_defaultAccessor validateAndRemoveRefreshToken:refreshToken factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -1375,7 +1288,7 @@
     MSIDRefreshToken *refreshToken = refreshTokens[0];
 
     NSError *error = nil;
-    BOOL result = [_defaultAccessor validateAndRemoveRefreshToken:refreshToken context:nil error:&error];
+    BOOL result = [_defaultAccessor validateAndRemoveRefreshToken:refreshToken factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -1404,7 +1317,7 @@
     MSIDRefreshToken *refreshToken = refreshTokens[0];
 
     NSError *error = nil;
-    BOOL result = [_defaultAccessor validateAndRemoveRefreshToken:refreshToken context:nil error:&error];
+    BOOL result = [_defaultAccessor validateAndRemoveRefreshToken:refreshToken factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -1610,6 +1523,7 @@
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                         familyId:nil
+                                                                          factory:[MSIDAADV2Oauth2Factory new]
                                                                    configuration:configuration
                                                                          context:nil
                                                                            error:&error];
@@ -1670,7 +1584,7 @@
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid2"];
     NSError *error = nil;
-    MSIDIdToken *idToken = [_defaultAccessor getIDTokenForAccount:account configuration:configuration context:nil error:&error];
+    MSIDIdToken *idToken = [_defaultAccessor getIDTokenForAccount:account factory:[MSIDAADV2Oauth2Factory new] configuration:configuration context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(idToken);
@@ -1710,7 +1624,7 @@
                      accessor:_nonSSOAccessor];
 
     NSError *error = nil;
-    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net" clientId:@"test_client_id" familyId:nil context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net" clientId:@"test_client_id" familyId:nil factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
 
     XCTAssertNotNil(accounts);
     XCTAssertNil(error);
@@ -1722,7 +1636,7 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net" clientId:@"test_client_id" familyId:nil context:nil error:&error];
+    accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net" clientId:@"test_client_id" familyId:nil factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 0);
 }
@@ -1795,7 +1709,7 @@
                      accessor:_nonSSOAccessor];
 
     NSError *error = nil;
-    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net" clientId:@"test_client_id" familyId:nil context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net" clientId:@"test_client_id" familyId:nil factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error];
 
     XCTAssertNotNil(accounts);
     XCTAssertNil(error);
@@ -1851,6 +1765,7 @@
     accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net"
                                                   clientId:@"test_client_id"
                                                   familyId:nil
+                                                   factory:[MSIDAADV2Oauth2Factory new]
                                                    context:nil
                                                      error:&error];
     XCTAssertEqual([accounts count], 1);

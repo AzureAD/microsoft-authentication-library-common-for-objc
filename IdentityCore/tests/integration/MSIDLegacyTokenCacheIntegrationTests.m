@@ -293,6 +293,7 @@
     
     NSError *error = nil;
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
+                                                                     factory:[MSIDAADV1Oauth2Factory new]
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                      context:nil
                                                                        error:&error];
@@ -320,6 +321,7 @@
     account.legacyAccountId = nil;
 
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
+                                                                     factory:[MSIDAADV1Oauth2Factory new]
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                      context:nil
                                                                        error:&error];
@@ -347,6 +349,7 @@
                                      error:&error];
 
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
+                                                                     factory:[MSIDAADV1Oauth2Factory new]
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                      context:nil
                                                                        error:&error];
@@ -397,6 +400,7 @@
     
     // Check that correct token is returned
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
+                                                                     factory:[MSIDAADV1Oauth2Factory new]
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                      context:nil
                                                                        error:&error];
@@ -441,6 +445,7 @@
     
     // Check that correct token is returned
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
+                                                                     factory:[MSIDAADV1Oauth2Factory new]
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                      context:nil
                                                                        error:&error];
@@ -486,6 +491,7 @@
     
     // Check that correct token is returned
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
+                                                                     factory:[MSIDAADV1Oauth2Factory new]
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                      context:nil
                                                                        error:&error];
@@ -536,6 +542,7 @@
     
     // Check that correct token is returned
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
+                                                                     factory:[MSIDAADV1Oauth2Factory new]
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                      context:nil
                                                                        error:&error];
@@ -566,6 +573,7 @@
     XCTAssertTrue(result);
 
     MSIDLegacySingleResourceToken *token = [_legacyAccessor getSingleResourceTokenForAccount:account
+                                                                                     factory:[MSIDAADV1Oauth2Factory new]
                                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                                      context:nil
                                                                                        error:&error];
@@ -587,6 +595,7 @@
 
     MSIDRefreshToken *returnedToken = [_legacyAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:[MSIDAADV1Oauth2Factory new]
                                                                     configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                           context:nil
                                                                             error:&error];
@@ -617,6 +626,7 @@
     
     MSIDRefreshToken *returnedToken = [_legacyAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:[MSIDAADV1Oauth2Factory new]
                                                                     configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                           context:nil
                                                                             error:&error];
@@ -626,7 +636,7 @@
     XCTAssertEqualObjects(token, returnedToken);
 }
 
-- (void)testGetSharedRTForAccountAfterSaving_whenMultipleRTsWithDifferentAuthorities_shouldReturnCorrectToken
+- (void)testGetSharedRTForAccountAfterSaving_whenMultipleRTsWithDifferentAuthorities_shouldSaveOneTokenAndReturnOneToken
 {
     // Save first token
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
@@ -665,6 +675,7 @@
     // Check that correct token is returned
     MSIDRefreshToken *returnedToken = [_legacyAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:factory
                                                                     configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                           context:nil
                                                                             error:&error];
@@ -674,7 +685,7 @@
     XCTAssertEqualObjects(firstToken, returnedToken);
     
     NSArray *allRTs = [self getAllLegacyRefreshTokens];
-    XCTAssertEqual([allRTs count], 2);
+    XCTAssertEqual([allRTs count], 1);
 }
 
 - (void)testGetSharedRTForAccountAfterSaving_whenAccountWithUidUtidProvided_shouldReturnToken
@@ -703,6 +714,7 @@
     // Check that correct token is returned
     MSIDRefreshToken *returnedToken = [_legacyAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:[MSIDAADV1Oauth2Factory new]
                                                                     configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                           context:nil
                                                                             error:&error];
@@ -714,8 +726,13 @@
 
 - (void)testGetSharedRTForAccountAfterSaving_whenAccountWithUidUtidProvided_andOrganizationsAuthority_shouldReturnToken
 {
+    MSIDConfiguration *organizationConfiguration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/organizations"
+                                                                                            clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                         redirectUri:nil
+                                                                                              target:DEFAULT_TEST_SCOPE];
+
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
+    MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:organizationConfiguration];
     token.storageAuthority = token.authority;
     
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
@@ -736,21 +753,19 @@
     account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil
                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
     
-    MSIDConfiguration *organizationConfiguration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/organizations"
-                                                                                            clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                         redirectUri:nil
-                                                                                              target:DEFAULT_TEST_SCOPE];
-    
     // Check that correct token is returned
     MSIDRefreshToken *returnedToken = [_legacyAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:[MSIDAADV1Oauth2Factory new]
                                                                     configuration:organizationConfiguration
                                                                           context:nil
                                                                             error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(returnedToken);
+    token.storageAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
     XCTAssertEqualObjects(token, returnedToken);
+    XCTAssertEqualObjects(returnedToken.storageAuthority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
 }
 
 - (void)testGetSharedRTForAccountAfterSaving_whenConsumerAuthority_shouldReturnNil
@@ -779,6 +794,7 @@
     // Check that correct token is returned
     MSIDRefreshToken *returnedToken = [_nonSSOAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:[MSIDAADV1Oauth2Factory new]
                                                                     configuration:consumerParameters
                                                                           context:nil
                                                                             error:&error];
@@ -831,6 +847,7 @@
     // Check that correct token is returned
     MSIDRefreshToken *returnedToken = [_legacyAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
+                                                                          factory:[MSIDAADV1Oauth2Factory new]
                                                                     configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                           context:nil
                                                                             error:&error];
