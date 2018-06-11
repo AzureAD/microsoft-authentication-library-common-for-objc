@@ -38,41 +38,38 @@
 @protocol MSIDCacheAccessor <NSObject>
 
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-               otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors;
+               otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors
+                           factory:(MSIDOauth2Factory *)factory;
 
 /*!
  This method saves all tokens to the cache based on the token response.
  All tokens include: access tokens, refresh tokens, id tokens, accounts depending on the SDK
  */
-- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                configuration:(MSIDConfiguration *)configuration
-                     response:(MSIDTokenResponse *)response
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
+- (BOOL)saveTokensWithConfiguration:(MSIDConfiguration *)configuration
+                           response:(MSIDTokenResponse *)response
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error;
 
 /*!
  This method saves all tokens to the cache based on the broker response.
  All tokens include: access tokens, refresh tokens, id tokens, accounts depending on the SDK
  If saveSSOStateOnly flag is passed, it only saves SSO artifacts (refresh tokens and accounts)
  */
-- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-               brokerResponse:(MSIDBrokerResponse *)response
-             saveSSOStateOnly:(BOOL)saveSSOStateOnly
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
+- (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
+                    saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error;
 
 /*!
  This method saves only the SSO artifacts to the cache based on the broker response.
  */
-- (BOOL)saveSSOStateWithFactory:(MSIDOauth2Factory *)factory
-                  configuration:(MSIDConfiguration *)configuration
-                       response:(MSIDTokenResponse *)response
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error;
+- (BOOL)saveSSOStateWithConfiguration:(MSIDConfiguration *)configuration
+                             response:(MSIDTokenResponse *)response
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
 
 - (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
                                         familyId:(NSString *)familyId
-                                         factory:(MSIDOauth2Factory *)factory
                                    configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
@@ -80,7 +77,6 @@
 - (NSArray<MSIDAccount *> *)allAccountsForEnvironment:(NSString *)environment
                                              clientId:(NSString *)clientId
                                              familyId:(NSString *)familyId
-                                              factory:(MSIDOauth2Factory *)factory
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error;
 
