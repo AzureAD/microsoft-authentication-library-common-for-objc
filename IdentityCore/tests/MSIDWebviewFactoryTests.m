@@ -53,6 +53,44 @@
 
 
 #pragma mark - Webview (startURL)
+- (void)testAuthorizationParametersFromConfiguration_withValidParams_shouldContainsConfiguration
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    __block NSUUID *correlationId = [NSUUID new];
+    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
+                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
+                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                              resource:nil
+                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
+                                                                                         correlationId:correlationId
+                                                                                            enablePkce:YES];
+    
+    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    config.loginHint = @"fakeuser@contoso.com";
+    
+    NSString *requestState = @"state";
+
+    NSDictionary *params = [factory authorizationParametersFromConfiguration:config requestState:requestState];
+    
+    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
+                                        @{
+                                          @"client_id" : DEFAULT_TEST_CLIENT_ID,
+                                          @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
+                                          @"response_type" : @"code",
+                                          @"code_challenge_method" : @"S256",
+                                          @"code_challenge" : config.pkce.codeChallenge,
+                                          @"eqp1" : @"val1",
+                                          @"eqp2" : @"val2",
+                                          @"login_hint" : @"fakeuser@contoso.com",
+                                          @"state" : requestState.msidBase64UrlEncode,
+                                          @"scope" : @"scope1"
+                                          }];
+    
+    XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
+}
+
+
 - (void)testStartURL_whenExplicitStartURL_shouldReturnStartURL
 {
 
@@ -73,59 +111,34 @@
     XCTAssertEqual(url, config.explicitStartURL);
 }
 
-- (void)testStartURL_whenValidParams_shouldContainQPs
-{
-    __block NSUUID *correlationId = [NSUUID new];
 
-    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
+- (void)testStartURLFromConfiguration_whenNilConfiguration_shouldReturnNil
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    NSURL *url = [factory startURLFromConfiguration:nil requestState:nil];
+    
+    XCTAssertNil(url);
+}
+
+- (void)testStartURLFromConfiguration_whenAuthorizationEndpoint_shouldHaveMatchingSchemeAndHost
+{
+    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:@"https://contoso.com/paths"]
                                                                                            redirectUri:DEFAULT_TEST_REDIRECT_URI
                                                                                               clientId:DEFAULT_TEST_CLIENT_ID
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
-                                                                                         correlationId:correlationId
+                                                                                         correlationId:nil
                                                                                             enablePkce:YES];
-    
-    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
-    config.promptBehavior = @"login";
-    config.claims = @"claim";
-    config.utid = DEFAULT_TEST_UTID;
-    config.uid = DEFAULT_TEST_UID;
-    config.sliceParameters = DEFAULT_TEST_SLICE_PARAMS_DICT;
-    config.loginHint = @"fakeuser@contoso.com";
-
-    NSString *requestState = @"state";
 
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    NSURL *url = [factory startURLFromConfiguration:config requestState:requestState];
+    NSURL *url = [factory startURLFromConfiguration:config requestState:@"state"];
 
-    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
-    @{
-      @"client_id" : DEFAULT_TEST_CLIENT_ID,
-      @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
-      @"response_type" : @"code",
-      @"code_challenge_method" : @"S256",
-      @"code_challenge" : config.pkce.codeChallenge,
-      @"eqp1" : @"val1",
-      @"eqp2" : @"val2",
-      @"claims" : @"claim",
-      @"return-client-request-id" : correlationId.UUIDString,
-      @"login_hint" : @"fakeuser@contoso.com",
-      @"state" : requestState.msidBase64UrlEncode,
-      @"scope" : MSID_OAUTH2_SCOPE_OPENID_VALUE
-      }];
-    [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-    [expectedQPs addEntriesFromDictionary:DEFAULT_TEST_SLICE_PARAMS_DICT];
-
-    NSDictionary *QPs = [NSDictionary msidURLFormDecode:url.query];
-    XCTAssertTrue([expectedQPs compareAndPrintDiff:QPs]);
-    
-    NSURL *authorizationEndpoint = [NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT];
-    XCTAssertEqualObjects(url.scheme, authorizationEndpoint.scheme);
-    XCTAssertEqualObjects(url.host, authorizationEndpoint.host);
+    XCTAssertEqualObjects(url.scheme, @"https");
+    XCTAssertEqualObjects(url.host, @"contoso.com");
 }
 
 
-//#pragma mark - Webview (Response)
+#pragma mark - Webview (Response)
 - (void)testResponseWithURL_whenNilURL_shouldReturnNilAndError
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
@@ -138,7 +151,7 @@
 }
 
 
-- (void)testResponseWithURL_whenOAuth2Response_shouldReturnAADAuthResponse
+- (void)testResponseWithURL_whenURLContainsCode_shouldReturnAADAuthResponse
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
@@ -151,6 +164,8 @@
 
     XCTAssertTrue([response isKindOfClass:MSIDWebOAuth2Response.class]);
     XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(((MSIDWebOAuth2Response*)response).authorizationCode, @"authcode");
 }
 
 
@@ -202,7 +217,7 @@
     XCTAssertNotNil(error);
 }
 
-//#pragma mark - Webview (State verifier)
+#pragma mark - Webview (State verifier)
 - (void)testVerifyRequestState_whenNoRequestState_shouldFail
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];

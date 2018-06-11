@@ -30,17 +30,20 @@
 #import "MSIDSafariViewController.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOauth2Factory.h"
+#import "MSIDNetworkConfiguration.h"
 
 @implementation MSIDSystemWebviewController
 {
     id<MSIDRequestContext> _context;
-    id<MSIDWebviewInteracting> _session;
+    NSObject<MSIDWebviewInteracting> *_session;
 }
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
                          context:(id<MSIDRequestContext>)context
 {
+    MSIDNetworkConfiguration.retryCount = 5;
+    
     if (!startURL)
     {
         MSID_LOG_WARN(context, @"Attemped to start with nil URL");
@@ -110,7 +113,7 @@
         return NO;
     }
     
-    if ([(NSObject *)_session isKindOfClass:MSIDSystemWebviewController.class])
+    if ([_session isKindOfClass:MSIDSystemWebviewController.class])
     {
         return [((MSIDSystemWebviewController *)_session) handleURLResponseForSafariViewController:url];
     }

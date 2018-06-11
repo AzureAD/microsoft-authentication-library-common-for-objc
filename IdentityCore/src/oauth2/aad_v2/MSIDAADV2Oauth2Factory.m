@@ -180,7 +180,12 @@
 #pragma mark - Webview
 - (MSIDWebviewFactory *)webviewFactory
 {
-    return [[MSIDAADV2WebviewFactory alloc] init];
+    if (!_webviewFactory)
+    {
+        _webviewFactory = [[MSIDAADV2WebviewFactory alloc] init];
+    }
+    return _webviewFactory;
 }
+
 
 @end

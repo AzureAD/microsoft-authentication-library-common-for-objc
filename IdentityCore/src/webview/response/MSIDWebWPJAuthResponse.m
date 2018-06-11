@@ -39,7 +39,8 @@
     // Check for WPJ or broker response
     if (!([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"]))
     {
-        if (error){
+        if (error)
+        {
             *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"WPJ response should have msauth as a scheme and wpj/broker as a host", nil, nil, nil, context.correlationId, nil);
         }
         return nil;

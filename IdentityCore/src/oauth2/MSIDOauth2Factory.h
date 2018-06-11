@@ -41,6 +41,9 @@
 @protocol MSIDWebviewInteracting;
 
 @interface MSIDOauth2Factory : NSObject
+{
+    MSIDWebviewFactory *_webviewFactory;
+}
 
 // Response handling
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
@@ -62,8 +65,7 @@
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
 // Webview related
-- (MSIDWebviewFactory *)webviewFactory;
-
+@property(readonly) MSIDWebviewFactory *webviewFactory;
 
 @end
 

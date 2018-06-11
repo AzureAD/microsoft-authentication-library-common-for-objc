@@ -27,10 +27,8 @@
 
 #import "MSIDWebOAuth2Response.h"
 
-@class MSIDWebOAuth2Response;
-
 @interface MSIDWebAADAuthResponse : MSIDWebOAuth2Response
 
-@property(readonly) NSString *cloudHostName;
+@property (readonly) NSString *cloudHostName;
 
 @end

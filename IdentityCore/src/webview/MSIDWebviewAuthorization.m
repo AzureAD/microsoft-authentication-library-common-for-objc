@@ -105,7 +105,7 @@ static MSIDWebviewSession *s_currentSession = nil;
         return;
     }
     
-    if (![self setCurrentWebSession:session])
+    if (![self setCurrentSession:session])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Only one interactive session is allowed at a time.", nil, nil, nil, context.correlationId, nil);
         completionHandler(nil, error);
@@ -135,8 +135,7 @@ static MSIDWebviewSession *s_currentSession = nil;
 }
 
 
-+ (BOOL)setCurrentWebSession:(MSIDWebviewSession *)session
-
++ (BOOL)setCurrentSession:(MSIDWebviewSession *)session
 {
     @synchronized([MSIDWebviewAuthorization class])
     {
@@ -168,10 +167,12 @@ static MSIDWebviewSession *s_currentSession = nil;
     }
 }
 
+
 + (MSIDWebviewSession *)currentSession
 {
     return s_currentSession;
 }
+
 
 + (void)cancelCurrentSession
 {
@@ -192,7 +193,7 @@ static MSIDWebviewSession *s_currentSession = nil;
     @synchronized([MSIDWebviewAuthorization class])
     {
         if (s_currentSession &&
-            [(NSObject *)s_currentSession.webviewController isKindOfClass:MSIDSystemWebviewController.class])
+            [s_currentSession.webviewController isKindOfClass:MSIDSystemWebviewController.class])
         {
             return [((MSIDSystemWebviewController *)s_currentSession.webviewController) handleURLResponseForSafariViewController:url];
         }

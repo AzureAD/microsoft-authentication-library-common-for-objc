@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDWebviewFactory.h"
+#import "MSIDAADWebviewFactory.h"
 
-@interface MSIDAADV1WebviewFactory : MSIDWebviewFactory
+@interface MSIDAADV1WebviewFactory : MSIDAADWebviewFactory
 
 @end

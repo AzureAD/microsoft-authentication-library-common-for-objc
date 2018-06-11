@@ -29,7 +29,7 @@
 
 @implementation MSIDWebviewSession
 
-- (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
+- (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
                                   factory:(MSIDWebviewFactory *)factory
                              requestState:(NSString *)state
 {
@@ -40,13 +40,14 @@
 }
 
 
-- (instancetype)initWithWebviewController:(id<MSIDWebviewInteracting>)webviewController
+- (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
                                   factory:(MSIDWebviewFactory *)factory
                              requestState:(NSString *)state
                               verifyState:(BOOL)verifyState
 {
     self = [super init];
-    if (self) {
+    if (self)
+    {
         _webviewController = webviewController;
         _factory = factory;
         _requestState = state;

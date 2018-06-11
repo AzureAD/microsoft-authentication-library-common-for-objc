@@ -69,15 +69,7 @@
 
     if (serverOAuth2Error)
     {
-        //login_required  ; has error_description
-        //access_denied ; has error_subcode
         NSString *errorDescription = parameters[MSID_OAUTH2_ERROR_DESCRIPTION];
-        if (!errorDescription)
-        {
-            //
-            errorDescription = parameters[MSID_OAUTH2_ERROR_SUBCODE];
-        }
-        
         NSString *subError = parameters[MSID_OAUTH2_SUB_ERROR];
         MSIDErrorCode errorCode = MSIDErrorCodeForOAuthError(serverOAuth2Error, MSIDErrorAuthorizationFailed);
         

@@ -61,11 +61,13 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
                                      completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 #endif
 
-+ (BOOL)setCurrentWebSession:(MSIDWebviewSession *)session;
++ (BOOL)setCurrentSession:(MSIDWebviewSession *)session;
 + (void)cancelCurrentSession;
 
+#if TARGET_OS_IPHONE
 // This is for system webview auth session on iOS 10 - Thus, a SafariViewController
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
+#endif
 
 // This can be utilized for having a custom webview controller, and for testing.
 + (void)startSession:(MSIDWebviewSession *)session

@@ -347,10 +347,13 @@
 }
 
 #pragma mark - Webview
-
 - (MSIDWebviewFactory *)webviewFactory
 {
-    return [MSIDWebviewFactory new];
+    if (!_webviewFactory)
+    {
+        _webviewFactory = [MSIDWebviewFactory new];
+    }
+    return _webviewFactory;
 }
 
 @end

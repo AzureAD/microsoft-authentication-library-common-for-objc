@@ -31,8 +31,8 @@
 
 @interface MSIDWebviewResponse : NSObject
 
-@property NSDictionary *parameters;
-@property NSURL *url;
+@property (readonly) NSDictionary *parameters;
+@property (readonly) NSURL *url;
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context

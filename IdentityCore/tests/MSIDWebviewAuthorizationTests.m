@@ -135,7 +135,7 @@
 - (void)testStartSession_whenSessionRunning_shouldNotStartAndReturnError
 {
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil verifyState:NO];
-    XCTAssertTrue([MSIDWebviewAuthorization setCurrentWebSession:session]);
+    XCTAssertTrue([MSIDWebviewAuthorization setCurrentSession:session]);
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     
@@ -190,7 +190,7 @@
 - (void)testCancelCurrentSession_whenCurrentSession_shouldClearCurrentSession
 {
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil verifyState:NO];
-    [MSIDWebviewAuthorization setCurrentWebSession:session];
+    [MSIDWebviewAuthorization setCurrentSession:session];
     
     [MSIDWebviewAuthorization cancelCurrentSession];
     

@@ -48,7 +48,6 @@ NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescri
     return [NSError errorWithDomain:domain code:code userInfo:userInfo];
 }
 
-
 MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode)
 {
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame)

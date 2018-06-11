@@ -23,12 +23,12 @@
 
 #import "MSIDWebviewFactory.h"
 #import "MSIDWebviewConfiguration.h"
-#import "MSIDDeviceId.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebviewSession.h"
 #import <WebKit/WebKit.h>
 #import "MSIDSystemWebviewController.h"
 #import "MSIDPkce.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDWebviewFactory
 
@@ -64,23 +64,18 @@
                                                                              requestState:(NSString *)state
 {
     NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
+
+    parameters[MSID_OAUTH2_SCOPE] = configuration.scopes.msidToString;
+    parameters[MSID_OAUTH2_CLIENT_ID] = configuration.clientId;
+    parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
+    parameters[MSID_OAUTH2_REDIRECT_URI] = configuration.redirectUri;
+    parameters[MSID_OAUTH2_LOGIN_HINT] = configuration.loginHint;
     
-    if (configuration.sliceParameters)
-    {
-        [parameters addEntriesFromDictionary:configuration.sliceParameters];
-    }
-    
+    // Extra query params
     if (configuration.extraQueryParameters)
     {
         [parameters addEntriesFromDictionary:configuration.extraQueryParameters];
     }
-    
-    parameters[MSID_OAUTH2_SCOPE] = MSID_OAUTH2_SCOPE_OPENID_VALUE;
-    parameters[MSID_OAUTH2_CLIENT_ID] = configuration.clientId;
-    parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
-    parameters[MSID_OAUTH2_REDIRECT_URI] = configuration.redirectUri;
-    parameters[MSID_OAUTH2_CORRELATION_ID_REQUEST] = [configuration.correlationId UUIDString];
-    parameters[MSID_OAUTH2_LOGIN_HINT] = configuration.loginHint;
     
     // PKCE
     if (configuration.pkce)
@@ -88,12 +83,7 @@
         parameters[MSID_OAUTH2_CODE_CHALLENGE] = configuration.pkce.codeChallenge;
         parameters[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = configuration.pkce.codeChallengeMethod;
     }
-    
-    NSDictionary *msalId = [MSIDDeviceId deviceId];
-    [parameters addEntriesFromDictionary:msalId];
-    
-    parameters[MSID_OAUTH2_CLAIMS] = configuration.claims;
-    
+
     // State
     parameters[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
     
@@ -126,6 +116,7 @@
     NSError *stateVerifierError = nil;
     if (![self verifyRequestState:requestState responseURL:url error:&stateVerifierError] && verifyState)
     {
+        MSID_LOG_ERROR(context, @"Missing or invalid state returned state");
         if (error)
         {
             *error = stateVerifierError;
@@ -143,7 +134,8 @@
 //     return base response
     NSError *responseCreationError = nil;
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:url context:context error:&responseCreationError];
-    if (responseCreationError) {
+    if (responseCreationError)
+    {
         if (error)  *error = responseCreationError;
         return nil;
     }
@@ -152,8 +144,8 @@
 }
 
 - (BOOL)verifyRequestState:(NSString *)requestState
-        responseURL:(NSURL *)url
-        error:(NSError **)error
+               responseURL:(NSURL *)url
+                     error:(NSError **)error
 {
     // Check for auth response
     // Try both the URL and the fragment parameters:
@@ -166,7 +158,8 @@
     NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
     BOOL result = [requestState isEqualToString:stateReceived.msidBase64UrlDecode];
     
-    if (!result) {
+    if (!result)
+    {
         MSID_LOG_WARN(nil, @"Missing or invalid state returned state: %@", stateReceived);
         if (error)
         {

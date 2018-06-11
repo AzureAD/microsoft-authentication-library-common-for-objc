@@ -21,36 +21,67 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV2WebviewFactory.h"
+#import "MSIDAADWebviewFactory.h"
 #import "MSIDWebviewConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
+#import "MSIDDeviceId.h"
 
-@implementation MSIDAADV2WebviewFactory
-
-- (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration verifyState:(BOOL)verifyState customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
-{
-    return nil;
-}
+@implementation MSIDAADWebviewFactory
 
 - (NSMutableDictionary<NSString *,NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state
 {
     NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
                                                                                                  requestState:state];
- 
+    
+    if (configuration.sliceParameters)
+    {
+        [parameters addEntriesFromDictionary:configuration.sliceParameters];
+    }
+
     NSMutableOrderedSet<NSString *> *allScopes = parameters[MSID_OAUTH2_SCOPE].scopeSet.mutableCopy;
-    [allScopes addObject:MSID_OAUTH2_SCOPE_OFFLINE_ACCESS_VALUE];
-    [allScopes addObject:MSID_OAUTH2_SCOPE_PROFILE_VALUE];
+    [allScopes addObject:MSID_OAUTH2_SCOPE_OPENID_VALUE];
     
     parameters[MSID_OAUTH2_SCOPE] = allScopes.msidToString;
+    parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
     
-    parameters[MSID_OAUTH2_LOGIN_REQ] = configuration.uid;
-    parameters[MSID_OAUTH2_DOMAIN_REQ] = configuration.utid;
+    if (configuration.correlationId)
+    {
+        [parameters addEntriesFromDictionary:
+         @{
+           MSID_OAUTH2_CORRELATION_ID_REQUEST : @"true",
+           MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [configuration.correlationId UUIDString]
+           }];
+    }
     
+    if (configuration.sliceParameters)
+    {
+        [parameters addEntriesFromDictionary:configuration.sliceParameters];
+    }
     
+    parameters[@"haschrome"] = @"1";
+    parameters[MSID_OAUTH2_CLAIMS] = configuration.claims;
+    [parameters addEntriesFromDictionary:MSIDDeviceId.deviceId];
+
     return parameters;
 }
+
+- (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error
+{
+    // Try to create a WPJ response
+    MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithURL:url context:context error:nil];
+    if (wpjResponse) return wpjResponse;
+    
+    // Try to acreate AAD Auth response
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:url
+                                                                           context:context
+                                                                             error:error];
+    return response;
+}
+
 
 
 
