@@ -46,7 +46,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_FAMILY_NAME, familyName)
 MSID_JSON_ACCESSOR(ID_TOKEN_MIDDLE_NAME, middleName)
 MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
 
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString
+- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString error:(NSError **)error
 {
     if ([NSString msidIsStringNilOrBlank:rawIdTokenString])
     {
@@ -58,18 +58,53 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     NSArray* parts = [rawIdTokenString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count != 3)
     {
-        MSID_LOG_WARN(nil, @"Id token is invalid.");
+        // Log a warning, but still try to read the id token for backward compatibility...
+        MSID_LOG_WARN(nil, @"Id token is not a JWT token");
+    }
+
+    if (parts.count < 1)
+    {
+        MSID_LOG_ERROR(nil, @"Id token is invalid");
         return nil;
     }
-    
-    NSData *decoded =  [[parts[1] msidBase64UrlDecode] dataUsingEncoding:NSUTF8StringEncoding];
-    NSError *error = nil;
-    if (!(self = [super initWithJSONData:decoded error:&error]))
+
+    NSMutableDictionary *allClaims = [NSMutableDictionary dictionary];
+
+    for (NSString *part in parts)
     {
-        if (error)
+        NSData *decoded =  [[part msidBase64UrlDecode] dataUsingEncoding:NSUTF8StringEncoding];
+
+        if (decoded && [decoded length])
         {
-            MSID_LOG_WARN(nil, @"Id token is invalid. Error: %@", error.localizedDescription);
+            NSError *jsonError = nil;
+            NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:decoded options:0 error:&jsonError];
+
+            if (jsonError)
+            {
+                MSID_LOG_WARN(nil, @"Failed to deserialize part of the id_token");
+                MSID_LOG_WARN_PII(nil, @"Failed to deserialize part of the id_token %@", jsonError);
+                return nil;
+            }
+
+            if (![jsonObject isKindOfClass:[NSDictionary class]])
+            {
+                MSID_LOG_WARN(nil, @"Invalid id token format");
+                return nil;
+            }
+
+            [allClaims addEntriesFromDictionary:jsonObject];
         }
+    }
+
+    if (![allClaims count])
+    {
+        MSID_LOG_WARN(nil, @"Id token is invalid");
+        return nil;
+    }
+
+    if (!(self = [super initWithJSONDictionary:allClaims error:error]))
+    {
+        MSID_LOG_WARN(nil, @"Id token is invalid");
         return nil;
     }
     

@@ -1566,8 +1566,9 @@
     XCTAssertNil(error);
     XCTAssertNotNil(idToken);
 
-    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken.rawIdToken];
+    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken.rawIdToken error:&error];
     XCTAssertNotNil(claims);
+    XCTAssertNil(error);
 
     XCTAssertEqualObjects(claims.realm, @"utid2");
     XCTAssertEqualObjects(claims.username, @"upn@test.com");

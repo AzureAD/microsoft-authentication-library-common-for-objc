@@ -265,7 +265,7 @@
             return NO;
         }
 
-        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:self.secret];
+        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:self.secret error:nil];
 
         if (![idTokenClaims matchesLegacyUserId:legacyUserId])
         {
