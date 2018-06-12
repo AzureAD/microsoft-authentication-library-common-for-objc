@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebviewResponse.h"
 
-@interface MSIDWebAADAuthResponseTests : XCTestCase
+@interface MSIDWebviewResponseTests : XCTestCase
 
 @end
 
-@implementation MSIDWebAADAuthResponseTests
+@implementation MSIDWebviewResponseTests
 
 - (void)setUp {
     [super setUp];
@@ -40,41 +40,31 @@
     [super tearDown];
 }
 
-
-- (void)testInit_whenAllValuesExist_shouldContainResponseWithAllValues
+- (void)testInitWithURL_whenNilURL_shouldReturnNilAndError
 {
-    NSError *error;
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
-    urlComponents.queryItems = @{
-                                 MSID_OAUTH2_CODE : @"code",
-                                 MSID_AUTH_CLOUD_INSTANCE_HOST_NAME : @"cloudHost"
-                                 }.urlQueryItemsArray;
+    NSError *error = nil;
+    MSIDWebviewResponse *response = [[MSIDWebviewResponse alloc] initWithURL:nil context:nil error:&error];
     
-    
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL context:nil error:&error];
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
-    
-    XCTAssertEqualObjects(response.authorizationCode, @"code");
-    XCTAssertEqualObjects(response.cloudHostName, @"cloudHost");
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidParameter);
 }
 
-
-- (void)testInit_whenNoCloudHostInstanceNameExist_shouldNotContainCloudInstanceHostName
+- (void)testInitWithURL_whenURLWithParams_shouldReturnInstanceWithParams
 {
-    NSError *error;
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
-    urlComponents.queryItems = @{
-                                 MSID_OAUTH2_CODE : @"code",
-                                 }.urlQueryItemsArray;
+    NSError *error = nil;
+    NSURL *url = [NSURL URLWithString:@"https://contoso.com?key1=val1&key2=val2"];
     
+    MSIDWebviewResponse *response = [[MSIDWebviewResponse alloc] initWithURL:url
+                                                                     context:nil
+                                                                       error:&error];
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL context:nil error:&error];
     XCTAssertNotNil(response);
-    XCTAssertNil(error);
+    XCTAssertTrue(response.parameters.allKeys.count == 2);
+    XCTAssertEqualObjects(response.parameters[@"key1"], @"val1");
+    XCTAssertEqualObjects(response.parameters[@"key2"], @"val2");
     
-    XCTAssertEqualObjects(response.authorizationCode, @"code");
-    XCTAssertNil(response.cloudHostName);
+    XCTAssertEqualObjects(response.url, url);
 }
 
 

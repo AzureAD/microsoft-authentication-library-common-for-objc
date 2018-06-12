@@ -29,16 +29,15 @@
 
 @implementation MSIDWebAADAuthResponse
 
-- (instancetype)initWithParameters:(NSDictionary *)parameters
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
 {
-    self = [super initWithParameters:parameters context:context error:error];
+    self = [super initWithURL:url context:context error:error];
     if (self)
     {
-        _cloudHostName = parameters[MSID_AUTH_CLOUD_INSTANCE_HOST_NAME];
+        _cloudHostName = self.parameters[MSID_AUTH_CLOUD_INSTANCE_HOST_NAME];
     }
-    
     return self;
 }
 

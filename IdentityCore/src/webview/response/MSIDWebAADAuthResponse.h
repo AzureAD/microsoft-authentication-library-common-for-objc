@@ -29,10 +29,6 @@
 
 @interface MSIDWebAADAuthResponse : MSIDWebOAuth2Response
 
-- (instancetype)initWithParameters:(NSDictionary *)parameters
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error;
-
-@property NSString *cloudHostName;
+@property (readonly) NSString *cloudHostName;
 
 @end

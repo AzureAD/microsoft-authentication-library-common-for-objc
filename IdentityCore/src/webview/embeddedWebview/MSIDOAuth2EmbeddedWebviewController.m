@@ -74,7 +74,7 @@
     self.webView = nil;
 }
 
-- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     // If we're not on the main thread when trying to kick up the UI then
     // dispatch over to the main thread.
@@ -83,7 +83,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [self startWithCompletionHandler:completionHandler];
         });
-        return YES;
+        return;
     }
     
     // Save the completion block
@@ -94,14 +94,13 @@
     if (error)
     {
         [self endWebAuthWithURL:nil error:error];
-        return YES;
+        return;
     }
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
     for (NSString *headerKey in _customHeaders) [request addValue:_customHeaders[headerKey] forHTTPHeaderField:headerKey];
 
     [self startRequest:request];
-    return YES;
 }
 
 - (void)cancel

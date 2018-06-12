@@ -22,47 +22,49 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDSystemWebviewController.h"
 
-@interface MSIDWebWPJResponseTests : XCTestCase
+@interface MSIDSystemWebviewControllerTests : XCTestCase
 
 @end
 
-@implementation MSIDWebWPJResponseTests
+@implementation MSIDSystemWebviewControllerTests
 
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (void)testInit_whenWrongScheme_shouldReturnNilWithError
-{
-    NSError *error = nil;
-    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://wpj"]]
-                                                                           context:nil
-                                                                             error:&error];
-
-    XCTAssertNil(response);
-    XCTAssertNotNil(error);
-
-    XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorInvalidParameter);
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [super tearDown];
 }
 
 
-- (void)testInit_whenGoodInput_shouldReturnResponsewithNoError
+- (void)testInitWithStartURL_whenURLisNil_shouldFail
 {
-    NSError *error = nil;
-    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&upn=user"]]
-                                                                           context:nil
-                                                                             error:&error];
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:nil callbackURLScheme:@"scheme" context:nil];
+    XCTAssertNil(webVC);
 
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
+}
 
-    XCTAssertEqualObjects(response.upn, @"user");
-    XCTAssertEqualObjects(response.appInstallLink, @"applink");
 
+- (void)testInitWithStartURL_whenCallbackURLSchemeisNil_shouldFail
+{
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                                                             callbackURLScheme:nil context:nil];
+    XCTAssertNil(webVC);
+
+}
+
+
+- (void)testInitWithStartURL_whenStartURLandCallbackURLSchemeValid_shouldSucceed
+{
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                                                             callbackURLScheme:@"scheme"
+                                                                                       context:nil];
+    XCTAssertNotNil(webVC);
+    
 }
 
 @end

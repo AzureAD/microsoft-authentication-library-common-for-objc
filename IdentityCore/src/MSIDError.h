@@ -68,9 +68,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorInvalidRequest = -51014,
     MSIDErrorInvalidClient = -51015,
     MSIDErrorInvalidGrant = -51016,
-    MSIDErrorInvalidParameter = -51017,
-    MSIDErrorUnsupportedFunctionality = -51018,
-    
+    MSIDErrorInvalidScope = -51017,
+    MSIDErrorInvalidParameter = -51018,
     MSIDErrorUserCancel = -51019,
     /*!
      The authentication request was cancelled programmatically.
@@ -89,6 +88,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     MSIDErrorNoMainViewController = -51023,
     MSIDServerNonHttpsRedirect = -51024,
+    
+    MSIDErrorUnsupportedFunctionality = -51025,
     
     /*!
      The user or application failed to authenticate in the interactive flow.

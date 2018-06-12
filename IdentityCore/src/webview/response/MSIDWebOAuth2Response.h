@@ -26,17 +26,11 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
+#import "MSIDWebviewResponse.h"
 
-@interface MSIDWebOAuth2Response : NSObject
+@interface MSIDWebOAuth2Response : MSIDWebviewResponse
 
 @property NSString *authorizationCode;
 @property NSError *oauthError;
-
-@property NSURL *url;
-
-- (instancetype)initWithParameters:(NSDictionary *)parameters
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error;
 
 @end

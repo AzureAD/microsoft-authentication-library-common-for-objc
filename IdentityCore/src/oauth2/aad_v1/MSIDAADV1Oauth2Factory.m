@@ -35,9 +35,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
 
-#import "MSIDWebWPJAuthResponse.h"
-#import "MSIDWebAADAuthResponse.h"
-
+#import "MSIDAADV1WebviewFactory.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -194,77 +192,14 @@
     return YES;
 }
 
-#pragma mark - Webview controllers
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                                             requestState:(NSString *)state
+#pragma mark - Webview
+- (MSIDWebviewFactory *)webviewFactory
 {
-    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
-                                                                                                 requestState:state];
-    
-    parameters[MSID_OAUTH2_RESOURCE] = configuration.resource;
-    parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
-    parameters[@"haschrome"] = @"1";
-    
-    return parameters;
-}
-
-#pragma mark - Webview response parsing
-- (MSIDWebOAuth2Response *)responseWithURL:(NSURL *)url
-                              requestState:(NSString *)requestState
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
-{
-    // Check for auth response
-    // Try both the URL and the fragment parameters:
-    NSDictionary *parameters = [url msidFragmentParameters];
-    if (parameters.count == 0)
+    if (!_webviewFactory)
     {
-        parameters = [url msidQueryParameters];
+        _webviewFactory = [[MSIDAADV1WebviewFactory alloc] init];
     }
-    
-    // check state
-    if (![self verifyRequestState:requestState parameters:parameters])
-    {
-        if (error) {
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidState, @"State returned from the server does not match", nil, nil, nil, nil, nil);
-        }
-        return nil;
-    }
-    
-    MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithScheme:url.scheme
-                                                                                    host:url.host
-                                                                              parameters:parameters
-                                                                                 context:context
-                                                                                   error:nil];
-    
-    if (wpjResponse) return wpjResponse;
-    
-    NSError *responseCreationError = nil;
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithParameters:parameters
-                                                                                  context:context
-                                                                                    error:&responseCreationError];
-    if (responseCreationError) {
-        if (error)  *error = responseCreationError;
-        return nil;
-    }
-    
-    return response;
-}
-
-- (BOOL)verifyRequestState:(NSString *)state
-                parameters:(NSDictionary *)parameters
-{
-    if (!state) return YES;
-    
-    //Just log the state
-    NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
-    if (![stateReceived.msidBase64UrlDecode isEqualToString:state])
-    {
-        MSID_LOG_WARN(nil, @"Missing or invalid state returned");
-        MSID_LOG_WARN_PII(nil, @"Missing or invalid state returned state: %@", state);
-    }
-    
-    return YES;
+    return _webviewFactory;
 }
 
 @end

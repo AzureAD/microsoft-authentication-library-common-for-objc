@@ -62,7 +62,7 @@
 }
 
 
-- (BOOL)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     _telemetryRequestId = [_context telemetryRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
@@ -87,9 +87,12 @@
                                                 [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
                                                 completionHandler(callbackURL, error);
                                             }];
-        return  [_authSession start];
+        [_authSession start];
+        return;
     }
-    return NO;
+    
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
+    completionHandler(nil, error);
 }
 
 

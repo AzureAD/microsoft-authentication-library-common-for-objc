@@ -24,9 +24,6 @@
 #import <Foundation/Foundation.h>
 #import "MSIDNetworkConfiguration.h"
 
-@class MSIDPkce;
-@class MSIDClientInfo;
-
 @interface MSIDConfiguration : NSObject <NSCopying>
 
 // Commonly used or needed properties
@@ -35,8 +32,6 @@
 @property (readwrite) NSString *clientId;
 @property (readwrite) NSString *target;
 
-@property (readwrite) NSUUID *correlationId;
-
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;
 
@@ -44,18 +39,5 @@
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target;
-
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target
-                    correlationId:(NSUUID *)correlationId;
-
-// Optional configurations
-@property (readwrite) NSString *loginHint;
-
-@property (readwrite) MSIDNetworkConfiguration *networkConfig;
-
-@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 
 @end

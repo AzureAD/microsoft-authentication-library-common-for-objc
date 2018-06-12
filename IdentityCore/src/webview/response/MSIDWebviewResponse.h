@@ -27,15 +27,15 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDWebOAuth2Response;
+@protocol MSIDRequestContext;
 
-typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
+@interface MSIDWebviewResponse : NSObject
 
-@protocol MSIDWebviewInteracting
+@property (readonly) NSDictionary *parameters;
+@property (readonly) NSURL *url;
 
-- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
-
-- (NSURL *)startURL;
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
 
 @end

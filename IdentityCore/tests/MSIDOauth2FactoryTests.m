@@ -40,11 +40,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccount.h"
 #import "MSIDLegacyRefreshToken.h"
-#import "MSIDWebOAuth2Response.h"
-#import "MSIDWebviewConfiguration.h"
-#import "MSIDPkce.h"
-#import "MSIDVersion.h"
-#import "MSIDDeviceId.h"
+
 
 @interface MSIDOauth2FactoryTest : XCTestCase
 
@@ -457,133 +453,6 @@
     XCTAssertEqualObjects(account.familyName, @"Cartman");
     XCTAssertEqualObjects(account.name, @"Eric Cartman");
     XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
-}
-
-
-#pragma mark - Webview (startURL)
-- (void)testStartURL_whenExplicitStartURL_shouldReturnStartURL
-{
-    
-    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
-                                                                     authorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
-                                                                               redirectUri:DEFAULT_TEST_REDIRECT_URI
-                                                                                  clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                    target:DEFAULT_TEST_SCOPE
-                                                                             correlationId:nil];
-    config.explicitStartURL = [NSURL URLWithString:@"https://contoso.com"];
-    
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    NSURL *url = [factory startURLFromConfiguration:config requestState:@"state"];
-    
-    XCTAssertEqual(url, config.explicitStartURL);
-}
-
-- (void)testStartURL_whenValidParams_shouldContainQPs
-{
-    __block NSUUID *correlationId = [NSUUID new];
-    
-    MSIDPkce *pkce = [[MSIDPkce alloc] init];
-    
-    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
-                                                                     authorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
-                                                                               redirectUri:DEFAULT_TEST_REDIRECT_URI
-                                                                                  clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                    target:DEFAULT_TEST_SCOPE
-                                                                             correlationId:correlationId];
-    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
-    config.promptBehavior = @"login";
-    config.claims = @"claim";
-    config.pkce = pkce;
-    config.utid = DEFAULT_TEST_UTID;
-    config.uid = DEFAULT_TEST_UID;
-    config.sliceParameters = DEFAULT_TEST_SLICE_PARAMS_DICT;
-    config.loginHint = @"fakeuser@contoso.com";
-    
-    NSString *requestState = @"state";
-
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    NSURL *url = [factory startURLFromConfiguration:config requestState:requestState];
-    
-    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
-    @{
-      @"client_id" : DEFAULT_TEST_CLIENT_ID,
-      @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
-      @"response_type" : @"code",
-      @"code_challenge_method" : @"S256",
-      @"code_challenge" : config.pkce.codeChallenge,
-      @"eqp1" : @"val1",
-      @"eqp2" : @"val2",
-      @"claims" : @"claim",
-      @"return-client-request-id" : correlationId.UUIDString,
-      @"login_hint" : @"fakeuser@contoso.com",
-      @"state" : requestState.msidBase64UrlEncode,
-      @"scope" : MSID_OAUTH2_SCOPE_OPENID_VALUE
-      }];
-    [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-    [expectedQPs addEntriesFromDictionary:DEFAULT_TEST_SLICE_PARAMS_DICT];
-    
-    NSDictionary *QPs = [NSDictionary msidURLFormDecode:url.query];
-    XCTAssertTrue([expectedQPs compareAndPrintDiff:QPs]);
-}
-
-
-#pragma mark - Webview (Response)
-- (void)testResponseWithURL_whenNilURL_shouldReturnNilAndError
-{
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    
-    NSError *error = nil;
-    __auto_type response = [factory responseWithURL:nil requestState:nil context:nil error:&error];
-    
-    XCTAssertNil(response);
-    XCTAssertNotNil(error);
-}
-
-
-- (void)testResponseWithURL_whenOAuth2Response_shouldReturnAADAuthResponse
-{
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    
-    NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
-                                       requestState:nil context:nil error:&error];
-    
-    XCTAssertTrue([response isKindOfClass:MSIDWebOAuth2Response.class]);
-    XCTAssertNil(error);
-}
-
-
-- (void)testResponseWithURL_whenNotValidOAuthResponse_shouldReturnNilWithError
-{
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    
-    NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com"] requestState:nil context:nil error:&error];
-    
-    XCTAssertNil(response);
-    XCTAssertNotNil(error);
-}
-
-#pragma mark - Webview (State verifier)
-- (void)testVerifyRequestState_whenNoRequestState_shouldSucceed
-{
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    XCTAssertTrue([factory verifyRequestState:nil parameters:@{ MSID_OAUTH2_STATE : @"value"}]);
-}
-
-
-- (void)testVerifyRequestState_whenStateReceivedMatches_shouldSucceed
-{
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    NSString *requestStateDecoded = @"value";
-    XCTAssertTrue([factory verifyRequestState:requestStateDecoded parameters:@{ MSID_OAUTH2_STATE : requestStateDecoded.msidBase64UrlEncode }]);
-}
-
-
-- (void)testVerifyRequestState_whenStateReceivedDoesNotMatch_shouldFail
-{
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    XCTAssertFalse([factory verifyRequestState:@"value1" parameters:@{ MSID_OAUTH2_STATE : @"value2"}]);
 }
 
 

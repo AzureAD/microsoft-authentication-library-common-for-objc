@@ -25,17 +25,40 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import "MSIDWebviewResponse.h"
+#import "NSURL+MSIDExtensions.h"
 
-@class MSIDWebOAuth2Response;
+@implementation MSIDWebviewResponse
 
-typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
-
-@protocol MSIDWebviewInteracting
-
-- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
-
-- (NSURL *)startURL;
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    if (!url)
+    {
+        if (error){
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"Trying to create a response with nil URL", nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
+    self = [super init];
+    if (self)
+    {
+        _url = url;
+        
+        // Check for auth response
+        // Try both the URL and the fragment parameters:
+        NSDictionary *parameters = [url msidFragmentParameters];
+        if (parameters.count == 0)
+        {
+            parameters = [url msidQueryParameters];
+        }
+        
+        _parameters = parameters;
+    }
+    
+    return self;
+}
 
 @end

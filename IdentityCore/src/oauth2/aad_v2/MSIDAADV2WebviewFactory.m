@@ -21,50 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDConfiguration.h"
+#import "MSIDAADV2WebviewFactory.h"
+#import "MSIDWebviewConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDPkce.h"
+#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebAADAuthResponse.h"
 
-@implementation MSIDConfiguration
+@implementation MSIDAADV2WebviewFactory
 
-- (instancetype)copyWithZone:(NSZone*)zone
+- (NSMutableDictionary<NSString *,NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state
 {
-    MSIDConfiguration *configuration = [[MSIDConfiguration allocWithZone:zone] init];
-    configuration.authority = [_authority copyWithZone:zone];
-    configuration.redirectUri = [_redirectUri copyWithZone:zone];
-    configuration.target = [_target copyWithZone:zone];
-    configuration.clientId = [_clientId copyWithZone:zone];
+    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
+                                                                                                 requestState:state];
+ 
+    NSMutableOrderedSet<NSString *> *allScopes = parameters[MSID_OAUTH2_SCOPE].scopeSet.mutableCopy;
+    [allScopes addObject:MSID_OAUTH2_SCOPE_OFFLINE_ACCESS_VALUE];
+    [allScopes addObject:MSID_OAUTH2_SCOPE_PROFILE_VALUE];
     
-    return configuration;
-}
-
-
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target
-{
-    self = [super init];
+    parameters[MSID_OAUTH2_SCOPE] = allScopes.msidToString;
     
-    if (self)
-    {
-        _authority = authority;
-        _redirectUri = redirectUri;
-        _clientId = clientId;
-        _target = target;
-    }
+    parameters[MSID_OAUTH2_LOGIN_REQ] = configuration.uid;
+    parameters[MSID_OAUTH2_DOMAIN_REQ] = configuration.utid;
     
-    return self;
+    
+    return parameters;
 }
 
-- (NSString *)resource
-{
-    return _target;
-}
 
-- (NSOrderedSet<NSString *> *)scopes
-{
-    return [_target scopeSet];
-}
 
 @end
