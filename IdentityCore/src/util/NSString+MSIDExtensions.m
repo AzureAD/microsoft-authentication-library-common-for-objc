@@ -21,9 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <CommonCrypto/CommonDigest.h>
-
 #import "NSString+MSIDExtensions.h"
+#import "NSData+MSIDExtensions.h"
 
 typedef unsigned char byte;
 
@@ -327,27 +326,20 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];
 }
 
-- (NSString*)msidComputeSHA256
-{
-    const char* inputStr = [self UTF8String];
-    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
-    CC_SHA256(inputStr, (int)strlen(inputStr), hash);
-    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
-    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
-    {
-        [toReturn appendFormat:@"%02x", hash[i]];
-    }
-    return toReturn;
-}
-
 - (NSURL *)msidUrl
 {
     return [[NSURL alloc] initWithString:self];
 }
 
+- (NSData *)msidData
+{
+    const char *str = [self UTF8String];
+    return [NSData dataWithBytes:str length:strlen(str)];
+}
+
 - (NSString *)msidTokenHash
 {
-    NSMutableString *returnStr = [[self msidComputeSHA256] mutableCopy];
+    NSString *returnStr = [[[self msidData] msidSHA256] hexString];
     
     // 7 characters is sufficient to differentiate tokens in the log, otherwise the hashes start making log lines hard to read
     return [returnStr substringToIndex:7];

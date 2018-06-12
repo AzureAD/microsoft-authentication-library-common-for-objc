@@ -26,8 +26,11 @@
 @interface NSData (MSIDExtensions)
 
 - (NSDictionary *)msidToJsonDictionary:(NSError **)error;
-- (NSString *)msidComputeSHA256;
-- (NSString *)msidComputeSHA1;
-- (NSString *)msidComputeSHA1Base64Encoded;
+
+- (NSData *)msidSHA1;
+- (NSData *)msidSHA256;
+
+- (NSString *)hexString;
+- (NSString *)base64EncodedString;
 
 @end

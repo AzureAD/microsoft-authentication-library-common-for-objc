@@ -30,6 +30,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryAPIEvent.h"
+#import "NSData+MSIDExtensions.h"
 
 @interface MSIDTelemetryIntegrationTests : XCTestCase
 {
@@ -81,7 +82,7 @@
     
     XCTAssertEqual(_receivedEvents.count, 1);
     //expect hashed Pii
-    XCTAssertEqualObjects([_receivedEvents[0] propertyWithName:MSID_TELEMETRY_KEY_USER_ID], [@"user" msidComputeSHA256]);
+    XCTAssertEqualObjects([_receivedEvents[0] propertyWithName:MSID_TELEMETRY_KEY_USER_ID], [[@"user".msidData msidSHA256] hexString]);
     //expect unhashed Oii
     XCTAssertEqualObjects([_receivedEvents[0] propertyWithName:MSID_TELEMETRY_KEY_CLIENT_ID], @"clientid");
 }
