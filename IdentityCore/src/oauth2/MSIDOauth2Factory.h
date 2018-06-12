@@ -60,11 +60,9 @@
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
-// Cache URL and aliases
-- (NSArray<NSURL *> *)cacheURLsFromAuthority:(NSURL *)originalAuthority
-                              credentialType:(MSIDCredentialType)type
-                                     context:(id<MSIDRequestContext>)context;
-
+// Cache URL
+- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
+                        context:(id<MSIDRequestContext>)context;
 - (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context;
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority;
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority;

@@ -343,11 +343,10 @@
     return YES;
 }
 
-- (NSArray<NSURL *> *)cacheURLsFromAuthority:(NSURL *)originalAuthority
-                              credentialType:(MSIDCredentialType)type
-                                     context:(id<MSIDRequestContext>)context
+- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
+                        context:(id<MSIDRequestContext>)context
 {
-    return @[originalAuthority];
+    return originalAuthority;
 }
 
 - (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
