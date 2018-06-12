@@ -144,6 +144,10 @@
 		6068300A2098C9D300CCA6AB /* MSIDCredentialCollectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 606830092098C9D300CCA6AB /* MSIDCredentialCollectionController.m */; };
 		606830102098E94100CCA6AB /* MSIDCertificateChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 6068300F2098E94100CCA6AB /* MSIDCertificateChooser.m */; };
 		6068303A20A3560F00CCA6AB /* MSIDPKeyAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 6068303820A33A9000CCA6AB /* MSIDPKeyAuthHandler.m */; };
+		606B108B20D084B600B34224 /* MSIDAADV1WebviewFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 606B108A20D084B600B34224 /* MSIDAADV1WebviewFactoryTests.m */; };
+		606B108C20D084B600B34224 /* MSIDAADV1WebviewFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 606B108A20D084B600B34224 /* MSIDAADV1WebviewFactoryTests.m */; };
+		606B108E20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 606B108D20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m */; };
+		606B108F20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 606B108D20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m */; };
 		60B3855E20A96E0600D546D0 /* MSIDWebviewUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B3855D20A96E0600D546D0 /* MSIDWebviewUIController.m */; };
 		60B3856020A96E2700D546D0 /* MSIDWebviewUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B3855F20A96E2700D546D0 /* MSIDWebviewUIController.m */; };
 		60B55FF120AE255800DDB46D /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60B55FEF20ADFA1B00DDB46D /* GSS.framework */; };
@@ -788,6 +792,8 @@
 		6068300F2098E94100CCA6AB /* MSIDCertificateChooser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCertificateChooser.m; sourceTree = "<group>"; };
 		6068303720A33A7400CCA6AB /* MSIDPKeyAuthHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPKeyAuthHandler.h; sourceTree = "<group>"; };
 		6068303820A33A9000CCA6AB /* MSIDPKeyAuthHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPKeyAuthHandler.m; sourceTree = "<group>"; };
+		606B108A20D084B600B34224 /* MSIDAADV1WebviewFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV1WebviewFactoryTests.m; sourceTree = "<group>"; };
+		606B108D20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuth2EmbeddedWebviewControllerTests.m; sourceTree = "<group>"; };
 		60B3855C20A96DAA00D546D0 /* MSIDWebviewUIController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebviewUIController.h; sourceTree = "<group>"; };
 		60B3855D20A96E0600D546D0 /* MSIDWebviewUIController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewUIController.m; sourceTree = "<group>"; };
 		60B3855F20A96E2700D546D0 /* MSIDWebviewUIController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewUIController.m; sourceTree = "<group>"; };
@@ -2139,6 +2145,7 @@
 				B26A0B8F2072B562006BD95A /* MSIDOauth2FactoryTests.m */,
 				96CD652820C885E2004813EE /* MSIDWebviewFactoryTests.m */,
 				960F918920CBECAE0055A162 /* MSIDAADWebviewFactoryTests.m */,
+				606B108A20D084B600B34224 /* MSIDAADV1WebviewFactoryTests.m */,
 				960F915120CB00C10055A162 /* MSIDAADV2WebviewFactoryTests.m */,
 				B26A0B922072B824006BD95A /* MSIDAADOauth2FactoryTests.m */,
 				B26A0B952072B9CB006BD95A /* MSIDAADV1Oauth2FactoryTests.m */,
@@ -2155,6 +2162,7 @@
 				968871E820AD0397009D6FC3 /* MSIDWebAADAuthResponseTests.m */,
 				963CFAF220AD817600BDA25F /* MSIDWebviewAuthorizationTests.m */,
 				963553BE20CA7C52005235E5 /* MSIDSystemWebviewControllerTests.m */,
+				606B108D20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m */,
 				B2DD4B4320A936FE0047A66E /* MSIDAccountCredentialsCacheTests.m */,
 			);
 			path = tests;
@@ -2645,6 +2653,7 @@
 				B2808004204CB2A700944D89 /* MSIDAADV1TokenResponseTests.m in Sources */,
 				968871E920AD0397009D6FC3 /* MSIDWebAADAuthResponseTests.m in Sources */,
 				B2936F4F20AA908F0050C585 /* MSIDCredentialCacheItemTests.m in Sources */,
+				606B108B20D084B600B34224 /* MSIDAADV1WebviewFactoryTests.m in Sources */,
 				B2936F7520ABF4940050C585 /* MSIDIdTokenTests.m in Sources */,
 				B2936F9120AE913E0050C585 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */,
 				B210F4651FDF1CB8005A8F76 /* MSIDURLFormObjectTests.m in Sources */,
@@ -2681,6 +2690,7 @@
 				B2936F7E20ABFC7E0050C585 /* MSIDAccountTests.m in Sources */,
 				B2936F7720ABF54E0050C585 /* MSIDLegacySingleResourceTokenTests.m in Sources */,
 				B2DD4B3B20A926820047A66E /* MSIDDefaultCredentialCacheKeyTests.m in Sources */,
+				606B108E20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m in Sources */,
 				B2936F8120ABFFC80050C585 /* MSIDAADV1Oauth2FactoryTests.m in Sources */,
 				D6D9A4BC1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
 				B2DD5BB320478D3B0084313F /* MSIDTestCacheDataSource.m in Sources */,
@@ -2889,6 +2899,7 @@
 				B2DD5B7B20461F5E0084313F /* MSIDAccountCacheItemTests.m in Sources */,
 				B2964BDE205083E80000BC95 /* MSIDAuthorityTests.m in Sources */,
 				B2DD5BB420478D3C0084313F /* MSIDTestCacheDataSource.m in Sources */,
+				606B108C20D084B600B34224 /* MSIDAADV1WebviewFactoryTests.m in Sources */,
 				96CD652A20C885E2004813EE /* MSIDWebviewFactoryTests.m in Sources */,
 				B2808005204CB2A700944D89 /* MSIDAADV1TokenResponseTests.m in Sources */,
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
@@ -2901,6 +2912,7 @@
 				23CC94482046507D00AA0551 /* MSIDMacTokenCacheIntegrationTests.m in Sources */,
 				B2964BE620521D790000BC95 /* MSIDTokenFilteringHelperTests.m in Sources */,
 				B2DD4B3220A8DA0B0047A66E /* MSIDLegacyCacheQueryTests.m in Sources */,
+				606B108F20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m in Sources */,
 				B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				04930F911FEC8EE300FC4DCD /* MSIDAadAuthorityCacheTests.m in Sources */,
 				B2936F7A20ABF8310050C585 /* MSIDLegacyAccessTokenTests.m in Sources */,

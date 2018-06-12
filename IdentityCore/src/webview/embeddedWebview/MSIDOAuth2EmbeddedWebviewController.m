@@ -47,6 +47,18 @@
          configuration:(MSIDWebviewConfiguration *)configuration
                context:(id<MSIDRequestContext>)context
 {
+    if (!startURL)
+    {
+        MSID_LOG_WARN(context, @"Attemped to start with nil URL");
+        return nil;
+    }
+    
+    if (!endURL)
+    {
+        MSID_LOG_WARN(context, @"Attemped to start with nil endURL");
+        return nil;
+    }
+    
     self = [super initWithContext:context];
     
     if (self)
