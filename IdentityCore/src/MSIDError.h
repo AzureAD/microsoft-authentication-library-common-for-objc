@@ -76,7 +76,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
      dictionary for more detailed information about the specific error.
      */
-    MSIDErrorAuthorizationFailed = -52018,
+    MSIDErrorAuthorizationFailed = -52020,
 
     /*!
      The state returned by the server does not match the state that was sent to

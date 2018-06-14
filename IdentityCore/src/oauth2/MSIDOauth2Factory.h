@@ -65,7 +65,7 @@
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
 // Webview related
-@property(readonly) MSIDWebviewFactory *webviewFactory;
+@property (readonly) MSIDWebviewFactory *webviewFactory;
 
 @end
 

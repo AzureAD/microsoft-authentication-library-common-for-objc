@@ -94,7 +94,7 @@
     return mutableDict;
 }
 
-- (NSArray<NSURLQueryItem *> *)urlQueryItemsArray;
+- (NSArray<NSURLQueryItem *> *)urlQueryItemsArray
 {
     NSMutableArray<NSURLQueryItem *> *array = [NSMutableArray new];
     
