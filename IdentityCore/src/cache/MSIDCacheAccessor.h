@@ -61,7 +61,7 @@
                                error:(NSError **)error;
 
 /*!
- This method saves only the SSO artifacts to the cache based on the broker response.
+ This method saves only the SSO artifacts to the cache based on the response.
  */
 - (BOOL)saveSSOStateWithConfiguration:(MSIDConfiguration *)configuration
                              response:(MSIDTokenResponse *)response

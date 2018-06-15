@@ -317,6 +317,8 @@
 		B275520B208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */; };
 		B275520C208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */; };
 		B275520E208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */; };
+		B279835A20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
+		B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B2807FF7204CAFDF00944D89 /* MSIDHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = B2807FF5204CAFDF00944D89 /* MSIDHelpers.h */; };
 		B2807FF8204CAFDF00944D89 /* MSIDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */; };
 		B2807FF9204CAFDF00944D89 /* MSIDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */; };
@@ -839,6 +841,7 @@
 		B27551FD208182BE00AA7A38 /* AuthHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthHeader.swift; sourceTree = "<group>"; };
 		B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyvaultAuthentication.swift; sourceTree = "<group>"; };
 		B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDAutomation-Bridging-Header.h"; sourceTree = "<group>"; };
+		B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIdTokenClaimsTests.m; sourceTree = "<group>"; };
 		B2807FF5204CAFDF00944D89 /* MSIDHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDHelpers.h; sourceTree = "<group>"; };
 		B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHelpers.m; sourceTree = "<group>"; };
 		B2807FFA204CB16B00944D89 /* MSIDHelperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHelperTests.m; sourceTree = "<group>"; };
@@ -1824,6 +1827,7 @@
 				238EF0882091655D0035ABE6 /* MSIDHttpRequestTelemetryTests.m */,
 				B252913A2096698100E78695 /* MSIDAADIdTokenClaimsFactoryTests.m */,
 				B2DD4B4320A936FE0047A66E /* MSIDAccountCredentialsCacheTests.m */,
+				B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -2302,6 +2306,7 @@
 				B2936F8020ABFFC50050C585 /* MSIDAADOauth2FactoryTests.m in Sources */,
 				B2936F5020AA954A0050C585 /* MSIDAccountCacheItemTests.m in Sources */,
 				B2808004204CB2A700944D89 /* MSIDAADV1TokenResponseTests.m in Sources */,
+				B279835A20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */,
 				B2936F4F20AA908F0050C585 /* MSIDCredentialCacheItemTests.m in Sources */,
 				B2936F7520ABF4940050C585 /* MSIDIdTokenTests.m in Sources */,
 				B2936F9120AE913E0050C585 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */,
@@ -2537,6 +2542,7 @@
 				B2DD5B9F204761550084313F /* MSIDAccessTokenTests.m in Sources */,
 				B2DD5BC120479AA80084313F /* MSIDJsonSerializerTests.m in Sources */,
 				B2DD5BB2204789FB0084313F /* MSIDIdTokenTests.m in Sources */,
+				B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */,
 				B20657D01FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
 				B26A0B972072B9CB006BD95A /* MSIDAADV1Oauth2FactoryTests.m in Sources */,
 				B2DD5BA2204761660084313F /* MSIDLegacySingleResourceTokenTests.m in Sources */,

@@ -158,7 +158,7 @@
 
     if ([MSIDAuthority isTenantless:originalAuthority])
     {
-        // If it's a tenantless authority, lookupb by universal "common" authority, which is supported by both v1 and v2
+        // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
         [lookupAuthorities addObject:[MSIDAuthority universalAuthorityURL:originalAuthority]];
     }
     else

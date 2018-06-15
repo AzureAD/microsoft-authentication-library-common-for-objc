@@ -233,7 +233,7 @@
     query.realm = configuration.authority.msidTenant;
     query.clientId = configuration.clientId;
     query.target = configuration.target;
-    query.targetMatchingOptions = SubSet;
+    query.targetMatchingOptions = MSIDSubSet;
     query.credentialType = MSIDAccessTokenType;
 
     return (MSIDAccessToken *) [self getTokenWithAuthority:configuration.authority
@@ -286,7 +286,7 @@
     credentialsQuery.credentialType = MSIDRefreshTokenType;
     credentialsQuery.clientId = clientId;
     credentialsQuery.familyId = familyId;
-    credentialsQuery.clientIdMatchingOptions = SuperSet;
+    credentialsQuery.clientIdMatchingOptions = MSIDSuperSet;
     credentialsQuery.environmentAliases = environmentAliases;
 
     NSArray<MSIDCredentialCacheItem *> *resultCredentials = [_accountCredentialCache getCredentialsWithQuery:credentialsQuery legacyUserId:nil context:context error:error];
@@ -538,7 +538,7 @@
     query.realm = accessToken.authority.msidTenant;
     query.clientId = accessToken.clientId;
     query.target = [accessToken.scopes msidToString];
-    query.targetMatchingOptions = Intersect;
+    query.targetMatchingOptions = MSIDIntersect;
     query.credentialType = MSIDAccessTokenType;
 
     BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];

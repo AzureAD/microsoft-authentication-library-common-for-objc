@@ -26,10 +26,10 @@
 #import "MSIDDefaultCredentialCacheKey.h"
 
 typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
-    ExactStringMatch,
-    SubSet,
-    Intersect,
-    SuperSet
+    MSIDExactStringMatch,
+    MSIDSubSet,
+    MSIDIntersect,
+    MSIDSuperSet
 };
 
 @interface MSIDDefaultCredentialCacheQuery : MSIDDefaultCredentialCacheKey

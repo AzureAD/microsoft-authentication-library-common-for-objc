@@ -831,7 +831,7 @@
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
     query.target = @"user.write";
-    query.targetMatchingOptions = SubSet;
+    query.targetMatchingOptions = MSIDSubSet;
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
@@ -856,7 +856,7 @@
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
     query.target = @"user.write user.sing";
-    query.targetMatchingOptions = Intersect;
+    query.targetMatchingOptions = MSIDIntersect;
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;

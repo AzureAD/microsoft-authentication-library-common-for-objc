@@ -50,6 +50,11 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
 {
     if ([NSString msidIsStringNilOrBlank:rawIdTokenString])
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Nil id_token passed", nil, nil, nil, nil, nil);
+        }
+
         return nil;
     }
     
@@ -65,6 +70,12 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     if (parts.count < 1)
     {
         MSID_LOG_ERROR(nil, @"Id token is invalid");
+
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned empty id token", nil, nil, nil, nil, nil);
+        }
+
         return nil;
     }
 
@@ -83,12 +94,20 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
             {
                 MSID_LOG_WARN(nil, @"Failed to deserialize part of the id_token");
                 MSID_LOG_WARN_PII(nil, @"Failed to deserialize part of the id_token %@", jsonError);
+
+                if (error) *error = jsonError;
                 return nil;
             }
 
             if (![jsonObject isKindOfClass:[NSDictionary class]])
             {
                 MSID_LOG_WARN(nil, @"Invalid id token format");
+
+                if (error)
+                {
+                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned invalid id token", nil, nil, nil, nil, nil);
+                }
+
                 return nil;
             }
 
@@ -99,6 +118,12 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     if (![allClaims count])
     {
         MSID_LOG_WARN(nil, @"Id token is invalid");
+
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned id token without any claims", nil, nil, nil, nil, nil);
+        }
+
         return nil;
     }
 
@@ -109,7 +134,6 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     }
     
     [self initDerivedProperties];
-    
     return self;
 }
 
