@@ -24,10 +24,8 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDLegacySingleResourceToken.h"
-#import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
-#import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDTokenResponse.h"
 #import "NSDate+MSIDExtensions.h"
@@ -42,11 +40,13 @@
 #import "NSString+MSIDExtensions.h"
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDTelemetry+Cache.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
     id<MSIDTokenCacheDataSource> _dataSource;
     MSIDKeyedArchiverSerializer *_serializer;
+    MSIDOauth2Factory *_factory;
     NSArray *_otherAccessors;
 }
 
@@ -58,6 +58,7 @@
 
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
                otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors
+                           factory:(MSIDOauth2Factory *)factory
 {
     self = [super init];
 
@@ -66,6 +67,7 @@
         _dataSource = dataSource;
         _serializer = [[MSIDKeyedArchiverSerializer alloc] init];
         _otherAccessors = otherAccessors;
+        _factory = factory;
     }
 
     return self;
@@ -73,32 +75,34 @@
 
 #pragma mark - Persistence
 
-- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-                configuration:(MSIDConfiguration *)configuration
-                     response:(MSIDTokenResponse *)response
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+- (BOOL)saveTokensWithConfiguration:(MSIDConfiguration *)configuration
+                           response:(MSIDTokenResponse *)response
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
 {
     if (response.isMultiResource)
     {
-        BOOL result = [self saveAccessTokenWithFactory:factory configuration:configuration response:response context:context error:error];
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving multi resource refresh token");
+        BOOL result = [self saveAccessTokenWithConfiguration:configuration response:response context:context error:error];
 
         if (!result) return NO;
 
-        return [self saveSSOStateWithFactory:factory configuration:configuration response:response context:context error:error];
+        return [self saveSSOStateWithConfiguration:configuration response:response context:context error:error];
     }
     else
     {
-        return [self saveLegacySingleResourceTokenWithFactory:factory configuration:configuration response:response context:context error:error];
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving single resource refresh token");
+        return [self saveLegacySingleResourceTokenWithConfiguration:configuration response:response context:context error:error];
     }
 }
 
-- (BOOL)saveTokensWithFactory:(MSIDOauth2Factory *)factory
-               brokerResponse:(MSIDBrokerResponse *)response
-             saveSSOStateOnly:(BOOL)saveSSOStateOnly
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+- (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
+                    saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
 {
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
+
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:response.authority]
                                                                         redirectUri:nil
                                                                            clientId:response.clientId
@@ -106,25 +110,22 @@
 
     if (saveSSOStateOnly)
     {
-        return [self saveSSOStateWithFactory:factory
-                               configuration:configuration
+        return [self saveSSOStateWithConfiguration:configuration
+                                          response:response.tokenResponse
+                                           context:context
+                                             error:error];
+    }
+
+    return [self saveTokensWithConfiguration:configuration
                                     response:response.tokenResponse
                                      context:context
                                        error:error];
-    }
-
-    return [self saveTokensWithFactory:factory
-                         configuration:configuration
-                              response:response.tokenResponse
-                               context:context
-                                 error:error];
 }
 
-- (BOOL)saveSSOStateWithFactory:(MSIDOauth2Factory *)factory
-                  configuration:(MSIDConfiguration *)configuration
-                       response:(MSIDTokenResponse *)response
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)saveSSOStateWithConfiguration:(MSIDConfiguration *)configuration
+                             response:(MSIDTokenResponse *)response
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
 {
     if (!response)
     {
@@ -132,11 +133,12 @@
         return NO;
     }
 
-    BOOL result = [self saveRefreshTokenWithFactory:factory
-                                      configuration:configuration
-                                           response:response
-                                            context:context
-                                              error:error];
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving SSO state");
+
+    BOOL result = [self saveRefreshTokenWithConfiguration:configuration
+                                                 response:response
+                                                  context:context
+                                                    error:error];
 
     if (!result)
     {
@@ -145,11 +147,10 @@
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        if (![accessor saveSSOStateWithFactory:factory
-                                 configuration:configuration
-                                      response:response
-                                       context:context
-                                         error:error])
+        if (![accessor saveSSOStateWithConfiguration:configuration
+                                            response:response
+                                             context:context
+                                               error:error])
         {
             MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", accessor.class);
             MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor.class, *error);
@@ -165,13 +166,15 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    NSString *clientId = familyId ? [MSIDCacheKey familyClientId:familyId] : configuration.clientId;
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get refresh token with authority %@, clientId %@, familyID %@", configuration.authority, configuration.clientId, familyId);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Get refresh token with authority %@, clientId %@, familyID %@, account %@", configuration.authority, configuration.clientId, familyId, account.homeAccountId);
 
     MSIDRefreshToken *refreshToken = [self getRefreshTokenForAccountImpl:account
-                                                               authority:configuration.authority
-                                                                clientId:clientId
+                                                                familyId:familyId
+                                                           configuration:configuration
                                                                  context:context
                                                                    error:error];
+
     if (!refreshToken)
     {
         for (id<MSIDCacheAccessor> accessor in _otherAccessors)
@@ -184,6 +187,7 @@
 
             if (refreshToken)
             {
+                MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found refresh token in a different accessor %@", [accessor class]);
                 return refreshToken;
             }
         }
@@ -205,12 +209,14 @@
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get accounts with environment %@, clientId %@, familyId %@", environment, clientId, familyId);
+
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     __auto_type items = [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 
-    NSArray<NSString *> *environmentAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:environment];
+    NSArray<NSString *> *environmentAliases = [_factory cacheAliasesForEnvironment:environment];
 
     BOOL (^filterBlock)(MSIDCredentialCacheItem *tokenCacheItem) = ^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
         if ([environmentAliases count] && ![tokenCacheItem.environment msidIsEquivalentWithAnyAlias:environmentAliases])
@@ -236,11 +242,16 @@
                                                                  returnFirst:NO
                                                                     filterBy:filterBlock];
 
-    [self stopTelemetryLookupEvent:event
-                         tokenType:MSIDRefreshTokenType
-                         withToken:nil
-                           success:[refreshTokens count] > 0
-                           context:context];
+    if ([refreshTokens count] == 0)
+    {
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found no refresh tokens");
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
+    }
+    else
+    {
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found %lu refresh tokens", (unsigned long)[refreshTokens count]);
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
+    }
 
     NSMutableSet *resultAccounts = [NSMutableSet set];
 
@@ -264,9 +275,12 @@
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
+    NSArray *aliases = [_factory cacheAliasesForAuthority:configuration.authority];
+
     return (MSIDLegacyAccessToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                             type:MSIDAccessTokenType
                                                        authority:configuration.authority
+                                                   lookupAliases:aliases
                                                         clientId:configuration.clientId
                                                         resource:configuration.target
                                                          context:context
@@ -278,9 +292,12 @@
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error
 {
+    NSArray *aliases = [_factory cacheAliasesForAuthority:configuration.authority];
+
     return (MSIDLegacySingleResourceToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                                     type:MSIDLegacySingleResourceTokenType
                                                                authority:configuration.authority
+                                                           lookupAliases:aliases
                                                                 clientId:configuration.clientId
                                                                 resource:configuration.target
                                                                  context:context
@@ -302,9 +319,12 @@
 
     MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
 
+    NSURL *storageAuthority = token.storageAuthority ? token.storageAuthority : token.authority;
+
     MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.primaryUserId
                                                                                              type:cacheItem.credentialType
                                                                                         authority:token.authority
+                                                                                    lookupAliases:@[storageAuthority]
                                                                                          clientId:cacheItem.clientId
                                                                                          resource:cacheItem.target
                                                                                           context:context
@@ -341,7 +361,7 @@
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Clearing cache with account");
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Clearing cache with account %@", account.legacyAccountId);
 
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     query.legacyUserId = account.legacyAccountId;
@@ -350,7 +370,7 @@
 
     [_dataSource saveWipeInfoWithContext:context error:nil];
 
-    [self stopTelemetryEvent:event withItem:nil success:result context:context];
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
 }
 
@@ -368,22 +388,21 @@
 #pragma mark - Internal
 
 - (MSIDLegacyRefreshToken *)getRefreshTokenForAccountImpl:(MSIDAccountIdentifier *)account
-                                                authority:(NSURL *)authority
-                                                 clientId:(NSString *)clientId
+                                                 familyId:(NSString *)familyId
+                                            configuration:(MSIDConfiguration *)configuration
                                                   context:(id<MSIDRequestContext>)context
                                                     error:(NSError **)error
 {
-    if ([MSIDAuthority isConsumerInstanceURL:authority])
-    {
-        return nil;
-    }
+    NSString *clientId = familyId ? [MSIDCacheKey familyClientId:familyId] : configuration.clientId;
+    NSArray<NSURL *> *aliases = [_factory refreshTokenLookupAuthorities:configuration.authority];
 
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", clientId, authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, clientId, authority);
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", clientId, aliases);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, clientId, aliases);
 
     MSIDLegacyRefreshToken *resultToken = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                                                             type:MSIDRefreshTokenType
-                                                                                       authority:authority
+                                                                                       authority:configuration.authority
+                                                                                   lookupAliases:aliases
                                                                                         clientId:clientId
                                                                                         resource:nil
                                                                                          context:context
@@ -393,31 +412,30 @@
     if (!resultToken
         && ![NSString msidIsStringNilOrBlank:account.homeAccountId])
     {
-        authority = [MSIDAuthority universalAuthorityURL:authority];
-        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", clientId, authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.homeAccountId, clientId, authority);
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", clientId, aliases);
+        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.homeAccountId, clientId, aliases);
 
         *error = nil;
 
         resultToken = (MSIDLegacyRefreshToken *) [self getTokenByHomeAccountId:account.homeAccountId
-                                                                    tokenType:MSIDRefreshTokenType
-                                                                    authority:authority
-                                                                     clientId:clientId
-                                                                     resource:nil
-                                                                      context:context
-                                                                        error:error];
+                                                                     tokenType:MSIDRefreshTokenType
+                                                                     authority:configuration.authority
+                                                                 lookupAliases:aliases
+                                                                      clientId:clientId
+                                                                      resource:nil
+                                                                       context:context
+                                                                         error:error];
     }
 
     return resultToken;
 }
 
-- (BOOL)saveAccessTokenWithFactory:(MSIDOauth2Factory *)factory
-                     configuration:(MSIDConfiguration *)configuration
-                          response:(MSIDTokenResponse *)response
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error
+- (BOOL)saveAccessTokenWithConfiguration:(MSIDConfiguration *)configuration
+                                response:(MSIDTokenResponse *)response
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error
 {
-    MSIDLegacyAccessToken *accessToken = [factory legacyAccessTokenFromResponse:response configuration:configuration];
+    MSIDLegacyAccessToken *accessToken = [_factory legacyAccessTokenFromResponse:response configuration:configuration];
 
     if (!accessToken)
     {
@@ -435,13 +453,12 @@
                      error:error];
 }
 
-- (BOOL)saveRefreshTokenWithFactory:(MSIDOauth2Factory *)factory
-                      configuration:(MSIDConfiguration *)configuration
-                           response:(MSIDTokenResponse *)response
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
+- (BOOL)saveRefreshTokenWithConfiguration:(MSIDConfiguration *)configuration
+                                 response:(MSIDTokenResponse *)response
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
 {
-    MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
+    MSIDLegacyRefreshToken *refreshToken = [_factory legacyRefreshTokenFromResponse:response configuration:configuration];
 
     if (!refreshToken)
     {
@@ -478,13 +495,12 @@
                      error:error];
 }
 
-- (BOOL)saveLegacySingleResourceTokenWithFactory:(MSIDOauth2Factory *)factory
-                                   configuration:(MSIDConfiguration *)configuration
-                                        response:(MSIDTokenResponse *)response
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+- (BOOL)saveLegacySingleResourceTokenWithConfiguration:(MSIDConfiguration *)configuration
+                                              response:(MSIDTokenResponse *)response
+                                               context:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error
 {
-    MSIDLegacySingleResourceToken *legacyToken = [factory legacyTokenFromResponse:response configuration:configuration];
+    MSIDLegacySingleResourceToken *legacyToken = [_factory legacyTokenFromResponse:response configuration:configuration];
 
     if (!legacyToken)
     {
@@ -509,32 +525,37 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
-    
-    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:tokenCacheItem.authority context:context];
-    
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving token %@ with authority %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:tokenCacheItem.credentialType], newAuthority, tokenCacheItem.clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving token %@ for account %@ with authority %@, clientID %@", tokenCacheItem, userId, newAuthority, tokenCacheItem.clientId);
-    
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
+
+    NSURL *alias = [_factory cacheURLForAuthority:token.authority context:context];
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving token %@ with authority %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:tokenCacheItem.credentialType], alias, tokenCacheItem.clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving token %@ for account %@ with authority %@, clientID %@", tokenCacheItem, userId, alias, tokenCacheItem.clientId);
+
     // The authority used to retrieve the item over the network can differ from the preferred authority used to
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store
     // it with we switch it out before saving it to cache.
-    tokenCacheItem.authority = newAuthority;
+    tokenCacheItem.authority = alias;
 
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:newAuthority
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:alias
                                                                              clientId:tokenCacheItem.clientId
                                                                              resource:tokenCacheItem.target
                                                                          legacyUserId:userId];
-    
+
     BOOL result = [_dataSource saveToken:tokenCacheItem
                                      key:key
                               serializer:_serializer
                                  context:context
                                    error:error];
 
-    [self stopTelemetryEvent:event withItem:token success:result context:context];
-    
-    return result;
+    if (!result)
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:token success:NO context:context];
+        MSID_LOG_VERBOSE(context, @"Failed to save token with alias: %@", alias);
+        return NO;
+    }
+
+    [MSIDTelemetry stopCacheEvent:event withItem:token success:YES context:context];
+    return YES;
 }
 
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
@@ -575,7 +596,7 @@
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Removing token with clientId %@, authority %@", token.clientId, token.authority);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Removing token %@ with account %@", token, userId);
 
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
     
     MSIDCredentialCacheItem *cacheItem = token.tokenCacheItem;
  
@@ -593,7 +614,7 @@
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
     
-    [self stopTelemetryEvent:event withItem:nil success:result context:context];
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
 }
 
@@ -602,15 +623,14 @@
 - (MSIDBaseToken *)getTokenByLegacyUserId:(NSString *)legacyUserId
                                      type:(MSIDCredentialType)type
                                 authority:(NSURL *)authority
+                            lookupAliases:(NSArray<NSURL *> *)aliases
                                  clientId:(NSString *)clientId
                                  resource:(NSString *)resource
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [self startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
-    
     for (NSURL *alias in aliases)
     {
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@", alias, clientId, resource);
@@ -631,35 +651,44 @@
         
         if (cacheError)
         {
-            [self stopTelemetryLookupEvent:event tokenType:type withToken:nil success:NO context:context];
+            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
             if (error) *error = cacheError;
             return nil;
         }
 
         if (cacheItem)
         {
+            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found token");
             MSIDBaseToken *token = [cacheItem tokenWithType:type];
             token.storageAuthority = token.authority;
             token.authority = authority;
-            [self stopTelemetryLookupEvent:event tokenType:type withToken:token success:YES context:context];
+            [MSIDTelemetry stopCacheEvent:event withItem:token success:YES context:context];
             return token;
         }
     }
 
-    [self stopTelemetryLookupEvent:event tokenType:type withToken:nil success:NO context:context];
+    if (type == MSIDRefreshTokenType)
+    {
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
+    }
+    else
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+    }
     return nil;
 }
 
 - (MSIDBaseToken *)getTokenByHomeAccountId:(NSString *)homeAccountId
                                  tokenType:(MSIDCredentialType)tokenType
                                  authority:(NSURL *)authority
+                             lookupAliases:(NSArray<NSURL *> *)aliases
                                   clientId:(NSString *)clientId
                                   resource:(NSString *)resource
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error
 {
-    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
-    
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+
     for (NSURL *alias in aliases)
     {
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@", alias, clientId, resource);
@@ -675,6 +704,7 @@
         
         if (cacheError)
         {
+            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
             if (error) *error = cacheError;
             return nil;
         }
@@ -690,56 +720,17 @@
         
         if ([matchedTokens count])
         {
+            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found token");
             MSIDBaseToken *token = matchedTokens[0];
             token.storageAuthority = token.authority;
             token.authority = authority;
+            [MSIDTelemetry stopCacheEvent:event withItem:token success:YES context:context];
             return token;
         }
     }
-    
+
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
     return nil;
-}
-
-#pragma mark - Telemetry helpers
-
-- (MSIDTelemetryCacheEvent *)startCacheEventWithName:(NSString *)cacheEventName
-                                             context:(id<MSIDRequestContext>)context
-{
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:cacheEventName];
-
-    return [[MSIDTelemetryCacheEvent alloc] initWithName:cacheEventName context:context];
-}
-
-- (void)stopTelemetryEvent:(MSIDTelemetryCacheEvent *)event
-                  withItem:(MSIDBaseToken *)token
-                   success:(BOOL)success
-                   context:(id<MSIDRequestContext>)context
-{
-    [event setStatus:success ? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
-    if (token)
-    {
-        [event setToken:token];
-    }
-    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
-                                        event:event];
-}
-
-- (void)stopTelemetryLookupEvent:(MSIDTelemetryCacheEvent *)event
-                       tokenType:(MSIDCredentialType)tokenType
-                       withToken:(MSIDBaseToken *)token
-                         success:(BOOL)success
-                         context:(id<MSIDRequestContext>)context
-{
-    if (!success && tokenType == MSIDRefreshTokenType)
-    {
-        [event setWipeData:[_dataSource wipeInfo:context error:nil]];
-    }
-    
-    [self stopTelemetryEvent:event
-                    withItem:token
-                     success:success
-                     context:context];
 }
 
 @end

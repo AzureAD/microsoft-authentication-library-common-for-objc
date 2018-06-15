@@ -46,10 +46,15 @@ MSID_JSON_ACCESSOR(ID_TOKEN_FAMILY_NAME, familyName)
 MSID_JSON_ACCESSOR(ID_TOKEN_MIDDLE_NAME, middleName)
 MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
 
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString
+- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString error:(NSError **)error
 {
     if ([NSString msidIsStringNilOrBlank:rawIdTokenString])
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Nil id_token passed", nil, nil, nil, nil, nil);
+        }
+
         return nil;
     }
     
@@ -58,23 +63,77 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     NSArray* parts = [rawIdTokenString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count != 3)
     {
-        MSID_LOG_WARN(nil, @"Id token is invalid.");
-        return nil;
+        // Log a warning, but still try to read the id token for backward compatibility...
+        MSID_LOG_WARN(nil, @"Id token is not a JWT token");
     }
-    
-    NSData *decoded =  [[parts[1] msidBase64UrlDecode] dataUsingEncoding:NSUTF8StringEncoding];
-    NSError *error = nil;
-    if (!(self = [super initWithJSONData:decoded error:&error]))
+
+    if (parts.count < 1)
     {
+        MSID_LOG_ERROR(nil, @"Id token is invalid");
+
         if (error)
         {
-            MSID_LOG_WARN(nil, @"Id token is invalid. Error: %@", error.localizedDescription);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned empty id token", nil, nil, nil, nil, nil);
         }
+
+        return nil;
+    }
+
+    NSMutableDictionary *allClaims = [NSMutableDictionary dictionary];
+
+    for (NSString *part in parts)
+    {
+        NSData *decoded =  [[part msidBase64UrlDecode] dataUsingEncoding:NSUTF8StringEncoding];
+
+        if (decoded && [decoded length])
+        {
+            NSError *jsonError = nil;
+            NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:decoded options:0 error:&jsonError];
+
+            if (jsonError)
+            {
+                MSID_LOG_WARN(nil, @"Failed to deserialize part of the id_token");
+                MSID_LOG_WARN_PII(nil, @"Failed to deserialize part of the id_token %@", jsonError);
+
+                if (error) *error = jsonError;
+                return nil;
+            }
+
+            if (![jsonObject isKindOfClass:[NSDictionary class]])
+            {
+                MSID_LOG_WARN(nil, @"Invalid id token format");
+
+                if (error)
+                {
+                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned invalid id token", nil, nil, nil, nil, nil);
+                }
+
+                return nil;
+            }
+
+            [allClaims addEntriesFromDictionary:jsonObject];
+        }
+    }
+
+    if (![allClaims count])
+    {
+        MSID_LOG_WARN(nil, @"Id token is invalid");
+
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned id token without any claims", nil, nil, nil, nil, nil);
+        }
+
+        return nil;
+    }
+
+    if (!(self = [super initWithJSONDictionary:allClaims error:error]))
+    {
+        MSID_LOG_WARN(nil, @"Id token is invalid");
         return nil;
     }
     
     [self initDerivedProperties];
-    
     return self;
 }
 

@@ -436,7 +436,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     if (status != errSecSuccess)
     {
-        if (error)
+        if (error && status != errSecItemNotFound)
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get a wipe data from keychain.", nil, nil, nil, context.correlationId, nil);
         }

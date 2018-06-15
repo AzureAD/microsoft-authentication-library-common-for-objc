@@ -33,6 +33,8 @@
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthority.h"
 
 #import "MSIDAADV1WebviewFactory.h"
 
@@ -191,6 +193,19 @@
     return YES;
 }
 
+
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
+{
+    if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
+    {
+        // AAD v1 doesn't support consumer authority
+        return @[];
+    }
+
+    return [super refreshTokenLookupAuthorities:originalAuthority];
+}
+
+#pragma mark - Webview
 #pragma mark - Webview
 - (MSIDWebviewFactory *)webviewFactory
 {

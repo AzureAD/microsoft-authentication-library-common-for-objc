@@ -30,7 +30,7 @@
 #import "NSDate+MSIDExtensions.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
-static uint64_t s_expirationBuffer = 300;
+static NSUInteger s_expirationBuffer = 300;
 
 @interface MSIDAccessToken()
 
@@ -146,15 +146,20 @@ static uint64_t s_expirationBuffer = 300;
 
 #pragma mark - Expiry
 
-- (BOOL)isExpired;
+- (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer
 {
     if (self.cachedAt && [[NSDate date] compare:self.cachedAt] == NSOrderedAscending)
     {
         return YES;
     }
 
-    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:s_expirationBuffer];
+    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:expiryBuffer];
     return [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
+}
+
+- (BOOL)isExpired
+{
+    return [self isExpiredWithExpiryBuffer:s_expirationBuffer];
 }
 
 - (NSDate *)extendedExpireTime
