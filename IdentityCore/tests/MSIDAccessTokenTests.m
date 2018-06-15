@@ -308,6 +308,20 @@
     XCTAssertFalse(token.isExpired);
 }
 
+- (void)testIsExpired_whenTokenNotExpired_AndCustomExpiryBuffer_shouldReturnNO
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:700];
+    XCTAssertFalse([token isExpiredWithExpiryBuffer:601]);
+}
+
+- (void)testIsExpired_whenTokenExpired_AndCustomExpiryBuffer_shouldReturnYES
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:600];
+    XCTAssertTrue([token isExpiredWithExpiryBuffer:601]);
+}
+
 #pragma mark - Private
 
 - (MSIDAccessToken *)createToken

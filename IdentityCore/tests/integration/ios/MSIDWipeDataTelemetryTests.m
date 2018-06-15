@@ -40,6 +40,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAADV2Oauth2Factory.h"
 
 @interface MSIDTestRequestContext : NSObject <MSIDRequestContext>
 
@@ -68,8 +69,9 @@
 {
     [MSIDKeychainTokenCache reset];
     _dataSource = [[MSIDKeychainTokenCache alloc] init];
-    _legacyCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
-    _defaultCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    _legacyCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil factory:factory];
+    _defaultCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil factory:factory];
     
     [super setUp];
 }
@@ -99,11 +101,10 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
 
-    BOOL result = [_legacyCacheAccessor saveSSOStateWithFactory:factory
-                                                  configuration:[MSIDTestConfiguration v1DefaultConfiguration]
-                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                        context:reqContext
-                                                          error:nil];
+    BOOL result = [_legacyCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
+                                                             response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                              context:reqContext
+                                                                error:nil];
     XCTAssertNil(error);
 
     // remove the refresh token to trigger wipe data being written
@@ -162,11 +163,10 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_legacyCacheAccessor saveSSOStateWithFactory:factory
-                                                  configuration:[MSIDTestConfiguration v1DefaultConfiguration]
-                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                        context:reqContext
-                                                          error:nil];
+    BOOL result = [_legacyCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
+                                                             response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                              context:reqContext
+                                                                error:nil];
     XCTAssertNil(error);
     
     // remove the refresh token to trigger wipe data being written
@@ -228,11 +228,10 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
 
-    BOOL result = [_defaultCacheAccessor saveSSOStateWithFactory:factory
-                                                   configuration:[MSIDTestConfiguration v1DefaultConfiguration]
-                                                        response:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                         context:reqContext
-                                                           error:nil];
+    BOOL result = [_defaultCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
+                                                              response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                               context:reqContext
+                                                                 error:nil];
     XCTAssertNil(error);
     
     // remove the refresh token to trigger wipe data being written
@@ -293,11 +292,10 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_defaultCacheAccessor saveSSOStateWithFactory:factory
-                                                   configuration:[MSIDTestConfiguration v1DefaultConfiguration]
-                                                        response:[MSIDTestTokenResponse v1DefaultTokenResponse]
-                                                         context:reqContext
-                                                           error:nil];
+    BOOL result = [_defaultCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
+                                                              response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                               context:reqContext
+                                                                 error:nil];
     XCTAssertNil(error);
     
     // remove the refresh token to trigger wipe data being written

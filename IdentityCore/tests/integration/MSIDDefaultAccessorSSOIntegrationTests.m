@@ -74,9 +74,10 @@
     _otherDataSource = [MSIDMacTokenCache defaultCache];
     _defaultDataSource = [[MSIDTestCacheDataSource alloc] init];
 #endif
-    _otherAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_otherDataSource otherCacheAccessors:nil];
-    _defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_defaultDataSource otherCacheAccessors:@[_otherAccessor]];
-    _nonSSOAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_defaultDataSource otherCacheAccessors:nil];
+    MSIDOauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    _otherAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_otherDataSource otherCacheAccessors:nil factory:factory];
+    _defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_defaultDataSource otherCacheAccessors:@[_otherAccessor] factory:factory];
+    _nonSSOAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_defaultDataSource otherCacheAccessors:nil factory:factory];
     [super setUp];
 }
 
@@ -97,11 +98,10 @@
 - (void)testSaveTokensWithFactory_whenNilResponse_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_nonSSOAccessor saveTokensWithFactory:[MSIDAADV2Oauth2Factory new]
-                                           configuration:[MSIDTestConfiguration defaultParams]
-                                                response:nil
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_nonSSOAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                      response:nil
+                                                       context:nil
+                                                         error:&error];
 
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -111,11 +111,10 @@
 - (void)testSaveSSOStateWithFactory_whenNilResponse_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_nonSSOAccessor saveSSOStateWithFactory:[MSIDAADV2Oauth2Factory new]
-                                             configuration:[MSIDTestConfiguration defaultParams]
-                                                  response:nil
-                                                   context:nil
-                                                     error:&error];
+    BOOL result = [_nonSSOAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                        response:nil
+                                                         context:nil
+                                                           error:&error];
 
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -137,11 +136,10 @@
 
 
     NSError *error = nil;
-    BOOL result = [_nonSSOAccessor saveTokensWithFactory:[MSIDAADV2Oauth2Factory new]
-                                           configuration:[MSIDTestConfiguration defaultParams]
-                                                response:response
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_nonSSOAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                      response:response
+                                                       context:nil
+                                                         error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -216,11 +214,10 @@
                                                                           utid:@"utid"
                                                                       familyId:nil];
     NSError *error = nil;
-    BOOL result = [_defaultAccessor saveTokensWithFactory:[MSIDAADV2Oauth2Factory new]
-                                            configuration:[MSIDTestConfiguration defaultParams]
-                                                 response:response
-                                                  context:nil
-                                                    error:&error];
+    BOOL result = [_defaultAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                       response:response
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -313,11 +310,10 @@
                                                                           utid:@"utid"
                                                                       familyId:@"2"];
     NSError *error = nil;
-    BOOL result = [_defaultAccessor saveTokensWithFactory:[MSIDAADV2Oauth2Factory new]
-                                            configuration:[MSIDTestConfiguration defaultParams]
-                                                 response:response
-                                                  context:nil
-                                                    error:&error];
+    BOOL result = [_defaultAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                       response:response
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -407,11 +403,10 @@
     XCTAssertNil(error);
     XCTAssertNotNil(brokerResponse);
 
-    BOOL result = [_defaultAccessor saveTokensWithFactory:[MSIDAADV2Oauth2Factory new]
-                                           brokerResponse:brokerResponse
-                                         saveSSOStateOnly:NO
-                                                  context:nil
-                                                    error:&error];
+    BOOL result = [_defaultAccessor saveTokensWithBrokerResponse:brokerResponse
+                                                saveSSOStateOnly:NO
+                                                         context:nil
+                                                           error:&error];
 
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -432,11 +427,10 @@
                                                                       familyId:nil];
 
     NSError *error = nil;
-    BOOL result = [_defaultAccessor saveTokensWithFactory:[MSIDAADV2Oauth2Factory new]
-                                            configuration:[MSIDTestConfiguration defaultParams]
-                                                 response:response
-                                                  context:nil
-                                                    error:&error];
+    BOOL result = [_defaultAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                       response:response
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -483,11 +477,10 @@
                                                                       familyId:nil];
 
     NSError *error = nil;
-    BOOL result = [_defaultAccessor saveTokensWithFactory:[MSIDAADV2Oauth2Factory new]
-                                            configuration:[MSIDTestConfiguration defaultParams]
-                                                 response:response
-                                                  context:nil
-                                                    error:&error];
+    BOOL result = [_defaultAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                       response:response
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -1211,108 +1204,6 @@
     XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.windows.net/utid");
 }
 
-- (void)testGetAccessTokenForAccount_whenAccessTokensInPrimaryCache_andNoAuthority_shouldReturnToken
-{
-    // Save first token
-    [self saveResponseWithUPN:@"upn@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.net/common"
-               responseScopes:@"user.read user.write"
-                  inputScopes:@"user.read user.write"
-                          uid:@"uid"
-                         utid:@"utid"
-                  accessToken:@"access token"
-                 refreshToken:@"refresh token"
-                     familyId:nil
-                     accessor:_nonSSOAccessor];
-
-    // Save second token
-    [self saveResponseWithUPN:@"upn@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.net/common"
-               responseScopes:@"user.sing"
-                  inputScopes:@"user.sing"
-                          uid:@"uid"
-                         utid:@"utid"
-                  accessToken:@"access token 2"
-                 refreshToken:@"refresh token"
-                     familyId:nil
-                     accessor:_nonSSOAccessor];
-
-    // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
-    XCTAssertEqual([refreshTokens count], 1);
-
-    NSArray *accessTokens = [self getAllAccessTokens];
-    XCTAssertEqual([accessTokens count], 2);
-
-    // Get token
-    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
-                                                                                clientId:@"test_client_id"
-                                                                             redirectUri:nil
-                                                                                  target:@"user.write"];
-
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
-    NSError *error = nil;
-    MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account configuration:configuration context:nil error:&error];
-
-    XCTAssertNil(error);
-    XCTAssertNotNil(accessToken);
-    XCTAssertEqualObjects(accessToken.accessToken, @"access token");
-    XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
-    XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.windows.net/utid");
-}
-
-- (void)testGetAccessTokenForAccount_whenAccessTokensInPrimaryCache_andAmbigiousAuthority_shouldReturnNilAndError
-{
-    // Save first token
-    [self saveResponseWithUPN:@"upn@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.com/common"
-               responseScopes:@"user.read user.write"
-                  inputScopes:@"user.read user.write"
-                          uid:@"uid"
-                         utid:@"utid"
-                  accessToken:@"access token"
-                 refreshToken:@"refresh token"
-                     familyId:nil
-                     accessor:_nonSSOAccessor];
-
-    // Save second token
-    [self saveResponseWithUPN:@"upn@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.net/common"
-               responseScopes:@"user.read user.write"
-                  inputScopes:@"user.read user.write"
-                          uid:@"uid"
-                         utid:@"utid"
-                  accessToken:@"access token 2"
-                 refreshToken:@"refresh token"
-                     familyId:nil
-                     accessor:_nonSSOAccessor];
-
-    // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
-    XCTAssertEqual([refreshTokens count], 2);
-
-    NSArray *accessTokens = [self getAllAccessTokens];
-    XCTAssertEqual([accessTokens count], 2);
-
-    // Get token
-    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:nil
-                                                                                clientId:@"test_client_id"
-                                                                             redirectUri:nil
-                                                                                  target:@"user.write"];
-
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
-    NSError *error = nil;
-    MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account configuration:configuration context:nil error:&error];
-
-    XCTAssertNotNil(error);
-    XCTAssertNil(accessToken);
-    XCTAssertEqual(error.code, MSIDErrorAmbiguousAuthority);
-}
-
 #pragma mark - Remove
 
 - (void)testValidateAndRemoveRefreshToken_whenNilTokenProvided_shouldReturnError
@@ -1609,10 +1500,10 @@
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
-                                                                        familyId:nil
-                                                                   configuration:configuration
-                                                                         context:nil
-                                                                           error:&error];
+                                                                         familyId:nil
+                                                                    configuration:configuration
+                                                                          context:nil
+                                                                            error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(refreshToken);
@@ -1675,8 +1566,9 @@
     XCTAssertNil(error);
     XCTAssertNotNil(idToken);
 
-    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken.rawIdToken];
+    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken.rawIdToken error:&error];
     XCTAssertNotNil(claims);
+    XCTAssertNil(error);
 
     XCTAssertEqualObjects(claims.realm, @"utid2");
     XCTAssertEqualObjects(claims.username, @"upn@test.com");
@@ -1890,11 +1782,10 @@
 
     NSError *error = nil;
     // Save first token
-    BOOL result = [accessor saveTokensWithFactory:[MSIDAADV2Oauth2Factory new]
-                                    configuration:configuration
-                                         response:response
-                                          context:nil
-                                            error:&error];
+    BOOL result = [accessor saveTokensWithConfiguration:configuration
+                                               response:response
+                                                context:nil
+                                                  error:&error];
 
     XCTAssertNil(error);
     XCTAssertTrue(result);

@@ -32,6 +32,8 @@
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -186,6 +188,17 @@
 
     token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
     return YES;
+}
+
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
+{
+    if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
+    {
+        // AAD v1 doesn't support consumer authority
+        return @[];
+    }
+
+    return [super refreshTokenLookupAuthorities:originalAuthority];
 }
 
 #pragma mark - Webview controllers

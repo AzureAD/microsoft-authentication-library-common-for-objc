@@ -62,7 +62,7 @@
 
 - (MSIDIdTokenClaims *)idTokenClaims
 {
-    return [[MSIDIdTokenClaims alloc] initWithRawIdToken:_rawIdToken];
+    return [[MSIDIdTokenClaims alloc] initWithRawIdToken:_rawIdToken error:nil];
 }
 
 

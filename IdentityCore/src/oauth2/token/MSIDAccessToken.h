@@ -40,6 +40,7 @@
 @property (readwrite) NSOrderedSet<NSString *> *scopes;
 
 - (BOOL)isExpired;
+- (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;
 - (BOOL)isExtendedLifetimeValid;
 
 @end

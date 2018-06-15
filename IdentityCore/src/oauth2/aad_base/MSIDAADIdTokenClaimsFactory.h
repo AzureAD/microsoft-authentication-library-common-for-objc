@@ -30,6 +30,6 @@
 
 @interface MSIDAADIdTokenClaimsFactory : NSObject
 
-+ (MSIDIdTokenClaims *)claimsFromRawIdToken:(NSString *)rawIdTokenString;
++ (MSIDIdTokenClaims *)claimsFromRawIdToken:(NSString *)rawIdTokenString error:(NSError * __autoreleasing *)error;
 
 @end

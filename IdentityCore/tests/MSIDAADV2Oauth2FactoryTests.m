@@ -41,6 +41,7 @@
 #import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccount.h"
+#import "MSIDAadAuthorityCache+TestUtil.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 
 @interface MSIDAADV2Oauth2StartegyTests : XCTestCase

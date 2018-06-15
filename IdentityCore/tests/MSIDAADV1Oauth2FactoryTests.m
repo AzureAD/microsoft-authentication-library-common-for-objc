@@ -42,6 +42,7 @@
 #import "MSIDAccount.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDLegacyRefreshToken.h"
+#import "MSIDAadAuthorityCache+TestUtil.h"
 
 @interface MSIDAADV1Oauth2FactoryTests : XCTestCase
 
@@ -470,6 +471,28 @@
     MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     XCTAssertNil(accessToken);
+}
+
+- (void)testRefreshTokenLookupAuthorities_whenAuthorityProvidedWithConsumers_shouldReturnEmptyAliases
+{
+    [self setupAADAuthorityCache];
+
+    MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/consumers"];
+    NSArray *aliases = [factory refreshTokenLookupAuthorities:originalAuthority];
+    NSArray *expectedAliases = @[];
+    XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+- (void)setupAADAuthorityCache
+{
+    __auto_type record = [MSIDAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"login.microsoftonline.com";
+    record.cacheHost = @"login.windows.net";
+    record.aliases = @[@"login.microsoft.com"];
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
+    cache.recordMap = @{ @"login.microsoftonline.com" : record };
 }
 
 @end

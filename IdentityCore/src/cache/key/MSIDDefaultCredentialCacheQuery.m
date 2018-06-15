@@ -31,8 +31,8 @@
 
     if (self)
     {
-        _targetMatchingOptions = ExactStringMatch;
-        _clientIdMatchingOptions = ExactStringMatch;
+        _targetMatchingOptions = MSIDExactStringMatch;
+        _clientIdMatchingOptions = MSIDExactStringMatch;
         _matchAnyCredentialType = NO;
     }
 
@@ -82,7 +82,7 @@
     if (self.queryClientId
         && self.realm
         && self.target
-        && self.targetMatchingOptions == ExactStringMatch)
+        && self.targetMatchingOptions == MSIDExactStringMatch)
     {
         return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:self.realm target:self.target];
     }
@@ -155,7 +155,7 @@
 - (NSString *)queryClientId
 {
     if ((self.clientId || self.familyId)
-        && (self.clientIdMatchingOptions == ExactStringMatch))
+        && (self.clientIdMatchingOptions == MSIDExactStringMatch))
     {
         return self.familyId ? self.familyId : self.clientId;
     }

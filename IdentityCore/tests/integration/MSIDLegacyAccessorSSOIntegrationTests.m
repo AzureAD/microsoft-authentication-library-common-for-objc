@@ -68,9 +68,10 @@
     _legacyDataSource = [MSIDMacTokenCache defaultCache];
     _otherDataSource = [[MSIDTestCacheDataSource alloc] init];
 #endif
-    _otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_otherDataSource otherCacheAccessors:nil];
-    _legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_legacyDataSource otherCacheAccessors:@[_otherAccessor]];
-    _nonSSOAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_legacyDataSource otherCacheAccessors:nil];
+    MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    _otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_otherDataSource otherCacheAccessors:nil factory:factory];
+    _legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_legacyDataSource otherCacheAccessors:@[_otherAccessor] factory:factory];
+    _nonSSOAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_legacyDataSource otherCacheAccessors:nil factory:factory];
     [super setUp];
 }
 
@@ -91,11 +92,10 @@
 - (void)testSaveTokensWithFactory_whenNilResponse_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_nonSSOAccessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                           configuration:[MSIDTestConfiguration defaultParams]
-                                                response:nil
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_nonSSOAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                      response:nil
+                                                       context:nil
+                                                         error:&error];
 
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -105,11 +105,10 @@
 - (void)testSaveSSOStateWithFactory_whenNilResponse_shouldReturnError
 {
     NSError *error = nil;
-    BOOL result = [_nonSSOAccessor saveSSOStateWithFactory:[MSIDAADV1Oauth2Factory new]
-                                             configuration:[MSIDTestConfiguration defaultParams]
-                                                  response:nil
-                                                   context:nil
-                                                     error:&error];
+    BOOL result = [_nonSSOAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                        response:nil
+                                                         context:nil
+                                                           error:&error];
 
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -129,11 +128,10 @@
                                                               additionalFields:nil];
 
     NSError *error = nil;
-    BOOL result = [_nonSSOAccessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                           configuration:[MSIDTestConfiguration defaultParams]
-                                                response:response
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_nonSSOAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                      response:response
+                                                       context:nil
+                                                         error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -188,11 +186,10 @@
                                                               additionalFields:nil];
 
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                           configuration:[MSIDTestConfiguration defaultParams]
-                                                response:response
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                      response:response
+                                                       context:nil
+                                                         error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -260,7 +257,7 @@
     XCTAssertEqualObjects(defaultIDToken.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(defaultIDToken.additionalServerInfo, [NSDictionary dictionary]);
 
-    NSArray *accounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil context:nil error:&error];
+    NSArray *accounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil  context:nil error:&error];
     XCTAssertNotNil(accounts);
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 1);
@@ -290,11 +287,10 @@
                                                               additionalFields:@{@"foci": @"2"}];
 
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                           configuration:[MSIDTestConfiguration defaultParams]
-                                                response:response
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                      response:response
+                                                       context:nil
+                                                         error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -374,11 +370,10 @@
                                                                            target:@"graph"];
 
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                           configuration:config
-                                                response:response
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_legacyAccessor saveTokensWithConfiguration:config
+                                                      response:response
+                                                       context:nil
+                                                         error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -444,11 +439,10 @@
                                                                            target:@"graph"];
 
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                           configuration:config
-                                                response:response
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_legacyAccessor saveTokensWithConfiguration:config
+                                                      response:response
+                                                       context:nil
+                                                         error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -520,11 +514,10 @@
     XCTAssertNil(error);
     XCTAssertNotNil(brokerResponse);
 
-    BOOL result = [_legacyAccessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                          brokerResponse:brokerResponse
-                                        saveSSOStateOnly:NO
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_legacyAccessor saveTokensWithBrokerResponse:brokerResponse
+                                               saveSSOStateOnly:NO
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -629,11 +622,10 @@
     XCTAssertNil(error);
     XCTAssertNotNil(brokerResponse);
 
-    BOOL result = [_legacyAccessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                          brokerResponse:brokerResponse
-                                        saveSSOStateOnly:YES
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_legacyAccessor saveTokensWithBrokerResponse:brokerResponse
+                                               saveSSOStateOnly:YES
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -715,11 +707,10 @@
                                                               additionalFields:nil];
 
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                           configuration:[MSIDTestConfiguration defaultParams]
-                                                response:response
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                      response:response
+                                                       context:nil
+                                                         error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -759,11 +750,10 @@
                                                               additionalFields:nil];
 
     NSError *error = nil;
-    BOOL result = [_legacyAccessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                           configuration:[MSIDTestConfiguration defaultParams]
-                                                response:response
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration defaultParams]
+                                                      response:response
+                                                       context:nil
+                                                         error:&error];
 
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -2225,11 +2215,10 @@
 
     NSError *error = nil;
     // Save first token
-    BOOL result = [accessor saveTokensWithFactory:[MSIDAADV1Oauth2Factory new]
-                                    configuration:configuration
-                                         response:response
-                                          context:nil
-                                            error:&error];
+    BOOL result = [accessor saveTokensWithConfiguration:configuration
+                                               response:response
+                                                context:nil
+                                                  error:&error];
 
     XCTAssertNil(error);
     XCTAssertTrue(result);
