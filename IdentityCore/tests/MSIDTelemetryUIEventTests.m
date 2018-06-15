@@ -25,6 +25,7 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDVersion.h"
+#import "NSData+MSIDExtensions.h"
 
 @interface MSIDTelemetryUIEventTests : XCTestCase
 
@@ -40,7 +41,7 @@
     
     [event setLoginHint:@"eric_cartman@contoso.com"];
     
-    XCTAssertEqualObjects([event propertyWithName:MSID_TELEMETRY_KEY_LOGIN_HINT], [@"eric_cartman@contoso.com" msidComputeSHA256]);
+    XCTAssertEqualObjects([event propertyWithName:MSID_TELEMETRY_KEY_LOGIN_HINT], [[@"eric_cartman@contoso.com".msidData msidSHA256] hexString]);
 }
 
 @end

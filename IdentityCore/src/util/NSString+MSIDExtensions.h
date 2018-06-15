@@ -48,10 +48,11 @@
 /*! Converts NSData to base64 String */
 + (NSString *)msidBase64UrlEncodeData:(NSData *)data;
 
-- (NSString*)msidComputeSHA256;
-
 /*! Converts string to url */
 - (NSURL *)msidUrl;
+
+/*! Converts string to NSData */
+- (NSData *)msidData;
 
 /*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
  the actual contents, but still want to log something that can be correlated. */
