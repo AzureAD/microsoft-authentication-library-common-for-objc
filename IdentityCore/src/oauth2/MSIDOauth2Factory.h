@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
+#import "MSIDCredentialType.h"
 
 @class MSIDTokenResponse;
 @class MSIDBaseToken;
@@ -34,11 +34,9 @@
 @class MSIDLegacyRefreshToken;
 @class MSIDAccount;
 @class MSIDConfiguration;
-@class MSIDWebviewConfiguration;
 @class MSIDWebviewFactory;
 
 @protocol MSIDRequestContext;
-@protocol MSIDWebviewInteracting;
 
 @interface MSIDOauth2Factory : NSObject
 {
@@ -64,8 +62,17 @@
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
-// Webview related
-@property(readonly) MSIDWebviewFactory *webviewFactory;
+
+// Webview Factory
+@property (readonly) MSIDWebviewFactory *webviewFactory;
+
+// Cache URL
+- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
+                        context:(id<MSIDRequestContext>)context;
+- (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context;
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority;
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority;
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment;
 
 @end
 

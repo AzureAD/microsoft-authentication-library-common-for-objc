@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,37 +15,29 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import "MSIDAADIdTokenClaimsFactory.h"
-#import "MSIDAADV2IdTokenClaims.h"
-#import "MSIDAADV1IdTokenClaims.h"
+#import "MSIDTelemetry.h"
 
-@implementation MSIDAADIdTokenClaimsFactory
+@class MSIDTelemetryCacheEvent;
+@class MSIDBaseToken;
 
-+ (MSIDIdTokenClaims *)claimsFromRawIdToken:(NSString *)rawIdTokenString error:(NSError **)error
-{
-    MSIDIdTokenClaims *claims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:rawIdTokenString error:error];
+@interface MSIDTelemetry (Cache)
 
-    NSDictionary *allClaims = [claims jsonDictionary];
-    CGFloat idTokenVersion = [allClaims[@"ver"] floatValue];
++ (MSIDTelemetryCacheEvent *)startCacheEventWithName:(NSString *)cacheEventName
+                                             context:(id<MSIDRequestContext>)context;
 
-    if (idTokenVersion == 1.0f)
-    {
-        return [[MSIDAADV1IdTokenClaims alloc] initWithJSONDictionary:allClaims error:error];
-    }
-    else if (idTokenVersion == 2.0f)
-    {
-        return [[MSIDAADV2IdTokenClaims alloc] initWithJSONDictionary:allClaims error:error];
-    }
++ (void)stopCacheEvent:(MSIDTelemetryCacheEvent *)event
+              withItem:(MSIDBaseToken *)token
+               success:(BOOL)success
+               context:(id<MSIDRequestContext>)context;
 
-    return claims;
-}
++ (void)stopFailedCacheEvent:(MSIDTelemetryCacheEvent *)event
+                    wipeData:(NSDictionary *)wipeData
+                     context:(id<MSIDRequestContext>)context;
 
 @end

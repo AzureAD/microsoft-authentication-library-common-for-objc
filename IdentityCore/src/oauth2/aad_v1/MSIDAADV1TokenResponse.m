@@ -37,7 +37,7 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 
 - (MSIDIdTokenClaims *)idTokenObj
 {
-    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken];
+    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
 }
 
 - (NSString *)target

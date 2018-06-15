@@ -36,6 +36,8 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAADWebviewFactory.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -117,6 +119,57 @@
     {
         MSID_LOG_INFO_CORR(requestCorrelationId, @"Missing correlation id - No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
     }
+}
+
+- (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:originalEnvironment context:context];
+}
+
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
+}
+
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
+}
+
+- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
+                        context:(id<MSIDRequestContext>)context
+{
+    if (!originalAuthority)
+    {
+        return nil;
+    }
+
+    NSURL *authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
+    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
+}
+
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
+{
+    if (!originalAuthority)
+    {
+        return @[];
+    }
+
+    NSMutableArray *lookupAuthorities = [NSMutableArray array];
+
+    if ([MSIDAuthority isTenantless:originalAuthority])
+    {
+        // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
+        [lookupAuthorities addObject:[MSIDAuthority universalAuthorityURL:originalAuthority]];
+    }
+    else
+    {
+        // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
+        [lookupAuthorities addObject:originalAuthority];
+        [lookupAuthorities addObject:[MSIDAuthority commonAuthorityWithURL:originalAuthority]];
+    }
+
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthorities:lookupAuthorities];
 }
 
 #pragma mark - Tokens

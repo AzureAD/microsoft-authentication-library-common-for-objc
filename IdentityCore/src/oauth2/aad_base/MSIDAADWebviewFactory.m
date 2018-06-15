@@ -36,13 +36,14 @@
 {
     NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
                                                                                                  requestState:state];
-    
-    if (configuration.sliceParameters)
-    {
-        [parameters addEntriesFromDictionary:configuration.sliceParameters];
-    }
 
     NSMutableOrderedSet<NSString *> *allScopes = parameters[MSID_OAUTH2_SCOPE].scopeSet.mutableCopy;
+    
+    if (!allScopes)
+    {
+        allScopes = [NSMutableOrderedSet new];
+    }
+    
     [allScopes addObject:MSID_OAUTH2_SCOPE_OPENID_VALUE];
     
     parameters[MSID_OAUTH2_SCOPE] = allScopes.msidToString;
@@ -69,7 +70,7 @@
     return parameters;
 }
 
-- (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration verifyState:(BOOL)verifyState customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
+- (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
 {
     NSString *state = [self generateStateValue];
     NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
@@ -85,7 +86,7 @@
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
                                                                            requestState:state
-                                                                            verifyState:verifyState];
+                                                                            verifyState:configuration.verifyState];
     return session;
 }
 

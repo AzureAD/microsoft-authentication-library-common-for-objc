@@ -95,7 +95,15 @@
         _authority = tokenCacheItem.authority;
         _refreshToken = tokenCacheItem.refreshToken;
 
-        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_idToken];
+        NSError *error = nil;
+        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_idToken error:&error];
+
+        if (error)
+        {
+            MSID_LOG_WARN(nil, @"Invalid ID token");
+            MSID_LOG_WARN_PII(nil, @"Invalid ID token, error %@", error.localizedDescription);
+        }
+
         _legacyUserId = idTokenClaims.userId;
         _realm = idTokenClaims.realm;
     }

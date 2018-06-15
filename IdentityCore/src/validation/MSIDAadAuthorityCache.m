@@ -407,6 +407,18 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     return record.cacheHost;
 }
 
+- (NSArray<NSURL *> *)cacheAliasesForAuthorities:(NSArray<NSURL *> *)authorities
+{
+    NSMutableArray<NSURL *> *resultAuthorities = [NSMutableArray new];
+
+    for (NSURL *authority in authorities)
+    {
+        [resultAuthorities addObjectsFromArray:[self cacheAliasesForAuthority:authority]];
+    }
+
+    return resultAuthorities;
+}
+
 - (NSArray<NSURL *> *)cacheAliasesForAuthorityImpl:(NSURL *)authority
 {
     NSMutableArray<NSURL *> *authorities = [NSMutableArray new];

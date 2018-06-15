@@ -42,13 +42,11 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
 
 + (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                     oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                                      verifyState:(BOOL)verifyState
                                           context:(id<MSIDRequestContext>)context
                                 completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
 + (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                            oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                                             verifyState:(BOOL)verifyState
                                                  webview:(WKWebView *)webview
                                                  context:(id<MSIDRequestContext>)context
                                        completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
@@ -56,7 +54,6 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
 #if TARGET_OS_IPHONE
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                          oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                                           verifyState:(BOOL)verifyState 
                                                context:(id<MSIDRequestContext>)context
                                      completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 #endif
@@ -71,7 +68,6 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
 
 // This can be utilized for having a custom webview controller, and for testing.
 + (void)startSession:(MSIDWebviewSession *)session
-         verifyState:(BOOL)verifyState 
              context:(id<MSIDRequestContext>)context
    completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 

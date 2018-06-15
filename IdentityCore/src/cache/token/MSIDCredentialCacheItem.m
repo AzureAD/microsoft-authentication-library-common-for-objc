@@ -228,11 +228,11 @@
     }
 
     switch (comparisonOptions) {
-        case ExactStringMatch:
+        case MSIDExactStringMatch:
             return [self.target isEqualToString:target];
-        case SubSet:
+        case MSIDSubSet:
             return [[target scopeSet] isSubsetOfOrderedSet:[self.target scopeSet]];
-        case Intersect:
+        case MSIDIntersect:
             return [[target scopeSet] intersectsOrderedSet:[self.target scopeSet]];
         default:
             return NO;
@@ -265,7 +265,7 @@
             return NO;
         }
 
-        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:self.secret];
+        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:self.secret error:nil];
 
         if (![idTokenClaims matchesLegacyUserId:legacyUserId])
         {
@@ -299,7 +299,7 @@
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions
 {
-    if (clientIDMatchingOptions == SuperSet && (clientId || familyId))
+    if (clientIDMatchingOptions == MSIDSuperSet && (clientId || familyId))
     {
         if (![self.clientId isEqualToString:clientId]
             && ![self.familyId isEqualToString:familyId])

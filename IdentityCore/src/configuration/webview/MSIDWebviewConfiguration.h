@@ -47,7 +47,7 @@
 
 // State verifier: Recommended verifier for state value of the response.
 //  Set to YES to stop if verifying state fails
-@property (readwrite) BOOL verifyState;
+@property (readonly) BOOL verifyState;
 
 // PKCE Support
 @property (readonly) MSIDPkce *pkce;
@@ -71,6 +71,7 @@
                                      resource:(NSString *)resource
                                        scopes:(NSOrderedSet<NSString *> *)scopes
                                 correlationId:(NSUUID *)correlationId
+                                  verifyState:(BOOL)verifyState
                                    enablePkce:(BOOL)enablePkce;
 
 @end

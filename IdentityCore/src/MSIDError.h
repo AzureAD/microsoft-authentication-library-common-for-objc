@@ -96,8 +96,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
      dictionary for more detailed information about the specific error.
      */
-    MSIDErrorAuthorizationFailed = -52018,
-    
+    MSIDErrorAuthorizationFailed = -52020,
+
     /*!
      Interaction required errors occur because of a wide variety of errors
      returned by the authentication service.

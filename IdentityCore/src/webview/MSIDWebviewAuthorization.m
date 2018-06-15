@@ -41,13 +41,11 @@ static MSIDWebviewSession *s_currentSession = nil;
 
 + (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                     oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                                      verifyState:(BOOL)verifyState
                                           context:(id<MSIDRequestContext>)context
                                 completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
     [self startEmbeddedWebviewWebviewAuthWithConfiguration:configuration
                                              oauth2Factory:oauth2Factory
-                                               verifyState:verifyState
                                                    webview:nil
                                                    context:context
                                          completionHandler:completionHandler];
@@ -55,33 +53,30 @@ static MSIDWebviewSession *s_currentSession = nil;
 
 + (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                            oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                                             verifyState:(BOOL)verifyState
                                                  webview:(WKWebView *)webview
                                                  context:(id<MSIDRequestContext>)context
                                        completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
     MSIDWebviewFactory *webviewFactory = [oauth2Factory webviewFactory];
-    MSIDWebviewSession *session = [webviewFactory embeddedWebviewSessionFromConfiguration:configuration verifyState:verifyState customWebview:webview context:context];
+    MSIDWebviewSession *session = [webviewFactory embeddedWebviewSessionFromConfiguration:configuration customWebview:webview context:context];
     
-    [self startSession:session verifyState:verifyState context:context completionHandler:completionHandler];
+    [self startSession:session context:context completionHandler:completionHandler];
 }
 
 #if TARGET_OS_IPHONE
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                          oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                                           verifyState:(BOOL)verifyState
                                                context:(id<MSIDRequestContext>)context
                                      completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
     MSIDWebviewFactory *webviewFactory = [oauth2Factory webviewFactory];
-    MSIDWebviewSession *session = [webviewFactory systemWebviewSessionFromConfiguration:configuration verifyState:verifyState context:context];
+    MSIDWebviewSession *session = [webviewFactory systemWebviewSessionFromConfiguration:configuration context:context];
     
-    [self startSession:session verifyState:verifyState context:context completionHandler:completionHandler];
+    [self startSession:session context:context completionHandler:completionHandler];
 }
 #endif
 
 + (void)startSession:(MSIDWebviewSession *)session
-         verifyState:(BOOL)verifyState 
              context:(id<MSIDRequestContext>)context
    completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {

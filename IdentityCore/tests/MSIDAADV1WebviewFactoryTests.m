@@ -58,8 +58,9 @@
                                                                                            redirectUri:DEFAULT_TEST_REDIRECT_URI
                                                                                               clientId:DEFAULT_TEST_CLIENT_ID
                                                                                               resource:DEFAULT_TEST_RESOURCE
-                                                                                                scopes:[NSOrderedSet new]
+                                                                                                scopes:nil
                                                                                          correlationId:correlationId
+                                                                                           verifyState:NO
                                                                                             enablePkce:NO];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };

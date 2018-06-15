@@ -64,6 +64,7 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
                                                                                          correlationId:correlationId
+                                                                                           verifyState:NO
                                                                                             enablePkce:YES];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -100,6 +101,7 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
                                                                                          correlationId:nil
+                                                                                           verifyState:NO
                                                                                             enablePkce:NO];
                                         
                                         
@@ -128,6 +130,7 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
                                                                                          correlationId:nil
+                                                                                           verifyState:NO
                                                                                             enablePkce:YES];
 
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
