@@ -28,7 +28,6 @@
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDUserInformation.h"
 #import "NSDate+MSIDExtensions.h"
-#import "MSIDConfiguration.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static NSUInteger s_expirationBuffer = 300;

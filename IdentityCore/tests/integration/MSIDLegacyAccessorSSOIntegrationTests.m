@@ -28,7 +28,7 @@
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDTestConfiguration.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"

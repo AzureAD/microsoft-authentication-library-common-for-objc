@@ -37,12 +37,16 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDTestTokenResponse.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccount.h"
 #import "MSIDAadAuthorityCache+TestUtil.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDWebviewConfiguration.h"
+#import "MSIDPkce.h"
+#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebAADAuthResponse.h"
 
 @interface MSIDAADV2Oauth2StartegyTests : XCTestCase
 
@@ -394,18 +398,18 @@
 - (void)testAccountFromTokenResponse_whenAADV2TokenResponse_shouldInitAccountAndSetProperties
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-
+    
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Eric Cartman" preferredUsername:@"eric999" tenantId:@"contoso.com"];
-
+    
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"user.read", nil];
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"at" RT:@"rt" scopes:scopes idToken:idToken uid:@"1" utid:@"1234-5678-90abcdefg" familyId:@"1"];
-
+    
     MSIDConfiguration *configuration =
     [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
                                      redirectUri:@"redirect uri"
                                         clientId:@"client id"
                                           target:@"target"];
-
+    
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
@@ -417,6 +421,7 @@
     XCTAssertEqualObjects(account.name, @"Eric Cartman");
     XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/contoso.com");
 }
+
 
 @end
 

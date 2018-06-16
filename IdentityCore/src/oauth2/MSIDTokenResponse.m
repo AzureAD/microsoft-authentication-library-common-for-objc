@@ -101,24 +101,7 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
 
 - (MSIDErrorCode)oauthErrorCode
 {
-    if ([self.error isEqualToString:@"invalid_request"])
-    {
-        return MSIDErrorInvalidRequest;
-    }
-    if ([self.error isEqualToString:@"invalid_client"])
-    {
-        return MSIDErrorInvalidClient;
-    }
-    if ([self.error isEqualToString:@"invalid_scope"])
-    {
-        return MSIDErrorInvalidParameter;
-    }
-    if ([self.error isEqualToString:@"invalid_grant"])
-    {
-        return MSIDErrorInvalidGrant;
-    }
-    
-    return MSIDErrorInteractionRequired;
+    return MSIDErrorCodeForOAuthError(self.error, MSIDErrorInteractionRequired);
 }
 
 - (NSDictionary *)additionalServerInfo

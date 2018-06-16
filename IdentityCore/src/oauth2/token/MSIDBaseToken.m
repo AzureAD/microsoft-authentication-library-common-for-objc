@@ -26,7 +26,6 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDClientInfo.h"
-#import "MSIDConfiguration.h"
 
 @implementation MSIDBaseToken
 

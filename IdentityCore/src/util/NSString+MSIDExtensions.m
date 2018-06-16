@@ -48,6 +48,8 @@ static byte rgbDecodeTable[128] = {                         // character code
     41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, NA, NA, NA, NA, NA,  // 112-127
 };
 
+#define RANDOM_STRING_MAX_SIZE 1024
+
 //Checks that all bytes inside the format are valid base64 characters:
 static BOOL validBase64Characters(const byte* data, const int size)
 {
@@ -327,17 +329,35 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];
 }
 
+- (NSData *)msalSHA256Data
+{
+    NSData *inputData = [self dataUsingEncoding:NSASCIIStringEncoding];
+    NSMutableData *outData = [NSMutableData dataWithLength:CC_SHA256_DIGEST_LENGTH];
+    
+    // input length shouldn't be this big
+    if (inputData.length > UINT32_MAX)
+    {
+        MSID_LOG_WARN(nil, @"Input length is too big to convert SHA256 data");
+        return nil;
+    }
+    CC_SHA256(inputData.bytes, (uint32_t)inputData.length, outData.mutableBytes);
+    
+    return outData;
+}
+
 - (NSString*)msidComputeSHA256
 {
-    const char* inputStr = [self UTF8String];
-    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
-    CC_SHA256(inputStr, (int)strlen(inputStr), hash);
-    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
-    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
-    {
-        [toReturn appendFormat:@"%02x", hash[i]];
-    }
-    return toReturn;
+        // TODO: Check if this is in fact right implementation
+//    const char* inputStr = [self UTF8String];
+//    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
+//    CC_SHA256(inputStr, (int)strlen(inputStr), hash);
+//    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
+//    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
+//    {
+//        [toReturn appendFormat:@"%02x", hash[i]];
+//    }
+//    return toReturn;
+    return [NSString msidBase64UrlEncodeData:[self msalSHA256Data]];
 }
 
 - (NSURL *)msidUrl
@@ -366,6 +386,26 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     }
     return scope;
 }
+
+
++ (NSString *)randomUrlSafeStringOfSize:(NSUInteger)size
+{
+    if (size > RANDOM_STRING_MAX_SIZE)
+    {
+        return nil;
+    }
+    
+    NSMutableData *data = [NSMutableData dataWithLength:size];
+    int result = SecRandomCopyBytes(kSecRandomDefault, data.length, data.mutableBytes);
+    
+    if (result != 0)
+    {
+        return nil;
+    }
+    
+    return [NSString msidBase64UrlEncodeData:data];
+}
+
 
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases
 {

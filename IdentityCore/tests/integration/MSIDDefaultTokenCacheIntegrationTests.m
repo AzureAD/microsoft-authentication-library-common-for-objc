@@ -28,7 +28,7 @@
 #import "MSIDTestTokenResponse.h"
 #import "MSIDBaseToken.h"
 #import "MSIDAccount.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDTestIdTokenUtil.h"

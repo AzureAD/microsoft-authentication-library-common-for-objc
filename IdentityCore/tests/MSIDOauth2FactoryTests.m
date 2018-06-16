@@ -34,12 +34,13 @@
 #import "MSIDIdToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDTestTokenResponse.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccount.h"
 #import "MSIDLegacyRefreshToken.h"
+
 
 @interface MSIDOauth2FactoryTest : XCTestCase
 
@@ -430,11 +431,13 @@
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"eric999" subject:@"subject" givenName:@"Eric" familyName:@"Cartman" name:@"Eric Cartman"];
     NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
+
     MSIDConfiguration *configuration =
     [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
                                      redirectUri:@"redirect uri"
                                         clientId:@"client id"
                                           target:@"target"];
+
     MSIDTokenResponse *tokenResponse = [[MSIDTokenResponse alloc] initWithJSONDictionary:json error:nil];
     
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
@@ -451,6 +454,7 @@
     XCTAssertEqualObjects(account.name, @"Eric Cartman");
     XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
+
 
 - (void)testCacheURLFromAuthority_whenAccessTokenType_shouldReturnOriginalAuthority
 {
@@ -505,13 +509,14 @@
     XCTAssertEqualObjects(aliases, @[]);
 }
 
-- (void)testCacheAliasesForEnvirobment_whenEnvironmentNil_shouldReturnOriginalAuthority
+- (void)testCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnOriginalAuthority
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
     NSString *originalEnvironment = @"login.microsoftonline.com";
     NSArray *aliases = [factory cacheAliasesForEnvironment:originalEnvironment];
     XCTAssertEqualObjects(aliases, @[originalEnvironment]);
 }
+
 
 @end
 

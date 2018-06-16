@@ -30,4 +30,6 @@
 
 @interface MSIDOAuth2EmbeddedWebviewController : NSObject <MSIDWebviewInteracting>
 
+@property (readonly) NSURL *startURL;
+
 @end

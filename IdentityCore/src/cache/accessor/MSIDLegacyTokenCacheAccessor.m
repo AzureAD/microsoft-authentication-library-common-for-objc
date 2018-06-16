@@ -27,7 +27,6 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDLegacyTokenCacheKey.h"
-#import "MSIDConfiguration.h"
 #import "MSIDTokenResponse.h"
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDAuthority.h"

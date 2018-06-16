@@ -26,26 +26,47 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDConfiguration.h"
 
 @class MSIDPkce;
-@class MSIDClientInfo;
 
-@interface MSIDWebviewConfiguration : MSIDConfiguration
+@interface MSIDWebviewConfiguration : NSObject
 
 // Common
+@property (readwrite) NSURL *authorizationEndpoint;
+@property (readwrite) NSString *redirectUri;
+@property (readwrite) NSString *clientId;
+@property (readwrite) NSString *resource;
+@property (readwrite) NSOrderedSet<NSString *> *scopes;
+@property (readwrite) NSUUID *correlationId;
 
 @property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
+@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
 
-// Is this only for V2?
-@property (readwrite) NSString *requestState;
+// State verifier: Recommended verifier for state value of the response.
+//  Set to YES to stop if verifying state fails
+@property (readonly) BOOL verifyState;
 
-@property (readwrite) MSIDPkce *pkce;
-@property (readwrite) MSIDClientInfo *clientInfo;
+// PKCE Support
+@property (readonly) MSIDPkce *pkce;
+
+// User information
+@property (readwrite) NSString *loginHint;
+@property (readwrite) NSString *utid;
+@property (readwrite) NSString *uid;
 
 // Priority start URL
 @property (readwrite) NSURL *explicitStartURL;
+
+- (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint
+                                  redirectUri:(NSString *)redirectUri
+                                     clientId:(NSString *)clientId
+                                     resource:(NSString *)resource
+                                       scopes:(NSOrderedSet<NSString *> *)scopes
+                                correlationId:(NSUUID *)correlationId
+                                  verifyState:(BOOL)verifyState
+                                   enablePkce:(BOOL)enablePkce;
+
 
 @end

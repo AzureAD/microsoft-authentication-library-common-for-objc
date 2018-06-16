@@ -26,7 +26,36 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebviewConfiguration.h"
+#import "MSIDPkce.h"
 
 @implementation MSIDWebviewConfiguration
 
+- (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint
+                                  redirectUri:(NSString *)redirectUri
+                                     clientId:(NSString *)clientId
+                                     resource:(NSString *)resource
+                                       scopes:(NSOrderedSet<NSString *> *)scopes
+                                correlationId:(NSUUID *)correlationId
+                                  verifyState:(BOOL)verifyState
+                                   enablePkce:(BOOL)enablePkce
+
+{
+    self = [super init];
+    if (self)
+    {
+        _authorizationEndpoint = authorizationEndpoint;
+        _redirectUri = redirectUri;
+        _clientId = clientId;
+        _resource = resource;
+        _scopes = scopes;
+        _correlationId = correlationId;
+        _verifyState = verifyState;
+        
+        if (enablePkce)
+        {
+            _pkce = [MSIDPkce new];
+        }
+    }
+    return self;
+}
 @end

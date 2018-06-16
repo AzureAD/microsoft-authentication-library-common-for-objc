@@ -26,14 +26,17 @@
 NSString *const MSID_OAUTH2_ACCESS_TOKEN       = @"access_token";
 NSString *const MSID_OAUTH2_AUTHORIZATION      = @"authorization";
 NSString *const MSID_OAUTH2_AUTHORIZE_SUFFIX   = @"/oauth2/authorize";
+NSString *const MSID_OAUTH2_V2_AUTHORIZE_SUFFIX   = @"/oauth2/v2.0/authorize";
 NSString *const MSID_OAUTH2_AUTHORITY           = @"authority";
 NSString *const MSID_OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const MSID_OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
 NSString *const MSID_OAUTH2_BEARER             = @"Bearer";
 NSString *const MSID_OAUTH2_CLIENT_ID          = @"client_id";
+NSString *const MSID_OAUTH2_CLAIMS             = @"claims";
 NSString *const MSID_OAUTH2_CODE               = @"code";
 NSString *const MSID_OAUTH2_ERROR              = @"error";
 NSString *const MSID_OAUTH2_ERROR_DESCRIPTION  = @"error_description";
+NSString *const MSID_OAUTH2_ERROR_SUBCODE      = @"error_subcode";
 NSString *const MSID_OAUTH2_EXPIRES_IN         = @"expires_in";
 NSString *const MSID_OAUTH2_GRANT_TYPE         = @"grant_type";
 NSString *const MSID_OAUTH2_REDIRECT_URI       = @"redirect_uri";
@@ -56,6 +59,8 @@ NSString *const MSID_OAUTH2_ASSERTION = @"assertion";
 NSString *const MSID_OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml1_1-bearer";
 NSString *const MSID_OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
 NSString *const MSID_OAUTH2_SCOPE_OPENID_VALUE = @"openid";
+NSString *const MSID_OAUTH2_SCOPE_PROFILE_VALUE = @"profile";
+NSString *const MSID_OAUTH2_SCOPE_OFFLINE_ACCESS_VALUE = @"offline_access";
 NSString *const MSID_OAUTH2_CLIENT_TELEMETRY    = @"x-ms-clitelem";
 NSString *const MSID_OAUTH2_PROMPT              = @"prompt";
 NSString *const MSID_OAUTH2_PROMPT_NONE         = @"none";
@@ -77,6 +82,8 @@ NSString *const MSID_OAUTH2_LOGIN_REQ                    = @"login_req";
 
 NSString *const MSID_OAUTH2_ADDITIONAL_SERVER_INFO       = @"additional_server_info";
 NSString *const MSID_OAUTH2_ENVIRONMENT                  = @"environment";
+
+NSString *const MSID_AUTH_CLOUD_INSTANCE_HOST_NAME       = @"cloud_instance_host_name";
 
 NSString *const MSID_CREDENTIAL_TYPE_CACHE_KEY           = @"credential_type";
 NSString *const MSID_ENVIRONMENT_CACHE_KEY               = @"environment";

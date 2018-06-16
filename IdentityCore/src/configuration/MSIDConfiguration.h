@@ -26,6 +26,7 @@
 
 @interface MSIDConfiguration : NSObject <NSCopying>
 
+// Commonly used or needed properties
 @property (readwrite) NSURL *authority;
 @property (readwrite) NSString *redirectUri;
 @property (readwrite) NSString *clientId;
@@ -38,19 +39,5 @@
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target;
-
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target
-                    correlationId:(NSUUID *)correlationId;
-
-// Optional configurations
-@property (readwrite) NSString *loginHint;
-@property (readwrite) NSUUID *correlationId;
-
-@property (readwrite) MSIDNetworkConfiguration *networkConfig;
-
-@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 
 @end

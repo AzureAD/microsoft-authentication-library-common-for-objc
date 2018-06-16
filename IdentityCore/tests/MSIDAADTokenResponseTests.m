@@ -25,7 +25,7 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDRefreshToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 
 @interface MSIDAADTokenResponseTests : XCTestCase
 

@@ -23,7 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDCredentialCacheItem.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDClientInfo.h"
 

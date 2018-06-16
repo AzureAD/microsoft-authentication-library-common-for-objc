@@ -36,7 +36,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDTestTokenResponse.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccount.h"
@@ -402,11 +402,13 @@
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Eric" upn:@"eric_cartman@upn.com" tenantId:@"tenantId" additionalClaims:@{@"altsecid": @"::live.com::XXXXXX"}];
     NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
+
     MSIDConfiguration *configuration =
     [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
                                      redirectUri:@"redirect uri"
                                         clientId:@"client id"
                                           target:@"target"];
+
     MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:json error:nil];
 
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
@@ -434,6 +436,7 @@
                                                                         redirectUri:@"fake_redirect_uri"
                                                                            clientId:@"fake_client_id"
                                                                              target:resourceInRequest];
+
     MSIDAADV1TokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
                                                                                                      }
                                                                                              error:nil];
@@ -449,6 +452,7 @@
     
     NSString *resourceInRequest = @"https://contoso.com/.Default";
     NSString *resourceInResponse = @"https://contoso.com";
+
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
                                                                         redirectUri:@"fake_redirect_uri"
                                                                            clientId:@"fake_client_id"

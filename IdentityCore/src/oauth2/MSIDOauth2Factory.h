@@ -34,12 +34,14 @@
 @class MSIDLegacyRefreshToken;
 @class MSIDAccount;
 @class MSIDConfiguration;
-@class WKWebView;
+@class MSIDWebviewFactory;
 
 @protocol MSIDRequestContext;
-@protocol MSIDWebviewInteracting;
 
 @interface MSIDOauth2Factory : NSObject
+{
+    MSIDWebviewFactory *_webviewFactory;
+}
 
 // Response handling
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
@@ -60,6 +62,10 @@
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
+
+// Webview Factory
+@property (readonly) MSIDWebviewFactory *webviewFactory;
+
 // Cache URL
 - (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
                         context:(id<MSIDRequestContext>)context;
@@ -68,9 +74,5 @@
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority;
 - (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment;
 
-// Webviews
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
-                                                     customWebview:(WKWebView *)webview;
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams;
-
 @end
+

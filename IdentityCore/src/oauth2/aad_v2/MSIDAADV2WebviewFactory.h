@@ -21,18 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#define DEFAULT_TEST_UID @"1"
-#define DEFAULT_TEST_UTID @"1234-5678-90abcdefg"
-#define DEFAULT_TEST_RESOURCE @"https://graph.microsoft.com/"
-#define DEFAULT_TEST_AUTHORITY @"https://login.microsoftonline.com/common"
-#define DEFAULT_TEST_ENVIRONMENT @"login.microsoftonline.com"
-#define DEFAULT_TEST_CLIENT_ID @"test_client_id"
-#define DEFAULT_TEST_SCOPE @"https://graph.microsoft.com/mail.read"
-#define DEFAULT_TEST_ID_TOKEN_NAME @"User"
-#define DEFAULT_TEST_ID_TOKEN_USERNAME @"user@contoso.com"
-#define DEFAULT_TEST_ID_TOKEN_UNIQUE_ID @"29f3807a-4fb0-42f2-a44a-236aa0cb3f97"
-#define DEFAULT_TEST_ACCESS_TOKEN @"access_token"
-#define DEFAULT_TEST_REFRESH_TOKEN @"refresh_token"
-#define DEFAULT_TEST_ID_TOKEN @"id_token"
-#define DEFAULT_TEST_FAMILY_ID @"family"
-#define DEFAULT_TEST_ID_TOKEN_SUBJECT @"sub"
+#import <Foundation/Foundation.h>
+#import "MSIDAADWebviewFactory.h"
+
+@interface MSIDAADV2WebviewFactory : MSIDAADWebviewFactory
+
+@end

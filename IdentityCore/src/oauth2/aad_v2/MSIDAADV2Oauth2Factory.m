@@ -32,6 +32,7 @@
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
 #import "MSIDOauth2Factory+Internal.h"
+#import "MSIDAADV2WebviewFactory.h"
 #import "MSIDAadAuthorityCache.h"
 
 @implementation MSIDAADV2Oauth2Factory
@@ -177,18 +178,15 @@
     return YES;
 }
 
-#pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
-                                                           Webview:(WKWebView *)webview
+#pragma mark - Webview
+- (MSIDWebviewFactory *)webviewFactory
 {
-    // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
-    return nil;
+    if (!_webviewFactory)
+    {
+        _webviewFactory = [[MSIDAADV2WebviewFactory alloc] init];
+    }
+    return _webviewFactory;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
-{
-    // Create MSIDSystemWebviewRequest and create SystemWebviewController
-    return nil;
-}
 
 @end

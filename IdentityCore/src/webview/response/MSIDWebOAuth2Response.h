@@ -26,12 +26,11 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDWebviewResponse.h"
 
-@interface MSIDWebOAuth2Response : NSObject
+@interface MSIDWebOAuth2Response : MSIDWebviewResponse
 
-@property NSString *code;
+@property NSString *authorizationCode;
 @property NSError *oauthError;
-// TODO: We might need to expand/change this to include other information.
-// As a note, Network errors and such can be returned as a parameter in the completionHandler.
 
 @end

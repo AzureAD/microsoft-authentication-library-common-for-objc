@@ -35,6 +35,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDOauth2Factory+Internal.h"
+#import "MSIDAADWebviewFactory.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
 
@@ -283,5 +284,17 @@
 
     return YES;
 }
+
+
+#pragma mark - Webview
+- (MSIDWebviewFactory *)webviewFactory
+{
+    if (!_webviewFactory)
+    {
+        _webviewFactory = [[MSIDAADWebviewFactory alloc] init];
+    }
+    return _webviewFactory;
+}
+
 
 @end

@@ -27,7 +27,7 @@
 
 #import "MSIDTestIdTokenUtil.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 
 @implementation MSIDTestIdTokenUtil
 

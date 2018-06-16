@@ -30,8 +30,11 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
+#import "MSIDSystemWebviewController.h"
+#import "MSIDWebviewConfiguration.h"
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
+#import "MSIDWebviewFactory.h"
 
 @implementation MSIDOauth2Factory
 
@@ -384,19 +387,17 @@
     return @[originalEnvironment];
 }
 
-#pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
-                                                     customWebview:(WKWebView *)webview
+#pragma mark - Webview
+#pragma mark - Webview
+- (MSIDWebviewFactory *)webviewFactory
 {
-    // TODO: return default
-    return nil;
-}
-
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
-{
-    // TODO: return default
-    return nil;
+    if (!_webviewFactory)
+    {
+        _webviewFactory = [MSIDWebviewFactory new];
+    }
+    return _webviewFactory;
 }
 
 @end
+
 

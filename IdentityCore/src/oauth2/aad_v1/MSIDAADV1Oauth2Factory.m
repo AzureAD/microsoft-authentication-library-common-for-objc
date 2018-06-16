@@ -28,12 +28,15 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
+
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
+
+#import "MSIDAADV1WebviewFactory.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -190,6 +193,7 @@
     return YES;
 }
 
+
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
     if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
@@ -201,18 +205,15 @@
     return [super refreshTokenLookupAuthorities:originalAuthority];
 }
 
-#pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
-                                                           Webview:(WKWebView *)webview
+#pragma mark - Webview
+#pragma mark - Webview
+- (MSIDWebviewFactory *)webviewFactory
 {
-    // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
-    return nil;
-}
-
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
-{
-    // Create MSIDSystemWebviewRequest and create SystemWebviewController
-    return nil;
+    if (!_webviewFactory)
+    {
+        _webviewFactory = [[MSIDAADV1WebviewFactory alloc] init];
+    }
+    return _webviewFactory;
 }
 
 @end

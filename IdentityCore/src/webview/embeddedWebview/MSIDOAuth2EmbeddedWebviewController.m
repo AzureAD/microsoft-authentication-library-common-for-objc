@@ -33,9 +33,9 @@
 @synthesize  parentViewController;
 #endif
 
-- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
+- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    
+    return;
 }
 
 - (void)cancel
