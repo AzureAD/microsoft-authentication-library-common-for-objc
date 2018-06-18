@@ -127,29 +127,15 @@
 		96235F96207D7286007EAB36 /* MSIDWebOAuth2Response.m in Sources */ = {isa = PBXBuildFile; fileRef = 96235F95207D7286007EAB36 /* MSIDWebOAuth2Response.m */; };
 		96235F99207D72A6007EAB36 /* MSIDWebAADAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 96235F98207D72A6007EAB36 /* MSIDWebAADAuthResponse.m */; };
 		96235F9C207D72CE007EAB36 /* MSIDWebWPJAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 96235F9B207D72CE007EAB36 /* MSIDWebWPJAuthResponse.m */; };
-		9623FF2620A3942700A989B7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF2520A3942700A989B7 /* UIKit.framework */; };
-		9623FF2820A3942D00A989B7 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF2720A3942D00A989B7 /* SafariServices.framework */; };
-		9623FF2A20A3943700A989B7 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF2920A3943600A989B7 /* Security.framework */; };
-		9623FF2B20A3948600A989B7 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D68FB4871FBA698A005308BB /* libIdentityCore.a */; };
-		9623FF2D20A394E900A989B7 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */; };
-		9623FF3320A395F500A989B7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF2520A3942700A989B7 /* UIKit.framework */; };
-		9623FF3420A3960D00A989B7 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */; };
-		9623FF3720A3965000A989B7 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B27551AF20816B4800AA7A38 /* Security.framework */; };
-		9623FF3920A3965300A989B7 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF3820A3965300A989B7 /* WebKit.framework */; };
-		9623FF3D20A396B100A989B7 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */; };
-		9623FF3F20A396DC00A989B7 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20657D61FC92D2700412B7D /* IOKit.framework */; };
-		9623FF4120A396F300A989B7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF4020A396F200A989B7 /* Cocoa.framework */; };
-		9623FF4320A396F700A989B7 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF4220A396F700A989B7 /* SecurityInterface.framework */; };
-		9623FF4420A3973300A989B7 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */; };
-		9623FF4520A3973B00A989B7 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */; };
 		9623FF4A20A3989200A989B7 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF2920A3943600A989B7 /* Security.framework */; };
 		9623FF4B20A3989A00A989B7 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B27551AF20816B4800AA7A38 /* Security.framework */; };
-		9623FF4C20A3989A00A989B7 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF4220A396F700A989B7 /* SecurityInterface.framework */; };
-		9623FF4D20A398A300A989B7 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF2720A3942D00A989B7 /* SafariServices.framework */; };
-		9623FF4E20A398BA00A989B7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF2520A3942700A989B7 /* UIKit.framework */; };
-		9623FF4F20A398E300A989B7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF2520A3942700A989B7 /* UIKit.framework */; };
 		9623FF5020A398EF00A989B7 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20657D61FC92D2700412B7D /* IOKit.framework */; };
-		9623FF5120A398FB00A989B7 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20657D61FC92D2700412B7D /* IOKit.framework */; };
+		96285D6120D8721E004CA4BD /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */; };
+		96285D6220D87227004CA4BD /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */; };
+		96285D6320D872AA004CA4BD /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D68FB4871FBA698A005308BB /* libIdentityCore.a */; };
+		96285D6520D87321004CA4BD /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96285D6420D87320004CA4BD /* UIKit.framework */; };
+		96285D6620D87333004CA4BD /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */; };
+		96285D6A20D874B7004CA4BD /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96285D6720D8745F004CA4BD /* SafariServices.framework */; };
 		963553BF20CA7C52005235E5 /* MSIDSystemWebviewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 963553BE20CA7C52005235E5 /* MSIDSystemWebviewControllerTests.m */; };
 		963CFAF320AD817600BDA25F /* MSIDWebviewAuthorizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 963CFAF220AD817600BDA25F /* MSIDWebviewAuthorizationTests.m */; };
 		963CFAF420AD817600BDA25F /* MSIDWebviewAuthorizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 963CFAF220AD817600BDA25F /* MSIDWebviewAuthorizationTests.m */; };
@@ -754,6 +740,8 @@
 		9623FF3A20A3968400A989B7 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		9623FF4020A396F200A989B7 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		9623FF4220A396F700A989B7 /* SecurityInterface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityInterface.framework; path = System/Library/Frameworks/SecurityInterface.framework; sourceTree = SDKROOT; };
+		96285D6420D87320004CA4BD /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		96285D6720D8745F004CA4BD /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.4.sdk/System/Library/Frameworks/SafariServices.framework; sourceTree = DEVELOPER_DIR; };
 		963553BE20CA7C52005235E5 /* MSIDSystemWebviewControllerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSystemWebviewControllerTests.m; sourceTree = "<group>"; };
 		963CFAF220AD817600BDA25F /* MSIDWebviewAuthorizationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewAuthorizationTests.m; sourceTree = "<group>"; };
 		9641B5001FCF3E2700AFA0EC /* MSIDTokenCacheDataSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTokenCacheDataSource.h; sourceTree = "<group>"; };
@@ -1085,7 +1073,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9623FF3320A395F500A989B7 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1093,7 +1080,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9623FF3420A3960D00A989B7 /* libIdentityTest.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1101,7 +1087,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9623FF4520A3973B00A989B7 /* libIdentityTest.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1109,10 +1094,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9623FF4F20A398E300A989B7 /* UIKit.framework in Frameworks */,
-				9623FF4D20A398A300A989B7 /* SafariServices.framework in Frameworks */,
+				96285D6A20D874B7004CA4BD /* SafariServices.framework in Frameworks */,
+				96285D6520D87321004CA4BD /* UIKit.framework in Frameworks */,
+				96285D6320D872AA004CA4BD /* libIdentityCore.a in Frameworks */,
+				96285D6120D8721E004CA4BD /* libIdentityTest.a in Frameworks */,
 				9623FF4A20A3989200A989B7 /* Security.framework in Frameworks */,
-				9623FF2D20A394E900A989B7 /* libIdentityTest.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1120,11 +1106,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9623FF4320A396F700A989B7 /* SecurityInterface.framework in Frameworks */,
-				9623FF4120A396F300A989B7 /* Cocoa.framework in Frameworks */,
-				9623FF3F20A396DC00A989B7 /* IOKit.framework in Frameworks */,
-				9623FF3920A3965300A989B7 /* WebKit.framework in Frameworks */,
-				9623FF3720A3965000A989B7 /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1132,10 +1113,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96285D6620D87333004CA4BD /* libIdentityCore.a in Frameworks */,
+				96285D6220D87227004CA4BD /* libIdentityTest.a in Frameworks */,
 				9623FF5020A398EF00A989B7 /* IOKit.framework in Frameworks */,
 				9623FF4B20A3989A00A989B7 /* Security.framework in Frameworks */,
-				9623FF4C20A3989A00A989B7 /* SecurityInterface.framework in Frameworks */,
-				9623FF4420A3973300A989B7 /* libIdentityTest.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1143,8 +1124,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9623FF4E20A398BA00A989B7 /* UIKit.framework in Frameworks */,
-				9623FF2B20A3948600A989B7 /* libIdentityCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1152,8 +1131,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9623FF5120A398FB00A989B7 /* IOKit.framework in Frameworks */,
-				9623FF3D20A396B100A989B7 /* libIdentityCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1161,9 +1138,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9623FF2A20A3943700A989B7 /* Security.framework in Frameworks */,
-				9623FF2820A3942D00A989B7 /* SafariServices.framework in Frameworks */,
-				9623FF2620A3942700A989B7 /* UIKit.framework in Frameworks */,
 				96A3E9C120895CCE00BE5262 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1887,6 +1861,8 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				96285D6720D8745F004CA4BD /* SafariServices.framework */,
+				96285D6420D87320004CA4BD /* UIKit.framework */,
 				9623FF4220A396F700A989B7 /* SecurityInterface.framework */,
 				9623FF4020A396F200A989B7 /* Cocoa.framework */,
 				9623FF3A20A3968400A989B7 /* AppKit.framework */,
@@ -2390,8 +2366,8 @@
 			projectRoot = "";
 			targets = (
 				D68FB4861FBA698A005308BB /* IdentityCore iOS */,
-				D626FFD21FBD1F2B00EE4487 /* IdentityTest iOS */,
 				D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */,
+				D626FFD21FBD1F2B00EE4487 /* IdentityTest iOS */,
 				D626FFDF1FBD1F5700EE4487 /* IdentityTest Mac */,
 				D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */,
 				D626FF671FBA6EDF00EE4487 /* IdentityCoreTests Mac */,
