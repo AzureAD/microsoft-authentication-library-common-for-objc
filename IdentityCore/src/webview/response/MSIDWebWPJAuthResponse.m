@@ -41,7 +41,10 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"WPJ response should have msauth as a scheme and wpj/broker as a host", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"WPJ response should have msauth as a scheme and wpj/broker as a host",
+                                     nil, nil, nil, context.correlationId, nil);
         }
         return nil;
     }

@@ -41,14 +41,29 @@ extern NSString *MSIDKeychainErrorDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
+    /*! =================================================
+     General Errors (510xx, 511xx)
+     =================================================  */
+    // General internal errors that do not fall into one of the specific type
+    // of an error described below.
     MSIDErrorInternal = -51000,
-    MSIDErrorInvalidInternalParameter = -51001,
     
-    MSIDErrorInvalidDeveloperParameter = -51002,
-    MSIDErrorAmbiguousAuthority     = -51003,
-    MSIDErrorInteractionRequired    = -51004,
+    // Parameter errors
+    MSIDErrorInvalidInternalParameter   = -51101,
+    MSIDErrorInvalidDeveloperParameter  = -51102,
+   
+    // Unsupported functionality
+    MSIDErrorUnsupportedFunctionality = -51199,
     
-    MSIDErrorCacheMultipleUsers     = -51005,
+    /*!
+    =================================================
+     Cache Errors   (512xx,
+                     513xx - Keychain)
+    =================================================
+     */
+
+    // Multiple users found in cache when one was intended
+    MSIDErrorCacheMultipleUsers     = -51201,
     
     /*!
      MSID encounted an error when trying to store or retrieve items from
@@ -56,62 +71,56 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      more information about the specific error. Keychain error codes are
      documented in Apple's <Security/SecBase.h> header file
      */
-    MSIDErrorTokenCacheItemFailure  = -51006,
-    MSIDErrorWrapperCacheFailure    = -51007,
-    MSIDErrorCacheBadFormat         = -51008,
-    MSIDErrorCacheVersionMismatch   = -51009,
+    MSIDErrorTokenCacheItemFailure  = -51301,
+    MSIDErrorWrapperCacheFailure    = -51302,
+    MSIDErrorCacheBadFormat         = -51303,
+    MSIDErrorCacheVersionMismatch   = -51304,
     
-    MSIDErrorServerInvalidResponse = -51010,
-    MSIDErrorDeveloperAuthorityValidation = -51011,
-    MSIDErrorServerRefreshTokenRejected = -51012,
-    MSIDErrorServerOauth = -51013,
-    MSIDErrorInvalidRequest = -51014,
-    MSIDErrorInvalidClient = -51015,
-    MSIDErrorInvalidGrant = -51016,
-    MSIDErrorInvalidScope = -51017,
-    MSIDErrorInvalidParameter = -51018,
+    /*!
+     =================================================
+     Server errors  (514xx)
+     =================================================
+     */
+    // Server returned a response indicating an OAuth error
+    MSIDErrorServerOauth                = -51401,
+    // Server returned an invalid response
+    MSIDErrorServerInvalidResponse      = -51402,
+    // Server returned a refresh token reject response
+    MSIDErrorServerRefreshTokenRejected = -51403,
+    // Other specific server response errors
+    MSIDErrorInvalidRequest             = -51404,
+    MSIDErrorInvalidClient              = -51405,
+    MSIDErrorInvalidGrant               = -51406,
+    MSIDErrorInvalidScope               = -51407,
     
+    /*!
+     =================================================
+     Interactive flow errors    (515xx)
+     =================================================
+     */
     /*!
      The user or application failed to authenticate in the interactive flow.
      Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
      dictionary for more detailed information about the specific error.
      */
-    MSIDErrorAuthorizationFailed = -52020,
+    MSIDErrorAuthorizationFailed        = -51510,
 
-    /*!
-     The state returned by the server does not match the state that was sent to
-     the server at the beginning of the authorization attempt.
-     */
-    MSIDErrorInvalidState = -52501,
-    /*!
-     Interaction required errors occur because of a wide variety of errors
-     returned by the authentication service.
-     */
-    MSIDErrorMismatchedUser             = -52101,
-    MSIDErrorNoAuthorizationResponse    = -52102,
-    MSIDErrorBadAuthorizationResponse   = -52103,
+    // State verification has failed in the interactive flow.
+    MSIDErrorInvalidState               = -51511,
 
+    // User has cancelled the interactive flow.
+    MSIDErrorUserCancel                 = -51512,
     
-    MSIDErrorUserCancel = -51019,
-    /*!
-     The authentication request was cancelled programmatically.
-     */
-    MSIDErrorSessionCanceled = -51020,
-    /*!
-     An interactive authentication session is already running with the
-     SafariViewController visible. Another authentication session can not be
-     launched yet.
-     */
-    MSIDErrorInteractiveSessionAlreadyRunning = -51021,
-    /*!
-     An interactive authentication session failed to start.
-     */
-    MSIDErrorInteractiveSessionStartFailure = -51022,
+    // The interactive flow was cancelled programmatically.
+    MSIDErrorSessionCanceled            = -51513,
     
-    MSIDErrorUnsupportedFunctionality = -51018,
-
-    MSIDErrorCodeFirst = MSIDErrorInternal,
-    MSIDErrorCodeLast = MSIDErrorUnsupportedFunctionality
+    // Interactive authentication session failed to start.
+    MSIDErrorInteractiveSessionStartFailure = -51514,
+    /*!
+     An interactive authentication session is already running.
+     Another authentication session can not be launched yet.
+     */
+    MSIDErrorInteractiveSessionAlreadyRunning = -51515,
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

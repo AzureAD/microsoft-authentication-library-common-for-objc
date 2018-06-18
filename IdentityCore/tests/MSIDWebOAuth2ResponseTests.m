@@ -40,7 +40,7 @@
     NSError *error = nil;
     XCTAssertNil([[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://contoso.com"]
                                                     context:nil error:&error]);
-    XCTAssertEqual(error.code, MSIDErrorInvalidParameter);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
 }
 
 - (void)testInitWithParameters_whenAuthCode_shouldReturnAuthCode
