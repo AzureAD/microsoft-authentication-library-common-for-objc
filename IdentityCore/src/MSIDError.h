@@ -121,6 +121,15 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      Another authentication session can not be launched yet.
      */
     MSIDErrorInteractiveSessionAlreadyRunning = -51515,
+    
+    /*!
+     =================================================
+     Boundaries - To be used to enumerate all codes
+     =================================================
+     */
+    MSIDErrorCodeFirst = MSIDErrorInternal,
+    MSIDErrorCodeLast = MSIDErrorInteractiveSessionAlreadyRunning
+    
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
