@@ -32,6 +32,7 @@
 - (instancetype)initWithClientCertificateContents:(NSString *)certificate
                               certificatePassword:(NSString *)password
                          additionalConfigurations:(NSDictionary *)additionalConfigurations
+                                  appInstallLinks:(NSDictionary *)appInstallLinks
                                           apiPath:(NSString *)apiPath;
 
 - (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
@@ -41,5 +42,7 @@
 
 - (void)passwordForAccount:(MSIDTestAccount *)account
          completionHandler:(void (^)(NSString *password))completionHandler;
+
+- (NSDictionary *)appInstallForConfiguration:(NSString *)appId;
 
 @end
