@@ -65,39 +65,4 @@
     XCTAssertEqual(result, 0);
 }
 
-- (void)testMsidAddToURLStringWithParams_whenNilParams_shouldAppendNothing
-{
-    NSString *url = @"https://contoso.com:43/endpoint?p=1";
-    NSString *result = [MSIDHelpers msidAddToURLString:url withParameters:nil];
-    XCTAssertEqualObjects(url, result);
-}
-
-- (void)testMsidAddToURLStringWithParams_whenEmptyParams_shouldAppendNothing
-{
-    NSString *url = @"https://contoso.com:43/endpoint?p=1";
-    NSString *result = [MSIDHelpers msidAddToURLString:url withParameters:@{}];
-    XCTAssertEqualObjects(url, result);
-}
-
-- (void)testMsidAddToURLStringWithParams_whenOneParam_shouldAppendParam
-{
-    NSString *url = @"https://contoso.com:43/endpoint?p=1";
-    NSString *result = [MSIDHelpers msidAddToURLString:url withParameters:@{@"q":@"2"}];
-    XCTAssertEqualObjects(result, @"https://contoso.com:43/endpoint?p=1&q=2");
-}
-
-- (void)testMsidAddToURLStringWithParams_whenMultipleParams_shouldAppendParams
-{
-    NSString *url = @"https://contoso.com:43/endpoint?p=1";
-    NSString *result = [MSIDHelpers msidAddToURLString:url withParameters:@{@"q":@"2", @"r":@"3"}];
-    XCTAssertEqualObjects(result, @"https://contoso.com:43/endpoint?p=1&q=2&r=3");
-}
-
-- (void)testMsidAddToURLStringWithParams_whenSpecialCharInParams_shouldEncodeParams
-{
-    NSString *url = @"https://contoso.com:43/endpoint?p=1";
-    NSString *result = [MSIDHelpers msidAddToURLString:url withParameters:@{@"q":@"2", @"r":@"="}];
-    XCTAssertEqualObjects(result, @"https://contoso.com:43/endpoint?p=1&q=2&r=%3D");
-}
-
 @end

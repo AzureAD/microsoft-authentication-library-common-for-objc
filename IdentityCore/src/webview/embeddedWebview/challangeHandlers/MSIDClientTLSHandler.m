@@ -80,8 +80,7 @@
                    context:(id<MSIDRequestContext>)context
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    NSError *localError = nil;
-    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context error:&localError];
+    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context error:nil];
     if (!info || ![info isWorkPlaceJoined])
     {
         MSID_LOG_INFO(context, @"Device is not workplace joined");

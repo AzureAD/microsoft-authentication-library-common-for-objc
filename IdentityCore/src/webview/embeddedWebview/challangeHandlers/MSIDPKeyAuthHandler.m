@@ -26,6 +26,9 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPkeyAuthHelper.h"
 #import "MSIDHelpers.h"
+#import "MSIDError.h"
+#import "MSIDDeviceId.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDPKeyAuthHandler
 
@@ -38,12 +41,21 @@
     NSArray *parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary *queryParamsMap = [NSDictionary msidURLFormDecode:qp];
-    NSString *submitUrl = [MSIDHelpers msidAddClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
+    NSString *submitUrl = [queryParamsMap valueForKey:@"SubmitUrl"];
     
+    // Fail if the PKeyAuth challenge doesn't contain the required info
+    NSError *error = nil;
+    if (!queryParamsMap || !submitUrl)
+    {
+        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerOauth, @"Incomplete PKeyAuth challenge received.", nil, nil, nil, context.correlationId, nil);
+        completionHandler(nil, error);
+    }
+    
+    // Extract authority from submit url
     NSArray *authorityParts = [submitUrl componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
     
-    NSError *error = nil;
+    error = nil;
     NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
                                                           challengeData:queryParamsMap
                                                                 context:context
@@ -54,11 +66,16 @@
         return NO;
     }
     
-    NSMutableURLRequest *responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:submitUrl]];
+    // Attach client version to response url
+    NSURLComponents *responseUrlComp = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:submitUrl] resolvingAgainstBaseURL:NO];
+    NSMutableArray *queryItems = responseUrlComp.queryItems ? [responseUrlComp.queryItems mutableCopy] : [NSMutableArray new];
+    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:MSID_VERSION_KEY value:MSIDDeviceId.deviceId[MSID_VERSION_KEY]]];
+    responseUrlComp.queryItems = queryItems;
     
-    [responseUrl setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
-    [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
-    completionHandler(responseUrl, nil);
+    NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc]initWithURL:responseUrlComp.URL];
+    [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
+    [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
+    completionHandler(responseReq, nil);
     return YES;
 }
 

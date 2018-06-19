@@ -22,8 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDHelpers.h"
-#import "MSIDConstants.h"
-#import "MSIDDeviceId.h"
 
 @implementation MSIDHelpers
 
@@ -46,41 +44,6 @@
     NSString *normalized = [userId msidTrimmedString].lowercaseString;
 
     return normalized.length ? normalized : nil;
-}
-
-+ (NSString *)msidAddToURLString:(NSString *)urlString withParameters:(NSDictionary<NSString *, NSString *> *)params
-{
-    NSURL *url = [NSURL URLWithString:urlString];
-    if (!url) return nil;
-    
-    NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-    if (!components) return nil;
-    
-    NSMutableDictionary *newQuery = [[NSMutableDictionary alloc] init];
-    
-    NSDictionary *oldQuery = [url msidQueryParameters];
-    if (oldQuery)
-    {
-        [newQuery addEntriesFromDictionary:oldQuery];
-    }
-    
-    if (params)
-    {
-        [newQuery addEntriesFromDictionary:params];
-    }
-    
-    NSArray<NSURLQueryItem *> *queryItems = [newQuery urlQueryItemsArray];
-    if (queryItems && queryItems.count > 0)
-    {
-        components.queryItems = queryItems;
-    }
-    
-    return [[components URL] absoluteString];
-}
-
-+ (NSString *)msidAddClientVersionToURLString:(NSString *)urlString;
-{
-    return [self msidAddToURLString:urlString withParameters:@{MSID_VERSION_KEY:MSIDDeviceId.deviceId[MSID_VERSION_KEY]}];
 }
 
 @end

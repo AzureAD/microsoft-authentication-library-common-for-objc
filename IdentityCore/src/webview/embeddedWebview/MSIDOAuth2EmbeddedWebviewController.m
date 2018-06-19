@@ -110,7 +110,8 @@
     }
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-    for (NSString *headerKey in _customHeaders) [request addValue:_customHeaders[headerKey] forHTTPHeaderField:headerKey];
+    for (NSString *headerKey in _customHeaders)
+        [request addValue:_customHeaders[headerKey] forHTTPHeaderField:headerKey];
 
     [self startRequest:request];
 }
@@ -264,15 +265,11 @@
         return;
     }
     
-    // Ignore WebKitError 102 for OAuth 2.0 flow.
-    if ([error.domain isEqualToString:@"WebKitErrorDomain"] && error.code == 102)
-    {
-        return;
-    }
-    
     [self stopSpinner];
     
-    if([error.domain isEqual:@"WebKitErrorDomain"])
+    // WebKitErrorDomain includes WebKitErrorFrameLoadInterruptedByPolicyChange and
+    // other web page errors like JavaUnavailable etc. Ignore them here.
+    if([error.domain isEqualToString:@"WebKitErrorDomain"])
     {
         return;
     }

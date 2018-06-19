@@ -45,14 +45,10 @@
     // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
     // It swallows the challenge response rather than sending it to server.
     // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
-    NSMutableDictionary *headers;
+    NSMutableDictionary *headers = [NSMutableDictionary new];
     if (configuration.customHeaders)
     {
-        headers = [[NSMutableDictionary alloc] initWithDictionary:configuration.customHeaders];
-    }
-    else
-    {
-        headers = [NSMutableDictionary new];
+        [headers addEntriesFromDictionary:configuration.customHeaders];
     }
     [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
     
