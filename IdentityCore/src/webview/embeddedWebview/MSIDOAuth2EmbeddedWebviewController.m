@@ -88,32 +88,25 @@
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    // If we're not on the main thread when trying to kick up the UI then
-    // dispatch over to the main thread.
-    if (![NSThread isMainThread])
-    {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self startWithCompletionHandler:completionHandler];
-        });
-        return;
-    }
-    
     // Save the completion block
     _completionHandler = [completionHandler copy];
     
-    NSError *error = nil;
-    [self loadView:&error];
-    if (error)
-    {
-        [self endWebAuthWithURL:nil error:error];
-        return;
-    }
-    
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-    for (NSString *headerKey in _customHeaders)
-        [request addValue:_customHeaders[headerKey] forHTTPHeaderField:headerKey];
+    dispatch_async(dispatch_get_main_queue(), ^{
 
-    [self startRequest:request];
+        NSError *error = nil;
+        [self loadView:&error];
+        if (error)
+        {
+            [self endWebAuthWithURL:nil error:error];
+            return;
+        }
+        
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
+        for (NSString *headerKey in _customHeaders)
+            [request addValue:_customHeaders[headerKey] forHTTPHeaderField:headerKey];
+        
+        [self startRequest:request];
+    });
 }
 
 - (void)cancel
