@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,25 +15,18 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
 
-@class MSIDWebOAuth2Response;
+#pragma once
 
-typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
-
-@protocol MSIDWebviewInteracting
-
-- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
-
-- (NSURL *)startURL;
-
-@end
+extern NSString *const kMSIDPrivateKeyIdentifier;
+extern NSString *const kMSIDProtectionSpaceDistinguishedName;
+extern NSString *const kMSIDPKeyAuthUrn;
+extern NSString *const kMSIDPKeyAuthHeader;
+extern NSString *const kMSIDPKeyAuthHeaderVersion;

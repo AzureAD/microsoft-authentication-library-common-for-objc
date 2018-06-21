@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,25 +15,20 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import <WebKit/WKWebView.h>
 
-@class MSIDWebOAuth2Response;
+@interface MSIDCertificateChooserHelper : NSObject
 
-typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
-
-@protocol MSIDWebviewInteracting
-
-- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
-
-- (NSURL *)startURL;
++ (void)showCertSelectionSheet:(NSArray *)identities
+                          host:(NSString *)host
+                       webview:(WKWebView *)webview
+                 correlationId:(NSUUID *)correlationId
+             completionHandler:(void (^)(SecIdentityRef identity))completionHandler;
 
 @end

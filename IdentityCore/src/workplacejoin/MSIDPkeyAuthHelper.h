@@ -21,10 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDContants.h"
+#import <Foundation/Foundation.h>
+#import "MSIDRegistrationInformation.h"
 
-NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
-NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
-NSString *const MSID_CPU_KEY                    = @"x-client-CPU";
-NSString *const MSID_OS_VER_KEY                 = @"x-client-OS";
-NSString *const MSID_DEVICE_MODEL_KEY           = @"x-client-DM";
+@interface MSIDPkeyAuthHelper : NSObject
+
++ (nullable NSString *)createDeviceAuthResponse:(nonnull NSString *)authorizationServer
+                                  challengeData:(nullable NSDictionary *)challengeData
+                                        context:(nullable id<MSIDRequestContext>)context
+                                          error:(NSError * _Nullable * _Nullable)error;
+
++ (nonnull NSString *)computeThumbprint:(nonnull NSData *)data
+                                 isSha2:(BOOL)isSha2;
+
+@end

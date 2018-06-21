@@ -29,7 +29,7 @@
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDVersion.h"
-#import "MSIDContants.h"
+#import "MSIDConstants.h"
 
 static NSTimeInterval const s_defaultTimeoutInterval = 300;
 

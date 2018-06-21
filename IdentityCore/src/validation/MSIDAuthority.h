@@ -44,4 +44,6 @@
 + (NSURL *)cacheUrlForAuthority:(NSURL *)authority
                        tenantId:(NSString *)tenantId;
 
++ (BOOL)isKnownHost:(NSURL *)url;
+
 @end

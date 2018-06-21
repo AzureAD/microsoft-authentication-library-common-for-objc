@@ -54,4 +54,5 @@
 - (BOOL)verifyRequestState:(NSString *)requestState
                responseURL:(NSURL *)url
                      error:(NSError **)error;
+- (NSString *)generateStateValue;
 @end

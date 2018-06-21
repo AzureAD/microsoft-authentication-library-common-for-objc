@@ -29,6 +29,31 @@
 
 @implementation MSIDAuthority
 
+static NSSet<NSString *> *s_trustedHostList;
+
+// Trusted authorities
+NSString *const MSIDTrustedAuthority             = @"login.windows.net";
+NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
+NSString *const MSIDTrustedAuthorityChina        = @"login.chinacloudapi.cn";
+NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
+NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
+NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
+NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
+
++ (void)initialize
+{
+    s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority, MSIDTrustedAuthorityUS,
+                         MSIDTrustedAuthorityChina, MSIDTrustedAuthorityGermany,
+                         MSIDTrustedAuthorityWorldWide, MSIDTrustedAuthorityUSGovernment, MSIDTrustedAuthorityCloudGovApi, nil];
+}
+
++ (BOOL)isKnownHost:(NSURL *)url
+{
+    if (!url) return NO;
+    
+    return [s_trustedHostList containsObject:url.host.lowercaseString];
+}
+
 + (BOOL)isADFSInstance:(NSString *)endpoint
 {
     if ([NSString msidIsStringNilOrBlank:endpoint])

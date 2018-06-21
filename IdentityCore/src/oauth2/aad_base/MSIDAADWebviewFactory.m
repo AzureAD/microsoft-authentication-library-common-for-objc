@@ -27,6 +27,8 @@
 #import "MSIDWebWPJAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDDeviceId.h"
+#import "MSIDAADOAuthEmbeddedWebviewController.h"
+#import "MSIDWebviewSession.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -66,6 +68,26 @@
     [parameters addEntriesFromDictionary:MSIDDeviceId.deviceId];
 
     return parameters;
+}
+
+- (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
+{
+    NSString *state = [self generateStateValue];
+    NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
+    NSURL *redirectURL = [NSURL URLWithString:configuration.redirectUri];
+    
+    MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
+    = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:startURL
+                                                               endURL:redirectURL
+                                                              webview:webview
+                                                        configuration:configuration
+                                                              context:context];
+    
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
+                                                                                factory:self
+                                                                           requestState:state
+                                                                            verifyState:configuration.verifyState];
+    return session;
 }
 
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url

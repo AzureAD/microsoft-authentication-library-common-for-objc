@@ -43,6 +43,7 @@
 @property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
+@property (readwrite) NSDictionary<NSString *, NSString *> *customHeaders;
 
 // State verifier: Recommended verifier for state value of the response.
 //  Set to YES to stop if verifying state fails
@@ -59,6 +60,11 @@
 // Priority start URL
 @property (readwrite) NSURL *explicitStartURL;
 
+#if TARGET_OS_IPHONE
+@property (weak) UIViewController *parentController;
+@property (readwrite)UIModalPresentationStyle presentationType;
+#endif
+
 - (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint
                                   redirectUri:(NSString *)redirectUri
                                      clientId:(NSString *)clientId
@@ -67,6 +73,5 @@
                                 correlationId:(NSUUID *)correlationId
                                   verifyState:(BOOL)verifyState
                                    enablePkce:(BOOL)enablePkce;
-
 
 @end
