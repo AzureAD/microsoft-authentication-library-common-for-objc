@@ -79,7 +79,7 @@
                          completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
                              XCTAssertNil(response);
                              XCTAssertNotNil(error);
-                             XCTAssertEqual(error.code, MSIDErrorInvalidRequest);
+                             XCTAssertEqual(error.code, MSIDErrorServerInvalidRequest);
                              
                              [expectation fulfill];
                          }];

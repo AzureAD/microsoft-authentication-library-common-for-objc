@@ -52,19 +52,19 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
 {
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame)
     {
-        return MSIDErrorInvalidRequest;
+        return MSIDErrorServerInvalidRequest;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_client"] == NSOrderedSame)
     {
-        return MSIDErrorInvalidClient;
+        return MSIDErrorServerInvalidClient;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_scope"] == NSOrderedSame)
     {
-        return MSIDErrorInvalidScope;
+        return MSIDErrorServerInvalidScope;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame)
     {
-        return MSIDErrorInvalidGrant;
+        return MSIDErrorServerInvalidGrant;
     }
     
     return defaultCode;

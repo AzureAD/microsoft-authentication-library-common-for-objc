@@ -82,7 +82,7 @@
     XCTAssertNotNil(response.oauthError);
     
     XCTAssertEqualObjects(response.oauthError.domain, MSIDOAuthErrorDomain);
-    XCTAssertEqual(response.oauthError.code, MSIDErrorInvalidGrant);
+    XCTAssertEqual(response.oauthError.code, MSIDErrorServerInvalidGrant);
     XCTAssertEqualObjects(response.oauthError.userInfo[MSIDErrorDescriptionKey], errorDescription);
     
     XCTAssertEqualObjects(response.oauthError.userInfo[MSIDOAuthErrorKey], errorString);

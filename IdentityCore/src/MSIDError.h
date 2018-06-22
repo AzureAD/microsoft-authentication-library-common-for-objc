@@ -88,10 +88,10 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Server returned a refresh token reject response
     MSIDErrorServerRefreshTokenRejected = -51403,
     // Other specific server response errors
-    MSIDErrorInvalidRequest             = -51404,
-    MSIDErrorInvalidClient              = -51405,
-    MSIDErrorInvalidGrant               = -51406,
-    MSIDErrorInvalidScope               = -51407,
+    MSIDErrorServerInvalidRequest       = -51404,
+    MSIDErrorServerInvalidClient        = -51405,
+    MSIDErrorServerInvalidGrant         = -51406,
+    MSIDErrorServerInvalidScope         = -51407,
     
     /*!
      =================================================
@@ -112,7 +112,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorUserCancel                 = -51512,
     
     // The interactive flow was cancelled programmatically.
-    MSIDErrorSessionCanceled            = -51513,
+    MSIDErrorSessionCanceledProgramatically = -51513,
     
     // Interactive authentication session failed to start.
     MSIDErrorInteractiveSessionStartFailure = -51514,
