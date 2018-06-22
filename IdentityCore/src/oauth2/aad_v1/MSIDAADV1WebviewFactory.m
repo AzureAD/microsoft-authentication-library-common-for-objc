@@ -22,20 +22,17 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV1WebviewFactory.h"
+#import "MSIDWebviewConfiguration.h"
 
 @implementation MSIDAADV1WebviewFactory
-
-- (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration verifyState:(BOOL)verifyState customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
-{
-    return nil;
-}
 
 - (NSMutableDictionary<NSString *,NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state
 {
     NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
                                                                                                  requestState:state];
     
-    // Do custom parameters for AAD V1
+    parameters[MSID_OAUTH2_RESOURCE] = configuration.resource;
+    
     return parameters;
 }
 

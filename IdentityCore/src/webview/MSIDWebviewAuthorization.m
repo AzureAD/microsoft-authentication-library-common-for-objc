@@ -31,7 +31,7 @@
 #import "MSIDError.h"
 #import "NSURL+MSIDExtensions.h"
 #import "MSIDTelemetry.h"
-#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDSystemWebviewController.h"
 #import "MSIDWebviewFactory.h"
 
@@ -44,17 +44,11 @@ static MSIDWebviewSession *s_currentSession = nil;
                                           context:(id<MSIDRequestContext>)context
                                 completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    //    NSString *state = [factory generateStateValue];
-    //    NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
-    //    (void)startURL;
-    //    (void)state;
-    //
-    //    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] init];
-    //    [self startWebviewAuth:embeddedWebviewController
-    //                   factory:factory
-    //              requestState:state
-    //                   context:context
-    //         completionHandler:completionHandler];
+    [self startEmbeddedWebviewWebviewAuthWithConfiguration:configuration
+                                             oauth2Factory:oauth2Factory
+                                                   webview:nil
+                                                   context:context
+                                         completionHandler:completionHandler];
 }
 
 + (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
@@ -63,17 +57,10 @@ static MSIDWebviewSession *s_currentSession = nil;
                                                  context:(id<MSIDRequestContext>)context
                                        completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    //    NSString *state = [factory generateStateValue];
-    //    NSURL *startURL = [factory startURLFromConfiguration:configuration requestState:state];
-    //    (void)startURL;
-    //    (void)state;
-    //
-    //    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] init];
-    //    [self startWebviewAuth:embeddedWebviewController
-    //                   factory:factory
-    //              requestState:state
-    //                   context:context
-    //         completionHandler:completionHandler];
+    MSIDWebviewFactory *webviewFactory = [oauth2Factory webviewFactory];
+    MSIDWebviewSession *session = [webviewFactory embeddedWebviewSessionFromConfiguration:configuration customWebview:webview context:context];
+    
+    [self startSession:session context:context completionHandler:completionHandler];
 }
 
 #if TARGET_OS_IPHONE
@@ -182,7 +169,6 @@ static MSIDWebviewSession *s_currentSession = nil;
     }
 }
 
-
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 {
 #if TARGET_OS_IPHONE
@@ -200,7 +186,3 @@ static MSIDWebviewSession *s_currentSession = nil;
 
 
 @end
-
-
-
-

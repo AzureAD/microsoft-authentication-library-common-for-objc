@@ -29,6 +29,7 @@
 #import "MSIDSystemWebviewController.h"
 #import "MSIDPkce.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 @implementation MSIDWebviewFactory
 
@@ -36,7 +37,22 @@
 
 - (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
 {
-    return nil;
+    NSString *state = [self generateStateValue];
+    NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
+    NSURL *redirectURL = [NSURL URLWithString:configuration.redirectUri];
+    
+    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController
+    = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:startURL
+                                                             endURL:redirectURL
+                                                            webview:webview
+                                                      configuration:configuration
+                                                            context:context];
+    
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
+                                                                                factory:self
+                                                                           requestState:state
+                                                                            verifyState:configuration.verifyState];
+    return session;
 }
 
 #if TARGET_OS_IPHONE

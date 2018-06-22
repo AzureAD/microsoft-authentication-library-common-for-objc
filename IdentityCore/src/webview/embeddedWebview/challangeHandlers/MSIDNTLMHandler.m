@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,22 +15,68 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
+#import <WebKit/WebKit.h>
 #import "MSIDNTLMHandler.h"
+#import "MSIDChallengeHandler.h"
+#import "MSIDNTLMUIPrompt.h"
 
 @implementation MSIDNTLMHandler
 
-- (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
++ (void)load
+{
+    [MSIDChallengeHandler registerHandler:self
+                               authMethod:NSURLAuthenticationMethodNTLM];
+}
+
++ (void)resetHandler
+{
+    @synchronized(self)
+    {
+        [MSIDNTLMUIPrompt dismissPrompt];
+    }
+}
+
++ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
+                webview:(WKWebView *)webview
+                context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    return NO;
+    @synchronized(self)
+    {
+        // This is the NTLM challenge: use the identity to authenticate:
+        MSID_LOG_INFO(nil, @"Attempting to handle NTLM challenge");
+        MSID_LOG_INFO_PII(nil, @"Attempting to handle NTLM challenge host: %@", challenge.protectionSpace.host);
+        
+        [MSIDNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password, BOOL cancel)
+         {
+             if (cancel)
+             {
+                 MSID_LOG_INFO(context, @"NTLM challenge cancelled");
+                 MSID_LOG_INFO_PII(context, @"NTLM challenge cancelled - host: %@", challenge.protectionSpace.host);
+                 
+                 completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+             }
+             else
+             {
+                 NSURLCredential *credential = [NSURLCredential credentialWithUser:username
+                                                                          password:password
+                                                                       persistence:NSURLCredentialPersistenceForSession];
+                 
+                 completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+                 
+                 MSID_LOG_INFO(context, @"NTLM credentials added");
+                 MSID_LOG_INFO_PII(context, @"NTLM credentials added - host: %@", challenge.protectionSpace.host);
+             }
+         }];
+    }//@synchronized
+    
+    return YES;
 }
 
 @end

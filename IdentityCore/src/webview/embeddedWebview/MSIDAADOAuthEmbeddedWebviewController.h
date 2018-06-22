@@ -25,17 +25,10 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
-@class MSIDWebOAuth2Response;
+@interface MSIDAADOAuthEmbeddedWebviewController : MSIDOAuth2EmbeddedWebviewController
 
-typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
-
-@protocol MSIDWebviewInteracting
-
-- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
-
-- (NSURL *)startURL;
+- (id)init NS_UNAVAILABLE;
 
 @end

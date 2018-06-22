@@ -225,5 +225,49 @@
     XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com:8080/tenant2"]);
 }
 
+- (void)testIsKnownHost_whenTrustedAuthority_shuldReturnTrue
+{
+    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.windows.net"]]);
+}
+
+- (void)testIsKnownHost_whenTrustedAuthorityUS_shuldReturnTrue
+{
+    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.microsoftonline.us"]]);
+}
+
+- (void)testIsKnownHost_whenTrustedAuthorityChina_shuldReturnTrue
+{
+    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.chinacloudapi.cn"]]);
+}
+
+- (void)testIsKnownHost_whenTrustedAuthorityGermany_shuldReturnTrue
+{
+    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.microsoftonline.de"]]);
+}
+
+- (void)testIsKnownHost_whenTrustedAuthorityWorldWide_shuldReturnTrue
+{
+    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.microsoftonline.com"]]);
+}
+
+- (void)testIsKnownHost_whenTrustedAuthorityUSGovernment_shuldReturnTrue
+{
+    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login-us.microsoftonline.com"]]);
+}
+
+- (void)testIsKnownHost_whenTrustedAuthorityCloudGovApi_shuldReturnTrue
+{
+    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.cloudgovapi.us"]]);
+}
+
+- (void)testIsKnownHost_whenUnknownHost_shouldReturnFalse
+{
+    XCTAssertFalse([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://www.noknownhost.com"]]);
+}
+
+- (void)testIsKnownHost_whenNilHost_shouldReturnFalse
+{
+    XCTAssertFalse([MSIDAuthority isKnownHost:nil]);
+}
 
 @end

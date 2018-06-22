@@ -93,6 +93,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorServerInvalidGrant         = -51406,
     MSIDErrorServerInvalidScope         = -51407,
     
+    // Redirect to non HTTPS detected
+    MSIDErrorServerNonHttpsRedirect     = -51408,
+    
     /*!
      =================================================
      Interactive flow errors    (515xx)
@@ -121,7 +124,10 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      Another authentication session can not be launched yet.
      */
     MSIDErrorInteractiveSessionAlreadyRunning = -51515,
-    
+
+    // Embedded webview has failed to find a view controller to display web contents
+    MSIDErrorNoMainViewController = - 51516,
+
     /*!
      =================================================
      Boundaries - To be used to enumerate all codes
@@ -129,10 +135,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      */
     MSIDErrorCodeFirst = MSIDErrorInternal,
     MSIDErrorCodeLast = MSIDErrorInteractiveSessionAlreadyRunning
-    
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
 
 extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode);
-

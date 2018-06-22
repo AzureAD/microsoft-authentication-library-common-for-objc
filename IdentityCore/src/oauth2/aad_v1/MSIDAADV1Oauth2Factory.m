@@ -28,6 +28,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
+#import "MSIDWebviewConfiguration.h"
 
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDOauth2Factory+Internal.h"

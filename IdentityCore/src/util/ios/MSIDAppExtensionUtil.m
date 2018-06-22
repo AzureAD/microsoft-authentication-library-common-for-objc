@@ -36,7 +36,6 @@
         return NO;
     }
     
-    
     return [mainBundlePath hasSuffix:@"appex"];
 }
 
