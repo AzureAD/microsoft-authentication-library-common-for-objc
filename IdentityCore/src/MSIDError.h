@@ -81,20 +81,26 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      Server errors  (514xx)
      =================================================
      */
+    // Interaction Required
+    MSIDErrorInteractionRequired        = -51401,
+    
     // Server returned a response indicating an OAuth error
-    MSIDErrorServerOauth                = -51401,
+    MSIDErrorServerOauth                = -51402,
     // Server returned an invalid response
-    MSIDErrorServerInvalidResponse      = -51402,
+    MSIDErrorServerInvalidResponse      = -51403,
     // Server returned a refresh token reject response
-    MSIDErrorServerRefreshTokenRejected = -51403,
+    MSIDErrorServerRefreshTokenRejected = -51404,
     // Other specific server response errors
-    MSIDErrorServerInvalidRequest       = -51404,
-    MSIDErrorServerInvalidClient        = -51405,
-    MSIDErrorServerInvalidGrant         = -51406,
-    MSIDErrorServerInvalidScope         = -51407,
+    MSIDErrorServerInvalidRequest       = -51405,
+    MSIDErrorServerInvalidClient        = -51406,
+    MSIDErrorServerInvalidGrant         = -51407,
+    MSIDErrorServerInvalidScope         = -51408,
     
     // Redirect to non HTTPS detected
-    MSIDErrorServerNonHttpsRedirect     = -51408,
+    MSIDErrorServerNonHttpsRedirect     = -51409,
+    
+    // Authority validation response failure
+    MSIDErrorServerAuthorityValidation  = -51410,
     
     /*!
      =================================================
