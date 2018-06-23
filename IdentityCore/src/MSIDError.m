@@ -48,4 +48,24 @@ NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescri
     return [NSError errorWithDomain:domain code:code userInfo:userInfo];
 }
 
-
+MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode)
+{
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame)
+    {
+        return MSIDErrorInvalidRequest;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_client"] == NSOrderedSame)
+    {
+        return MSIDErrorInvalidClient;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_scope"] == NSOrderedSame)
+    {
+        return MSIDErrorInvalidScope;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame)
+    {
+        return MSIDErrorInvalidGrant;
+    }
+    
+    return defaultCode;
+}

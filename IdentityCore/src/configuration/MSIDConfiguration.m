@@ -23,6 +23,7 @@
 
 #import "MSIDConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDPkce.h"
 
 @implementation MSIDConfiguration
 
@@ -33,27 +34,15 @@
     configuration.redirectUri = [_redirectUri copyWithZone:zone];
     configuration.target = [_target copyWithZone:zone];
     configuration.clientId = [_clientId copyWithZone:zone];
-    configuration.correlationId = [_correlationId copyWithZone:zone];
-    configuration.loginHint = [_loginHint copyWithZone:zone];
-    configuration.sliceParameters = [_sliceParameters copyWithZone:zone];
-    configuration.networkConfig = [_networkConfig copyWithZone:zone];
     
     return configuration;
 }
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target
-{
-    return [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:redirectUri clientId:clientId target:target correlationId:nil];
-}
 
 - (instancetype)initWithAuthority:(NSURL *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target
-                    correlationId:(NSUUID *)correlationId
 {
     self = [super init];
     
@@ -63,7 +52,6 @@
         _redirectUri = redirectUri;
         _clientId = clientId;
         _target = target;
-        _correlationId = correlationId;
     }
     
     return self;

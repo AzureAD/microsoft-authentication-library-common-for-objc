@@ -29,6 +29,6 @@
 
 @interface MSIDWebAADAuthResponse : MSIDWebOAuth2Response
 
-@property NSString *cloudHostName;
+@property (readonly) NSString *cloudHostName;
 
 @end

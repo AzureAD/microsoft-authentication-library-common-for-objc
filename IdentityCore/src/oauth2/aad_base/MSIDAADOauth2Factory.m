@@ -33,6 +33,11 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
 #import "MSIDIdToken.h"
+#import "MSIDLegacyRefreshToken.h"
+#import "MSIDOauth2Factory+Internal.h"
+#import "MSIDAADWebviewFactory.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -116,111 +121,158 @@
     }
 }
 
-#pragma mark - Tokens
-
-- (MSIDBaseToken *)baseTokenFromResponse:(MSIDAADTokenResponse *)response
-                                 configuration:(MSIDConfiguration *)configuration
+- (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
 {
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return nil;
-    }
-
-    MSIDBaseToken *baseToken = [super baseTokenFromResponse:response configuration:configuration];
-    return (MSIDBaseToken *) [self fillAADBaseToken:baseToken fromResponse:response configuration:configuration];
+    return [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:originalEnvironment context:context];
 }
 
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADTokenResponse *)response
-                                     configuration:(MSIDConfiguration *)configuration
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
 {
-    if (![self checkResponseClass:response context:nil error:nil])
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
+}
+
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
+{
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
+}
+
+- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
+                        context:(id<MSIDRequestContext>)context
+{
+    if (!originalAuthority)
     {
         return nil;
     }
 
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response configuration:configuration];
+    NSURL *authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
+    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
+}
 
-    if (!response.extendedExpiresOnDate)
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
+{
+    if (!originalAuthority)
     {
-        return (MSIDAccessToken *) [self fillAADBaseToken:accessToken fromResponse:response configuration:configuration];
+        return @[];
     }
+
+    NSMutableArray *lookupAuthorities = [NSMutableArray array];
+
+    if ([MSIDAuthority isTenantless:originalAuthority])
+    {
+        // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
+        [lookupAuthorities addObject:[MSIDAuthority universalAuthorityURL:originalAuthority]];
+    }
+    else
+    {
+        // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
+        [lookupAuthorities addObject:originalAuthority];
+        [lookupAuthorities addObject:[MSIDAuthority commonAuthorityWithURL:originalAuthority]];
+    }
+
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthorities:lookupAuthorities];
+}
+
+#pragma mark - Tokens
+
+- (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
+           fromResponse:(MSIDAADTokenResponse *)response
+          configuration:(MSIDConfiguration *)configuration
+{
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response configuration:configuration];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    if (!response.extendedExpiresOnDate) return YES;
 
     NSMutableDictionary *additionalServerInfo = [accessToken.additionalServerInfo mutableCopy];
     additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY] = response.extendedExpiresOnDate;
     accessToken.additionalServerInfo = additionalServerInfo;
 
-    return (MSIDAccessToken *) [self fillAADBaseToken:accessToken fromResponse:response configuration:configuration];
+    return YES;
 }
 
-- (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDAADTokenResponse *)response
-                                       configuration:(MSIDConfiguration *)configuration
+- (BOOL)fillLegacyToken:(MSIDLegacySingleResourceToken *)token
+           fromResponse:(MSIDAADTokenResponse *)response
+          configuration:(MSIDConfiguration *)configuration
+{
+    BOOL result = [super fillLegacyToken:token fromResponse:response configuration:configuration];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    token.familyId = response.familyId;
+    return YES;
+}
+
+- (BOOL)fillRefreshToken:(MSIDRefreshToken *)token
+            fromResponse:(MSIDAADTokenResponse *)response
+           configuration:(MSIDConfiguration *)configuration
+{
+    BOOL result = [super fillRefreshToken:token fromResponse:response configuration:configuration];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    token.familyId = response.familyId;
+    return YES;
+}
+
+- (BOOL)fillAccount:(MSIDAccount *)account
+       fromResponse:(MSIDAADTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
 {
     if (![self checkResponseClass:response context:nil error:nil])
     {
-        return nil;
+        return NO;
     }
 
-    MSIDRefreshToken *refreshToken = [super refreshTokenFromResponse:response configuration:configuration];
-    refreshToken.familyId = response.familyId;
+    BOOL result = [super fillAccount:account fromResponse:response configuration:configuration];
 
-    return (MSIDRefreshToken *) [self fillAADBaseToken:refreshToken fromResponse:response configuration:configuration];
-}
-
-- (MSIDIdToken *)idTokenFromResponse:(MSIDAADTokenResponse *)response
-                             configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
-    MSIDIdToken *idToken = [super idTokenFromResponse:response configuration:configuration];
-    return (MSIDIdToken *)[self fillAADBaseToken:idToken fromResponse:response configuration:configuration];
-}
-
-- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDAADTokenResponse *)response
-                                                   configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return nil;
-    }
-
-    MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response configuration:configuration];
-    legacyToken.familyId = response.familyId;
-    return (MSIDLegacySingleResourceToken *) [self fillAADBaseToken:legacyToken fromResponse:response configuration:configuration];
-}
-
-- (MSIDAccount *)accountFromResponse:(MSIDAADTokenResponse *)response
-                             configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return nil;
-    }
-
-    MSIDAccount *account = [super accountFromResponse:response configuration:configuration];
     account.clientInfo = response.clientInfo;
+    account.accountType = MSIDAccountTypeMSSTS;
+    account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
     if (response.clientInfo.userIdentifier)
     {
-        account.uniqueUserId = response.clientInfo.userIdentifier;
+        account.homeAccountId = response.clientInfo.userIdentifier;
     }
 
-    return account;
+    return YES;
 }
 
 #pragma mark - Fill token
 
-- (MSIDBaseToken *)fillAADBaseToken:(MSIDBaseToken *)baseToken
-                       fromResponse:(MSIDAADTokenResponse *)response
-                            configuration:(MSIDConfiguration *)configuration
+- (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken
+         fromResponse:(MSIDAADTokenResponse *)response
+        configuration:(MSIDConfiguration *)configuration
 {
+    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
+    {
+        return NO;
+    }
+
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return NO;
+    }
+
     baseToken.clientInfo = response.clientInfo;
 
     if (response.clientInfo.userIdentifier)
     {
-        baseToken.uniqueUserId = response.clientInfo.userIdentifier;
+        baseToken.homeAccountId = response.clientInfo.userIdentifier;
     }
 
     if (response.speInfo)
@@ -230,7 +282,19 @@
         baseToken.additionalServerInfo = additionalServerInfo;
     }
 
-    return baseToken;
+    return YES;
 }
+
+
+#pragma mark - Webview
+- (MSIDWebviewFactory *)webviewFactory
+{
+    if (!_webviewFactory)
+    {
+        _webviewFactory = [[MSIDAADWebviewFactory alloc] init];
+    }
+    return _webviewFactory;
+}
+
 
 @end

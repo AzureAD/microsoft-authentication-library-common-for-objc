@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDTestBrokerResponse.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "NSDictionary+MSIDTestUtil.h"
 

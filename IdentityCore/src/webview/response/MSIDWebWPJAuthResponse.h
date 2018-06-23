@@ -25,9 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebviewResponse.h"
 
-@interface MSIDWebWPJAuthResponse : MSIDWebOAuth2Response
+@interface MSIDWebWPJAuthResponse : MSIDWebviewResponse
 
 @property NSString *upn;
 @property NSString *appInstallLink;

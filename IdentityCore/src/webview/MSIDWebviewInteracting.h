@@ -29,15 +29,13 @@
 
 @class MSIDWebOAuth2Response;
 
-typedef void (^MSIDWebUICompletionHandler)(MSIDWebOAuth2Response *response, NSError *error);
+typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
 
 @protocol MSIDWebviewInteracting
 
-- (void)startRequestWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
+- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
 - (void)cancel;
 
-#if TARGET_OS_IPHONE
-@property UIViewController *parentViewController;
-#endif
+- (NSURL *)startURL;
 
 @end

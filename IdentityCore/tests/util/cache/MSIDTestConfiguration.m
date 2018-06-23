@@ -23,7 +23,7 @@
 
 #import "MSIDTestConfiguration.h"
 #import "MSIDConfiguration.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDTestConfiguration

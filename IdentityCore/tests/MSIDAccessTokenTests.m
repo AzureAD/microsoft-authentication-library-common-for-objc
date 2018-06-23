@@ -76,26 +76,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testAccessTokenIsEqual_whenIdTokenIsNotEqual_shouldReturnFalse
-{
-    MSIDAccessToken *lhs = [MSIDAccessToken new];
-    [lhs setValue:@"value 1" forKey:@"idToken"];
-    MSIDAccessToken *rhs = [MSIDAccessToken new];
-    [rhs setValue:@"value 2" forKey:@"idToken"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testAccessTokenIsEqual_whenIdTokenIsEqual_shouldReturnTrue
-{
-    MSIDAccessToken *lhs = [MSIDAccessToken new];
-    [lhs setValue:@"value 1" forKey:@"idToken"];
-    MSIDAccessToken *rhs = [MSIDAccessToken new];
-    [rhs setValue:@"value 1" forKey:@"idToken"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
 - (void)testAccessTokenIsEqual_whenExpiresOnIsNotEqual_shouldReturnFalse
 {
     MSIDAccessToken *lhs = [MSIDAccessToken new];
@@ -176,26 +156,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testAccessTokenIsEqual_whenAccessTokenTypeIsNotEqual_shouldReturnFalse
-{
-    MSIDAccessToken *lhs = [MSIDAccessToken new];
-    [lhs setValue:@"value 1" forKey:@"accessTokenType"];
-    MSIDAccessToken *rhs = [MSIDAccessToken new];
-    [rhs setValue:@"value 2" forKey:@"accessTokenType"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testAccessTokenIsEqual_whenAccessTokenTypeIsEqual_shouldReturnTrue
-{
-    MSIDAccessToken *lhs = [MSIDAccessToken new];
-    [lhs setValue:@"value 1" forKey:@"accessTokenType"];
-    MSIDAccessToken *rhs = [MSIDAccessToken new];
-    [rhs setValue:@"value 1" forKey:@"accessTokenType"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
 #pragma mark - Token cache item
 
 - (void)testInitWithTokenCacheItem_whenNilCacheItem_shouldReturnNil
@@ -206,8 +166,8 @@
 
 - (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeIDToken;
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDIDTokenType;
     
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
@@ -215,13 +175,13 @@
 
 - (void)testInitWithTokenCacheItem_whenNoAccessToken_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeAccessToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.username = @"test";
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.target = @"target";
     
@@ -231,15 +191,15 @@
 
 - (void)testInitWithTokenCacheItem_whenNoTarget_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeAccessToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.username = @"test";
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
-    cacheItem.accessToken = @"access token";
+    cacheItem.secret = @"access token";
     
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
@@ -247,42 +207,119 @@
 
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeAccessToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
-    cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.username = @"test";
-    cacheItem.uniqueUserId = @"uid.utid";
+    NSDate *extExpireTime = [NSDate date];
+    cacheItem.additionalInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
-    cacheItem.accessToken = @"token";
-    
+    cacheItem.secret = @"token";
+
     NSDate *expiresOn = [NSDate date];
     NSDate *cachedAt = [NSDate date];
     
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
-    cacheItem.idToken = @"ID TOKEN";
     cacheItem.target = @"target";
-    cacheItem.oauthTokenType = @"Bearer";
-    
+
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
-    XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
-    XCTAssertEqualObjects(token.username, @"test");
+    NSDictionary *additionalServerInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
+    XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
+    XCTAssertEqualObjects(token.extendedExpireTime, extExpireTime);
+    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
     XCTAssertEqualObjects(token.cachedAt, cachedAt);
-    XCTAssertEqualObjects(token.idToken, @"ID TOKEN");
     XCTAssertEqualObjects(token.resource, @"target");
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"target", nil];
+    XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertEqualObjects(token.accessToken, @"token");
-    XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    
-    MSIDTokenCacheItem *newCacheItem = [token tokenCacheItem];
+    XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
+    XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
+
+    MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
+}
+
+#pragma mark - expiry
+
+- (void)testExpiryTimeValid_whenDateValid_shouldReturnYES
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    NSDate *extExpireTime = [[NSDate date] dateByAddingTimeInterval:3600];
+    token.additionalServerInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
+    token.accessToken = @"at";
+
+    XCTAssertTrue(token.isExtendedLifetimeValid);
+}
+
+- (void)testExpiryTimeValid_whenDateNotValid_shouldReturnNO
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    NSDate *extExpireTime = [[NSDate date] dateByAddingTimeInterval:-3600];
+    token.additionalServerInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
+    token.accessToken = @"at";
+
+    XCTAssertFalse(token.isExtendedLifetimeValid);
+}
+
+- (void)testExpiryTimeValid_whenDateValid_andNoAccessToken_shouldReturnNO
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    NSDate *extExpireTime = [[NSDate date] dateByAddingTimeInterval:3600];
+    token.additionalServerInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
+
+    XCTAssertFalse(token.isExtendedLifetimeValid);
+}
+
+- (void)testIsExpired_whenTokenNotExpired_shouldReturnNO
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:3600];
+    XCTAssertFalse(token.isExpired);
+}
+
+- (void)testIsExpired_whenTokenExpired_shouldReturnYES
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:-3600];
+    XCTAssertTrue(token.isExpired);
+}
+
+- (void)testIsExpired_whenNotExpired_butCachedAtInFuture_shouldReturnYES
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:3600];
+    token.cachedAt = [[NSDate date] dateByAddingTimeInterval:7200];
+    XCTAssertTrue(token.isExpired);
+}
+
+- (void)testIsExpired_whenNotExpired_andCachedAtCorrect_shouldReturnNO
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:3600];
+    token.cachedAt = [[NSDate date] dateByAddingTimeInterval:-7200];
+    XCTAssertFalse(token.isExpired);
+}
+
+- (void)testIsExpired_whenTokenNotExpired_AndCustomExpiryBuffer_shouldReturnNO
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:700];
+    XCTAssertFalse([token isExpiredWithExpiryBuffer:601]);
+}
+
+- (void)testIsExpired_whenTokenExpired_AndCustomExpiryBuffer_shouldReturnYES
+{
+    MSIDAccessToken *token = [MSIDAccessToken new];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:600];
+    XCTAssertTrue([token isExpiredWithExpiryBuffer:601]);
 }
 
 #pragma mark - Private
@@ -294,16 +331,13 @@
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
-    [token setValue:@"username" forKey:@"username"];
+    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
     [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
     [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
     [token setValue:@"token" forKey:@"accessToken"];
-    [token setValue:@"idtoken" forKey:@"idToken"];
     [token setValue:@"resource" forKey:@"target"];
     [token setValue:@"scopes" forKey:@"target"];
-    [token setValue:@"Bearer" forKey:@"accessTokenType"];
-    
+
     return token;
 }
 

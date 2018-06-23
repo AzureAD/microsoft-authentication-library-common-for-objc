@@ -94,26 +94,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testRefreshTokenIsEqual_whenIdTokenIsNotEqual_shouldReturnFalse
-{
-    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
-    [lhs setValue:@"token 1" forKey:@"idToken"];
-    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
-    [rhs setValue:@"token 2" forKey:@"idToken"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testRefreshTokenIsEqual_whenIdTokenIsEqual_shouldReturnTrue
-{
-    MSIDRefreshToken *lhs = [MSIDRefreshToken new];
-    [lhs setValue:@"token 1" forKey:@"idToken"];
-    MSIDRefreshToken *rhs = [MSIDRefreshToken new];
-    [rhs setValue:@"token 1" forKey:@"idToken"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
 #pragma mark - Token cache item
 
 - (void)testInitWithTokenCacheItem_whenNilCacheItem_shouldReturnNil
@@ -124,8 +104,8 @@
 
 - (void)testInitWithTokenCacheItem_whenWrongTokenType_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeIDToken;
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDIDTokenType;
     
     MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNil(token);
@@ -133,13 +113,12 @@
 
 - (void)testInitWithTokenCacheItem_whenNoRefreshToken_shouldReturnNil
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDRefreshTokenType;
+    cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.username = @"test";
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     
     MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
@@ -148,29 +127,25 @@
 
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
-    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
-    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDRefreshTokenType;
+    cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
-    cacheItem.username = @"test";
-    cacheItem.uniqueUserId = @"uid.utid";
+    cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
-    cacheItem.refreshToken = @"refresh token";
-    cacheItem.idToken = @"ID TOKEN";
-    
+    cacheItem.secret = @"refresh token";
+
     MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.uniqueUserId, @"uid.utid");
-    XCTAssertEqualObjects(token.username, @"test");
-    XCTAssertEqualObjects(token.idToken, @"ID TOKEN");
+    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.refreshToken, @"refresh token");
     
-    MSIDTokenCacheItem *newCacheItem = [token tokenCacheItem];
+    MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
 }
 
@@ -183,12 +158,10 @@
     [token setValue:@"some clientId" forKey:@"clientId"];
     [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
     [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"uniqueUserId"];
-    [token setValue:@"username" forKey:@"username"];
+    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
     [token setValue:@"refreshToken" forKey:@"refreshToken"];
     [token setValue:@"familyId" forKey:@"familyId"];
-    [token setValue:@"idToken" forKey:@"idToken"];
-    
+
     return token;
 }
 

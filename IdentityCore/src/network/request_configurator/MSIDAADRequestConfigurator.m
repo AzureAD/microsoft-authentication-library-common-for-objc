@@ -31,6 +31,7 @@
 #import "MSIDContants.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority.h"
+#import "MSIDConstants.h"
 
 static NSTimeInterval const s_defaultTimeoutInterval = 300;
 

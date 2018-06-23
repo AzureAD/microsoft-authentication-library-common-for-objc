@@ -22,34 +22,16 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenType.h"
+#import "MSIDCredentialType.h"
 
-@class MSIDTokenCacheItem;
-@class MSIDConfiguration;
-@class MSIDAccount;
-@class MSIDAccessToken;
-@class MSIDBaseToken;
+@class MSIDCredentialCacheItem;
 
-typedef BOOL (^MSIDTokenCacheItemFiltering)(MSIDTokenCacheItem *tokenCacheItem);
+typedef BOOL (^MSIDTokenCacheItemFiltering)(MSIDCredentialCacheItem *tokenCacheItem);
 
 @interface MSIDTokenFilteringHelper : NSObject
 
-+ (NSArray *)filterTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allCacheItems
-                         tokenType:(MSIDTokenType)tokenType
++ (NSArray *)filterTokenCacheItems:(NSArray<MSIDCredentialCacheItem *> *)allCacheItems
+                         tokenType:(MSIDCredentialType)tokenType
                        returnFirst:(BOOL)returnFirst
                           filterBy:(MSIDTokenCacheItemFiltering)tokenFiltering;
-
-+ (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allCacheItems
-                                                    withScopes:(NSOrderedSet<NSString *> *)scopes;
-
-+ (NSArray<MSIDAccessToken *> *)filterAllAccessTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                                withConfiguration:(MSIDConfiguration *)configuration
-                                                       account:(MSIDAccount *)account
-                                                       context:(id<MSIDRequestContext>)context
-                                                         error:(NSError **)error;
-
-+ (NSArray<MSIDBaseToken *> *)filterRefreshTokenCacheItems:(NSArray<MSIDTokenCacheItem *> *)allItems
-                                              legacyUserId:(NSString *)legacyUserId
-                                               environment:(NSString *)environment
-                                                   context:(id<MSIDRequestContext>)context;
 @end

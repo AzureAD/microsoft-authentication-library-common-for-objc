@@ -193,7 +193,7 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
 #pragma mark -
 #pragma mark Cache Accessors
 
-- (MSIDAadAuthorityCacheRecord *)checkCacheImpl:(NSURL *)authority
+- (MSIDAadAuthorityCacheRecord *)checkCacheImpl:(NSString *)environment
 {
     return [self objectForKey:authority.msidHostWithPortIfNecessary];
 }
@@ -278,6 +278,19 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     return url;
 }
 
+- (NSString *)cacheEnvironmentForEnvironment:(NSString *)environment
+                                     context:(id<MSIDRequestContext>)context
+{
+    NSString *cacheEnvironment = [self cacheEnvironmentForEnvironmentImpl:environment];
+    if (!cacheEnvironment)
+    {
+        MSID_LOG_WARN(context, @"No cached preferred_cache for environment");
+        return environment;
+    }
+
+    return cacheEnvironment;
+}
+
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
 {
     if (!authority) return @[];
@@ -288,6 +301,16 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     }
     
     return [self cacheAliasesForAuthorityImpl:authority];
+}
+
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)environment
+{
+    if (!environment)
+    {
+        return @[];
+    }
+
+    return [self cacheAliasesForEnvironmentImpl:environment];
 }
 
 - (NSURL *)networkUrlForAuthorityImpl:(NSURL *)authority
@@ -310,6 +333,29 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     }
     
     return urlForPreferredHost(authority, record.cacheHost);
+}
+
+- (NSString *)cacheEnvironmentForEnvironmentImpl:(NSString *)environment
+{
+    __auto_type record = [self checkCache:environment];
+    if (!record)
+    {
+        return nil;
+    }
+
+    return record.cacheHost;
+}
+
+- (NSArray<NSURL *> *)cacheAliasesForAuthorities:(NSArray<NSURL *> *)authorities
+{
+    NSMutableArray<NSURL *> *resultAuthorities = [NSMutableArray new];
+
+    for (NSURL *authority in authorities)
+    {
+        [resultAuthorities addObjectsFromArray:[self cacheAliasesForAuthority:authority]];
+    }
+
+    return resultAuthorities;
 }
 
 - (NSArray<NSURL *> *)cacheAliasesForAuthorityImpl:(NSURL *)authority
@@ -354,6 +400,49 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     }
     
     return authorities;
+}
+
+- (NSArray<NSString *> *)cacheAliasesForEnvironmentImpl:(NSString *)environment
+{
+    NSMutableArray<NSString *> *environments = [NSMutableArray new];
+
+    __auto_type record = [self checkCache:environment];
+    if (!record)
+    {
+        [environments addObject:environment];
+        return environments;
+    }
+
+    NSArray<NSString *> *aliases = record.aliases;
+    NSString *cacheEnvironment = record.cacheHost;
+    if (cacheEnvironment)
+    {
+        // The cache lookup order for authorities is defined as the preferred host first
+        [environments addObject:cacheEnvironment];
+        if (![cacheEnvironment isEqualToString:environment])
+        {
+            // Followed by the authority provided by the developer, provided here by the authority
+            // URL passed into this method
+            [environments addObject:environment];
+        }
+    }
+    else
+    {
+        [environments addObject:environment];
+    }
+
+    // And then we add any remaining aliases listed in the metadata
+    for (NSString *alias in aliases)
+    {
+        if ([alias isEqualToString:environment] || [alias isEqualToString:environment])
+        {
+            continue;
+        }
+
+        [environments addObject:alias];
+    }
+
+    return environments;
 }
 
 @end

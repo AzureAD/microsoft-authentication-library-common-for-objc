@@ -36,59 +36,60 @@
 
 #pragma mark - Token cache item
 
-- (void)test_whenSerializeTokenCacheItem_shouldReturnSameTokenOnDeserialize
+- (void)test_whenSerializeCredentialCacheItem_shouldReturnSameTokenOnDeserialize
 {
     MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
     
-    MSIDTokenCacheItem *cacheItem = [[MSIDTokenCacheItem alloc] init];
-    cacheItem.refreshToken = @"refresh token value";
+    MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] init];
+    cacheItem.secret = @"refresh token value";
     cacheItem.familyId = @"familyId value";
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"spe_info" : @"test"};
-    cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
     cacheItem.clientId = @"some clientId";
-    cacheItem.tokenType = MSIDTokenTypeRefreshToken;
+    cacheItem.credentialType = MSIDRefreshTokenType;
     
-    NSData *data = [serializer serializeTokenCacheItem:cacheItem];
-    MSIDTokenCacheItem *resultToken = [serializer deserializeTokenCacheItem:data];
+    NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
+    MSIDCredentialCacheItem *resultToken = [serializer deserializeCredentialCacheItem:data];
     
     XCTAssertNotNil(data);
     XCTAssertEqualObjects(resultToken, cacheItem);
 }
 
-- (void)testSerializeTokenCacheItem_whenTokenNil_shouldReturnNil
+- (void)testSerializeCredentialCacheItem_whenTokenNil_shouldReturnNil
 {
     MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
     
-    NSData *data = [serializer serializeTokenCacheItem:nil];
+    NSData *data = [serializer serializeCredentialCacheItem:nil];
     
     XCTAssertNil(data);
 }
 
-- (void)testSerializeTokenCacheItem_whenTokenWithDefaultProperties_shouldReturnNotNilData
+- (void)testSerializeCredentialCacheItem_whenTokenWithDefaultProperties_shouldReturnNotNilData
 {
     MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
     
-    NSData *data = [serializer serializeTokenCacheItem:[MSIDTokenCacheItem new]];
+    NSData *data = [serializer serializeCredentialCacheItem:[MSIDCredentialCacheItem new]];
     
     XCTAssertNotNil(data);
 }
 
-- (void)testDeserializeTokenCacheItem_whenDataNilNil_shouldReturnNil
+- (void)testDeserializeCredentialCacheItem_whenDataNilNil_shouldReturnNil
 {
     MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
     
-    MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:nil];
+    MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:nil];
     
     XCTAssertNil(token);
 }
 
-- (void)testDeserializeTokenCacheItem_whenDataInvalid_shouldReturnNil
+- (void)testDeserializeCredentialCacheItem_whenDataInvalid_shouldReturnNil
 {
     MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
-    MSIDTokenCacheItem *token = [serializer deserializeTokenCacheItem:data];
+    MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:data];
     
     XCTAssertNil(token);
 }
@@ -101,10 +102,11 @@
     
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
-    cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
-    cacheItem.lastName = @"last name";
-    cacheItem.legacyUserIdentifier = @"upn";
-    cacheItem.firstName = @"name";
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.familyName = @"Smith";
+    cacheItem.givenName = @"Test";
+    cacheItem.localAccountId = @"00004-00004-00004";
+    cacheItem.accountType = MSIDAccountTypeMSSTS;
     
     NSData *data = [serializer serializeAccountCacheItem:cacheItem];
     MSIDAccountCacheItem *resultItem = [serializer deserializeAccountCacheItem:data];

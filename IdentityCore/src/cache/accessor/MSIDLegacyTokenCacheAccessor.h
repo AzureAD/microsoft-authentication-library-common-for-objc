@@ -23,10 +23,39 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
-#import "MSIDSharedCacheAccessor.h"
+#import "MSIDCacheAccessor.h"
 
-@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDSharedCacheAccessor>
+@class MSIDLegacyAccessToken;
+@class MSIDLegacyRefreshToken;
+@class MSIDLegacySingleResourceToken;
+@class MSIDAccountIdentifier;
+@class MSIDConfiguration;
+@protocol MSIDRequestContext;
+@class MSIDLegacyAccessToken;
+@class MSIDOauth2Factory;
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource;
+@interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDCacheAccessor>
+
+- (MSIDLegacyAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
+                                      configuration:(MSIDConfiguration *)configuration
+                                            context:(id<MSIDRequestContext>)context
+                                              error:(NSError **)error;
+
+- (MSIDLegacySingleResourceToken *)getSingleResourceTokenForAccount:(MSIDAccountIdentifier *)account
+                                                      configuration:(MSIDConfiguration *)configuration
+                                                            context:(id<MSIDRequestContext>)context
+                                                              error:(NSError **)error;
+
+- (BOOL)validateAndRemoveRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
+
+- (BOOL)removeAccessToken:(MSIDLegacyAccessToken *)token
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error;
+
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error;
 
 @end

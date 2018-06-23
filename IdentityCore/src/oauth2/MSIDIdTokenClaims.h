@@ -47,11 +47,13 @@
 @property (readonly) NSString *uniqueId;
 @property (readonly) NSString *userId;
 @property (readonly) BOOL userIdDisplayable;
+@property (readonly) NSString *alternativeAccountId;
 
 // Convinience properties
 @property (readonly) NSString *rawIdToken;
+@property (readonly) NSString *realm;
 
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
+- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString error:(NSError * __autoreleasing *)error;
 - (BOOL)matchesLegacyUserId:(NSString *)legacyUserId;
 - (NSString *)username;
 - (void)initDerivedProperties;

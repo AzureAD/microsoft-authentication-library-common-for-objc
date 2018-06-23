@@ -40,28 +40,34 @@
 
 - (void)testClaimsFromRawIDToken_whenAADV2IDToken_shouldReturnAADV2Claims
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"test" subject:@"sub" givenName:@"name" familyName:@"name2" version:@"2.0"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"test" subject:@"sub" givenName:@"name" familyName:@"name2" name:@"name name2" version:@"2.0"];
 
-    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken];
+    NSError *error = nil;
+    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken error:&error];
     XCTAssertTrue([claims isKindOfClass:[MSIDAADV2IdTokenClaims class]]);
+    XCTAssertNil(error);
 }
 
 - (void)testClaimsFromRawIDToken_whenAADV1IDToken_shouldReturnAADV1Claims
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"test" subject:@"sub" givenName:@"name" familyName:@"name2" version:@"1.0"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"test" subject:@"sub" givenName:@"name" familyName:@"name2" name:@"name name2" version:@"1.0"];
 
-    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken];
+    NSError *error = nil;
+    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken error:&error];
     XCTAssertTrue([claims isKindOfClass:[MSIDAADV1IdTokenClaims class]]);
+    XCTAssertNil(error);
 }
 
 - (void)testClaimsFromRawIDToken_whenNonAADIDToken_shouldReturnIDTokenClaims
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"test" subject:@"sub"];
 
-    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken];
+    NSError *error = nil;
+    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken error:&error];
     XCTAssertTrue([claims isKindOfClass:[MSIDIdTokenClaims class]]);
     XCTAssertFalse([claims isKindOfClass:[MSIDAADV2IdTokenClaims class]]);
     XCTAssertFalse([claims isKindOfClass:[MSIDAADV1IdTokenClaims class]]);
+    XCTAssertNil(error);
 }
 
 @end
