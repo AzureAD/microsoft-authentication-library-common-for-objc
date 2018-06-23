@@ -23,10 +23,11 @@
 
 #import "MSIDAadAuthorityResolver.h"
 #import "MSIDAADAuthorityMetadataRequest.h"
-#import "MSIDAuthority.h"
+#import "MSIDAADAuthority.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCacheRecord.h"
+#import "MSIDAADAuthority.h"
 
 static dispatch_queue_t s_aadValidationQueue;
 
@@ -56,18 +57,19 @@ static dispatch_queue_t s_aadValidationQueue;
     return self;
 }
 
-- (void)resolveAuthority:(NSURL *)authority
+- (void)resolveAuthority:(MSIDAADAuthority *)authority
        userPrincipalName:(__unused NSString *)upn
                 validate:(BOOL)validate
                  context:(id<MSIDRequestContext>)context
          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
     NSParameterAssert(completionBlock);
+    NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.self]);
     
-    MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.url.msidHostWithPortIfNecessary];
     if (record)
     {
-        [self handleRecord:record authority:authority completionBlock:completionBlock];
+        [self handleRecord:record completionBlock:completionBlock];
         return;
     }
     
@@ -103,7 +105,7 @@ static dispatch_queue_t s_aadValidationQueue;
 
 #pragma mark - Private
 
-- (void)sendDiscoverRequestWithAuthority:(NSURL *)authority
+- (void)sendDiscoverRequestWithAuthority:(MSIDAADAuthority *)authority
                                 validate:(BOOL)validate
                                  context:(id<MSIDRequestContext>)context
                          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
@@ -112,22 +114,22 @@ static dispatch_queue_t s_aadValidationQueue;
     
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.url.msidHostWithPortIfNecessary];
     if (record)
     {
-        [self handleRecord:record authority:authority completionBlock:completionBlock];
+        [self handleRecord:record completionBlock:completionBlock];
         return;
     }
     
     __auto_type trustedHost = MSIDTrustedAuthorityWorldWide;
-    if ([MSIDAuthority isKnownHost:authority])
+    if ([authority isKnown])
     {
-        trustedHost = authority.msidHostWithPortIfNecessary;
+        trustedHost = authority.url.msidHostWithPortIfNecessary;
     }
     
     __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider aadAuthorityDiscoveryEndpointWithHost:trustedHost];
     
-    __auto_type *request = [[MSIDAADAuthorityMetadataRequest alloc] initWithEndpoint:endpoint authority:authority];
+    __auto_type *request = [[MSIDAADAuthorityMetadataRequest alloc] initWithEndpoint:endpoint authority:authority.url];
     request.context = context;
     [request sendWithBlock:^(MSIDAADAuthorityMetadataResponse *response, NSError *error)
      {
@@ -138,7 +140,7 @@ static dispatch_queue_t s_aadValidationQueue;
                  [self.aadCache addInvalidRecord:authority oauthError:error context:context];
              }
              
-             __auto_type endpoint = validate ? nil : [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority];
+             __auto_type endpoint = validate ? nil : [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
              error = validate ? error : nil;
              
              completionBlock(endpoint, NO, error);
@@ -164,7 +166,6 @@ static dispatch_queue_t s_aadValidationQueue;
 }
 
 - (void)handleRecord:(MSIDAadAuthorityCacheRecord *)record
-           authority:(NSURL *)authority
      completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
     NSParameterAssert(completionBlock);
