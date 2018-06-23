@@ -63,7 +63,4 @@
               oauthError:(NSError *)oauthError
                  context:(id<MSIDRequestContext>)context;
 
-- (MSIDAadAuthorityCacheRecord *)tryCheckCache:(NSString *)environment;
-- (MSIDAadAuthorityCacheRecord *)checkCache:(NSString *)environment;
-
 @end

@@ -69,6 +69,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (BOOL)isKnown;
 
++ (BOOL)isKnownHost:(nullable NSString *)host;
+
 + (void)loadOpenIdConfigurationInfo:(nonnull NSURL *)openIdConfigurationEndpoint
                             context:(nullable id<MSIDRequestContext>)context
                     completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionB_Nullable_Nonnulllock;

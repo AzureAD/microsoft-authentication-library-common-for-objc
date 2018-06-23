@@ -29,15 +29,16 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
 #import "MSIDWebviewConfiguration.h"
-
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
-
 #import "MSIDAADV1WebviewFactory.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAADTenant.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -176,8 +177,11 @@
     {
         return NO;
     }
-
-    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:response.idTokenObj.realm];
+    
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:account.authority rawTenant:response.idTokenObj.realm context:nil error:nil];
+    
+    account.authority = authority.url;
     return YES;
 }
 
@@ -189,18 +193,28 @@
     {
         return NO;
     }
+    
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:token.authority rawTenant:response.idTokenObj.realm context:nil error:nil];
 
-    token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
+    token.authority = authority.url;
     return YES;
 }
 
 
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
-    if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
+    
+    if ([authority isKindOfClass:MSIDAADAuthority.class])
     {
-        // AAD v1 doesn't support consumer authority
-        return @[];
+        MSIDAADAuthority *aadAuthority = (MSIDAADAuthority *)authority;
+        if (aadAuthority.tenant.type == MSIDAADTenantTypeConsumers)
+        {
+            // AAD v1 doesn't support consumer authority
+            return @[];
+        }
     }
 
     return [super refreshTokenLookupAuthorities:originalAuthority];

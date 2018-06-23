@@ -195,7 +195,7 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
 
 - (MSIDAadAuthorityCacheRecord *)checkCacheImpl:(NSString *)environment
 {
-    return [self objectForKey:authority.msidHostWithPortIfNecessary];
+    return [self objectForKey:environment];
 }
 
 static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
@@ -244,10 +244,10 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
                           context:(id<MSIDRequestContext>)context
 {
-    if ([MSIDAuthority isADFSInstanceURL:authority])
-    {
-        return authority;
-    }
+//    if ([MSIDAuthority isADFSInstanceURL:authority])
+//    {
+//        return authority;
+//    }
     
     NSURL *url = [self networkUrlForAuthorityImpl:authority];
     if (!url)
@@ -262,10 +262,10 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority
                         context:(id<MSIDRequestContext>)context
 {
-    if ([MSIDAuthority isADFSInstanceURL:authority])
-    {
-        return authority;
-    }
+//    if ([MSIDAuthority isADFSInstanceURL:authority])
+//    {
+//        return authority;
+//    }
     
     NSURL *url = [self cacheUrlForAuthorityImpl:authority];
     if (!url)
@@ -295,10 +295,10 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 {
     if (!authority) return @[];
     
-    if ([MSIDAuthority isADFSInstanceURL:authority])
-    {
-        return @[ authority ];
-    }
+//    if ([MSIDAuthority isADFSInstanceURL:authority])
+//    {
+//        return @[ authority ];
+//    }
     
     return [self cacheAliasesForAuthorityImpl:authority];
 }
@@ -337,7 +337,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 
 - (NSString *)cacheEnvironmentForEnvironmentImpl:(NSString *)environment
 {
-    __auto_type record = [self checkCache:environment];
+    MSIDAadAuthorityCacheRecord *record = [self objectForKey:environment];
     if (!record)
     {
         return nil;
@@ -406,7 +406,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 {
     NSMutableArray<NSString *> *environments = [NSMutableArray new];
 
-    __auto_type record = [self checkCache:environment];
+    MSIDAadAuthorityCacheRecord *record = [self objectForKey:environment];
     if (!record)
     {
         [environments addObject:environment];

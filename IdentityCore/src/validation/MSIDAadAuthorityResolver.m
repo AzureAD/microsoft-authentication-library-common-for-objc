@@ -137,7 +137,7 @@ static dispatch_queue_t s_aadValidationQueue;
          {
              if ([error.userInfo[MSIDOAuthErrorKey] isEqualToString:@"invalid_instance"])
              {
-                 [self.aadCache addInvalidRecord:authority oauthError:error context:context];
+                 [self.aadCache addInvalidRecord:authority.url oauthError:error context:context];
              }
              
              __auto_type endpoint = validate ? nil : [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
@@ -149,7 +149,7 @@ static dispatch_queue_t s_aadValidationQueue;
          
          [self.aadCache processMetadata:response.metadata
                    openIdConfigEndpoint:response.openIdConfigurationEndpoint
-                              authority:authority
+                              authority:authority.url
                                 context:context
                              completion:^(BOOL result, NSError *error)
          {

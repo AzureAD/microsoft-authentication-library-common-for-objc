@@ -34,6 +34,7 @@
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAADV2WebviewFactory.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -137,7 +138,12 @@
     }
 
     accessToken.scopes = responseScopes;
-    accessToken.authority = [MSIDAuthority cacheUrlForAuthority:accessToken.authority tenantId:response.idTokenObj.realm];
+    
+    
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:accessToken.authority rawTenant:response.idTokenObj.realm context:nil error:nil];
+    
+    accessToken.authority = authority.url;
 
     return YES;
 }
@@ -152,8 +158,11 @@
     {
         return NO;
     }
+    
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:token.authority rawTenant:response.idTokenObj.realm context:nil error:nil];
 
-    token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
+    token.authority = authority.url;
 
     return YES;
 }
@@ -173,8 +182,11 @@
     {
         return NO;
     }
+    
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:account.authority rawTenant:response.idTokenObj.realm context:nil error:nil];
 
-    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:response.idTokenObj.realm];
+    account.authority = authority.url;
     return YES;
 }
 

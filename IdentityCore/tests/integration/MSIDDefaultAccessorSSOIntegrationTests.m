@@ -28,7 +28,6 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDCacheKey.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDAadAuthorityCache+TestUtil.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
@@ -86,7 +85,7 @@
     [super tearDown];
     [_defaultDataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
     [_otherDataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
-    [[MSIDAadAuthorityCache sharedInstance] clear];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
 
 #if !TARGET_OS_IOS
     [[MSIDMacTokenCache defaultCache] clear];
@@ -1469,8 +1468,16 @@
                               @"preferred_cache" :  @"login.windows.net",
                               @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com" ] } ];
 
-    NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertNil(error);
+         XCTAssertTrue(result);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 
     // Save first token
     [self saveResponseWithUPN:@"upn@test.com"
@@ -1499,6 +1506,7 @@
                                                                                   target:@"graph"];
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:@"uid.utid"];
+    NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_defaultAccessor getRefreshTokenWithAccount:account
                                                                          familyId:nil
                                                                     configuration:configuration

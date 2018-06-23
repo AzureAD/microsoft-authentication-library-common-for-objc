@@ -41,6 +41,7 @@
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Cache.h"
+#import "MSIDAuthorityFactory.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -259,7 +260,10 @@
     {
         MSIDAccount *account = [MSIDAccount new];
         account.homeAccountId = refreshToken.homeAccountId;
-        account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
+        
+        __auto_type authorityFactory = [MSIDAuthorityFactory new];
+        __auto_type authority = [authorityFactory authorityFromUrl:refreshToken.authority rawTenant:refreshToken.realm context:nil error:nil];
+        account.authority = authority.url;
         account.accountType = MSIDAccountTypeMSSTS;
         account.username = refreshToken.legacyUserId;
         [resultAccounts addObject:account];

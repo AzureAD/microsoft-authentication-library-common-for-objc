@@ -152,6 +152,13 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return [s_trustedHostList containsObject:self.url.host.lowercaseString];
 }
 
++ (BOOL)isKnownHost:(NSString *)host
+{
+    if (!host) return NO;
+    
+    return [s_trustedHostList containsObject:host.lowercaseString];
+}
+
 + (void)loadOpenIdConfigurationInfo:(NSURL *)openIdConfigurationEndpoint
                             context:(id<MSIDRequestContext>)context
                     completionBlock:(MSIDOpenIdConfigurationInfoBlock)completionBlock

@@ -40,7 +40,6 @@
 #import "MSIDBrokerResponse.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDAadAuthorityCache+TestUtil.h"
 #import "MSIDAccountIdentifier.h"
 
 @interface MSIDLegacyAccessorSSOIntegrationTests : XCTestCase
@@ -80,7 +79,7 @@
     [super tearDown];
     [_legacyDataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
     [_otherDataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
-    [[MSIDAadAuthorityCache sharedInstance] clear];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
 
 #if !TARGET_OS_IOS
     [[MSIDMacTokenCache defaultCache] clear];
@@ -2136,9 +2135,17 @@
                               @"preferred_cache" :  @"login.windows.net",
                               @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com" ] } ];
 
-    NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:metadata authority:authority context:nil error:&error]);
-
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertNil(error);
+         XCTAssertTrue(result);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
     // Save first token
     [self saveResponseWithUPN:@"upn@test.com"
                      clientId:@"test_client_id"
@@ -2166,6 +2173,7 @@
                                                                                   target:@"graph"];
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:nil];
+    NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_legacyAccessor getRefreshTokenWithAccount:account
                                                                         familyId:nil
                                                                    configuration:configuration

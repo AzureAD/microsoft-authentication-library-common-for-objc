@@ -38,6 +38,9 @@
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAADTenant.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -143,9 +146,11 @@
     {
         return nil;
     }
-
-    NSURL *authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
-    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
+    
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
+    
+    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:[authority universalAuthorityURL] context:context];
 }
 
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
@@ -156,17 +161,30 @@
     }
 
     NSMutableArray *lookupAuthorities = [NSMutableArray array];
-
-    if ([MSIDAuthority isTenantless:originalAuthority])
+    
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
+    
+    if ([authority isKindOfClass:MSIDAADAuthority.class])
     {
-        // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
-        [lookupAuthorities addObject:[MSIDAuthority universalAuthorityURL:originalAuthority]];
+        MSIDAADAuthority *aadAuthority = (MSIDAADAuthority *)authority;
+        if ([aadAuthority.tenant isTenantless])
+        {
+            // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
+            [lookupAuthorities addObject:[aadAuthority universalAuthorityURL]];
+        }
+        else
+        {
+            // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
+            [lookupAuthorities addObject:aadAuthority.url];
+            
+            __auto_type aadAuthorityCommon = [MSIDAADAuthority aadAuthorityWithAuthorityURL:aadAuthority.url rawTenant:MSIDAADTenantTypeCommonRawValue context:nil error:nil];
+            [lookupAuthorities addObject:aadAuthorityCommon.url];
+        }
     }
     else
     {
-        // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
-        [lookupAuthorities addObject:originalAuthority];
-        [lookupAuthorities addObject:[MSIDAuthority commonAuthorityWithURL:originalAuthority]];
+        [lookupAuthorities addObject:authority.url];
     }
 
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthorities:lookupAuthorities];

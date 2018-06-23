@@ -28,7 +28,7 @@
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDVersion.h"
-#import "MSIDContants.h"
+#import "MSIDConstants.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority.h"
 #import "MSIDConstants.h"

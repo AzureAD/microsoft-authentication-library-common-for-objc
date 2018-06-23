@@ -30,6 +30,7 @@
 #import "MSIDChallengeHandler.h"
 #import "MSIDAuthority.h"
 #import "MSIDWorkPlaceJoinConstants.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDOAuth2EmbeddedWebviewController
 {
@@ -182,7 +183,10 @@
 {
     NSURL *requestURL = navigationAction.request.URL;
     
-    MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestURL] ? requestURL.host : @"unknown host");
+//    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+//    __auto_type authority = [authorityFactory authorityFromUrl:account.authority rawTenant:response.idTokenObj.realm context:nil error:nil];
+    
+    MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestURL.host] ? requestURL.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestURL.host);
     
     [self decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
@@ -209,7 +213,7 @@
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation
 {
     NSURL *url = webView.URL;
-    MSID_LOG_VERBOSE(self.context, @"-didFinishNavigation host: %@", [MSIDAuthority isKnownHost:url] ? url.host : @"unknown host");
+    MSID_LOG_VERBOSE(self.context, @"-didFinishNavigation host: %@", [MSIDAuthority isKnownHost:url.host] ? url.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-didFinishNavigation host: %@", url.host);
     
     [self stopSpinner];
@@ -237,7 +241,7 @@
 
 - (void)completeWebAuthWithURL:(NSURL *)endURL
 {
-    MSID_LOG_INFO(self.context, @"-completeWebAuthWithURL: %@", [MSIDAuthority isKnownHost:endURL] ? endURL.host : @"unknown host");
+    MSID_LOG_INFO(self.context, @"-completeWebAuthWithURL: %@", [MSIDAuthority isKnownHost:endURL.host] ? endURL.host : @"unknown host");
     MSID_LOG_INFO_PII(self.context, @"-completeWebAuthWithURL: %@", endURL);
     
     [self endWebAuthWithURL:endURL error:nil];
