@@ -103,7 +103,12 @@
 
 - (NSArray<NSURL *> *)cacheAliases
 {
-    return [self.authorityCache cacheAliasesForAuthority:self];
+    __auto_type universalAuthorityURL = [self universalAuthorityURL];
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = (MSIDAADAuthority *)[authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
+    NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
+    
+    return [self.authorityCache cacheAliasesForAuthority:authority];
 }
 
 - (nonnull NSURL *)universalAuthorityURL

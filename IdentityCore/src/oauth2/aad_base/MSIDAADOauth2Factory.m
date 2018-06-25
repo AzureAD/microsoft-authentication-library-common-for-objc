@@ -175,13 +175,7 @@
         {
             // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
             
-            // TODO: Should we move this logic to cacheAliasesForAuthority?
-            __auto_type universalAuthorityURL = [aadAuthority universalAuthorityURL];
-            aadAuthority = (MSIDAADAuthority *)[authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
-            
-            __auto_type cacheAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
-            
-            [aliases addObjectsFromArray:cacheAliases];
+            [aliases addObjectsFromArray:[aadAuthority cacheAliases]];
         }
         else
         {
