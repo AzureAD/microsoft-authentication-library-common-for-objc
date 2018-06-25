@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !MSID_EXCLUDE_SYSTEMWV
+
 #import <XCTest/XCTest.h>
 #import "MSIDSystemWebviewController.h"
 
@@ -68,3 +70,6 @@
 }
 
 @end
+
+#endif
+
