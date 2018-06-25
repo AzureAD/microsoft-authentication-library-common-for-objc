@@ -247,6 +247,7 @@
                                 };
     
     MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    refreshToken.refreshToken = @"rt2";
     
     MSIDClientInfo *clientInfo = [MSIDClientInfo new];
     [clientInfo setValue:@"clientinfo" forKey:@"rawClientInfo"];
@@ -262,6 +263,7 @@
     XCTAssertNil(error);
     
     XCTAssertEqualObjects(response.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(response.refreshToken, @"rt");
 }
 
 @end
