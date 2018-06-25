@@ -184,9 +184,9 @@
     }
     
     __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:account.authority rawTenant:response.idTokenObj.realm context:nil error:nil];
+    __auto_type authority = [authorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
 
-    account.authority = authority.url;
+    account.authority = authority;
     return YES;
 }
 

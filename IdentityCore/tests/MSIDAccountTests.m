@@ -33,6 +33,8 @@
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAuthority.h"
+#import "MSIDAADAuthority.h"
 
 @interface MSIDAccountTests : XCTestCase
 
@@ -141,8 +143,11 @@
 
 - (void)testAccountCacheItem_shouldReturnProperCacheItem
 {
+    __auto_type authorityUrl = [@"https://login.microsoftonline.com/common" msidUrl];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    
     MSIDAccount *account = [MSIDAccount new];
-    [account setValue:[@"https://login.microsoftonline.com/common" msidUrl] forKey:@"authority"];
+    account.authority = authority;
     [account setValue:@"eric999" forKey:@"username"];
     [account setValue:@"Eric" forKey:@"givenName"];
     [account setValue:@"Cartman" forKey:@"familyName"];
@@ -191,14 +196,16 @@
     XCTAssertEqualObjects(account.middleName, @"Middle");
     XCTAssertEqualObjects(account.alternativeAccountId, @"AltID");
     XCTAssertEqualObjects(account.name, @"Eric Middle Cartman");
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/contoso.com");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com");
     XCTAssertEqualObjects(account.clientInfo, clientInfo);
 }
 
 - (void)testSetStorageAuthority_shouldUseStorageAuthorityInCacheItem
 {
     MSIDAccount *account = [MSIDAccount new];
-    account.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    __auto_type authorityUrl = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    account.authority = authority;
     account.storageAuthority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
 
     MSIDAccountCacheItem *cacheItem = [account accountCacheItem];
@@ -217,7 +224,9 @@
     account.accountType = MSIDAccountTypeMSSTS;
     account.homeAccountId = @"uid.utid";
     account.localAccountId = @"local";
-    account.authority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
+    __auto_type authorityUrl = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    account.authority = authority;
     account.storageAuthority = [NSURL URLWithString:@"https://login.windows2.net/contoso.com"];
     account.username = @"username";
     account.givenName = @"Eric";

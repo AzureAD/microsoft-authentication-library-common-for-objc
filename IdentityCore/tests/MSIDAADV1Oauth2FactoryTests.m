@@ -44,6 +44,7 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthority.h"
 
 @interface MSIDAADV1Oauth2FactoryTests : XCTestCase
 
@@ -425,7 +426,7 @@
     XCTAssertEqualObjects(account.name, @"Eric");
     XCTAssertNil(account.middleName);
     XCTAssertEqualObjects(account.alternativeAccountId, @"::live.com::XXXXXX");
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tenantId");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId");
 }
 
 - (void)testAccessTokenFromResponse_whenV1ResponseAndNoResourceInRequest_shouldUseResourceInRequest

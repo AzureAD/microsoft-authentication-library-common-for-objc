@@ -75,4 +75,15 @@ NSString *const MSIDAADTenantTypeConsumersRawValue = @"consumers";
     return self.type == MSIDAADTenantTypeCommon || self.type == MSIDAADTenantTypeOrganizations;
 }
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAADTenant *tenant = [[self.class allocWithZone:zone] init];
+    tenant->_rawTenant = [_rawTenant copyWithZone:zone];
+    tenant->_type = _type;
+    
+    return tenant;
+}
+
 @end

@@ -174,6 +174,17 @@
     return authority;
 }
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAADAuthority *authority = [super copyWithZone:zone];
+    authority->_tenant = [_tenant copyWithZone:zone];
+    authority->_authorityCache = [MSIDAadAuthorityCache sharedInstance];
+    
+    return authority;
+}
+
 #pragma mark - Private
 
 + (NSURL *)normalizedAuthorityUrl:(NSURL *)url

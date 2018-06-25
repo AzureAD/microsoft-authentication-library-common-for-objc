@@ -271,7 +271,7 @@
     XCTAssertEqualObjects(account.name, DEFAULT_TEST_ID_TOKEN_NAME);
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tid");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tid");
 }
 
 - (void)testSaveTokensWithFactory_whenMultiResourceFOCIResponse_savesTokensToBothAccessors
@@ -597,7 +597,7 @@
     XCTAssertEqualObjects(account.name, DEFAULT_TEST_ID_TOKEN_NAME);
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tid");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tid");
 }
 
 - (void)testSaveTokensWithFactoryAndBrokerResponse_whenSaveSSOStateOnlyTrue_savesOnlySSOStateToBothAccessors
@@ -691,7 +691,7 @@
     XCTAssertEqualObjects(account.name, DEFAULT_TEST_ID_TOKEN_NAME);
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tid");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tid");
 }
 
 - (void)testSaveTokens_withNoHomeAccountIdForSecondaryFormat_shouldSaveToBothFormats_butWithADifferentAccountId

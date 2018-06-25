@@ -211,5 +211,51 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return YES;
 }
 
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:MSIDAuthority.class])
+    {
+        return NO;
+    }
+    
+    return [self isEqualToItem:(MSIDAuthority *)object];
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = 0;
+    hash = hash * 31 + self.url.hash;
+    return hash;
+}
+
+- (BOOL)isEqualToItem:(MSIDAuthority *)authority
+{
+    if (!authority)
+    {
+        return NO;
+    }
+    
+    BOOL result = YES;
+    result &= (!self.url && !authority.url) || [self.url isEqual:authority.url];
+    return result;
+}
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAuthority *authority = [[self.class allocWithZone:zone] init];
+    authority->_url = [_url copyWithZone:zone];
+    
+    return authority;
+}
+
 @end
 

@@ -32,7 +32,7 @@ extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
 
 typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error);
 
-@interface MSIDAuthority : NSObject
+@interface MSIDAuthority : NSObject <NSCopying>
 {
 @protected NSURL *_url;
 }

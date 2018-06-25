@@ -263,7 +263,7 @@
         
         __auto_type authorityFactory = [MSIDAuthorityFactory new];
         __auto_type authority = [authorityFactory authorityFromUrl:refreshToken.authority rawTenant:refreshToken.realm context:nil error:nil];
-        account.authority = authority.url;
+        account.authority = authority;
         account.accountType = MSIDAccountTypeMSSTS;
         account.username = refreshToken.legacyUserId;
         [resultAccounts addObject:account];

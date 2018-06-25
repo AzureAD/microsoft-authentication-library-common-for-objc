@@ -39,6 +39,7 @@
 #import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Cache.h"
+#import "MSIDAuthority.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -750,7 +751,7 @@
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
     MSIDAccountCacheItem *cacheItem = account.accountCacheItem;
-    cacheItem.environment = [_factory cacheEnvironmentFromEnvironment:account.authority.msidHostWithPortIfNecessary context:context];
+    cacheItem.environment = [_factory cacheEnvironmentFromEnvironment:account.authority.url.msidHostWithPortIfNecessary context:context];
 
     BOOL result = [_accountCredentialCache saveAccount:cacheItem context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];

@@ -43,7 +43,7 @@ extern NSString * _Nonnull const MSIDAADTenantTypeCommonRawValue;
 extern NSString * _Nonnull const MSIDAADTenantTypeOrganizationsRawValue;
 extern NSString * _Nonnull const MSIDAADTenantTypeConsumersRawValue;
 
-@interface MSIDAADTenant : NSObject
+@interface MSIDAADTenant : NSObject <NSCopying>
 
 - (nullable instancetype)initWithRawTenant:(nonnull NSString *)rawTenant
                              context:(nullable id<MSIDRequestContext>)context

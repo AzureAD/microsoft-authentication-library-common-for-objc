@@ -198,7 +198,7 @@
     XCTAssertEqualObjects(account.name, @"Hello World");
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
 }
 
 - (void)testSaveTokensWithFactory_whenMultiResourceResponse_savesTokensToBothAccessors
@@ -276,7 +276,7 @@
     XCTAssertEqualObjects(account.name, @"Hello World");
     XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
 
     // Now check legacy accessor
     NSArray *legacyAccessTokens = [self getAllLegacyAccessTokens];

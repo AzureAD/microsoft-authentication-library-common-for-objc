@@ -46,6 +46,7 @@
 #import "MSIDPkce.h"
 #import "MSIDWebWPJAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
+#import "MSIDAuthority.h"
 
 @interface MSIDAADV2Oauth2StartegyTests : XCTestCase
 
@@ -418,7 +419,7 @@
     XCTAssertNil(account.givenName, @"Eric");
     XCTAssertNil(account.familyName, @"Cartman");
     XCTAssertEqualObjects(account.name, @"Eric Cartman");
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/contoso.com");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com");
 }
 
 @end

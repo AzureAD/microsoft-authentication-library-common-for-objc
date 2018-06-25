@@ -40,7 +40,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccount.h"
 #import "MSIDLegacyRefreshToken.h"
-
+#import "MSIDAuthority.h"
 
 @interface MSIDOauth2FactoryTest : XCTestCase
 
@@ -452,9 +452,8 @@
     XCTAssertEqualObjects(account.givenName, @"Eric");
     XCTAssertEqualObjects(account.familyName, @"Cartman");
     XCTAssertEqualObjects(account.name, @"Eric Cartman");
-    XCTAssertEqualObjects(account.authority.absoluteString, DEFAULT_TEST_AUTHORITY);
+    XCTAssertEqualObjects(account.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
-
 
 - (void)testCacheURLFromAuthority_whenAccessTokenType_shouldReturnOriginalAuthority
 {

@@ -30,6 +30,8 @@
 #import "MSIDClientInfo.h"
 #import "MSIDClientInfo.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDAccount
 
@@ -120,8 +122,10 @@
 
         NSString *environment = cacheItem.environment;
         NSString *tenant = cacheItem.realm;
-
-        _authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
+        
+        __auto_type authorityUrl = [NSURL msidURLWithEnvironment:environment tenant:tenant];
+        __auto_type authorityFactory = [MSIDAuthorityFactory new];
+        _authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
     }
     
     return self;
@@ -137,10 +141,10 @@
     }
     else
     {
-        cacheItem.environment = self.authority.msidHostWithPortIfNecessary;
+        cacheItem.environment = self.authority.url.msidHostWithPortIfNecessary;
     }
 
-    cacheItem.realm = self.authority.msidTenant;
+    cacheItem.realm = self.authority.url.msidTenant;
     cacheItem.username = self.username;
     cacheItem.homeAccountId = self.homeAccountId;
     cacheItem.localAccountId = self.localAccountId;

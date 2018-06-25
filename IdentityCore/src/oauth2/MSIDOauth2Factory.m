@@ -35,6 +35,7 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDWebviewFactory.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDOauth2Factory
 
@@ -340,7 +341,11 @@
     account.familyName = response.idTokenObj.familyName;
     account.middleName = response.idTokenObj.middleName;
     account.name = response.idTokenObj.name;
-    account.authority = configuration.authority;
+    
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:configuration.authority context:nil error:nil];
+    
+    account.authority = authority;
     account.accountType = response.accountType;
     account.localAccountId = response.idTokenObj.uniqueId;
     return YES;
