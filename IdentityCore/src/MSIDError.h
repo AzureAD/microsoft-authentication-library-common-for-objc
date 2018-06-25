@@ -99,12 +99,17 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Redirect to non HTTPS detected
     MSIDErrorServerNonHttpsRedirect     = -51409,
     
+    /*!
+     =================================================
+     Authority Validation  (515xx)
+     =================================================
+     */
     // Authority validation response failure
-    MSIDErrorServerAuthorityValidation  = -51410,
+    MSIDErrorAuthorityValidation  = -51500,
     
     /*!
      =================================================
-     Interactive flow errors    (515xx)
+     Interactive flow errors    (516xx)
      =================================================
      */
     /*!
@@ -112,24 +117,24 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
      dictionary for more detailed information about the specific error.
      */
-    MSIDErrorAuthorizationFailed        = -51510,
+    MSIDErrorAuthorizationFailed        = -51610,
 
     // State verification has failed in the interactive flow.
-    MSIDErrorInvalidState               = -51511,
+    MSIDErrorInvalidState               = -51611,
 
     // User has cancelled the interactive flow.
-    MSIDErrorUserCancel                 = -51512,
+    MSIDErrorUserCancel                 = -51612,
     
     // The interactive flow was cancelled programmatically.
-    MSIDErrorSessionCanceledProgramatically = -51513,
+    MSIDErrorSessionCanceledProgramatically = -51613,
     
     // Interactive authentication session failed to start.
-    MSIDErrorInteractiveSessionStartFailure = -51514,
+    MSIDErrorInteractiveSessionStartFailure = -51614,
     /*!
      An interactive authentication session is already running.
      Another authentication session can not be launched yet.
      */
-    MSIDErrorInteractiveSessionAlreadyRunning = -51515,
+    MSIDErrorInteractiveSessionAlreadyRunning = -51615,
 
     // Embedded webview has failed to find a view controller to display web contents
     MSIDErrorNoMainViewController = - 51516,
