@@ -43,5 +43,5 @@ OTHER_CFLAGS=$(inherited) -fstack-protector-strong
 
 // This is a conditional inclusion. It searches parent projects
 // /xcconfig folder.
-#include "../../../xcconfig/adal__additional_settings.xcconfig"
+#include? "../../../xcconfig/adal__additional_settings.xcconfig"
 
