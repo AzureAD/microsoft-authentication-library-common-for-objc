@@ -55,7 +55,7 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                          oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
                                                context:(id<MSIDRequestContext>)context
-                                     completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;awre
+                                     completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 #endif
 
 
