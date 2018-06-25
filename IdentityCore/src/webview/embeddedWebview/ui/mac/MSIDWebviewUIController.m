@@ -148,7 +148,7 @@
     {
         return;
     }
-    [self cancel];
+    [self userCancel];
 }
 
 - (NSProgressIndicator *)prepareLoadingIndicator
@@ -170,5 +170,11 @@
 {
     // Overridden in subclass with cancel logic
 }
+
+- (void)userCancel
+{
+    // Overridden in subclass with cancel logic
+}
+
 
 @end

@@ -48,5 +48,6 @@ NSWindowController
 - (void)showLoadingIndicator;
 - (void)dismissLoadingIndicator;
 - (void)cancel;
+- (void)userCancel;
 
 @end
