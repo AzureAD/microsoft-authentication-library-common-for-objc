@@ -25,13 +25,17 @@
 //
 //------------------------------------------------------------------------------
 
+#if !MSID_EXCLUDE_SYSTEMWV
+
 #import "MSIDSFAuthenticationSession.h"
-#import <SafariServices/SafariServices.h>
+
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+
+#import <SafariServices/SafariServices.h>
 
 @implementation MSIDSFAuthenticationSession
 {
@@ -46,6 +50,7 @@
     NSString *_telemetryRequestId;
     MSIDTelemetryUIEvent *_telemetryEvent;
 }
+
 
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme
@@ -104,5 +109,6 @@
     [_authSession cancel];
 }
 
-@end
 
+@end
+#endif

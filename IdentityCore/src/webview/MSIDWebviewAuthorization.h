@@ -51,17 +51,18 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
                                                  context:(id<MSIDRequestContext>)context
                                        completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                          oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
                                                context:(id<MSIDRequestContext>)context
-                                     completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
+                                     completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;awre
 #endif
+
 
 + (BOOL)setCurrentSession:(MSIDWebviewSession *)session;
 + (void)cancelCurrentSession;
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 // This is for system webview auth session on iOS 10 - Thus, a SafariViewController
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 #endif

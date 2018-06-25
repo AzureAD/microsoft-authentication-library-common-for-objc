@@ -40,3 +40,8 @@ OTHER_LDFLAGS = -ObjC
 SKIP_INSTALL = YES
 
 OTHER_CFLAGS=$(inherited) -fstack-protector-strong
+
+// This is a conditional inclusion. It searches parent projects
+// /xcconfig folder.
+#include "../../../xcconfig/adal__additional_settings.xcconfig"
+

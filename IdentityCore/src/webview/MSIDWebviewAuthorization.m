@@ -63,7 +63,7 @@ static MSIDWebviewSession *s_currentSession = nil;
     [self startSession:session context:context completionHandler:completionHandler];
 }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                          oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
                                                context:(id<MSIDRequestContext>)context
@@ -169,9 +169,9 @@ static MSIDWebviewSession *s_currentSession = nil;
     }
 }
 
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 {
-#if TARGET_OS_IPHONE
     @synchronized([MSIDWebviewAuthorization class])
     {
         if (s_currentSession &&
@@ -180,9 +180,8 @@ static MSIDWebviewSession *s_currentSession = nil;
             return [((MSIDSystemWebviewController *)s_currentSession.webviewController) handleURLResponseForSafariViewController:url];
         }
     }
-#endif
     return NO;
 }
-
+#endif
 
 @end

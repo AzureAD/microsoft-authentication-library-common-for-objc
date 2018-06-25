@@ -24,28 +24,28 @@
 #import "MSIDCredentialCollectionController.h"
 
 // UI position values for the input dialog
-const CGFloat USERNAME_LABEL_X = 7;
-const CGFloat USERNAME_LABEL_Y = 36;
-const CGFloat USERNAME_LABEL_WIDTH = 73;
-const CGFloat USERNAME_LABEL_HEIGHT = 17;
-const CGFloat USERNAME_FIELD_X = 85;
-const CGFloat USERNAME_FIELD_Y = 36;
-const CGFloat USERNAME_FIELD_WIDTH = 210;
-const CGFloat USERNAME_FIELD_HEIGHT = 22;
+const CGFloat MSID_USERNAME_LABEL_X = 7;
+const CGFloat MSID_USERNAME_LABEL_Y = 36;
+const CGFloat MSID_USERNAME_LABEL_WIDTH = 73;
+const CGFloat MSID_USERNAME_LABEL_HEIGHT = 17;
+const CGFloat MSID_USERNAME_FIELD_X = 85;
+const CGFloat MSID_USERNAME_FIELD_Y = 36;
+const CGFloat MSID_USERNAME_FIELD_WIDTH = 210;
+const CGFloat MSID_USERNAME_FIELD_HEIGHT = 22;
 
-const CGFloat PASSWORD_LABEL_X = 7;
-const CGFloat PASSWORD_LABEL_Y = 6;
-const CGFloat PASSWORD_LABEL_WIDTH = 72;
-const CGFloat PASSWORD_LABEL_HEIGHT = 17;
-const CGFloat PASSWORD_FIELD_X = 85;
-const CGFloat PASSWORD_FIELD_Y = 6;
-const CGFloat PASSWORD_FIELD_WIDTH = 210;
-const CGFloat PASSWORD_FIELD_HEIGHT = 22;
+const CGFloat MSID_PASSWORD_LABEL_X = 7;
+const CGFloat MSID_PASSWORD_LABEL_Y = 6;
+const CGFloat MSID_PASSWORD_LABEL_WIDTH = 72;
+const CGFloat MSID_PASSWORD_LABEL_HEIGHT = 17;
+const CGFloat MSID_PASSWORD_FIELD_X = 85;
+const CGFloat MSID_PASSWORD_FIELD_Y = 6;
+const CGFloat MSID_PASSWORD_FIELD_WIDTH = 210;
+const CGFloat MSID_PASSWORD_FIELD_HEIGHT = 22;
 
-const CGFloat CUSTOM_VIEW_X = 0;
-const CGFloat CUSTOM_VIEW_Y = 0;
-const CGFloat CUSTOM_VIEW_WIDTH = 306;
-const CGFloat CUSTOM_VIEW_HEIGHT = 63;
+const CGFloat MSID_CUSTOM_VIEW_X = 0;
+const CGFloat MSID_CUSTOM_VIEW_Y = 0;
+const CGFloat MSID_CUSTOM_VIEW_WIDTH = 306;
+const CGFloat MSID_CUSTOM_VIEW_HEIGHT = 63;
 
 
 @implementation MSIDCredentialCollectionController
@@ -70,27 +70,27 @@ const CGFloat CUSTOM_VIEW_HEIGHT = 63;
     {
         //Generate the NTLM input dialog by code for Mac
         //usename field
-        _usernameLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(USERNAME_LABEL_X, USERNAME_LABEL_Y, USERNAME_LABEL_WIDTH, USERNAME_LABEL_HEIGHT)];
+        _usernameLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(MSID_USERNAME_LABEL_X, MSID_USERNAME_LABEL_Y, MSID_USERNAME_LABEL_WIDTH, MSID_USERNAME_LABEL_HEIGHT)];
         [_usernameLabel setStringValue:NSLocalizedString(@"Username", nil)];
         [_usernameLabel setBezeled:NO];
         [_usernameLabel setDrawsBackground:NO];
         [_usernameLabel setEditable:NO];
         [_usernameLabel setSelectable:NO];
         
-        _usernameField = [[NSTextField alloc] initWithFrame:NSMakeRect(USERNAME_FIELD_X, USERNAME_FIELD_Y, USERNAME_FIELD_WIDTH, USERNAME_FIELD_HEIGHT)];
+        _usernameField = [[NSTextField alloc] initWithFrame:NSMakeRect(MSID_USERNAME_FIELD_X, MSID_USERNAME_FIELD_Y, MSID_USERNAME_FIELD_WIDTH, MSID_USERNAME_FIELD_HEIGHT)];
         
         //password field
-        _passwordLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(PASSWORD_LABEL_X, PASSWORD_LABEL_Y, PASSWORD_LABEL_WIDTH, PASSWORD_LABEL_HEIGHT)];
+        _passwordLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(MSID_PASSWORD_LABEL_X, MSID_PASSWORD_LABEL_Y, MSID_PASSWORD_LABEL_WIDTH, MSID_PASSWORD_LABEL_HEIGHT)];
         [_passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
         [_passwordLabel setBezeled:NO];
         [_passwordLabel setDrawsBackground:NO];
         [_passwordLabel setEditable:NO];
         [_passwordLabel setSelectable:NO];
         
-        _passwordField = [[NSSecureTextField alloc] initWithFrame:NSMakeRect(PASSWORD_FIELD_X, PASSWORD_FIELD_Y, PASSWORD_FIELD_WIDTH, PASSWORD_FIELD_HEIGHT)];
+        _passwordField = [[NSSecureTextField alloc] initWithFrame:NSMakeRect(MSID_PASSWORD_FIELD_X, MSID_PASSWORD_FIELD_Y, MSID_PASSWORD_FIELD_WIDTH, MSID_PASSWORD_FIELD_HEIGHT)];
         
         //add labels and fileds to view
-        _customView = [[NSView alloc] initWithFrame:NSMakeRect(CUSTOM_VIEW_X, CUSTOM_VIEW_Y, CUSTOM_VIEW_WIDTH, CUSTOM_VIEW_HEIGHT)];
+        _customView = [[NSView alloc] initWithFrame:NSMakeRect(MSID_CUSTOM_VIEW_X, MSID_CUSTOM_VIEW_Y, MSID_CUSTOM_VIEW_WIDTH, MSID_CUSTOM_VIEW_HEIGHT)];
         [_customView addSubview:_usernameLabel];
         [_customView addSubview:_usernameField];
         [_customView addSubview:_passwordLabel];

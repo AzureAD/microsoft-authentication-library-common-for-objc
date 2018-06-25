@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+#if !MSID_EXCLUDE_SYSTEMWV
+
 #import "MSIDSafariViewController.h"
 #import "MSIDSystemWebviewController.h"
 #import <SafariServices/SafariServices.h>
@@ -143,3 +145,4 @@
 }
 
 @end
+#endif

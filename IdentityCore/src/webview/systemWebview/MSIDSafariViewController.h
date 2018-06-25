@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+#if !MSID_EXCLUDE_SYSTEMWV
 #import <Foundation/Foundation.h>
 #import "MSIDSystemWebviewController.h"
 
@@ -38,3 +39,5 @@
 @property (readonly) NSURL *startURL;
 
 @end
+#endif
+
