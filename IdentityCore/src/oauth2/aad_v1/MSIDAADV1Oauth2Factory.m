@@ -33,7 +33,6 @@
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
-#import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
 #import "MSIDAADV1WebviewFactory.h"
 #import "MSIDAuthorityFactory.h"

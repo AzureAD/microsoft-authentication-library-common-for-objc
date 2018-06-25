@@ -180,12 +180,10 @@
         else
         {
             // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
-            __auto_type cacheAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
-            [aliases addObjectsFromArray:cacheAliases];
+            [aliases addObjectsFromArray:[aadAuthority cacheAliases]];
             
             __auto_type aadAuthorityCommon = [MSIDAADAuthority aadAuthorityWithAuthorityURL:aadAuthority.url rawTenant:MSIDAADTenantTypeCommonRawValue context:nil error:nil];
-            cacheAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthorityCommon];
-            [aliases addObjectsFromArray:cacheAliases];
+            [aliases addObjectsFromArray:[aadAuthorityCommon cacheAliases]];
         }
     }
     else
