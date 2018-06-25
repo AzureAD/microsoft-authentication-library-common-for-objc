@@ -504,7 +504,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
     [authority resolveAndValidate:NO userPrincipalName:upn context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -531,18 +531,18 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:[NSHTTPURLResponse new]];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
-                                    @"href" : @"https://login.windows.com/adfs/qwe"}]};
+                                    @"href" : @"https://login.windows.com/adfs"}]};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
     [authority resolveAndValidate:YES userPrincipalName:upn context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -569,7 +569,7 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
     __auto_type error = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:nil];
     MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:webFingerRequestUrl
                                                          respondWithError:error];
@@ -614,18 +614,18 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:[NSHTTPURLResponse new]];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
-                                    @"href" : @"https://login.windows.com/adfs/qwe"}]};
+                                    @"href" : @"https://login.windows.com/adfs"}]};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
     [authority resolveAndValidate:YES userPrincipalName:upn context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -643,7 +643,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
     [authority resolveAndValidate:NO userPrincipalName:upn context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -670,11 +670,11 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:[NSHTTPURLResponse new]];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
-                                    @"href" : @"https://login.windows.com/adfs/qwe"}]};
+                                    @"href" : @"https://login.windows.com/adfs"}]};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
 
@@ -682,7 +682,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
     [authority resolveAndValidate:YES userPrincipalName:upn context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -694,8 +694,8 @@
     expectation = [self expectationWithDescription:@"Discover ADFS Authority (Using Cache)"];
     [authority resolveAndValidate:YES userPrincipalName:upn context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe", authority.url.absoluteString);
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs", authority.url.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];
@@ -722,11 +722,11 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:[NSHTTPURLResponse new]];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
-                                    @"href" : @"https://otherhost.com/adfs/qwe"}]};
+                                    @"href" : @"https://otherhost.com/adfs"}]};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
 
@@ -767,7 +767,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
     [authority resolveAndValidate:NO userPrincipalName:nil context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.windows.com/adfs/qwe/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://login.windows.com/adfs/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertFalse(validated);
          XCTAssertNil(error);
          [expectation fulfill];
