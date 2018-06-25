@@ -29,14 +29,16 @@
 #import "MSIDAuthorityCacheRecord.h"
 #import "MSIDCache.h"
 
+@class MSIDAADAuthority;
+
 @interface MSIDAadAuthorityCache : MSIDCache
 
 + (MSIDAadAuthorityCache *)sharedInstance;
 
-- (NSURL *)networkUrlForAuthority:(NSURL *)authority
+- (NSURL *)networkUrlForAuthority:(MSIDAADAuthority *)authority
                           context:(id<MSIDRequestContext>)context;
 
-- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
+- (NSURL *)cacheUrlForAuthority:(MSIDAADAuthority *)authority
                         context:(id<MSIDRequestContext>)context;
 
 - (NSString *)cacheEnvironmentForEnvironment:(NSString *)environment
@@ -46,20 +48,19 @@
  Returns an array of authority URLs for the provided URL, in the order that cache lookups
  should be attempted.
  
- @param  authority   The authority URL the developer provided for the authority context
+ @param  authority   The authority the developer provided for the authority context
  */
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(MSIDAADAuthority *)authority;
 
 - (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)environment;
-- (NSArray<NSURL *> *)cacheAliasesForAuthorities:(NSArray<NSURL *> *)authorities;
 
 - (void)processMetadata:(NSArray<NSDictionary *> *)metadata
    openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
-              authority:(NSURL *)authority
+              authority:(MSIDAADAuthority *)authority
                 context:(id<MSIDRequestContext>)context
              completion:(void (^)(BOOL result, NSError *error))completion;
 
-- (void)addInvalidRecord:(NSURL *)authority
+- (void)addInvalidRecord:(MSIDAADAuthority *)authority
               oauthError:(NSError *)oauthError
                  context:(id<MSIDRequestContext>)context;
 

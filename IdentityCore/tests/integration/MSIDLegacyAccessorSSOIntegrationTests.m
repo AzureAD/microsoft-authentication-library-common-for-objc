@@ -41,6 +41,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAADAuthority.h"
 
 @interface MSIDLegacyAccessorSSOIntegrationTests : XCTestCase
 {
@@ -2130,7 +2131,8 @@
 - (void)testGetRefreshTokenWithAccount_whenDifferentAuthority_shouldReturnToken
 {
     MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
-    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSArray *metadata = @[ @{ @"preferred_network" : @"login.windows.net",
                               @"preferred_cache" :  @"login.windows.net",
                               @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com" ] } ];

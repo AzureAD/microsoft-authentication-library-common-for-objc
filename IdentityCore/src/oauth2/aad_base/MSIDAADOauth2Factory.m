@@ -131,7 +131,10 @@
 
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
 {
-    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
+    
+    return [authority cacheAliases] ?: @[];
 }
 
 - (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
@@ -150,7 +153,11 @@
     __auto_type authorityFactory = [MSIDAuthorityFactory new];
     __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
     
-    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:[authority universalAuthorityURL] context:context];
+    // TODO: Should we move this logic to cacheUrlWithContext?
+    __auto_type universalAuthorityURL = [authority universalAuthorityURL];
+    authority = [authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
+    
+    return [authority cacheUrlWithContext:context];
 }
 
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
@@ -160,7 +167,7 @@
         return @[];
     }
 
-    NSMutableArray *lookupAuthorities = [NSMutableArray array];
+    NSMutableArray *aliases = [NSMutableArray array];
     
     __auto_type authorityFactory = [MSIDAuthorityFactory new];
     __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
@@ -171,23 +178,32 @@
         if ([aadAuthority.tenant isTenantless])
         {
             // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
-            [lookupAuthorities addObject:[aadAuthority universalAuthorityURL]];
+            
+            // TODO: Should we move this logic to cacheAliasesForAuthority?
+            __auto_type universalAuthorityURL = [aadAuthority universalAuthorityURL];
+            aadAuthority = (MSIDAADAuthority *)[authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
+            
+            __auto_type cacheAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
+            
+            [aliases addObjectsFromArray:cacheAliases];
         }
         else
         {
             // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
-            [lookupAuthorities addObject:aadAuthority.url];
+            __auto_type cacheAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
+            [aliases addObjectsFromArray:cacheAliases];
             
             __auto_type aadAuthorityCommon = [MSIDAADAuthority aadAuthorityWithAuthorityURL:aadAuthority.url rawTenant:MSIDAADTenantTypeCommonRawValue context:nil error:nil];
-            [lookupAuthorities addObject:aadAuthorityCommon.url];
+            cacheAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthorityCommon];
+            [aliases addObjectsFromArray:cacheAliases];
         }
     }
     else
     {
-        [lookupAuthorities addObject:authority.url];
+        [aliases addObject:authority.url];
     }
 
-    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthorities:lookupAuthorities];
+    return aliases;
 }
 
 #pragma mark - Tokens

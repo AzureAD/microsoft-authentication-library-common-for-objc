@@ -28,7 +28,7 @@
 #import "MSIDAadAuthorityCache.h"
 #include <pthread.h>
 #import "MSIDError.h"
-#import "MSIDAuthority.h"
+#import "MSIDAADAuthority.h"
 #import "MSIDAadAuthorityCacheRecord.h"
 
 #define CHECK_CLASS_TYPE(_CHK, _CLS, _ERROR) \
@@ -55,7 +55,7 @@
 
 - (void)processMetadata:(NSArray<NSDictionary *> *)metadata
    openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
-              authority:(NSURL *)authority
+              authority:(MSIDAADAuthority *)authority
                 context:(id<MSIDRequestContext>)context
              completion:(void (^)(BOOL result, NSError *error))completion
 {
@@ -72,37 +72,23 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
 {
     CHECK_CLASS_TYPE(host, NSString, ([NSString stringWithFormat:@"\"%@\" in JSON authority validation metadata must be %@", label, isAliases ? @"an array of strings" : @"a string"]));
     
-    @try
+    // Run this through urlForPreferredHost to make sure it does not return any errors.
+    NSError *err;
+    [[NSURL URLWithString:@"https://fakeurl.contoso.com"] msidURLForPreferredHost:host context:context error:&err];
+    
+    if (err)
     {
-        // Run this through urlForPreferredHost to make sure it does not throw any exceptions
-        urlForPreferredHost([NSURL URLWithString:@"https://fakeurl.contoso.com"], host);
-        
-        return YES;
-    }
-    @catch (NSException *ex)
-    {
-        NSString *details = nil;
-        if (isAliases)
-        {
-            details = [NSString stringWithFormat:@"\"%@\" must contain valid percent encoded host strings", label];
-        }
-        else
-        {
-            details = [NSString stringWithFormat:@"\"%@\" must have a valid percent encoded host", label];
-        }
-        NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, details, nil, nil, nil, context.correlationId, nil);
-        if (error)
-        {
-            *error = msidError;
-        }
+        if (error) *error = err;
         return NO;
     }
+    
+    return YES;
 }
 
 #define VERIFY_HOST_STRING(_HOST, _LABEL, _ISALIASES) if (!VerifyHostString(_HOST, _LABEL, _ISALIASES, context, error)) { return NO; }
 
 - (BOOL)processImpl:(NSArray<NSDictionary *> *)metadata
-          authority:(NSURL *)authority
+          authority:(MSIDAADAuthority *)authority
 openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
             context:(id<MSIDRequestContext>)context
               error:(NSError * __autoreleasing *)error
@@ -164,7 +150,7 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
     }
     
     // In case the authority we were looking for wasn't in the metadata
-    NSString *authorityHost = authority.msidHostWithPortIfNecessary;
+    NSString *authorityHost = authority.url.msidHostWithPortIfNecessary;
     
     if (![self objectForKey:authorityHost])
     {
@@ -179,7 +165,7 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
     return YES;
 }
 
-- (void)addInvalidRecord:(NSURL *)authority
+- (void)addInvalidRecord:(MSIDAADAuthority *)authority
               oauthError:(NSError *)oauthError
                  context:(id<MSIDRequestContext>)context
 {
@@ -187,16 +173,11 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
-    [self setObject:record forKey:authority.msidHostWithPortIfNecessary];
+    [self setObject:record forKey:authority.url.msidHostWithPortIfNecessary];
 }
 
 #pragma mark -
 #pragma mark Cache Accessors
-
-- (MSIDAadAuthorityCacheRecord *)checkCacheImpl:(NSString *)environment
-{
-    return [self objectForKey:environment];
-}
 
 static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 {
@@ -241,37 +222,27 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     return components.URL;
 }
 
-- (NSURL *)networkUrlForAuthority:(NSURL *)authority
+- (NSURL *)networkUrlForAuthority:(MSIDAADAuthority *)authority
                           context:(id<MSIDRequestContext>)context
 {
-//    if ([MSIDAuthority isADFSInstanceURL:authority])
-//    {
-//        return authority;
-//    }
-    
     NSURL *url = [self networkUrlForAuthorityImpl:authority];
     if (!url)
     {
         MSID_LOG_WARN(context, @"No cached preferred_network for authority");
-        return authority;
+        return authority.url;
     }
     
     return url;
 }
 
-- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
+- (NSURL *)cacheUrlForAuthority:(MSIDAADAuthority *)authority
                         context:(id<MSIDRequestContext>)context
 {
-//    if ([MSIDAuthority isADFSInstanceURL:authority])
-//    {
-//        return authority;
-//    }
-    
     NSURL *url = [self cacheUrlForAuthorityImpl:authority];
     if (!url)
     {
         MSID_LOG_WARN(context, @"No cached preferred_cache for authority");
-        return authority;
+        return authority.url;
     }
     
     
@@ -291,14 +262,9 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     return cacheEnvironment;
 }
 
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(MSIDAADAuthority *)authority
 {
     if (!authority) return @[];
-    
-//    if ([MSIDAuthority isADFSInstanceURL:authority])
-//    {
-//        return @[ authority ];
-//    }
     
     return [self cacheAliasesForAuthorityImpl:authority];
 }
@@ -313,26 +279,26 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     return [self cacheAliasesForEnvironmentImpl:environment];
 }
 
-- (NSURL *)networkUrlForAuthorityImpl:(NSURL *)authority
+- (NSURL *)networkUrlForAuthorityImpl:(MSIDAADAuthority *)authority
 {
-    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.url.msidHostWithPortIfNecessary];
     if (!record)
     {
         return nil;
     }
     
-    return urlForPreferredHost(authority, record.networkHost);
+    return urlForPreferredHost(authority.url, record.networkHost);
 }
 
-- (NSURL *)cacheUrlForAuthorityImpl:(NSURL *)authority
+- (NSURL *)cacheUrlForAuthorityImpl:(MSIDAADAuthority *)authority
 {
-    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.url.msidHostWithPortIfNecessary];
     if (!record)
     {
         return nil;
     }
     
-    return urlForPreferredHost(authority, record.cacheHost);
+    return urlForPreferredHost(authority.url, record.cacheHost);
 }
 
 - (NSString *)cacheEnvironmentForEnvironmentImpl:(NSString *)environment
@@ -346,46 +312,34 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     return record.cacheHost;
 }
 
-- (NSArray<NSURL *> *)cacheAliasesForAuthorities:(NSArray<NSURL *> *)authorities
-{
-    NSMutableArray<NSURL *> *resultAuthorities = [NSMutableArray new];
-
-    for (NSURL *authority in authorities)
-    {
-        [resultAuthorities addObjectsFromArray:[self cacheAliasesForAuthority:authority]];
-    }
-
-    return resultAuthorities;
-}
-
-- (NSArray<NSURL *> *)cacheAliasesForAuthorityImpl:(NSURL *)authority
+- (NSArray<NSURL *> *)cacheAliasesForAuthorityImpl:(MSIDAADAuthority *)authority
 {
     NSMutableArray<NSURL *> *authorities = [NSMutableArray new];
     
-    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.url.msidHostWithPortIfNecessary];
     if (!record)
     {
-        [authorities addObject:authority];
+        [authorities addObject:authority.url];
         return authorities;
     }
     
     NSArray<NSString *> *aliases = record.aliases;
     NSString *cacheHost = record.cacheHost;
-    NSString *host = authority.msidHostWithPortIfNecessary;
+    NSString *host = authority.url.msidHostWithPortIfNecessary;
     if (cacheHost)
     {
         // The cache lookup order for authorities is defined as the preferred host first
-        [authorities addObject:urlForPreferredHost(authority, cacheHost)];
+        [authorities addObject:urlForPreferredHost(authority.url, cacheHost)];
         if (![cacheHost isEqualToString:host])
         {
             // Followed by the authority provided by the developer, provided here by the authority
             // URL passed into this method
-            [authorities addObject:authority];
+            [authorities addObject:authority.url];
         }
     }
     else
     {
-        [authorities addObject:authority];
+        [authorities addObject:authority.url];
     }
     
     // And then we add any remaining aliases listed in the metadata
@@ -396,7 +350,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
             continue;
         }
         
-        [authorities addObject:urlForPreferredHost(authority, alias)];
+        [authorities addObject:urlForPreferredHost(authority.url, alias)];
     }
     
     return authorities;

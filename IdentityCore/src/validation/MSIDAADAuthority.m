@@ -87,17 +87,17 @@
 
 - (NSURL *)networkUrlWithContext:(id<MSIDRequestContext>)context
 {
-    return [self.authorityCache networkUrlForAuthority:self.url context:context];
+    return [self.authorityCache networkUrlForAuthority:self context:context];
 }
 
 - (NSURL *)cacheUrlWithContext:(id<MSIDRequestContext>)context
 {
-    return [self.authorityCache cacheUrlForAuthority:self.url context:context];
+    return [self.authorityCache cacheUrlForAuthority:self context:context];
 }
 
 - (NSArray<NSURL *> *)cacheAliases
 {
-    return [self.authorityCache cacheAliasesForAuthority:self.url];
+    return [self.authorityCache cacheAliasesForAuthority:self];
 }
 
 - (nonnull NSURL *)universalAuthorityURL
