@@ -25,6 +25,7 @@
 #import "MSIDAadAuthorityResolver.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAADTenant.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDAADAuthority
 
@@ -92,7 +93,12 @@
 
 - (NSURL *)cacheUrlWithContext:(id<MSIDRequestContext>)context
 {
-    return [self.authorityCache cacheUrlForAuthority:self context:context];
+    __auto_type universalAuthorityURL = [self universalAuthorityURL];
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = (MSIDAADAuthority *)[authorityFactory authorityFromUrl:universalAuthorityURL context:context error:nil];
+    NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
+    
+    return [self.authorityCache cacheUrlForAuthority:authority context:context];
 }
 
 - (NSArray<NSURL *> *)cacheAliases
@@ -123,17 +129,6 @@
                          error:(NSError **)error
 {
     if (![super isAuthorityFormatValid:url context:context error:error]) return NO;
-    
-    // TODO: ???
-//    if ([url.host.lowercaseString isEqualToString:MSIDTrustedAuthority])
-//    {
-//        if (error)
-//        {
-//            __auto_type message = [NSString stringWithFormat:@"%@ has been deprecated. Use %@ instead.", MSIDTrustedAuthority, MSIDTrustedAuthorityWorldWide];
-//            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil);
-//        }
-//        return NO;
-//    }
     
     __auto_type tenant = [self tenantFromAuthorityUrl:url context:context error:error];
     

@@ -153,10 +153,6 @@
     __auto_type authorityFactory = [MSIDAuthorityFactory new];
     __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
     
-    // TODO: Should we move this logic to cacheUrlWithContext?
-    __auto_type universalAuthorityURL = [authority universalAuthorityURL];
-    authority = [authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
-    
     return [authority cacheUrlWithContext:context];
 }
 
