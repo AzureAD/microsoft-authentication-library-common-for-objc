@@ -47,6 +47,8 @@
 
     id<MSIDRequestContext> _context;
     
+    MSIDWebUICompletionHandler _completionHandler;
+    
     NSString *_telemetryRequestId;
     MSIDTelemetryUIEvent *_telemetryEvent;
 }
@@ -74,6 +76,8 @@
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                          context:_context];
     
+    _completionHandler = [completionHandler copy];
+
     if (@available(iOS 11.0, *))
     {
         _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
@@ -92,8 +96,7 @@
                                                 [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
                                                 completionHandler(callbackURL, error);
                                             }];
-        [_authSession start];
-        return;
+        if ([_authSession start]) return;
     }
     
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
@@ -107,6 +110,11 @@
     [_telemetryEvent setIsCancelled:YES];
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     [_authSession cancel];
+    
+    NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorSessionCanceledProgramatically,
+                                     @"Authorization session was cancelled programatically.", nil, nil, nil, _context.correlationId, nil);
+    _completionHandler(nil, error);
 }
 
 
