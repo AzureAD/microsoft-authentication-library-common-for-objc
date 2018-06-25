@@ -83,7 +83,7 @@ static MSIDWebviewSession *s_currentSession = nil;
     // check session nil
     if (!session)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidRequest, @"Interactive session failed to create.", nil, nil, nil, context.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidRequest, @"Interactive session failed to create.", nil, nil, nil, context.correlationId, nil);
         completionHandler(nil, error);
         return;
     }

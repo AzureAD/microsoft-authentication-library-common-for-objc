@@ -185,7 +185,7 @@
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInvalidState);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
 }
 
 

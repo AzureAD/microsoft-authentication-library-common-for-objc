@@ -180,7 +180,7 @@
         if (error)
         {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     MSIDErrorInvalidState,
+                                     MSIDErrorServerInvalidState,
                                      [NSString stringWithFormat:@"Missing or invalid state returned state: %@", stateReceived],
                                      nil, nil, nil, nil, nil);
         }

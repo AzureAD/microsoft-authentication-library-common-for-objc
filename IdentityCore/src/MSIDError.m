@@ -52,7 +52,7 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
 {
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame)
     {
-        return MSIDErrorServerInvalidRequest;
+        return MSIDErrorInvalidRequest;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_client"] == NSOrderedSame)
     {

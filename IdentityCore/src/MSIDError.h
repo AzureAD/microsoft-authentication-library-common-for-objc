@@ -42,44 +42,38 @@ extern NSString *MSIDKeychainErrorDomain;
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
     /*! =================================================
-     General Errors (510xx, 511xx)
-     =================================================  */
+     General Errors (510xx, 511xx) - MSIDErrorDomain
+     ====================================================
+     */
     // General internal errors that do not fall into one of the specific type
     // of an error described below.
-    MSIDErrorInternal = -51000,
+    MSIDErrorInternal = -51100,
     
     // Parameter errors
     MSIDErrorInvalidInternalParameter   = -51101,
     MSIDErrorInvalidDeveloperParameter  = -51102,
    
+    // Invalid request
+    MSIDErrorInvalidRequest             = -51103,
+    
     // Unsupported functionality
-    MSIDErrorUnsupportedFunctionality = -51199,
+    MSIDErrorUnsupportedFunctionality   = -51104,
     
     /*!
-    =================================================
-     Cache Errors   (512xx,
-                     513xx - Keychain)
-    =================================================
+    =========================================================
+     Cache Errors   (512xx) - MSIDErrorDomain
+    =========================================================
      */
 
     // Multiple users found in cache when one was intended
     MSIDErrorCacheMultipleUsers     = -51201,
+    MSIDErrorCacheBadFormat         = -51302,
     
     /*!
-     MSID encounted an error when trying to store or retrieve items from
-     keychain. Inspect NSUnderlyingError from the userInfo dictionary for
-     more information about the specific error. Keychain error codes are
-     documented in Apple's <Security/SecBase.h> header file
-     */
-    MSIDErrorTokenCacheItemFailure  = -51301,
-    MSIDErrorWrapperCacheFailure    = -51302,
-    MSIDErrorCacheBadFormat         = -51303,
-    MSIDErrorCacheVersionMismatch   = -51304,
-    
-    /*!
-     =================================================
-     Server errors  (514xx)
-     =================================================
+     =========================================================
+     Server errors  (514xx) - MSIDOAuthErrorDomain
+     =========================================================
+
      */
     // Interaction Required
     MSIDErrorInteractionRequired        = -51401,
@@ -91,61 +85,53 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Server returned a refresh token reject response
     MSIDErrorServerRefreshTokenRejected = -51404,
     // Other specific server response errors
-    MSIDErrorServerInvalidRequest       = -51405,
-    MSIDErrorServerInvalidClient        = -51406,
-    MSIDErrorServerInvalidGrant         = -51407,
-    MSIDErrorServerInvalidScope         = -51408,
+    
+    MSIDErrorServerInvalidClient        = -51405,
+    MSIDErrorServerInvalidGrant         = -51406,
+    MSIDErrorServerInvalidScope         = -51407,
+    
+    // State verification has failed
+    MSIDErrorServerInvalidState         = -51408,
     
     // Redirect to non HTTPS detected
     MSIDErrorServerNonHttpsRedirect     = -51409,
     
     /*!
-     =================================================
-     Authority Validation  (515xx)
-     =================================================
+     =========================================================
+     Authority Validation  (515xx) - MSIDErrorDomain
+     =========================================================
      */
     // Authority validation response failure
     MSIDErrorAuthorityValidation  = -51500,
     
     /*!
-     =================================================
-     Interactive flow errors    (516xx)
-     =================================================
+     =========================================================
+     Interactive flow errors    (516xx) - MSIDOAuthErrorDomain
+     =========================================================
      */
     /*!
      The user or application failed to authenticate in the interactive flow.
      Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
      dictionary for more detailed information about the specific error.
      */
-    MSIDErrorAuthorizationFailed        = -51610,
-
-    // State verification has failed in the interactive flow.
-    MSIDErrorInvalidState               = -51611,
+    MSIDErrorAuthorizationFailed        = -51600,
 
     // User has cancelled the interactive flow.
-    MSIDErrorUserCancel                 = -51612,
+    MSIDErrorUserCancel                 = -51601,
     
     // The interactive flow was cancelled programmatically.
-    MSIDErrorSessionCanceledProgramatically = -51613,
+    MSIDErrorSessionCanceledProgramatically = -51602,
     
     // Interactive authentication session failed to start.
-    MSIDErrorInteractiveSessionStartFailure = -51614,
+    MSIDErrorInteractiveSessionStartFailure = -51603,
     /*!
      An interactive authentication session is already running.
      Another authentication session can not be launched yet.
      */
-    MSIDErrorInteractiveSessionAlreadyRunning = -51615,
+    MSIDErrorInteractiveSessionAlreadyRunning = -51604,
 
     // Embedded webview has failed to find a view controller to display web contents
-    MSIDErrorNoMainViewController = - 51516,
-
-    /*!
-     =================================================
-     Boundaries - To be used to enumerate all codes
-     =================================================
-     */
-    MSIDErrorCodeFirst = MSIDErrorInternal,
-    MSIDErrorCodeLast = MSIDErrorInteractiveSessionAlreadyRunning
+    MSIDErrorNoMainViewController = - 51605,
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
