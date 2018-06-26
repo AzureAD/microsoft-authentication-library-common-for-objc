@@ -114,7 +114,7 @@
     MSID_LOG_INFO(self.context, @"Cancel Web Auth...");
     
     // End web auth with error
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgramatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil);
     [self endWebAuthWithURL:nil error:error];
 }
 

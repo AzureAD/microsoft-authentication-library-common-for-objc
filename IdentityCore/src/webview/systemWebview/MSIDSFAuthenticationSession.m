@@ -112,7 +112,7 @@
     [_authSession cancel];
     
     NSError *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorSessionCanceledProgramatically,
+                                     MSIDErrorSessionCanceledProgrammatically,
                                      @"Authorization session was cancelled programatically.", nil, nil, nil, _context.correlationId, nil);
     _completionHandler(nil, error);
 }

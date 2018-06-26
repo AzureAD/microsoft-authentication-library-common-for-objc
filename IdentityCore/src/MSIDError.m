@@ -88,7 +88,7 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       // Interactive flow errors
                       @(MSIDErrorAuthorizationFailed),
                       @(MSIDErrorUserCancel),
-                      @(MSIDErrorSessionCanceledProgramatically),
+                      @(MSIDErrorSessionCanceledProgrammatically),
                       @(MSIDErrorInteractiveSessionStartFailure),
                       @(MSIDErrorInteractiveSessionAlreadyRunning),
                       @(MSIDErrorNoMainViewController)

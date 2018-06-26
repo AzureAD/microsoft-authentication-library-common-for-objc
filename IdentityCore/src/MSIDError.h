@@ -117,7 +117,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorUserCancel                 = -51611,
     
     // The interactive flow was cancelled programmatically.
-    MSIDErrorSessionCanceledProgramatically = -51612,
+    MSIDErrorSessionCanceledProgrammatically = -51612,
     
     // Interactive authentication session failed to start.
     MSIDErrorInteractiveSessionStartFailure = -51621,
