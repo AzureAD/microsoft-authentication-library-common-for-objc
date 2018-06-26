@@ -51,14 +51,11 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorInternal = -51100,
     
     // Parameter errors
-    MSIDErrorInvalidInternalParameter   = -51101,
-    MSIDErrorInvalidDeveloperParameter  = -51102,
+    MSIDErrorInvalidInternalParameter   = -51111,
+    MSIDErrorInvalidDeveloperParameter  = -51112,
    
-    // Invalid request
-    MSIDErrorInvalidRequest             = -51103,
-    
     // Unsupported functionality
-    MSIDErrorUnsupportedFunctionality   = -51104,
+    MSIDErrorUnsupportedFunctionality   = -51199,
 
     /*!
     =========================================================
@@ -76,25 +73,26 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      =========================================================
      */
     // Interaction Required
-    MSIDErrorInteractionRequired        = -51401,
+    MSIDErrorInteractionRequired        = -51411,
     
     // Server returned a response indicating an OAuth error
-    MSIDErrorServerOauth                = -51402,
+    MSIDErrorServerOauth                = -51421,
     // Server returned an invalid response
-    MSIDErrorServerInvalidResponse      = -51403,
+    MSIDErrorServerInvalidResponse      = -51422,
     // Server returned a refresh token reject response
-    MSIDErrorServerRefreshTokenRejected = -51404,
+    MSIDErrorServerRefreshTokenRejected = -51423,
     // Other specific server response errors
     
-    MSIDErrorServerInvalidClient        = -51405,
-    MSIDErrorServerInvalidGrant         = -51406,
-    MSIDErrorServerInvalidScope         = -51407,
+    MSIDErrorServerInvalidRequest       = -51431,
+    MSIDErrorServerInvalidClient        = -51432,
+    MSIDErrorServerInvalidGrant         = -51433,
+    MSIDErrorServerInvalidScope         = -51434,
     
     // State verification has failed
-    MSIDErrorServerInvalidState         = -51408,
+    MSIDErrorServerInvalidState         = -51441,
     
     // Redirect to non HTTPS detected
-    MSIDErrorServerNonHttpsRedirect     = -51409,
+    MSIDErrorServerNonHttpsRedirect     = -51451,
     
     /*!
      =========================================================
@@ -116,21 +114,21 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorAuthorizationFailed        = -51600,
 
     // User has cancelled the interactive flow.
-    MSIDErrorUserCancel                 = -51601,
+    MSIDErrorUserCancel                 = -51611,
     
     // The interactive flow was cancelled programmatically.
-    MSIDErrorSessionCanceledProgramatically = -51602,
+    MSIDErrorSessionCanceledProgramatically = -51612,
     
     // Interactive authentication session failed to start.
-    MSIDErrorInteractiveSessionStartFailure = -51603,
+    MSIDErrorInteractiveSessionStartFailure = -51621,
     /*!
      An interactive authentication session is already running.
      Another authentication session can not be launched yet.
      */
-    MSIDErrorInteractiveSessionAlreadyRunning = -51604,
+    MSIDErrorInteractiveSessionAlreadyRunning = -51622,
 
     // Embedded webview has failed to find a view controller to display web contents
-    MSIDErrorNoMainViewController = - 51605,
+    MSIDErrorNoMainViewController = - 51631,
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

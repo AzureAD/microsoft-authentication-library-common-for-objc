@@ -52,7 +52,7 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
 {
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame)
     {
-        return MSIDErrorInvalidRequest;
+        return MSIDErrorServerInvalidRequest;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_client"] == NSOrderedSame)
     {
@@ -76,7 +76,6 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorInternal),
                       @(MSIDErrorInvalidInternalParameter),
                       @(MSIDErrorInvalidDeveloperParameter),
-                      @(MSIDErrorInvalidRequest),
                       @(MSIDErrorUnsupportedFunctionality),
                       
                       // Cache Errors
@@ -101,6 +100,7 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorServerOauth),
                       @(MSIDErrorServerInvalidResponse),
                       @(MSIDErrorServerRefreshTokenRejected),
+                      @(MSIDErrorServerInvalidRequest),
                       @(MSIDErrorServerInvalidClient),
                       @(MSIDErrorServerInvalidGrant),
                       @(MSIDErrorServerInvalidScope),
