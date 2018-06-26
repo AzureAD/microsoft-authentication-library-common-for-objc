@@ -101,7 +101,7 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
 
 - (MSIDErrorCode)oauthErrorCode
 {
-    return MSIDErrorCodeForOAuthError(self.error, MSIDErrorInteractionRequired);
+    return MSIDErrorCodeForOAuthError(self.error, MSIDErrorServerOauth);
 }
 
 - (NSDictionary *)additionalServerInfo

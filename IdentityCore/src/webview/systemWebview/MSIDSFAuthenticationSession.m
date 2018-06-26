@@ -25,13 +25,17 @@
 //
 //------------------------------------------------------------------------------
 
+#if !MSID_EXCLUDE_SYSTEMWV
+
 #import "MSIDSFAuthenticationSession.h"
-#import <SafariServices/SafariServices.h>
+
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+
+#import <SafariServices/SafariServices.h>
 
 @implementation MSIDSFAuthenticationSession
 {
@@ -43,9 +47,12 @@
 
     id<MSIDRequestContext> _context;
     
+    MSIDWebUICompletionHandler _completionHandler;
+    
     NSString *_telemetryRequestId;
     MSIDTelemetryUIEvent *_telemetryEvent;
 }
+
 
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme
@@ -69,6 +76,8 @@
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                          context:_context];
     
+    _completionHandler = [completionHandler copy];
+
     if (@available(iOS 11.0, *))
     {
         _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
@@ -87,8 +96,7 @@
                                                 [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
                                                 completionHandler(callbackURL, error);
                                             }];
-        [_authSession start];
-        return;
+        if ([_authSession start]) return;
     }
     
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
@@ -102,7 +110,13 @@
     [_telemetryEvent setIsCancelled:YES];
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     [_authSession cancel];
+    
+    NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorSessionCanceledProgrammatically,
+                                     @"Authorization session was cancelled programatically.", nil, nil, nil, _context.correlationId, nil);
+    _completionHandler(nil, error);
 }
 
-@end
 
+@end
+#endif

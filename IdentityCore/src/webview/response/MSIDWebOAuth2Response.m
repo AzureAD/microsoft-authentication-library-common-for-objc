@@ -45,7 +45,10 @@
         {
             if (error)
             {
-                *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorInvalidParameter, @"Unexpected error has occured. There is no auth code nor an error", nil, nil, nil, context.correlationId, nil);
+                *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                         MSIDErrorServerInvalidResponse,
+                                         @"Unexpected error has occured. There is no auth code nor an error",
+                                         nil, nil, nil, context.correlationId, nil);
             }
             return nil;
         }

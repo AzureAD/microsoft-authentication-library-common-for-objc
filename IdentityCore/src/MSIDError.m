@@ -52,20 +52,58 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
 {
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame)
     {
-        return MSIDErrorInvalidRequest;
+        return MSIDErrorServerInvalidRequest;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_client"] == NSOrderedSame)
     {
-        return MSIDErrorInvalidClient;
+        return MSIDErrorServerInvalidClient;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_scope"] == NSOrderedSame)
     {
-        return MSIDErrorInvalidScope;
+        return MSIDErrorServerInvalidScope;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame)
     {
-        return MSIDErrorInvalidGrant;
+        return MSIDErrorServerInvalidGrant;
     }
     
     return defaultCode;
+}
+
+NSDictionary* MSIDErrorDomainsAndCodes()
+{
+    return @{ MSIDErrorDomain : @[// General Errors
+                      @(MSIDErrorInternal),
+                      @(MSIDErrorInvalidInternalParameter),
+                      @(MSIDErrorInvalidDeveloperParameter),
+                      @(MSIDErrorUnsupportedFunctionality),
+                      
+                      // Cache Errors
+                      @(MSIDErrorCacheMultipleUsers),
+                      @(MSIDErrorCacheBadFormat),
+                      
+                      // Authority Validation Errors
+                      @(MSIDErrorAuthorityValidation),
+                      
+                      // Interactive flow errors
+                      @(MSIDErrorAuthorizationFailed),
+                      @(MSIDErrorUserCancel),
+                      @(MSIDErrorSessionCanceledProgrammatically),
+                      @(MSIDErrorInteractiveSessionStartFailure),
+                      @(MSIDErrorInteractiveSessionAlreadyRunning),
+                      @(MSIDErrorNoMainViewController)
+                      ],
+              MSIDOAuthErrorDomain : @[// Server Errors
+                      @(MSIDErrorInteractionRequired),
+                      @(MSIDErrorServerOauth),
+                      @(MSIDErrorServerInvalidResponse),
+                      @(MSIDErrorServerRefreshTokenRejected),
+                      @(MSIDErrorServerInvalidRequest),
+                      @(MSIDErrorServerInvalidClient),
+                      @(MSIDErrorServerInvalidGrant),
+                      @(MSIDErrorServerInvalidScope),
+                      @(MSIDErrorServerInvalidState),
+                      @(MSIDErrorServerNonHttpsRedirect)
+                      ]
+              };
 }

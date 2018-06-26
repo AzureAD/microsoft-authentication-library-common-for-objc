@@ -55,7 +55,7 @@
     return session;
 }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 - (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration context:(id<MSIDRequestContext>)context
 {
     NSString *state = [self generateStateValue];
@@ -180,7 +180,7 @@
         if (error)
         {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     MSIDErrorInvalidState,
+                                     MSIDErrorServerInvalidState,
                                      [NSString stringWithFormat:@"Missing or invalid state returned state: %@", stateReceived],
                                      nil, nil, nil, nil, nil);
         }

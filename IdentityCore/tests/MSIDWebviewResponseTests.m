@@ -47,7 +47,7 @@
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInvalidParameter);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
 }
 
 - (void)testInitWithURL_whenURLWithParams_shouldReturnInstanceWithParams
