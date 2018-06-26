@@ -41,7 +41,8 @@ extern NSString *MSIDKeychainErrorDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
-    /*! =================================================
+    /*!
+     ====================================================
      General Errors (510xx, 511xx) - MSIDErrorDomain
      ====================================================
      */
@@ -58,7 +59,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // Unsupported functionality
     MSIDErrorUnsupportedFunctionality   = -51104,
-    
+
     /*!
     =========================================================
      Cache Errors   (512xx) - MSIDErrorDomain
@@ -73,7 +74,6 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      =========================================================
      Server errors  (514xx) - MSIDOAuthErrorDomain
      =========================================================
-
      */
     // Interaction Required
     MSIDErrorInteractionRequired        = -51401,
@@ -103,17 +103,16 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      */
     // Authority validation response failure
     MSIDErrorAuthorityValidation  = -51500,
-    
+
     /*!
      =========================================================
      Interactive flow errors    (516xx) - MSIDOAuthErrorDomain
      =========================================================
      */
-    /*!
-     The user or application failed to authenticate in the interactive flow.
-     Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
-     dictionary for more detailed information about the specific error.
-     */
+    
+    // The user or application failed to authenticate in the interactive flow.
+    // Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
+    // dictionary for more detailed information about the specific error.
     MSIDErrorAuthorizationFailed        = -51600,
 
     // User has cancelled the interactive flow.
@@ -137,3 +136,6 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
 
 extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode);
+
+extern NSDictionary<NSString *, NSArray *> *MSIDErrorDomainsAndCodes(void);
+

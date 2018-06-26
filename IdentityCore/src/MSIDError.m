@@ -69,3 +69,43 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     
     return defaultCode;
 }
+
+NSDictionary* MSIDErrorDomainsAndCodes()
+{
+    return @{ MSIDErrorDomain : @[// General Errors
+                      @(MSIDErrorInternal),
+                      @(MSIDErrorInvalidInternalParameter),
+                      @(MSIDErrorInvalidDeveloperParameter),
+                      @(MSIDErrorInvalidRequest),
+                      @(MSIDErrorUnsupportedFunctionality),
+                      
+                      // Cache Errors
+                      @(MSIDErrorCacheMultipleUsers),
+                      @(MSIDErrorCacheBadFormat),
+                      
+                      // Authority Validation Errors
+                      @(MSIDErrorAuthorityValidation),
+                      @(MSIDErrorAuthorityValidation),
+                      @(MSIDErrorAuthorityValidation),
+                      
+                      // Interactive flow errors
+                      @(MSIDErrorAuthorizationFailed),
+                      @(MSIDErrorUserCancel),
+                      @(MSIDErrorSessionCanceledProgramatically),
+                      @(MSIDErrorInteractiveSessionStartFailure),
+                      @(MSIDErrorInteractiveSessionAlreadyRunning),
+                      @(MSIDErrorNoMainViewController)
+                      ],
+              MSIDOAuthErrorDomain : @[// Server Errors
+                      @(MSIDErrorInteractionRequired),
+                      @(MSIDErrorServerOauth),
+                      @(MSIDErrorServerInvalidResponse),
+                      @(MSIDErrorServerRefreshTokenRejected),
+                      @(MSIDErrorServerInvalidClient),
+                      @(MSIDErrorServerInvalidGrant),
+                      @(MSIDErrorServerInvalidScope),
+                      @(MSIDErrorServerInvalidState),
+                      @(MSIDErrorServerNonHttpsRedirect)
+                      ]
+              };
+}
