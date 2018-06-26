@@ -84,8 +84,6 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       
                       // Authority Validation Errors
                       @(MSIDErrorAuthorityValidation),
-                      @(MSIDErrorAuthorityValidation),
-                      @(MSIDErrorAuthorityValidation),
                       
                       // Interactive flow errors
                       @(MSIDErrorAuthorizationFailed),

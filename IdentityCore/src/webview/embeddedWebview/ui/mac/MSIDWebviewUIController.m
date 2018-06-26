@@ -166,6 +166,7 @@
     return loadingIndicator;
 }
 
+// This is reserved for subclass to handle programatic cancellation.
 - (void)cancel
 {
     // Overridden in subclass with cancel logic
@@ -173,7 +174,7 @@
 
 - (void)userCancel
 {
-    // Overridden in subclass with cancel logic
+    // Overridden in subclass with userCancel logic
 }
 
 
