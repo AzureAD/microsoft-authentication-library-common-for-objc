@@ -29,6 +29,26 @@
 
 - (instancetype)init NS_UNAVAILABLE;
 
+/*
+This information would normally come from a configuration file.
+@param certificate Base64 encoded client certificate to authenticate with keyvault
+@param password Certificate password in case it's password protected
+@param additionalConfigurations Additional local configurations that should override server configurations
+@param appInstallLinks Information necessary to install additional apps to run multi-app tests, e.g.
+
+ "msal": {
+    "install_url": "https://...",
+    "app_bundle_id": "com.microsoft.MSALTestApp",
+    "app_name": "MSAL Test App"
+ },
+ "broker": {
+    "install_url": "https://...",
+    "app_bundle_id": "com.microsoft.broker",
+    "app_name": "Broker"
+ }
+@param apiPath Lab API path
+ */
+
 - (instancetype)initWithClientCertificateContents:(NSString *)certificate
                               certificatePassword:(NSString *)password
                          additionalConfigurations:(NSDictionary *)additionalConfigurations
