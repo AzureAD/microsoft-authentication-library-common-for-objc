@@ -51,7 +51,7 @@
     {
         if (error) {
             *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorDeveloperAuthorityValidation,
+                                     MSIDErrorAuthorityValidation,
                                      jsonObject[@"error_description"],
                                      oauthError,
                                      nil, nil, context.correlationId, nil);
