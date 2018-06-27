@@ -35,6 +35,7 @@
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
+                parentController:(UIViewController *)parentController
                          context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;

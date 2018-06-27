@@ -43,6 +43,8 @@
 @property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
+
+// Embedded webview
 @property (readwrite) NSDictionary<NSString *, NSString *> *customHeaders;
 
 // PKCE Support
@@ -58,7 +60,7 @@
 
 #if TARGET_OS_IPHONE
 @property (weak) UIViewController *parentController;
-@property (readwrite)UIModalPresentationStyle presentationType;
+@property (readwrite) UIModalPresentationStyle presentationType;
 #endif
 
 - (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint

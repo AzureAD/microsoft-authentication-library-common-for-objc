@@ -32,6 +32,7 @@
 @interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithURL:(NSURL *)url
+           parentController:(UIViewController *)parentController
                     context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponse:(NSURL *)url;

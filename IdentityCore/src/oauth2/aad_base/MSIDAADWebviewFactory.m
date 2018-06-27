@@ -80,7 +80,9 @@
     = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:startURL
                                                                endURL:redirectURL
                                                               webview:webview
-                                                        configuration:configuration
+                                                     parentController:configuration.parentController
+                                                     presentationType:configuration.presentationType
+                                                        customHeaders:configuration.customHeaders
                                                               context:context];
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController

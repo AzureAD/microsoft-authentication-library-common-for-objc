@@ -37,10 +37,13 @@
 {
     id<MSIDRequestContext> _context;
     NSObject<MSIDWebviewInteracting> *_session;
+    
+    UIViewController *_parentController;
 }
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
+                parentController:(UIViewController *)parentController
                          context:(id<MSIDRequestContext>)context
 {
     MSIDNetworkConfiguration.retryCount = 5;
@@ -64,6 +67,7 @@
         _startURL = startURL;
         _context = context;
         _callbackURLScheme = callbackURLScheme;
+        _parentController = parentController;
     }
     
     return self;
@@ -81,6 +85,7 @@
     else
     {
         _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                parentController:_parentController
                                                          context:_context];
     }
     
@@ -102,21 +107,9 @@
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
 {
-    if (!url)
+    if ([_session isKindOfClass:MSIDSafariViewController.class])
     {
-        MSID_LOG_ERROR(_context, @"nil passed into the MSID Web handle response.");
-        return NO;
-    }
-    
-    if (!_session)
-    {
-        MSID_LOG_ERROR(_context, @"Received MSID web response without a current session running.");
-        return NO;
-    }
-    
-    if ([_session isKindOfClass:MSIDSystemWebviewController.class])
-    {
-        return [((MSIDSystemWebviewController *)_session) handleURLResponseForSafariViewController:url];
+        return [((MSIDSafariViewController *)_session) handleURLResponse:url];
     }
     
     return NO;

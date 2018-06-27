@@ -53,9 +53,12 @@
     
     NSString *_telemetryRequestId;
     MSIDTelemetryUIEvent *_telemetryEvent;
+    
+    UIViewController *_parentController;
 }
 
 - (instancetype)initWithURL:(NSURL *)url
+           parentController:(UIViewController *)parentController
                     context:(id<MSIDRequestContext>)context
 {
     self = [super init];
@@ -66,6 +69,8 @@
         
         _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
         _safariViewController.delegate = self;
+        
+        _parentController = parentController;
     }
     return self;
 }
@@ -79,10 +84,11 @@
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    UIViewController *viewController = [UIApplication msidCurrentViewController];
+    UIViewController *viewController = _parentController ? _parentController :
+                                        [UIApplication msidCurrentViewController];
     if (!viewController)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session - current viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);
         completionHandler(nil, error);
     }
     

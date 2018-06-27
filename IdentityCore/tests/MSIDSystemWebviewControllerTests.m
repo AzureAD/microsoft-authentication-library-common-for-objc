@@ -45,7 +45,7 @@
 
 - (void)testInitWithStartURL_whenURLisNil_shouldFail
 {
-    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:nil callbackURLScheme:@"scheme" context:nil];
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:nil callbackURLScheme:@"scheme" parentController:nil context:nil];
     XCTAssertNil(webVC);
 
 }
@@ -54,7 +54,7 @@
 - (void)testInitWithStartURL_whenCallbackURLSchemeisNil_shouldFail
 {
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
-                                                                             callbackURLScheme:nil context:nil];
+                                                                             callbackURLScheme:nil parentController:nil context:nil];
     XCTAssertNil(webVC);
 
 }
@@ -64,7 +64,7 @@
 {
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                                              callbackURLScheme:@"scheme"
-                                                                                       context:nil];
+                                                                                      parentController:nil context:nil];
     XCTAssertNotNil(webVC);
     
 }

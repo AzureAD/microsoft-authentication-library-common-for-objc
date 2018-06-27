@@ -38,7 +38,9 @@
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
-         configuration:(MSIDWebviewConfiguration *)configuration
+      parentController:(UIViewController *)parentController
+      presentationType:(UIModalPresentationStyle)presentationType
+         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
                context:(id<MSIDRequestContext>)context
 {
 #if TARGET_OS_IPHONE
@@ -46,16 +48,20 @@
     // It swallows the challenge response rather than sending it to server.
     // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
     NSMutableDictionary *headers = [NSMutableDictionary new];
-    if (configuration.customHeaders)
+    if (customHeaders)
     {
-        [headers addEntriesFromDictionary:configuration.customHeaders];
+        [headers addEntriesFromDictionary:customHeaders];
     }
     [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
     
-    configuration.customHeaders = headers;
 #endif
     
-    return [super initWithStartURL:startURL endURL:endURL webview:webview configuration:configuration context:context];
+    return [super initWithStartURL:startURL endURL:endURL
+                           webview:webview
+                    parentController:parentController
+                  presentationType:presentationType
+                     customHeaders:headers
+                           context:context];
 }
 
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction

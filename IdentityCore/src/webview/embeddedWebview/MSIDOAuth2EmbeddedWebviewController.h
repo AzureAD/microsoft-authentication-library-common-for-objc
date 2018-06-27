@@ -38,7 +38,9 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
-         configuration:(MSIDWebviewConfiguration *)configuration
+      parentController:(UIViewController *)parentController
+      presentationType:(UIModalPresentationStyle)presentationType
+         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
                context:(id<MSIDRequestContext>)context;
 
 - (void)loadRequest:(NSURLRequest *)request;

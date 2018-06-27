@@ -44,7 +44,9 @@
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
-         configuration:(MSIDWebviewConfiguration *)configuration
+      parentController:(UIViewController *)parentController
+      presentationType:(UIModalPresentationStyle)presentationType
+         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
                context:(id<MSIDRequestContext>)context
 {
     if (!startURL)
@@ -66,14 +68,14 @@
         self.webView = webview;
         _startURL = startURL;
         _endURL = endURL;
-        _customHeaders = configuration.customHeaders;
+        _customHeaders = customHeaders;
         
         _completionLock = [[NSLock alloc] init];
         self.complete = NO;
         
 #if TARGET_OS_IPHONE
-        self.parentController = configuration.parentController;
-        self.presentationType = configuration.presentationType;
+        self.parentController = parentController;
+        self.presentationType = presentationType;
 #endif
     }
     

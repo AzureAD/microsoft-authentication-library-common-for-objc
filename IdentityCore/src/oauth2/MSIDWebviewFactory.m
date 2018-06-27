@@ -45,7 +45,9 @@
     = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:startURL
                                                              endURL:redirectURL
                                                             webview:webview
-                                                      configuration:configuration
+                                                   parentController:configuration.parentController
+                                                   presentationType:configuration.presentationType
+                                                      customHeaders:configuration.customHeaders
                                                             context:context];
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
@@ -65,6 +67,7 @@
     
     MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                                                  callbackURLScheme:redirectURL.scheme
+                                                                                  parentController:configuration.parentController
                                                                                            context:context];
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWVC
