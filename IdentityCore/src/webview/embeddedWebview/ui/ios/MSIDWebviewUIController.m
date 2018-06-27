@@ -158,14 +158,8 @@
 {
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self
-                                                                                  action:@selector(onCancel:)];
+                                                                                  action:@selector(userCancel)];
     self.navigationItem.leftBarButtonItem = cancelButton;
-}
-
-// Authentication was cancelled by the user
-- (IBAction)onCancel:(__unused id)sender
-{
-    [self cancel];
 }
 
 - (UIActivityIndicatorView *)prepareLoadingIndicator:(UIView *)rootView
@@ -176,9 +170,15 @@
     return loadingIndicator;
 }
 
+// This is reserved for subclass to handle programatic cancellation.
 - (void)cancel
 {
     // Overridden in subclass with cancel logic
+}
+
+- (void)userCancel
+{
+    // Overridden in subclass with userCancel logic
 }
 
 #pragma mark - Background task

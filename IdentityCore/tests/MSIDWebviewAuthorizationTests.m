@@ -79,7 +79,7 @@
                          completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
                              XCTAssertNil(response);
                              XCTAssertNotNil(error);
-                             XCTAssertEqual(error.code, MSIDErrorInvalidRequest);
+                             XCTAssertEqual(error.code, MSIDErrorInternal);
                              
                              [expectation fulfill];
                          }];
@@ -192,7 +192,7 @@
 
 
 #pragma mark - Handle response
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 - (void)testHandleURLResponseForSystemWebviewController_whenCurrentSessionIsSafari_shouldHandleURL
 {
     MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];

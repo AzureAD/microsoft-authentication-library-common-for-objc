@@ -34,7 +34,7 @@
 // Webviews creation
 - (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context;
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 - (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration context:(id<MSIDRequestContext>)context;
 #endif
 

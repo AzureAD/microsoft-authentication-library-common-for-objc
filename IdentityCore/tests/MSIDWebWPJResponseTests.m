@@ -46,7 +46,7 @@
     XCTAssertNotNil(error);
 
     XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorInvalidParameter);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
 }
 
 

@@ -47,7 +47,7 @@
     NSError *error = nil;
     if (!queryParamsMap || !submitUrl)
     {
-        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerOauth, @"Incomplete PKeyAuth challenge received.", nil, nil, nil, context.correlationId, nil);
+        error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerOauth, @"Incomplete PKeyAuth challenge received.", nil, nil, nil, context.correlationId, nil);
         completionHandler(nil, error);
     }
     

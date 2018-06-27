@@ -41,81 +41,99 @@ extern NSString *MSIDKeychainErrorDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
-    MSIDErrorInternal = -51000,
-    MSIDErrorInvalidInternalParameter = -51001,
-    
-    MSIDErrorInvalidDeveloperParameter = -51002,
-    MSIDErrorAmbiguousAuthority     = -51003,
-    MSIDErrorInteractionRequired    = -51004,
-    
-    MSIDErrorCacheMultipleUsers     = -51005,
-    
     /*!
-     MSID encounted an error when trying to store or retrieve items from
-     keychain. Inspect NSUnderlyingError from the userInfo dictionary for
-     more information about the specific error. Keychain error codes are
-     documented in Apple's <Security/SecBase.h> header file
+     ====================================================
+     General Errors (510xx, 511xx) - MSIDErrorDomain
+     ====================================================
      */
-    MSIDErrorTokenCacheItemFailure  = -51006,
-    MSIDErrorWrapperCacheFailure    = -51007,
-    MSIDErrorCacheBadFormat         = -51008,
-    MSIDErrorCacheVersionMismatch   = -51009,
+    // General internal errors that do not fall into one of the specific type
+    // of an error described below.
+    MSIDErrorInternal = -51100,
     
-    MSIDErrorServerInvalidResponse = -51010,
-    MSIDErrorDeveloperAuthorityValidation = -51011,
-    MSIDErrorServerRefreshTokenRejected = -51012,
-    MSIDErrorServerOauth = -51013,
-    MSIDErrorInvalidRequest = -51014,
-    MSIDErrorInvalidClient = -51015,
-    MSIDErrorInvalidGrant = -51016,
-    MSIDErrorInvalidScope = -51017,
-    MSIDErrorInvalidParameter = -51018,
-    MSIDErrorUserCancel = -51019,
-    /*!
-     The authentication request was cancelled programmatically.
-     */
-    MSIDErrorSessionCanceled = -51020,
-    /*!
-     An interactive authentication session is already running with the
-     SafariViewController visible. Another authentication session can not be
-     launched yet.
-     */
-    MSIDErrorInteractiveSessionAlreadyRunning = -51021,
-    /*!
-     An interactive authentication session failed to start.
-     */
-    MSIDErrorInteractiveSessionStartFailure = -51022,
-    
-    MSIDErrorNoMainViewController = -51023,
-    MSIDServerNonHttpsRedirect = -51024,
-    
-    MSIDErrorUnsupportedFunctionality = -51025,
-    
-    /*!
-     The user or application failed to authenticate in the interactive flow.
-     Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
-     dictionary for more detailed information about the specific error.
-     */
-    MSIDErrorAuthorizationFailed = -52020,
+    // Parameter errors
+    MSIDErrorInvalidInternalParameter   = -51111,
+    MSIDErrorInvalidDeveloperParameter  = -51112,
+   
+    // Unsupported functionality
+    MSIDErrorUnsupportedFunctionality   = -51199,
 
     /*!
-     Interaction required errors occur because of a wide variety of errors
-     returned by the authentication service.
+    =========================================================
+     Cache Errors   (512xx) - MSIDErrorDomain
+    =========================================================
      */
-    MSIDErrorMismatchedUser             = -52101,
-    MSIDErrorNoAuthorizationResponse    = -52102,
-    MSIDErrorBadAuthorizationResponse   = -52103,
+
+    // Multiple users found in cache when one was intended
+    MSIDErrorCacheMultipleUsers     = -51201,
+    MSIDErrorCacheBadFormat         = -51302,
     
     /*!
-     The state returned by the server does not match the state that was sent to
-     the server at the beginning of the authorization attempt.
+     =========================================================
+     Server errors  (514xx) - MSIDOAuthErrorDomain
+     =========================================================
      */
-    MSIDErrorInvalidState = -52501,
+    // Interaction Required
+    MSIDErrorInteractionRequired        = -51411,
+    
+    // Server returned a response indicating an OAuth error
+    MSIDErrorServerOauth                = -51421,
+    // Server returned an invalid response
+    MSIDErrorServerInvalidResponse      = -51422,
+    // Server returned a refresh token reject response
+    MSIDErrorServerRefreshTokenRejected = -51423,
+    // Other specific server response errors
+    
+    MSIDErrorServerInvalidRequest       = -51431,
+    MSIDErrorServerInvalidClient        = -51432,
+    MSIDErrorServerInvalidGrant         = -51433,
+    MSIDErrorServerInvalidScope         = -51434,
+    
+    // State verification has failed
+    MSIDErrorServerInvalidState         = -51441,
+    
+    // Redirect to non HTTPS detected
+    MSIDErrorServerNonHttpsRedirect     = -51451,
+    
+    /*!
+     =========================================================
+     Authority Validation  (515xx) - MSIDErrorDomain
+     =========================================================
+     */
+    // Authority validation response failure
+    MSIDErrorAuthorityValidation  = -51500,
 
-    MSIDErrorCodeFirst = MSIDErrorInternal,
-    MSIDErrorCodeLast = MSIDErrorInvalidState
+    /*!
+     =========================================================
+     Interactive flow errors    (516xx) - MSIDOAuthErrorDomain
+     =========================================================
+     */
+    
+    // The user or application failed to authenticate in the interactive flow.
+    // Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
+    // dictionary for more detailed information about the specific error.
+    MSIDErrorAuthorizationFailed        = -51600,
+
+    // User has cancelled the interactive flow.
+    MSIDErrorUserCancel                 = -51611,
+    
+    // The interactive flow was cancelled programmatically.
+    MSIDErrorSessionCanceledProgrammatically = -51612,
+    
+    // Interactive authentication session failed to start.
+    MSIDErrorInteractiveSessionStartFailure = -51621,
+    /*!
+     An interactive authentication session is already running.
+     Another authentication session can not be launched yet.
+     */
+    MSIDErrorInteractiveSessionAlreadyRunning = -51622,
+
+    // Embedded webview has failed to find a view controller to display web contents
+    MSIDErrorNoMainViewController = - 51631,
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
 
 extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode);
+
+extern NSDictionary<NSString *, NSArray *> *MSIDErrorDomainsAndCodes(void);
+

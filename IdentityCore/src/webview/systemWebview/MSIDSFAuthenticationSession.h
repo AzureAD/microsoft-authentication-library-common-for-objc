@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
+#if !MSID_EXCLUDE_SYSTEMWV
 
 #import <Foundation/Foundation.h>
 #import "MSIDSystemWebviewController.h"
@@ -38,4 +39,4 @@
 @property (readonly) NSString *callbackURLScheme;
 
 @end
-
+#endif

@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
+#if !MSID_EXCLUDE_SYSTEMWV
 
 #import "MSIDSystemWebviewController.h"
 #import "MSIDSFAuthenticationSession.h"
@@ -122,3 +123,4 @@
 }
 
 @end
+#endif

@@ -55,7 +55,7 @@
 
 - (BOOL)isKindOfClass:(Class)aClass
 {
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
     if (self.actAsSafariViewController)
     {
         return (aClass == MSIDSystemWebviewController.class);

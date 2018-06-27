@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+#if !MSID_EXCLUDE_SYSTEMWV
+
 #import "MSIDSafariViewController.h"
 #import "MSIDSystemWebviewController.h"
 #import <SafariServices/SafariServices.h>
@@ -70,7 +72,7 @@
 
 - (void)cancel
 {
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceled, @"Authorization session was cancelled programatically", nil, nil, nil, _context.correlationId, nil);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically", nil, nil, nil, _context.correlationId, nil);
     
     [self completeSessionWithResponse:nil context:_context error:error];
 }
@@ -143,3 +145,4 @@
 }
 
 @end
+#endif
