@@ -45,10 +45,6 @@
 @property (readwrite) NSString *claims;
 @property (readwrite) NSDictionary<NSString *, NSString *> *customHeaders;
 
-// State verifier: Recommended verifier for state value of the response.
-//  Set to YES to stop if verifying state fails
-@property (readonly) BOOL verifyState;
-
 // PKCE Support
 @property (readonly) MSIDPkce *pkce;
 
@@ -71,7 +67,6 @@
                                      resource:(NSString *)resource
                                        scopes:(NSOrderedSet<NSString *> *)scopes
                                 correlationId:(NSUUID *)correlationId
-                                  verifyState:(BOOL)verifyState
                                    enablePkce:(BOOL)enablePkce;
 
 @end

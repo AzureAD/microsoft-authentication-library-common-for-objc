@@ -85,8 +85,8 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
-                                                                           requestState:state
-                                                                            verifyState:configuration.verifyState];
+                                                                            redirectUri:configuration.redirectUri
+                                                                           requestState:state];
     return session;
 }
 

@@ -50,8 +50,9 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
-                                                                           requestState:state
-                                                                            verifyState:configuration.verifyState];
+                                                                            redirectUri:configuration.redirectUri
+                                                                           requestState:state];
+                                   
     return session;
 }
 
@@ -68,8 +69,8 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWVC
                                                                                 factory:self
-                                                                           requestState:state
-                                                                            verifyState:configuration.verifyState];
+                                                                            redirectUri:configuration.redirectUri
+                                                                           requestState:state];
     return session;
 }
 #endif
@@ -125,12 +126,11 @@
 #pragma mark - Webview response parsing
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
                             requestState:(NSString *)requestState
-                             verifyState:(BOOL)verifyState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
     NSError *stateVerifierError = nil;
-    if (![self verifyRequestState:requestState responseURL:url error:&stateVerifierError] && verifyState)
+    if (requestState && ![self verifyRequestState:requestState responseURL:url error:&stateVerifierError])
     {
         MSID_LOG_ERROR(context, @"Missing or invalid state returned state");
         if (error)

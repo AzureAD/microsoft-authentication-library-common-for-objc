@@ -106,7 +106,6 @@ static MSIDWebviewSession *s_currentSession = nil;
         
         MSIDWebviewResponse *response = [s_currentSession.factory responseWithURL:callbackURL
                                                                      requestState:s_currentSession.requestState
-                                                                      verifyState:s_currentSession.verifyState
                                                                           context:nil
                                                                             error:&responseError];
         

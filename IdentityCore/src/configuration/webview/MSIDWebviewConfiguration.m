@@ -36,7 +36,6 @@
                                      resource:(NSString *)resource
                                        scopes:(NSOrderedSet<NSString *> *)scopes
                                 correlationId:(NSUUID *)correlationId
-                                  verifyState:(BOOL)verifyState
                                    enablePkce:(BOOL)enablePkce
 
 {
@@ -49,7 +48,6 @@
         _resource = resource;
         _scopes = scopes;
         _correlationId = correlationId;
-        _verifyState = verifyState;
         
         if (enablePkce)
         {
