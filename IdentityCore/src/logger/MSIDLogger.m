@@ -31,6 +31,9 @@
     MSIDLogCallback _callback;
 }
 
+@property (nonatomic) dispatch_queue_t loggerQueue;
+@property (nonatomic) NSLock *lock;
+
 @end
 
 @implementation MSIDLogger
@@ -45,8 +48,14 @@
     // The default log level should be info, anything more restrictive then this
     // and we'll probably not have enough diagnostic information, however verbose
     // will most likely be too noisy for most usage.
-    self.level = MSIDLogLevelInfo;
-    self.PiiLoggingEnabled = NO;
+    _level = MSIDLogLevelInfo;
+    _PiiLoggingEnabled = NO;
+    
+    NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlogger-%@", [NSUUID UUID].UUIDString];
+    _loggerQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
+    
+    _lock = [NSLock new];
+    _lock.name = @"MSIDLogger Lock";
     
     return self;
 }
@@ -77,7 +86,6 @@
     });
 }
 
-
 @end
 
 @implementation MSIDLogger (Internal)
@@ -97,65 +105,64 @@ static NSDateFormatter *s_dateFormatter = nil;
            isPII:(BOOL)isPii
           format:(NSString *)format, ...
 {
+    [self.lock lock];
+    
     if (!format)
     {
-        return;
-    }
-    
-    if (isPii && !_PiiLoggingEnabled)
-    {
-        return;
-    }
-    
-    if (level > _level)
-    {
-        return;
-    }
-    
-    if (!_callback && !_NSLoggingEnabled)
-    {
+        [self.lock unlock];
         return;
     }
     
     va_list args;
     va_start(args, format);
-    NSString* message = [[NSString alloc] initWithFormat:format arguments:args];
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
     
-    NSString *logComponent = [context logComponent];
-    NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
-    
-    NSString *correlationIdStr = @"";
-    
-    if (correlationId)
-    {
-        correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
-    }
-    else if (context)
-    {
-        correlationIdStr = [NSString stringWithFormat:@" - %@", [context correlationId]];
-    }
-    
-    NSString *dateStr = [s_dateFormatter stringFromDate:[NSDate date]];
-    
-    NSString *sdkName = [MSIDVersion sdkName];
-    NSString *sdkVersion = [MSIDVersion sdkVersion];
-    
-    if (_NSLoggingEnabled)
-    {
-        NSString *levelStr = [self stringForLogLevel:_level];
+    dispatch_async(self.loggerQueue, ^{
         
-        NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@%@]%@ %@: %@", sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, levelStr, message];
+        if (isPii && !_PiiLoggingEnabled) return;
+        if (level > _level) return;
+        if (!_callback && !_NSLoggingEnabled) return;
         
-        NSLog(@"%@", log);
-    }
+        NSString *logComponent = [context logComponent];
+        NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
+        
+        NSString *correlationIdStr = @"";
+        
+        if (correlationId)
+        {
+            correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
+        }
+        else if (context)
+        {
+            correlationIdStr = [NSString stringWithFormat:@" - %@", [context correlationId]];
+        }
+        
+        NSString *dateStr = [s_dateFormatter stringFromDate:[NSDate date]];
+        
+        NSString *sdkName = [MSIDVersion sdkName];
+        NSString *sdkVersion = [MSIDVersion sdkVersion];
+        
+        // TODO: Should we add TID to the log message?
+        
+        if (_NSLoggingEnabled)
+        {
+            NSString *levelStr = [self stringForLogLevel:_level];
+            
+            NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@%@]%@ %@: %@", sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, levelStr, message];
+            
+            NSLog(@"%@", log);
+        }
+        
+        if (_callback)
+        {
+            NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@%@]%@ %@", sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, message];
+            
+            _callback(level, log, isPii);
+        }
+    });
     
-    if (_callback)
-    {
-        NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@%@]%@ %@", sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, message];
-        
-        _callback(level, log, isPii);
-    }
+    [self.lock unlock];
 }
 
 - (NSString*)stringForLogLevel:(MSIDLogLevel)level
