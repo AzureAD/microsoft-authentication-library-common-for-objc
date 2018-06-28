@@ -25,6 +25,7 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDVersion.h"
 #import "MSIDDeviceId.h"
+#import <pthread.h>
 
 @interface MSIDLogger()
 {
@@ -32,7 +33,6 @@
 }
 
 @property (nonatomic) dispatch_queue_t loggerQueue;
-@property (nonatomic) NSLock *lock;
 
 @end
 
@@ -54,9 +54,6 @@
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlogger-%@", [NSUUID UUID].UUIDString];
     _loggerQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
     
-    _lock = [NSLock new];
-    _lock.name = @"MSIDLogger Lock";
-    
     return self;
 }
 
@@ -74,13 +71,12 @@
 
 - (void)setCallback:(MSIDLogCallback)callback
 {
-    static dispatch_once_t once;
-    
-    if (self->_callback != nil)
+    if (_callback != nil)
     {
         @throw @"MSID logging callback can only be set once per process and should never changed once set.";
     }
-    
+ 
+    static dispatch_once_t once;
     dispatch_once(&once, ^{
         self->_callback = callback;
     });
@@ -105,25 +101,20 @@ static NSDateFormatter *s_dateFormatter = nil;
            isPII:(BOOL)isPii
           format:(NSString *)format, ...
 {
-    [self.lock lock];
-    
-    if (!format)
-    {
-        [self.lock unlock];
-        return;
-    }
+    if (!format) return;
+    if (isPii && !self.PiiLoggingEnabled) return;
+    if (level > self.level) return;
+    if (!_callback && !_NSLoggingEnabled) return;
     
     va_list args;
     va_start(args, format);
     NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
     
+    __uint64_t tid;
+    pthread_threadid_np(NULL, &tid);
+    
     dispatch_async(self.loggerQueue, ^{
-        
-        if (isPii && !_PiiLoggingEnabled) return;
-        if (level > _level) return;
-        if (!_callback && !_NSLoggingEnabled) return;
-        
         NSString *logComponent = [context logComponent];
         NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
         
@@ -143,26 +134,29 @@ static NSDateFormatter *s_dateFormatter = nil;
         NSString *sdkName = [MSIDVersion sdkName];
         NSString *sdkVersion = [MSIDVersion sdkVersion];
         
-        // TODO: Should we add TID to the log message?
+        __auto_type threadName = [[NSThread currentThread] isMainThread] ? @" (main thread)" : nil;
+        if (!threadName) {
+            threadName = [NSThread currentThread].name ?: @"";
+        }
+
+        __auto_type threadInfo = [[NSString alloc] initWithFormat:@"TID = %llu%@", tid, threadName];
         
-        if (_NSLoggingEnabled)
+        if (self.NSLoggingEnabled)
         {
             NSString *levelStr = [self stringForLogLevel:_level];
             
-            NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@%@]%@ %@: %@", sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, levelStr, message];
+            NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@: %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, levelStr, message];
             
             NSLog(@"%@", log);
         }
         
         if (_callback)
         {
-            NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@%@]%@ %@", sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, message];
+            NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, message];
             
             _callback(level, log, isPii);
         }
     });
-    
-    [self.lock unlock];
 }
 
 - (NSString*)stringForLogLevel:(MSIDLogLevel)level
