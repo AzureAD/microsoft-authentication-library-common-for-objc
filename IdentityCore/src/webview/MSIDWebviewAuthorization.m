@@ -44,18 +44,18 @@ static MSIDWebviewSession *s_currentSession = nil;
                                           context:(id<MSIDRequestContext>)context
                                 completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    [self startEmbeddedWebviewWebviewAuthWithConfiguration:configuration
-                                             oauth2Factory:oauth2Factory
-                                                   webview:nil
-                                                   context:context
-                                         completionHandler:completionHandler];
+    [self startEmbeddedWebviewAuthWithConfiguration:configuration
+                                      oauth2Factory:oauth2Factory
+                                            webview:nil
+                                            context:context
+                                  completionHandler:completionHandler];
 }
 
-+ (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                           oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                                                 webview:(WKWebView *)webview
-                                                 context:(id<MSIDRequestContext>)context
-                                       completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
++ (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                    oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
+                                          webview:(WKWebView *)webview
+                                          context:(id<MSIDRequestContext>)context
+                                completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
     MSIDWebviewFactory *webviewFactory = [oauth2Factory webviewFactory];
     MSIDWebviewSession *session = [webviewFactory embeddedWebviewSessionFromConfiguration:configuration customWebview:webview context:context];

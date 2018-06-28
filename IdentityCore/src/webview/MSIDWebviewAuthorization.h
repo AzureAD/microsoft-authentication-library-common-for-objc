@@ -45,11 +45,11 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
                                           context:(id<MSIDRequestContext>)context
                                 completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
-+ (void)startEmbeddedWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                           oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                                                 webview:(WKWebView *)webview
-                                                 context:(id<MSIDRequestContext>)context
-                                       completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
++ (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
+                                    oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
+                                          webview:(WKWebView *)webview
+                                          context:(id<MSIDRequestContext>)context
+                                completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
