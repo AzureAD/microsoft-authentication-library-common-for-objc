@@ -34,7 +34,6 @@
 #import "MSIDAADV2Oauth2Factory.h"
 
 @class WKWebView;
-@protocol MSIDWebviewInteracting;
 
 typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, NSError *error);
 

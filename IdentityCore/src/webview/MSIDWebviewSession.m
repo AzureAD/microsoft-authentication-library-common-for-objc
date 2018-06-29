@@ -26,6 +26,8 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebviewSession.h"
+#import "MSIDWebviewInteracting.h"
+#import "MSIDNotifications.h"
 
 @implementation MSIDWebviewSession
 
@@ -39,11 +41,62 @@
     if (self)
     {
         _webviewController = webviewController;
+        _webviewController.webviewNotifiableDelegate = self;
         _factory = factory;
         _requestState = state;
         _redirectUri = redirectUri;
     }
+    
     return self;
 }
+
+#pragma mark - MSIDWebviewDelegate
+- (void)webAuthDidStartLoad:(NSURL *)url
+{
+    NSLog(@"%s : %@", __func__, url.absoluteString);
+    
+    if (MSIDNotifications.webAuthDidStartLoadNotification)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:MSIDNotifications.webAuthDidStartLoadNotification
+                                                            object:self
+                                                          userInfo:@{ @"url" : url }];
+    }
+}
+
+- (void)webAuthDidFinishLoad:(NSURL *)url
+{
+    NSLog(@"%s : %@", __func__, url.absoluteString);
+    if (MSIDNotifications.webAuthDidFinishLoadNotification)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:MSIDNotifications.webAuthDidFinishLoadNotification
+                                                            object:self
+                                                          userInfo:@{ @"url" : url }];
+    }
+}
+
+- (void)webAuthDidFailWithError:(NSError *)error
+{
+    NSLog(@"%s : %@", __func__, error.localizedDescription);
+    if (MSIDNotifications.webAuthDidFailNotification)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:MSIDNotifications.webAuthDidFailNotification
+                                                            object:self
+                                                          userInfo:@{ @"error" : error }];
+    }
+}
+
+- (void)webAuthDidCompleteWithURL:(NSURL *)endURL
+{
+    NSLog(@"%s : %@", __func__, endURL.absoluteString);
+    if (MSIDNotifications.webAuthDidStartLoadNotification)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:MSIDNotifications.webAuthDidCompleteNotification
+                                                            object:self
+                                                          userInfo:@{ @"url" : endURL }];
+    }
+    
+}
+
+
 
 @end

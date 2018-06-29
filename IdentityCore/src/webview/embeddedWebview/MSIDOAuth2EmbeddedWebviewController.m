@@ -41,11 +41,11 @@
     NSTimer *_spinnerTimer; // Used for managing the activity spinner
 }
 
+
+
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
-      parentController:(UIViewController *)parentController
-      presentationType:(UIModalPresentationStyle)presentationType
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
                context:(id<MSIDRequestContext>)context
 {
@@ -72,11 +72,6 @@
         
         _completionLock = [[NSLock alloc] init];
         self.complete = NO;
-        
-#if TARGET_OS_IPHONE
-        self.parentController = parentController;
-        self.presentationType = presentationType;
-#endif
     }
     
     return self;
@@ -144,6 +139,15 @@
 {
     self.complete = YES;
     
+    if (error)
+    {
+        [self.webviewNotifiableDelegate webAuthDidFailWithError:error];
+    }
+    else
+    {
+        [self.webviewNotifiableDelegate webAuthDidCompleteWithURL:endURL];
+    }
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
     });
@@ -196,6 +200,8 @@
     MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestURL] ? requestURL.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestURL.host);
     
+    [self.webviewNotifiableDelegate webAuthDidStartLoad:requestURL];
+    
     [self decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
 
@@ -222,6 +228,8 @@
     NSURL *url = webView.URL;
     MSID_LOG_VERBOSE(self.context, @"-didFinishNavigation host: %@", [MSIDAuthority isKnownHost:url] ? url.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-didFinishNavigation host: %@", url.host);
+    
+    [self.webviewNotifiableDelegate webAuthDidFinishLoad:url];
     
     [self stopSpinner];
 }
@@ -296,7 +304,6 @@
     {
         NSURL *url = navigationAction.request.URL;
         [self completeWebAuthWithURL:url];
-        
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }

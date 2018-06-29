@@ -80,6 +80,7 @@ static MSIDWebviewSession *s_currentSession = nil;
              context:(id<MSIDRequestContext>)context
    completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
+    
     // check session nil
     if (!session)
     {
@@ -182,5 +183,6 @@ static MSIDWebviewSession *s_currentSession = nil;
     return NO;
 }
 #endif
+
 
 @end

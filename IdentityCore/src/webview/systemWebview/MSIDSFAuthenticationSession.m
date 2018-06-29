@@ -94,13 +94,18 @@
                                                 }
 
                                                 [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
-                                                completionHandler(callbackURL, error);
+                                                
+                                                [self notifyEndWebAuthWithURL:callbackURL error:error];
+                                                _completionHandler(callbackURL, error);
                                             }];
+        
+        [self.webviewNotifiableDelegate webAuthDidStartLoad:_startURL];
         if ([_authSession start]) return;
     }
     
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
-    completionHandler(nil, error);
+    [self notifyEndWebAuthWithURL:nil error:error];
+    _completionHandler(nil, error);
 }
 
 
@@ -114,9 +119,23 @@
     NSError *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorSessionCanceledProgrammatically,
                                      @"Authorization session was cancelled programatically.", nil, nil, nil, _context.correlationId, nil);
+    
+    [self notifyEndWebAuthWithURL:nil error:error];
     _completionHandler(nil, error);
 }
 
+- (void)notifyEndWebAuthWithURL:(NSURL *)url
+                          error:(NSError *)error
+{
+    if (error)
+    {
+        [self.webviewNotifiableDelegate webAuthDidFailWithError:error];
+    }
+    else
+    {
+        [self.webviewNotifiableDelegate webAuthDidCompleteWithURL:url];
+    }
+}
 
 @end
 #endif

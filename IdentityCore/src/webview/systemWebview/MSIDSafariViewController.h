@@ -24,8 +24,8 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
-#if !MSID_EXCLUDE_SYSTEMWV
 #import <Foundation/Foundation.h>
 #import "MSIDSystemWebviewController.h"
 
@@ -38,6 +38,8 @@
 - (BOOL)handleURLResponse:(NSURL *)url;
 
 @property (readonly) NSURL *startURL;
+
+@property (weak) id<MSIDWebviewNotifiable> webviewNotifiableDelegate;
 
 @end
 #endif

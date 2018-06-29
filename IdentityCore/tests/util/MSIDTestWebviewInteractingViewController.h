@@ -24,6 +24,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
 
+@protocol MSIDWebviewNotifiable;
+
 @interface MSIDTestWebviewInteractingViewController : NSObject<MSIDWebviewInteracting>
 
 // Time after which the start call will return a successful response.
@@ -34,5 +36,7 @@
 @property BOOL actAsSafariViewController;
 
 @property NSURL *startURL;
+
+@property (weak) id<MSIDWebviewNotifiable> webviewNotifiableDelegate;
 
 @end

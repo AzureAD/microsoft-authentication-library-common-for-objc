@@ -45,11 +45,14 @@
     = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:startURL
                                                              endURL:redirectURL
                                                             webview:webview
-                                                   parentController:configuration.parentController
-                                                   presentationType:configuration.presentationType
                                                       customHeaders:configuration.customHeaders
                                                             context:context];
     
+#if TARGET_OS_IPHONE
+    embeddedWebviewController.parentController = configuration.parentController;
+    embeddedWebviewController.presentationType = configuration.presentationType;
+#endif
+
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
                                                                             redirectUri:configuration.redirectUri

@@ -37,6 +37,7 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 
+
 @interface MSIDSafariViewController() <SFSafariViewControllerDelegate>
 
 @end
@@ -89,7 +90,9 @@
     if (!viewController)
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);
+        [self.webviewNotifiableDelegate webAuthDidFailWithError:error];
         completionHandler(nil, error);
+        return;
     }
     
     _completionHandler = [completionHandler copy];
@@ -100,6 +103,7 @@
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                          context:_context];
     
+    [self.webviewNotifiableDelegate webAuthDidStartLoad:_startURL];
     dispatch_async(dispatch_get_main_queue(), ^{
         [viewController presentViewController:_safariViewController animated:YES completion:nil];
     });
@@ -131,10 +135,12 @@
     
     if (error)
     {
+        [self.webviewNotifiableDelegate webAuthDidFailWithError:error];
         _completionHandler(nil, error);
         return NO;
     }
     
+    [self.webviewNotifiableDelegate webAuthDidCompleteWithURL:url];
     _completionHandler(url, nil);
     return YES;
 }

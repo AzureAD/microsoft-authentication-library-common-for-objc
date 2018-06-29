@@ -38,28 +38,26 @@
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
-      parentController:(UIViewController *)parentController
-      presentationType:(UIModalPresentationStyle)presentationType
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
                context:(id<MSIDRequestContext>)context
 {
-#if TARGET_OS_IPHONE
-    // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
-    // It swallows the challenge response rather than sending it to server.
-    // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
     NSMutableDictionary *headers = [NSMutableDictionary new];
     if (customHeaders)
     {
         [headers addEntriesFromDictionary:customHeaders];
     }
+    
+#if TARGET_OS_IPHONE
+    // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
+    // It swallows the challenge response rather than sending it to server.
+    // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
+
     [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
     
 #endif
     
     return [super initWithStartURL:startURL endURL:endURL
                            webview:webview
-                    parentController:parentController
-                  presentationType:presentationType
                      customHeaders:headers
                            context:context];
 }

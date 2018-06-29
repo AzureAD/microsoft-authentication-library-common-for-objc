@@ -46,8 +46,6 @@
                 parentController:(UIViewController *)parentController
                          context:(id<MSIDRequestContext>)context
 {
-    MSIDNetworkConfiguration.retryCount = 5;
-    
     if (!startURL)
     {
         MSID_LOG_WARN(context, @"Attemped to start with nil URL");
@@ -69,7 +67,6 @@
         _callbackURLScheme = callbackURLScheme;
         _parentController = parentController;
     }
-    
     return self;
 }
 
@@ -91,11 +88,14 @@
     
     if (_session)
     {
+        _session.webviewNotifiableDelegate = self.webviewNotifiableDelegate;
         [_session startWithCompletionHandler:completionHandler];
         return;
     }
     
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to create an auth session", nil, nil, nil, _context.correlationId, nil);
+    
+    [self.webviewNotifiableDelegate webAuthDidFailWithError:error];
     completionHandler(nil, error);
 }
 
