@@ -47,7 +47,7 @@ NSUInteger const kCodeVerifierMaxLength = 128;
     [super tearDown];
 }
 
-- (void)testPkce
+- (void)testPkce_whenInit_shouldInitAllPropertiesToValidValue
 {
     MSIDPkce *pkce = [MSIDPkce new];
     XCTAssertTrue(pkce.codeVerifier.length >= kCodeVerifierMinLength);
