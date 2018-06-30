@@ -71,6 +71,14 @@
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
+    if (!completionHandler)
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"CompletionHandler cannot be nil for interactive session.", nil, nil, nil, _context.correlationId, nil);
+        [self notifyEndWebAuthWithURL:nil error:error];
+        completionHandler(nil, error);
+        return;
+    }
+    
     _telemetryRequestId = [_context telemetryRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT

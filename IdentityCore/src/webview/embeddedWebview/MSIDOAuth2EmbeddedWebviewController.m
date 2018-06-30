@@ -86,6 +86,14 @@
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
+    if (!completionHandler)
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"CompletionHandler cannot be nil for interactive session.", nil, nil, nil, self.context.correlationId, nil);
+        [MSIDNotifications notifyWebAuthDidFailWithError:error];
+        [self endWebAuthWithURL:nil error:error];
+        return;
+    }
+    
     // Save the completion block
     _completionHandler = [completionHandler copy];
     

@@ -53,7 +53,7 @@
 
 
 #pragma mark - Webview (startURL)
-- (void)testAuthorizationParametersFromConfiguration_withValidParams_shouldContainsConfiguration
+- (void)testAuthorizationParametersFromConfiguration_whenValidParams_shouldContainsConfiguration
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
@@ -148,6 +148,61 @@
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
+}
+
+
+- (void)testResponseWithURL_whenURLWithNoParams_shouldReturnNilAndError
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil context:nil error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+}
+
+- (void)testResponseWithURL_whenURLWithNoParamsWithPath_shouldReturnNilAndError
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"] requestState:nil context:nil error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+}
+
+- (void)testResponseWithURL_whenURLWithNoParamsWithQuestionMark_shouldReturnNilAndError
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"] requestState:nil context:nil error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+}
+
+- (void)testResponseWithURL_whenURLWithError_shouldReturnNilAndError
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/msal?error=iamanerror&error_description=evenmoreinfo"] requestState:nil context:nil error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebOAuth2Response.class]);
+    
+    MSIDWebOAuth2Response *oauthResponse = ((MSIDWebOAuth2Response *)response);
+    XCTAssertNil(oauthResponse.authorizationCode);
+    XCTAssertNotNil(oauthResponse.oauthError);
+    
+    XCTAssertEqual(oauthResponse.oauthError.code, MSIDErrorAuthorizationFailed);
+    XCTAssertEqualObjects(oauthResponse.oauthError.userInfo[MSIDErrorDescriptionKey], @"evenmoreinfo");
+    XCTAssertEqualObjects(oauthResponse.oauthError.userInfo[MSIDOAuthErrorKey], @"iamanerror");
 }
 
 
@@ -248,193 +303,5 @@
     XCTAssertNotNil(error);
     XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"state"]);
 }
-
-/*
- 
- - (void)testInitWithParameters_whenValidParams_shouldInit
- {
- NSError *error = nil;
- 
- __block NSUUID *correlationId = [NSUUID new];
- 
- MSALRequestParameters *parameters = [MSALRequestParameters new];
- parameters.scopes = [NSOrderedSet orderedSetWithArray:@[@"fakescope1", @"fakescope2"]];
- parameters.unvalidatedAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
- parameters.redirectUri = UNIT_TEST_DEFAULT_REDIRECT_URI;
- parameters.clientId = UNIT_TEST_CLIENT_ID;
- parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
- parameters.loginHint = @"fakeuser@contoso.com";
- parameters.correlationId = correlationId;
- 
- MSALInteractiveRequest *request =
- [[MSALInteractiveRequest alloc] initWithParameters:parameters
- extraScopesToConsent:@[@"fakescope3"]
- behavior:MSALForceConsent
- tokenCache:nil
- error:&error];
- 
- XCTAssertNotNil(request);
- XCTAssertNil(error);
- }
- 
- - (void)testAuthorizationUri_whenValidParams_shouldContainQPs
- {
- NSError *error = nil;
- 
- __block NSUUID *correlationId = [NSUUID new];
- 
- MSALRequestParameters *parameters = [MSALRequestParameters new];
- parameters.scopes = [NSOrderedSet orderedSetWithArray:@[@"fakescope1", @"fakescope2"]];
- parameters.unvalidatedAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
- parameters.redirectUri = UNIT_TEST_DEFAULT_REDIRECT_URI;
- parameters.clientId = UNIT_TEST_CLIENT_ID;
- parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
- parameters.loginHint = @"fakeuser@contoso.com";
- parameters.correlationId = correlationId;
- parameters.sliceParameters = @{ UT_SLICE_PARAMS_DICT };
- 
- [MSALTestSwizzle classMethod:@selector(randomUrlSafeStringOfSize:)
- class:[NSString class]
- block:(id)^(id obj, NSUInteger size)
- {
- (void)obj;
- (void)size;
- return @"randomValue";
- }];
- 
- MSALPkce *pkce = [MSALPkce new];
- 
- MSALInteractiveRequest *request =
- [[MSALInteractiveRequest alloc] initWithParameters:parameters
- extraScopesToConsent:@[@"fakescope3"]
- behavior:MSALForceLogin
- tokenCache:nil
- error:&error];
- 
- XCTAssertNotNil(request);
- XCTAssertNil(error);
- 
- request.authority = [MSALTestAuthority AADAuthority:parameters.unvalidatedAuthority];
- 
- NSURL *authorizationUrl = [request authorizationUrl];
- XCTAssertNotNil(authorizationUrl);
- XCTAssertEqualObjects(authorizationUrl.scheme, @"https");
- XCTAssertEqualObjects(authorizationUrl.msidHostWithPortIfNecessary, @"login.microsoftonline.com");
- XCTAssertEqualObjects(authorizationUrl.path, @"/common/oauth2/v2.0/authorize");
- 
- NSDictionary *msalId = [MSIDDeviceId deviceId];
- NSDictionary *expectedQPs =
- @{
- @"x-client-Ver" : MSAL_VERSION_NSSTRING,
- #if TARGET_OS_IPHONE
- @"x-client-SKU" : @"MSAL.iOS",
- @"x-client-DM" : msalId[@"x-client-DM"],
- #else
- @"x-client-SKU" : @"MSAL.OSX",
- #endif
- @"x-client-OS" : msalId[@"x-client-OS"],
- @"x-client-CPU" : msalId[@"x-client-CPU"],
- @"return-client-request-id" : correlationId.UUIDString,
- @"state" : request.state,
- @"login_hint" : @"fakeuser@contoso.com",
- @"client_id" : UNIT_TEST_CLIENT_ID,
- @"prompt" : @"login",
- @"scope" : @"fakescope1 fakescope2 fakescope3 openid profile offline_access",
- @"eqp1" : @"val1",
- @"eqp2" : @"val2",
- @"redirect_uri" : UNIT_TEST_DEFAULT_REDIRECT_URI,
- @"response_type" : @"code",
- @"code_challenge": pkce.codeChallenge,
- @"code_challenge_method" : @"S256",
- UT_SLICE_PARAMS_DICT
- };
- NSDictionary *QPs = [NSDictionary msidURLFormDecode:authorizationUrl.query];
- XCTAssertTrue([expectedQPs compareAndPrintDiff:QPs]);
- }
- 
- - (void)testAuthorizationUri_whenValidParamsWithUser_shouldContainDomainReqAndLoginReq
- {
- NSError *error = nil;
- 
- __block NSUUID *correlationId = [NSUUID new];
- 
- MSALRequestParameters *parameters = [MSALRequestParameters new];
- parameters.scopes = [NSOrderedSet orderedSetWithArray:@[@"fakescope1", @"fakescope2"]];
- parameters.unvalidatedAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
- parameters.redirectUri = [NSURL URLWithString:UNIT_TEST_DEFAULT_REDIRECT_URI];
- parameters.clientId = UNIT_TEST_CLIENT_ID;
- parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
- parameters.correlationId = correlationId;
- 
- MSALAccount *account = [[MSALAccount alloc] initWithUsername:@"User"
- name:@"user@contoso.com"
- homeAccountId:@"1.1234-5678-90abcdefg"
- localAccountId:@"1"
- environment:@"login.microsoftonline.com"
- tenantId:@"1234-5678-90abcdefg"
- clientInfo:nil];
- 
- parameters.account = account;
- [MSALTestSwizzle classMethod:@selector(randomUrlSafeStringOfSize:)
- class:[NSString class]
- block:(id)^(id obj, NSUInteger size)
- {
- (void)obj;
- (void)size;
- return @"randomValue";
- }];
- 
- MSALPkce *pkce = [MSALPkce new];
- 
- MSALInteractiveRequest *request =
- [[MSALInteractiveRequest alloc] initWithParameters:parameters
- extraScopesToConsent:@[@"fakescope3"]
- behavior:MSALForceLogin
- tokenCache:nil
- error:&error];
- 
- XCTAssertNotNil(request);
- XCTAssertNil(error);
- 
- request.authority = [MSALTestAuthority AADAuthority:parameters.unvalidatedAuthority];
- 
- NSURL *authorizationUrl = [request authorizationUrl];
- XCTAssertNotNil(authorizationUrl);
- XCTAssertEqualObjects(authorizationUrl.scheme, @"https");
- XCTAssertEqualObjects(authorizationUrl.msidHostWithPortIfNecessary, @"login.microsoftonline.com");
- XCTAssertEqualObjects(authorizationUrl.path, @"/common/oauth2/v2.0/authorize");
- 
- NSDictionary *msalId = [MSIDDeviceId deviceId];
- NSDictionary *expectedQPs =
- @{
- @"x-client-Ver" : MSAL_VERSION_NSSTRING,
- #if TARGET_OS_IPHONE
- @"x-client-SKU" : @"MSAL.iOS",
- @"x-client-DM" : msalId[@"x-client-DM"],
- #else
- @"x-client-SKU" : @"MSAL.OSX",
- #endif
- @"x-client-OS" : msalId[@"x-client-OS"],
- @"x-client-CPU" : msalId[@"x-client-CPU"],
- @"return-client-request-id" : correlationId.UUIDString,
- @"state" : request.state,
- @"login_hint" : @"User",
- @"login_req" : @"1",
- @"domain_req" : @"1234-5678-90abcdefg",
- @"client_id" : UNIT_TEST_CLIENT_ID,
- @"prompt" : @"login",
- @"scope" : @"fakescope1 fakescope2 fakescope3 openid profile offline_access",
- @"eqp1" : @"val1",
- @"eqp2" : @"val2",
- @"redirect_uri" : UNIT_TEST_DEFAULT_REDIRECT_URI,
- @"response_type" : @"code",
- @"code_challenge": pkce.codeChallenge,
- @"code_challenge_method" : @"S256",
- };
- NSDictionary *QPs = [NSDictionary msidURLFormDecode:authorizationUrl.query];
- XCTAssertTrue([expectedQPs compareAndPrintDiff:QPs]);
- }
-
- */
 
 @end
