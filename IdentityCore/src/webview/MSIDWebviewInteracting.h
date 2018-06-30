@@ -26,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewNotifiable.h"
 
 @class MSIDWebOAuth2Response;
 
@@ -38,7 +37,5 @@ typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
 - (void)cancel;
 
 - (NSURL *)startURL;
-
-@property (weak) id<MSIDWebviewNotifiable> webviewNotifiableDelegate;
 
 @end

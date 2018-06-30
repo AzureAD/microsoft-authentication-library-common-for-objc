@@ -34,7 +34,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
-
+#import "MSIDNotifications.h"
 #import <SafariServices/SafariServices.h>
 
 @implementation MSIDSFAuthenticationSession
@@ -99,7 +99,7 @@
                                                 _completionHandler(callbackURL, error);
                                             }];
         
-        [self.webviewNotifiableDelegate webAuthDidStartLoad:_startURL];
+        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
         if ([_authSession start]) return;
     }
     
@@ -129,11 +129,11 @@
 {
     if (error)
     {
-        [self.webviewNotifiableDelegate webAuthDidFailWithError:error];
+        [MSIDNotifications notifyWebAuthDidFailWithError:error];
     }
     else
     {
-        [self.webviewNotifiableDelegate webAuthDidCompleteWithURL:url];
+        [MSIDNotifications notifyWebAuthDidCompleteWithURL:url];
     }
 }
 

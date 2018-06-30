@@ -32,6 +32,7 @@
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDNetworkConfiguration.h"
+#import "MSIDNotifications.h"
 
 @implementation MSIDSystemWebviewController
 {
@@ -88,14 +89,14 @@
     
     if (_session)
     {
-        _session.webviewNotifiableDelegate = self.webviewNotifiableDelegate;
+        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
         [_session startWithCompletionHandler:completionHandler];
         return;
     }
     
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to create an auth session", nil, nil, nil, _context.correlationId, nil);
     
-    [self.webviewNotifiableDelegate webAuthDidFailWithError:error];
+    [MSIDNotifications notifyWebAuthDidFailWithError:error];
     completionHandler(nil, error);
 }
 

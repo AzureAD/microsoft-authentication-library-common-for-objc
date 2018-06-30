@@ -33,20 +33,96 @@
 MSID_NOTIFICATION_READ_PROPERTY(KEY, GETTER) \
 MSID_NOTIFICATION_WRITE_PROPERTY(KEY, SETTER)
 
-static NSString *s_webAuthDidStartLoadNotification;
-static NSString *s_webAuthDidFinishLoadNotification;
-static NSString *s_webAuthDidFailNotification;
-static NSString *s_webAuthDidCompleteNotification;
-static NSString *s_webAuthWillSwitchToBrokerApp;
-static NSString *s_webAuthDidReceieveResponseFromBroker;
+static NSString *s_webAuthDidStartLoadNotificationName;
+static NSString *s_webAuthDidFinishLoadNotificationName;
+static NSString *s_webAuthDidFailNotificationName;
+static NSString *s_webAuthDidCompleteNotificationName;
+static NSString *s_webAuthWillSwitchToBrokerAppNotificationName;
+static NSString *s_webAuthDidReceieveResponseFromBrokerNotificationName;
 
 @implementation MSIDNotifications
 
-MSID_NOTIFICATION_RW(s_webAuthDidStartLoadNotification, webAuthDidStartLoadNotification, setWebAuthDidStartLoadNotification);
-MSID_NOTIFICATION_RW(s_webAuthDidFinishLoadNotification, webAuthDidFinishLoadNotification, setWebAuthDidFinishLoadNotification);
-MSID_NOTIFICATION_RW(s_webAuthDidFailNotification, webAuthDidFailNotification, setWebAuthDidFailNotification);
-MSID_NOTIFICATION_RW(s_webAuthDidCompleteNotification, webAuthDidCompleteNotification, setWebAuthDidCompleteNotification);
-MSID_NOTIFICATION_RW(s_webAuthWillSwitchToBrokerApp, webAuthWillSwitchToBrokerApp, setWebAuthWillSwitchToBrokerApp);
-MSID_NOTIFICATION_RW(s_webAuthDidReceieveResponseFromBroker, webAuthDidReceieveResponseFromBroker, setWebAuthDidReceieveResponseFromBroker);
++ (void)setWebAuthDidFailNotificationName:(NSString *)webAuthDidFailNotificationName
+{
+    s_webAuthDidFailNotificationName = webAuthDidFailNotificationName;
+}
++ (NSString *)webAuthDidFailNotificationName { return s_webAuthDidFailNotificationName; }
+                                             
++ (void)setWebAuthDidCompleteNotificationName:(NSString *)webAuthDidCompleteNotificationName
+{
+    s_webAuthDidCompleteNotificationName = webAuthDidCompleteNotificationName;
+}
++ (NSString *)webAuthDidCompleteNotificationName { return s_webAuthDidCompleteNotificationName; }
+
++ (void)setWebAuthDidStartLoadNotificationName:(NSString *)webAuthDidStartLoadNotificationName
+{
+    s_webAuthDidStartLoadNotificationName = webAuthDidStartLoadNotificationName;
+}
++ (NSString *)webAuthDidStartLoadNotificationName { return s_webAuthDidStartLoadNotificationName; }
+
++ (void)setWebAuthDidFinishLoadNotificationName:(NSString *)webAuthDidFinishLoadNotificationName
+{
+    s_webAuthDidFinishLoadNotificationName = webAuthDidFinishLoadNotificationName;
+}
++ (NSString *)webAuthDidFinishLoadNotificationName { return s_webAuthDidFinishLoadNotificationName; }
+
+// Todo: Add at broker
+//
+//+ (void)setWebAuthWillSwitchToBrokerAppNotificationName:(NSString *)webAuthWillSwitchToBrokerAppNotificationName
+//{
+//    s_webAuthWillSwitchToBrokerAppNotificationName = webAuthWillSwitchToBrokerAppNotificationName;
+//}
+//
+//+ (NSString *)webAuthWillSwitchToBrokerAppNotificationName { return s_webAuthWillSwitchToBrokerAppNotificationName; }
+//
+//+ (void)setWebAuthDidReceiveResponseFromBrokerNotificationName:(NSString *)webAuthDidReceiveResponseFromBrokerNotificationName
+//{
+//    s_webAuthDidReceieveResponseFromBrokerNotificationName = webAuthDidReceiveResponseFromBrokerNotificationName;
+//}
+//
+//+ (NSString *)webAuthDidReceiveResponseFromBrokerNotificationName { return s_webAuthDidReceieveResponseFromBrokerNotificationName; }
+
+#pragma mark - Notifications
+#pragma mark - MSIDWebviewDelegate
++ (void)notifyWebAuthDidStartLoad:(NSURL *)url
+{
+    if (s_webAuthDidStartLoadNotificationName)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:s_webAuthDidStartLoadNotificationName
+                                                            object:nil
+                                                          userInfo:url ? @{ @"url" : url } : nil];
+    }
+}
+
++ (void)notifyWebAuthDidFinishLoad:(NSURL *)url
+{
+    if (s_webAuthDidFinishLoadNotificationName)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:s_webAuthDidFinishLoadNotificationName
+                                                            object:nil
+                                                          userInfo:url ? @{ @"url" : url } : nil];
+    }
+}
+
++ (void)notifyWebAuthDidFailWithError:(NSError *)error
+{
+    if (s_webAuthDidFailNotificationName)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:s_webAuthDidFailNotificationName
+                                                            object:nil
+                                                          userInfo:error ? @{ @"error" : error } : nil];
+    }
+}
+
++ (void)notifyWebAuthDidCompleteWithURL:(NSURL *)url
+{
+    if (s_webAuthDidCompleteNotificationName)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:s_webAuthDidCompleteNotificationName
+                                                            object:self
+                                                          userInfo:url ? @{ @"url" : url } : nil];
+    }
+    
+}
 
 @end

@@ -38,7 +38,5 @@
 @property (readonly) NSURL *startURL;
 @property (readonly) NSString *callbackURLScheme;
 
-@property (weak) id<MSIDWebviewNotifiable> webviewNotifiableDelegate;
-
 @end
 #endif

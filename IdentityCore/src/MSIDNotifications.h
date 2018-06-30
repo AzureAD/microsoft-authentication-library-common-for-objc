@@ -28,26 +28,33 @@
 #pragma mark - Web auth notifications
 /*! Fired at the start of a resource load in the webview.
     The URL of the load, if available, will be in the @"url" key in the userInfo dictionary */
-@property (class) NSString *webAuthDidStartLoadNotification;
+@property (class) NSString *webAuthDidStartLoadNotificationName;
 
 /*! Fired when a resource finishes loading in the webview.
     The URL of the load, if available, will be in the @"url" key in the userInfo dictionary */
-@property (class) NSString *webAuthDidFinishLoadNotification;
+@property (class) NSString *webAuthDidFinishLoadNotificationName;
 
 /*! Fired when web authentication fails due to reasons originating from the network.
     Look at the @"error" key in the userInfo dictionary for more details.*/
-@property (class) NSString *webAuthDidFailNotification;
+@property (class) NSString *webAuthDidFailNotificationName;
 
 /*! Fired when authentication finishes
     The URL of the end URL, if available, will be in the @"url" key in the userInfo dictionary */
-@property (class) NSString *webAuthDidCompleteNotification;
+@property (class) NSString *webAuthDidCompleteNotificationName;
 
-#pragma mark - Broker notifications
-/*! Fired before MSID invokes the broker app */
-@property (class) NSString *webAuthWillSwitchToBrokerApp;
+/* Todo: added at broker */
+//#pragma mark - Broker notifications
+///*! Fired before MSID invokes the broker app */
+//@property (class) NSString *webAuthWillSwitchToBrokerAppNotificationName;
+//
+///*! Fired when the application receives a response from the broker. Look at the @"response"
+// key in the userInfo dictionary for the broker response */
+//@property (class) NSString *webAuthDidReceiveResponseFromBrokerNotificationName;
 
-/*! Fired when the application receives a response from the broker. Look at the @"response"
- key in the userInfo dictionary for the broker response */
-@property (class) NSString *webAuthDidReceieveResponseFromBroker;
+#pragma mark - Notification callers
++ (void)notifyWebAuthDidStartLoad:(NSURL *)url;
++ (void)notifyWebAuthDidFinishLoad:(NSURL *)url;
++ (void)notifyWebAuthDidFailWithError:(NSError *)error;
++ (void)notifyWebAuthDidCompleteWithURL:(NSURL *)url;
 
 @end

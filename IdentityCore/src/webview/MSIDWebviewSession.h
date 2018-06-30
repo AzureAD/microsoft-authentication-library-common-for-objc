@@ -26,13 +26,12 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewNotifiable.h"
 
 @protocol MSIDWebviewInteracting;
 
 @class MSIDWebviewFactory;
 
-@interface MSIDWebviewSession : NSObject <MSIDWebviewNotifiable>
+@interface MSIDWebviewSession : NSObject
 
 @property NSObject<MSIDWebviewInteracting> *webviewController;
 @property MSIDWebviewFactory *factory;

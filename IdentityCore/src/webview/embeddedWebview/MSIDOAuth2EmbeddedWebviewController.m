@@ -30,6 +30,7 @@
 #import "MSIDChallengeHandler.h"
 #import "MSIDAuthority.h"
 #import "MSIDWorkPlaceJoinConstants.h"
+#import "MSIDNotifications.h"
 
 @implementation MSIDOAuth2EmbeddedWebviewController
 {
@@ -141,11 +142,11 @@
     
     if (error)
     {
-        [self.webviewNotifiableDelegate webAuthDidFailWithError:error];
+        [MSIDNotifications notifyWebAuthDidFailWithError:error];
     }
     else
     {
-        [self.webviewNotifiableDelegate webAuthDidCompleteWithURL:endURL];
+        [MSIDNotifications notifyWebAuthDidCompleteWithURL:endURL];
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -200,7 +201,7 @@
     MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestURL] ? requestURL.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestURL.host);
     
-    [self.webviewNotifiableDelegate webAuthDidStartLoad:requestURL];
+    [MSIDNotifications notifyWebAuthDidStartLoad:requestURL];
     
     [self decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
@@ -229,7 +230,7 @@
     MSID_LOG_VERBOSE(self.context, @"-didFinishNavigation host: %@", [MSIDAuthority isKnownHost:url] ? url.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-didFinishNavigation host: %@", url.host);
     
-    [self.webviewNotifiableDelegate webAuthDidFinishLoad:url];
+    [MSIDNotifications notifyWebAuthDidFinishLoad:url];
     
     [self stopSpinner];
 }

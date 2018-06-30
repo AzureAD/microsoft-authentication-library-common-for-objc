@@ -50,7 +50,4 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 
 @property (readonly) NSURL *startURL;
 
-@property (weak) id<MSIDWebviewNotifiable> webviewNotifiableDelegate;
-
-
 @end

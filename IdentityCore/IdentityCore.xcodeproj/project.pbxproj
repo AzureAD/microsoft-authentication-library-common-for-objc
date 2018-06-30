@@ -804,7 +804,6 @@
 		960196FB208E579600D962D3 /* MSIDSafariViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSafariViewController.m; sourceTree = "<group>"; };
 		96090D9620E59B2000E42B37 /* MSIDNotifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDNotifications.h; sourceTree = "<group>"; };
 		96090D9720E59B2000E42B37 /* MSIDNotifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDNotifications.m; sourceTree = "<group>"; };
-		96090D9D20E5CC7300E42B37 /* MSIDWebviewNotifiable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebviewNotifiable.h; sourceTree = "<group>"; };
 		960F915120CB00C10055A162 /* MSIDAADV2WebviewFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV2WebviewFactoryTests.m; sourceTree = "<group>"; };
 		960F915620CB4ABC0055A162 /* MSIDAADWebviewFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADWebviewFactory.h; sourceTree = "<group>"; };
 		960F915720CB4ABC0055A162 /* MSIDAADWebviewFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADWebviewFactory.m; sourceTree = "<group>"; };
@@ -1468,7 +1467,6 @@
 				96F94A22208169380034676C /* embeddedWebview */,
 				96235F93207D723F007EAB36 /* response */,
 				96F21B1720A65187002B87C3 /* MSIDWebviewInteracting.h */,
-				96090D9D20E5CC7300E42B37 /* MSIDWebviewNotifiable.h */,
 				96C998ED20B638F60053A2D9 /* MSIDWebviewSession.h */,
 				96C998EE20B638F60053A2D9 /* MSIDWebviewSession.m */,
 				96F21B2F20A65896002B87C3 /* MSIDWebviewAuthorization.h */,
