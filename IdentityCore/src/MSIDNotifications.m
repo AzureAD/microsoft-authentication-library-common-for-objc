@@ -83,7 +83,6 @@ static NSString *s_webAuthDidReceieveResponseFromBrokerNotificationName;
 //+ (NSString *)webAuthDidReceiveResponseFromBrokerNotificationName { return s_webAuthDidReceieveResponseFromBrokerNotificationName; }
 
 #pragma mark - Notifications
-#pragma mark - MSIDWebviewDelegate
 + (void)notifyWebAuthDidStartLoad:(NSURL *)url
 {
     if (s_webAuthDidStartLoadNotificationName)
