@@ -134,7 +134,7 @@
     }
     else
     {
-        self.homeAccountId = self.clientInfo.userIdentifier ? self.clientInfo.userIdentifier : userInfo.userId;
+        self.homeAccountId = self.clientInfo.accountIdentifier ? self.clientInfo.accountIdentifier : userInfo.userId;
     }
 
     return self;
