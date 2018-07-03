@@ -163,7 +163,7 @@
 + (instancetype)aadAuthorityWithAuthorityURL:(NSURL *)authorityUrl
                                    rawTenant:(NSString *)rawTenant
                                      context:(id<MSIDRequestContext>)context
-                                       error:(NSError **)error;
+                                       error:(NSError **)error
 {
     if (![self.class isAuthorityFormatValid:authorityUrl context:context error:error]) return nil;
     
@@ -180,7 +180,7 @@
 {
     MSIDAADAuthority *authority = [super copyWithZone:zone];
     authority->_tenant = [_tenant copyWithZone:zone];
-    authority->_authorityCache = [MSIDAadAuthorityCache sharedInstance];
+    authority->_authorityCache = [_authorityCache copyWithZone:zone];
     
     return authority;
 }
