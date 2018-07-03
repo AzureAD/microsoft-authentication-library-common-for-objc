@@ -183,9 +183,6 @@
 {
     NSURL *requestURL = navigationAction.request.URL;
     
-//    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-//    __auto_type authority = [authorityFactory authorityFromUrl:account.authority rawTenant:response.idTokenObj.realm context:nil error:nil];
-    
     MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestURL.host] ? requestURL.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestURL.host);
     
