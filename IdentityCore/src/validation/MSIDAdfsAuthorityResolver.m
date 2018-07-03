@@ -127,11 +127,7 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
          drsCloudRequest.context = context;
          [drsCloudRequest sendWithBlock:^(id response, NSError *error)
           {
-              if (response)
-              {
-                  if (completionBlock) completionBlock(response, error);
-                  return;
-              }
+              if (completionBlock) completionBlock(response, error);
           }];
      }];
 }
