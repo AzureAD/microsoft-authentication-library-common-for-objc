@@ -169,7 +169,7 @@
     
     authorityUrl = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authorityUrl msidHostWithPortIfNecessary], rawTenant]];
     
-    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
     
     return authority;
 }
