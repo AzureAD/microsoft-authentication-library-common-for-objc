@@ -160,15 +160,12 @@
     return tenant != nil;
 }
 
-+ (instancetype)aadAuthorityWithAuthorityURL:(NSURL *)authorityUrl
++ (instancetype)aadAuthorityWithEnvironment:(NSString *)environment
                                    rawTenant:(NSString *)rawTenant
                                      context:(id<MSIDRequestContext>)context
                                        error:(NSError **)error
 {
-    if (![self.class isAuthorityFormatValid:authorityUrl context:context error:error]) return nil;
-    
-    authorityUrl = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authorityUrl msidHostWithPortIfNecessary], rawTenant]];
-    
+    __auto_type authorityUrl = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", environment, rawTenant]];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
     
     return authority;

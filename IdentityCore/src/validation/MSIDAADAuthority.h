@@ -31,9 +31,9 @@
 @property (nonatomic, readonly, nonnull) MSIDAADTenant *tenant;
 @property (nonatomic, nonnull) MSIDAadAuthorityCache *authorityCache;
 
-+ (nullable instancetype)aadAuthorityWithAuthorityURL:(nonnull NSURL *)authorityUrl
-                                            rawTenant:(nullable NSString *)rawTenant
-                                              context:(nullable id<MSIDRequestContext>)context
-                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error;
++ (nullable instancetype)aadAuthorityWithEnvironment:(nonnull NSString *)environment
+                                           rawTenant:(nullable NSString *)rawTenant
+                                             context:(nullable id<MSIDRequestContext>)context
+                                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

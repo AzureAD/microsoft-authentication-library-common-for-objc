@@ -182,7 +182,7 @@
             // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
             [aliases addObjectsFromArray:[aadAuthority cacheAliases]];
             
-            __auto_type aadAuthorityCommon = [MSIDAADAuthority aadAuthorityWithAuthorityURL:aadAuthority.url rawTenant:MSIDAADTenantTypeCommonRawValue context:nil error:nil];
+            __auto_type aadAuthorityCommon = [MSIDAADAuthority aadAuthorityWithEnvironment:[aadAuthority.url msidHostWithPortIfNecessary] rawTenant:MSIDAADTenantTypeCommonRawValue context:nil error:nil];
             [aliases addObjectsFromArray:[aadAuthorityCommon cacheAliases]];
         }
     }
