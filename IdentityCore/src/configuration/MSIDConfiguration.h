@@ -23,11 +23,12 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDNetworkConfiguration.h"
+#import "MSIDAuthority.h"
 
 @interface MSIDConfiguration : NSObject <NSCopying>
 
 // Commonly used or needed properties
-@property (readwrite) NSURL *authority;
+@property (readwrite) MSIDAuthority *authority;
 @property (readwrite) NSString *redirectUri;
 @property (readwrite) NSString *clientId;
 @property (readwrite) NSString *target;
@@ -35,7 +36,7 @@
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;
 
-- (instancetype)initWithAuthority:(NSURL *)authority
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target;

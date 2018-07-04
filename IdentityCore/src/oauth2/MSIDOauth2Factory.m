@@ -184,10 +184,7 @@
         return NO;
     }
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:configuration.authority context:nil error:nil];
-    
-    token.authority = authority;
+    token.authority = configuration.authority;
     token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
     token.homeAccountId = response.idTokenObj.userId;
@@ -344,11 +341,7 @@
     account.familyName = response.idTokenObj.familyName;
     account.middleName = response.idTokenObj.middleName;
     account.name = response.idTokenObj.name;
-    
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:configuration.authority context:nil error:nil];
-    
-    account.authority = authority;
+    account.authority = configuration.authority;
     account.accountType = response.accountType;
     account.localAccountId = response.idTokenObj.uniqueId;
     return YES;

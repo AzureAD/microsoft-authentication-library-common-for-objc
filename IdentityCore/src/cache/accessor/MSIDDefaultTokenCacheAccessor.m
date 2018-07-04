@@ -149,12 +149,12 @@
 
         MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
         query.homeAccountId = account.homeAccountId;
-        query.environment = configuration.authority.msidHostWithPortIfNecessary;
+        query.environment = configuration.authority.url.msidHostWithPortIfNecessary;
         query.clientId = configuration.clientId;
         query.familyId = familyId;
         query.credentialType = MSIDRefreshTokenType;
 
-        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getTokenWithAuthority:configuration.authority
+        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getTokenWithAuthority:configuration.authority.url
                                                                                cacheQuery:query
                                                                                   context:context
                                                                                     error:error];
@@ -172,7 +172,7 @@
         MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, configuration.clientId, configuration.authority);
 
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getRefreshTokenByLegacyUserId:account.legacyAccountId
-                                                                                        authority:configuration.authority
+                                                                                        authority:configuration.authority.url
                                                                                          clientId:configuration.clientId
                                                                                          familyId:familyId
                                                                                           context:context
@@ -231,14 +231,14 @@
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = account.homeAccountId;
-    query.environment = configuration.authority.msidHostWithPortIfNecessary;
-    query.realm = configuration.authority.msidTenant;
+    query.environment = configuration.authority.url.msidHostWithPortIfNecessary;
+    query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
     query.target = configuration.target;
     query.targetMatchingOptions = MSIDSubSet;
     query.credentialType = MSIDAccessTokenType;
 
-    return (MSIDAccessToken *) [self getTokenWithAuthority:configuration.authority
+    return (MSIDAccessToken *) [self getTokenWithAuthority:configuration.authority.url
                                                 cacheQuery:query
                                                    context:context
                                                      error:error];
@@ -251,12 +251,12 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = account.homeAccountId;
-    query.environment = configuration.authority.msidHostWithPortIfNecessary;
-    query.realm = configuration.authority.msidTenant;
+    query.environment = configuration.authority.url.msidHostWithPortIfNecessary;
+    query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
     query.credentialType = MSIDIDTokenType;
 
-    return (MSIDIdToken *) [self getTokenWithAuthority:configuration.authority
+    return (MSIDIdToken *) [self getTokenWithAuthority:configuration.authority.url
                                             cacheQuery:query
                                                context:context
                                                  error:error];
