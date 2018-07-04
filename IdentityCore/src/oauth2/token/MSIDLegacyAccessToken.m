@@ -24,6 +24,8 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDLegacyAccessToken
 
@@ -94,10 +96,13 @@
 
     if (self)
     {
+        __auto_type authorityFactory = [MSIDAuthorityFactory new];
+        __auto_type authority = [authorityFactory authorityFromUrl:tokenCacheItem.authority context:nil error:nil];
+        
         _accessToken = tokenCacheItem.accessToken;
         _idToken = tokenCacheItem.idToken;
         _accessTokenType = tokenCacheItem.oauthTokenType;
-        _authority = tokenCacheItem.authority;
+        _authority = authority;
 
         NSError *error = nil;
         MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_idToken error:&error];
@@ -125,9 +130,9 @@
     cacheItem.accessToken = self.accessToken;
     cacheItem.idToken = self.idToken;
     cacheItem.oauthTokenType = self.accessTokenType;
-    cacheItem.authority = self.storageAuthority ? self.storageAuthority : self.authority;
-    cacheItem.environment = self.authority.msidHostWithPortIfNecessary;
-    cacheItem.realm = self.authority.msidTenant;
+    cacheItem.authority = self.storageAuthority.url ? self.storageAuthority.url : self.authority.url;
+    cacheItem.environment = self.authority.url.msidHostWithPortIfNecessary;
+    cacheItem.realm = self.authority.url.msidTenant;
     cacheItem.clientId = self.clientId;
     cacheItem.clientInfo = self.clientInfo;
     cacheItem.additionalInfo = self.additionalServerInfo;

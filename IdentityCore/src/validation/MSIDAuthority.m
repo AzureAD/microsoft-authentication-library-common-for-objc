@@ -251,7 +251,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    MSIDAuthority *authority = [[self.class allocWithZone:zone] init];
+    MSIDAuthority *authority = [[self.class allocWithZone:zone] initWithURL:_url context:nil error:nil];
     authority->_url = [_url copyWithZone:zone];
     
     return authority;

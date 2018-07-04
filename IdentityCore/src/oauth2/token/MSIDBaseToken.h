@@ -28,6 +28,7 @@
 
 @class MSIDTokenResponse;
 @class MSIDConfiguration;
+@class MSIDAuthority;
 
 /*!
  This is the base class for all possible tokens.
@@ -36,7 +37,7 @@
 
 @interface MSIDBaseToken : NSObject <NSCopying>
 {
-    NSURL *_authority;
+    MSIDAuthority *_authority;
     NSString *_clientId;
     NSString *_homeAccountId;
     MSIDClientInfo *_clientInfo;
@@ -44,13 +45,13 @@
 }
 
 @property (readonly) MSIDCredentialType credentialType;
-@property (readwrite) NSURL *authority;
+@property (readwrite) MSIDAuthority *authority;
 /*
  'storageAuthority' is used only for latter token deletion.
  We can not use 'authority' because cache item could be saved with
 'preferred authority' and it might not be equal to provided 'authority'.
  */
-@property (readwrite) NSURL *storageAuthority;
+@property (readwrite) MSIDAuthority *storageAuthority;
 @property (readwrite) NSString *clientId;
 @property (readwrite) NSString *homeAccountId;
 

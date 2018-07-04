@@ -40,6 +40,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Cache.h"
 #import "MSIDAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -393,7 +394,7 @@
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
     MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.homeAccountId, _PII_NULLIFY(token.refreshToken));
 
-    NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
+    NSURL *authority = token.storageAuthority.url ? token.storageAuthority.url : token.authority.url;
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = token.homeAccountId;
@@ -402,7 +403,7 @@
     query.familyId = token.familyId;
     query.credentialType = MSIDRefreshTokenType;
 
-    MSIDRefreshToken *tokenInCache = (MSIDRefreshToken *) [self getTokenWithAuthority:token.authority
+    MSIDRefreshToken *tokenInCache = (MSIDRefreshToken *) [self getTokenWithAuthority:token.authority.url
                                                                            cacheQuery:query
                                                                               context:context
                                                                                 error:error];
@@ -535,8 +536,8 @@
     // Delete access tokens with intersecting scopes
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = accessToken.homeAccountId;
-    query.environment = accessToken.authority.msidHostWithPortIfNecessary;
-    query.realm = accessToken.authority.msidTenant;
+    query.environment = accessToken.authority.url.msidHostWithPortIfNecessary;
+    query.realm = accessToken.authority.url.msidTenant;
     query.clientId = accessToken.clientId;
     query.target = [accessToken.scopes msidToString];
     query.targetMatchingOptions = MSIDIntersect;
@@ -612,14 +613,17 @@
 
 #pragma mark - Private
 
-- (MSIDBaseToken *)getTokenWithAuthority:(NSURL *)authority
+- (MSIDBaseToken *)getTokenWithAuthority:(NSURL *)authorityUrl
                               cacheQuery:(MSIDDefaultCredentialCacheQuery *)cacheQuery
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+    
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *aliases = [_factory cacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
+    NSArray<NSString *> *aliases = [_factory cacheAliasesForEnvironment:authority.url.msidHostWithPortIfNecessary];
 
     for (NSString *alias in aliases)
     {
@@ -663,15 +667,18 @@
 }
 
 - (MSIDBaseToken *)getRefreshTokenByLegacyUserId:(NSString *)legacyUserId
-                                       authority:(NSURL *)authority
+                                       authority:(NSURL *)authorityUrl
                                         clientId:(NSString *)clientId
                                         familyId:(NSString *)familyId
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
 
-    NSArray<NSURL *> *aliases = [_factory cacheAliasesForAuthority:authority];
+    NSArray<NSURL *> *aliases = [authority cacheAliases];
 
     for (NSURL *alias in aliases)
     {

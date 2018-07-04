@@ -26,6 +26,8 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDClientInfo.h"
+#import "MSIDAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDBaseToken
 
@@ -34,13 +36,13 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDBaseToken *item = [[self.class allocWithZone:zone] init];
-    item->_authority = _authority;
-    item->_storageAuthority = _storageAuthority;
-    item->_clientId = _clientId;
-    item->_homeAccountId = _homeAccountId;
-    item->_clientInfo = _clientInfo;
-    item->_additionalServerInfo = _additionalServerInfo;
-    item->_clientInfo = _clientInfo;
+    item->_authority = [_authority copyWithZone:zone];
+    item->_storageAuthority = [_storageAuthority copyWithZone:zone];
+    item->_clientId = [_clientId copyWithZone:zone];
+    item->_homeAccountId = [_homeAccountId copyWithZone:zone];
+    item->_clientInfo = [_clientInfo copyWithZone:zone];
+    item->_additionalServerInfo = [_additionalServerInfo copyWithZone:zone];
+    item->_clientInfo = [_clientInfo copyWithZone:zone];
     return item;
 }
 
@@ -82,8 +84,8 @@
     }
     
     BOOL result = YES;
-    result &= (!self.authority && !item.authority) || [self.authority.absoluteString isEqualToString:item.authority.absoluteString];
-    result &= (!self.storageAuthority && !item.storageAuthority) || [self.storageAuthority.absoluteString isEqualToString:item.storageAuthority.absoluteString];
+    result &= (!self.authority && !item.authority) || [self.authority isEqual:item.authority];
+    result &= (!self.storageAuthority && !item.storageAuthority) || [self.storageAuthority isEqual:item.storageAuthority];
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
@@ -127,7 +129,9 @@
         NSString *environment = tokenCacheItem.environment;
         NSString *tenant = tokenCacheItem.realm;
 
-        _authority = [NSURL msidURLWithEnvironment:environment tenant:tenant];
+        __auto_type authorityUrl = [NSURL msidURLWithEnvironment:environment tenant:tenant];
+        __auto_type authorityFactory = [MSIDAuthorityFactory new];
+        _authority = [authorityFactory authorityFromUrl:authorityUrl rawTenant:tenant context:nil error:nil];
         
         if (!_authority)
         {
@@ -158,14 +162,14 @@
 
     if (self.storageAuthority)
     {
-        cacheItem.environment = self.storageAuthority.msidHostWithPortIfNecessary;
+        cacheItem.environment = self.storageAuthority.url.msidHostWithPortIfNecessary;
     }
     else
     {
-        cacheItem.environment = self.authority.msidHostWithPortIfNecessary;
+        cacheItem.environment = self.authority.url.msidHostWithPortIfNecessary;
     }
 
-    cacheItem.realm = self.authority.msidTenant;
+    cacheItem.realm = self.authority.url.msidTenant;
     cacheItem.clientId = self.clientId;
     cacheItem.clientInfo = self.clientInfo;
     cacheItem.additionalInfo = self.additionalServerInfo;
@@ -183,7 +187,7 @@
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"(authority=%@ clientId=%@ credentialType=%@ homeAccountId=%@ clientInfo=%@)",
-            _authority, _clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], _homeAccountId, _clientInfo];
+            _authority.url, _clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], _homeAccountId, _clientInfo];
 }
 
 @end

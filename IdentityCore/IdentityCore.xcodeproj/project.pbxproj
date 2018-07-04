@@ -66,6 +66,9 @@
 		235480D420DDF88200246F72 /* MSIDAADAuthority.h in Headers */ = {isa = PBXBuildFile; fileRef = 235480D220DDF88000246F72 /* MSIDAADAuthority.h */; };
 		235480D520DDF88200246F72 /* MSIDAADAuthority.m in Sources */ = {isa = PBXBuildFile; fileRef = 235480D320DDF88100246F72 /* MSIDAADAuthority.m */; };
 		235480D620DDF88200246F72 /* MSIDAADAuthority.m in Sources */ = {isa = PBXBuildFile; fileRef = 235480D320DDF88100246F72 /* MSIDAADAuthority.m */; };
+		235D13DE20EC7E5200F5C50D /* NSString+MSIDTestUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 235D13DC20EC7E5200F5C50D /* NSString+MSIDTestUtil.h */; };
+		235D13DF20EC7E5200F5C50D /* NSString+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 235D13DD20EC7E5200F5C50D /* NSString+MSIDTestUtil.m */; };
+		235D13E020EC7E5200F5C50D /* NSString+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 235D13DD20EC7E5200F5C50D /* NSString+MSIDTestUtil.m */; };
 		2361DE8C2048B6F8005FD48A /* MSIDAccountTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2361DE8A2048B6F8005FD48A /* MSIDAccountTests.m */; };
 		238695F2209D375C00E56ADF /* MSIDAuthorityCacheRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 238695F0209D375C00E56ADF /* MSIDAuthorityCacheRecord.h */; };
 		238695F3209D375C00E56ADF /* MSIDAuthorityCacheRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 238695F1209D375C00E56ADF /* MSIDAuthorityCacheRecord.m */; };
@@ -782,6 +785,8 @@
 		235480C520DDF81000246F72 /* MSIDADFSAuthority.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDADFSAuthority.m; sourceTree = "<group>"; };
 		235480D220DDF88000246F72 /* MSIDAADAuthority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAADAuthority.h; sourceTree = "<group>"; };
 		235480D320DDF88100246F72 /* MSIDAADAuthority.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAADAuthority.m; sourceTree = "<group>"; };
+		235D13DC20EC7E5200F5C50D /* NSString+MSIDTestUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+MSIDTestUtil.h"; sourceTree = "<group>"; };
+		235D13DD20EC7E5200F5C50D /* NSString+MSIDTestUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDTestUtil.m"; sourceTree = "<group>"; };
 		2361DE8A2048B6F8005FD48A /* MSIDAccountTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountTests.m; sourceTree = "<group>"; };
 		237A6D61203269740084E15F /* MSIDJsonSerializable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJsonSerializable.h; sourceTree = "<group>"; };
 		238695F0209D375C00E56ADF /* MSIDAuthorityCacheRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthorityCacheRecord.h; sourceTree = "<group>"; };
@@ -2120,6 +2125,8 @@
 				D6D9A44B1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m */,
 				D6D9A4541FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h */,
 				D6D9A4551FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m */,
+				235D13DC20EC7E5200F5C50D /* NSString+MSIDTestUtil.h */,
+				235D13DD20EC7E5200F5C50D /* NSString+MSIDTestUtil.m */,
 				60BF06022051F95B00DE7C1C /* MSIDTelemetryTestDispatcher.h */,
 				60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */,
 				B23ECEF51FF2FC2C0015FC1D /* cache */,
@@ -2489,6 +2496,7 @@
 				D6D9A4561FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h in Headers */,
 				B23ECF031FF30BB90015FC1D /* MSIDTestIdentifiers.h in Headers */,
 				D626FFF61FBD200A00EE4487 /* MSIDTestURLResponse.h in Headers */,
+				235D13DE20EC7E5200F5C50D /* NSString+MSIDTestUtil.h in Headers */,
 				D626FFF91FBD200A00EE4487 /* MSIDTestURLSession.h in Headers */,
 				D6D9A44C1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.h in Headers */,
 				964E669620AE97FD00857009 /* MSIDTestWebviewInteractingViewController.h in Headers */,
@@ -3149,6 +3157,7 @@
 				23F32F251FFDAF1900B2905E /* MSIDTestBrokerResponse.m in Sources */,
 				964E669720AE97FD00857009 /* MSIDTestWebviewInteractingViewController.m in Sources */,
 				D6D9A4571FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
+				235D13DF20EC7E5200F5C50D /* NSString+MSIDTestUtil.m in Sources */,
 				23F32F191FFD635500B2905E /* MSIDTestIdTokenUtil.m in Sources */,
 				D626FFF11FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
 				23185368206D8B1D0024DCA4 /* MSIDTestTokenResponse.m in Sources */,
@@ -3171,6 +3180,7 @@
 				D626FFF51FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
 				D6D9A44E1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
 				23185369206D8B1E0024DCA4 /* MSIDTestTokenResponse.m in Sources */,
+				235D13E020EC7E5200F5C50D /* NSString+MSIDTestUtil.m in Sources */,
 				964E669820AE97FD00857009 /* MSIDTestWebviewInteractingViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

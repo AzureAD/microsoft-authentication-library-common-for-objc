@@ -184,7 +184,10 @@
         return NO;
     }
     
-    token.authority = configuration.authority;
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:configuration.authority context:nil error:nil];
+    
+    token.authority = authority;
     token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
     token.homeAccountId = response.idTokenObj.userId;

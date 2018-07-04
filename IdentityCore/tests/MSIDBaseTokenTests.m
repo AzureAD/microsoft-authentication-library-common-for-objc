@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDBaseTokenTests : XCTestCase
 
@@ -221,7 +222,7 @@
     
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/contoso.com" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
@@ -243,13 +244,13 @@
 
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
 
-    token.storageAuthority = [NSURL URLWithString:@"https://login.windows.net/common"];
+    token.storageAuthority = [@"https://login.windows.net/common" authority];
 
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
     cacheItem.environment = @"login.windows.net";

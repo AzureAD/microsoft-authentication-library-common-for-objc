@@ -180,7 +180,7 @@
     
     MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -201,7 +201,7 @@
     
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -227,7 +227,7 @@
     
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -291,7 +291,7 @@
     
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
+    XCTAssertEqualObjects(token.authority.url.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -315,7 +315,7 @@
 
     MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
@@ -347,7 +347,7 @@
 
     MSIDLegacyAccessToken *token = [factory legacyAccessTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -379,7 +379,7 @@
 
     MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];

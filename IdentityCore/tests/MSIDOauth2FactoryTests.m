@@ -180,7 +180,7 @@
     
     MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
@@ -201,7 +201,7 @@
     
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
@@ -245,7 +245,7 @@
     
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
@@ -284,7 +284,7 @@
     
     MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
@@ -320,7 +320,7 @@
 
     MSIDLegacyAccessToken *token = [factory legacyAccessTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
@@ -354,7 +354,7 @@
 
     MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
@@ -383,7 +383,7 @@
     
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
@@ -413,7 +413,7 @@
     
     MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.authority.url, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     XCTAssertEqualObjects(token.homeAccountId, @"subject");
