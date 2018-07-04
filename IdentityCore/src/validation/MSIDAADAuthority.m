@@ -27,6 +27,12 @@
 #import "MSIDAADTenant.h"
 #import "MSIDAuthorityFactory.h"
 
+@interface MSIDAADAuthority()
+
+@property (nonatomic) MSIDAadAuthorityCache *authorityCache;
+
+@end
+
 @implementation MSIDAADAuthority
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -64,11 +70,6 @@
     }
     
     return self;
-}
-
-- (void)setAuthorityCache:(MSIDAadAuthorityCache *)authorityCache
-{
-    _authorityCache = authorityCache ? authorityCache : [MSIDAadAuthorityCache sharedInstance];
 }
 
 - (void)resolveAndValidate:(BOOL)validate
@@ -177,7 +178,6 @@
 {
     MSIDAADAuthority *authority = [super copyWithZone:zone];
     authority->_tenant = [_tenant copyWithZone:zone];
-    authority->_authorityCache = [_authorityCache copyWithZone:zone];
     
     return authority;
 }

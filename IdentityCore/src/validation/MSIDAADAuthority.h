@@ -29,7 +29,6 @@
 @interface MSIDAADAuthority : MSIDAuthority
 
 @property (nonatomic, readonly, nonnull) MSIDAADTenant *tenant;
-@property (nonatomic, nonnull) MSIDAadAuthorityCache *authorityCache;
 
 + (nullable instancetype)aadAuthorityWithEnvironment:(nonnull NSString *)environment
                                            rawTenant:(nullable NSString *)rawTenant
