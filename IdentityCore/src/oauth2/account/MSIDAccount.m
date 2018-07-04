@@ -137,7 +137,7 @@
 
     if (self.storageAuthority)
     {
-        cacheItem.environment = self.storageAuthority.msidHostWithPortIfNecessary;
+        cacheItem.environment = self.storageAuthority.url.msidHostWithPortIfNecessary;
     }
     else
     {
