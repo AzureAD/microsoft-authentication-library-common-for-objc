@@ -30,7 +30,6 @@
 #import "MSIDChallengeHandler.h"
 #import "MSIDAuthority.h"
 #import "MSIDWorkPlaceJoinConstants.h"
-#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDOAuth2EmbeddedWebviewController
 {

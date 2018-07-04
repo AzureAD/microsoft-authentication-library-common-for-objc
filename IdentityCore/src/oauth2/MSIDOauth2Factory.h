@@ -35,6 +35,7 @@
 @class MSIDAccount;
 @class MSIDConfiguration;
 @class MSIDWebviewFactory;
+@class MSIDAuthority;
 
 @protocol MSIDRequestContext;
 
@@ -68,8 +69,7 @@
 
 // Cache URL
 - (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context;
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority;
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority;
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(MSIDAuthority *)originalAuthority;
 - (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment;
 
 @end

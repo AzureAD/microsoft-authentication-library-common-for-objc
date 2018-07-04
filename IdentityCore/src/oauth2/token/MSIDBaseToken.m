@@ -187,7 +187,7 @@
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"(authority=%@ clientId=%@ credentialType=%@ homeAccountId=%@ clientInfo=%@)",
-            _authority.url, _clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], _homeAccountId, _clientInfo];
+            _authority, _clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], _homeAccountId, _clientInfo];
 }
 
 @end

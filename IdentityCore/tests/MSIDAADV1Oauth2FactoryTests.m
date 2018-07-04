@@ -485,7 +485,7 @@
     [self setupAADAuthorityCache];
 
     MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/consumers"];
+    __auto_type originalAuthority = [@"https://login.microsoftonline.com/consumers" authority];
     NSArray *aliases = [factory refreshTokenLookupAuthorities:originalAuthority];
     NSArray *expectedAliases = @[];
     XCTAssertEqualObjects(aliases, expectedAliases);

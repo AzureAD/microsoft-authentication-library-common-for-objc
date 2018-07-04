@@ -44,6 +44,16 @@
 
 @implementation MSIDAADOauth2Factory
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _authorityFactory = [MSIDAuthorityFactory new];
+    }
+    return self;
+}
+
 #pragma mark - Helpers
 
 - (BOOL)checkResponseClass:(MSIDTokenResponse *)response
@@ -129,20 +139,12 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:originalEnvironment context:context];
 }
 
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
-{
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
-    
-    return [authority cacheAliases] ?: @[];
-}
-
 - (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
 {
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
 }
 
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(MSIDAuthority *)originalAuthority
 {
     if (!originalAuthority)
     {
@@ -151,12 +153,9 @@
 
     NSMutableArray *aliases = [NSMutableArray array];
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
-    
-    if ([authority isKindOfClass:MSIDAADAuthority.class])
+    if ([originalAuthority isKindOfClass:MSIDAADAuthority.class])
     {
-        MSIDAADAuthority *aadAuthority = (MSIDAADAuthority *)authority;
+        MSIDAADAuthority *aadAuthority = (MSIDAADAuthority *)originalAuthority;
         if ([aadAuthority.tenant isTenantless])
         {
             // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
@@ -174,7 +173,7 @@
     }
     else
     {
-        [aliases addObject:authority.url];
+        [aliases addObject:originalAuthority.url];
     }
 
     return aliases;

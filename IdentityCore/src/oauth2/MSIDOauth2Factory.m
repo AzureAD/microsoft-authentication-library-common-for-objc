@@ -35,7 +35,6 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDWebviewFactory.h"
-#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDOauth2Factory
 
@@ -352,24 +351,14 @@
     return originalEnvironment;
 }
 
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(MSIDAuthority *)originalAuthority
 {
     if (!originalAuthority)
     {
         return @[];
     }
 
-    return @[originalAuthority];
-}
-
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
-{
-    if (!originalAuthority)
-    {
-        return @[];
-    }
-
-    return @[originalAuthority];
+    return @[originalAuthority.url];
 }
 
 - (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment

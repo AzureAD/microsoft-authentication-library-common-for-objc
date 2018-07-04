@@ -177,8 +177,7 @@
         return NO;
     }
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
+    __auto_type authority = [self.authorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
     
     account.authority = authority;
     return YES;
@@ -193,22 +192,18 @@
         return NO;
     }
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:token.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
+    __auto_type authority = [self.authorityFactory authorityFromUrl:token.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
 
     token.authority = authority;
     return YES;
 }
 
 
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(MSIDAuthority *)originalAuthority
 {
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
-    
-    if ([authority isKindOfClass:MSIDAADAuthority.class])
+    if ([originalAuthority isKindOfClass:MSIDAADAuthority.class])
     {
-        MSIDAADAuthority *aadAuthority = (MSIDAADAuthority *)authority;
+        MSIDAADAuthority *aadAuthority = (MSIDAADAuthority *)originalAuthority;
         if (aadAuthority.tenant.type == MSIDAADTenantTypeConsumers)
         {
             // AAD v1 doesn't support consumer authority

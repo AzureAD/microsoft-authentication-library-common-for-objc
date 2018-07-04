@@ -247,6 +247,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return result;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"%@", self.url.absoluteString];
+}
+
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone

@@ -154,7 +154,7 @@
         query.familyId = familyId;
         query.credentialType = MSIDRefreshTokenType;
 
-        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getTokenWithAuthority:configuration.authority.url
+        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getTokenWithAuthority:configuration.authority
                                                                                cacheQuery:query
                                                                                   context:context
                                                                                     error:error];
@@ -172,7 +172,7 @@
         MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, configuration.clientId, configuration.authority);
 
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getRefreshTokenByLegacyUserId:account.legacyAccountId
-                                                                                        authority:configuration.authority.url
+                                                                                        authority:configuration.authority
                                                                                          clientId:configuration.clientId
                                                                                          familyId:familyId
                                                                                           context:context
@@ -238,7 +238,7 @@
     query.targetMatchingOptions = MSIDSubSet;
     query.credentialType = MSIDAccessTokenType;
 
-    return (MSIDAccessToken *) [self getTokenWithAuthority:configuration.authority.url
+    return (MSIDAccessToken *) [self getTokenWithAuthority:configuration.authority
                                                 cacheQuery:query
                                                    context:context
                                                      error:error];
@@ -256,7 +256,7 @@
     query.clientId = configuration.clientId;
     query.credentialType = MSIDIDTokenType;
 
-    return (MSIDIdToken *) [self getTokenWithAuthority:configuration.authority.url
+    return (MSIDIdToken *) [self getTokenWithAuthority:configuration.authority
                                             cacheQuery:query
                                                context:context
                                                  error:error];
@@ -403,7 +403,7 @@
     query.familyId = token.familyId;
     query.credentialType = MSIDRefreshTokenType;
 
-    MSIDRefreshToken *tokenInCache = (MSIDRefreshToken *) [self getTokenWithAuthority:token.authority.url
+    MSIDRefreshToken *tokenInCache = (MSIDRefreshToken *) [self getTokenWithAuthority:token.authority
                                                                            cacheQuery:query
                                                                               context:context
                                                                                 error:error];
@@ -613,14 +613,11 @@
 
 #pragma mark - Private
 
-- (MSIDBaseToken *)getTokenWithAuthority:(NSURL *)authorityUrl
+- (MSIDBaseToken *)getTokenWithAuthority:(MSIDAuthority *)authority
                               cacheQuery:(MSIDDefaultCredentialCacheQuery *)cacheQuery
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
-    
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     NSArray<NSString *> *aliases = [_factory cacheAliasesForEnvironment:authority.url.msidHostWithPortIfNecessary];
@@ -667,16 +664,13 @@
 }
 
 - (MSIDBaseToken *)getRefreshTokenByLegacyUserId:(NSString *)legacyUserId
-                                       authority:(NSURL *)authorityUrl
+                                       authority:(MSIDAuthority *)authority
                                         clientId:(NSString *)clientId
                                         familyId:(NSString *)familyId
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
-    
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
 
     NSArray<NSURL *> *aliases = [authority cacheAliases];
 
