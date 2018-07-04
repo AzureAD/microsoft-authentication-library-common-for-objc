@@ -142,20 +142,6 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
 }
 
-- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
-                        context:(id<MSIDRequestContext>)context
-{
-    if (!originalAuthority)
-    {
-        return nil;
-    }
-    
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:originalAuthority context:nil error:nil];
-    
-    return [authority cacheUrlWithContext:context];
-}
-
 - (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
     if (!originalAuthority)
