@@ -27,6 +27,12 @@
 #import "MSIDAADTenant.h"
 #import "MSIDAuthorityFactory.h"
 
+@interface MSIDAADAuthority()
+
+@property (nonatomic) MSIDAadAuthorityCache *authorityCache;
+
+@end
+
 @implementation MSIDAADAuthority
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -64,11 +70,6 @@
     }
     
     return self;
-}
-
-- (void)setAuthorityCache:(MSIDAadAuthorityCache *)authorityCache
-{
-    _authorityCache = authorityCache ? authorityCache : [MSIDAadAuthorityCache sharedInstance];
 }
 
 - (void)resolveAndValidate:(BOOL)validate
@@ -160,16 +161,13 @@
     return tenant != nil;
 }
 
-+ (instancetype)aadAuthorityWithAuthorityURL:(NSURL *)authorityUrl
++ (instancetype)aadAuthorityWithEnvironment:(NSString *)environment
                                    rawTenant:(NSString *)rawTenant
                                      context:(id<MSIDRequestContext>)context
-                                       error:(NSError **)error;
+                                       error:(NSError **)error
 {
-    if (![self.class isAuthorityFormatValid:authorityUrl context:context error:error]) return nil;
-    
-    authorityUrl = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authorityUrl msidHostWithPortIfNecessary], rawTenant]];
-    
-    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    __auto_type authorityUrl = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", environment, rawTenant]];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
     
     return authority;
 }
@@ -180,7 +178,6 @@
 {
     MSIDAADAuthority *authority = [super copyWithZone:zone];
     authority->_tenant = [_tenant copyWithZone:zone];
-    authority->_authorityCache = [MSIDAadAuthorityCache sharedInstance];
     
     return authority;
 }

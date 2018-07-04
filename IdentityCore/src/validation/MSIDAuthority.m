@@ -247,11 +247,16 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return result;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"%@", self.url.absoluteString];
+}
+
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    MSIDAuthority *authority = [[self.class allocWithZone:zone] init];
+    MSIDAuthority *authority = [[self.class allocWithZone:zone] initWithURL:_url context:nil error:nil];
     authority->_url = [_url copyWithZone:zone];
     
     return authority;

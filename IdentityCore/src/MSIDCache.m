@@ -87,4 +87,14 @@
     return count;
 }
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDCache *item = [[self.class allocWithZone:zone] init];
+    item->_container = [_container copyWithZone:zone];
+    
+    return item;
+}
+
 @end

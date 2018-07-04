@@ -35,7 +35,6 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDWebviewFactory.h"
-#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDOauth2Factory
 
@@ -341,20 +340,10 @@
     account.familyName = response.idTokenObj.familyName;
     account.middleName = response.idTokenObj.middleName;
     account.name = response.idTokenObj.name;
-    
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:configuration.authority context:nil error:nil];
-    
-    account.authority = authority;
+    account.authority = configuration.authority;
     account.accountType = response.accountType;
     account.localAccountId = response.idTokenObj.uniqueId;
     return YES;
-}
-
-- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
-                        context:(id<MSIDRequestContext>)context
-{
-    return originalAuthority;
 }
 
 - (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
@@ -362,24 +351,14 @@
     return originalEnvironment;
 }
 
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
+- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(MSIDAuthority *)originalAuthority
 {
     if (!originalAuthority)
     {
         return @[];
     }
 
-    return @[originalAuthority];
-}
-
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
-{
-    if (!originalAuthority)
-    {
-        return @[];
-    }
-
-    return @[originalAuthority];
+    return @[originalAuthority.url];
 }
 
 - (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment

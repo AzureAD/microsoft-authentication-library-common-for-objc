@@ -45,6 +45,7 @@
 #import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDAADV1Oauth2FactoryTests : XCTestCase
 
@@ -291,7 +292,7 @@
     
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
+    XCTAssertEqualObjects(token.authority.url.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -406,7 +407,7 @@
     NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
 
     MSIDConfiguration *configuration =
-    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
+    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY authority]
                                      redirectUri:@"redirect uri"
                                         clientId:@"client id"
                                           target:@"target"];
@@ -434,7 +435,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     
     NSString *resourceInRequest = @"https://contoso.com";
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[@"https://contoso.com/common" authority]
                                                                         redirectUri:@"fake_redirect_uri"
                                                                            clientId:@"fake_client_id"
                                                                              target:resourceInRequest];
@@ -455,7 +456,7 @@
     NSString *resourceInRequest = @"https://contoso.com/.Default";
     NSString *resourceInResponse = @"https://contoso.com";
 
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:@"https://contoso.com/common"]
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[@"https://contoso.com/common" authority]
                                                                         redirectUri:@"fake_redirect_uri"
                                                                            clientId:@"fake_client_id"
                                                                              target:resourceInRequest];
@@ -484,7 +485,7 @@
     [self setupAADAuthorityCache];
 
     MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/consumers"];
+    __auto_type originalAuthority = [@"https://login.microsoftonline.com/consumers" authority];
     NSArray *aliases = [factory refreshTokenLookupAuthorities:originalAuthority];
     NSArray *expectedAliases = @[];
     XCTAssertEqualObjects(aliases, expectedAliases);

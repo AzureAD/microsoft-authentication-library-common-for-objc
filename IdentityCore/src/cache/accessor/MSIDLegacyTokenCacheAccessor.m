@@ -104,7 +104,11 @@
 {
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
 
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:response.authority]
+    
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:[response.authority msidUrl] context:nil error:nil];
+    
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:nil
                                                                            clientId:response.clientId
                                                                              target:response.resource];
@@ -262,7 +266,7 @@
         account.homeAccountId = refreshToken.homeAccountId;
         
         __auto_type authorityFactory = [MSIDAuthorityFactory new];
-        __auto_type authority = [authorityFactory authorityFromUrl:refreshToken.authority rawTenant:refreshToken.realm context:nil error:nil];
+        __auto_type authority = [authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:nil error:nil];
         account.authority = authority;
         account.accountType = MSIDAccountTypeMSSTS;
         account.username = refreshToken.legacyUserId;
@@ -279,7 +283,8 @@
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
-    NSArray *aliases = [_factory cacheAliasesForAuthority:configuration.authority];
+    
+    NSArray *aliases = [configuration.authority cacheAliases] ?: @[];
 
     return (MSIDLegacyAccessToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                             type:MSIDAccessTokenType
@@ -296,7 +301,7 @@
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error
 {
-    NSArray *aliases = [_factory cacheAliasesForAuthority:configuration.authority];
+    NSArray *aliases = [configuration.authority cacheAliases] ?: @[];
 
     return (MSIDLegacySingleResourceToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                                     type:MSIDLegacySingleResourceTokenType
@@ -323,12 +328,12 @@
 
     MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
 
-    NSURL *storageAuthority = token.storageAuthority ? token.storageAuthority : token.authority;
+    __auto_type storageAuthority = token.storageAuthority ? token.storageAuthority : token.authority;
 
     MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.primaryUserId
                                                                                              type:cacheItem.credentialType
                                                                                         authority:token.authority
-                                                                                    lookupAliases:@[storageAuthority]
+                                                                                    lookupAliases:@[storageAuthority.url]
                                                                                          clientId:cacheItem.clientId
                                                                                          resource:cacheItem.target
                                                                                           context:context
@@ -531,7 +536,7 @@
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
 
-    NSURL *alias = [_factory cacheURLForAuthority:token.authority context:context];
+    NSURL *alias = [token.authority cacheUrlWithContext:context];;
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving token %@ with authority %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:tokenCacheItem.credentialType], alias, tokenCacheItem.clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving token %@ for account %@ with authority %@, clientID %@", tokenCacheItem, userId, alias, tokenCacheItem.clientId);
 
@@ -604,9 +609,9 @@
     
     MSIDCredentialCacheItem *cacheItem = token.tokenCacheItem;
  
-    NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
+    __auto_type authority = token.storageAuthority ? token.storageAuthority : token.authority;
 
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:authority
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:authority.url
                                                                              clientId:cacheItem.clientId
                                                                              resource:cacheItem.target
                                                                          legacyUserId:userId];
@@ -626,7 +631,7 @@
 
 - (MSIDBaseToken *)getTokenByLegacyUserId:(NSString *)legacyUserId
                                      type:(MSIDCredentialType)type
-                                authority:(NSURL *)authority
+                                authority:(MSIDAuthority *)authority
                             lookupAliases:(NSArray<NSURL *> *)aliases
                                  clientId:(NSString *)clientId
                                  resource:(NSString *)resource
@@ -684,7 +689,7 @@
 
 - (MSIDBaseToken *)getTokenByHomeAccountId:(NSString *)homeAccountId
                                  tokenType:(MSIDCredentialType)tokenType
-                                 authority:(NSURL *)authority
+                                 authority:(MSIDAuthority *)authority
                              lookupAliases:(NSArray<NSURL *> *)aliases
                                   clientId:(NSString *)clientId
                                   resource:(NSString *)resource
@@ -723,7 +728,7 @@
                                                                         filterBy:filterBlock];
         
         if ([matchedTokens count])
-        {
+        {            
             MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found token");
             MSIDBaseToken *token = matchedTokens[0];
             token.storageAuthority = token.authority;

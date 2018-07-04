@@ -22,21 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDDRSType.h"
+#import "MSIDAuthority.h"
 
-@protocol MSIDAADEndpointProviding <NSObject>
+@interface NSString (MSIDTestUtil)
 
-- (NSURL *)oauth2AuthorizeEndpointWithUrl:(NSURL *)baseUrl;
-
-- (NSURL *)oauth2TokenEndpointWithUrl:(NSURL *)baseUrl;
-
-- (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDDRSType)type;
-
-- (NSURL *)webFingerDiscoveryEndpointWithIssuer:(NSURL *)issuer;
-
-- (NSURL *)openIdConfigurationEndpointWithUrl:(NSURL *)baseUrl;
-
-- (NSURL *)aadAuthorityDiscoveryEndpointWithHost:(NSString *)host;
-
+- (MSIDAuthority *)authority;
 
 @end

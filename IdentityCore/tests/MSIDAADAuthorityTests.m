@@ -254,7 +254,7 @@
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
     __auto_type cacheMock = [MSIDAADAuthorityCacheMock new];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
-    authority.authorityCache = cacheMock;
+    [authority setValue:cacheMock forKey:@"authorityCache"];
     
     __auto_type url = [authority cacheUrlWithContext:nil];
     
@@ -269,7 +269,7 @@
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
     __auto_type cacheMock = [MSIDAADAuthorityCacheMock new];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
-    authority.authorityCache = cacheMock;
+    [authority setValue:cacheMock forKey:@"authorityCache"];
     
     __auto_type url = [authority networkUrlWithContext:nil];
     
@@ -284,7 +284,7 @@
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
     __auto_type cacheMock = [MSIDAADAuthorityCacheMock new];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
-    authority.authorityCache = cacheMock;
+    [authority setValue:cacheMock forKey:@"authorityCache"];
     
     __auto_type aliases = [authority cacheAliases];
     

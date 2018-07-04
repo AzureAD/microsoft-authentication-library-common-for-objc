@@ -21,8 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-typedef NS_ENUM(NSInteger, MSIDADFSType)
+#import "NSString+MSIDTestUtil.h"
+#import "MSIDAuthorityFactory.h"
+
+@implementation NSString (MSIDTestUtil)
+
+- (MSIDAuthority *)authority
 {
-    MSIDADFSTypeOnPrems,
-    MSIDADFSTypeCloud
-};
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authorityUrl = [[NSURL alloc] initWithString:self];
+    __auto_type authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+    
+    return authority;
+}
+
+@end

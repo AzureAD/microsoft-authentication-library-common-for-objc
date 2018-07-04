@@ -35,6 +35,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "MSIDAADAuthority.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDAccountTests : XCTestCase
 
@@ -203,10 +204,8 @@
 - (void)testSetStorageAuthority_shouldUseStorageAuthorityInCacheItem
 {
     MSIDAccount *account = [MSIDAccount new];
-    __auto_type authorityUrl = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
-    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
-    account.authority = authority;
-    account.storageAuthority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
+    account.authority = [@"https://login.microsoftonline.com/common" authority];
+    account.storageAuthority = [@"https://login.windows.net/contoso.com" authority];
 
     MSIDAccountCacheItem *cacheItem = [account accountCacheItem];
     XCTAssertEqualObjects(cacheItem.environment, @"login.windows.net");
@@ -224,10 +223,8 @@
     account.accountType = MSIDAccountTypeMSSTS;
     account.homeAccountId = @"uid.utid";
     account.localAccountId = @"local";
-    __auto_type authorityUrl = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
-    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
-    account.authority = authority;
-    account.storageAuthority = [NSURL URLWithString:@"https://login.windows2.net/contoso.com"];
+    account.authority = [@"https://login.microsoftonline.com/common" authority];
+    account.storageAuthority = [@"https://login.windows2.net/contoso.com" authority];
     account.username = @"username";
     account.givenName = @"Eric";
     account.middleName = @"Middle";

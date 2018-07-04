@@ -47,6 +47,7 @@
 #import "MSIDWebWPJAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDAuthority.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDAADV2Oauth2StartegyTests : XCTestCase
 
@@ -182,7 +183,7 @@
     
     MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -203,7 +204,7 @@
     
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -231,7 +232,7 @@
     
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -254,7 +255,7 @@
     
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -278,7 +279,7 @@
     
     MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -405,7 +406,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"at" RT:@"rt" scopes:scopes idToken:idToken uid:@"1" utid:@"1234-5678-90abcdefg" familyId:@"1"];
     
     MSIDConfiguration *configuration =
-    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
+    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY authority]
                                      redirectUri:@"redirect uri"
                                         clientId:@"client id"
                                           target:@"target"];

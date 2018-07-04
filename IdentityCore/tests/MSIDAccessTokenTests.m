@@ -27,6 +27,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDConfiguration.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDAccessTokenTests : XCTestCase
 
@@ -227,7 +228,7 @@
 
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/contoso.com" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     NSDictionary *additionalServerInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};

@@ -40,6 +40,7 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDAccountIdentifier.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDDefaultTokenCacheIntegrationTests : XCTestCase
 {
@@ -447,7 +448,7 @@
     XCTAssertEqual([accessTokensInCache count], 4);
 
     configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
 
     // retrieve first at
     NSError *error = nil;
@@ -475,7 +476,7 @@
                                           error:nil];
 
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
 
     NSError *error = nil;
 
@@ -504,7 +505,7 @@
 
     // Retrieve token
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
 
     NSError *error = nil;
     MSIDAccessToken *returnedToken = [_cacheAccessor getAccessTokenForAccount:account

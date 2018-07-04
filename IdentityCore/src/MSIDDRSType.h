@@ -21,22 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDDRSType.h"
-
-@protocol MSIDAADEndpointProviding <NSObject>
-
-- (NSURL *)oauth2AuthorizeEndpointWithUrl:(NSURL *)baseUrl;
-
-- (NSURL *)oauth2TokenEndpointWithUrl:(NSURL *)baseUrl;
-
-- (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDDRSType)type;
-
-- (NSURL *)webFingerDiscoveryEndpointWithIssuer:(NSURL *)issuer;
-
-- (NSURL *)openIdConfigurationEndpointWithUrl:(NSURL *)baseUrl;
-
-- (NSURL *)aadAuthorityDiscoveryEndpointWithHost:(NSString *)host;
-
-
-@end
+typedef NS_ENUM(NSInteger, MSIDDRSType)
+{
+    MSIDDRSTypeOnPrem,
+    MSIDDRSTypeInCloud
+};

@@ -138,11 +138,9 @@
 
     accessToken.scopes = responseScopes;
     
+    __auto_type authority = [self.authorityFactory authorityFromUrl:accessToken.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:accessToken.authority rawTenant:response.idTokenObj.realm context:nil error:nil];
-    
-    accessToken.authority = authority.url;
+    accessToken.authority = authority;
 
     return YES;
 }
@@ -158,10 +156,9 @@
         return NO;
     }
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:token.authority rawTenant:response.idTokenObj.realm context:nil error:nil];
+    __auto_type authority = [self.authorityFactory authorityFromUrl:token.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
 
-    token.authority = authority.url;
+    token.authority = authority;
 
     return YES;
 }
@@ -182,8 +179,7 @@
         return NO;
     }
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
+    __auto_type authority = [self.authorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
 
     account.authority = authority;
     return YES;

@@ -113,7 +113,7 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
                            context:(id<MSIDRequestContext>)context
                    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    __auto_type drsPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeOnPrems];
+    __auto_type drsPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDDRSTypeOnPrem];
     drsPremRequest.context = context;
     [drsPremRequest sendWithBlock:^(id response, NSError *error)
      {
@@ -123,15 +123,11 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
              return;
          }
          
-         __auto_type drsCloudRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeCloud];
+         __auto_type drsCloudRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDDRSTypeInCloud];
          drsCloudRequest.context = context;
          [drsCloudRequest sendWithBlock:^(id response, NSError *error)
           {
-              if (response)
-              {
-                  if (completionBlock) completionBlock(response, error);
-                  return;
-              }
+              if (completionBlock) completionBlock(response, error);
           }];
      }];
 }
