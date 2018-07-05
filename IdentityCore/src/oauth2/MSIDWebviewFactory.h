@@ -31,8 +31,10 @@
 
 @interface MSIDWebviewFactory : NSObject
 
+#if !MSID_EXCLUDE_WEBKIT
 // Webviews creation
 - (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context;
+#endif
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 - (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration context:(id<MSIDRequestContext>)context;
@@ -55,4 +57,5 @@
                responseURL:(NSURL *)url
                      error:(NSError **)error;
 - (NSString *)generateStateValue;
+
 @end

@@ -27,8 +27,12 @@
 
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 
+#if !MSID_EXCLUDE_WEBKIT
+
 @interface MSIDAADOAuthEmbeddedWebviewController : MSIDOAuth2EmbeddedWebviewController
 
 - (id)init NS_UNAVAILABLE;
 
 @end
+
+#endif

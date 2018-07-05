@@ -40,6 +40,8 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
 
 @interface MSIDWebviewAuthorization : NSObject
 
+#if !MSID_EXCLUDE_WEBKIT
+
 + (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                     oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
                                           context:(id<MSIDRequestContext>)context
@@ -51,6 +53,8 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
                                                  context:(id<MSIDRequestContext>)context
                                        completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
+#endif
+
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                          oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
@@ -58,14 +62,15 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
                                      completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 #endif
 
-
-+ (BOOL)setCurrentSession:(MSIDWebviewSession *)session;
-+ (void)cancelCurrentSession;
-
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 // This is for system webview auth session on iOS 10 - Thus, a SafariViewController
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;
 #endif
+
+#if !MSID_EXCLUDE_WEBKIT
+
++ (BOOL)setCurrentSession:(MSIDWebviewSession *)session;
++ (void)cancelCurrentSession;
 
 // This can be utilized for having a custom webview controller, and for testing.
 + (void)startSession:(MSIDWebviewSession *)session
@@ -73,6 +78,8 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
    completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
 @property (class, readonly) MSIDWebviewSession *currentSession;
+
+#endif
 
 @end
 
