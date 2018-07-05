@@ -34,12 +34,18 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 @interface MSIDAuthority : NSObject <NSCopying>
 {
-@protected NSURL *_url;
+@protected
+    NSURL *_url;
+    NSURL *_openIdConfigurationEndpoint;
 }
 
 @property (class, readonly, nonnull) MSIDCache *openIdConfigurationCache;
 
 @property (nonatomic, readonly, nonnull) NSURL *url;
+
+@property (nonatomic, readonly, nullable) NSURL *openIdConfigurationEndpoint;
+
+@property (nonatomic, readonly, nullable) MSIDOpenIdProviderMetadata *metadata;
 
 - (instancetype _Nullable )init NS_UNAVAILABLE;
 + (instancetype _Nullable )new NS_UNAVAILABLE;
@@ -58,7 +64,6 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
                    context:(nullable id<MSIDRequestContext>)context
            completionBlock:(nonnull MSIDAuthorityInfoBlock)completionBlock;
 
-
 - (nonnull NSURL *)networkUrlWithContext:(nullable id<MSIDRequestContext>)context;
 
 - (nonnull NSURL *)cacheUrlWithContext:(nullable id<MSIDRequestContext>)context;
@@ -69,11 +74,13 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (BOOL)isKnown;
 
+/* It is used in telemetry */
+- (nonnull NSString *)authorityType;
+
 + (BOOL)isKnownHost:(nullable NSString *)host;
 
-+ (void)loadOpenIdConfigurationInfo:(nonnull NSURL *)openIdConfigurationEndpoint
-                            context:(nullable id<MSIDRequestContext>)context
-                    completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionB_Nullable_Nonnulllock;
+- (void)loadOpenIdMetadataWithContext:(nullable id<MSIDRequestContext>)context
+                      completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionBlock;
 
 + (BOOL)isAuthorityFormatValid:(nonnull NSURL *)url
                        context:(nullable id<MSIDRequestContext>)context

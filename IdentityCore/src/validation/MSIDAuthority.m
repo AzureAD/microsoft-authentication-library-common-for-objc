@@ -72,6 +72,12 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
 static NSSet<NSString *> *s_trustedHostList;
 static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
 
+@interface MSIDAuthority()
+
+@property (nonatomic) MSIDOpenIdProviderMetadata *metadata;
+
+@end
+
 @implementation MSIDAuthority
 
 + (void)initialize
@@ -152,6 +158,12 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return [s_trustedHostList containsObject:self.url.host.lowercaseString];
 }
 
+- (nonnull NSString *)authorityType
+{
+    // TODO: abstract.
+    return nil;
+}
+
 + (BOOL)isKnownHost:(NSString *)host
 {
     if (!host) return NO;
@@ -159,13 +171,12 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return [s_trustedHostList containsObject:host.lowercaseString];
 }
 
-+ (void)loadOpenIdConfigurationInfo:(NSURL *)openIdConfigurationEndpoint
-                            context:(id<MSIDRequestContext>)context
-                    completionBlock:(MSIDOpenIdConfigurationInfoBlock)completionBlock
+- (void)loadOpenIdMetadataWithContext:(nullable id<MSIDRequestContext>)context
+                      completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionBlock;
 {
     NSParameterAssert(completionBlock);
     
-    __auto_type cacheKey = openIdConfigurationEndpoint.absoluteString.lowercaseString;
+    __auto_type cacheKey = self.openIdConfigurationEndpoint.absoluteString.lowercaseString;
     __auto_type metadata = [s_openIdConfigurationCache objectForKey:cacheKey];
     
     if (metadata)
@@ -174,13 +185,15 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
         return;
     }
     
-    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:openIdConfigurationEndpoint];
+    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:self.openIdConfigurationEndpoint];
     [request sendWithBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
      {
          if (cacheKey && metadata)
          {
              [s_openIdConfigurationCache setObject:metadata forKey:cacheKey];
          }
+         
+         if (!error) self.metadata = metadata;
          
          completionBlock(metadata, error);
      }];

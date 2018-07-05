@@ -23,6 +23,7 @@
 
 #import "MSIDB2CAuthority.h"
 #import "MSIDB2CAuthorityResolver.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @implementation MSIDB2CAuthority
 
@@ -87,6 +88,11 @@
     }
     
     return YES;
+}
+
+- (nonnull NSString *)authorityType
+{
+    return MSID_TELEMETRY_VALUE_AUTHORITY_B2C;
 }
 
 #pragma mark - Private

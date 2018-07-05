@@ -23,6 +23,7 @@
 
 #import "MSIDADFSAuthority.h"
 #import "MSIDAdfsAuthorityResolver.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @implementation MSIDADFSAuthority
 
@@ -77,6 +78,11 @@
     }
     
     return YES;
+}
+
+- (nonnull NSString *)authorityType
+{
+    return MSID_TELEMETRY_VALUE_AUTHORITY_ADFS;
 }
 
 #pragma mark - Private

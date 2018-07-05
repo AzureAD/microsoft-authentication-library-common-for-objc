@@ -34,6 +34,7 @@
 #import "MSIDB2CAuthority.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDADFSAuthority.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDAuthorityIntegrationTests : XCTestCase
 
@@ -74,10 +75,13 @@
                                  };
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
+    
+    __auto_type authority = [self loadAuthorityWithOpenIdConfigurationEndpoint:openIdConfigurationUrl];
 
-    // Cache is empty, 'loadOpenIdConfigurationInfo' shoul make network request and save result into the cache (no network error).
+    // Cache is empty, 'loadOpenIdConfigurationInfo' should make network request and save result into the cache (no network error).
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET OpenId Configuration Request"];
-    [MSIDAuthority loadOpenIdConfigurationInfo:openIdConfigurationUrl context:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+    
+    [authority loadOpenIdMetadataWithContext:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
      {
          XCTAssertNil(error);
          XCTAssertNotNil(metadata);
@@ -90,9 +94,9 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    // Send same request 2nd time. Now 'loadOpenIdConfigurationInfo' shoul not make network request, but take result from cache.
+    // Send same request 2nd time. Now 'loadOpenIdConfigurationInfo' should not make network request, but take result from cache.
     expectation = [self expectationWithDescription:@"GET OpenId Configuration From Cache"];
-    [MSIDAuthority loadOpenIdConfigurationInfo:openIdConfigurationUrl context:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+    [authority loadOpenIdMetadataWithContext:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
      {
          XCTAssertNil(error);
          XCTAssertNotNil(metadata);
@@ -115,10 +119,12 @@
                                                          respondWithError:[NSError new]];
     [responseWithError setRequestHeaders:nil];
     [MSIDTestURLSession addResponse:responseWithError];
+    
+    __auto_type authority = [self loadAuthorityWithOpenIdConfigurationEndpoint:openIdConfigurationUrl];
 
     // 1st response with error.
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET OpenId Configuration Request"];
-    [MSIDAuthority loadOpenIdConfigurationInfo:openIdConfigurationUrl context:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+    [authority loadOpenIdMetadataWithContext:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
      {
          XCTAssertNil(metadata);
          XCTAssertNotNil(error);
@@ -139,7 +145,7 @@
 
     // 2nd response is valid and contains metadata.
     expectation = [self expectationWithDescription:@"GET OpenId Configuration From Cache"];
-    [MSIDAuthority loadOpenIdConfigurationInfo:openIdConfigurationUrl context:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+    [authority loadOpenIdMetadataWithContext:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
      {
          XCTAssertNil(error);
          XCTAssertNotNil(metadata);
@@ -774,6 +780,43 @@
      }];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+#pragma mark - Private
+
+- (MSIDAADAuthority *)loadAuthorityWithOpenIdConfigurationEndpoint:(NSURL *)openIdConfigurationEndpoint
+{
+    __auto_type authorityUrl = [@"https://example.com/common/qwe" msidUrl];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/oauth2/authorize" msidUrl];
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:httpResponse];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{
+                                 @"tenant_discovery_endpoint" : openIdConfigurationEndpoint.absoluteString,
+                                 @"metadata" : @[
+                                         @{
+                                             @"preferred_network" : @"example.com",
+                                             @"preferred_cache" : @"example.com",
+                                             @"aliases" : @[@"example.com"]
+                                             }
+                                         ]
+                                 };
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
+    [authority resolveAndValidate:YES userPrincipalName:nil context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    return authority;
 }
 
 @end

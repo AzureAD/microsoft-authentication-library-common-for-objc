@@ -26,14 +26,18 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAADTenant.h"
 #import "MSIDAuthorityFactory.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @interface MSIDAADAuthority()
 
 @property (nonatomic) MSIDAadAuthorityCache *authorityCache;
+@property (nonatomic) NSURL *openIdConfigurationEndpoint;
 
 @end
 
 @implementation MSIDAADAuthority
+
+@synthesize openIdConfigurationEndpoint;
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
@@ -84,7 +88,12 @@
              userPrincipalName:nil
                       validate:validate
                        context:context
-               completionBlock:completionBlock];
+               completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         self.openIdConfigurationEndpoint = openIdConfigurationEndpoint;
+         
+         if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
+     }];
 }
 
 - (NSURL *)networkUrlWithContext:(id<MSIDRequestContext>)context
@@ -170,6 +179,11 @@
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
     
     return authority;
+}
+
+- (nonnull NSString *)authorityType
+{
+    return MSID_TELEMETRY_VALUE_AUTHORITY_AAD;
 }
 
 #pragma mark - NSCopying
