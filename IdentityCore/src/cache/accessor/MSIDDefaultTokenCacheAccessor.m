@@ -485,18 +485,18 @@
 
 #pragma mark - Input validation
 
-- (BOOL)checkUserIdentifier:(NSString *)userIdentifier
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+- (BOOL)checkAccountIdentifier:(NSString *)accountIdentifier
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
-    if (!userIdentifier)
+    if (!accountIdentifier)
     {
         MSID_LOG_ERROR(context, @"(Default accessor) User identifier is expected for default accessor, but not provided");
         MSID_LOG_ERROR_PII(context, @"(Default accessor) User identifier is expected for default accessor, but not provided");
         
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"User identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Account identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
         }
         return NO;
     }
@@ -527,7 +527,7 @@
         return NO;
     }
 
-    if (![self checkUserIdentifier:accessToken.homeAccountId context:context error:error])
+    if (![self checkAccountIdentifier:accessToken.homeAccountId context:context error:error])
     {
         return NO;
     }
@@ -790,7 +790,7 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
-    if (![self checkUserIdentifier:token.homeAccountId context:context error:error])
+    if (![self checkAccountIdentifier:token.homeAccountId context:context error:error])
     {
         return NO;
     }
@@ -809,7 +809,7 @@
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
-    if (![self checkUserIdentifier:account.homeAccountId context:context error:error])
+    if (![self checkAccountIdentifier:account.homeAccountId context:context error:error])
     {
         return NO;
     }

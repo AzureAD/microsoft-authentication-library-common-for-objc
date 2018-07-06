@@ -35,6 +35,7 @@
  */
 @interface MSIDTestLogger : NSObject
 
+@property (readwrite) BOOL callbackInvoked;
 @property (readwrite) BOOL containsPII;
 @property (readwrite, retain) NSString *lastMessage;
 @property (readwrite) MSIDLogLevel lastLevel;

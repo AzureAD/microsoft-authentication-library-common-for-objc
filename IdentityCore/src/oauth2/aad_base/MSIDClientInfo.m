@@ -48,7 +48,7 @@ MSID_JSON_RW(@"client_info", rawClientInfo, setRawClientInfo)
     return self;
 }
 
-- (NSString *)userIdentifier
+- (NSString *)accountIdentifier
 {
     if (self.uid && self.utid)
     {

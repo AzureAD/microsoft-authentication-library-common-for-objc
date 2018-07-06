@@ -31,10 +31,12 @@
 @property (nonatomic) NSString *keyvaultName;
 @property (nonatomic) NSString *labName;
 @property (nonatomic) NSString *homeTenantId;
+@property (nonatomic) NSString *homeObjectId;
 @property (nonatomic) NSString *targetTenantId;
 
 - (instancetype)initWithJSONResponse:(NSDictionary *)response;
 - (NSString *)passwordFromData:(NSData *)responseData;
+- (NSString *)homeAccountId;
 
 @end
 
