@@ -41,21 +41,6 @@
     return self;
 }
 
-- (void)resolveAndValidate:(BOOL)validate
-         userPrincipalName:(NSString *)upn
-                   context:(id<MSIDRequestContext>)context
-           completionBlock:(MSIDAuthorityInfoBlock)completionBlock
-{
-    NSParameterAssert(completionBlock);
-    
-    id <MSIDAuthorityResolving> resolver = [MSIDAdfsAuthorityResolver new];
-    [resolver resolveAuthority:self
-             userPrincipalName:upn
-                      validate:validate
-                       context:context
-               completionBlock:completionBlock];
-}
-
 + (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
@@ -83,6 +68,13 @@
 - (nonnull NSString *)authorityType
 {
     return MSID_TELEMETRY_VALUE_AUTHORITY_ADFS;
+}
+
+#pragma mark - Protected
+
+- (id<MSIDAuthorityResolving>)resolver
+{
+    return [MSIDAdfsAuthorityResolver new];
 }
 
 #pragma mark - Private

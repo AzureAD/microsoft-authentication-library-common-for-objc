@@ -49,6 +49,7 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDAuthority.h"
+#import "MSIDAuthority+Internal.h"
 #import "MSIDAuthorityResolving.h"
 #import "MSIDAadAuthorityResolver.h"
 #import "MSIDAADAuthorityMetadataRequest.h"
@@ -71,12 +72,6 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
 
 static NSSet<NSString *> *s_trustedHostList;
 static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
-
-@interface MSIDAuthority()
-
-@property (nonatomic) MSIDOpenIdProviderMetadata *metadata;
-
-@end
 
 @implementation MSIDAuthority
 
@@ -126,11 +121,25 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 }
 
 - (void)resolveAndValidate:(BOOL)validate
-         userPrincipalName:(nullable NSString *)upn
-                   context:(nullable id<MSIDRequestContext>)context
-           completionBlock:(nonnull MSIDAuthorityInfoBlock)completionBlock
+         userPrincipalName:(__unused NSString *)upn
+                   context:(id<MSIDRequestContext>)context
+           completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
-    // TODO: abstract.
+    NSParameterAssert(completionBlock);
+    
+    id <MSIDAuthorityResolving> resolver = [self resolver];
+    NSParameterAssert(resolver);
+    
+    [resolver resolveAuthority:self
+             userPrincipalName:nil
+                      validate:validate
+                       context:context
+               completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         self.openIdConfigurationEndpoint = openIdConfigurationEndpoint;
+         
+         if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
+     }];
 }
 
 - (NSURL *)networkUrlWithContext:(id<MSIDRequestContext>)context
@@ -273,6 +282,13 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     authority->_url = [_url copyWithZone:zone];
     
     return authority;
+}
+
+#pragma mark - Protected
+
+- (id<MSIDAuthorityResolving>)resolver
+{
+    return nil;
 }
 
 @end

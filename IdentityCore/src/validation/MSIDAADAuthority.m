@@ -76,26 +76,6 @@
     return self;
 }
 
-- (void)resolveAndValidate:(BOOL)validate
-         userPrincipalName:(__unused NSString *)upn
-                   context:(id<MSIDRequestContext>)context
-           completionBlock:(MSIDAuthorityInfoBlock)completionBlock
-{
-    NSParameterAssert(completionBlock);
-    
-    id <MSIDAuthorityResolving> resolver = [MSIDAadAuthorityResolver new];
-    [resolver resolveAuthority:self
-             userPrincipalName:nil
-                      validate:validate
-                       context:context
-               completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
-     {
-         self.openIdConfigurationEndpoint = openIdConfigurationEndpoint;
-         
-         if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
-     }];
-}
-
 - (NSURL *)networkUrlWithContext:(id<MSIDRequestContext>)context
 {
     return [self.authorityCache networkUrlForAuthority:self context:context];
@@ -194,6 +174,13 @@
     authority->_tenant = [_tenant copyWithZone:zone];
     
     return authority;
+}
+
+#pragma mark - Protected
+
+- (id<MSIDAuthorityResolving>)resolver
+{
+    return [MSIDAadAuthorityResolver new];
 }
 
 #pragma mark - Private

@@ -41,21 +41,6 @@
     return self;
 }
 
-- (void)resolveAndValidate:(BOOL)validate
-         userPrincipalName:(__unused NSString *)upn
-                   context:(id<MSIDRequestContext>)context
-           completionBlock:(MSIDAuthorityInfoBlock)completionBlock
-{
-    NSParameterAssert(completionBlock);
-    
-    id <MSIDAuthorityResolving> resolver = [MSIDB2CAuthorityResolver new];
-    [resolver resolveAuthority:self
-             userPrincipalName:nil
-                      validate:validate
-                       context:context
-               completionBlock:completionBlock];
-}
-
 + (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
@@ -93,6 +78,13 @@
 - (nonnull NSString *)authorityType
 {
     return MSID_TELEMETRY_VALUE_AUTHORITY_B2C;
+}
+
+#pragma mark - Protected
+
+- (id<MSIDAuthorityResolving>)resolver
+{
+    return [MSIDB2CAuthorityResolver new];
 }
 
 #pragma mark - Private

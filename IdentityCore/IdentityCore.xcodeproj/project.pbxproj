@@ -785,6 +785,7 @@
 		235480D320DDF88100246F72 /* MSIDAADAuthority.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAADAuthority.m; sourceTree = "<group>"; };
 		235D13DC20EC7E5200F5C50D /* NSString+MSIDTestUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+MSIDTestUtil.h"; sourceTree = "<group>"; };
 		235D13DD20EC7E5200F5C50D /* NSString+MSIDTestUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDTestUtil.m"; sourceTree = "<group>"; };
+		235D13E120EEE81100F5C50D /* MSIDAuthority+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDAuthority+Internal.h"; sourceTree = "<group>"; };
 		2361DE8A2048B6F8005FD48A /* MSIDAccountTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountTests.m; sourceTree = "<group>"; };
 		237A6D61203269740084E15F /* MSIDJsonSerializable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJsonSerializable.h; sourceTree = "<group>"; };
 		238695F0209D375C00E56ADF /* MSIDAuthorityCacheRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthorityCacheRecord.h; sourceTree = "<group>"; };
@@ -1356,6 +1357,7 @@
 				04930F831FEC8E6800FC4DCD /* MSIDAadAuthorityCache.m */,
 				04930F931FEDB2C700FC4DCD /* MSIDAuthority.h */,
 				04930F941FEDB2E000FC4DCD /* MSIDAuthority.m */,
+				235D13E120EEE81100F5C50D /* MSIDAuthority+Internal.h */,
 				23B39A7D20990E5E000AA905 /* MSIDAuthorityResolving.h */,
 				23B39A7F20993302000AA905 /* MSIDAadAuthorityResolver.h */,
 				23B39A8020993302000AA905 /* MSIDAadAuthorityResolver.m */,
@@ -3279,8 +3281,6 @@
 				B20657E01FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
 				B29A36C020B1289D00427B63 /* MSIDAccountIdentifier.m in Sources */,
 				96A3E9B9208941D700BE5262 /* MSIDSystemWebviewController.m in Sources */,
-				606830052098ACED00CCA6AB /* MSIDNegotiateHandler.m in Sources */,
-				D61AFAB51FD8B6C600DABBE5 /* MSIDConstants.m in Sources */,
 				238E19CD2086FC87004DF483 /* MSIDUrlRequestSerializer.m in Sources */,
 				96F21B0520A4FB27002B87C3 /* MSIDAppExtensionUtil.m in Sources */,
 				238E19DE2086FE28004DF483 /* MSIDTokenRequest.m in Sources */,
