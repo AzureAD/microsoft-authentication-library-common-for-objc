@@ -94,15 +94,13 @@
     }
 
     CFDataRef resultData = SecTransformExecute(signer, &error);
+    CFRelease(signer);
 
     if (!resultData)
     {
         MSID_LOG_ERROR(nil, @"Failed to sign JWT %@", error);
-        CFRelease(signer);
         return nil;
     }
-
-    CFRelease(signer);
 
     return CFBridgingRelease(resultData);
 }
