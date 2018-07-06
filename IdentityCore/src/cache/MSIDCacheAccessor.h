@@ -86,4 +86,9 @@
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
                                              error:(NSError **)error;
 
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+                    clientId:(NSString *)clientId
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error;
+
 @end

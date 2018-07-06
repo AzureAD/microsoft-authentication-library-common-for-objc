@@ -343,10 +343,9 @@
                        error:(NSError **)error
 {
     if (!account
-        || !environment
         || !clientId)
     {
-        [self fillInternalErrorWithMessage:@"Missing parameter, please provide account, clientId and environment" context:context error:error];
+        [self fillInternalErrorWithMessage:@"Missing parameter, please provide account and clientId" context:context error:error];
         return NO;
     }
 
@@ -414,6 +413,73 @@
         return [self removeToken:tokenInCache context:context error:error];
     }
 
+    return YES;
+}
+
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+                    clientId:(NSString *)clientId
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error
+{
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    
+    BOOL result = YES;
+
+    // If home account id is available, remove tokens by home account id
+    if (account.homeAccountId)
+    {
+        result = [self clearCacheForAccount:account
+                                environment:nil
+                                   clientId:clientId
+                                    context:context
+                                      error:error];
+    }
+    // If legacy account id is available, lookup home account id by legacy account id and remove tokens
+    else if (account.legacyAccountId)
+    {
+        MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
+        accountsQuery.accountType = MSIDAccountTypeMSSTS;
+
+        NSArray<MSIDAccountCacheItem *> *resultAccounts = [_accountCredentialCache getAccountsWithQuery:accountsQuery context:context error:error];
+
+        for (MSIDAccountCacheItem *cacheItem in resultAccounts)
+        {
+            if ([cacheItem.username isEqualToString:account.legacyAccountId]
+                && cacheItem.homeAccountId)
+            {
+                account.homeAccountId = cacheItem.homeAccountId;
+
+                result &= [self clearCacheForAccount:account
+                                         environment:nil
+                                            clientId:clientId
+                                             context:context
+                                               error:error];
+
+                break;
+            }
+        }
+    }
+
+    if (!result)
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+        return NO;
+    }
+
+    // Clear cache from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        if (![accessor clearCacheForAccount:account
+                                   clientId:clientId
+                                    context:context
+                                      error:error])
+        {
+            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor: %@", accessor.class);
+            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor:  %@, error %@", accessor.class, *error);
+        }
+    }
+
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return YES;
 }
 

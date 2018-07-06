@@ -2073,6 +2073,115 @@
     XCTAssertEqualObjects([remaininRefreshTokens[0] legacyUserId], @"upn@test.com");
 }
 
+- (void)testClearCacheForAccount_whenTokensInCacheInMultipleAccessors_shouldRemoveCorrectTokens
+{
+    // Save first token
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id2"
+                    authority:@"https://login.windows.net/common"
+             responseResource:@"graph"
+                inputResource:@"graph"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+             additionalFields:nil
+                     accessor:_legacyAccessor];
+
+    // Save second token
+    [self saveResponseWithUPN:@"upn2@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+             responseResource:@"graph2"
+                inputResource:@"graph2"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+             additionalFields:nil
+                     accessor:_legacyAccessor];
+
+    NSArray *accessTokens = [self getAllLegacyAccessTokens];
+    XCTAssertEqual([accessTokens count], 2);
+
+    NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
+    XCTAssertEqual([refreshTokens count], 2);
+
+    NSArray *otherRefreshTokens = [self getAllRefreshTokens];
+    XCTAssertEqual([otherRefreshTokens count], 2);
+
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn2@test.com" homeAccountId:nil];
+
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor clearCacheForAccount:account clientId:@"test_client_id" context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *remainingAccessTokens = [self getAllLegacyAccessTokens];
+    XCTAssertEqual([remainingAccessTokens count], 1);
+    XCTAssertEqualObjects([remainingAccessTokens[0] legacyUserId], @"upn@test.com");
+    XCTAssertEqualObjects([remainingAccessTokens[0] clientId], @"test_client_id2");
+
+    NSArray *remaininRefreshTokens = [self getAllLegacyRefreshTokens];
+    XCTAssertEqual([remaininRefreshTokens count], 1);
+    XCTAssertEqualObjects([remaininRefreshTokens[0] legacyUserId], @"upn@test.com");
+    XCTAssertEqualObjects([remaininRefreshTokens[0] clientId], @"test_client_id2");
+
+    NSArray *otherRemainingRefreshTokens = [self getAllRefreshTokens];
+    XCTAssertEqual([otherRemainingRefreshTokens count], 1);
+    XCTAssertEqualObjects([otherRemainingRefreshTokens[0] clientId], @"test_client_id2");
+}
+
+- (void)testClearCacheForAccountAndClientId_whenTokensInCache_shouldRemoveCorrectTokens
+{
+    // Save first token
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id2"
+                    authority:@"https://login.windows.net/common"
+             responseResource:@"graph"
+                inputResource:@"graph"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+             additionalFields:nil
+                     accessor:_nonSSOAccessor];
+
+    // Save second token
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+             responseResource:@"graph2"
+                inputResource:@"graph2"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+             additionalFields:nil
+                     accessor:_nonSSOAccessor];
+
+    NSArray *accessTokens = [self getAllLegacyAccessTokens];
+    XCTAssertEqual([accessTokens count], 2);
+
+    NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
+    XCTAssertEqual([refreshTokens count], 2);
+
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:nil];
+
+    NSError *error = nil;
+    BOOL result = [_legacyAccessor clearCacheForAccount:account clientId:@"test_client_id" context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *remainingAccessTokens = [self getAllLegacyAccessTokens];
+    XCTAssertEqual([remainingAccessTokens count], 1);
+    XCTAssertEqualObjects([remainingAccessTokens[0] clientId], @"test_client_id2");
+
+    NSArray *remaininRefreshTokens = [self getAllLegacyRefreshTokens];
+    XCTAssertEqual([remaininRefreshTokens count], 1);
+    XCTAssertEqualObjects([remaininRefreshTokens[0] clientId], @"test_client_id2");
+}
+
 - (void)testRemoveAccessToken_whenNilTokenProvided_shouldReturnError
 {
     NSError *error = nil;
