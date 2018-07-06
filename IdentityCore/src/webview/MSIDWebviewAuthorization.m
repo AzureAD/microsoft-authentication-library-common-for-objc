@@ -39,6 +39,8 @@
 
 static MSIDWebviewSession *s_currentSession = nil;
 
+#if !MSID_EXCLUDE_WEBKIT
+
 + (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                     oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
                                           context:(id<MSIDRequestContext>)context
@@ -63,6 +65,8 @@ static MSIDWebviewSession *s_currentSession = nil;
     [self startSession:session context:context completionHandler:completionHandler];
 }
 
+#endif
+
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 + (void)startSystemWebviewWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                          oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
@@ -75,6 +79,8 @@ static MSIDWebviewSession *s_currentSession = nil;
     [self startSession:session context:context completionHandler:completionHandler];
 }
 #endif
+
+#if !MSID_EXCLUDE_WEBKIT
 
 + (void)startSession:(MSIDWebviewSession *)session
              context:(id<MSIDRequestContext>)context
@@ -116,7 +122,6 @@ static MSIDWebviewSession *s_currentSession = nil;
     
     [s_currentSession.webviewController startWithCompletionHandler:startCompletionBlock];
 }
-
 
 + (BOOL)setCurrentSession:(MSIDWebviewSession *)session
 {
@@ -168,6 +173,8 @@ static MSIDWebviewSession *s_currentSession = nil;
         }
     }
 }
+
+#endif
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 + (BOOL)handleURLResponseForSystemWebviewController:(NSURL *)url;

@@ -70,6 +70,8 @@
     return parameters;
 }
 
+#if !MSID_EXCLUDE_WEBKIT
+
 - (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
 {
     NSString *state = [self generateStateValue];
@@ -89,6 +91,8 @@
                                                                             verifyState:configuration.verifyState];
     return session;
 }
+
+#endif
 
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
                                  context:(id<MSIDRequestContext>)context

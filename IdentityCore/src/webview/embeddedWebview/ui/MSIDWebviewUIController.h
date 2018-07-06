@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
 
@@ -51,3 +53,5 @@ NSWindowController
 - (void)userCancel;
 
 @end
+
+#endif

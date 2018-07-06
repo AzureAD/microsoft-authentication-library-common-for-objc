@@ -27,6 +27,8 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDWebviewFactory.h"
 
+#if !MSID_EXCLUDE_WEBKIT
+
 @interface MSIDWebviewAuthorizationTests : XCTestCase
 
 @end
@@ -241,3 +243,5 @@
 #endif
 
 @end
+
+#endif

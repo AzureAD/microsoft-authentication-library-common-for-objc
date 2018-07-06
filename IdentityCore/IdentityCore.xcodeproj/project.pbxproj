@@ -3582,6 +3582,7 @@
 			buildSettings = {
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
+					"$(MSID_WEBKIT)",
 					"$(MSID_SYSTEMWV)",
 				);
 			};
@@ -3591,7 +3592,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9C1FC3626B00CD70C5 /* identitycore__release.xcconfig */;
 			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = "$(MSID_SYSTEMWV)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(MSID_SYSTEMWV)",
+					"$(MSID_WEBKIT)",
+				);
 			};
 			name = Release;
 		};
