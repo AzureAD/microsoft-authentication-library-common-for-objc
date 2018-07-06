@@ -23,7 +23,7 @@
 
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyTokenCacheItem.h"
-#import "MSIDAADIdTokenClaimsFactory.h"
+#import "MSIDIdTokenClaims.h"
 
 @implementation MSIDLegacyAccessToken
 
@@ -99,16 +99,8 @@
         _accessTokenType = tokenCacheItem.oauthTokenType;
         _authority = tokenCacheItem.authority;
 
-        NSError *error = nil;
-        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_idToken error:&error];
-
-        if (error)
-        {
-            MSID_LOG_WARN(nil, @"Invalid ID token");
-            MSID_LOG_WARN_PII(nil, @"Invalid ID token, error %@", error.localizedDescription);
-        }
-
-        _legacyUserId = idTokenClaims.userId;
+        MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
+        _legacyUserId = claims.userId;
     }
 
     return self;

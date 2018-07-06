@@ -27,6 +27,15 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
+#import "MSIDIdTokenClaims.h"
+
+@interface MSIDLegacyTokenCacheItem()
+{
+    MSIDIdTokenClaims *_idTokenClaims;
+}
+
+@end
 
 @implementation MSIDLegacyTokenCacheItem
 
@@ -134,7 +143,7 @@
     }
     else
     {
-        self.homeAccountId = self.clientInfo.userIdentifier ? self.clientInfo.userIdentifier : userInfo.userId;
+        self.homeAccountId = self.clientInfo.userIdentifier;
     }
 
     return self;
@@ -181,6 +190,32 @@
         default:
             return [super tokenWithType:credentialType];
     }
+}
+
+#pragma mark - Claims
+
+- (MSIDIdTokenClaims *)idTokenClaims
+{
+    if (!self.idToken)
+    {
+        return nil;
+    }
+
+    if (_idTokenClaims)
+    {
+        return _idTokenClaims;
+    }
+
+    NSError *error = nil;
+    _idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:self.idToken error:&error];
+
+    if (error)
+    {
+        MSID_LOG_WARN(nil, @"Invalid ID token");
+        MSID_LOG_WARN_PII(nil, @"Invalid ID token, error %@", error.localizedDescription);
+    }
+
+    return _idTokenClaims;
 }
 
 @end

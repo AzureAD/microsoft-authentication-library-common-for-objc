@@ -394,7 +394,7 @@
             {
                 if (clientId && [cacheItem.clientId isEqualToString:clientId])
                 {
-                    result &= [self removeTokenCacheItem:cacheItem userId:account.legacyAccountId context:context error:error];
+                    result &= [self removeTokenCacheItem:cacheItem userId:cacheItem.idTokenClaims.userId context:context error:error];
                 }
             }
         }

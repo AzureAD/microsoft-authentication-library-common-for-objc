@@ -55,14 +55,21 @@
     }
     
     _rawIdToken = [coder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
-    _userId = self.idTokenClaims.userId;
-    
     return self;
 }
 
 - (MSIDIdTokenClaims *)idTokenClaims
 {
-    return [[MSIDIdTokenClaims alloc] initWithRawIdToken:_rawIdToken error:nil];
+    NSError *error = nil;
+    MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_rawIdToken error:&error];
+
+    if (error)
+    {
+        MSID_LOG_WARN(nil, @"Invalid ID token");
+        MSID_LOG_WARN_PII(nil, @"Invalid ID token, error %@", error.localizedDescription);
+    }
+
+    return idTokenClaims;
 }
 
 
