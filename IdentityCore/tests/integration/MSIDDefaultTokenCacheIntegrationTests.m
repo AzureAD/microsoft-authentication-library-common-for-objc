@@ -341,7 +341,7 @@
     XCTAssertEqual([refreshTokensInCache count], 1);
 }
 
-- (void)testSaveRefreshToken_whenNoUserIdentifier_shouldReturnError
+- (void)testSaveRefreshToken_whenNoAccountIdentifier_shouldReturnError
 {
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"user.read", nil];
     MSIDTokenResponse *response = [MSIDTestTokenResponse v2TokenResponseWithAT:@"at"
