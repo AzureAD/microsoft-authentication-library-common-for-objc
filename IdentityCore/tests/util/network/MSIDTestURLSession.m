@@ -247,9 +247,7 @@ static NSMutableArray* s_responses = nil;
                 if ([obj isKindOfClass:[MSIDTestURLResponse class]])
                 {
                     response = (MSIDTestURLResponse *)obj;
-                    fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"URL: %@", response->_requestURL] UTF8String]);
-                    fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"BODY: %@", response->_requestBody] UTF8String]);
-                    fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"HEADERS: %@", response->_requestHeaders] UTF8String]);
+                    [self printResponse: response];
                 }
                 else if ([obj isKindOfClass:[NSMutableArray class]])
                 {

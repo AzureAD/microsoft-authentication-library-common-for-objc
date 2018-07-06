@@ -190,6 +190,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     
     if (metadata)
     {
+        self.metadata = metadata;
         completionBlock(metadata, nil);
         return;
     }

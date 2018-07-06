@@ -24,8 +24,6 @@
 #import "MSIDAuthority.h"
 #import "MSIDAADTenant.h"
 
-@class MSIDAadAuthorityCache;
-
 @interface MSIDAADAuthority : MSIDAuthority
 
 @property (nonatomic, readonly, nonnull) MSIDAADTenant *tenant;
