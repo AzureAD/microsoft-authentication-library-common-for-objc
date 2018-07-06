@@ -28,11 +28,10 @@
 #import <pthread.h>
 
 @interface MSIDLogger()
-{
-    MSIDLogCallback _callback;
-}
 
 @property (nonatomic) dispatch_queue_t loggerQueue;
+@property (nonatomic, copy) MSIDLogCallback callback;
+;
 
 @end
 
@@ -78,7 +77,7 @@
  
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        self->_callback = callback;
+        _callback = callback;
     });
 }
 
@@ -104,7 +103,7 @@ static NSDateFormatter *s_dateFormatter = nil;
     if (!format) return;
     if (isPii && !self.PiiLoggingEnabled) return;
     if (level > self.level) return;
-    if (!_callback && !_NSLoggingEnabled) return;
+    if (!self.callback && !self.NSLoggingEnabled) return;
     
     va_list args;
     va_start(args, format);
@@ -150,11 +149,11 @@ static NSDateFormatter *s_dateFormatter = nil;
             NSLog(@"%@", log);
         }
         
-        if (_callback)
+        if (self.callback)
         {
             NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, message];
             
-            _callback(level, log, isPii);
+            self.callback(level, log, isPii);
         }
     });
 }
