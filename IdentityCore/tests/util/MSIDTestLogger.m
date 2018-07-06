@@ -45,6 +45,7 @@
         
         [[MSIDLogger sharedLogger] setCallback:^(MSIDLogLevel level, NSString *message, BOOL containsPII) {
             [logger logLevel:level isPii:containsPII message:message];
+            logger.callbackInvoked = YES;
         }];
     });
     
