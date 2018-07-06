@@ -131,7 +131,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     NSParameterAssert(resolver);
     
     [resolver resolveAuthority:self
-             userPrincipalName:nil
+             userPrincipalName:upn
                       validate:validate
                        context:context
                completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
@@ -194,7 +194,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
         return;
     }
     
-    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:self.openIdConfigurationEndpoint];
+    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:self.openIdConfigurationEndpoint context:context];
     [request sendWithBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
      {
          if (cacheKey && metadata)
@@ -231,6 +231,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     }
     
     return YES;
+}
+
++ (NSSet<NSString *> *)trustedHosts
+{
+    return s_trustedHostList;
 }
 
 #pragma mark - NSObject

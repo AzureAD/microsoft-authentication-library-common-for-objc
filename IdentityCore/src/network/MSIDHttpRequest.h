@@ -37,12 +37,14 @@
  */
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
 {
-    @protected NSDictionary<NSString *, NSString *> *_parameters;
-    @protected NSURLRequest *_urlRequest;
-    @protected id<MSIDRequestSerialization> _requestSerializer;
-    @protected id<MSIDResponseSerialization> _responseSerializer;
-    @protected id<MSIDHttpRequestTelemetryHandling> _telemetry;
-    @protected id<MSIDHttpRequestErrorHandling> _errorHandler;
+@protected
+    NSDictionary<NSString *, NSString *> *_parameters;
+    NSURLRequest *_urlRequest;
+    id<MSIDRequestSerialization> _requestSerializer;
+    id<MSIDResponseSerialization> _responseSerializer;
+    id<MSIDHttpRequestTelemetryHandling> _telemetry;
+    id<MSIDHttpRequestErrorHandling> _errorHandler;
+    id<MSIDRequestContext> _context;
 }
 
 @property (nonatomic, nonnull) MSIDURLSessionManager *sessionManager;

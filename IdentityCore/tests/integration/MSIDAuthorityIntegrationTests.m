@@ -65,8 +65,10 @@
 {
     __auto_type openIdConfigurationUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     __auto_type httpResponse = [NSHTTPURLResponse new];
+    
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration?x-client-Ver=1.0.0" msidUrl];
 
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:openIdConfigurationUrl
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     __auto_type responseJson = @{
                                  @"authorization_endpoint" : @"https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
@@ -74,6 +76,9 @@
                                  @"issuer" : @"https://login.microsoftonline.com/{tenantid}/v2.0"
                                  };
     [response setResponseJSON:responseJson];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    response->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:response];
     
     __auto_type authority = [self loadAuthorityWithOpenIdConfigurationEndpoint:openIdConfigurationUrl];
@@ -114,10 +119,13 @@
 {
     __auto_type openIdConfigurationUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration?x-client-Ver=1.0.0" msidUrl];
 
-    MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:openIdConfigurationUrl
+    MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:requestUrl
                                                          respondWithError:[NSError new]];
-    [responseWithError setRequestHeaders:nil];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    responseWithError->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:responseWithError];
     
     __auto_type authority = [self loadAuthorityWithOpenIdConfigurationEndpoint:openIdConfigurationUrl];
@@ -133,7 +141,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:openIdConfigurationUrl
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     __auto_type responseJson = @{
                                  @"authorization_endpoint" : @"https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
@@ -141,6 +149,7 @@
                                  @"issuer" : @"https://login.microsoftonline.com/{tenantid}/v2.0"
                                  };
     [response setResponseJSON:responseJson];
+    response->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:response];
 
     // 2nd response is valid and contains metadata.
