@@ -366,12 +366,6 @@
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error
 {
-    if (!account.legacyAccountId)
-    {
-        [self fillInternalErrorWithMessage:@"Can't clear cache without user id" context:context error:error];
-        return NO;
-    }
-
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Clearing cache with account and client id %@", clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Clearing cache with account %@ and client id %@", account.legacyAccountId, clientId);
 
@@ -383,7 +377,8 @@
     query.legacyUserId = account.legacyAccountId;
 
     // If only user id is provided, optimize operation by deleting from data source directly
-    if ([NSString msidIsStringNilOrBlank:clientId])
+    if ([NSString msidIsStringNilOrBlank:clientId]
+        && ![NSString msidIsStringNilOrBlank:account.legacyAccountId])
     {
         result = [_dataSource removeItemsWithKey:query context:context error:error];
         [_dataSource saveWipeInfoWithContext:context error:nil];
@@ -397,7 +392,7 @@
         {
             for (MSIDLegacyTokenCacheItem *cacheItem in results)
             {
-                if ([cacheItem.clientId isEqualToString:clientId])
+                if (clientId && [cacheItem.clientId isEqualToString:clientId])
                 {
                     result &= [self removeTokenCacheItem:cacheItem userId:account.legacyAccountId context:context error:error];
                 }
