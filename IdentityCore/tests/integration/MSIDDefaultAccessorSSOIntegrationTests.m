@@ -1630,15 +1630,6 @@
     XCTAssertEqual(error.code, MSIDErrorInternal);
 }
 
-- (void)testClearCacheForAccount_whenNilClientId_shouldReturnError
-{
-    NSError *error = nil;
-    BOOL result = [_defaultAccessor clearCacheForAccount:[MSIDAccountIdentifier new] environment:@"login.microsoftonline.com" clientId:nil context:nil error:&error];
-    XCTAssertFalse(result);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInternal);
-}
-
 - (void)testClearCacheForAccount_whenAccountProvided_shouldRemoveTokens
 {
     [self saveResponseWithUPN:@"upn@test.com"
