@@ -342,10 +342,9 @@
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error
 {
-    if (!account
-        || !clientId)
+    if (!account)
     {
-        [self fillInternalErrorWithMessage:@"Missing parameter, please provide account and clientId" context:context error:error];
+        [self fillInternalErrorWithMessage:@"Missing parameter, please provide account" context:context error:error];
         return NO;
     }
 
