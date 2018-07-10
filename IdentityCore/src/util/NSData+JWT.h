@@ -21,37 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if !MSID_EXCLUDE_WEBKIT
-
 #import <Foundation/Foundation.h>
-#import <WebKit/WebKit.h>
 
-@interface MSIDWebviewUIController :
-#if TARGET_OS_IPHONE
-UIViewController
-#else
-NSWindowController
-#endif
+@interface NSData (JWT)
 
-@property (nonatomic) WKWebView *webView;
-@property id<MSIDRequestContext> context;
-@property BOOL loading;
-@property BOOL complete;
-#if TARGET_OS_IPHONE
-@property (weak) UIViewController *parentController;
-@property UIModalPresentationStyle presentationType;
-#endif
-
-- (id)initWithContext:(id<MSIDRequestContext>)context;
-
-- (BOOL)loadView:(NSError **)error;
-- (void)presentView;
-- (void)dismissWebview:(void (^)(void))completion;
-- (void)showLoadingIndicator;
-- (void)dismissLoadingIndicator;
-- (void)cancel;
-- (void)userCancel;
+- (NSData *)signHashWithPrivateKey:(SecKeyRef)privateKey;
 
 @end
-
-#endif

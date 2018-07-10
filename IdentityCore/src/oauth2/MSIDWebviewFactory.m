@@ -33,6 +33,8 @@
 
 @implementation MSIDWebviewFactory
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #pragma mark - Webview creation
 
 - (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
@@ -60,6 +62,8 @@
                                    
     return session;
 }
+
+#endif
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 - (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration context:(id<MSIDRequestContext>)context

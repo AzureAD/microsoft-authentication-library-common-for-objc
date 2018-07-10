@@ -27,6 +27,7 @@
 #import <Security/SecKey.h>
 #import "NSString+MSIDExtensions.h"
 #import "MSIDLogger+Internal.h"
+#import "NSData+JWT.h"
 
 @implementation MSIDJWTHelper
 
@@ -77,59 +78,11 @@
 + (NSData *)sign:(SecKeyRef)privateKey
             data:(NSData *)plainData
 {
-    NSData *signedHash = nil;
-    size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
-    uint8_t *signedHashBytes = calloc(signedHashBytesSize, 1);
-    if(!signedHashBytes)
-    {
-        return nil;
-    }
 
-    uint8_t *hashBytes = calloc(CC_SHA256_DIGEST_LENGTH, 1);
-    if(!hashBytes)
-    {
-        free(signedHashBytes);
-        return nil;
-    }
-
-    if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes))
-    {
-        MSID_LOG_ERROR(nil, @"Could not compute SHA265 hash.");
-
-        free(hashBytes);
-        free(signedHashBytes);
-
-        return nil;
-    }
-    OSStatus status = errSecAuthFailed;
-#if TARGET_OS_IPHONE
-    status = SecKeyRawSign(privateKey,
-                           kSecPaddingPKCS1SHA256,
-                           hashBytes,
-                           CC_SHA256_DIGEST_LENGTH,
-                           signedHashBytes,
-                           &signedHashBytesSize);
-#else
-    // TODO: Use SecSignTransformCreate on OS X, SecKeyRawSign is not available on OS X
-#endif
-
-    if (status != errSecSuccess)
-    {
-        MSID_LOG_ERROR(nil, @"Failed to sign JWT %d", (int)status);
-        free(hashBytes);
-        free(signedHashBytes);
-        return nil;
-    }
-
-    signedHash = [NSData dataWithBytes:signedHashBytes
-                                length:(NSUInteger)signedHashBytesSize];
-
-    free(hashBytes);
-    free(signedHashBytes);
-
-    return signedHash;
+    NSMutableData *hashData = [NSMutableData dataWithLength:CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(plainData.bytes, (CC_LONG)plainData.length, [hashData mutableBytes]);
+    return [hashData signHashWithPrivateKey:privateKey];
 }
-
 
 + (NSString *)JSONFromDictionary:(NSDictionary *)dictionary
 {

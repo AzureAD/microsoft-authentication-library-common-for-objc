@@ -32,6 +32,8 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDNotifications.h"
 
+#if !MSID_EXCLUDE_WEBKIT
+
 @implementation MSIDOAuth2EmbeddedWebviewController
 {
     NSURL *_endURL;
@@ -367,3 +369,5 @@
 }
 
 @end
+
+#endif

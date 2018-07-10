@@ -28,6 +28,8 @@
 #import <XCTest/XCTest.h>
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 
+#if !MSID_EXCLUDE_WEBKIT
+
 @interface MSIDOAuth2EmbeddedWebviewControllerTests : XCTestCase
 
 @end
@@ -73,3 +75,5 @@
 }
 
 @end
+
+#endif

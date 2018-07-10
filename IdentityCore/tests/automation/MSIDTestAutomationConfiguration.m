@@ -37,6 +37,7 @@
     result &= (!self.username && !accountInfo.username) || [self.username isEqualToString:accountInfo.username];
     result &= (!self.keyvaultName && !accountInfo.keyvaultName) || [self.keyvaultName isEqualToString:accountInfo.keyvaultName];
     result &= (!self.homeTenantId && !accountInfo.homeTenantId) || [self.homeTenantId isEqualToString:accountInfo.homeTenantId];
+    result &= (!self.homeObjectId && !accountInfo.homeObjectId) || [self.homeObjectId isEqualToString:accountInfo.homeObjectId];
     result &= (!self.targetTenantId && !accountInfo.targetTenantId) || [self.targetTenantId isEqualToString:accountInfo.targetTenantId];
 
     return result;
@@ -66,6 +67,7 @@
     hash ^= self.keyvaultName.hash;
     hash ^= self.homeTenantId.hash;
     hash ^= self.targetTenantId.hash;
+    hash ^= self.homeObjectId.hash;
 
     return hash;
 }
@@ -103,6 +105,7 @@
 
         _homeTenantId = response[@"hometenantId"];
         _targetTenantId = response[@"tenantId"];
+        _homeObjectId = response[@"objectId"];
         _password = response[@"password"];
     }
 
@@ -119,6 +122,11 @@
     }
 
     return responseDict[@"Value"];
+}
+
+- (NSString *)homeAccountId
+{
+    return [NSString stringWithFormat:@"%@.%@", self.homeObjectId, self.targetTenantId];
 }
 
 @end

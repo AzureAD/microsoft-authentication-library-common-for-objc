@@ -33,6 +33,8 @@
 #import "MSIDAppExtensionUtil.h"
 #endif
 
+#if !MSID_EXCLUDE_WEBKIT
+
 @implementation MSIDAADOAuthEmbeddedWebviewController
 
 - (id)initWithStartURL:(NSURL *)startURL
@@ -128,3 +130,5 @@
 }
 
 @end
+
+#endif
