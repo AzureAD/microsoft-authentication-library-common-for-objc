@@ -107,9 +107,9 @@
         if (response.error)
         {
             NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithCapacity:1];
-            if (refreshToken.homeAccountId)
+            if (refreshToken.primaryUserId)
             {
-                [userInfo setObject:refreshToken.homeAccountId forKey:MSIDUserIdKey];
+                [userInfo setObject:refreshToken.primaryUserId forKey:MSIDUserIdKey];
             }
 
             MSIDErrorCode errorCode;
