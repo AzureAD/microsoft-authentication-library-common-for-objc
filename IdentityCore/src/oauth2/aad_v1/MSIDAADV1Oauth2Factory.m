@@ -36,6 +36,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
+#import "MSIDOAuth2Constants.h"
 
 #import "MSIDAADV1WebviewFactory.h"
 
@@ -111,7 +112,7 @@
                 [userInfo setObject:fromRefreshToken.homeAccountId forKey:MSIDUserIdKey];
             }
 
-            if ([MSID_PROTECTION_POLICIES_REQUIRED isEqualToString:response.additionalServerInfo[@"suberror"]])
+            if ([MSID_PROTECTION_POLICY_REQUIRED isEqualToString:response.additionalServerInfo[@"suberror"]])
             {
                 *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                          MSIDErrorServerProtectionPoliciesRequired,
