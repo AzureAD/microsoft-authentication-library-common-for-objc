@@ -84,13 +84,13 @@
                  error:(NSError * __autoreleasing *)error
 {
     return [self verifyResponse:response
-               fromRefreshToken:NO
+               fromRefreshToken:nil
                         context:context
                           error:error];
 }
 
 - (BOOL)verifyResponse:(MSIDAADV1TokenResponse *)response
-      fromRefreshToken:(BOOL)fromRefreshToken
+      fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)fromRefreshToken
                context:(id<MSIDRequestContext>)context
                  error:(NSError * __autoreleasing *)error
 {
@@ -105,16 +105,36 @@
     {
         if (response.error)
         {
-            MSIDErrorCode errorCode = fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
+            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithCapacity:1];
+            if (fromRefreshToken.homeAccountId)
+            {
+                [userInfo setObject:fromRefreshToken.homeAccountId forKey:MSIDUserIdKey];
+            }
 
-            *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     errorCode,
-                                     response.errorDescription,
-                                     response.error,
-                                     nil,
-                                     nil,
-                                     context.correlationId,
-                                     nil);
+            if ([MSID_PROTECTION_POLICIES_REQUIRED isEqualToString:response.additionalServerInfo[@"suberror"]])
+            {
+                *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                         MSIDErrorServerProtectionPoliciesRequired,
+                                         response.errorDescription,
+                                         response.error,
+                                         response.additionalServerInfo[@"suberror"],
+                                         nil,
+                                         context.correlationId,
+                                         userInfo);
+            }
+            else
+            {
+                MSIDErrorCode errorCode = fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
+
+                *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                         errorCode,
+                                         response.errorDescription,
+                                         response.error,
+                                         nil,
+                                         nil,
+                                         context.correlationId,
+                                         userInfo);
+            }
         }
 
         return result;

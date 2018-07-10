@@ -30,7 +30,7 @@
 @interface MSIDAADV1Oauth2Factory : MSIDAADOauth2Factory
 
 - (BOOL)verifyResponse:(MSIDTokenResponse *)response
-      fromRefreshToken:(BOOL)fromRefreshToken
+      fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)fromRefreshToken
                context:(id<MSIDRequestContext>)context
                  error:(NSError * __autoreleasing *)error;
 
