@@ -104,7 +104,8 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorServerInvalidGrant),
                       @(MSIDErrorServerInvalidScope),
                       @(MSIDErrorServerInvalidState),
-                      @(MSIDErrorServerNonHttpsRedirect)
+                      @(MSIDErrorServerNonHttpsRedirect),
+                      @(MSIDErrorServerProtectionPoliciesRequired),
                       ]
               };
 }
