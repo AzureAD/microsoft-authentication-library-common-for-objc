@@ -23,8 +23,10 @@
 
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAADEndpointProvider.h"
+#import "MSIDConstants.h"
 
 static MSIDAADNetworkConfiguration *s_defaultConfiguration;
+static NSSet<NSString *> *s_trustedHostList;
 
 @implementation MSIDAADNetworkConfiguration
 
@@ -33,6 +35,14 @@ static MSIDAADNetworkConfiguration *s_defaultConfiguration;
     if (self == [MSIDAADNetworkConfiguration self])
     {
         s_defaultConfiguration = [MSIDAADNetworkConfiguration new];
+        
+        s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority,
+                             MSIDTrustedAuthorityUS,
+                             MSIDTrustedAuthorityChina,
+                             MSIDTrustedAuthorityGermany,
+                             MSIDTrustedAuthorityWorldWide,
+                             MSIDTrustedAuthorityUSGovernment,
+                             MSIDTrustedAuthorityCloudGovApi, nil];
     }
 }
 
@@ -57,6 +67,18 @@ static MSIDAADNetworkConfiguration *s_defaultConfiguration;
 + (void)setDefaultConfiguration:(MSIDAADNetworkConfiguration *)defaultConfiguration
 {
     s_defaultConfiguration = defaultConfiguration;
+}
+
+- (BOOL)isAADPublicCloud:(NSString *)host
+{
+    if (!host) return NO;
+    
+    return [s_trustedHostList containsObject:host];
+}
+
+- (NSSet<NSString *> *)trustedHosts
+{
+    return s_trustedHostList;
 }
 
 @end

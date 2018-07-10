@@ -36,4 +36,8 @@
 
 @property (nonatomic, nullable) NSString *drsDiscoveryApiVersion;
 
+- (BOOL)isAADPublicCloud:(nonnull NSString *)host;
+
+- (nonnull NSSet<NSString *> *)trustedHosts;
+
 @end

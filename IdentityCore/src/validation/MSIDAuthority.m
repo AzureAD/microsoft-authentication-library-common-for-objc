@@ -60,17 +60,8 @@
 #import "MSIDB2CAuthorityResolver.h"
 #import "MSIDAdfsAuthorityResolver.h"
 #import "MSIDOpenIdConfigurationInfoRequest.h"
+#import "MSIDAADNetworkConfiguration.h"
 
-// Trusted authorities
-NSString *const MSIDTrustedAuthority             = @"login.windows.net";
-NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
-NSString *const MSIDTrustedAuthorityChina        = @"login.chinacloudapi.cn";
-NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
-NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
-NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
-NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
-
-static NSSet<NSString *> *s_trustedHostList;
 static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
 
 @implementation MSIDAuthority
@@ -79,14 +70,6 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 {
     if (self == [MSIDAuthority self])
     {
-        s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority,
-                             MSIDTrustedAuthorityUS,
-                             MSIDTrustedAuthorityChina,
-                             MSIDTrustedAuthorityGermany,
-                             MSIDTrustedAuthorityWorldWide,
-                             MSIDTrustedAuthorityUSGovernment,
-                             MSIDTrustedAuthorityCloudGovApi, nil];
-        
         s_openIdConfigurationCache = [MSIDCache new];
     }
 }
@@ -164,7 +147,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 - (BOOL)isKnown
 {
-    return [s_trustedHostList containsObject:self.url.host.lowercaseString];
+    // TODO: Can we move it out from here? What about ADFS & B2C?
+    return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:self.url.host.lowercaseString];
 }
 
 - (nonnull NSString *)authorityType
@@ -175,9 +159,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 + (BOOL)isKnownHost:(NSString *)host
 {
-    if (!host) return NO;
-    
-    return [s_trustedHostList containsObject:host.lowercaseString];
+    return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:host];
 }
 
 - (void)loadOpenIdMetadataWithContext:(nullable id<MSIDRequestContext>)context
@@ -234,9 +216,10 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return YES;
 }
 
+// TODO: Remove
 + (NSSet<NSString *> *)trustedHosts
 {
-    return s_trustedHostList;
+    return [MSIDAADNetworkConfiguration.defaultConfiguration trustedHosts];
 }
 
 #pragma mark - NSObject
