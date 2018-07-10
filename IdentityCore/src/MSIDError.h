@@ -93,6 +93,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // Redirect to non HTTPS detected
     MSIDErrorServerNonHttpsRedirect     = -51451,
+
+    // Intune Protection Policies Required
+    MSIDErrorServerProtectionPoliciesRequired = -51461,
     
     /*!
      =========================================================
