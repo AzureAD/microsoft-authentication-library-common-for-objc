@@ -27,11 +27,13 @@
 #import "MSIDDeviceId.h"
 #import <pthread.h>
 
+static long s_maxQueueSize = 1000;
+
 @interface MSIDLogger()
 
 @property (nonatomic) dispatch_queue_t loggerQueue;
+@property (nonatomic) dispatch_semaphore_t queueSemaphore;
 @property (nonatomic, copy) MSIDLogCallback callback;
-;
 
 @end
 
@@ -52,6 +54,7 @@
     
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlogger-%@", [NSUUID UUID].UUIDString];
     _loggerQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
+    _queueSemaphore = dispatch_semaphore_create(s_maxQueueSize);
     
     return self;
 }
@@ -113,47 +116,55 @@ static NSDateFormatter *s_dateFormatter = nil;
     __uint64_t tid;
     pthread_threadid_np(NULL, &tid);
     
+    // Prevent queue from growing infinitely large.
+    dispatch_semaphore_wait(self.queueSemaphore, DISPATCH_TIME_FOREVER);
+    
     dispatch_async(self.loggerQueue, ^{
-        NSString *logComponent = [context logComponent];
-        NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
-        
-        NSString *correlationIdStr = @"";
-        
-        if (correlationId)
+        @autoreleasepool
         {
-            correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
-        }
-        else if (context)
-        {
-            correlationIdStr = [NSString stringWithFormat:@" - %@", [context correlationId]];
-        }
-        
-        NSString *dateStr = [s_dateFormatter stringFromDate:[NSDate date]];
-        
-        NSString *sdkName = [MSIDVersion sdkName];
-        NSString *sdkVersion = [MSIDVersion sdkVersion];
-        
-        __auto_type threadName = [[NSThread currentThread] isMainThread] ? @" (main thread)" : nil;
-        if (!threadName) {
-            threadName = [NSThread currentThread].name ?: @"";
-        }
-
-        __auto_type threadInfo = [[NSString alloc] initWithFormat:@"TID = %llu%@", tid, threadName];
-        
-        if (self.NSLoggingEnabled)
-        {
-            NSString *levelStr = [self stringForLogLevel:_level];
+            NSString *logComponent = [context logComponent];
+            NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
             
-            NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@: %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, levelStr, message];
+            NSString *correlationIdStr = @"";
             
-            NSLog(@"%@", log);
-        }
-        
-        if (self.callback)
-        {
-            NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, message];
+            if (correlationId)
+            {
+                correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
+            }
+            else if (context)
+            {
+                correlationIdStr = [NSString stringWithFormat:@" - %@", [context correlationId]];
+            }
             
-            self.callback(level, log, isPii);
+            NSString *dateStr = [s_dateFormatter stringFromDate:[NSDate date]];
+            
+            NSString *sdkName = [MSIDVersion sdkName];
+            NSString *sdkVersion = [MSIDVersion sdkVersion];
+            
+            __auto_type threadName = [[NSThread currentThread] isMainThread] ? @" (main thread)" : nil;
+            if (!threadName) {
+                threadName = [NSThread currentThread].name ?: @"";
+            }
+            
+            __auto_type threadInfo = [[NSString alloc] initWithFormat:@"TID = %llu%@", tid, threadName];
+            
+            if (self.NSLoggingEnabled)
+            {
+                NSString *levelStr = [self stringForLogLevel:_level];
+                
+                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@: %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, levelStr, message];
+                
+                NSLog(@"%@", log);
+            }
+            
+            if (self.callback)
+            {
+                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, message];
+                
+                self.callback(level, log, isPii);
+            }
+            
+            dispatch_semaphore_signal(self.queueSemaphore);
         }
     });
 }
