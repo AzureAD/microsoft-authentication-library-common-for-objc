@@ -91,7 +91,7 @@
 }
 
 - (BOOL)verifyResponse:(MSIDAADV1TokenResponse *)response
-      fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)fromRefreshToken
+      fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                context:(id<MSIDRequestContext>)context
                  error:(NSError * __autoreleasing *)error
 {
@@ -107,35 +107,33 @@
         if (response.error)
         {
             NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithCapacity:1];
-            if (fromRefreshToken.homeAccountId)
+            if (refreshToken.homeAccountId)
             {
-                [userInfo setObject:fromRefreshToken.homeAccountId forKey:MSIDUserIdKey];
+                [userInfo setObject:refreshToken.homeAccountId forKey:MSIDUserIdKey];
             }
 
-            if ([MSID_PROTECTION_POLICY_REQUIRED isEqualToString:response.additionalServerInfo[@"suberror"]])
+            MSIDErrorCode errorCode;
+            if([MSID_PROTECTION_POLICY_REQUIRED isEqualToString:response.additionalServerInfo[@"suberror"]])
             {
-                *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                         MSIDErrorServerProtectionPoliciesRequired,
-                                         response.errorDescription,
-                                         response.error,
-                                         response.additionalServerInfo[@"suberror"],
-                                         nil,
-                                         context.correlationId,
-                                         userInfo);
+                errorCode = MSIDErrorServerProtectionPoliciesRequired;
+            }
+            else if(refreshToken)
+            {
+                errorCode = MSIDErrorServerRefreshTokenRejected;
             }
             else
             {
-                MSIDErrorCode errorCode = fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
-
-                *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                         errorCode,
-                                         response.errorDescription,
-                                         response.error,
-                                         nil,
-                                         nil,
-                                         context.correlationId,
-                                         userInfo);
+                errorCode = MSIDErrorServerOauth;
             }
+
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     errorCode,
+                                     response.errorDescription,
+                                     response.error,
+                                     response.additionalServerInfo[@"suberror"],
+                                     nil,
+                                     context.correlationId,
+                                     userInfo);
         }
 
         return result;
