@@ -63,7 +63,7 @@ static NSDictionary *sCredentialTypes = nil;
     });
     
     NSNumber *credentialType = sCredentialTypes[type];
-    return credentialType ? [credentialType integerValue] : MSIDCredentialTypeOther;
+    return credentialType != nil ? [credentialType integerValue] : MSIDCredentialTypeOther;
 }
 
 + (MSIDCredentialType)credentialTypeWithRefreshToken:(NSString *)refreshToken
