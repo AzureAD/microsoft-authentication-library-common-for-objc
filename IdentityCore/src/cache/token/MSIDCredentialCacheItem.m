@@ -301,8 +301,8 @@
 {
     if (clientIDMatchingOptions == MSIDSuperSet && (clientId || familyId))
     {
-        if ((!clientId || ![self.clientId isEqualToString:clientId])
-            && (!familyId || ![self.familyId isEqualToString:familyId]))
+        if ((clientId && ![self.clientId isEqualToString:clientId])
+            || (familyId && ![self.familyId isEqualToString:familyId]))
         {
             return NO;
         }
