@@ -45,7 +45,7 @@
 @property (readwrite) NSString *claims;
 
 // Embedded webview
-@property (readwrite) NSDictionary<NSString *, NSString *> *customHeaders;
+@property (readwrite) NSMutableDictionary<NSString *, NSString *> *customHeaders;
 
 // PKCE Support
 @property (readonly) MSIDPkce *pkce;

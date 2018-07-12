@@ -53,6 +53,8 @@
         {
             _pkce = [MSIDPkce new];
         }
+        
+        _customHeaders = [NSMutableDictionary new];
     }
     return self;
 }
