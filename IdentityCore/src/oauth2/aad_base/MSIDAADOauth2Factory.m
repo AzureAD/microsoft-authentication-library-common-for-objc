@@ -144,41 +144,6 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
 }
 
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(MSIDAuthority *)originalAuthority
-{
-    if (!originalAuthority)
-    {
-        return @[];
-    }
-
-    NSMutableArray *aliases = [NSMutableArray array];
-    
-    if ([originalAuthority isKindOfClass:MSIDAADAuthority.class])
-    {
-        MSIDAADAuthority *aadAuthority = (MSIDAADAuthority *)originalAuthority;
-        if ([aadAuthority.tenant isTenantless])
-        {
-            // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
-            
-            [aliases addObjectsFromArray:[aadAuthority cacheAliases]];
-        }
-        else
-        {
-            // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
-            [aliases addObjectsFromArray:[aadAuthority cacheAliases]];
-            
-            __auto_type aadAuthorityCommon = [MSIDAADAuthority aadAuthorityWithEnvironment:[aadAuthority.url msidHostWithPortIfNecessary] rawTenant:MSIDAADTenantTypeCommonRawValue context:nil error:nil];
-            [aliases addObjectsFromArray:[aadAuthorityCommon cacheAliases]];
-        }
-    }
-    else
-    {
-        [aliases addObject:originalAuthority.url];
-    }
-
-    return aliases;
-}
-
 #pragma mark - Tokens
 
 - (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken

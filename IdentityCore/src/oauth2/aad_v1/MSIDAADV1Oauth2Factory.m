@@ -198,22 +198,6 @@
     return YES;
 }
 
-
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(MSIDAuthority *)originalAuthority
-{
-    if ([originalAuthority isKindOfClass:MSIDAADAuthority.class])
-    {
-        MSIDAADAuthority *aadAuthority = (MSIDAADAuthority *)originalAuthority;
-        if (aadAuthority.tenant.type == MSIDAADTenantTypeConsumers)
-        {
-            // AAD v1 doesn't support consumer authority
-            return @[];
-        }
-    }
-
-    return [super refreshTokenLookupAuthorities:originalAuthority];
-}
-
 #pragma mark - Webview
 #pragma mark - Webview
 - (MSIDWebviewFactory *)webviewFactory

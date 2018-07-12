@@ -351,16 +351,6 @@
     return originalEnvironment;
 }
 
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(MSIDAuthority *)originalAuthority
-{
-    if (!originalAuthority)
-    {
-        return @[];
-    }
-
-    return @[originalAuthority.url];
-}
-
 - (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
 {
     if (!originalEnvironment)

@@ -456,21 +456,6 @@
     XCTAssertEqualObjects(account.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
 
-- (void)testRefreshTokenLookupAuthorities_whenAuthorityNil_shouldReturnEmptyAuthorities
-{
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    NSArray *aliases = [factory refreshTokenLookupAuthorities:nil];
-    XCTAssertEqualObjects(aliases, @[]);
-}
-
-- (void)testRefreshTokenLookupAuthorities_whenAuthorityProvided_shouldReturnOriginalAuthority
-{
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    __auto_type originalAuthority = [@"https://login.microsoftonline.com/contoso.com" authority];
-    NSArray *aliases = [factory refreshTokenLookupAuthorities:originalAuthority];
-    XCTAssertEqualObjects(aliases, @[originalAuthority.url]);
-}
-
 - (void)testCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnNilAuthorities
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];

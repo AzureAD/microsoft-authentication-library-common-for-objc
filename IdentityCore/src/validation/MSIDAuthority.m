@@ -145,6 +145,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return self.url;
 }
 
+- (NSArray<NSURL *> *)legacyCacheRefreshTokenLookupAliases
+{
+     return @[self.url];
+}
+
 - (BOOL)isKnown
 {
     // TODO: Can we move it out from here? What about ADFS & B2C?

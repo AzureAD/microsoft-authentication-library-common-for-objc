@@ -119,6 +119,32 @@
     return self.url;
 }
 
+- (nonnull NSArray<NSURL *> *)legacyCacheRefreshTokenLookupAliases
+{
+    if (self.tenant.type == MSIDAADTenantTypeConsumers)
+    {
+        // AAD v1 doesn't support consumer authority
+        return @[];
+    }
+    
+    NSMutableArray *aliases = [NSMutableArray array];
+    if ([self.tenant isTenantless])
+    {
+        // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
+        [aliases addObjectsFromArray:[self cacheAliases]];
+    }
+    else
+    {
+        // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
+        [aliases addObjectsFromArray:[self cacheAliases]];
+        
+        __auto_type aadAuthorityCommon = [MSIDAADAuthority aadAuthorityWithEnvironment:[self.url msidHostWithPortIfNecessary] rawTenant:MSIDAADTenantTypeCommonRawValue context:nil error:nil];
+        [aliases addObjectsFromArray:[aadAuthorityCommon cacheAliases]];
+    }
+    
+    return aliases;
+}
+
 + (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error

@@ -30,6 +30,8 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDAADTenant.h"
 #import "MSIDAadAuthorityCache.h"
+#import "NSString+MSIDTestUtil.h"
+#import "MSIDAadAuthorityCacheRecord.h"
 
 @interface MSIDAADAuthorityCacheMock : MSIDAadAuthorityCache
 
@@ -71,6 +73,13 @@
 @end
 
 @implementation MSIDAADAuthorityTests
+
+- (void)tearDown
+{
+    [super tearDown];
+    
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+}
 
 #pragma mark - init
 
@@ -334,6 +343,78 @@
     authorityUrl = [[NSURL alloc] initWithString:@"https://example.com/common"];
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertFalse([authority isKnown]);
+}
+
+#pragma mark - legacyCacheRefreshTokenLookupAliases
+
+- (void)testLegacyCacheRefreshTokenLookupAliases_whenAuthorityIsNotConsumers_shouldReturnAliases
+{
+    [self setupAADAuthorityCache];
+    
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.microsoft.com/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.windows.net/common"],
+                                 [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
+                                 [NSURL URLWithString:@"https://login.microsoft.com/common"]];
+    
+    NSArray *aliases = [authority legacyCacheRefreshTokenLookupAliases];
+    
+    XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+- (void)testLegacyCacheRefreshTokenLookupAliases_whenAuthorityIsOrganizations_shouldReturnAliases
+{
+    [self setupAADAuthorityCache];
+    
+    __auto_type authority = [@"https://login.microsoftonline.com/organizations" authority];
+    NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/common"],
+                                 [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
+                                 [NSURL URLWithString:@"https://login.microsoft.com/common"]];
+    
+    NSArray *aliases = [authority legacyCacheRefreshTokenLookupAliases];
+    
+    XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+- (void)testLegacyCacheRefreshTokenLookupAliases_whenAuthorityIsCommon_shouldReturnAliases
+{
+    [self setupAADAuthorityCache];
+    
+    __auto_type authority = [@"https://login.microsoftonline.com/common" authority];
+    NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/common"],
+                                 [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
+                                 [NSURL URLWithString:@"https://login.microsoft.com/common"]];
+    
+    NSArray *aliases = [authority legacyCacheRefreshTokenLookupAliases];
+    
+    XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+- (void)testLegacyCacheRefreshTokenLookupAliases_whenAuthorityIsConsumers_shouldReturnEmptyAliases
+{
+    [self setupAADAuthorityCache];
+    
+    __auto_type authority = [@"https://login.microsoftonline.com/consumers" authority];
+    NSArray *expectedAliases = @[];
+    
+    NSArray *aliases = [authority legacyCacheRefreshTokenLookupAliases];
+    
+    XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+#pragma mark - Private
+
+- (void)setupAADAuthorityCache
+{
+    __auto_type cache = [MSIDAadAuthorityCache sharedInstance];
+    __auto_type record = [MSIDAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"login.microsoftonline.com";
+    record.cacheHost = @"login.windows.net";
+    record.aliases = @[@"login.microsoft.com"];
+    [cache setObject:record forKey:@"login.microsoftonline.com"];
 }
 
 @end

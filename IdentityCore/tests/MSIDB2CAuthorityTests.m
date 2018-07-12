@@ -28,6 +28,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDAuthority.h"
 #import "MSIDB2CAuthority.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDB2CAuthorityTests : XCTestCase
 
@@ -137,6 +138,16 @@
     __auto_type aliases = [authority cacheAliases];
     
     XCTAssertEqualObjects(@[authorityUrl], aliases);
+}
+
+- (void)testLegacyCacheRefreshTokenLookupAliases_shouldReturnOriginalAuthority
+{
+    __auto_type authority = [@"https://login.microsoftonline.com/tfp/tenant/policy" authority];
+    NSArray *expectedAliases = @[authority.url];
+    
+    NSArray *aliases = [authority legacyCacheRefreshTokenLookupAliases];
+    
+    XCTAssertEqualObjects(aliases, expectedAliases);
 }
 
 #pragma mark - isKnownHost
