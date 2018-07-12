@@ -63,7 +63,7 @@
     self = [self initWithURL:url context:context error:error];
     if (self)
     {
-        if (rawTenant && [self.tenant isTenantless])
+        if (rawTenant && self.tenant.type != MSIDAADTenantTypeIdentifier)
         {
             _url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [_url msidHostWithPortIfNecessary], rawTenant]];
             
@@ -128,18 +128,19 @@
     }
     
     NSMutableArray *aliases = [NSMutableArray array];
-    if ([self.tenant isTenantless])
-    {
-        // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
-        [aliases addObjectsFromArray:[self cacheAliases]];
-    }
-    else
+    
+    if (self.tenant.type == MSIDAADTenantTypeIdentifier)
     {
         // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
         [aliases addObjectsFromArray:[self cacheAliases]];
         
         __auto_type aadAuthorityCommon = [MSIDAADAuthority aadAuthorityWithEnvironment:[self.url msidHostWithPortIfNecessary] rawTenant:MSIDAADTenantTypeCommonRawValue context:nil error:nil];
         [aliases addObjectsFromArray:[aadAuthorityCommon cacheAliases]];
+    }
+    else
+    {
+        // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
+        [aliases addObjectsFromArray:[self cacheAliases]];
     }
     
     return aliases;

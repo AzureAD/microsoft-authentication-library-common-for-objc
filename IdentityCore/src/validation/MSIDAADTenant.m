@@ -70,11 +70,6 @@ NSString *const MSIDAADTenantTypeConsumersRawValue = @"consumers";
     return self;
 }
 
-- (BOOL)isTenantless
-{
-    return self.type == MSIDAADTenantTypeCommon || self.type == MSIDAADTenantTypeOrganizations;
-}
-
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone

@@ -52,6 +52,4 @@ extern NSString * _Nonnull const MSIDAADTenantTypeConsumersRawValue;
 @property (nonatomic, readonly, nonnull) NSString *rawTenant;
 @property (nonatomic, readonly) MSIDAADTenantType type;
 
-- (BOOL)isTenantless;
-
 @end
