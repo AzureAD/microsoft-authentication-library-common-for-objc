@@ -35,6 +35,7 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDWebviewFactory.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDOauth2Factory
 
@@ -186,7 +187,8 @@
     token.authority = configuration.authority;
     token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
-    token.homeAccountId = response.idTokenObj.userId;
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId
+                                                                       homeAccountId:response.idTokenObj.userId];
     return YES;
 }
 
@@ -285,7 +287,7 @@
     
     token.refreshToken = response.refreshToken;
     token.idToken = response.idToken;
-    token.legacyUserId = response.idTokenObj.userId;
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     return YES;
 }
@@ -302,7 +304,7 @@
     }
 
     token.idToken = response.idToken;
-    token.legacyUserId = response.idTokenObj.userId;
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     return YES;
 }
@@ -319,7 +321,7 @@
     }
 
     token.idToken = response.idToken;
-    token.legacyUserId = response.idTokenObj.userId;
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
     token.realm = response.idTokenObj.realm;
     return YES;
 }
@@ -328,13 +330,14 @@
        fromResponse:(MSIDTokenResponse *)response
       configuration:(MSIDConfiguration *)configuration
 {
-    account.homeAccountId = response.idTokenObj.userId;
+    NSString *homeAccountId = response.idTokenObj.userId;
 
-    if (!account.homeAccountId)
+    if (!homeAccountId)
     {
         return NO;
     }
 
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.username homeAccountId:homeAccountId];
     account.username = response.idTokenObj.username;
     account.givenName = response.idTokenObj.givenName;
     account.familyName = response.idTokenObj.familyName;

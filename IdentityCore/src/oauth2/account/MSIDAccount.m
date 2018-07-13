@@ -38,7 +38,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAccount *item = [[self.class allocWithZone:zone] init];
-    item->_homeAccountId = [_homeAccountId copyWithZone:zone];
+    item->_accountIdentifier = [_accountIdentifier copyWithZone:zone];
     item->_localAccountId = [_localAccountId copyWithZone:zone];
     item->_accountType = _accountType;
     item->_authority = [_authority copyWithZone:zone];
@@ -72,7 +72,7 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = 0;
-    hash = hash * 31 + self.homeAccountId.hash;
+    hash = hash * 31 + self.accountIdentifier.hash;
     hash = hash * 31 + self.accountType;
     hash = hash * 31 + self.authority.hash;
     hash = hash * 31 + self.alternativeAccountId.hash;
@@ -87,7 +87,7 @@
     }
     
     BOOL result = YES;
-    result &= (!self.homeAccountId && !account.homeAccountId) || [self.homeAccountId isEqualToString:account.homeAccountId];
+    result &= (!self.accountIdentifier && !account.accountIdentifier) || [self.accountIdentifier isEqual:account.accountIdentifier];
     result &= self.accountType == account.accountType;
     result &= (!self.alternativeAccountId && !account.alternativeAccountId) || [self.alternativeAccountId isEqualToString:account.alternativeAccountId];
     result &= (!self.authority && !account.authority) || [self.authority isEqual:account.authority];
@@ -113,7 +113,7 @@
         _middleName = cacheItem.middleName;
         _name = cacheItem.name;
         _username = cacheItem.username;
-        _homeAccountId = cacheItem.homeAccountId;
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:cacheItem.username homeAccountId:cacheItem.homeAccountId];
         _clientInfo = cacheItem.clientInfo;
         _alternativeAccountId = cacheItem.alternativeAccountId;
         _localAccountId = cacheItem.localAccountId;
@@ -142,7 +142,7 @@
 
     cacheItem.realm = self.authority.msidTenant;
     cacheItem.username = self.username;
-    cacheItem.homeAccountId = self.homeAccountId;
+    cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;
     cacheItem.localAccountId = self.localAccountId;
     cacheItem.accountType = self.accountType;
     cacheItem.givenName = self.givenName;
@@ -154,18 +154,12 @@
     return cacheItem;
 }
 
-- (MSIDAccountIdentifier *)accountIdentifier
-{
-    return [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:self.username
-                                                    homeAccountId:self.homeAccountId];
-}
-
 #pragma mark - Description
 
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"(authority=%@ username=%@ homeAccountId=%@ clientInfo=%@ accountType=%@ localAccountId=%@)",
-            _authority, _username, _homeAccountId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _localAccountId];
+            _authority, _username, _accountIdentifier.homeAccountId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _localAccountId];
 }
 
 @end

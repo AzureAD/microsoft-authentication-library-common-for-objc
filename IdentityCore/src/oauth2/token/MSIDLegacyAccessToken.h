@@ -29,7 +29,6 @@
 
 @property (readwrite) NSString *accessTokenType;
 @property (readwrite) NSString *idToken;
-@property (readwrite) NSString *legacyUserId;
 
 - (instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem;
 - (MSIDLegacyTokenCacheItem *)legacyTokenCacheItem;
