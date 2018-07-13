@@ -216,9 +216,9 @@
     account.accountType = MSIDAccountTypeMSSTS;
     account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
-    if (response.clientInfo.userIdentifier)
+    if (response.clientInfo.accountIdentifier)
     {
-        account.homeAccountId = response.clientInfo.userIdentifier;
+        account.homeAccountId = response.clientInfo.accountIdentifier;
     }
 
     return YES;
@@ -242,9 +242,9 @@
 
     baseToken.clientInfo = response.clientInfo;
 
-    if (response.clientInfo.userIdentifier)
+    if (response.clientInfo.accountIdentifier)
     {
-        baseToken.homeAccountId = response.clientInfo.userIdentifier;
+        baseToken.homeAccountId = response.clientInfo.accountIdentifier;
     }
 
     if (response.speInfo)

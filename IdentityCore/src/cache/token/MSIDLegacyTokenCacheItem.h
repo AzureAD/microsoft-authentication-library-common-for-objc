@@ -23,12 +23,15 @@
 
 #import "MSIDCredentialCacheItem.h"
 
+@class MSIDIdTokenClaims;
+
 @interface MSIDLegacyTokenCacheItem : MSIDCredentialCacheItem <NSSecureCoding>
 
 @property (readwrite, nullable) NSString *accessToken;
 @property (readwrite, nullable) NSString *refreshToken;
 @property (readwrite, nullable) NSString *idToken;
 @property (readwrite, nullable) NSString *oauthTokenType;
+@property (readonly, nullable) MSIDIdTokenClaims *idTokenClaims;
 
 @property (readwrite, nonnull) NSURL *authority;
 

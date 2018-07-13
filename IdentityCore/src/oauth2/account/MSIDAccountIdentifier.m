@@ -32,7 +32,7 @@
                              clientInfo:(MSIDClientInfo *)clientInfo
 {
     return [self initWithLegacyAccountId:legacyAccountId
-                           homeAccountId:clientInfo.userIdentifier];
+                           homeAccountId:clientInfo.accountIdentifier];
 }
 
 - (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId

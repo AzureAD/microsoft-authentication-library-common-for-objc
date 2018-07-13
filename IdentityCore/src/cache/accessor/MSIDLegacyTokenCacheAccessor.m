@@ -343,7 +343,10 @@
         MSID_LOG_VERBOSE(context, @"Found refresh token in cache and it's the latest version, removing token");
         MSID_LOG_VERBOSE_PII(context, @"Found refresh token in cache and it's the latest version, removing token %@", token);
 
-        return [self removeToken:token userId:token.primaryUserId context:context error:error];
+        return [self removeTokenCacheItem:tokenInCache.legacyTokenCacheItem
+                                   userId:tokenInCache.legacyUserId
+                                  context:context
+                                    error:error];
     }
 
     return YES;
@@ -353,32 +356,73 @@
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error
 {
-    return [self removeToken:token userId:token.legacyUserId context:context error:error];
+    return [self removeTokenCacheItem:token.legacyTokenCacheItem
+                               userId:token.legacyUserId
+                              context:context
+                                error:error];
 }
 
 - (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error
 {
-    if (!account.legacyAccountId)
-    {
-        [self fillInternalErrorWithMessage:@"Can't clear cache without user id" context:context error:error];
-        return NO;
-    }
+    return [self clearCacheForAccount:account clientId:nil context:context error:error];
+}
 
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Clearing cache with account");
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Clearing cache with account %@", account.legacyAccountId);
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+                    clientId:(NSString *)clientId
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error
+{
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Clearing cache with account and client id %@", clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Clearing cache with account %@ and client id %@", account.legacyAccountId, clientId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+
+    BOOL result = YES;
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     query.legacyUserId = account.legacyAccountId;
 
-    BOOL result = [_dataSource removeItemsWithKey:query context:context error:error];
+    // If only user id is provided, optimize operation by deleting from data source directly
+    if ([NSString msidIsStringNilOrBlank:clientId]
+        && ![NSString msidIsStringNilOrBlank:account.legacyAccountId])
+    {
+        result = [_dataSource removeItemsWithKey:query context:context error:error];
+        [_dataSource saveWipeInfoWithContext:context error:nil];
+    }
+    else
+    {
+        // If we need to filter by client id, then we need to query all items by user id and go through them
+        NSArray *results = [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 
-    [_dataSource saveWipeInfoWithContext:context error:nil];
+        if (results)
+        {
+            for (MSIDLegacyTokenCacheItem *cacheItem in results)
+            {
+                if (clientId && [cacheItem.clientId isEqualToString:clientId])
+                {
+                    result &= [self removeTokenCacheItem:cacheItem userId:cacheItem.idTokenClaims.userId context:context error:error];
+                }
+            }
+        }
+    }
 
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+
+    // Clear cache from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        if (![accessor clearCacheForAccount:account
+                                   clientId:clientId
+                                    context:context
+                                      error:error])
+        {
+            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor: %@", accessor.class);
+            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor:  %@, error %@", accessor.class, *error);
+        }
+    }
+
     return result;
 }
 
@@ -588,42 +632,38 @@
     return tokens;
 }
 
-- (BOOL)removeToken:(MSIDBaseToken *)token
-             userId:(NSString *)userId
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
+- (BOOL)removeTokenCacheItem:(MSIDLegacyTokenCacheItem *)cacheItem
+                      userId:(NSString *)userId
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error
 {
-    if (!token)
+    if (!cacheItem)
     {
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Token not provided", nil, nil, nil, context.correlationId, nil);
         }
-        
+
         return NO;
     }
-    
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Removing token with clientId %@, authority %@", token.clientId, token.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Removing token %@ with account %@", token, userId);
+
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Removing token with clientId %@, authority %@", cacheItem.clientId, cacheItem.authority);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Removing token %@ with account %@", cacheItem, userId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
-    
-    MSIDCredentialCacheItem *cacheItem = token.tokenCacheItem;
- 
-    __auto_type authority = token.storageAuthority ? token.storageAuthority : token.authority;
 
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:authority.url
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:cacheItem.authority
                                                                              clientId:cacheItem.clientId
                                                                              resource:cacheItem.target
                                                                          legacyUserId:userId];
-    
+
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
 
-    if (result && token.credentialType == MSIDRefreshTokenType)
+    if (result && cacheItem.credentialType == MSIDRefreshTokenType)
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
-    
+
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
 }

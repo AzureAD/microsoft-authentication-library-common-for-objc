@@ -23,6 +23,8 @@
 
 #import "MSIDWebviewUIController.h"
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #define DEFAULT_WINDOW_WIDTH 420
 #define DEFAULT_WINDOW_HEIGHT 650
 
@@ -179,3 +181,5 @@
 
 
 @end
+
+#endif

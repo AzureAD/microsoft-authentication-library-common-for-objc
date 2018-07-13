@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #import "MSIDWebviewUIController.h"
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
@@ -286,3 +288,5 @@
 }
 
 @end
+
+#endif

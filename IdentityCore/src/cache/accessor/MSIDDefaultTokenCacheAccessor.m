@@ -345,10 +345,9 @@
                        error:(NSError **)error
 {
     if (!account
-        || !environment
         || !clientId)
     {
-        [self fillInternalErrorWithMessage:@"Missing parameter, please provide account, clientId and environment" context:context error:error];
+        [self fillInternalErrorWithMessage:@"Missing parameter, please provide account and clientId" context:context error:error];
         return NO;
     }
 
@@ -419,20 +418,87 @@
     return YES;
 }
 
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+                    clientId:(NSString *)clientId
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error
+{
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    
+    BOOL result = YES;
+
+    // If home account id is available, remove tokens by home account id
+    if (account.homeAccountId)
+    {
+        result = [self clearCacheForAccount:account
+                                environment:nil
+                                   clientId:clientId
+                                    context:context
+                                      error:error];
+    }
+    // If legacy account id is available, lookup home account id by legacy account id and remove tokens
+    else if (account.legacyAccountId)
+    {
+        MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
+        accountsQuery.accountType = MSIDAccountTypeMSSTS;
+
+        NSArray<MSIDAccountCacheItem *> *resultAccounts = [_accountCredentialCache getAccountsWithQuery:accountsQuery context:context error:error];
+
+        for (MSIDAccountCacheItem *cacheItem in resultAccounts)
+        {
+            if ([cacheItem.username isEqualToString:account.legacyAccountId]
+                && cacheItem.homeAccountId)
+            {
+                account.homeAccountId = cacheItem.homeAccountId;
+
+                result &= [self clearCacheForAccount:account
+                                         environment:nil
+                                            clientId:clientId
+                                             context:context
+                                               error:error];
+
+                break;
+            }
+        }
+    }
+
+    if (!result)
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+        return NO;
+    }
+
+    // Clear cache from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        if (![accessor clearCacheForAccount:account
+                                   clientId:clientId
+                                    context:context
+                                      error:error])
+        {
+            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor: %@", accessor.class);
+            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor:  %@, error %@", accessor.class, *error);
+        }
+    }
+
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+    return YES;
+}
+
 #pragma mark - Input validation
 
-- (BOOL)checkUserIdentifier:(NSString *)userIdentifier
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+- (BOOL)checkAccountIdentifier:(NSString *)accountIdentifier
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
 {
-    if (!userIdentifier)
+    if (!accountIdentifier)
     {
         MSID_LOG_ERROR(context, @"(Default accessor) User identifier is expected for default accessor, but not provided");
         MSID_LOG_ERROR_PII(context, @"(Default accessor) User identifier is expected for default accessor, but not provided");
         
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"User identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Account identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
         }
         return NO;
     }
@@ -463,7 +529,7 @@
         return NO;
     }
 
-    if (![self checkUserIdentifier:accessToken.homeAccountId context:context error:error])
+    if (![self checkAccountIdentifier:accessToken.homeAccountId context:context error:error])
     {
         return NO;
     }
@@ -726,7 +792,7 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
-    if (![self checkUserIdentifier:token.homeAccountId context:context error:error])
+    if (![self checkAccountIdentifier:token.homeAccountId context:context error:error])
     {
         return NO;
     }
@@ -745,7 +811,7 @@
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
-    if (![self checkUserIdentifier:account.homeAccountId context:context error:error])
+    if (![self checkAccountIdentifier:account.homeAccountId context:context error:error])
     {
         return NO;
     }

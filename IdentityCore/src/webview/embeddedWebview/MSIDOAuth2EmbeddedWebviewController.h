@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
 #import "MSIDWebviewInteracting.h"
@@ -51,3 +53,5 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 @property (readonly) NSURL *startURL;
 
 @end
+
+#endif
