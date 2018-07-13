@@ -24,6 +24,7 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDIdTokenClaims.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDLegacyAccessToken
 
@@ -33,7 +34,6 @@
 {
     MSIDLegacyAccessToken *item = [super copyWithZone:zone];
     item->_idToken = [_idToken copyWithZone:zone];
-    item->_legacyUserId = [_legacyUserId copyWithZone:zone];
     item->_accessTokenType = [_accessTokenType copyWithZone:zone];
     return item;
 }
@@ -60,7 +60,6 @@
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.idToken.hash;
     hash = hash * 31 + self.accessTokenType.hash;
-    hash = hash * 31 + self.legacyUserId.hash;
     return hash;
 }
 
@@ -72,7 +71,6 @@
     }
 
     BOOL result = [super isEqualToItem:token];
-    result &= (!self.legacyUserId && !token.legacyUserId) || [self.legacyUserId isEqualToString:token.legacyUserId];
     result &= (!self.accessTokenType && !token.accessTokenType) || [self.accessTokenType isEqualToString:token.accessTokenType];
     result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
 
@@ -100,7 +98,7 @@
         _authority = tokenCacheItem.authority;
 
         MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
-        _legacyUserId = claims.userId;
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
     }
 
     return self;
@@ -123,13 +121,8 @@
     cacheItem.clientId = self.clientId;
     cacheItem.clientInfo = self.clientInfo;
     cacheItem.additionalInfo = self.additionalServerInfo;
-    cacheItem.homeAccountId = self.homeAccountId;
+    cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;
     return cacheItem;
-}
-
-- (NSString *)primaryUserId
-{
-    return self.legacyUserId;
 }
 
 #pragma mark - Token type

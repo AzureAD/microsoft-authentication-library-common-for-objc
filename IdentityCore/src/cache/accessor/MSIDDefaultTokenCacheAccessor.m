@@ -320,6 +320,15 @@
     return [filteredAccountsSet allObjects];
 }
 
+- (MSIDAccount *)accountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                        configuration:(MSIDConfiguration *)configuration
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
+{
+    // TODO
+    return nil;
+}
+
 - (BOOL)removeAccount:(MSIDAccount *)account
               context:(id<MSIDRequestContext>)context
                 error:(NSError **)error
@@ -389,12 +398,12 @@
     }
 
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
-    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.homeAccountId, _PII_NULLIFY(token.refreshToken));
+    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.accountIdentifier.homeAccountId, _PII_NULLIFY(token.refreshToken));
 
     NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.homeAccountId = token.homeAccountId;
+    query.homeAccountId = token.accountIdentifier.homeAccountId;
     query.environment = authority.msidHostWithPortIfNecessary;
     query.clientId = token.clientId;
     query.familyId = token.familyId;
@@ -527,7 +536,7 @@
         return NO;
     }
 
-    if (![self checkAccountIdentifier:accessToken.homeAccountId context:context error:error])
+    if (![self checkAccountIdentifier:accessToken.accountIdentifier.homeAccountId context:context error:error])
     {
         return NO;
     }
@@ -599,7 +608,7 @@
 {
     // Delete access tokens with intersecting scopes
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.homeAccountId = accessToken.homeAccountId;
+    query.homeAccountId = accessToken.accountIdentifier.homeAccountId;
     query.environment = accessToken.authority.msidHostWithPortIfNecessary;
     query.realm = accessToken.authority.msidTenant;
     query.clientId = accessToken.clientId;
@@ -658,14 +667,14 @@
     {
         MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
 
-        if (account.homeAccountId)
+        if (account.accountIdentifier.homeAccountId)
         {
-            NSMutableArray *accounts = accountsPerUserId[account.homeAccountId];
+            NSMutableArray *accounts = accountsPerUserId[account.accountIdentifier.homeAccountId];
 
             if (!accounts)
             {
                 accounts = [NSMutableArray array];
-                accountsPerUserId[account.homeAccountId] = accounts;
+                accountsPerUserId[account.accountIdentifier.homeAccountId] = accounts;
             }
 
             [accounts addObject:account];
@@ -790,7 +799,7 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
-    if (![self checkAccountIdentifier:token.homeAccountId context:context error:error])
+    if (![self checkAccountIdentifier:token.accountIdentifier.homeAccountId context:context error:error])
     {
         return NO;
     }
@@ -809,7 +818,7 @@
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
-    if (![self checkAccountIdentifier:account.homeAccountId context:context error:error])
+    if (![self checkAccountIdentifier:account.accountIdentifier.homeAccountId context:context error:error])
     {
         return NO;
     }

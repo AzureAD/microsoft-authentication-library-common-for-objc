@@ -39,6 +39,7 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccount.h"
+#import "MSIDAccountIdentifier.h"
 #import "MSIDLegacyRefreshToken.h"
 
 
@@ -182,7 +183,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
 }
@@ -203,7 +204,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
@@ -247,7 +248,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
@@ -286,7 +287,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
@@ -303,7 +304,7 @@
     XCTAssertNotNil(token.expiresOn);
     XCTAssertNil(token.familyId);
     XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(token.legacyUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
 }
 
 - (void)testLegacyAccessTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -322,7 +323,7 @@
 
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
@@ -337,7 +338,7 @@
     XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertNotNil(token.expiresOn);
     XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(token.legacyUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
 }
 
 - (void)testLegacyRefreshTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -356,7 +357,7 @@
 
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
@@ -366,7 +367,7 @@
     XCTAssertEqualObjects(token.idToken, idToken);
 
     XCTAssertNil(token.familyId);
-    XCTAssertEqualObjects(token.legacyUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
 }
 
 - (void)testIDTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -385,7 +386,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     
@@ -416,7 +417,7 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
-    XCTAssertEqualObjects(token.homeAccountId, @"subject");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"subject");
     
     NSDictionary *expectedAdditionalInfo = @{@"additional_key1": @"additional_value1",
                                              @"additional_key2": @"additional_value2"};
@@ -443,7 +444,7 @@
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.homeAccountId, @"subject");
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"subject");
     XCTAssertNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertEqualObjects(account.username, @"eric999");

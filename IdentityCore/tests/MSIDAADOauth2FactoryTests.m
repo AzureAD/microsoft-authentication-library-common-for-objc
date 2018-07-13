@@ -41,6 +41,7 @@
 #import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAadAuthorityCache+TestUtil.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDAADOauth2FactoryTest : XCTestCase
 
@@ -154,7 +155,7 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -185,7 +186,7 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -211,7 +212,7 @@
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -253,7 +254,7 @@
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -276,7 +277,7 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     

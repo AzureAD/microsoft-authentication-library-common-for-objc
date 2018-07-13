@@ -258,14 +258,22 @@
     for (MSIDLegacyRefreshToken *refreshToken in refreshTokens)
     {
         MSIDAccount *account = [MSIDAccount new];
-        account.homeAccountId = refreshToken.homeAccountId;
+        account.accountIdentifier = refreshToken.accountIdentifier;
         account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
         account.accountType = MSIDAccountTypeMSSTS;
-        account.username = refreshToken.legacyUserId;
         [resultAccounts addObject:account];
     }
 
     return [resultAccounts allObjects];
+}
+
+- (MSIDAccount *)accountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                        configuration:(MSIDConfiguration *)configuration
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
+{
+    // TODO
+    return nil;
 }
 
 #pragma mark - Public
@@ -315,13 +323,13 @@
     }
 
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
-    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.homeAccountId, _PII_NULLIFY(token.refreshToken));
+    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.accountIdentifier.homeAccountId, _PII_NULLIFY(token.refreshToken));
 
     MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
 
     NSURL *storageAuthority = token.storageAuthority ? token.storageAuthority : token.authority;
 
-    MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.primaryUserId
+    MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.accountIdentifier.legacyAccountId
                                                                                              type:cacheItem.credentialType
                                                                                         authority:token.authority
                                                                                     lookupAliases:@[storageAuthority]
@@ -336,7 +344,7 @@
         MSID_LOG_VERBOSE_PII(context, @"Found refresh token in cache and it's the latest version, removing token %@", token);
 
         return [self removeTokenCacheItem:tokenInCache.legacyTokenCacheItem
-                                   userId:tokenInCache.legacyUserId
+                                   userId:tokenInCache.accountIdentifier.legacyAccountId
                                   context:context
                                     error:error];
     }
@@ -349,7 +357,7 @@
                     error:(NSError **)error
 {
     return [self removeTokenCacheItem:token.legacyTokenCacheItem
-                               userId:token.legacyUserId
+                               userId:token.accountIdentifier.legacyAccountId
                               context:context
                                 error:error];
 }
@@ -492,7 +500,7 @@
 
     return [self saveToken:accessToken
                  cacheItem:accessToken.legacyTokenCacheItem
-                    userId:accessToken.legacyUserId
+                    userId:accessToken.accountIdentifier.legacyAccountId
                    context:context
                      error:error];
 }
@@ -515,7 +523,7 @@
 
     BOOL result = [self saveToken:refreshToken
                         cacheItem:refreshToken.legacyTokenCacheItem
-                           userId:refreshToken.legacyUserId
+                           userId:refreshToken.accountIdentifier.legacyAccountId
                           context:context
                             error:error];
 
@@ -534,7 +542,7 @@
 
     return [self saveToken:familyRefreshToken
                  cacheItem:familyRefreshToken.legacyTokenCacheItem
-                    userId:familyRefreshToken.legacyUserId
+                    userId:familyRefreshToken.accountIdentifier.legacyAccountId
                    context:context
                      error:error];
 }
@@ -558,7 +566,7 @@
     // Save token for legacy single resource token
     return [self saveToken:legacyToken
                  cacheItem:legacyToken.legacyTokenCacheItem
-                    userId:legacyToken.legacyUserId
+                    userId:legacyToken.accountIdentifier.legacyAccountId
                    context:context
                      error:error];
 }

@@ -26,6 +26,7 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDClientInfo.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDBaseToken
 
@@ -37,7 +38,7 @@
     item->_authority = _authority;
     item->_storageAuthority = _storageAuthority;
     item->_clientId = _clientId;
-    item->_homeAccountId = _homeAccountId;
+    item->_accountIdentifier = _accountIdentifier;
     item->_clientInfo = _clientInfo;
     item->_additionalServerInfo = _additionalServerInfo;
     item->_clientInfo = _clientInfo;
@@ -67,7 +68,7 @@
     hash = hash * 31 + self.authority.hash;
     hash = hash * 31 + self.storageAuthority.hash;
     hash = hash * 31 + self.clientId.hash;
-    hash = hash * 31 + self.homeAccountId.hash;
+    hash = hash * 31 + self.accountIdentifier.hash;
     hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
     hash = hash * 31 + self.additionalServerInfo.hash;
     hash = hash * 31 + self.credentialType;
@@ -85,7 +86,7 @@
     result &= (!self.authority && !item.authority) || [self.authority.absoluteString isEqualToString:item.authority.absoluteString];
     result &= (!self.storageAuthority && !item.storageAuthority) || [self.storageAuthority.absoluteString isEqualToString:item.storageAuthority.absoluteString];
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
-    result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
+    result &= (!self.accountIdentifier && !item.accountIdentifier) || [self.accountIdentifier isEqual:item.accountIdentifier];
     result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
     result &= (!self.additionalServerInfo && !item.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:item.additionalServerInfo];
     result &= (self.credentialType == item.credentialType);
@@ -145,7 +146,11 @@
         
         _clientInfo = tokenCacheItem.clientInfo;
         _additionalServerInfo = tokenCacheItem.additionalInfo;
-        _homeAccountId = tokenCacheItem.homeAccountId;
+
+        if (tokenCacheItem.homeAccountId)
+        {
+            _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:tokenCacheItem.homeAccountId];
+        }
     }
     
     return self;
@@ -169,13 +174,8 @@
     cacheItem.clientId = self.clientId;
     cacheItem.clientInfo = self.clientInfo;
     cacheItem.additionalInfo = self.additionalServerInfo;
-    cacheItem.homeAccountId = self.homeAccountId;
+    cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;
     return cacheItem;
-}
-
-- (NSString *)primaryUserId
-{
-    return self.homeAccountId;
 }
 
 #pragma mark - Description
@@ -183,7 +183,7 @@
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"(authority=%@ clientId=%@ credentialType=%@ homeAccountId=%@ clientInfo=%@)",
-            _authority, _clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], _homeAccountId, _clientInfo];
+            _authority, _clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], _accountIdentifier.homeAccountId, _clientInfo];
 }
 
 @end

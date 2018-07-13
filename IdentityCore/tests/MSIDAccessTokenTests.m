@@ -27,6 +27,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDConfiguration.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDAccessTokenTests : XCTestCase
 
@@ -233,7 +234,7 @@
     NSDictionary *additionalServerInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
     XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
     XCTAssertEqualObjects(token.extendedExpireTime, extExpireTime);
-    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
     XCTAssertEqualObjects(token.cachedAt, cachedAt);
     XCTAssertEqualObjects(token.resource, @"target");
@@ -327,17 +328,15 @@
 - (MSIDAccessToken *)createToken
 {
     MSIDAccessToken *token = [MSIDAccessToken new];
-    [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
-    [token setValue:@"some clientId" forKey:@"clientId"];
-    [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
-    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
-    [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
-    [token setValue:@"token" forKey:@"accessToken"];
-    [token setValue:@"resource" forKey:@"target"];
-    [token setValue:@"scopes" forKey:@"target"];
-
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"uid.utid"];
+    token.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    token.clientId = @"clientId";
+    token.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    token.additionalServerInfo = @{@"spe_info" : @"value2"};
+    token.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    token.cachedAt = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    token.accessToken = @"token";
+    token.resource = @"target";
     return token;
 }
 
