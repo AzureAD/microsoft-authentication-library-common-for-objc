@@ -51,6 +51,8 @@
     NSArray *_otherAccessors;
 }
 
+@property (nonatomic) MSIDAuthorityFactory *authorityFactory;
+
 @end
 
 @implementation MSIDLegacyTokenCacheAccessor
@@ -69,6 +71,7 @@
         _serializer = [[MSIDKeyedArchiverSerializer alloc] init];
         _otherAccessors = otherAccessors;
         _factory = factory;
+        _authorityFactory = [MSIDAuthorityFactory new];
     }
 
     return self;
@@ -104,9 +107,7 @@
 {
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
 
-    
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:[response.authority msidUrl] context:nil error:nil];
+    __auto_type authority = [self.authorityFactory authorityFromUrl:[response.authority msidUrl] context:nil error:nil];
     
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:nil
@@ -264,9 +265,7 @@
     {
         MSIDAccount *account = [MSIDAccount new];
         account.homeAccountId = refreshToken.homeAccountId;
-        
-        __auto_type authorityFactory = [MSIDAuthorityFactory new];
-        __auto_type authority = [authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:nil error:nil];
+        __auto_type authority = [self.authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:nil error:nil];
         account.authority = authority;
         account.accountType = MSIDAccountTypeMSSTS;
         account.username = refreshToken.legacyUserId;

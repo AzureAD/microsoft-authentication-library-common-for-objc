@@ -32,6 +32,7 @@
 
 @property (nonatomic) MSIDAadAuthorityCache *authorityCache;
 @property (nonatomic) NSURL *openIdConfigurationEndpoint;
+@property (nonatomic) MSIDAuthorityFactory *authorityFactory;
 
 @end
 
@@ -50,6 +51,7 @@
         if (!_url) return nil;
         _tenant = [self.class tenantFromAuthorityUrl:self.url context:context error:error];
         _authorityCache = [MSIDAadAuthorityCache sharedInstance];
+        _authorityFactory = [MSIDAuthorityFactory new];
     }
     
     return self;
@@ -84,8 +86,7 @@
 - (NSURL *)cacheUrlWithContext:(id<MSIDRequestContext>)context
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = (MSIDAADAuthority *)[authorityFactory authorityFromUrl:universalAuthorityURL context:context error:nil];
+    __auto_type authority = (MSIDAADAuthority *)[self.authorityFactory authorityFromUrl:universalAuthorityURL context:context error:nil];
     NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheUrlForAuthority:authority context:context];
@@ -94,8 +95,7 @@
 - (NSArray<NSURL *> *)cacheAliases
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = (MSIDAADAuthority *)[authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
+    __auto_type authority = (MSIDAADAuthority *)[self.authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
     NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheAliasesForAuthority:authority];
