@@ -1630,15 +1630,6 @@
     XCTAssertEqual(error.code, MSIDErrorInternal);
 }
 
-- (void)testClearCacheForAccount_whenNilClientId_shouldReturnError
-{
-    NSError *error = nil;
-    BOOL result = [_defaultAccessor clearCacheForAccount:[MSIDAccountIdentifier new] environment:@"login.microsoftonline.com" clientId:nil context:nil error:&error];
-    XCTAssertFalse(result);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInternal);
-}
-
 - (void)testClearCacheForAccount_whenAccountProvided_shouldRemoveTokens
 {
     [self saveResponseWithUPN:@"upn@test.com"
@@ -1740,6 +1731,71 @@
 
     MSIDAccount *remainingAccount = accounts[0];
     XCTAssertEqualObjects(remainingAccount.homeAccountId, @"uid2.utid2");
+}
+
+- (void)testClearCacheForAccount_whenAccountProvided_andNilClientId_shouldRemoveTokensForAllClientIds
+{
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id1"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing"
+                  inputScopes:@"user.sing"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id2"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing"
+                  inputScopes:@"user.sing"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id3"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing2 user.dance"
+                  inputScopes:@"user.sing2 user.dance"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+
+    MSIDAccountIdentifier *identifier = [MSIDAccountIdentifier new];
+    identifier.homeAccountId = @"uid.utid";
+    identifier.legacyAccountId = @"upn@test.com";
+
+    NSError *error = nil;
+    BOOL result = [_defaultAccessor clearCacheForAccount:identifier environment:@"login.windows.net" clientId:nil context:nil error:&error];
+
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *allATs = [self getAllAccessTokens];
+    XCTAssertEqual([allATs count], 0);
+
+    NSArray *allRTs = [self getAllRefreshTokens];
+    XCTAssertEqual([allRTs count], 0);
+
+    NSArray *allIDs = [self getAllIDTokens];
+    XCTAssertEqual([allIDs count], 0);
+
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net"
+                                                           clientId:@"test_client_id"
+                                                           familyId:nil
+                                                            context:nil
+                                                              error:&error];
+    XCTAssertEqual([accounts count], 0);
 }
 
 #pragma mark - Helpers
