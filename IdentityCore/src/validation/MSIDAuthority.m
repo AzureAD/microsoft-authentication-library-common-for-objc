@@ -217,12 +217,6 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return YES;
 }
 
-// TODO: Remove
-+ (NSSet<NSString *> *)trustedHosts
-{
-    return [MSIDAADNetworkConfiguration.defaultConfiguration trustedHosts];
-}
-
 #pragma mark - NSObject
 
 - (BOOL)isEqual:(id)object

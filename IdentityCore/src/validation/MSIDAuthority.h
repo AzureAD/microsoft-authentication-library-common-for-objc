@@ -86,6 +86,4 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
                        context:(nullable id<MSIDRequestContext>)context
                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
-+ (nonnull NSSet<NSString *> *)trustedHosts;
-
 @end
