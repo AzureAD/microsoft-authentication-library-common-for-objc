@@ -1579,6 +1579,102 @@
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
 }
 
+#pragma mark - Get single account
+
+- (void)testGetAccount_whenNoAccountsInCache_shouldReturnNilAndNilError
+{
+    NSError *error = nil;
+
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.windows.net/common"
+                                                                                clientId:@"test_client_id"
+                                                                             redirectUri:nil
+                                                                                  target:@"graph"];
+
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id"
+                                                                                 homeAccountId:@"home.id"];
+
+    MSIDAccount *account = [_legacyAccessor accountForIdentifier:identifier
+                                                        familyId:nil
+                                                   configuration:configuration
+                                                         context:nil
+                                                           error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNil(account);
+}
+
+- (void)testGetAccount_whenAccountInPrimaryCache_shouldReturnAccountAndNilError
+{
+    [self saveResponseWithUPN:@"legacy.id"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+             responseResource:@"graph"
+                inputResource:@"graph"
+                          uid:@"home"
+                         utid:@"id"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token 2"
+             additionalFields:@{@"foci": @"1"}
+                     accessor:_legacyAccessor];
+
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.windows.net/common"
+                                                                                clientId:@"test_client_id"
+                                                                             redirectUri:nil
+                                                                                  target:@"graph"];
+
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id"
+                                                                                 homeAccountId:nil];
+
+    NSError *error = nil;
+
+    MSIDAccount *account = [_legacyAccessor accountForIdentifier:identifier
+                                                        familyId:nil
+                                                   configuration:configuration
+                                                         context:nil
+                                                           error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(account);
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"home.id");
+    XCTAssertEqualObjects(account.accountIdentifier.legacyAccountId, @"legacy.id");
+}
+
+- (void)testGetAccount_whenAccountInSecondaryCache_shouldReturnAccountAndNilError
+{
+    [self saveResponseWithUPN:@"legacy.id"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+             responseResource:@"graph"
+                inputResource:@"graph"
+                          uid:@"home"
+                         utid:@"id"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token 2"
+             additionalFields:nil
+                     accessor:_otherAccessor];
+
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.windows.net/common"
+                                                                                clientId:@"test_client_id"
+                                                                             redirectUri:nil
+                                                                                  target:@"graph"];
+
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil
+                                                                                 homeAccountId:@"home.id"];
+
+    NSError *error = nil;
+
+    MSIDAccount *account = [_legacyAccessor accountForIdentifier:identifier
+                                                        familyId:nil
+                                                   configuration:configuration
+                                                         context:nil
+                                                           error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(account);
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"home.id");
+    XCTAssertEqualObjects(account.accountIdentifier.legacyAccountId, @"legacy.id");
+}
+
 #pragma mark - Get access tokens
 
 - (void)testGetAccessTokenForAccount_whenAccessTokensInPrimaryCache_shouldReturnToken

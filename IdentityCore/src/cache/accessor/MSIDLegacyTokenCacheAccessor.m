@@ -268,11 +268,44 @@
 }
 
 - (MSIDAccount *)accountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                             familyId:(NSString *)familyId
                         configuration:(MSIDConfiguration *)configuration
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
-    // TODO
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@", configuration.clientId, familyId, configuration.authority);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@, legacy user ID %@, home account ID %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.legacyAccountId, accountIdentifier.homeAccountId);
+
+    MSIDLegacyRefreshToken *refreshToken = [self getRefreshTokenForAccountImpl:accountIdentifier
+                                                                      familyId:familyId
+                                                                 configuration:configuration
+                                                                       context:context
+                                                                         error:error];
+
+    if (refreshToken)
+    {
+        MSIDAccount *account = [MSIDAccount new];
+        account.accountIdentifier = refreshToken.accountIdentifier;
+        account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
+        account.accountType = MSIDAccountTypeMSSTS;
+        return account;
+    }
+
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        MSIDAccount *account = [accessor accountForIdentifier:accountIdentifier
+                                                     familyId:familyId
+                                                configuration:configuration
+                                                      context:context
+                                                        error:error];
+
+        if (account)
+        {
+            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found account in a different accessor %@", [accessor class]);
+            return account;
+        }
+    }
+
     return nil;
 }
 
