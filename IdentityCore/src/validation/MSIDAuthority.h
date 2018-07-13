@@ -79,8 +79,6 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 /* It is used in telemetry */
 - (nonnull NSString *)authorityType;
 
-+ (BOOL)isKnownHost:(nullable NSString *)host;
-
 - (void)loadOpenIdMetadataWithContext:(nullable id<MSIDRequestContext>)context
                       completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionBlock;
 

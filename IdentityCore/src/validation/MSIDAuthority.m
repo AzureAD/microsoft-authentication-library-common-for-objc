@@ -158,13 +158,9 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 - (nonnull NSString *)authorityType
 {
-    // TODO: abstract.
-    return nil;
-}
-
-+ (BOOL)isKnownHost:(NSString *)host
-{
-    return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:host];
+    NSAssert(NO, @"Abstract method.");
+    
+    return @"";
 }
 
 - (void)loadOpenIdMetadataWithContext:(nullable id<MSIDRequestContext>)context
