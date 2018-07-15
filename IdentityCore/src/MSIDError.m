@@ -27,7 +27,6 @@ NSString *MSIDOAuthSubErrorKey = @"MSIDOAuthSubErrorKey";
 NSString *MSIDCorrelationIdKey = @"MSIDCorrelationIdKey";
 NSString *MSIDHTTPHeadersKey = @"MSIDHTTPHeadersKey";
 NSString *MSIDHTTPResponseCodeKey = @"MSIDHTTPResponseCodeKey";
-NSString *MSIDUserIdKey = @"MSIDUserIdKey";
 
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
@@ -66,6 +65,10 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame)
     {
         return MSIDErrorServerInvalidGrant;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"unauthorized_client"] == NSOrderedSame)
+    {
+        return MSIDErrorServerUnauthorizedClient;
     }
     
     return defaultCode;

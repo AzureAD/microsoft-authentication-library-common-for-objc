@@ -144,8 +144,7 @@
     MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_grant"}
                                                                                         error:nil];
     NSError *error = nil;
-    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
-    BOOL result = [factory verifyResponse:response fromRefreshToken:refreshToken context:nil error:&error];
+    BOOL result = [factory verifyResponse:response fromRefreshToken:YES context:nil error:&error];
     
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
@@ -153,7 +152,7 @@
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
 }
 
-- (void)testVerifyResponse_whenProtectionPolicyRequiredErrorViaRefreshToken_shouldReturnErrorWithSuberrorAndUserId
+- (void)testVerifyResponse_whenProtectionPolicyRequiredErrorViaRefreshToken_shouldReturnErrorWithSuberror
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
@@ -162,15 +161,12 @@
                                                                                                 }
                                                                                         error:nil];
     NSError *error = nil;
-    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
-    refreshToken.homeAccountId = DEFAULT_TEST_ID_TOKEN_USERNAME;
-    BOOL result = [factory verifyResponse:response fromRefreshToken:refreshToken context:nil error:&error];
+    BOOL result = [factory verifyResponse:response fromRefreshToken:YES context:nil error:&error];
 
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
-    XCTAssertEqualObjects(error.userInfo[MSIDUserIdKey], DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
 - (void)testVerifyResponse_whenOAuthErrorViaAuthCode_shouldReturnError
