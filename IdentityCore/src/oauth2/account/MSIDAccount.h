@@ -33,8 +33,6 @@
 @interface MSIDAccount : NSObject <NSCopying>
 
 @property (readwrite) MSIDAccountType accountType;
-
-@property (readwrite) NSString *homeAccountId;
 @property (readwrite) NSString *localAccountId;
 @property (readwrite) NSURL *authority;
 /*
@@ -49,13 +47,11 @@
 @property (readwrite) NSString *middleName;
 @property (readwrite) NSString *familyName;
 @property (readwrite) NSString *name;
-
+@property (readwrite) MSIDAccountIdentifier *accountIdentifier;
 @property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSString *alternativeAccountId;
 
 - (instancetype)initWithAccountCacheItem:(MSIDAccountCacheItem *)cacheItem;
-
 - (MSIDAccountCacheItem *)accountCacheItem;
-- (MSIDAccountIdentifier *)accountIdentifier;
 
 @end

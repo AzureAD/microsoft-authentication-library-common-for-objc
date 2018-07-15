@@ -24,6 +24,7 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDLegacyRefreshToken
 
@@ -33,7 +34,7 @@
 {
     MSIDLegacyRefreshToken *item = [super copyWithZone:zone];
     item->_idToken = [_idToken copyWithZone:zone];
-    item->_legacyUserId = [_legacyUserId copyWithZone:zone];
+    item->_accountIdentifier = [_accountIdentifier copyWithZone:zone];
     return item;
 }
 
@@ -58,7 +59,7 @@
 {
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.idToken.hash;
-    hash = hash * 31 + self.legacyUserId.hash;
+    hash = hash * 31 + self.accountIdentifier.hash;
     return hash;
 }
 
@@ -70,7 +71,7 @@
     }
 
     BOOL result = [super isEqualToItem:token];
-    result &= (!self.legacyUserId && !token.legacyUserId) || [self.legacyUserId isEqualToString:token.legacyUserId];
+    result &= (!self.accountIdentifier && !token.accountIdentifier) || [self.accountIdentifier isEqual:token.accountIdentifier];
     result &= (!self.idToken && !token.idToken) || [self.idToken isEqualToString:token.idToken];
 
     return result;
@@ -96,7 +97,7 @@
         _refreshToken = tokenCacheItem.refreshToken;
 
         MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
-        _legacyUserId = claims.userId;
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
         _realm = claims.realm;
     }
 
@@ -114,16 +115,11 @@
     cacheItem.clientId = self.clientId;
     cacheItem.clientInfo = self.clientInfo;
     cacheItem.additionalInfo = self.additionalServerInfo;
-    cacheItem.homeAccountId = self.homeAccountId;
+    cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;
     cacheItem.refreshToken = self.refreshToken;
     cacheItem.familyId = self.familyId;
     cacheItem.secret = self.refreshToken;
     return cacheItem;
-}
-
-- (NSString *)primaryUserId
-{
-    return self.legacyUserId;
 }
 
 #pragma mark - Token type
@@ -138,7 +134,7 @@
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(id token=%@, legacy user ID=%@)", _PII_NULLIFY(_idToken), _legacyUserId];
+    return [baseDescription stringByAppendingFormat:@"(id token=%@, legacy user ID=%@)", _PII_NULLIFY(_idToken), _accountIdentifier.legacyAccountId];
 }
 
 @end

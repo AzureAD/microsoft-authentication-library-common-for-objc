@@ -142,14 +142,14 @@
 - (void)testAccountCacheItem_shouldReturnProperCacheItem
 {
     MSIDAccount *account = [MSIDAccount new];
-    [account setValue:[@"https://login.microsoftonline.com/common" msidUrl] forKey:@"authority"];
-    [account setValue:@"eric999" forKey:@"username"];
-    [account setValue:@"Eric" forKey:@"givenName"];
-    [account setValue:@"Cartman" forKey:@"familyName"];
-    [account setValue:@(MSIDAccountTypeMSA) forKey:@"accountType"];
-    [account setValue:@"local account id" forKey:@"localAccountId"];
-    [account setValue:@"some id" forKey:@"homeAccountId"];
-    
+    account.authority = [@"https://login.microsoftonline.com/common" msidUrl];
+    account.username = @"eric999";
+    account.givenName = @"Eric";
+    account.familyName = @"Cartman";
+    account.accountType = MSIDAccountTypeMSA;
+    account.localAccountId = @"local account id";
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"some id"];
+
     MSIDAccountCacheItem *cacheItem = [account accountCacheItem];
     
     XCTAssertNotNil(cacheItem);
@@ -183,7 +183,7 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.localAccountId, @"local account id");
-    XCTAssertEqualObjects(account.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqual(account.accountType, MSIDAccountTypeMSA);
     XCTAssertEqualObjects(account.username, @"eric999");
     XCTAssertEqualObjects(account.givenName, @"Eric");
@@ -215,7 +215,7 @@
 {
     MSIDAccount *account = [MSIDAccount new];
     account.accountType = MSIDAccountTypeMSSTS;
-    account.homeAccountId = @"uid.utid";
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy id" homeAccountId:@"uid.utid"];
     account.localAccountId = @"local";
     account.authority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
     account.storageAuthority = [NSURL URLWithString:@"https://login.windows2.net/contoso.com"];

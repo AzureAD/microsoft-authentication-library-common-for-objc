@@ -148,6 +148,8 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
+    [self setServiceKeyComponents];
+
     [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
     [coder encodeObject:self.resource forKey:@"resource"];
     [coder encodeObject:self.clientId forKey:@"clientId"];
@@ -155,8 +157,6 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     [coder encodeObject:self.service forKey:@"service"];
     [coder encodeObject:self.account forKey:@"account"];
     [coder encodeObject:self.type forKey:@"type"];
-
-    [self setServiceKeyComponents];
 }
 
 #pragma mark - NSObject
