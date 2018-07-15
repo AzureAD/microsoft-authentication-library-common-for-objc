@@ -85,7 +85,7 @@
                  error:(NSError * __autoreleasing *)error
 {
     return [self verifyResponse:response
-               fromRefreshToken:nil
+               fromRefreshToken:NO
                         context:context
                           error:error];
 }
