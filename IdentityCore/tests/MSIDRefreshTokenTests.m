@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDRefreshTokenTests : XCTestCase
 
@@ -142,7 +143,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.refreshToken, @"refresh token");
     
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
@@ -154,14 +155,13 @@
 - (MSIDRefreshToken *)createToken
 {
     MSIDRefreshToken *token = [MSIDRefreshToken new];
-    [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
-    [token setValue:@"some clientId" forKey:@"clientId"];
-    [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
-    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
-    [token setValue:@"refreshToken" forKey:@"refreshToken"];
-    [token setValue:@"familyId" forKey:@"familyId"];
-
+    token.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    token.clientId = @"some clientId";
+    token.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    token.additionalServerInfo = @{@"spe_info" : @"value2"};
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"uid.utid"];
+    token.refreshToken = @"refreshToken";
+    token.familyId = @"familyId";
     return token;
 }
 
