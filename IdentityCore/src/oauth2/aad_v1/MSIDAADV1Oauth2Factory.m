@@ -85,13 +85,13 @@
                  error:(NSError * __autoreleasing *)error
 {
     return [self verifyResponse:response
-               fromRefreshToken:nil
+               fromRefreshToken:NO
                         context:context
                           error:error];
 }
 
 - (BOOL)verifyResponse:(MSIDAADV1TokenResponse *)response
-      fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+      fromRefreshToken:(BOOL)fromRefreshToken
                context:(id<MSIDRequestContext>)context
                  error:(NSError * __autoreleasing *)error
 {
@@ -106,34 +106,26 @@
     {
         if (response.error)
         {
-            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithCapacity:1];
-            if (refreshToken.primaryUserId)
-            {
-                [userInfo setObject:refreshToken.primaryUserId forKey:MSIDUserIdKey];
-            }
+            MSIDErrorCode errorCode = fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
+            MSIDErrorCode oauthErrorCode = MSIDErrorCodeForOAuthError(response.error, errorCode);
 
-            MSIDErrorCode errorCode;
-            if([MSID_PROTECTION_POLICY_REQUIRED isEqualToString:response.additionalServerInfo[@"suberror"]])
+            /* This is a special error case for True MAM,
+             where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
+
+            if (oauthErrorCode == MSIDErrorServerUnauthorizedClient
+                && [response.suberror isEqualToString:MSID_PROTECTION_POLICY_REQUIRED])
             {
                 errorCode = MSIDErrorServerProtectionPoliciesRequired;
-            }
-            else if(refreshToken)
-            {
-                errorCode = MSIDErrorServerRefreshTokenRejected;
-            }
-            else
-            {
-                errorCode = MSIDErrorServerOauth;
             }
 
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      errorCode,
                                      response.errorDescription,
                                      response.error,
-                                     response.additionalServerInfo[@"suberror"],
+                                     response.suberror,
                                      nil,
                                      context.correlationId,
-                                     userInfo);
+                                     nil);
         }
 
         return result;

@@ -27,7 +27,6 @@ extern NSString *MSIDOAuthSubErrorKey;
 extern NSString *MSIDCorrelationIdKey;
 extern NSString *MSIDHTTPHeadersKey;
 extern NSString *MSIDHTTPResponseCodeKey;
-extern NSString *MSIDUserIdKey;
 
 /*!
  ADAL and MSID use different error domains and error codes.
@@ -88,6 +87,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorServerInvalidClient        = -51432,
     MSIDErrorServerInvalidGrant         = -51433,
     MSIDErrorServerInvalidScope         = -51434,
+    MSIDErrorServerUnauthorizedClient   = -51435,
     
     // State verification has failed
     MSIDErrorServerInvalidState         = -51441,
