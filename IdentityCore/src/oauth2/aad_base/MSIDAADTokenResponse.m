@@ -45,6 +45,7 @@ MSID_JSON_RW(MSID_OAUTH2_CLIENT_INFO, rawClientInfo, setRawClientInfo)
 MSID_JSON_ACCESSOR(MSID_FAMILY_ID, familyId)
 MSID_JSON_RW(MSID_OAUTH2_REFRESH_TOKEN, refreshToken, setRefreshToken)
 MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
+MSID_JSON_ACCESSOR(MSID_OAUTH2_SUB_ERROR, suberror)
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
@@ -162,7 +163,8 @@ MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
                              MSID_FAMILY_ID,
                              MSID_TELEMETRY_KEY_SPE_INFO,
                              MSID_OAUTH2_EXPIRES_ON,
-                             MSID_OAUTH2_EXT_EXPIRES_IN, @"url"];
+                             MSID_OAUTH2_EXT_EXPIRES_IN, @"url",
+                             MSID_OAUTH2_SUB_ERROR];
     
     return [additionalInfo dictionaryByRemovingFields:knownFields];
 }

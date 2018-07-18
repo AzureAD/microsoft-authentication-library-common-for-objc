@@ -36,6 +36,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
+#import "MSIDOAuth2Constants.h"
 
 #import "MSIDAADV1WebviewFactory.h"
 
@@ -106,6 +107,16 @@
         if (response.error)
         {
             MSIDErrorCode errorCode = fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
+            MSIDErrorCode oauthErrorCode = MSIDErrorCodeForOAuthError(response.error, errorCode);
+
+            /* This is a special error case for True MAM,
+             where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
+
+            if (oauthErrorCode == MSIDErrorServerUnauthorizedClient
+                && [response.suberror isEqualToString:MSID_PROTECTION_POLICY_REQUIRED])
+            {
+                errorCode = MSIDErrorServerProtectionPoliciesRequired;
+            }
 
             if (error)
             {
@@ -113,7 +124,7 @@
                                          errorCode,
                                          response.errorDescription,
                                          response.error,
-                                         nil,
+                                         response.suberror,
                                          nil,
                                          context.correlationId,
                                          nil);
