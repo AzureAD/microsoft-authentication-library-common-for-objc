@@ -358,7 +358,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         [query setObject:key.generic forKey:(id)kSecAttrGeneric];
     }
-    if (key.type)
+    if (key.type != nil)
     {
         [query setObject:key.type forKey:(id)kSecAttrType];
     }
@@ -490,7 +490,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         [query setObject:key.generic forKey:(id)kSecAttrGeneric];
     }
-    if (key.type)
+    if (key.type != nil)
     {
         [query setObject:key.type forKey:(id)kSecAttrType];
     }
@@ -556,7 +556,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     [query setObject:key.service forKey:(id)kSecAttrService];
     [query setObject:(key.account ? key.account : @"") forKey:(id)kSecAttrAccount];
     
-    if (key.type)
+    if (key.type != nil)
     {
         [query setObject:key.type forKey:(id)kSecAttrType];
     }

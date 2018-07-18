@@ -186,7 +186,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     BOOL result = YES;
     result &= (!self.account && !key.account) || [self.account isEqualToString:key.account];
     result &= (!self.service && !key.service) || [self.service isEqualToString:key.service];
-    result &= (!self.type && !key.type) || [self.type isEqualToNumber:key.type];
+    result &= (self.type == nil && key.type == nil) || [self.type isEqualToNumber:key.type];
     
     return result;
 }

@@ -52,6 +52,12 @@ static NSMutableDictionary *s_handlers = nil;
                                webview:webview
                                context:context
                      completionHandler:completionHandler];
+
+    if (!handled)
+    {
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+        return;
+    }
 }
 
 + (void)registerHandler:(Class<MSIDChallengeHandling>)handler
