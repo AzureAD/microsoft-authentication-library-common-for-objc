@@ -549,13 +549,14 @@
     return YES;
 }
 
-- (void)fillInternalErrorWithMessage:(NSString *)message
+- (BOOL)fillInternalErrorWithMessage:(NSString *)message
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
     MSID_LOG_ERROR(context, @"%@", message);
     
     if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, message, nil, nil, nil, context.correlationId, nil);
+    return YES;
 }
 
 #pragma mark - Internal

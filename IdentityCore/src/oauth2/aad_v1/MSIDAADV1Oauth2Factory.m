@@ -118,14 +118,17 @@
                 errorCode = MSIDErrorServerProtectionPoliciesRequired;
             }
 
-            *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     errorCode,
-                                     response.errorDescription,
-                                     response.error,
-                                     response.suberror,
-                                     nil,
-                                     context.correlationId,
-                                     nil);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                         errorCode,
+                                         response.errorDescription,
+                                         response.error,
+                                         response.suberror,
+                                         nil,
+                                         context.correlationId,
+                                         nil);
+            }
         }
 
         return result;

@@ -461,13 +461,14 @@
 
 #pragma mark - Input validation
 
-- (void)fillInternalErrorWithMessage:(NSString *)message
+- (BOOL)fillInternalErrorWithMessage:(NSString *)message
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
     MSID_LOG_ERROR(context, @"%@", message);
 
     if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, message, nil, nil, nil, context.correlationId, nil);
+    return YES;
 }
 
 #pragma mark - Internal
@@ -500,8 +501,6 @@
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", clientId, aliases);
         MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.homeAccountId, clientId, aliases);
 
-        *error = nil;
-
         resultToken = (MSIDLegacyRefreshToken *) [self getTokenByHomeAccountId:account.homeAccountId
                                                                      tokenType:MSIDRefreshTokenType
                                                                      authority:configuration.authority
@@ -510,6 +509,11 @@
                                                                       resource:nil
                                                                        context:context
                                                                          error:error];
+
+        if (resultToken && error)
+        {
+            *error = nil;
+        }
     }
 
     return resultToken;

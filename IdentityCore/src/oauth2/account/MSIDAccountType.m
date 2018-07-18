@@ -57,7 +57,7 @@ static NSDictionary *sAccountTypes = nil;
     });
     
     NSNumber *accountType = sAccountTypes[type];
-    return accountType ? [accountType integerValue] : MSIDAccountTypeOther;
+    return accountType != nil ? [accountType integerValue] : MSIDAccountTypeOther;
 }
 
 @end
