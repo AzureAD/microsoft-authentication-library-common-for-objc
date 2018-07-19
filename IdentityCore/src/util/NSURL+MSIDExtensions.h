@@ -29,7 +29,7 @@
  Checks that authority is equivalent by checking:
     * scheme
     * host
-    * post
+    * port
     * path
  */
 - (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL;
@@ -38,7 +38,7 @@
  Checks that authority is equivalent by checking:
     * scheme
     * host
-    * post
+    * port
  */
 - (BOOL)msidIsEquivalentAuthorityHost:(NSURL *)aURL;
 
