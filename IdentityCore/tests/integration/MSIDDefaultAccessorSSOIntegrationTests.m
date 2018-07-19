@@ -413,7 +413,7 @@
     XCTAssertEqual(error.code, MSIDErrorUnsupportedFunctionality);
 }
 
-- (void)testSaveTokens_withNoHomeAccountIdForDefaultFormat_shouldSaveToBothFormats_butWithADifferentAccountId
+- (void)testSaveTokens_withNoHomeAccountIdForDefaultFormat_shouldReturnNoAndFillError
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"upn@test.com" subject:@"subject" givenName:@"Hello" familyName:@"World" name:@"Hello World" version:@"2.0" tid:@"tenantId.onmicrosoft.com"];
 
@@ -432,35 +432,30 @@
                                                         context:nil
                                                           error:&error];
 
-    XCTAssertTrue(result);
-    XCTAssertNil(error);
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
 
     NSArray *accessTokens = [self getAllLegacyAccessTokens];
     XCTAssertEqual([accessTokens count], 0);
 
     NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
-    XCTAssertEqual([refreshTokens count], 1);
+    XCTAssertEqual([refreshTokens count], 0);
 
     NSArray *legacyTokens = [self getAllLegacyTokens];
     XCTAssertEqual([legacyTokens count], 0);
 
     NSArray *defaultAccessTokens = [self getAllAccessTokens];
-    XCTAssertEqual([defaultAccessTokens count], 1);
+    XCTAssertEqual([defaultAccessTokens count], 0);
 
     NSArray *defaultRefreshTokens = [self getAllRefreshTokens];
-    XCTAssertEqual([defaultRefreshTokens count], 1);
-
-    MSIDRefreshToken *refreshToken = defaultRefreshTokens[0];
-    XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"upn@test.com");
+    XCTAssertEqual([defaultRefreshTokens count], 0);
 
     NSArray *defaultIDTokens = [self getAllIDTokens];
-    XCTAssertEqual([defaultIDTokens count], 1);
+    XCTAssertEqual([defaultIDTokens count], 0);
 
     NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil context:nil error:&error];
     XCTAssertNotNil(accounts);
-    XCTAssertEqual([accounts count], 1);
-    MSIDAccount *account = accounts[0];
-    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"upn@test.com");
+    XCTAssertEqual([accounts count], 0);
 }
 
 - (void)testSaveTokensWithRequestParams_whenNoRefreshTokenReturnedInResponse_shouldOnlySaveAccessAndIDTokensToPrimaryCacheReturnYES

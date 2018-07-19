@@ -694,7 +694,7 @@
     XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tid");
 }
 
-- (void)testSaveTokens_withNoHomeAccountIdForSecondaryFormat_shouldSaveToBothFormats_butWithADifferentAccountId
+- (void)testSaveTokens_withNoHomeAccountIdForSecondaryFormat_shouldSaveToLegacyFormatOnly
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" tenantId:@"tid"];
 
@@ -728,13 +728,10 @@
     XCTAssertEqual([defaultAccessTokens count], 0);
 
     NSArray *defaultRefreshTokens = [self getAllRefreshTokens];
-    XCTAssertEqual([defaultRefreshTokens count], 1);
-
-    MSIDRefreshToken *refreshToken = defaultRefreshTokens[0];
-    XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"upn@test.com");
+    XCTAssertEqual([defaultRefreshTokens count], 0);
 
     NSArray *defaultIDTokens = [self getAllIDTokens];
-    XCTAssertEqual([defaultIDTokens count], 1);
+    XCTAssertEqual([defaultIDTokens count], 0);
 }
 
 - (void)testSaveTokensWithRequestParams_whenNoRefreshTokenReturnedInResponse_shouldOnlySaveAccessTokensToPrimaryCache
