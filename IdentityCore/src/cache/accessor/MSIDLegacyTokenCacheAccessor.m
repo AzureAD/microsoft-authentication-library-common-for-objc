@@ -147,13 +147,15 @@
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
+        NSError *otherAccessorError = nil;
+
         if (![accessor saveSSOStateWithConfiguration:configuration
                                             response:response
                                              context:context
-                                               error:error])
+                                               error:&otherAccessorError])
         {
             MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", accessor.class);
-            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor.class, *error);
+            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor.class, otherAccessorError);
         }
     }
 
@@ -259,6 +261,7 @@
     {
         MSIDAccount *account = [MSIDAccount new];
         account.accountIdentifier = refreshToken.accountIdentifier;
+        account.username = refreshToken.accountIdentifier.legacyAccountId;
         account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
         account.accountType = MSIDAccountTypeMSSTS;
         [resultAccounts addObject:account];
