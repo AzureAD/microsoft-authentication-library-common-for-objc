@@ -80,6 +80,12 @@
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error;
 
+- (MSIDAccount *)accountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                             familyId:(NSString *)familyId
+                        configuration:(MSIDConfiguration *)configuration
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
+
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error;
 

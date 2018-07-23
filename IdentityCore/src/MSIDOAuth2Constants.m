@@ -45,7 +45,7 @@ NSString *const MSID_OAUTH2_RESOURCE           = @"resource";
 NSString *const MSID_OAUTH2_RESPONSE_TYPE      = @"response_type";
 NSString *const MSID_OAUTH2_SCOPE              = @"scope";
 NSString *const MSID_OAUTH2_STATE              = @"state";
-NSString *const MSID_OAUTH2_SUB_ERROR          = @"sub_error";
+NSString *const MSID_OAUTH2_SUB_ERROR          = @"suberror";
 NSString *const MSID_OAUTH2_TOKEN              = @"token";
 NSString *const MSID_OAUTH2_TOKEN_SUFFIX       = @"/oauth2/token";
 NSString *const MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX = @"common/discovery/instance";
@@ -82,6 +82,8 @@ NSString *const MSID_OAUTH2_LOGIN_REQ                    = @"login_req";
 
 NSString *const MSID_OAUTH2_ADDITIONAL_SERVER_INFO       = @"additional_server_info";
 NSString *const MSID_OAUTH2_ENVIRONMENT                  = @"environment";
+
+NSString *const MSID_PROTECTION_POLICY_REQUIRED          = @"protection_policy_required";
 
 NSString *const MSID_AUTH_CLOUD_INSTANCE_HOST_NAME       = @"cloud_instance_host_name";
 

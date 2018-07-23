@@ -38,6 +38,7 @@
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -244,10 +245,8 @@
     account.accountType = MSIDAccountTypeMSSTS;
     account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
-    if (response.clientInfo.accountIdentifier)
-    {
-        account.homeAccountId = response.clientInfo.accountIdentifier;
-    }
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:account.accountIdentifier.legacyAccountId
+                                                                         homeAccountId:response.clientInfo.accountIdentifier];
 
     return YES;
 }
@@ -270,10 +269,8 @@
 
     baseToken.clientInfo = response.clientInfo;
 
-    if (response.clientInfo.accountIdentifier)
-    {
-        baseToken.homeAccountId = response.clientInfo.accountIdentifier;
-    }
+    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:baseToken.accountIdentifier.legacyAccountId
+                                                                           homeAccountId:response.clientInfo.accountIdentifier];
 
     if (response.speInfo)
     {

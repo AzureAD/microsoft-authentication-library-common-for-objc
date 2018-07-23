@@ -147,13 +147,15 @@
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
+        NSError *otherAccessorError = nil;
+
         if (![accessor saveSSOStateWithConfiguration:configuration
                                             response:response
                                              context:context
-                                               error:error])
+                                               error:&otherAccessorError])
         {
             MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@", accessor.class);
-            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor.class, *error);
+            MSID_LOG_WARN(context, @"Failed to save SSO state in other accessor: %@, error %@", accessor.class, otherAccessorError);
         }
     }
 
@@ -258,14 +260,56 @@
     for (MSIDLegacyRefreshToken *refreshToken in refreshTokens)
     {
         MSIDAccount *account = [MSIDAccount new];
-        account.homeAccountId = refreshToken.homeAccountId;
+        account.accountIdentifier = refreshToken.accountIdentifier;
+        account.username = refreshToken.accountIdentifier.legacyAccountId;
         account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
         account.accountType = MSIDAccountTypeMSSTS;
-        account.username = refreshToken.legacyUserId;
         [resultAccounts addObject:account];
     }
 
     return [resultAccounts allObjects];
+}
+
+- (MSIDAccount *)accountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                             familyId:(NSString *)familyId
+                        configuration:(MSIDConfiguration *)configuration
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
+{
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@", configuration.clientId, familyId, configuration.authority);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@, legacy user ID %@, home account ID %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.legacyAccountId, accountIdentifier.homeAccountId);
+
+    MSIDLegacyRefreshToken *refreshToken = [self getRefreshTokenForAccountImpl:accountIdentifier
+                                                                      familyId:familyId
+                                                                 configuration:configuration
+                                                                       context:context
+                                                                         error:error];
+
+    if (refreshToken)
+    {
+        MSIDAccount *account = [MSIDAccount new];
+        account.accountIdentifier = refreshToken.accountIdentifier;
+        account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
+        account.accountType = MSIDAccountTypeMSSTS;
+        return account;
+    }
+
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        MSIDAccount *account = [accessor accountForIdentifier:accountIdentifier
+                                                     familyId:familyId
+                                                configuration:configuration
+                                                      context:context
+                                                        error:error];
+
+        if (account)
+        {
+            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found account in a different accessor %@", [accessor class]);
+            return account;
+        }
+    }
+
+    return nil;
 }
 
 #pragma mark - Public
@@ -315,13 +359,13 @@
     }
 
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
-    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.homeAccountId, _PII_NULLIFY(token.refreshToken));
+    MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.accountIdentifier.homeAccountId, _PII_NULLIFY(token.refreshToken));
 
     MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
 
     NSURL *storageAuthority = token.storageAuthority ? token.storageAuthority : token.authority;
 
-    MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.primaryUserId
+    MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.accountIdentifier.legacyAccountId
                                                                                              type:cacheItem.credentialType
                                                                                         authority:token.authority
                                                                                     lookupAliases:@[storageAuthority]
@@ -336,7 +380,7 @@
         MSID_LOG_VERBOSE_PII(context, @"Found refresh token in cache and it's the latest version, removing token %@", token);
 
         return [self removeTokenCacheItem:tokenInCache.legacyTokenCacheItem
-                                   userId:tokenInCache.legacyUserId
+                                   userId:tokenInCache.accountIdentifier.legacyAccountId
                                   context:context
                                     error:error];
     }
@@ -349,7 +393,7 @@
                     error:(NSError **)error
 {
     return [self removeTokenCacheItem:token.legacyTokenCacheItem
-                               userId:token.legacyUserId
+                               userId:token.accountIdentifier.legacyAccountId
                               context:context
                                 error:error];
 }
@@ -420,13 +464,14 @@
 
 #pragma mark - Input validation
 
-- (void)fillInternalErrorWithMessage:(NSString *)message
+- (BOOL)fillInternalErrorWithMessage:(NSString *)message
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
     MSID_LOG_ERROR(context, @"%@", message);
 
     if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, message, nil, nil, nil, context.correlationId, nil);
+    return YES;
 }
 
 #pragma mark - Internal
@@ -459,8 +504,6 @@
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", clientId, aliases);
         MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.homeAccountId, clientId, aliases);
 
-        *error = nil;
-
         resultToken = (MSIDLegacyRefreshToken *) [self getTokenByHomeAccountId:account.homeAccountId
                                                                      tokenType:MSIDRefreshTokenType
                                                                      authority:configuration.authority
@@ -469,6 +512,11 @@
                                                                       resource:nil
                                                                        context:context
                                                                          error:error];
+
+        if (resultToken && error)
+        {
+            *error = nil;
+        }
     }
 
     return resultToken;
@@ -492,7 +540,7 @@
 
     return [self saveToken:accessToken
                  cacheItem:accessToken.legacyTokenCacheItem
-                    userId:accessToken.legacyUserId
+                    userId:accessToken.accountIdentifier.legacyAccountId
                    context:context
                      error:error];
 }
@@ -515,7 +563,7 @@
 
     BOOL result = [self saveToken:refreshToken
                         cacheItem:refreshToken.legacyTokenCacheItem
-                           userId:refreshToken.legacyUserId
+                           userId:refreshToken.accountIdentifier.legacyAccountId
                           context:context
                             error:error];
 
@@ -534,7 +582,7 @@
 
     return [self saveToken:familyRefreshToken
                  cacheItem:familyRefreshToken.legacyTokenCacheItem
-                    userId:familyRefreshToken.legacyUserId
+                    userId:familyRefreshToken.accountIdentifier.legacyAccountId
                    context:context
                      error:error];
 }
@@ -558,7 +606,7 @@
     // Save token for legacy single resource token
     return [self saveToken:legacyToken
                  cacheItem:legacyToken.legacyTokenCacheItem
-                    userId:legacyToken.legacyUserId
+                    userId:legacyToken.accountIdentifier.legacyAccountId
                    context:context
                      error:error];
 }

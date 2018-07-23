@@ -66,6 +66,10 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     {
         return MSIDErrorServerInvalidGrant;
     }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"unauthorized_client"] == NSOrderedSame)
+    {
+        return MSIDErrorServerUnauthorizedClient;
+    }
     
     return defaultCode;
 }
@@ -103,7 +107,8 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorServerInvalidGrant),
                       @(MSIDErrorServerInvalidScope),
                       @(MSIDErrorServerInvalidState),
-                      @(MSIDErrorServerNonHttpsRedirect)
+                      @(MSIDErrorServerNonHttpsRedirect),
+                      @(MSIDErrorServerProtectionPoliciesRequired),
                       ]
               };
 }

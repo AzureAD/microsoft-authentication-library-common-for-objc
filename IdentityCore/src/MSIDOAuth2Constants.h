@@ -84,6 +84,8 @@ extern NSString *const MSID_OAUTH2_LOGIN_REQ;
 extern NSString *const MSID_OAUTH2_ADDITIONAL_SERVER_INFO;
 extern NSString *const MSID_OAUTH2_ENVIRONMENT;
 
+extern NSString *const MSID_PROTECTION_POLICY_REQUIRED;
+
 extern NSString *const MSID_CREDENTIAL_TYPE_CACHE_KEY;
 extern NSString *const MSID_ENVIRONMENT_CACHE_KEY;
 extern NSString *const MSID_REALM_CACHE_KEY;

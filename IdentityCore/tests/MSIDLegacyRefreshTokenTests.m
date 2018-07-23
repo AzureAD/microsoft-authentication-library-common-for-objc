@@ -26,6 +26,7 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDTestIdTokenUtil.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDLegacyRefreshTokenTests : XCTestCase
 
@@ -157,7 +158,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.familyId, @"1");
     
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
@@ -199,11 +200,11 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.familyId, @"1");
     XCTAssertEqualObjects(token.refreshToken, @"rt");
     XCTAssertEqualObjects(token.idToken, idToken);
-    XCTAssertEqualObjects(token.legacyUserId, @"testuser@upn.com");
+    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, @"testuser@upn.com");
 
     MSIDCredentialCacheItem *newCacheItem = [token legacyTokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
@@ -215,15 +216,13 @@
 - (MSIDLegacyRefreshToken *)createToken
 {
     MSIDLegacyRefreshToken *token = [MSIDLegacyRefreshToken new];
-    [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
-    [token setValue:@"some clientId" forKey:@"clientId"];
-    [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
-    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
-    [token setValue:@"idtoken" forKey:@"idToken"];
-    [token setValue:@"refreshToken" forKey:@"refreshToken"];
-    [token setValue:@"1" forKey:@"familyId"];
-    
+    token.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    token.clientId = @"some clientId";
+    token.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    token.additionalServerInfo = @{@"spe_info" : @"value2"};
+    token.idToken = @"idtoken";
+    token.refreshToken = @"refreshtoken";
+    token.familyId = @"1";
     return token;
 }
 

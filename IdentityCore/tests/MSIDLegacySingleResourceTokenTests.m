@@ -26,6 +26,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDTestIdTokenUtil.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDLegacySingleResourceTokenTests : XCTestCase
 
@@ -257,7 +258,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
     XCTAssertEqualObjects(token.cachedAt, cachedAt);
     XCTAssertEqualObjects(token.resource, @"target");
@@ -303,7 +304,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
     XCTAssertEqualObjects(token.cachedAt, cachedAt);
     XCTAssertEqualObjects(token.resource, @"target");
@@ -311,7 +312,7 @@
     XCTAssertEqualObjects(token.accessToken, @"at");
     XCTAssertEqualObjects(token.refreshToken, @"rt");
     XCTAssertEqualObjects(token.idToken, idToken);
-    XCTAssertEqualObjects(token.legacyUserId, @"testuser@upn.com");
+    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, @"testuser@upn.com");
     XCTAssertEqualObjects(token.accessTokenType, @"token type");
 
     MSIDCredentialCacheItem *newCacheItem = [token legacyTokenCacheItem];
@@ -324,20 +325,18 @@
 - (MSIDLegacySingleResourceToken *)createToken
 {
     MSIDLegacySingleResourceToken *token = [MSIDLegacySingleResourceToken new];
-    [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
-    [token setValue:@"some clientId" forKey:@"clientId"];
-    [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
-    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
-    [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"cachedAt"];
-    [token setValue:@"token" forKey:@"accessToken"];
-    [token setValue:@"idtoken" forKey:@"idToken"];
-    [token setValue:@"resource" forKey:@"target"];
-    [token setValue:@"scopes" forKey:@"target"];
-    [token setValue:@"refreshToken" forKey:@"refreshToken"];
-    [token setValue:@"1" forKey:@"familyId"];
-    
+    token.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    token.clientId = @"some clientId";
+    token.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    token.additionalServerInfo = @{@"spe_info" : @"value2"};
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"uid.utid"];
+    token.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    token.cachedAt = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    token.accessToken = @"token";
+    token.idToken = @"idtoken";
+    token.resource = @"target";
+    token.refreshToken = @"refreshToken";
+    token.familyId = @"1";
     return token;
 }
 

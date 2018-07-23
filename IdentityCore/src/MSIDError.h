@@ -87,12 +87,16 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorServerInvalidClient        = -51432,
     MSIDErrorServerInvalidGrant         = -51433,
     MSIDErrorServerInvalidScope         = -51434,
+    MSIDErrorServerUnauthorizedClient   = -51435,
     
     // State verification has failed
     MSIDErrorServerInvalidState         = -51441,
     
     // Redirect to non HTTPS detected
     MSIDErrorServerNonHttpsRedirect     = -51451,
+
+    // Intune Protection Policies Required
+    MSIDErrorServerProtectionPoliciesRequired = -51461,
     
     /*!
      =========================================================
