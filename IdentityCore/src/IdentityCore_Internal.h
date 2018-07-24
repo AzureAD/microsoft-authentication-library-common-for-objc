@@ -25,6 +25,13 @@
 //
 //------------------------------------------------------------------------------
 
+#import "NSDictionary+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
+#import "NSURL+MSIDExtensions.h"
+#import "MSIDLogger+Internal.h"
+#import "MSIDError.h"
+#import "MSIDOAuth2Constants.h"
+
 // Utility macros for convience classes wrapped around dictionaries
 #define DICTIONARY_READ_PROPERTY_IMPL(DICT, KEY, GETTER) \
 - (NSString *)GETTER \
