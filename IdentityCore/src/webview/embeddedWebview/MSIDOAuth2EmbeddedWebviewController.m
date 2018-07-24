@@ -32,6 +32,10 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDNotifications.h"
 
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
+
 #if !MSID_EXCLUDE_WEBKIT
 
 @implementation MSIDOAuth2EmbeddedWebviewController
@@ -42,6 +46,11 @@
     
     NSLock *_completionLock;
     NSTimer *_spinnerTimer; // Used for managing the activity spinner
+    
+    id<MSIDRequestContext> _context;
+    
+    NSString *_telemetryRequestId;
+    MSIDTelemetryUIEvent *_telemetryEvent;
 }
 
 
@@ -74,6 +83,9 @@
         _customHeaders = customHeaders;
         
         _completionLock = [[NSLock alloc] init];
+
+        _context = context;
+        
         self.complete = NO;
     }
     
@@ -123,6 +135,8 @@
     
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil);
+    
+    [_telemetryEvent setIsCancelled:YES];
     [self endWebAuthWithURL:nil error:error];
 }
 
@@ -132,6 +146,8 @@
     
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, self.context.correlationId, nil);
+    
+    [_telemetryEvent setIsCancelled:YES];
     [self endWebAuthWithURL:nil error:error];
 }
 
@@ -158,6 +174,8 @@
     {
         [MSIDNotifications notifyWebAuthDidCompleteWithURL:endURL];
     }
+    
+    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
@@ -193,6 +211,11 @@
 
 - (void)startRequest:(NSURLRequest *)request
 {
+    _telemetryRequestId = [_context telemetryRequestId];
+    [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
+    _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
+                                                         context:_context];
+
     [self loadRequest:request];
     [self presentView];
 }
