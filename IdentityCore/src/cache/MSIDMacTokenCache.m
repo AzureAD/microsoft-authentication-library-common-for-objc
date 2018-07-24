@@ -57,6 +57,7 @@ return NO; \
     
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidmactokencache-%@", [NSUUID UUID].UUIDString];
     _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+    [self clear];
     
     return self;
 }
@@ -172,7 +173,8 @@ return NO; \
 - (void)clear
 {
     dispatch_barrier_sync(self.synchronizationQueue, ^{
-        self.cache = nil;
+        _cache = [NSMutableDictionary new];
+        _cache[@"tokens"] = [NSMutableDictionary new];
     });
 }
 
