@@ -30,8 +30,10 @@
                            scope:(NSString *)scope
                      redirectUri:(NSString *)redirectUri
                             code:(NSString *)code
+                    codeVerifier:(NSString *)codeVerifier
+                         context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope];
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope context:context];
     if (self)
     {
         NSParameterAssert(redirectUri);
@@ -41,6 +43,7 @@
         parameters[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
         parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_AUTHORIZATION_CODE;
         parameters[MSID_OAUTH2_CODE] = code;
+        parameters[MSID_OAUTH2_CODE_VERIFIER] = codeVerifier;
         _parameters = parameters;
     }
     

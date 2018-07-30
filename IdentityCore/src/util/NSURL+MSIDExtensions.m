@@ -169,7 +169,12 @@ const unichar queryStringSeparator = '?';
 + (NSURL *)msidAddParameters:(NSDictionary<NSString *, NSString *> *)parameters toUrl:(NSURL *)url
 {
     __auto_type urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:YES];
+    
     NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray new];
+    if (urlComponents.queryItems)
+    {
+        [queryItems addObjectsFromArray:urlComponents.queryItems];
+    }
     
     for (id key in parameters)
     {
