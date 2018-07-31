@@ -201,9 +201,7 @@
         MSIDWebUICompletionHandler completionHandler = _completionHandler;
         _completionHandler = nil;
         
-        dispatch_async( dispatch_get_main_queue(), ^{
-            completionHandler(url, error);
-        });
+        completionHandler(url, error);
     }
     
     [_completionLock unlock];
