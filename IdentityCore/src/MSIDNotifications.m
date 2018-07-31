@@ -23,22 +23,12 @@
 
 #import "MSIDNotifications.h"
 
-#define MSID_NOTIFICATION_READ_PROPERTY(KEY, GETTER) \
-+ (NSString *)GETTER { return KEY; }
-
-#define MSID_NOTIFICATION_WRITE_PROPERTY(KEY, SETTER) \
-+ (void)SETTER:(NSString *)value { KEY = value; }
-
-#define MSID_NOTIFICATION_RW(KEY, GETTER, SETTER) \
-MSID_NOTIFICATION_READ_PROPERTY(KEY, GETTER) \
-MSID_NOTIFICATION_WRITE_PROPERTY(KEY, SETTER)
-
 static NSString *s_webAuthDidStartLoadNotificationName;
 static NSString *s_webAuthDidFinishLoadNotificationName;
 static NSString *s_webAuthDidFailNotificationName;
 static NSString *s_webAuthDidCompleteNotificationName;
 static NSString *s_webAuthWillSwitchToBrokerAppNotificationName;
-static NSString *s_webAuthDidReceieveResponseFromBrokerNotificationName;
+static NSString *s_webAuthDidReceiveResponseFromBrokerNotificationName;
 
 @implementation MSIDNotifications
 

@@ -43,6 +43,8 @@
 @property (readonly) NSURL *startURL;
 @property (readonly) NSString *callbackURLScheme;
 
+@property (weak) UIViewController *parentController;
+
 @end
 #endif
 

@@ -79,6 +79,8 @@
         return;
     }
     
+    NSError *error = nil;
+    
     if (@available(iOS 11.0, *))
     {
         _telemetryRequestId = [_context telemetryRequestId];
@@ -108,10 +110,15 @@
                                             }];
         
         [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
-        if ([_authSession start]) return;
+        if (_authSession && [_authSession start]) return;
+        
+        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
+    }
+    else
+    {
+        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthentication is not available for iOS 10.", nil, nil, nil, _context.correlationId, nil);
     }
     
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
     [self notifyEndWebAuthWithURL:nil error:error];
     completionHandler(nil, error);
 }

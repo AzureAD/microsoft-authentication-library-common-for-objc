@@ -38,8 +38,6 @@
 {
     id<MSIDRequestContext> _context;
     NSObject<MSIDWebviewInteracting> *_session;
-    
-    UIViewController *_parentController;
 }
 
 - (instancetype)initWithStartURL:(NSURL *)startURL

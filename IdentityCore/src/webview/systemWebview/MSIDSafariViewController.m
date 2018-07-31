@@ -54,8 +54,6 @@
     
     NSString *_telemetryRequestId;
     MSIDTelemetryUIEvent *_telemetryEvent;
-    
-    UIViewController *_parentController;
 }
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -93,26 +91,27 @@
         return;
     }
     
-    UIViewController *viewController = _parentController ? _parentController :
-                                        [UIApplication msidCurrentViewController];
-    if (!viewController)
-    {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);
-        [MSIDNotifications notifyWebAuthDidFailWithError:error];
-        completionHandler(nil, error);
-        return;
-    }
-    
-    _completionHandler = [completionHandler copy];
-
-    _telemetryRequestId = [_context telemetryRequestId];
-    
-    [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
-    _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
-                                                         context:_context];
-    
-    [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
     dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController *viewController = _parentController ? _parentController :
+        [UIApplication msidCurrentViewController];
+        if (!viewController)
+        {
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);
+            [MSIDNotifications notifyWebAuthDidFailWithError:error];
+            completionHandler(nil, error);
+            return;
+        }
+        
+        _completionHandler = [completionHandler copy];
+        
+        _telemetryRequestId = [_context telemetryRequestId];
+        
+        [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
+        _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
+                                                             context:_context];
+        
+        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
+        
         [viewController presentViewController:_safariViewController animated:YES completion:nil];
     });
 }
