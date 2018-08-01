@@ -52,9 +52,7 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
 {
     if (!httpResponse)
     {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) { completionBlock(nil, error); }
-        });
+        if (completionBlock) { completionBlock(nil, error); }
         return;
     }
     
@@ -69,7 +67,7 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
         
         MSID_LOG_VERBOSE(context, @"Retrying network request, retryCounter: %ld", (long)self.retryCounter);
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.retryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [httpRequest sendWithBlock:completionBlock];
         });
     }
@@ -81,9 +79,7 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
         
         MSID_LOG_VERBOSE(context, @"Parsed error response: %@", _PII_NULLIFY(responseObject));
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) { completionBlock(responseObject, error); }
-        });
+        if (completionBlock) { completionBlock(responseObject, error); }
     }
 }
 
