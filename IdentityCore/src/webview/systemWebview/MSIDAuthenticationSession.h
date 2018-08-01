@@ -29,7 +29,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDSystemWebviewController.h"
 
-@interface MSIDSFAuthenticationSession : NSObject<MSIDWebviewInteracting>
+@interface MSIDAuthenticationSession : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme

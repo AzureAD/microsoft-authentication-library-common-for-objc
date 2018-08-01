@@ -27,7 +27,7 @@
 #if !MSID_EXCLUDE_SYSTEMWV
 
 #import "MSIDSystemWebviewController.h"
-#import "MSIDSFAuthenticationSession.h"
+#import "MSIDAuthenticationSession.h"
 #import "MSIDSafariViewController.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOauth2Factory.h"
@@ -78,19 +78,18 @@
         completionHandler(nil, error);
         return;
     }
-    
-    if (@available(iOS 11.0, *))
-    {
-        _session = [[MSIDSFAuthenticationSession alloc] initWithURL:self.startURL
-                                                  callbackURLScheme:self.callbackURLScheme
-                                                            context:_context];
 
-    }
-    else
+    if (_useSafariViewController)
     {
         _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
                                                 parentController:_parentController
                                                          context:_context];
+    }
+    else
+    {
+        _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
+                                                callbackURLScheme:self.callbackURLScheme
+                                                          context:_context];
     }
     
     if (_session)

@@ -37,7 +37,7 @@
 #endif
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
-- (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration context:(id<MSIDRequestContext>)context;
+- (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration useSafariViewController:(BOOL)useSafariViewController context:(id<MSIDRequestContext>)context;
 #endif
 
 // Webview related

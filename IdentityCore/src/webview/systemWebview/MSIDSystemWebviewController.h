@@ -45,6 +45,8 @@
 
 @property (weak) UIViewController *parentController;
 
+@property BOOL useSafariViewController;
+
 @end
 #endif
 

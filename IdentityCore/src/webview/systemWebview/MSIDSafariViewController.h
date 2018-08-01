@@ -38,7 +38,7 @@
 - (BOOL)handleURLResponse:(NSURL *)url;
 
 @property (readonly) NSURL *startURL;
-@property (weak) UIViewController *parentController;
+@property (weak, nonatomic) UIViewController *parentController;
 
 @end
 #endif

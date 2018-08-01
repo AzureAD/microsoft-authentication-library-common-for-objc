@@ -153,7 +153,7 @@
 		60D6ED0A20D9BB79002FCBBB /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60D6ED0920D9BB79002FCBBB /* SafariServices.framework */; };
 		60D6ED0C20D9BB89002FCBBB /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60D6ED0B20D9BB89002FCBBB /* Security.framework */; };
 		60D6ED0D20D9BBA0002FCBBB /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20657D61FC92D2700412B7D /* IOKit.framework */; };
-		960196F9208E578900D962D3 /* MSIDSFAuthenticationSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 960196F8208E578900D962D3 /* MSIDSFAuthenticationSession.m */; };
+		960196F9208E578900D962D3 /* MSIDAuthenticationSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 960196F8208E578900D962D3 /* MSIDAuthenticationSession.m */; };
 		960196FC208E579600D962D3 /* MSIDSafariViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 960196FB208E579600D962D3 /* MSIDSafariViewController.m */; };
 		96090D9820E59B2000E42B37 /* MSIDNotifications.h in Headers */ = {isa = PBXBuildFile; fileRef = 96090D9620E59B2000E42B37 /* MSIDNotifications.h */; };
 		96090D9920E59B2000E42B37 /* MSIDNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 96090D9720E59B2000E42B37 /* MSIDNotifications.m */; };
@@ -793,8 +793,8 @@
 		60D6ED0920D9BB79002FCBBB /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/SafariServices.framework; sourceTree = DEVELOPER_DIR; };
 		60D6ED0B20D9BB89002FCBBB /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		60E434262088F79200802D59 /* MSIDAppExtensionUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAppExtensionUtil.m; sourceTree = "<group>"; };
-		960196F7208E578900D962D3 /* MSIDSFAuthenticationSession.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSFAuthenticationSession.h; sourceTree = "<group>"; };
-		960196F8208E578900D962D3 /* MSIDSFAuthenticationSession.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSFAuthenticationSession.m; sourceTree = "<group>"; };
+		960196F7208E578900D962D3 /* MSIDAuthenticationSession.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthenticationSession.h; sourceTree = "<group>"; };
+		960196F8208E578900D962D3 /* MSIDAuthenticationSession.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthenticationSession.m; sourceTree = "<group>"; };
 		960196FA208E579600D962D3 /* MSIDSafariViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSafariViewController.h; sourceTree = "<group>"; };
 		960196FB208E579600D962D3 /* MSIDSafariViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSafariViewController.m; sourceTree = "<group>"; };
 		96090D9620E59B2000E42B37 /* MSIDNotifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDNotifications.h; sourceTree = "<group>"; };
@@ -1610,8 +1610,8 @@
 			children = (
 				96A3E9B7208941D700BE5262 /* MSIDSystemWebviewController.h */,
 				96A3E9B8208941D700BE5262 /* MSIDSystemWebviewController.m */,
-				960196F7208E578900D962D3 /* MSIDSFAuthenticationSession.h */,
-				960196F8208E578900D962D3 /* MSIDSFAuthenticationSession.m */,
+				960196F7208E578900D962D3 /* MSIDAuthenticationSession.h */,
+				960196F8208E578900D962D3 /* MSIDAuthenticationSession.m */,
 				960196FA208E579600D962D3 /* MSIDSafariViewController.h */,
 				960196FB208E579600D962D3 /* MSIDSafariViewController.m */,
 			);
@@ -3007,7 +3007,7 @@
 				B2D5625920CCD50E00FFF59C /* MSIDTelemetry+Cache.m in Sources */,
 				600D19972095988C0004CD43 /* MSIDChallengeHandler.m in Sources */,
 				96C998F020B638F60053A2D9 /* MSIDWebviewSession.m in Sources */,
-				960196F9208E578900D962D3 /* MSIDSFAuthenticationSession.m in Sources */,
+				960196F9208E578900D962D3 /* MSIDAuthenticationSession.m in Sources */,
 				96090D9920E59B2000E42B37 /* MSIDNotifications.m in Sources */,
 				B297E1EC20A1388E00F370EC /* MSIDDefaultAccountCacheQuery.m in Sources */,
 				968647FE20C76C6700EF7E73 /* MSIDAADV2WebviewFactory.m in Sources */,

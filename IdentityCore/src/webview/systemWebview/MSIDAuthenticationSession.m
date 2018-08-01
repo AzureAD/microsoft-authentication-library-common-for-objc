@@ -27,7 +27,7 @@
 
 #if !MSID_EXCLUDE_SYSTEMWV
 
-#import "MSIDSFAuthenticationSession.h"
+#import "MSIDAuthenticationSession.h"
 
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDWebOAuth2Response.h"
@@ -37,7 +37,7 @@
 #import "MSIDNotifications.h"
 #import <SafariServices/SafariServices.h>
 
-@implementation MSIDSFAuthenticationSession
+@implementation MSIDAuthenticationSession
 {
     API_AVAILABLE(ios(11.0))
     SFAuthenticationSession *_authSession;
@@ -110,13 +110,14 @@
                                             }];
         
         [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
-        if (_authSession && [_authSession start]) return;
+        
+        if ([_authSession start]) return;
         
         error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
     }
     else
     {
-        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthentication is not available for iOS 10.", nil, nil, nil, _context.correlationId, nil);
+        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASAuthenticatinoSession is not available for iOS 10.", nil, nil, nil, _context.correlationId, nil);
     }
     
     [self notifyEndWebAuthWithURL:nil error:error];
