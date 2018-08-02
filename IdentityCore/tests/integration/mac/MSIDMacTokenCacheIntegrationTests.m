@@ -136,4 +136,32 @@
     XCTAssertEqual(items.count, 0);
 }
 
+- (void)testItemsWithKey_whenFindsTombstoneItems_shouldSkipThem
+{
+    MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
+    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    // Item 1.
+    MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
+    token1.secret = @"<tombstone>";
+    token1.credentialType = MSIDRefreshTokenType;
+    MSIDCacheKey *key1 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item1" generic:nil type:nil];
+    [cache saveToken:token1 key:key1 serializer:serializer context:nil error:nil];
+    // Item 2.
+    MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
+    token2.secret = @"secret2";
+    MSIDCacheKey *key2 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item2" generic:nil type:nil];
+    [cache saveToken:token2 key:key2 serializer:serializer context:nil error:nil];
+    // Item 3.
+    MSIDCredentialCacheItem *token3 = [MSIDCredentialCacheItem new];
+    token3.secret = @"secret3";
+    MSIDCacheKey *key3 = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"item3" generic:nil type:nil];
+    [cache saveToken:token3 key:key3 serializer:serializer context:nil error:nil];
+    NSError *error;
+
+    NSArray<MSIDCredentialCacheItem *> *items = ([cache tokensWithKey:nil serializer:serializer context:nil error:nil]);
+
+    XCTAssertEqual(items.count, 2);
+    XCTAssertNil(error);
+}
+
 @end

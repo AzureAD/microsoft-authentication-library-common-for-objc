@@ -333,4 +333,9 @@
     return YES;
 }
 
+- (BOOL)isTombstone
+{
+    return [self.secret isEqualToString:@"<tombstone>"];
+}
+
 @end
