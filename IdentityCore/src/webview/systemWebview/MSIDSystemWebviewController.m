@@ -38,11 +38,14 @@
 {
     id<MSIDRequestContext> _context;
     NSObject<MSIDWebviewInteracting> *_session;
+    
+    BOOL _allowSafariViewController;
 }
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
                 parentController:(UIViewController *)parentController
+       allowSafariViewController:(BOOL)allowSafariViewController
                          context:(id<MSIDRequestContext>)context
 {
     if (!startURL)
@@ -65,6 +68,7 @@
         _context = context;
         _callbackURLScheme = callbackURLScheme;
         _parentController = parentController;
+        _allowSafariViewController = allowSafariViewController;
     }
     return self;
 }
@@ -79,30 +83,34 @@
         return;
     }
 
-    if (_useSafariViewController)
-    {
-        _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
-                                                parentController:_parentController
-                                                         context:_context];
-    }
-    else
+    NSError *error = nil;
+    if (@available(iOS 11.0, *))
     {
         _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
                                                 callbackURLScheme:self.callbackURLScheme
                                                           context:_context];
     }
-    
-    if (_session)
+    else
     {
-        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
-        [_session startWithCompletionHandler:completionHandler];
+        if (_allowSafariViewController)
+        {
+            _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                    parentController:_parentController
+                                                             context:_context];
+        }
+    }
+
+    if (!_session)
+    {
+        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to create an auth session", nil, nil, nil, _context.correlationId, nil);
+
+        [MSIDNotifications notifyWebAuthDidFailWithError:error];
+        completionHandler(nil, error);
         return;
     }
     
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to create an auth session", nil, nil, nil, _context.correlationId, nil);
-    
-    [MSIDNotifications notifyWebAuthDidFailWithError:error];
-    completionHandler(nil, error);
+    [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
+    [_session startWithCompletionHandler:completionHandler];
 }
 
 

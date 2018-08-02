@@ -70,12 +70,14 @@ static MSIDWebviewSession *s_currentSession = nil;
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 + (void)startSystemWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                   oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                        useSafariViewController:(BOOL)useSafariViewController
+                      allowSafariViewController:(BOOL)allowSafariViewController
                                         context:(id<MSIDRequestContext>)context
                               completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
     MSIDWebviewFactory *webviewFactory = [oauth2Factory webviewFactory];
-    MSIDWebviewSession *session = [webviewFactory systemWebviewSessionFromConfiguration:configuration useSafariViewController:useSafariViewController context:context];
+    MSIDWebviewSession *session = [webviewFactory systemWebviewSessionFromConfiguration:configuration
+                                                              allowSafariViewController:allowSafariViewController
+                                                                                context:context];
     
     [self startSession:session context:context completionHandler:completionHandler];
 }

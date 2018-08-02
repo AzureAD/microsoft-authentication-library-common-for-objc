@@ -57,7 +57,7 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 + (void)startSystemWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                   oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                        useSafariViewController:(BOOL)useSafariViewController
+                      allowSafariViewController:(BOOL)allowSafariViewController
                                         context:(id<MSIDRequestContext>)context
                               completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 #endif

@@ -36,6 +36,7 @@
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
                 parentController:(UIViewController *)parentController
+       allowSafariViewController:(BOOL)allowSafariViewController
                          context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;
@@ -45,7 +46,6 @@
 
 @property (weak) UIViewController *parentController;
 
-@property BOOL useSafariViewController;
 
 @end
 #endif

@@ -117,7 +117,7 @@
     }
     else
     {
-        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASAuthenticatinoSession is not available for iOS 10.", nil, nil, nil, _context.correlationId, nil);
+        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASAuthenticatinoSession is not available for iOS 10 and older.", nil, nil, nil, _context.correlationId, nil);
     }
     
     [self notifyEndWebAuthWithURL:nil error:error];
