@@ -40,11 +40,13 @@
     NSObject<MSIDWebviewInteracting> *_session;
     
     BOOL _allowSafariViewController;
+    BOOL _useAuthenticationSession;
 }
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
                 parentController:(UIViewController *)parentController
+        useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
                          context:(id<MSIDRequestContext>)context
 {
@@ -69,6 +71,7 @@
         _callbackURLScheme = callbackURLScheme;
         _parentController = parentController;
         _allowSafariViewController = allowSafariViewController;
+        _useAuthenticationSession = useAuthenticationSession;
     }
     return self;
 }
@@ -84,20 +87,22 @@
     }
 
     NSError *error = nil;
-    if (@available(iOS 11.0, *))
+    
+    if (_useAuthenticationSession)
     {
-        _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
-                                                callbackURLScheme:self.callbackURLScheme
-                                                          context:_context];
-    }
-    else
-    {
-        if (_allowSafariViewController)
+        if (@available(iOS 11.0, *))
         {
-            _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
-                                                    parentController:_parentController
-                                                             context:_context];
+            _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
+                                                    callbackURLScheme:self.callbackURLScheme
+                                                              context:_context];
         }
+    }
+    
+    if (!_session && _allowSafariViewController)
+    {
+        _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                parentController:_parentController
+                                                         context:_context];
     }
 
     if (!_session)

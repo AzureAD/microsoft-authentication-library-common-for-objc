@@ -36,6 +36,7 @@
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
                 parentController:(UIViewController *)parentController
+        useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
                          context:(id<MSIDRequestContext>)context;
 

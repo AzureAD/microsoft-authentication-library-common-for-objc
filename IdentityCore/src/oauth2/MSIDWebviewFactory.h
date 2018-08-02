@@ -38,6 +38,7 @@
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 - (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration
+                                     useAuthenticationSession:(BOOL)useAuthenticationSession
                                     allowSafariViewController:(BOOL)allowSafariViewController
                                                       context:(id<MSIDRequestContext>)context;
 #endif

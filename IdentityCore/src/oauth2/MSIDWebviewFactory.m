@@ -68,6 +68,7 @@
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
 - (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration
+                                     useAuthenticationSession:(BOOL)useAuthenticationSession
                                     allowSafariViewController:(BOOL)allowSafariViewController
                                                       context:(id<MSIDRequestContext>)context
 {
@@ -78,6 +79,7 @@
     MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                                                  callbackURLScheme:redirectURL.scheme
                                                                                   parentController:configuration.parentController
+                                                                          useAuthenticationSession:useAuthenticationSession
                                                                          allowSafariViewController:allowSafariViewController
                                                                                            context:context];
     
