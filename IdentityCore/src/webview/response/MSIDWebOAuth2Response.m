@@ -41,7 +41,7 @@
         NSString *authCode = self.parameters[MSID_OAUTH2_CODE];
         NSError *oauthError = [self.class oauthErrorFromParameters:self.parameters];
         
-        if (!authCode && !oauthError)
+        if (![NSString msidIsStringNilOrBlank:authCode] && !oauthError)
         {
             if (error)
             {
