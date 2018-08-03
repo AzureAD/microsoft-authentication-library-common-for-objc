@@ -29,7 +29,6 @@
 #import "MSIDDeviceId.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewSession.h"
-#import "MSIDWebBrowserResponse.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -106,12 +105,6 @@
     // Try to create a WPJ response
     MSIDWebMSAuthResponse *wpjResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;
-    
-    // Try to create a browser reponse
-    MSIDWebBrowserResponse *browserResponse = [[MSIDWebBrowserResponse alloc] initWithURL:url
-                                                                                  context:context
-                                                                                    error:nil];
-    if (browserResponse) return browserResponse;
     
     // Try to acreate AAD Auth response
     MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:url

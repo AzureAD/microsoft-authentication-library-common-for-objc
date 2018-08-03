@@ -98,7 +98,7 @@
         }
         else
         {
-             error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASWebAuthenticatinoSession is not available for iOS 10 and older.", nil, nil, nil, _context.correlationId, nil);
+             error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASWebAuthenticationSession is not available for iOS 10 and older.", nil, nil, nil, _context.correlationId, nil);
         }
     }
     
