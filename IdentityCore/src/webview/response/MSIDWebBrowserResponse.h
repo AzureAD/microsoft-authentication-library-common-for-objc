@@ -28,9 +28,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewResponse.h"
 
-@interface MSIDWebOAuth2Response : MSIDWebviewResponse
+@interface MSIDWebBrowserResponse : MSIDWebviewResponse
 
-@property (readonly) NSString *authorizationCode;
-@property (readonly) NSError *oauthError;
+@property (readonly) NSURL *browserURL;
 
 @end

@@ -59,9 +59,9 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
 // SFAuthenticationSession/ASAuthenticationSession is only available on iOS 11 and up.
 //
 // useAuthentication:YES allowSafariViewController:NO
-//    > try SFAuthenticationSession/ASAuthenticationSession, if not availble, error out.
+//    > try SFAuthenticationSession/ASWebAuthenticationSession, if not availble, error out.
 // useAuthentication:YES allowSafariViewController:YES
-//    > try SFAuthenticationSession/ASAuthenticationSession, if not availble, use SFSafariViewController.
+//    > try SFAuthenticationSession/ASWebAuthenticationSession, if not availble, use SFSafariViewController.
 // useAuthentication:NO allowSafariViewController:YES
 //    > do not use SFAuthenticationSession/ASAuthenticationSession, and always use SFSafariViewControler
 + (void)startSystemWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration

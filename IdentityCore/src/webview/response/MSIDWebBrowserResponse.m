@@ -25,12 +25,36 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewResponse.h"
+#import "MSIDWebBrowserResponse.h"
 
-@interface MSIDWebOAuth2Response : MSIDWebviewResponse
+@implementation MSIDWebBrowserResponse
 
-@property (readonly) NSString *authorizationCode;
-@property (readonly) NSError *oauthError;
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    NSString *scheme = url.scheme;
+   
+    if (!([scheme isEqualToString:@"browser"]))
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"Browser response should have browser:// as a scheme",
+                                     nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
+    self = [super initWithURL:url context:context error:error];
+    if (self)
+    {
+        _browserURL = [NSURL URLWithString:[url.absoluteString stringByReplacingOccurrencesOfString:@"browser://"
+                                                                                         withString:@"https://"]];
+    }
+    
+    return self;
+}
 
 @end

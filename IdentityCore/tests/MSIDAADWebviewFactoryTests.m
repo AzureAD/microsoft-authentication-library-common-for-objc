@@ -31,8 +31,9 @@
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebBrowserResponse.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -102,9 +103,25 @@
                                             context:nil
                                               error:&error];
     
-    XCTAssertTrue([response isKindOfClass:MSIDWebWPJAuthResponse.class]);
+    XCTAssertTrue([response isKindOfClass:MSIDWebMSAuthResponse.class]);
     XCTAssertNil(error);
 }
+
+- (void)testResponseWithURL_whenURLSchemeBrowser_shouldReturnBrowserResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"browser://somehost"]
+                                       requestState:nil
+                                            context:nil
+                                              error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebBrowserResponse.class]);
+    XCTAssertNil(error);
+}
+
+
 
 
 - (void)testResponseWithURL_whenURLSchemeNotMsauth_shouldReturnAADAuthResponse

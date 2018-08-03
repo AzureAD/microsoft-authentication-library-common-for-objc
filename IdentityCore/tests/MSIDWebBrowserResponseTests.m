@@ -22,47 +22,50 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebBrowserResponse.h"
 
-@interface MSIDWebWPJResponseTests : XCTestCase
+@interface MSIDWebBrowserResponseTests : XCTestCase
 
 @end
 
-@implementation MSIDWebWPJResponseTests
+@implementation MSIDWebBrowserResponseTests
 
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (void)testInit_whenWrongScheme_shouldReturnNilWithError
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [super tearDown];
+}
+
+- (void)testInit_whenNoBrowserScheme_shouldReturnNilWithError
 {
     NSError *error = nil;
-    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://wpj"]]
+    MSIDWebBrowserResponse *response = [[MSIDWebBrowserResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://somehost"]]
                                                                            context:nil
                                                                              error:&error];
-
+    
     XCTAssertNil(response);
     XCTAssertNotNil(error);
-
+    
     XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
 }
 
-
-- (void)testInit_whenGoodInput_shouldReturnResponsewithNoError
+- (void)testInit_whenBrowserInput_shouldReturnResponsewithNoError
 {
     NSError *error = nil;
-    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&upn=user"]]
+    MSIDWebBrowserResponse *response = [[MSIDWebBrowserResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"browser://somehost"]]
                                                                            context:nil
                                                                              error:&error];
-
+    
     XCTAssertNotNil(response);
     XCTAssertNil(error);
-
-    XCTAssertEqualObjects(response.upn, @"user");
-    XCTAssertEqualObjects(response.appInstallLink, @"applink");
-
+    
+    XCTAssertEqualObjects(response.browserURL.absoluteString, @"https://somehost");
 }
+
 
 @end
