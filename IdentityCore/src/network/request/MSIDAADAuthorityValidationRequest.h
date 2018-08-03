@@ -21,33 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAuthorizationCodeGrantRequest.h"
+#import <Foundation/Foundation.h>
+#import "MSIDHttpRequest.h"
 
-@implementation MSIDAuthorizationCodeGrantRequest
+@interface MSIDAADAuthorityValidationRequest : MSIDHttpRequest
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                     redirectUri:(NSString *)redirectUri
-                            code:(NSString *)code
-                    codeVerifier:(NSString *)codeVerifier
-                         context:(nullable id<MSIDRequestContext>)context
-{
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope context:context];
-    if (self)
-    {
-        NSParameterAssert(redirectUri);
-        NSParameterAssert(code);
-        
-        NSMutableDictionary *parameters = [_parameters mutableCopy];
-        parameters[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
-        parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_AUTHORIZATION_CODE;
-        parameters[MSID_OAUTH2_CODE] = code;
-        parameters[MSID_OAUTH2_CODE_VERIFIER] = codeVerifier;
-        _parameters = parameters;
-    }
-    
-    return self;
-}
+- (instancetype)initWithUrl:(NSURL *)endpoint
+                    context:(id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end

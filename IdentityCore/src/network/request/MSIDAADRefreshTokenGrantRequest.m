@@ -30,8 +30,9 @@
                         clientId:(NSString *)clientId
                            scope:(NSString *)scope
                     refreshToken:(NSString *)refreshToken
+                         context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken];
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken context:context];
     if (self)
     {
         NSMutableDictionary *parameters = [_parameters mutableCopy];

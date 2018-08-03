@@ -44,7 +44,6 @@
     {
         mutableRequest.HTTPBody = [[parameters msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
         [mutableRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
-        [mutableRequest setValue:[NSString stringWithFormat:@"%ld", (unsigned long)mutableRequest.HTTPBody.length] forHTTPHeaderField:@"Content-Length"];
     }
     
     return mutableRequest;
