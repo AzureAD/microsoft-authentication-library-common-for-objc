@@ -24,24 +24,19 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
+#if !MSID_EXCLUDE_SYSTEMWV
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
+#import <Foundation/Foundation.h>
+#import "MSIDSystemWebviewController.h"
 
-// Utility macros for convience classes wrapped around dictionaries
-#define DICTIONARY_READ_PROPERTY_IMPL(DICT, KEY, GETTER) \
-- (NSString *)GETTER \
-{ \
-    if ([[DICT objectForKey:KEY] isKindOfClass:[NSString class]]) \
-    { \
-        return [DICT objectForKey:KEY]; \
-    } \
-    return nil; \
-}
+@interface MSIDSFAuthenticationSession : NSObject<MSIDWebviewInteracting>
 
-#define DICTIONARY_WRITE_PROPERTY_IMPL(DICT, KEY, SETTER) \
-- (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }
+- (instancetype)initWithURL:(NSURL *)url
+          callbackURLScheme:(NSString *)callbackURLScheme
+                    context:(id<MSIDRequestContext>)context;
+
+@property (readonly) NSURL *startURL;
+@property (readonly) NSString *callbackURLScheme;
+
+@end
+#endif

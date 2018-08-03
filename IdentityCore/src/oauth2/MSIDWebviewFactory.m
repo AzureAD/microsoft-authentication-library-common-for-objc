@@ -26,7 +26,9 @@
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebviewSession.h"
 #import <WebKit/WebKit.h>
+#if TARGET_OS_IPHONE
 #import "MSIDSystemWebviewController.h"
+#endif
 #import "MSIDPkce.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"

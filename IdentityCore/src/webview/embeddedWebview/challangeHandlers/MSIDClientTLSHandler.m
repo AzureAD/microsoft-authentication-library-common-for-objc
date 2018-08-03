@@ -26,7 +26,9 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDRegistrationInformation.h"
 #import "MSIDWorkPlaceJoinConstants.h"
+#if TARGET_OS_OSX
 #import "MSIDCertificateChooser.h"
+#endif
 
 @implementation MSIDTLSHandler
 

@@ -26,13 +26,14 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebviewAuthorization.h"
+#if TARGET_OS_IPHONE
 #import <SafariServices/SafariServices.h>
 #import "MSIDSystemWebviewController.h"
+#endif
 #import "MSIDError.h"
 #import "NSURL+MSIDExtensions.h"
 #import "MSIDTelemetry.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
-#import "MSIDSystemWebviewController.h"
 #import "MSIDWebviewFactory.h"
 
 @implementation MSIDWebviewAuthorization
