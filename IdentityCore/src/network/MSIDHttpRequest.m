@@ -81,6 +81,18 @@
                                                      error:error];
           if (error)
           {
+              if (completionBlock) { completionBlock(nil, error); }
+          }
+          else if (httpResponse.statusCode == 200)
+          {
+              id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
+              
+              MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@", _PII_NULLIFY(responseObject), _PII_NULLIFY(error));
+              
+              if (completionBlock) { completionBlock(error ? nil : responseObject, error); }
+          }
+          else
+          {
               if (self.errorHandler)
               {
                   [self.errorHandler handleError:error
@@ -94,14 +106,6 @@
               {
                   if (completionBlock) { completionBlock(nil, error); }
               }
-          }
-          else
-          {
-              id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
-              
-              MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@", _PII_NULLIFY(responseObject), _PII_NULLIFY(error));
-              
-              if (completionBlock) { completionBlock(error ? nil : responseObject, error); }
           }
       }] resume];
 }

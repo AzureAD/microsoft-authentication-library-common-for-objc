@@ -56,12 +56,7 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
         return;
     }
     
-    BOOL shouldRetry = YES;
-    shouldRetry &= self.retryCounter > 0;
-    // 5xx Server errors.
-    shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
-
-    if (shouldRetry)
+    if (httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599 && self.retryCounter > 0)
     {
         self.retryCounter--;
         
@@ -70,17 +65,25 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [httpRequest sendWithBlock:completionBlock];
         });
-    }
-    else
-    {
-        // Parse error response.
-        id responseSerializer = [MSIDJsonResponseSerializer new];
-        id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data error:nil];
         
-        MSID_LOG_VERBOSE(context, @"Parsed error response: %@", _PII_NULLIFY(responseObject));
-        
-        if (completionBlock) { completionBlock(responseObject, error); }
+        return;
     }
+    
+    // Http error
+    NSString *body = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSString *errorData = [NSString stringWithFormat:@"Full response: %@", body];
+    
+    NSString* message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
+    NSString* messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorData];
+    
+    NSDictionary *userInfo = @{NSLocalizedDescriptionKey: messagePII};
+    
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorDomain, httpResponse.statusCode, nil, nil, nil, nil, context.correlationId, userInfo);
+    
+    MSID_LOG_WARN(context, @"%@", message);
+    MSID_LOG_WARN_PII(context, @"%@", messagePII);
+    
+    if (completionBlock) { completionBlock(httpResponse, httpError); }
 }
 
 @end

@@ -31,6 +31,7 @@ NSString *MSIDHTTPResponseCodeKey = @"MSIDHTTPResponseCodeKey";
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
 NSString *MSIDKeychainErrorDomain = @"MSIDKeychainErrorDomain";
+NSString *MSIDHttpErrorDomain = @"MSIDHttpErrorDomain";
 
 NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo)
 {
