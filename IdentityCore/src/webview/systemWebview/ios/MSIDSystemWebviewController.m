@@ -96,6 +96,10 @@
                                                     callbackURLScheme:self.callbackURLScheme
                                                               context:_context];
         }
+        else
+        {
+             error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASWebAuthenticatinoSession is not available for iOS 10 and older.", nil, nil, nil, _context.correlationId, nil);
+        }
     }
     
     if (!_session && _allowSafariViewController)
@@ -104,11 +108,13 @@
                                                 parentController:_parentController
                                                          context:_context];
     }
-
+    
     if (!_session)
     {
-        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to create an auth session", nil, nil, nil, _context.correlationId, nil);
-
+        if (!error)
+        {
+            error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to create an auth session", nil, nil, nil, _context.correlationId, nil);
+        }
         [MSIDNotifications notifyWebAuthDidFailWithError:error];
         completionHandler(nil, error);
         return;
