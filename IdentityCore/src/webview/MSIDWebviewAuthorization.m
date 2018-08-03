@@ -92,6 +92,11 @@ static MSIDWebviewSession *s_currentSession = nil;
              context:(id<MSIDRequestContext>)context
    completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
+    if (!completionHandler)
+    {
+        MSID_LOG_WARN(context, @"CompletionHandler cannot be nil for interactive session.");
+        return;
+    }
     
     // check session nil
     if (!session)

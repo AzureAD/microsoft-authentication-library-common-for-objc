@@ -73,9 +73,7 @@
 {
     if (!completionHandler)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"CompletionHandler cannot be nil for interactive session.", nil, nil, nil, _context.correlationId, nil);
-        [self notifyEndWebAuthWithURL:nil error:error];
-        completionHandler(nil, error);
+        MSID_LOG_WARN(_context, @"CompletionHandler cannot be nil for interactive session.");
         return;
     }
     

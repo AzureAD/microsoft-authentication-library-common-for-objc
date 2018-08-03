@@ -45,7 +45,7 @@
 @property (readonly) NSURL *startURL;
 @property (readonly) NSString *callbackURLScheme;
 
-@property (weak) UIViewController *parentController;
+@property (weak, nonatomic) UIViewController *parentController;
 
 
 @end
