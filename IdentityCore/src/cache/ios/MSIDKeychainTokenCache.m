@@ -216,7 +216,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         if (tokenItem)
         {
             // Delete tombstones generated from previous versions of ADAL.
-            if ([tokenItem.secret isEqualToString:@"<tombstone>"])
+            if ([tokenItem isTombstone])
             {
                 [self deleteTombstoneWithService:attrs[(id)kSecAttrService]
                                          account:attrs[(id)kSecAttrAccount]

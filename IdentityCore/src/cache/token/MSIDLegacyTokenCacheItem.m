@@ -218,4 +218,9 @@
     return _idTokenClaims;
 }
 
+- (BOOL)isTombstone
+{
+    return self.refreshToken && [self.refreshToken isEqualToString:@"<tombstone>"];
+}
+
 @end
