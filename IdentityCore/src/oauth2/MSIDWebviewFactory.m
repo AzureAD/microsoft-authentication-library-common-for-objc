@@ -148,7 +148,7 @@
                                    error:(NSError **)error
 {
     NSError *stateVerifierError = nil;
-    if (requestState && ![self verifyRequestState:requestState responseURL:url error:&stateVerifierError])
+    if (![self verifyRequestState:requestState responseURL:url error:&stateVerifierError])
     {
         MSID_LOG_ERROR(context, @"Missing or invalid state returned state");
         if (error)
@@ -190,6 +190,12 @@
     }
 
     NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
+    
+    if (!(requestState || stateReceived))
+    {
+        return YES;
+    }
+    
     BOOL result = [requestState isEqualToString:stateReceived.msidBase64UrlDecode];
     
     if (!result)
