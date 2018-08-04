@@ -193,7 +193,8 @@ static MSIDWebviewSession *s_currentSession = nil;
     @synchronized([MSIDWebviewAuthorization class])
     {
         if (s_currentSession &&
-            [s_currentSession.webviewController isKindOfClass:MSIDSystemWebviewController.class])
+            [s_currentSession.webviewController isKindOfClass:MSIDSystemWebviewController.class] &&
+            [s_currentSession.factory verifyRequestState:s_currentSession.requestState responseURL:url error:nil])
         {
             return [((MSIDSystemWebviewController *)s_currentSession.webviewController) handleURLResponseForSafariViewController:url];
         }

@@ -125,7 +125,6 @@
     return [self completeSessionWithResponse:url context:nil error:nil];
 }
 
-
 - (BOOL)completeSessionWithResponse:(NSURL *)url
                             context:(id<MSIDRequestContext>)context
                               error:(NSError *)error
@@ -146,6 +145,7 @@
     }
     
     [MSIDNotifications notifyWebAuthDidCompleteWithURL:url];
+
     _completionHandler(url, nil);
     return YES;
 }
