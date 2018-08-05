@@ -30,6 +30,8 @@ typedef NSString *MSIDTestAccountProvider;
 extern MSIDTestAccountProvider MSIDTestAccountProviderWW;
 /*! Black Forest is an AMSID account hosted in the Black Forest sovereign cloud (.de) */
 extern MSIDTestAccountProvider MSIDTestAccountProviderBlackForest;
+/*! MSA is a Microsoft consumer account */
+extern MSIDTestAccountProvider MSIDTestAccountProviderMSA;
 /*! A WW account federated using MSIDFSv2 (these accounts can also be used for on-prem tests) */
 extern MSIDTestAccountProvider MSIDTestAccountProviderADfsv2;
 /*! A WW account federated using MSIDFSv3 (these accounts can also be used for on-prem tests) */
@@ -74,6 +76,7 @@ extern MSIDAppVersion MSIDAppVersionOnPrem;
 @property (nonatomic) NSArray<MSIDTestAccountFeature> *accountFeatures;
 @property (nonatomic) BOOL needsMultipleUsers;
 @property (nonatomic) MSIDAppVersion appVersion;
+@property (nonatomic) NSString *appName;
 @property (nonatomic) NSDictionary *additionalQueryParameters;
 
 - (NSURL *)requestURLWithAPIPath:(NSString *)apiPath;

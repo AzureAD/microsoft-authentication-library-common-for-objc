@@ -271,7 +271,9 @@
     return @{@"authority" : [self authorityWithAccount:account],
              @"client_id" : self.clientId,
              @"redirect_uri" : self.redirectUri,
-             @"resource" : self.resource};
+             @"resource" : self.resource,
+             @"scopes": [self.resource stringByAppendingString:@"/.default"]
+             };
 }
 
 - (NSString *)authority
