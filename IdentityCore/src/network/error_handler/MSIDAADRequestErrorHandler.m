@@ -71,7 +71,7 @@
     MSID_LOG_WARN_PII(context, @"%@", messagePII);
     
     NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, httpResponse.statusCode, messagePII, nil, nil, nil, context.correlationId, nil);
-    NSDictionary *response = @{@"header" : httpResponse.allHeaderFields,
+    NSDictionary *response = @{@"headers" : httpResponse.allHeaderFields,
                                @"body" : body};
     
     if (completionBlock) { completionBlock(response, httpError); }

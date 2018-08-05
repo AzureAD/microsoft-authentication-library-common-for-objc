@@ -183,7 +183,7 @@
     
     XCTAssertTrue([errorResponse isKindOfClass:NSDictionary.class]);
     NSDictionary *responseDic = (NSDictionary *)errorResponse;
-    XCTAssertEqualObjects(responseDic[@"header"], @{@"headerKey":@"headerValue"});
+    XCTAssertEqualObjects(responseDic[@"headers"], @{@"headerKey":@"headerValue"});
     XCTAssertEqualObjects(responseDic[@"body"], [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
 }
 

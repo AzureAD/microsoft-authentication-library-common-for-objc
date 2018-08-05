@@ -258,4 +258,27 @@
     XCTAssertTrue([authority1 msidIsEquivalentAuthorityHost:authority2]);
 }
 
+#pragma mark - add query parameters
+
+- (void)testmsidAddParametersToUrl_whenNilParameters_shouldReturnAsIs
+{
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?key1=value1"];
+    XCTAssertEqualObjects(url, [NSURL msidAddParameters:nil toUrl:url]);
+}
+
+- (void)testmsidAddParametersToUrl_whenEmptyParameters_shouldReturnAsIs
+{
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?key1=value1"];
+    XCTAssertEqualObjects(url, [NSURL msidAddParameters:@{} toUrl:url]);
+}
+
+- (void)testmsidAddParametersToUrl_whenParametersNotNil_shouldAddParameters
+{
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?k1=v1"];
+    NSURL *newUrl = [NSURL msidAddParameters:@{@"k2":@"v2", @"k3":@"v3"} toUrl:url];
+    NSURL *expectedUrl = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?k1=v1&k2=v2&k3=v3"];
+    XCTAssertEqualObjects(newUrl.msidQueryParameters, expectedUrl.msidQueryParameters);
+    XCTAssertTrue([newUrl msidIsEquivalentAuthority:expectedUrl]);
+}
+
 @end
