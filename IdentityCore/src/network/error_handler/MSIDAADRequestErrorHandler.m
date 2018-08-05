@@ -25,20 +25,11 @@
 #import "MSIDAADRequestErrorHandler.h"
 #import "MSIDJsonResponseSerializer.h"
 
-static NSInteger const s_defaultRetryCounter = 1;
-static NSTimeInterval const s_defaultRetryInterval = 0.5;
-
 @implementation MSIDAADRequestErrorHandler
 
 - (instancetype)init
 {
     self = [super init];
-    
-    if (self)
-    {
-        _retryCounter = s_defaultRetryCounter;
-        _retryInterval = s_defaultRetryInterval;
-    }
     
     return self;
 }
@@ -56,13 +47,13 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
         return;
     }
     
-    if (httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599 && self.retryCounter > 0)
+    if (httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599 && httpRequest.retryCounter > 0)
     {
-        self.retryCounter--;
+        httpRequest.retryCounter--;
         
-        MSID_LOG_VERBOSE(context, @"Retrying network request, retryCounter: %ld", (long)self.retryCounter);
+        MSID_LOG_VERBOSE(context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(httpRequest.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [httpRequest sendWithBlock:completionBlock];
         });
         
@@ -76,14 +67,14 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
     NSString* message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
     NSString* messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorData];
     
-    NSDictionary *userInfo = @{NSLocalizedDescriptionKey: messagePII};
-    
-    NSError *httpError = MSIDCreateError(MSIDHttpErrorDomain, httpResponse.statusCode, nil, nil, nil, nil, context.correlationId, userInfo);
-    
     MSID_LOG_WARN(context, @"%@", message);
     MSID_LOG_WARN_PII(context, @"%@", messagePII);
     
-    if (completionBlock) { completionBlock(httpResponse, httpError); }
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, httpResponse.statusCode, messagePII, nil, nil, nil, context.correlationId, nil);
+    NSDictionary *response = @{@"header" : httpResponse.allHeaderFields,
+                               @"body" : body};
+    
+    if (completionBlock) { completionBlock(response, httpError); }
 }
 
 @end

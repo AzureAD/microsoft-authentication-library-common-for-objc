@@ -179,10 +179,10 @@ const unichar queryStringSeparator = '?';
 {
     __auto_type urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:YES];
     
-    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray new];
-    if (urlComponents.queryItems)
+    NSMutableDictionary *queryDic = [NSMutableDictionary new];
+    for (NSURLQueryItem * queryItem in urlComponents.queryItems)
     {
-        [queryItems addObjectsFromArray:urlComponents.queryItems];
+        [queryDic setValue:queryItem.value forKey:queryItem.name];
     }
     
     for (id key in parameters)
@@ -198,11 +198,10 @@ const unichar queryStringSeparator = '?';
             MSID_LOG_WARN_PII(nil, @"Ignoring key: %@ value: %@", key, value);
             continue;
         }
-        __auto_type item = [[NSURLQueryItem alloc] initWithName:key value:value];
-        [queryItems addObject:item];
+        [queryDic setValue:value forKey:key];
     }
     
-    urlComponents.queryItems = queryItems;
+    urlComponents.queryItems = [(NSDictionary *)queryDic urlQueryItemsArray];
     
     return urlComponents.URL;
 }

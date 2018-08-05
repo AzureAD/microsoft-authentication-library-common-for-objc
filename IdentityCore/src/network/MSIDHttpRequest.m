@@ -29,6 +29,9 @@
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
 
+static NSInteger const s_defaultRetryCounter = 1;
+static NSTimeInterval const s_defaultRetryInterval = 0.5;
+
 @interface MSIDHttpRequest () <NSURLSessionDelegate>
 
 @property (nonatomic) NSURLSessionConfiguration *sessionConfiguration;
@@ -49,6 +52,8 @@
         _responseSerializer = [MSIDJsonResponseSerializer new];
         _requestSerializer = [MSIDUrlRequestSerializer new];
         _telemetry = [MSIDHttpRequestTelemetry new];
+        _retryCounter = s_defaultRetryCounter;
+        _retryInterval = s_defaultRetryInterval;
     }
     
     return self;

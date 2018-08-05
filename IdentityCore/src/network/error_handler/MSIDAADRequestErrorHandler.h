@@ -26,7 +26,4 @@
 
 @interface MSIDAADRequestErrorHandler : NSObject <MSIDHttpRequestErrorHandlerProtocol>
 
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-
 @end
