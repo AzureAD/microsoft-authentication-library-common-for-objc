@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebMSAuthResponse.h"
 
-@interface MSIDWebWPJResponseTests : XCTestCase
+@interface MSIDWebMSAuthResponseTests : XCTestCase
 
 @end
 
-@implementation MSIDWebWPJResponseTests
+@implementation MSIDWebMSAuthResponseTests
 
 - (void)setUp {
     [super setUp];
@@ -38,7 +38,7 @@
 - (void)testInit_whenWrongScheme_shouldReturnNilWithError
 {
     NSError *error = nil;
-    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://wpj"]]
+    MSIDWebMSAuthResponse *response = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://wpj"]]
                                                                            context:nil
                                                                              error:&error];
 
@@ -50,10 +50,10 @@
 }
 
 
-- (void)testInit_whenGoodInput_shouldReturnResponsewithNoError
+- (void)testInit_whenMSAuthScheme_shouldReturnResponsewithNoError
 {
     NSError *error = nil;
-    MSIDWebWPJAuthResponse *response = [[MSIDWebWPJAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&upn=user"]]
+    MSIDWebMSAuthResponse *response = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&upn=user"]]
                                                                            context:nil
                                                                              error:&error];
 

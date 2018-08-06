@@ -24,22 +24,12 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
-#import <Foundation/Foundation.h>
-#import "MSIDSystemWebviewController.h"
+#import "MSIDWebviewResponse.h"
 
-@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
+@interface MSIDWebMSAuthResponse : MSIDWebviewResponse
 
-- (instancetype)initWithURL:(NSURL *)url
-           parentController:(UIViewController *)parentController
-                    context:(id<MSIDRequestContext>)context;
-
-- (BOOL)handleURLResponse:(NSURL *)url;
-
-@property (readonly) NSURL *startURL;
-@property (weak, nonatomic) UIViewController *parentController;
+@property (readonly) NSString *upn;
+@property (readonly) NSString *appInstallLink;
 
 @end
-#endif
-

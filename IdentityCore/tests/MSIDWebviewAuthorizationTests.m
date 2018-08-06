@@ -43,6 +43,8 @@
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
+    
+    [MSIDWebviewAuthorization cancelCurrentSession];
 }
 
 
@@ -53,8 +55,8 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                            verifyState:NO];
+                                                                            redirectUri:@"redirectUri"
+                                                                           requestState:nil];
     return session;
 }
 
@@ -66,8 +68,8 @@
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                            verifyState:NO];
+                                                                            redirectUri:@"redirectUri"
+                                                                           requestState:nil];
     return session;
 }
 
@@ -132,7 +134,7 @@
 
 - (void)testStartSession_whenSessionRunning_shouldNotStartAndReturnError
 {
-    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil verifyState:NO];
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil redirectUri:@"redirectUri" requestState:nil];
     XCTAssertTrue([MSIDWebviewAuthorization setCurrentSession:session]);
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
@@ -184,7 +186,7 @@
 
 - (void)testCancelCurrentSession_whenCurrentSession_shouldClearCurrentSession
 {
-    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil verifyState:NO];
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil  redirectUri:@"redirectUri" requestState:nil];
     [MSIDWebviewAuthorization setCurrentSession:session];
     
     [MSIDWebviewAuthorization cancelCurrentSession];
@@ -203,8 +205,8 @@
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                            verifyState:NO];
+                                                                            redirectUri:@"redirectUri"
+                                                                           requestState:nil];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
@@ -225,8 +227,8 @@
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                            verifyState:NO];
+                                                                           redirectUri:@"redirectUri"
+                                                                           requestState:nil];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
@@ -239,6 +241,55 @@
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
 
+- (void)testHandleURLResponseForSystemWebviewController_whenInvalid_returnsNo
+{
+    MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
+    testWebviewController.successAfterInterval = 0.5;
+    testWebviewController.actAsSafariViewController = YES;
+    
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
+                                                                                factory:[MSIDWebviewFactory new]
+                                                                            redirectUri:@"redirectUri"
+                                                                           requestState:@"requestState".msidBase64UrlEncode];
+
+    [MSIDWebviewAuthorization setCurrentSession:session];
+    
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:nil]);
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"https://host"]]);
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"https://host/resp"]]);
+    
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"https://host/msal"]]);
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"https://host/msal?"]]);
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"https://host/?code=iamacode"]]);
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo"]]);
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"https://host/?code=iamacode&state=fake_state"]]);
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo&state=fake_state"]]);
+
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"https://host/?code=iamacode&state=fake_state"]]);
+    XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo&state=fake_state"]]);
+}
+
+- (void)testHandleURLResponseForSystemWebviewController_whenValid_returnsYesAndHandlesResponse
+{
+    MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
+    testWebviewController.successAfterInterval = 0.5;
+    testWebviewController.actAsSafariViewController = YES;
+    
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
+                                                                                factory:[MSIDWebviewFactory new]
+                                                                            redirectUri:@"redirectUri"
+                                                                           requestState:@"requestState"];
+    
+    [MSIDWebviewAuthorization setCurrentSession:session];
+
+    NSString *validStateBack = @"requestState".msidBase64UrlEncode;
+    
+    NSURL *response1 = [NSURL URLWithString:[NSString stringWithFormat:@"https://host/?code=iamacode&state=%@", validStateBack]];
+    NSURL *response2 = [NSURL URLWithString:[NSString stringWithFormat:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo&state=%@", validStateBack]];
+    
+    XCTAssertTrue([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:response1]);
+    XCTAssertTrue([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:response2]);
+}
 
 #endif
 

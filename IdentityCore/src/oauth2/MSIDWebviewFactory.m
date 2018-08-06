@@ -49,20 +49,30 @@
     = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:startURL
                                                              endURL:redirectURL
                                                             webview:webview
-                                                      configuration:configuration
+                                                      customHeaders:configuration.customHeaders
                                                             context:context];
     
+#if TARGET_OS_IPHONE
+    embeddedWebviewController.parentController = configuration.parentController;
+    embeddedWebviewController.presentationType = configuration.presentationType;
+#endif
+
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
-                                                                           requestState:state
-                                                                            verifyState:configuration.verifyState];
+                                                                            redirectUri:configuration.redirectUri
+                                                                           requestState:state];
+                                   
     return session;
 }
 
 #endif
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
-- (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration context:(id<MSIDRequestContext>)context
+
+- (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration
+                                     useAuthenticationSession:(BOOL)useAuthenticationSession
+                                    allowSafariViewController:(BOOL)allowSafariViewController
+                                                      context:(id<MSIDRequestContext>)context
 {
     NSString *state = [self generateStateValue];
     NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
@@ -70,12 +80,15 @@
     
     MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                                                  callbackURLScheme:redirectURL.scheme
+                                                                                  parentController:configuration.parentController
+                                                                          useAuthenticationSession:useAuthenticationSession
+                                                                         allowSafariViewController:allowSafariViewController
                                                                                            context:context];
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWVC
                                                                                 factory:self
-                                                                           requestState:state
-                                                                            verifyState:configuration.verifyState];
+                                                                            redirectUri:configuration.redirectUri
+                                                                           requestState:state];
     return session;
 }
 #endif
@@ -131,12 +144,11 @@
 #pragma mark - Webview response parsing
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
                             requestState:(NSString *)requestState
-                             verifyState:(BOOL)verifyState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
     NSError *stateVerifierError = nil;
-    if (![self verifyRequestState:requestState responseURL:url error:&stateVerifierError] && verifyState)
+    if (![self verifyRequestState:requestState responseURL:url error:&stateVerifierError])
     {
         MSID_LOG_ERROR(context, @"Missing or invalid state returned state");
         if (error)
@@ -178,6 +190,12 @@
     }
 
     NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
+    
+    if (!(requestState || stateReceived))
+    {
+        return YES;
+    }
+    
     BOOL result = [requestState isEqualToString:stateReceived.msidBase64UrlDecode];
     
     if (!result)

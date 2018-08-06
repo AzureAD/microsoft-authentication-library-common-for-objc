@@ -24,7 +24,7 @@
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDWebviewConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
@@ -82,13 +82,17 @@
     = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:startURL
                                                                endURL:redirectURL
                                                               webview:webview
-                                                        configuration:configuration
+                                                        customHeaders:configuration.customHeaders
                                                               context:context];
+#if TARGET_OS_IPHONE
+    embeddedWebviewController.parentController = configuration.parentController;
+    embeddedWebviewController.presentationType = configuration.presentationType;
+#endif
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
-                                                                           requestState:state
-                                                                            verifyState:configuration.verifyState];
+                                                                            redirectUri:configuration.redirectUri
+                                                                           requestState:state];
     return session;
 }
 
@@ -99,7 +103,7 @@
                                    error:(NSError **)error
 {
     // Try to create a WPJ response
-    MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithURL:url context:context error:nil];
+    MSIDWebMSAuthResponse *wpjResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;
     
     // Try to acreate AAD Auth response
