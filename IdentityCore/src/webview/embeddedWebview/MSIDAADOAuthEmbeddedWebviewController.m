@@ -70,7 +70,6 @@
 {
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
-    NSString *requestURLString = [requestURL.absoluteString lowercaseString];
     
     // Stop at broker
     if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"] ||
@@ -87,6 +86,8 @@
     
 #if TARGET_OS_IPHONE
     // check for pkeyauth challenge.
+    NSString *requestURLString = [requestURL.absoluteString lowercaseString];
+    
     if ([requestURLString hasPrefix:[kMSIDPKeyAuthUrn lowercaseString]])
     {
         decisionHandler(WKNavigationActionPolicyCancel);
