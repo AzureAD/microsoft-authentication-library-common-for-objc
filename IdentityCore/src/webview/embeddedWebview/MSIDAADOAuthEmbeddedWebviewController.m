@@ -29,10 +29,6 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
 
-#if TARGET_OS_IPHONE
-#import "MSIDAppExtensionUtil.h"
-#endif
-
 #if !MSID_EXCLUDE_WEBKIT
 
 @implementation MSIDAADOAuthEmbeddedWebviewController
