@@ -144,11 +144,24 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:nil requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] redirectUriScheme:nil requestState:nil context:nil error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
 }
+
+
+- (void)testResponseWithURL_whenRedirectUriSchemeNil_shouldReturnNilAndError
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:nil redirectUriScheme:@"customscheme" requestState:nil context:nil error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+}
+
 
 
 - (void)testResponseWithURL_whenURLWithNoParams_shouldReturnNilAndError
@@ -156,7 +169,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] redirectUriScheme:@"https" requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -167,7 +180,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"]  redirectUriScheme:@"https" requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -178,7 +191,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"]  redirectUriScheme:@"https" requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -189,7 +202,9 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/msal?error=iamanerror&error_description=evenmoreinfo"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/msal?error=iamanerror&error_description=evenmoreinfo"]
+                                  redirectUriScheme:@"https"
+                                       requestState:nil context:nil error:&error];
     
     XCTAssertNotNil(response);
     XCTAssertNil(error);
@@ -212,6 +227,7 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
+                                  redirectUriScheme:@"redirecturi"
                                        requestState:nil
                                             context:nil
                                               error:&error];
@@ -228,7 +244,8 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com?code=authcode&state=wrongstate"]
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode&state=wrongstate"]
+                                  redirectUriScheme:@"redirecturi"
                                        requestState:@"somerequeststate"
                                             context:nil
                                               error:&error];
@@ -244,7 +261,8 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com?code=authcode"]
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode"]
+                                  redirectUriScheme:@"redirecturi"
                                        requestState:nil
                                             context:nil
                                               error:&error];
@@ -259,7 +277,8 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com"]
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com"]
+                                  redirectUriScheme:@"redirecturi"
                                        requestState:nil
                                             context:nil
                                               error:&error];

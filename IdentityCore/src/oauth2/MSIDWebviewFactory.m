@@ -143,12 +143,16 @@
 
 #pragma mark - Webview response parsing
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
+                       redirectUriScheme:(NSString *)redirectUriScheme
                             requestState:(NSString *)requestState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
+    if (!(url || redirectUriScheme)) return nil;
+    
     NSError *stateVerifierError = nil;
-    if (![self verifyRequestState:requestState responseURL:url error:&stateVerifierError])
+    if ([redirectUriScheme isEqualToString:url.scheme] &&
+        ![self verifyRequestState:requestState responseURL:url error:&stateVerifierError])
     {
         MSID_LOG_ERROR(context, @"Missing or invalid state returned state");
         if (error)
