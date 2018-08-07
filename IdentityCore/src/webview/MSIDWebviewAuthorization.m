@@ -123,7 +123,7 @@ static MSIDWebviewSession *s_currentSession = nil;
         NSError *responseError = nil;
         
         MSIDWebviewResponse *response = [s_currentSession.factory responseWithURL:callbackURL
-                                                                redirectUriScheme:[NSURL URLWithString:s_currentSession.redirectUri].scheme
+                                                                      redirectUri:[NSURL URLWithString:s_currentSession.redirectUri].absoluteString
                                                                      requestState:s_currentSession.requestState
                                                                           context:nil
                                                                             error:&responseError];

@@ -98,7 +98,7 @@
     
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link"]
-                                  redirectUriScheme:@"msauth"
+                                        redirectUri:@"msauth"
                                        requestState:nil
                                             context:nil
                                               error:&error];
@@ -115,7 +115,7 @@
     
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode&cloud_instance_host_name=somename"]
-                                  redirectUriScheme:@"redirecturi"
+                                        redirectUri:@"redirecturi"
                                        requestState:nil
                                             context:nil
                                               error:&error];

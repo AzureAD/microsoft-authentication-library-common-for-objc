@@ -144,7 +144,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] redirectUriScheme:nil requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] redirectUri:nil requestState:nil context:nil error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -156,7 +156,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:nil redirectUriScheme:@"customscheme" requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:nil redirectUri:@"customscheme" requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -169,7 +169,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] redirectUriScheme:@"https" requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] redirectUri:@"https" requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -180,7 +180,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"]  redirectUriScheme:@"https" requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"]  redirectUri:@"https" requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -191,7 +191,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"]  redirectUriScheme:@"https" requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"]  redirectUri:@"https" requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -203,7 +203,7 @@
     
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/msal?error=iamanerror&error_description=evenmoreinfo"]
-                                  redirectUriScheme:@"https"
+                                  redirectUri:@"https"
                                        requestState:nil context:nil error:&error];
     
     XCTAssertNotNil(response);
@@ -227,7 +227,7 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
-                                  redirectUriScheme:@"redirecturi"
+                                  redirectUri:@"redirecturi"
                                        requestState:nil
                                             context:nil
                                               error:&error];
@@ -245,7 +245,7 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode&state=wrongstate"]
-                                  redirectUriScheme:@"redirecturi"
+                                  redirectUri:@"redirecturi"
                                        requestState:@"somerequeststate"
                                             context:nil
                                               error:&error];
@@ -262,7 +262,7 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode"]
-                                  redirectUriScheme:@"redirecturi"
+                                        redirectUri:@"redirecturi"
                                        requestState:nil
                                             context:nil
                                               error:&error];
@@ -278,7 +278,7 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com"]
-                                  redirectUriScheme:@"redirecturi"
+                                        redirectUri:@"redirecturi"
                                        requestState:nil
                                             context:nil
                                               error:&error];

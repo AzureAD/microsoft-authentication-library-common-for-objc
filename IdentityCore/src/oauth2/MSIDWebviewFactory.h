@@ -50,7 +50,7 @@
 // Create a corresponding response from URL.
 //   If this different per authorization setup (i.e./ v1 vs v2), implement it in subclasses.
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
-                       redirectUriScheme:(NSString *)redirectUriScheme
+                             redirectUri:(NSString *)redirectUri
                             requestState:(NSString *)requestState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
