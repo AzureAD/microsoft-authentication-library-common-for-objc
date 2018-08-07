@@ -203,7 +203,7 @@
     
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/msal?error=iamanerror&error_description=evenmoreinfo"]
-                                  redirectUri:@"https"
+                                  redirectUri:@"https://host"
                                        requestState:nil context:nil error:&error];
     
     XCTAssertNotNil(response);
@@ -227,7 +227,7 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
-                                  redirectUri:@"redirecturi"
+                                  redirectUri:@"redirecturi://somepayload"
                                        requestState:nil
                                             context:nil
                                               error:&error];
@@ -245,7 +245,7 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode&state=wrongstate"]
-                                  redirectUri:@"redirecturi"
+                                  redirectUri:@"redirecturi://consoto.com"
                                        requestState:@"somerequeststate"
                                             context:nil
                                               error:&error];
@@ -262,7 +262,7 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode"]
-                                        redirectUri:@"redirecturi"
+                                        redirectUri:@"redirecturi://consoto.com"
                                        requestState:nil
                                             context:nil
                                               error:&error];
@@ -278,7 +278,7 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com"]
-                                        redirectUri:@"redirecturi"
+                                        redirectUri:@"redirecturi://consoto.com"
                                        requestState:nil
                                             context:nil
                                               error:&error];
