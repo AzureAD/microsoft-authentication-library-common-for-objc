@@ -31,7 +31,7 @@
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
@@ -56,7 +56,6 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
                                                                                          correlationId:correlationId
-                                                                                           verifyState:NO
                                                                                             enablePkce:NO];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -100,13 +99,13 @@
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link"]
                                        requestState:nil
-                                        verifyState:NO
                                             context:nil
                                               error:&error];
     
-    XCTAssertTrue([response isKindOfClass:MSIDWebWPJAuthResponse.class]);
+    XCTAssertTrue([response isKindOfClass:MSIDWebMSAuthResponse.class]);
     XCTAssertNil(error);
 }
+
 
 
 - (void)testResponseWithURL_whenURLSchemeNotMsauth_shouldReturnAADAuthResponse
@@ -116,7 +115,6 @@
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode&cloud_instance_host_name=somename"]
                                        requestState:nil
-                                        verifyState:NO
                                             context:nil
                                               error:&error];
     

@@ -29,17 +29,14 @@
 #import <Foundation/Foundation.h>
 #import "MSIDSystemWebviewController.h"
 
-@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
+@interface MSIDAuthenticationSession : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithURL:(NSURL *)url
-           parentController:(UIViewController *)parentController
+          callbackURLScheme:(NSString *)callbackURLScheme
                     context:(id<MSIDRequestContext>)context;
 
-- (BOOL)handleURLResponse:(NSURL *)url;
-
 @property (readonly) NSURL *startURL;
-@property (weak, nonatomic) UIViewController *parentController;
+@property (readonly) NSString *callbackURLScheme;
 
 @end
 #endif
-

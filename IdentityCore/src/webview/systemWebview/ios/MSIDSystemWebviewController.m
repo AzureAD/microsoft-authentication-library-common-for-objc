@@ -27,24 +27,29 @@
 #if !MSID_EXCLUDE_SYSTEMWV
 
 #import "MSIDSystemWebviewController.h"
-#import "MSIDSFAuthenticationSession.h"
+#import "MSIDAuthenticationSession.h"
 #import "MSIDSafariViewController.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDNetworkConfiguration.h"
+#import "MSIDNotifications.h"
 
 @implementation MSIDSystemWebviewController
 {
     id<MSIDRequestContext> _context;
     NSObject<MSIDWebviewInteracting> *_session;
+    
+    BOOL _allowSafariViewController;
+    BOOL _useAuthenticationSession;
 }
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
+                parentController:(UIViewController *)parentController
+        useAuthenticationSession:(BOOL)useAuthenticationSession
+       allowSafariViewController:(BOOL)allowSafariViewController
                          context:(id<MSIDRequestContext>)context
 {
-    MSIDNetworkConfiguration.retryCount = 5;
-    
     if (!startURL)
     {
         MSID_LOG_WARN(context, @"Attemped to start with nil URL");
@@ -64,34 +69,57 @@
         _startURL = startURL;
         _context = context;
         _callbackURLScheme = callbackURLScheme;
+        _parentController = parentController;
+        _allowSafariViewController = allowSafariViewController;
+        _useAuthenticationSession = useAuthenticationSession;
     }
-    
     return self;
 }
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
-    if (@available(iOS 11.0, *))
+    if (!completionHandler)
     {
-        _session = [[MSIDSFAuthenticationSession alloc] initWithURL:self.startURL
-                                                  callbackURLScheme:self.callbackURLScheme
-                                                            context:_context];
-
-    }
-    else
-    {
-        _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
-                                                         context:_context];
-    }
-    
-    if (_session)
-    {
-        [_session startWithCompletionHandler:completionHandler];
+        MSID_LOG_WARN(_context, @"CompletionHandler cannot be nil for interactive session.");
         return;
     }
     
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to create an auth session", nil, nil, nil, _context.correlationId, nil);
-    completionHandler(nil, error);
+    NSError *error = nil;
+    
+    if (_useAuthenticationSession)
+    {
+        if (@available(iOS 11.0, *))
+        {
+            _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
+                                                    callbackURLScheme:self.callbackURLScheme
+                                                              context:_context];
+        }
+        else
+        {
+             error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASWebAuthenticationSession is not available for iOS 10 and older.", nil, nil, nil, _context.correlationId, nil);
+        }
+    }
+    
+    if (!_session && _allowSafariViewController)
+    {
+        _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
+                                                parentController:_parentController
+                                                         context:_context];
+    }
+    
+    if (!_session)
+    {
+        if (!error)
+        {
+            error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to create an auth session", nil, nil, nil, _context.correlationId, nil);
+        }
+        [MSIDNotifications notifyWebAuthDidFailWithError:error];
+        completionHandler(nil, error);
+        return;
+    }
+    
+    [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
+    [_session startWithCompletionHandler:completionHandler];
 }
 
 
@@ -102,21 +130,9 @@
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
 {
-    if (!url)
+    if ([_session isKindOfClass:MSIDSafariViewController.class])
     {
-        MSID_LOG_ERROR(_context, @"nil passed into the MSID Web handle response.");
-        return NO;
-    }
-    
-    if (!_session)
-    {
-        MSID_LOG_ERROR(_context, @"Received MSID web response without a current session running.");
-        return NO;
-    }
-    
-    if ([_session isKindOfClass:MSIDSystemWebviewController.class])
-    {
-        return [((MSIDSystemWebviewController *)_session) handleURLResponseForSafariViewController:url];
+        return [((MSIDSafariViewController *)_session) handleURLResponse:url];
     }
     
     return NO;

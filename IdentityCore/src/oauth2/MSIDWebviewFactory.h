@@ -37,7 +37,10 @@
 #endif
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
-- (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration context:(id<MSIDRequestContext>)context;
+- (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration
+                                     useAuthenticationSession:(BOOL)useAuthenticationSession
+                                    allowSafariViewController:(BOOL)allowSafariViewController
+                                                      context:(id<MSIDRequestContext>)context;
 #endif
 
 // Webview related
@@ -48,7 +51,6 @@
 //   If this different per authorization setup (i.e./ v1 vs v2), implement it in subclasses.
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
                             requestState:(NSString *)requestState
-                             verifyState:(BOOL)verifyState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 
