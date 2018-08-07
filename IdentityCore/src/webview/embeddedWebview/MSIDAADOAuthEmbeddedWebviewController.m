@@ -73,35 +73,13 @@
     NSString *requestURLString = [requestURL.absoluteString lowercaseString];
     
     // Stop at broker
-    if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"])
+    if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"] ||
+        [requestURL.scheme.lowercaseString isEqualToString:@"browser"] )
     {
         self.complete = YES;
         
         NSURL *url = navigationAction.request.URL;
         [self completeWebAuthWithURL:url];
-        
-        decisionHandler(WKNavigationActionPolicyCancel);
-        return;
-    }
-    
-    if ([requestURL.scheme.lowercaseString isEqualToString:@"browser"])
-    {
-        self.complete = YES;
-        requestURLString = [requestURLString stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
-        
-#if TARGET_OS_IPHONE
-        if (![MSIDAppExtensionUtil isExecutingInAppExtension])
-        {
-            [self cancel];
-            [MSIDAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:requestURLString]];
-        }
-        else
-        {
-            MSID_LOG_INFO(self.context, @"unable to redirect to browser from extension");
-        }
-#else
-        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestURLString]];
-#endif
         
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
