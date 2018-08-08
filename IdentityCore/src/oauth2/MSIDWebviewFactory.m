@@ -150,7 +150,7 @@
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:url
                                                                     requestState:requestState
                                                                          context:context
-                                                                           error:error];
+                                                                           error:&responseCreationError];
     if (responseCreationError)
     {
         if (error)  *error = responseCreationError;

@@ -36,7 +36,7 @@
 }
 
 
-- (void)testInitWithParameters_whenNoAuthCodeAndNoError_shouldReturnNilAndInvalidServerResponse
+- (void)testInitWithParameters_whenNoRequestStateAndNoAuthCodeAndNoError_shouldReturnNilAndInvalidServerResponse
 {
     NSError *error = nil;
     
@@ -46,7 +46,7 @@
     XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
 }
 
-- (void)testInitWithParameters_whenAuthCode_shouldReturnAuthCode
+- (void)testInitWithParameters_whenNoRequestStateAndAuthCode_shouldReturnAuthCode
 {
     NSError *error = nil;
     
@@ -59,7 +59,7 @@
     XCTAssertNil(error);
 }
 
-- (void)testInitWithParameters_whenAuthCodeWithValidState_shouldReturnAuthCode
+- (void)testInitWithParameters_whenNoRequestStateAndAuthCodeWithValidState_shouldReturnAuthCode
 {
     NSError *error = nil;
     NSString *state = @"state";
@@ -73,7 +73,7 @@
     XCTAssertNil(error);
 }
 
-- (void)testInitWithParameters_whenOAuthServerErrorWithValidState_shouldOAuthError
+- (void)testInitWithParameters_whenNoRequestStateAndOAuthServerErrorWithValidState_shouldOAuthError
 {
     NSError *error = nil;
     NSString *errorString = @"invalid_grant";
@@ -111,7 +111,7 @@
 }
 
 
-- (void)testInitWithParameters_whenOAuthServerError_shouldOAuthError
+- (void)testInitWithParameters_whenNoRequestStateAndOAuthServerError_shouldOAuthError
 {
     NSError *error = nil;
     NSString *errorString = @"invalid_grant";
@@ -145,59 +145,49 @@
     XCTAssertEqualObjects(response.oauthError.userInfo[MSIDOAuthSubErrorKey], subError);
 }
 
-- (void)testInit_whenValidState_shouldReturnNilWithInvalidStateError
+- (void)testInitWithParameters_whenNoStateReturnedAndNoAuthcodeAndNoOAuthError_shouldReturnNilWithInvalidStateError
 {
     NSError *error = nil;
-    MSIDWebOAuth2Response *response = nil;
-    
-    response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host"] requestState:@"requestState" context:nil error:&error];
+    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host"] requestState:@"requestState" context:nil error:&error];
     XCTAssertNil(response);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
-    
-    error = nil;
-    response = nil;
-    response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/resp"] requestState:@"requestState" context:nil error:&error];
+}
+
+- (void)testInitWithParameters_whenNoStateReturnedAndAuthCode_shouldReturnNilWithInvalidStateError
+{
+    NSError *error = nil;
+    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/?code=iamacode"] requestState:@"requestState" context:nil error:&error];
     XCTAssertNil(response);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
-    
-    error = nil;
-    response = nil;
-    response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/msal?"] requestState:@"requestState" context:nil error:&error];
+}
+
+- (void)testInitWithParameters_whenNoStateReturnedAndOAuthError_shouldReturnNilWithInvalidStateError
+{
+    NSError *error = nil;
+    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo"] requestState:@"requestState" context:nil error:&error];
     XCTAssertNil(response);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
-    
-    error = nil;
-    response = nil;
-    response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/?code=iamacode"] requestState:@"requestState" context:nil error:&error];
+}
+
+- (void)testInitWithParameters_whenInvalidStateAndAuthCode_shouldReturnNilWithInvalidStateError
+{
+    NSError *error = nil;
+    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/?code=iamacode&state=fake_state"] requestState:@"requestState" context:nil error:&error];
     XCTAssertNil(response);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
-    
-    error = nil;
-    response = nil;
-    response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo"] requestState:@"requestState" context:nil error:&error];
+}
+
+- (void)testInitWithParameters_whenInvalidStateAndOAuthError_shouldReturnNilWithInvalidStateError
+{
+    NSError *error = nil;
+    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo&state=fake_state"] requestState:@"requestState" context:nil error:&error];
     XCTAssertNil(response);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
-    
-    error = nil;
-    response = nil;
-    response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/?code=iamacode&state=fake_state"] requestState:@"requestState" context:nil error:&error];
-    XCTAssertNil(response);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
-    
-    
-    error = nil;
-    response = nil;
-    response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo&state=fake_state"] requestState:@"requestState" context:nil error:&error];
-    XCTAssertNil(response);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
-    
 }
 
 
