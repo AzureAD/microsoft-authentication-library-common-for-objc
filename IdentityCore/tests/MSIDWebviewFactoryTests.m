@@ -281,41 +281,5 @@
     XCTAssertNil(response);
     XCTAssertNotNil(error);
 }
-//
-//#pragma mark - Webview (State verifier)
-//- (void)testVerifyRequestState_whenNoRequestState_shouldFail
-//{
-//    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-//    NSError *error = nil;
-//    
-//    XCTAssertFalse([factory verifyRequestState:nil responseURL:[NSURL URLWithString:@"https://contoso?state=value"] error:&error]);
-//    XCTAssertNotNil(error);
-//    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"state"]);
-//}
-//
-//
-//- (void)testVerifyRequestState_whenStateReceivedMatches_shouldSucceed
-//{
-//    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-//    NSError *error = nil;
-//    
-//    NSURL *urlWithEncodedState = [NSURL URLWithString:[NSString stringWithFormat:@"https://contoso?state=%@", @"value".msidBase64UrlEncode]];
-//    
-//    XCTAssertTrue([factory verifyRequestState:@"value" responseURL:urlWithEncodedState error:&error]);
-//    XCTAssertNil(error);
-//}
-//
-//
-//- (void)testVerifyRequestState_whenStateReceivedDoesNotMatch_shouldFail
-//{
-//    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-//    NSError *error = nil;
-//    
-//    NSURL *urlWithEncodedState = [NSURL URLWithString:@"https://contoso?state=somevalue"];
-//    
-//    XCTAssertFalse([factory verifyRequestState:@"value" responseURL:urlWithEncodedState error:&error]);
-//    XCTAssertNotNil(error);
-//    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"state"]);
-//}
 
 @end
