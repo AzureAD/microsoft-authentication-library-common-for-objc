@@ -33,7 +33,6 @@
 
 - (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
                                   factory:(MSIDWebviewFactory *)factory
-                              redirectUri:(NSString *)redirectUri
                              requestState:(NSString *)state
 
 {
@@ -43,7 +42,6 @@
         _webviewController = webviewController;
         _factory = factory;
         _requestState = state;
-        _redirectUri = redirectUri;
     }
     
     return self;

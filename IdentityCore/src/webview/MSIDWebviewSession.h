@@ -36,13 +36,11 @@
 @property NSObject<MSIDWebviewInteracting> *webviewController;
 @property MSIDWebviewFactory *factory;
 @property NSString *requestState;
-@property NSString *redirectUri;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
                                   factory:(MSIDWebviewFactory *)factory
-                              redirectUri:(NSString *)redirectUri
                              requestState:(NSString *)state;
 
 @end
