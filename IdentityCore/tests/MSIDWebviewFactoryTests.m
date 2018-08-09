@@ -144,7 +144,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] redirectUri:nil requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil context:nil error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -156,7 +156,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:nil redirectUri:@"customscheme" requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:nil requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -169,7 +169,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] redirectUri:@"https" requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -180,7 +180,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"]  redirectUri:@"https" requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"]  requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -191,7 +191,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"]  redirectUri:@"https" requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"] requestState:nil context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -203,7 +203,6 @@
     
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/msal?error=iamanerror&error_description=evenmoreinfo"]
-                                  redirectUri:@"https://host"
                                        requestState:nil context:nil error:&error];
     
     XCTAssertNotNil(response);
@@ -227,7 +226,6 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
-                                  redirectUri:@"redirecturi://somepayload"
                                        requestState:nil
                                             context:nil
                                               error:&error];
@@ -245,7 +243,6 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode&state=wrongstate"]
-                                  redirectUri:@"redirecturi://consoto.com"
                                        requestState:@"somerequeststate"
                                             context:nil
                                               error:&error];
@@ -262,7 +259,6 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode"]
-                                        redirectUri:@"redirecturi://consoto.com"
                                        requestState:nil
                                             context:nil
                                               error:&error];
@@ -278,49 +274,12 @@
 
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com"]
-                                        redirectUri:@"redirecturi://consoto.com"
                                        requestState:nil
                                             context:nil
                                               error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
-}
-
-#pragma mark - Webview (State verifier)
-- (void)testVerifyRequestState_whenNoRequestState_shouldFail
-{
-    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    NSError *error = nil;
-    
-    XCTAssertFalse([factory verifyRequestState:nil responseURL:[NSURL URLWithString:@"https://contoso?state=value"] error:&error]);
-    XCTAssertNotNil(error);
-    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"state"]);
-}
-
-
-- (void)testVerifyRequestState_whenStateReceivedMatches_shouldSucceed
-{
-    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    NSError *error = nil;
-    
-    NSURL *urlWithEncodedState = [NSURL URLWithString:[NSString stringWithFormat:@"https://contoso?state=%@", @"value".msidBase64UrlEncode]];
-    
-    XCTAssertTrue([factory verifyRequestState:@"value" responseURL:urlWithEncodedState error:&error]);
-    XCTAssertNil(error);
-}
-
-
-- (void)testVerifyRequestState_whenStateReceivedDoesNotMatch_shouldFail
-{
-    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    NSError *error = nil;
-    
-    NSURL *urlWithEncodedState = [NSURL URLWithString:@"https://contoso?state=somevalue"];
-    
-    XCTAssertFalse([factory verifyRequestState:@"value" responseURL:urlWithEncodedState error:&error]);
-    XCTAssertNotNil(error);
-    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"state"]);
 }
 
 @end

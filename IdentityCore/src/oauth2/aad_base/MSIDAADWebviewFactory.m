@@ -92,7 +92,6 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
-                                                                            redirectUri:configuration.redirectUri
                                                                            requestState:state];
     return session;
 }
@@ -100,6 +99,7 @@
 #endif
 
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
+                            requestState:(NSString *)requestState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -115,8 +115,10 @@
     
     // Try to acreate AAD Auth response
     MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:url
+                                                                      requestState:requestState
                                                                            context:context
                                                                              error:error];
+    
     return response;
 }
 
