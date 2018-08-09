@@ -24,24 +24,30 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
+#import <Foundation/Foundation.h>
+#import "MSIDWebviewInteracting.h"
 
-// Utility macros for convience classes wrapped around dictionaries
-#define DICTIONARY_READ_PROPERTY_IMPL(DICT, KEY, GETTER) \
-- (NSString *)GETTER \
-{ \
-    if ([[DICT objectForKey:KEY] isKindOfClass:[NSString class]]) \
-    { \
-        return [DICT objectForKey:KEY]; \
-    } \
-    return nil; \
-}
+@class MSIDOauth2Factory;
 
-#define DICTIONARY_WRITE_PROPERTY_IMPL(DICT, KEY, SETTER) \
-- (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }
+@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
+
+- (instancetype)initWithStartURL:(NSURL *)startURL
+               callbackURLScheme:(NSString *)callbackURLScheme
+                parentController:(UIViewController *)parentController
+        useAuthenticationSession:(BOOL)useAuthenticationSession
+       allowSafariViewController:(BOOL)allowSafariViewController
+                         context:(id<MSIDRequestContext>)context;
+
+- (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;
+
+@property (readonly) NSURL *startURL;
+@property (readonly) NSString *callbackURLScheme;
+
+@property (weak, nonatomic) UIViewController *parentController;
+
+
+@end
+#endif
+

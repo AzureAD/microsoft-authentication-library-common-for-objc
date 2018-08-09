@@ -53,7 +53,7 @@
 
 
 #pragma mark - Webview (startURL)
-- (void)testAuthorizationParametersFromConfiguration_withValidParams_shouldContainsConfiguration
+- (void)testAuthorizationParametersFromConfiguration_whenValidParams_shouldContainsConfiguration
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
@@ -64,7 +64,6 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
                                                                                          correlationId:correlationId
-                                                                                           verifyState:NO
                                                                                             enablePkce:YES];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -101,7 +100,6 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
                                                                                          correlationId:nil
-                                                                                           verifyState:NO
                                                                                             enablePkce:NO];
                                         
                                         
@@ -130,7 +128,6 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
                                                                                          correlationId:nil
-                                                                                           verifyState:NO
                                                                                             enablePkce:YES];
 
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
@@ -147,10 +144,79 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:nil requestState:nil verifyState:NO context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil context:nil error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
+}
+
+
+- (void)testResponseWithURL_whenRedirectUriSchemeNil_shouldReturnNilAndError
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:nil requestState:nil context:nil error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+}
+
+
+
+- (void)testResponseWithURL_whenURLWithNoParams_shouldReturnNilAndError
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil context:nil error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+}
+
+- (void)testResponseWithURL_whenURLWithNoParamsWithPath_shouldReturnNilAndError
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"]  requestState:nil context:nil error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+}
+
+- (void)testResponseWithURL_whenURLWithNoParamsWithQuestionMark_shouldReturnNilAndError
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"] requestState:nil context:nil error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+}
+
+- (void)testResponseWithURL_whenURLWithError_shouldReturnNilAndError
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/msal?error=iamanerror&error_description=evenmoreinfo"]
+                                       requestState:nil context:nil error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebOAuth2Response.class]);
+    
+    MSIDWebOAuth2Response *oauthResponse = ((MSIDWebOAuth2Response *)response);
+    XCTAssertNil(oauthResponse.authorizationCode);
+    XCTAssertNotNil(oauthResponse.oauthError);
+    
+    XCTAssertEqual(oauthResponse.oauthError.code, MSIDErrorAuthorizationFailed);
+    XCTAssertEqualObjects(oauthResponse.oauthError.userInfo[MSIDErrorDescriptionKey], @"evenmoreinfo");
+    XCTAssertEqualObjects(oauthResponse.oauthError.userInfo[MSIDOAuthErrorKey], @"iamanerror");
 }
 
 
@@ -161,25 +227,23 @@
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
                                        requestState:nil
-                                        verifyState:NO
                                             context:nil
                                               error:&error];
 
     XCTAssertTrue([response isKindOfClass:MSIDWebOAuth2Response.class]);
     XCTAssertNil(error);
     
-    XCTAssertEqualObjects(((MSIDWebOAuth2Response*)response).authorizationCode, @"authcode");
+    XCTAssertEqualObjects(((MSIDWebOAuth2Response *)response).authorizationCode, @"authcode");
 }
 
 
-- (void)testResponseWithURL_whenStateVerificationFailsAndVerifyStateIsYES_shouldReturnNilWithError
+- (void)testResponseWithURL_whenStateVerificationFails_shouldReturnNilWithError
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com?code=authcode&state=wrongstate"]
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode&state=wrongstate"]
                                        requestState:@"somerequeststate"
-                                        verifyState:YES
                                             context:nil
                                               error:&error];
 
@@ -189,14 +253,13 @@
 }
 
 
-- (void)testResponseWithURL_whenStateVerificationFailsAndVerifyStateIsNO_shouldReturnResponse
+- (void)testResponseWithURL_whenStateVerificationRequestStateIsNil_shouldReturnResponse
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com?code=authcode&state=wrongstate"]
-                                       requestState:@"somerequeststate"
-                                        verifyState:NO
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode"]
+                                       requestState:nil
                                             context:nil
                                               error:&error];
 
@@ -210,50 +273,13 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://consoto.com"]
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com"]
                                        requestState:nil
-                                        verifyState:NO
                                             context:nil
                                               error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
-}
-
-#pragma mark - Webview (State verifier)
-- (void)testVerifyRequestState_whenNoRequestState_shouldFail
-{
-    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    NSError *error = nil;
-    
-    XCTAssertFalse([factory verifyRequestState:nil responseURL:[NSURL URLWithString:@"https://contoso?state=value"] error:&error]);
-    XCTAssertNotNil(error);
-    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"state"]);
-}
-
-
-- (void)testVerifyRequestState_whenStateReceivedMatches_shouldSucceed
-{
-    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    NSError *error = nil;
-    
-    NSURL *urlWithEncodedState = [NSURL URLWithString:[NSString stringWithFormat:@"https://contoso?state=%@", @"value".msidBase64UrlEncode]];
-    
-    XCTAssertTrue([factory verifyRequestState:@"value" responseURL:urlWithEncodedState error:&error]);
-    XCTAssertNil(error);
-}
-
-
-- (void)testVerifyRequestState_whenStateReceivedDoesNotMatch_shouldFail
-{
-    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    NSError *error = nil;
-    
-    NSURL *urlWithEncodedState = [NSURL URLWithString:@"https://contoso?state=somevalue"];
-    
-    XCTAssertFalse([factory verifyRequestState:@"value" responseURL:urlWithEncodedState error:&error]);
-    XCTAssertNotNil(error);
-    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"state"]);
 }
 
 @end

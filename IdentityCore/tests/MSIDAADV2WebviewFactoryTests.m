@@ -60,7 +60,6 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
                                                                                          correlationId:correlationId
-                                                                                           verifyState:NO
                                                                                             enablePkce:YES];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };

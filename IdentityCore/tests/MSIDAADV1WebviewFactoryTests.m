@@ -60,7 +60,6 @@
                                                                                               resource:DEFAULT_TEST_RESOURCE
                                                                                                 scopes:nil
                                                                                          correlationId:correlationId
-                                                                                           verifyState:NO
                                                                                             enablePkce:NO];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };

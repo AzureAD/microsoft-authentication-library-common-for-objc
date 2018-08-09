@@ -47,35 +47,9 @@ const unichar queryStringSeparator = '?';
 
 - (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL
 {
-    
-    // Check if equal
-    if ([self isEqual:aURL])
-    {
-        return YES;
-    }
-    
-    // Check scheme and host
-    if (!self.scheme ||
-        !aURL.scheme ||
-        [self.scheme caseInsensitiveCompare:aURL.scheme] != NSOrderedSame)
+    if (![self msidIsEquivalentAuthorityHost:aURL])
     {
         return NO;
-    }
-    
-    if (!self.host ||
-        !aURL.host ||
-        [self.host caseInsensitiveCompare:aURL.host] != NSOrderedSame)
-    {
-        return NO;
-    }
-    
-    // Check port
-    if (self.port || aURL.port)
-    {
-        if (![self.port isEqual:aURL.port])
-        {
-            return NO;
-        }
     }
     
     // Check path
@@ -87,6 +61,41 @@ const unichar queryStringSeparator = '?';
         }
     }
     
+    return YES;
+}
+
+- (BOOL)msidIsEquivalentAuthorityHost:(NSURL *)aURL
+{
+    // Check if equal
+    if ([self isEqual:aURL])
+    {
+        return YES;
+    }
+
+    // Check scheme and host
+    if (!self.scheme ||
+        !aURL.scheme ||
+        [self.scheme caseInsensitiveCompare:aURL.scheme] != NSOrderedSame)
+    {
+        return NO;
+    }
+
+    if (!self.host ||
+        !aURL.host ||
+        [self.host caseInsensitiveCompare:aURL.host] != NSOrderedSame)
+    {
+        return NO;
+    }
+
+    // Check port
+    if (self.port || aURL.port)
+    {
+        if (![self.port isEqual:aURL.port])
+        {
+            return NO;
+        }
+    }
+
     return YES;
 }
 
@@ -169,7 +178,12 @@ const unichar queryStringSeparator = '?';
 + (NSURL *)msidAddParameters:(NSDictionary<NSString *, NSString *> *)parameters toUrl:(NSURL *)url
 {
     __auto_type urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:YES];
+    
     NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray new];
+    if (urlComponents.queryItems)
+    {
+        [queryItems addObjectsFromArray:urlComponents.queryItems];
+    }
     
     for (id key in parameters)
     {

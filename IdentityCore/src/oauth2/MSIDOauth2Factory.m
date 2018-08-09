@@ -30,7 +30,6 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
-#import "MSIDSystemWebviewController.h"
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"

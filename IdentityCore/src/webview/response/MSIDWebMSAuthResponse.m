@@ -25,23 +25,40 @@
 //
 //------------------------------------------------------------------------------
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
+#import "MSIDWebMSAuthResponse.h"
 
-// Utility macros for convience classes wrapped around dictionaries
-#define DICTIONARY_READ_PROPERTY_IMPL(DICT, KEY, GETTER) \
-- (NSString *)GETTER \
-{ \
-    if ([[DICT objectForKey:KEY] isKindOfClass:[NSString class]]) \
-    { \
-        return [DICT objectForKey:KEY]; \
-    } \
-    return nil; \
+@implementation MSIDWebMSAuthResponse
+
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    NSString *scheme = url.scheme;
+    NSString *host = url.host;
+    
+    // Check for WPJ or broker response
+    if (!([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"]))
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"WPJ response should have msauth as a scheme and wpj/broker as a host",
+                                     nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
+    self = [super initWithURL:url context:context error:error];
+    if (self)
+    {
+        _appInstallLink = self.parameters[@"app_link"];
+        _upn = self.parameters[@"upn"];
+    }
+    
+    return self;
 }
 
-#define DICTIONARY_WRITE_PROPERTY_IMPL(DICT, KEY, SETTER) \
-- (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }
+
+
+@end

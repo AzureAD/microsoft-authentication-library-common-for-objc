@@ -30,7 +30,17 @@
 
 @interface MSIDWebOAuth2Response : MSIDWebviewResponse
 
-@property NSString *authorizationCode;
-@property NSError *oauthError;
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
+
+- (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
+
+
+@property (readonly) NSString *authorizationCode;
+@property (readonly) NSError *oauthError;
 
 @end

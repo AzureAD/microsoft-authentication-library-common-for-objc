@@ -24,11 +24,12 @@
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDWebviewConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewSession.h"
+#import "MSIDWebOpenBrowserResponse.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -82,30 +83,42 @@
     = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:startURL
                                                                endURL:redirectURL
                                                               webview:webview
-                                                        configuration:configuration
+                                                        customHeaders:configuration.customHeaders
                                                               context:context];
+#if TARGET_OS_IPHONE
+    embeddedWebviewController.parentController = configuration.parentController;
+    embeddedWebviewController.presentationType = configuration.presentationType;
+#endif
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
-                                                                           requestState:state
-                                                                            verifyState:configuration.verifyState];
+                                                                           requestState:state];
     return session;
 }
 
 #endif
 
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
+                            requestState:(NSString *)requestState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
     // Try to create a WPJ response
-    MSIDWebWPJAuthResponse *wpjResponse = [[MSIDWebWPJAuthResponse alloc] initWithURL:url context:context error:nil];
+    MSIDWebMSAuthResponse *wpjResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;
+    
+    // Try to create a browser reponse
+    MSIDWebOpenBrowserResponse *browserResponse = [[MSIDWebOpenBrowserResponse alloc] initWithURL:url
+                                                                                          context:context
+                                                                                            error:nil];
+    if (browserResponse) return browserResponse;
     
     // Try to acreate AAD Auth response
     MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:url
+                                                                      requestState:requestState
                                                                            context:context
                                                                              error:error];
+    
     return response;
 }
 

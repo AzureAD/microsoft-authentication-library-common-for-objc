@@ -92,9 +92,7 @@
               }
               else
               {
-                  dispatch_async(dispatch_get_main_queue(), ^{
-                      if (completionBlock) { completionBlock(nil, error); }
-                  });
+                  if (completionBlock) { completionBlock(nil, error); }
               }
           }
           else
@@ -103,9 +101,7 @@
               
               MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@", _PII_NULLIFY(responseObject), _PII_NULLIFY(error));
               
-              dispatch_async(dispatch_get_main_queue(), ^{
-                  if (completionBlock) { completionBlock(error ? nil : responseObject, error); }
-              });
+              if (completionBlock) { completionBlock(error ? nil : responseObject, error); }
           }
       }] resume];
 }

@@ -21,30 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAuthorizationCodeGrantRequest.h"
+#import "MSIDAADAuthorityValidationRequest.h"
+#import "MSIDHttpRequest.h"
+#import "MSIDAADRequestConfigurator.h"
 
-@implementation MSIDAuthorizationCodeGrantRequest
+@implementation MSIDAADAuthorityValidationRequest
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                     redirectUri:(NSString *)redirectUri
-                            code:(NSString *)code
-                    codeVerifier:(NSString *)codeVerifier
-                         context:(nullable id<MSIDRequestContext>)context
+- (instancetype)initWithUrl:(NSURL *)endpoint
+                    context:(id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope context:context];
+    self = [super init];
     if (self)
     {
-        NSParameterAssert(redirectUri);
-        NSParameterAssert(code);
+        NSParameterAssert(endpoint);
         
-        NSMutableDictionary *parameters = [_parameters mutableCopy];
-        parameters[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
-        parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_AUTHORIZATION_CODE;
-        parameters[MSID_OAUTH2_CODE] = code;
-        parameters[MSID_OAUTH2_CODE_VERIFIER] = codeVerifier;
-        _parameters = parameters;
+        self.context =  context;
+        
+        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];;
+        urlRequest.URL = endpoint;
+        urlRequest.HTTPMethod = @"GET";
+        _urlRequest = urlRequest;
+        
+        _requestConfigurator = [MSIDAADRequestConfigurator new];
     }
     
     return self;
