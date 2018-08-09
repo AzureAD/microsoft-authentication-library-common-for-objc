@@ -33,6 +33,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebOpenBrowserResponse.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -98,7 +99,6 @@
     
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link"]
-                                        redirectUri:@"msauth://wpj"
                                        requestState:nil
                                             context:nil
                                               error:&error];
@@ -115,12 +115,26 @@
     
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode&cloud_instance_host_name=somename"]
-                                        redirectUri:@"redirecturi://somepayload"
                                        requestState:nil
                                             context:nil
                                               error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebAADAuthResponse.class]);
+    XCTAssertNil(error);
+}
+
+
+- (void)testResponseWithURL_whenURLSchemeBrowser_shouldReturnBrowserResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"browser://somehost"]
+                                       requestState:nil
+                                            context:nil
+                                              error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebOpenBrowserResponse.class]);
     XCTAssertNil(error);
 }
 

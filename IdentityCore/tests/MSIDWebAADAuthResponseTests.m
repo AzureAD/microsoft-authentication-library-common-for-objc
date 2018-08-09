@@ -40,8 +40,26 @@
     [super tearDown];
 }
 
+- (void)testInit_whenRequestStateIsNil_shouldReturnNil
+{
+    NSError *error;
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
+    urlComponents.queryItems = @{
+                                 MSID_OAUTH2_CODE : @"code",
+                                 MSID_AUTH_CLOUD_INSTANCE_HOST_NAME : @"cloudHost",
+                                 MSID_OAUTH2_STATE : @"somestate"
+                                 }.urlQueryItemsArray;
+    
+    
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:nil context:nil error:&error];
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
+}
 
-- (void)testInit_whenAllValuesExist_shouldContainResponseWithAllValues
+
+- (void)testInit_whenReturnStateIsNil_shouldReturnNil
 {
     NSError *error;
     NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
@@ -51,7 +69,29 @@
                                  }.urlQueryItemsArray;
     
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL context:nil error:&error];
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" context:nil error:&error];
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
+}
+
+
+
+- (void)testInit_whenAllValuesExist_shouldContainResponseWithAllValues
+{
+    NSString *state = @"state";
+    
+    NSError *error;
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
+    urlComponents.queryItems = @{
+                                 MSID_OAUTH2_CODE : @"code",
+                                 MSID_AUTH_CLOUD_INSTANCE_HOST_NAME : @"cloudHost",
+                                 MSID_OAUTH2_STATE : state.msidBase64UrlEncode
+                                 }.urlQueryItemsArray;
+    
+    
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
@@ -62,14 +102,17 @@
 
 - (void)testInit_whenNoCloudHostInstanceNameExist_shouldNotContainCloudInstanceHostName
 {
+    NSString *state = @"state";
+    
     NSError *error;
     NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
     urlComponents.queryItems = @{
                                  MSID_OAUTH2_CODE : @"code",
+                                 MSID_OAUTH2_STATE : state.msidBase64UrlEncode
                                  }.urlQueryItemsArray;
     
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL context:nil error:&error];
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     

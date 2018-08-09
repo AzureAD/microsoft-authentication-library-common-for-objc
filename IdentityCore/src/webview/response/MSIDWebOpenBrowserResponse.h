@@ -24,23 +24,12 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
-
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewResponse.h"
 
-@interface MSIDWebOAuth2Response : MSIDWebviewResponse
+@interface MSIDWebOpenBrowserResponse : MSIDWebviewResponse
 
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
-
-- (instancetype)initWithURL:(NSURL *)url
-               requestState:(NSString *)requestState
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
-
-
-@property (readonly) NSString *authorizationCode;
-@property (readonly) NSError *oauthError;
+@property (readonly) NSURL *browserURL;
 
 @end
+

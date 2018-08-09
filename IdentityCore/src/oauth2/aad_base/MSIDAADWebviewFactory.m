@@ -29,6 +29,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewSession.h"
+#import "MSIDWebOpenBrowserResponse.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -91,7 +92,6 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
-                                                                            redirectUri:configuration.redirectUri
                                                                            requestState:state];
     return session;
 }
@@ -99,6 +99,7 @@
 #endif
 
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
+                            requestState:(NSString *)requestState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -106,10 +107,18 @@
     MSIDWebMSAuthResponse *wpjResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;
     
+    // Try to create a browser reponse
+    MSIDWebOpenBrowserResponse *browserResponse = [[MSIDWebOpenBrowserResponse alloc] initWithURL:url
+                                                                                          context:context
+                                                                                            error:nil];
+    if (browserResponse) return browserResponse;
+    
     // Try to acreate AAD Auth response
     MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:url
+                                                                      requestState:requestState
                                                                            context:context
                                                                              error:error];
+    
     return response;
 }
 

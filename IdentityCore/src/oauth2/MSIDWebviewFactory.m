@@ -59,7 +59,6 @@
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
-                                                                            redirectUri:configuration.redirectUri
                                                                            requestState:state];
                                    
     return session;
@@ -87,7 +86,6 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWVC
                                                                                 factory:self
-                                                                            redirectUri:configuration.redirectUri
                                                                            requestState:state];
     return session;
 }
@@ -143,43 +141,16 @@
 
 #pragma mark - Webview response parsing
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
-                             redirectUri:(NSString *)redirectUri
                             requestState:(NSString *)requestState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
-    if (!(url && redirectUri))
-    {
-        NSString *errorMessage = @"Trying to create response with nil URL or redirectUri";
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, context.correlationId, nil);
-        }
-        return nil;
-    }
-    
-    NSError *stateVerifierError = nil;
-    if ([url.absoluteString hasPrefix:redirectUri] &&
-        ![self verifyRequestState:requestState responseURL:url error:&stateVerifierError])
-    {
-        MSID_LOG_ERROR(context, @"Missing or invalid state returned state");
-        if (error)
-        {
-            *error = stateVerifierError;
-        }
-        return nil;
-    }
-    
-    return [self responseWithURL:url context:context error:error];
-}
-
-- (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
-                                 context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
-{
-//     return base response
+    //  return base response
     NSError *responseCreationError = nil;
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:url context:context error:&responseCreationError];
+    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:url
+                                                                    requestState:requestState
+                                                                         context:context
+                                                                           error:&responseCreationError];
     if (responseCreationError)
     {
         if (error)  *error = responseCreationError;
@@ -187,42 +158,6 @@
     }
     
     return response;
-}
-
-- (BOOL)verifyRequestState:(NSString *)requestState
-               responseURL:(NSURL *)url
-                     error:(NSError **)error
-{
-    // Check for auth response
-    // Try both the URL and the fragment parameters:
-    NSDictionary *parameters = [url msidFragmentParameters];
-    if (parameters.count == 0)
-    {
-        parameters = [url msidQueryParameters];
-    }
-
-    NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
-    
-    if (!(requestState || stateReceived))
-    {
-        return YES;
-    }
-    
-    BOOL result = [requestState isEqualToString:stateReceived.msidBase64UrlDecode];
-    
-    if (!result)
-    {
-        MSID_LOG_WARN(nil, @"Missing or invalid state returned state: %@", stateReceived);
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     MSIDErrorServerInvalidState,
-                                     [NSString stringWithFormat:@"Missing or invalid state returned state: %@", stateReceived],
-                                     nil, nil, nil, nil, nil);
-        }
-    }
-    
-    return result;
 }
 
 - (NSString *)generateStateValue
