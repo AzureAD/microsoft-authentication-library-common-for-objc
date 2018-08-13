@@ -29,6 +29,10 @@ MSIDTestAccountProvider MSIDTestAccountProviderWW = @"AzureCloud";
 MSIDTestAccountProvider MSIDTestAccountProviderBlackForest = @"AzureGermanyCloud";
 /*! MSA is a Microsoft consumer account */
 MSIDTestAccountProvider MSIDTestAccountProviderMSA = @"MSA";
+/*! B2C is a Microsoft B2C account */
+MSIDTestAccountProvider MSIDTestAccountProviderB2C = @"B2C";
+/*! B2C configured to support MSA accounts */
+MSIDTestAccountProvider MSIDTestAccountProviderB2CMSA = @"B2CMSA";
 /*! A WW account federated using MSIDFSv2 (these accounts can also be used for on-prem tests) */
 MSIDTestAccountProvider MSIDTestAccountProviderADfsv2 = @"ADFSv2";
 /*! A WW account federated using MSIDFSv3 (these accounts can also be used for on-prem tests) */

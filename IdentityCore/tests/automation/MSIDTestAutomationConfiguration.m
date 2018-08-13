@@ -68,8 +68,24 @@
     hash ^= self.homeTenantId.hash;
     hash ^= self.targetTenantId.hash;
     hash ^= self.homeObjectId.hash;
+    hash ^= self.tenantName.hash;
 
     return hash;
+}
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDTestAccount *account = [[MSIDTestAccount allocWithZone:zone] init];
+    account.username = [self.username copyWithZone:zone];
+    account.account = [self.account copyWithZone:zone];
+    account.password = [self.password copyWithZone:zone];
+    account.keyvaultName = [self.keyvaultName copyWithZone:zone];
+    account.homeTenantId = [self.homeTenantId copyWithZone:zone];
+    account.targetTenantId = [self.targetTenantId copyWithZone:zone];
+    account.homeObjectId = [self.homeObjectId copyWithZone:zone];
+    account.tenantName = [self.tenantName copyWithZone:zone];
+    account.labName = [self.labName copyWithZone:zone];
+    return account;
 }
 
 - (instancetype)initWithJSONResponse:(NSDictionary *)response
@@ -107,6 +123,7 @@
         _targetTenantId = response[@"tenantId"];
         _homeObjectId = response[@"objectId"];
         _password = response[@"password"];
+        _tenantName = response[@"tenantName"];
     }
 
     return self;
@@ -126,7 +143,7 @@
 
 - (NSString *)homeAccountId
 {
-    return [NSString stringWithFormat:@"%@.%@", self.homeObjectId, self.targetTenantId];
+    return [NSString stringWithFormat:@"%@.%@", self.homeObjectId, [self.homeTenantId length] ? self.homeTenantId : self.targetTenantId];
 }
 
 @end

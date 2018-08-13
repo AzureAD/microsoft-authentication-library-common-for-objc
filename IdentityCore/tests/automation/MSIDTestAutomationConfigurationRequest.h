@@ -26,6 +26,10 @@
 /*! MSIDTestAccountProvider is the federation provider of the AMSID account, or none in the case of
  entirely in cloud accounts like WW and Black Forest. They are mutally exclusive of each other. */
 typedef NSString *MSIDTestAccountProvider;
+/*! B2C is a Microsoft B2C account */
+extern MSIDTestAccountProvider MSIDTestAccountProviderB2C;
+/*! B2C configured to support MSA accounts */
+extern MSIDTestAccountProvider MSIDTestAccountProviderB2CMSA;
 /*! WW is a world wide entirely on-cloud account */
 extern MSIDTestAccountProvider MSIDTestAccountProviderWW;
 /*! Black Forest is an AMSID account hosted in the Black Forest sovereign cloud (.de) */
