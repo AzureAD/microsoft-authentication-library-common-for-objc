@@ -42,4 +42,6 @@
 
 - (void)setApiId:(NSString *)apiId;
 
+- (void)setWebviewType:(NSString *)webviewType;
+
 @end
