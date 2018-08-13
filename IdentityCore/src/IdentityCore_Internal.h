@@ -45,3 +45,5 @@
 
 #define DICTIONARY_WRITE_PROPERTY_IMPL(DICT, KEY, SETTER) \
 - (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }
+
+#define STRING_CASE(_CASE) case _CASE: return @#_CASE
