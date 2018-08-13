@@ -173,7 +173,8 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
         return authority;
     }
     
-    if (![self isTenantless:authority])
+    if (![self isTenantless:authority]
+        && ![self isConsumerInstanceURL:authority])
     {
         return authority;
     }
