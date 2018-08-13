@@ -495,17 +495,6 @@
     XCTAssertNil(accessToken);
 }
 
-- (void)testRefreshTokenLookupAuthorities_whenAuthorityProvidedWithConsumers_shouldReturnEmptyAliases
-{
-    [self setupAADAuthorityCache];
-
-    MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/consumers"];
-    NSArray *aliases = [factory refreshTokenLookupAuthorities:originalAuthority];
-    NSArray *expectedAliases = @[];
-    XCTAssertEqualObjects(aliases, expectedAliases);
-}
-
 - (void)setupAADAuthorityCache
 {
     __auto_type record = [MSIDAadAuthorityCacheRecord new];

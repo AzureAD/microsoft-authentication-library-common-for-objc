@@ -127,12 +127,12 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:originalEnvironment context:context];
 }
 
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
+- (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities:(NSURL *)originalAuthority
 {
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
 }
 
-- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
+- (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment
 {
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
 }
@@ -149,10 +149,16 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
 }
 
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
+- (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
     if (!originalAuthority)
     {
+        return @[];
+    }
+
+    if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
+    {
+        // AAD v1 doesn't support consumer authority
         return @[];
     }
 
