@@ -208,18 +208,6 @@
     return YES;
 }
 
-
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
-{
-    if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
-    {
-        // AAD v1 doesn't support consumer authority
-        return @[];
-    }
-
-    return [super refreshTokenLookupAuthorities:originalAuthority];
-}
-
 #pragma mark - Webview
 #pragma mark - Webview
 - (MSIDWebviewFactory *)webviewFactory

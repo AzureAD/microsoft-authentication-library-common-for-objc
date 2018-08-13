@@ -272,7 +272,7 @@
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *environmentAliases = [_factory cacheAliasesForEnvironment:environment];
+    NSArray<NSString *> *environmentAliases = [_factory defaultCacheAliasesForEnvironment:environment];
     __auto_type accountsPerUserId = [self getAccountsPerUserIdForAliases:environmentAliases context:context error:error];
 
     if (!accountsPerUserId)
@@ -331,7 +331,7 @@
 
     MSIDDefaultAccountCacheQuery *cacheQuery = [MSIDDefaultAccountCacheQuery new];
     cacheQuery.homeAccountId = accountIdentifier.homeAccountId;
-    cacheQuery.environmentAliases = [_factory cacheAliasesForEnvironment:configuration.authority.msidHostWithPortIfNecessary];
+    cacheQuery.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.msidHostWithPortIfNecessary];
     cacheQuery.accountType = MSIDAccountTypeMSSTS;
 
     NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:cacheQuery context:context error:error];
@@ -730,7 +730,7 @@
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *aliases = [_factory cacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
+    NSArray<NSString *> *aliases = [_factory defaultCacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
 
     for (NSString *alias in aliases)
     {
@@ -782,15 +782,15 @@
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSURL *> *aliases = [_factory cacheAliasesForAuthority:authority];
+    NSArray<NSString *> *aliases = [_factory defaultCacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
 
-    for (NSURL *alias in aliases)
+    for (NSString *alias in aliases)
     {
         MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for token with alias %@, clientId %@", alias, clientId);
         MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for token with alias %@, clientId %@, legacy userId %@", alias, clientId, legacyUserId);
 
         MSIDDefaultCredentialCacheQuery *idTokensQuery = [MSIDDefaultCredentialCacheQuery new];
-        idTokensQuery.environment = alias.msidHostWithPortIfNecessary;
+        idTokensQuery.environment = alias;
         idTokensQuery.clientId = clientId;
         idTokensQuery.credentialType = MSIDIDTokenType;
 
@@ -805,7 +805,7 @@
 
             MSIDDefaultCredentialCacheQuery *rtQuery = [MSIDDefaultCredentialCacheQuery new];
             rtQuery.homeAccountId = homeAccountId;
-            rtQuery.environment = alias.msidHostWithPortIfNecessary;
+            rtQuery.environment = alias;
             rtQuery.clientId = clientId;
             rtQuery.familyId = familyId;
             rtQuery.credentialType = MSIDRefreshTokenType;
