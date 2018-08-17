@@ -419,6 +419,20 @@
 
     result = [_accountCredentialCache removeAccountsWithQuery:accountsQuery context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+
+    // Clear cache from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        if (![accessor clearCacheForAccount:account
+                                   clientId:clientId
+                                    context:context
+                                      error:error])
+        {
+            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor: %@", accessor.class);
+            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor:  %@, error %@", accessor.class, *error);
+        }
+    }
+
     return result;
 }
 
