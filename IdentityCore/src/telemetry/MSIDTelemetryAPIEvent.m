@@ -92,4 +92,9 @@
     [self setProperty:MSID_TELEMETRY_KEY_API_ID value:apiId];
 }
 
+- (void)setWebviewType:(NSString *)webviewType
+{
+    [self setProperty:MSID_TELEMETRY_KEY_WEBVIEW_TYPE value:webviewType];
+}
+
 @end

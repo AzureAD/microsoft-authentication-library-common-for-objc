@@ -24,22 +24,41 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
-#import <Foundation/Foundation.h>
-#import "MSIDSystemWebviewController.h"
+#import "MSIDWebMSAuthResponse.h"
 
-@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
+@implementation MSIDWebMSAuthResponse
 
 - (instancetype)initWithURL:(NSURL *)url
-           parentController:(UIViewController *)parentController
-                    context:(id<MSIDRequestContext>)context;
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    NSString *scheme = url.scheme;
+    NSString *host = url.host;
+    
+    // Check for WPJ or broker response
+    if (!([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"]))
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"WPJ response should have msauth as a scheme and wpj/broker as a host",
+                                     nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
+    self = [super initWithURL:url context:context error:error];
+    if (self)
+    {
+        _appInstallLink = self.parameters[@"app_link"];
+        _upn = self.parameters[@"upn"];
+    }
+    
+    return self;
+}
 
-- (BOOL)handleURLResponse:(NSURL *)url;
 
-@property (readonly) NSURL *startURL;
-@property (weak, nonatomic) UIViewController *parentController;
 
 @end
-#endif
-

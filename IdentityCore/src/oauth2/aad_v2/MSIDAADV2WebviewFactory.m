@@ -24,7 +24,7 @@
 #import "MSIDAADV2WebviewFactory.h"
 #import "MSIDWebviewConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 
 @implementation MSIDAADV2WebviewFactory

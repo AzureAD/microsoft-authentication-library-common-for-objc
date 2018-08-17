@@ -261,7 +261,7 @@
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *environmentAliases = [_factory cacheAliasesForEnvironment:environment];
+    NSArray<NSString *> *environmentAliases = [_factory defaultCacheAliasesForEnvironment:environment];
     __auto_type accountsPerUserId = [self getAccountsPerUserIdForAliases:environmentAliases context:context error:error];
 
     if (!accountsPerUserId)
@@ -320,7 +320,7 @@
 
     MSIDDefaultAccountCacheQuery *cacheQuery = [MSIDDefaultAccountCacheQuery new];
     cacheQuery.homeAccountId = accountIdentifier.homeAccountId;
-    cacheQuery.environmentAliases = [_factory cacheAliasesForEnvironment:configuration.authority.msidHostWithPortIfNecessary];
+    cacheQuery.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.msidHostWithPortIfNecessary];
     cacheQuery.accountType = MSIDAccountTypeMSSTS;
 
     NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:cacheQuery context:context error:error];
@@ -408,6 +408,20 @@
 
     result = [_accountCredentialCache removeAccountsWithQuery:accountsQuery context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+
+    // Clear cache from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        if (![accessor clearCacheForAccount:account
+                                   clientId:clientId
+                                    context:context
+                                      error:error])
+        {
+            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor: %@", accessor.class);
+            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor:  %@, error %@", accessor.class, *error);
+        }
+    }
+
     return result;
 }
 
@@ -719,7 +733,7 @@
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *aliases = [_factory cacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
+    NSArray<NSString *> *aliases = [_factory defaultCacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
 
     for (NSString *alias in aliases)
     {
@@ -774,7 +788,7 @@
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *aliases = [_factory cacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
+    NSArray<NSString *> *aliases = [_factory defaultCacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
 
     NSString *clientIdForQueries = clientId;
 

@@ -43,6 +43,8 @@
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
+    
+    [MSIDWebviewAuthorization cancelCurrentSession];
 }
 
 
@@ -53,8 +55,7 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                            verifyState:NO];
+                                                                           requestState:nil];
     return session;
 }
 
@@ -66,8 +67,7 @@
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                            verifyState:NO];
+                                                                           requestState:nil];
     return session;
 }
 
@@ -132,7 +132,7 @@
 
 - (void)testStartSession_whenSessionRunning_shouldNotStartAndReturnError
 {
-    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil verifyState:NO];
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil];
     XCTAssertTrue([MSIDWebviewAuthorization setCurrentSession:session]);
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
@@ -184,7 +184,7 @@
 
 - (void)testCancelCurrentSession_whenCurrentSession_shouldClearCurrentSession
 {
-    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil verifyState:NO];
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil];
     [MSIDWebviewAuthorization setCurrentSession:session];
     
     [MSIDWebviewAuthorization cancelCurrentSession];
@@ -203,8 +203,7 @@
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                            verifyState:NO];
+                                                                           requestState:nil];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
@@ -225,8 +224,7 @@
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                            verifyState:NO];
+                                                                           requestState:nil];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
@@ -238,7 +236,6 @@
     XCTAssertFalse([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:nil]);
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
-
 
 #endif
 

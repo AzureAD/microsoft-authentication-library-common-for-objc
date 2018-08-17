@@ -40,7 +40,7 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
-         configuration:(MSIDWebviewConfiguration *)configuration
+         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
                context:(id<MSIDRequestContext>)context;
 
 - (void)loadRequest:(NSURLRequest *)request;

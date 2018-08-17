@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,29 +15,21 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
 #import <Foundation/Foundation.h>
-#import "MSIDSystemWebviewController.h"
+#import "MSIDHttpRequest.h"
 
-@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
+@interface MSIDAADAuthorityValidationRequest : MSIDHttpRequest
 
-- (instancetype)initWithURL:(NSURL *)url
-           parentController:(UIViewController *)parentController
-                    context:(id<MSIDRequestContext>)context;
+- (instancetype)initWithUrl:(NSURL *)endpoint
+                    context:(id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
-- (BOOL)handleURLResponse:(NSURL *)url;
-
-@property (readonly) NSURL *startURL;
-@property (weak, nonatomic) UIViewController *parentController;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
-#endif
-

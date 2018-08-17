@@ -28,10 +28,12 @@
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                         clientId:(NSString *)clientId
                            scope:(NSString *)scope
-                    refreshToken:(NSString *)refreshToken NS_DESIGNATED_INITIALIZER;
+                    refreshToken:(NSString *)refreshToken
+                         context:(id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                         clientId:(NSString *)clientId
-                           scope:(NSString *)scope NS_UNAVAILABLE;
+                           scope:(NSString *)scope
+                         context:(id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
 @end

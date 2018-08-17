@@ -26,24 +26,15 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebviewSession.h"
+#import "MSIDWebviewInteracting.h"
+#import "MSIDNotifications.h"
 
 @implementation MSIDWebviewSession
 
 - (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
                                   factory:(MSIDWebviewFactory *)factory
                              requestState:(NSString *)state
-{
-    return [self initWithWebviewController:webviewController
-                                   factory:factory
-                              requestState:state
-                               verifyState:NO];
-}
 
-
-- (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
-                                  factory:(MSIDWebviewFactory *)factory
-                             requestState:(NSString *)state
-                              verifyState:(BOOL)verifyState
 {
     self = [super init];
     if (self)
@@ -51,9 +42,13 @@
         _webviewController = webviewController;
         _factory = factory;
         _requestState = state;
-        _verifyState = verifyState;
     }
+    
     return self;
 }
+
+
+
+
 
 @end
