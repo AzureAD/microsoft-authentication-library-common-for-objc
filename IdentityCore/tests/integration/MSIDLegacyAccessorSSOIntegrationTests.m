@@ -247,15 +247,7 @@
     XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, [NSDictionary dictionary]);
 
     NSArray *defaultIDTokens = [self getAllIDTokens];
-    XCTAssertEqual([defaultIDTokens count], 1);
-
-    MSIDIdToken *defaultIDToken = defaultIDTokens[0];
-    XCTAssertEqualObjects(defaultIDToken.rawIdToken, idToken);
-    XCTAssertEqual(defaultIDToken.credentialType, MSIDIDTokenType);
-    XCTAssertEqualObjects(defaultIDToken.authority.absoluteString, @"https://login.microsoftonline.com/tid");
-    XCTAssertEqualObjects(defaultIDToken.clientId, @"test_client_id");
-    XCTAssertEqualObjects(defaultIDToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(defaultIDToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertEqual([defaultIDTokens count], 0);
 
     NSArray *accounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil  context:nil error:&error];
     XCTAssertNotNil(accounts);
@@ -325,7 +317,7 @@
     XCTAssertEqualObjects(defaultRefreshToken2.clientId, @"test_client_id");
 
     NSArray *defaultIDTokens = [self getAllIDTokens];
-    XCTAssertEqual([defaultIDTokens count], 1);
+    XCTAssertEqual([defaultIDTokens count], 0);
 
     NSArray *clientAccounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
                                                                clientId:@"test_client_id"
@@ -573,15 +565,7 @@
     XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, [NSDictionary dictionary]);
 
     NSArray *defaultIDTokens = [self getAllIDTokens];
-    XCTAssertEqual([defaultIDTokens count], 1);
-
-    MSIDIdToken *defaultIDToken = defaultIDTokens[0];
-    XCTAssertEqualObjects(defaultIDToken.rawIdToken, idToken);
-    XCTAssertEqual(defaultIDToken.credentialType, MSIDIDTokenType);
-    XCTAssertEqualObjects(defaultIDToken.authority.absoluteString, @"https://login.microsoftonline.com/tid");
-    XCTAssertEqualObjects(defaultIDToken.clientId, @"test_client_id");
-    XCTAssertEqualObjects(defaultIDToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(defaultIDToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertEqual([defaultIDTokens count], 0);
 
     NSArray *accounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil context:nil error:&error];
     XCTAssertNotNil(accounts);
@@ -667,15 +651,7 @@
     XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, [NSDictionary dictionary]);
 
     NSArray *defaultIDTokens = [self getAllIDTokens];
-    XCTAssertEqual([defaultIDTokens count], 1);
-
-    MSIDIdToken *defaultIDToken = defaultIDTokens[0];
-    XCTAssertEqualObjects(defaultIDToken.rawIdToken, idToken);
-    XCTAssertEqual(defaultIDToken.credentialType, MSIDIDTokenType);
-    XCTAssertEqualObjects(defaultIDToken.authority.absoluteString, @"https://login.microsoftonline.com/tid");
-    XCTAssertEqualObjects(defaultIDToken.clientId, @"test_client_id");
-    XCTAssertEqualObjects(defaultIDToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(defaultIDToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertEqual([defaultIDTokens count], 0);
 
     NSArray *accounts = [_otherAccessor allAccountsForEnvironment:@"login.microsoftonline.com" clientId:@"test_client_id" familyId:nil context:nil error:&error];
     XCTAssertNotNil(accounts);
@@ -1422,7 +1398,7 @@
     NSArray *allDefaultTokens = [_otherAccessor allTokensWithContext:nil error:&error];
     XCTAssertNotNil(allDefaultTokens);
     XCTAssertNil(error);
-    XCTAssertEqual([allDefaultTokens count], 3);
+    XCTAssertEqual([allDefaultTokens count], 2);
 
     NSArray *allAccounts = [_otherAccessor allAccountsForEnvironment:@"login.windows.net" clientId:@"test_client_id" familyId:@"1" context:nil error:&error];
     XCTAssertNil(error);

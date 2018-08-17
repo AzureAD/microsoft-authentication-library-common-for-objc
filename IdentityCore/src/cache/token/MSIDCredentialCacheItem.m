@@ -316,6 +316,7 @@
         {
             return YES;
         }
+        else return NO;
     }
     else
     {
@@ -331,6 +332,11 @@
     }
 
     return YES;
+}
+
+- (BOOL)isTombstone
+{
+    return [self.secret isEqualToString:@"<tombstone>"];
 }
 
 @end
