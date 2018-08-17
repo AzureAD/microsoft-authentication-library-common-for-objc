@@ -776,15 +776,17 @@
 
     NSArray<NSString *> *aliases = [_factory cacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
 
-    MSIDDefaultCredentialCacheQuery *idTokensQuery = [MSIDDefaultCredentialCacheQuery new];
-    idTokensQuery.environmentAliases = aliases;
+    NSString *clientIdForQueries = clientId;
 
-    if (!familyId)
+    if (familyId)
     {
-        // If no family ID is provided, lookup by a specific client ID only
-        idTokensQuery.clientId = clientId;
+        // If family ID is provided, we don't need ti lookup by a specific client ID only
+        clientIdForQueries = nil;
     }
 
+    MSIDDefaultCredentialCacheQuery *idTokensQuery = [MSIDDefaultCredentialCacheQuery new];
+    idTokensQuery.environmentAliases = aliases;
+    idTokensQuery.clientId = clientIdForQueries;
     idTokensQuery.credentialType = MSIDIDTokenType;
 
     NSArray<MSIDCredentialCacheItem *> *matchedIdTokens = [_accountCredentialCache getCredentialsWithQuery:idTokensQuery
@@ -803,9 +805,8 @@
         MSIDDefaultCredentialCacheQuery *rtQuery = [MSIDDefaultCredentialCacheQuery new];
         rtQuery.homeAccountId = homeAccountId;
         rtQuery.environmentAliases = aliases;
-        rtQuery.clientId = clientId;
+        rtQuery.clientId = clientIdForQueries;
         rtQuery.familyId = familyId;
-        rtQuery.clientIdMatchingOptions = MSIDSuperSet;
         rtQuery.credentialType = MSIDRefreshTokenType;
 
         NSArray<MSIDCredentialCacheItem *> *rtCacheItems = [_accountCredentialCache getCredentialsWithQuery:rtQuery
