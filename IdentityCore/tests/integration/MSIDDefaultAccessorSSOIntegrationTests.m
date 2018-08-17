@@ -1739,6 +1739,18 @@
                      familyId:nil
                      accessor:_defaultAccessor];
 
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing2 user.dance"
+                  inputScopes:@"user.sing2 user.dance"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                     accessor:_otherAccessor];
+
     NSError *error = nil;
     NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net" clientId:@"test_client_id" familyId:nil context:nil error:&error];
 
