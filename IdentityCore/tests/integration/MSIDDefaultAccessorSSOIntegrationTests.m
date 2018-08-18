@@ -1737,7 +1737,7 @@
                   accessToken:@"access token 2"
                  refreshToken:@"refresh token"
                      familyId:nil
-                     accessor:_nonSSOAccessor];
+                     accessor:_defaultAccessor];
 
     NSError *error = nil;
     NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.windows.net" clientId:@"test_client_id" familyId:nil context:nil error:&error];
@@ -1754,6 +1754,9 @@
 
     NSArray *allIDs = [self getAllIDTokens];
     XCTAssertEqual([allIDs count], 2);
+
+    NSArray *allLegacyRTs = [self getAllLegacyRefreshTokens];
+    XCTAssertEqual([allLegacyRTs count], 1);
 
     MSIDAccount *account = nil;
 
@@ -1802,6 +1805,9 @@
 
     MSIDAccount *remainingAccount = accounts[0];
     XCTAssertEqualObjects(remainingAccount.accountIdentifier.homeAccountId, @"uid2.utid2");
+
+    allLegacyRTs = [self getAllLegacyRefreshTokens];
+    XCTAssertEqual([allLegacyRTs count], 0);
 }
 
 - (void)testClearCacheForAccount_whenAccountProvided_andNilClientId_shouldRemoveTokensForAllClientIds

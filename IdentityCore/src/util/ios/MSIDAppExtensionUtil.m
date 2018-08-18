@@ -62,7 +62,9 @@
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [[self sharedApplication] performSelector:NSSelectorFromString(@"openURL:") withObject:url];
+    dispatch_async( dispatch_get_main_queue(), ^{
+        [[self sharedApplication] performSelector:NSSelectorFromString(@"openURL:") withObject:url];
+    });
 #pragma clang diagnostic pop
 }
 

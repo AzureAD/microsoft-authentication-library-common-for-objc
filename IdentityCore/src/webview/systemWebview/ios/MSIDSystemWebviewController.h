@@ -24,7 +24,7 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
-#if !MSID_EXCLUDE_SYSTEMWV
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
@@ -35,12 +35,18 @@
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
+                parentController:(UIViewController *)parentController
+        useAuthenticationSession:(BOOL)useAuthenticationSession
+       allowSafariViewController:(BOOL)allowSafariViewController
                          context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;
 
 @property (readonly) NSURL *startURL;
 @property (readonly) NSString *callbackURLScheme;
+
+@property (weak, nonatomic) UIViewController *parentController;
+
 
 @end
 #endif

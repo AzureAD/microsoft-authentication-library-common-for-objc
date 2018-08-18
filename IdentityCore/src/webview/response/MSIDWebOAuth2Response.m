@@ -31,6 +31,21 @@
 @implementation MSIDWebOAuth2Response
 
 - (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    // state check
+    if (![self.class verifyRequestState:requestState responseURL:url error:error])
+    {
+        return nil;
+    }
+    
+    return [self initWithURL:url context:context error:error];
+}
+
+
+- (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
@@ -41,7 +56,7 @@
         NSString *authCode = self.parameters[MSID_OAUTH2_CODE];
         NSError *oauthError = [self.class oauthErrorFromParameters:self.parameters];
         
-        if (!authCode && !oauthError)
+        if ([NSString msidIsStringNilOrBlank:authCode] && !oauthError)
         {
             if (error)
             {
@@ -80,6 +95,42 @@
     }
     
     return nil;
+}
+
++ (BOOL)verifyRequestState:(NSString *)requestState
+               responseURL:(NSURL *)url
+                     error:(NSError **)error
+{
+    // Check for auth response
+    // Try both the URL and the fragment parameters:
+    NSDictionary *parameters = [url msidFragmentParameters];
+    if (parameters.count == 0)
+    {
+        parameters = [url msidQueryParameters];
+    }
+    
+    NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
+    
+    if (!requestState && !stateReceived)
+    {
+        return YES;
+    }
+    
+    BOOL result = [requestState isEqualToString:stateReceived.msidBase64UrlDecode];
+    
+    if (!result)
+    {
+        MSID_LOG_WARN(nil, @"Missing or invalid state returned state: %@", stateReceived);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidState,
+                                     [NSString stringWithFormat:@"Missing or invalid state returned state: %@", stateReceived],
+                                     nil, nil, nil, nil, nil);
+        }
+    }
+    
+    return result;
 }
 
 @end

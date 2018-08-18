@@ -30,7 +30,6 @@
 
 @implementation MSIDTestWebviewInteractingViewController
 
-
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     if (self.successAfterInterval == 0)

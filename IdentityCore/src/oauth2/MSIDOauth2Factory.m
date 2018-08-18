@@ -359,7 +359,7 @@
     return originalEnvironment;
 }
 
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)originalAuthority
+- (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities:(NSURL *)originalAuthority
 {
     if (!originalAuthority)
     {
@@ -369,7 +369,7 @@
     return @[originalAuthority];
 }
 
-- (NSArray<NSURL *> *)refreshTokenLookupAuthorities:(NSURL *)originalAuthority
+- (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
     if (!originalAuthority)
     {
@@ -379,7 +379,7 @@
     return @[originalAuthority];
 }
 
-- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
+- (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment
 {
     if (!originalEnvironment)
     {

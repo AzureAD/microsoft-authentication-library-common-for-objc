@@ -90,7 +90,6 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorAuthorityValidation),
                       
                       // Interactive flow errors
-                      @(MSIDErrorAuthorizationFailed),
                       @(MSIDErrorUserCancel),
                       @(MSIDErrorSessionCanceledProgrammatically),
                       @(MSIDErrorInteractiveSessionStartFailure),
@@ -109,6 +108,7 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorServerInvalidState),
                       @(MSIDErrorServerNonHttpsRedirect),
                       @(MSIDErrorServerProtectionPoliciesRequired),
+                      @(MSIDErrorAuthorizationFailed)
                       ]
               };
 }

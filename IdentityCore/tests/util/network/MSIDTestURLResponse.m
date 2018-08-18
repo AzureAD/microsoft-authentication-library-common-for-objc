@@ -256,8 +256,6 @@
     }
     
     _requestHeaders[@"Content-Type"] = @"application/x-www-form-urlencoded";
-    NSString *urlEncoded = [formParameters msidURLFormEncode];
-    _requestHeaders[@"Content-Length"] = [NSString stringWithFormat:@"%lu", (unsigned long)[urlEncoded lengthOfBytesUsingEncoding:NSUTF8StringEncoding]];
 }
 
 - (void)setWaitSemaphore:(dispatch_semaphore_t)sem

@@ -24,22 +24,35 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+#import "MSIDWebOpenBrowserResponse.h"
 
-#import <Foundation/Foundation.h>
-#import "MSIDSystemWebviewController.h"
-
-@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
+@implementation MSIDWebOpenBrowserResponse
 
 - (instancetype)initWithURL:(NSURL *)url
-           parentController:(UIViewController *)parentController
-                    context:(id<MSIDRequestContext>)context;
-
-- (BOOL)handleURLResponse:(NSURL *)url;
-
-@property (readonly) NSURL *startURL;
-@property (weak, nonatomic) UIViewController *parentController;
-
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    NSString *scheme = url.scheme;
+    
+    if (!([scheme isEqualToString:@"browser"]))
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"Browser response should have browser:// as a scheme",
+                                     nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
+    self = [super initWithURL:url context:context error:error];
+    if (self)
+    {
+        _browserURL = [NSURL URLWithString:[url.absoluteString stringByReplacingOccurrencesOfString:@"browser://"
+                                                                                         withString:@"https://"]];
+    }
+    
+    return self;
+}
 @end
-#endif
-

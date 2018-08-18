@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,29 +15,37 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
-#import <Foundation/Foundation.h>
-#import "MSIDSystemWebviewController.h"
+#import "MSIDAADAuthorityValidationRequest.h"
+#import "MSIDHttpRequest.h"
+#import "MSIDAADRequestConfigurator.h"
 
-@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
+@implementation MSIDAADAuthorityValidationRequest
 
-- (instancetype)initWithURL:(NSURL *)url
-           parentController:(UIViewController *)parentController
-                    context:(id<MSIDRequestContext>)context;
-
-- (BOOL)handleURLResponse:(NSURL *)url;
-
-@property (readonly) NSURL *startURL;
-@property (weak, nonatomic) UIViewController *parentController;
+- (instancetype)initWithUrl:(NSURL *)endpoint
+                    context:(id<MSIDRequestContext>)context
+{
+    self = [super init];
+    if (self)
+    {
+        NSParameterAssert(endpoint);
+        
+        self.context =  context;
+        
+        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];;
+        urlRequest.URL = endpoint;
+        urlRequest.HTTPMethod = @"GET";
+        _urlRequest = urlRequest;
+        
+        _requestConfigurator = [MSIDAADRequestConfigurator new];
+    }
+    
+    return self;
+}
 
 @end
-#endif
-
