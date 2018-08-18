@@ -118,9 +118,10 @@
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving SSO state");
 
     BOOL result = [self saveRefreshTokenWithConfiguration:configuration response:response context:context error:error];
-    result &= [self saveAccountWithConfiguration:configuration response:response context:context error:error];
 
-    return result;
+    if (!result) return NO;
+
+    return [self saveAccountWithConfiguration:configuration response:response context:context error:error];
 }
 
 - (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
@@ -780,7 +781,7 @@
 
     if (familyId)
     {
-        // If family ID is provided, we don't need ti lookup by a specific client ID only
+        // If family ID is provided, we don't need to lookup by a specific client ID
         clientIdForQueries = nil;
     }
 

@@ -52,7 +52,16 @@ MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
     }
 
     _uniqueId = [MSIDHelpers normalizeUserId:uniqueId];
-    _userId = [MSIDHelpers normalizeUserId:self.preferredUsername];
+
+    // Set userId
+    NSString *userId = self.preferredUsername;
+
+    if ([NSString msidIsStringNilOrBlank:userId])
+    {
+        userId = self.subject;
+    }
+
+    _userId = [MSIDHelpers normalizeUserId:userId];
     _userIdDisplayable = YES;
 }
 
