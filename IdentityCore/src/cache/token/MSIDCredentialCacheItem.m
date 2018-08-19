@@ -309,6 +309,11 @@
         return NO;
     }
 
+    if (!clientId && !familyId)
+    {
+        return YES;
+    }
+
     if (clientIDMatchingOptions == MSIDSuperSet)
     {
         if ((clientId && [self.clientId isEqualToString:clientId])
@@ -316,7 +321,8 @@
         {
             return YES;
         }
-        else return NO;
+
+        return NO;
     }
     else
     {
