@@ -268,4 +268,33 @@
     XCTAssertNil(logger.lastMessage);
 }
 
+- (void)testMaskedString_whenStringContainsAuthroizationCodeValue_shouldMaskIt
+{
+    __auto_type string = @"testapp://com.test.app/?code=qwertyuiopasdfghjklzxcvbnm&session_state=1234567890&x-client-Ver=2.6.4";
+    
+    __auto_type maskedString = [[MSIDLogger sharedLogger] maskedString:string];
+    
+    __auto_type expectedString = @"testapp://com.test.app/?code=<masked authorization code>&session_state=1234567890&x-client-Ver=2.6.4";
+    XCTAssertEqualObjects(maskedString, expectedString);
+}
+
+- (void)testMaskedString_whenStringContainsTwoAuthroizationCodeValues_shouldMaskThem
+{
+    __auto_type string = @"testapp://com.test.app/?code=qwertyuiopasdfghjklzxcvbnm&session_state=1234567890&x-client-Ver=2.6.4, NSErrorFailingURLKey=testapp://com.test.app/?code=qwertyuiopasdfghjklzxcvbnm&session_state=78b666ea-757f-4afe-b945-6eb301b16fba&x-client-Ver=2.6.4";
+    
+    __auto_type maskedString = [[MSIDLogger sharedLogger] maskedString:string];
+    
+    __auto_type expectedString = @"testapp://com.test.app/?code=<masked authorization code>&session_state=1234567890&x-client-Ver=2.6.4, NSErrorFailingURLKey=testapp://com.test.app/?code=<masked authorization code>&session_state=78b666ea-757f-4afe-b945-6eb301b16fba&x-client-Ver=2.6.4";
+    XCTAssertEqualObjects(maskedString, expectedString);
+ }
+
+- (void)testMaskedString_whenStringDoesntContainAuthroizationCodeValues_shouldReturnOriginalString
+{
+    __auto_type string = @"testapp://com.test.app/?session_state=1234567890&x-client-Ver=2.6.4, NSErrorFailingURLKey=testapp://com.test.app/?session_state=78b666ea-757f-4afe-b945-6eb301b16fba&x-client-Ver=2.6.4";
+    
+    __auto_type maskedString = [[MSIDLogger sharedLogger] maskedString:string];
+    
+    XCTAssertEqualObjects(maskedString, string);
+}
+
 @end
