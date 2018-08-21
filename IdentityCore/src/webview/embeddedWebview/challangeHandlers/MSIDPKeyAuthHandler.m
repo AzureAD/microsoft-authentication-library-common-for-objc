@@ -67,7 +67,7 @@
         return NO;
     }
     
-    // Attach client version to response url
+    // Add header values
     NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:submitUrl]];
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
