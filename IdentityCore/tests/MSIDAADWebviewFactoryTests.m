@@ -81,10 +81,11 @@
                                           @"client-request-id" : correlationId.UUIDString,
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
-                                          @"scope" : @"scope1 openid",
                                           @"prompt" : @"login",
                                           @"slice": @"myslice",
-                                          @"haschrome" : @"1"
+                                          @"haschrome" : @"1",
+                                          @"scope" : @"scope1"
+                                          
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     [expectedQPs addEntriesFromDictionary:DEFAULT_TEST_SLICE_PARAMS_DICT];
