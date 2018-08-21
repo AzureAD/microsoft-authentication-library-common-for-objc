@@ -78,7 +78,7 @@
     [queryDict setValue:MSIDDeviceId.deviceId[MSID_VERSION_KEY] forKey:MSID_VERSION_KEY];
     responseUrlComp.percentEncodedQuery = [queryDict msidURLFormEncode];
     
-    NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc]initWithURL:responseUrlComp.URL];
+    NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc] initWithURL:responseUrlComp.URL];
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
     completionHandler(responseReq, nil);
