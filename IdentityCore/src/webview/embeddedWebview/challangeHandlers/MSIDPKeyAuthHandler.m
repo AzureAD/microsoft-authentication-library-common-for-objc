@@ -29,6 +29,7 @@
 #import "MSIDError.h"
 #import "MSIDDeviceId.h"
 #import "MSIDConstants.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @implementation MSIDPKeyAuthHandler
 
@@ -68,11 +69,16 @@
     
     // Attach client version to response url
     NSURLComponents *responseUrlComp = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:submitUrl] resolvingAgainstBaseURL:NO];
-    NSMutableArray *queryItems = responseUrlComp.queryItems ? [responseUrlComp.queryItems mutableCopy] : [NSMutableArray new];
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:MSID_VERSION_KEY value:MSIDDeviceId.deviceId[MSID_VERSION_KEY]]];
-    responseUrlComp.queryItems = queryItems;
+    NSMutableDictionary *queryDict = [NSMutableDictionary new];
     
-    NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc]initWithURL:responseUrlComp.URL];
+    for (NSURLQueryItem *item in responseUrlComp.queryItems)
+    {
+        [queryDict setValue:item.value forKey:item.name];
+    }
+    [queryDict setValue:MSIDDeviceId.deviceId[MSID_VERSION_KEY] forKey:MSID_VERSION_KEY];
+    responseUrlComp.percentEncodedQuery = [queryDict msidURLFormEncode];
+    
+    NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc] initWithURL:responseUrlComp.URL];
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
     completionHandler(responseReq, nil);

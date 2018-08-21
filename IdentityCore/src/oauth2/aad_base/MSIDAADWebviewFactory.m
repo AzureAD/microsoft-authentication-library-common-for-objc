@@ -38,16 +38,6 @@
     NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
                                                                                                  requestState:state];
 
-    NSMutableOrderedSet<NSString *> *allScopes = parameters[MSID_OAUTH2_SCOPE].scopeSet.mutableCopy;
-    
-    if (!allScopes)
-    {
-        allScopes = [NSMutableOrderedSet new];
-    }
-    
-    [allScopes addObject:MSID_OAUTH2_SCOPE_OPENID_VALUE];
-    
-    parameters[MSID_OAUTH2_SCOPE] = allScopes.msidToString;
     parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
     
     if (configuration.correlationId)

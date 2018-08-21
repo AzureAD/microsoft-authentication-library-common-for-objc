@@ -35,6 +35,12 @@
                                                                                                  requestState:state];
  
     NSMutableOrderedSet<NSString *> *allScopes = parameters[MSID_OAUTH2_SCOPE].scopeSet.mutableCopy;
+    if (!allScopes)
+    {
+        allScopes = [NSMutableOrderedSet new];
+    }
+    
+    [allScopes addObject:MSID_OAUTH2_SCOPE_OPENID_VALUE];
     [allScopes addObject:MSID_OAUTH2_SCOPE_OFFLINE_ACCESS_VALUE];
     [allScopes addObject:MSID_OAUTH2_SCOPE_PROFILE_VALUE];
     
