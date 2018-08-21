@@ -29,6 +29,7 @@
 #import "MSIDError.h"
 #import "MSIDDeviceId.h"
 #import "MSIDConstants.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @implementation MSIDPKeyAuthHandler
 
@@ -67,14 +68,10 @@
     }
     
     // Attach client version to response url
-    NSURLComponents *responseUrlComp = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:submitUrl] resolvingAgainstBaseURL:NO];
-    NSMutableArray *queryItems = responseUrlComp.queryItems ? [responseUrlComp.queryItems mutableCopy] : [NSMutableArray new];
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:MSID_VERSION_KEY value:MSIDDeviceId.deviceId[MSID_VERSION_KEY]]];
-    responseUrlComp.queryItems = queryItems;
-    
-    NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc]initWithURL:responseUrlComp.URL];
+    NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:submitUrl]];
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
+    
     completionHandler(responseReq, nil);
     return YES;
 }
