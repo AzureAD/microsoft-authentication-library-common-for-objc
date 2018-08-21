@@ -309,6 +309,11 @@
         return NO;
     }
 
+    if (!clientId && !familyId)
+    {
+        return YES;
+    }
+
     if (clientIDMatchingOptions == MSIDSuperSet)
     {
         if ((clientId && [self.clientId isEqualToString:clientId])
@@ -316,6 +321,8 @@
         {
             return YES;
         }
+
+        return NO;
     }
     else
     {
@@ -331,6 +338,11 @@
     }
 
     return YES;
+}
+
+- (BOOL)isTombstone
+{
+    return [self.secret isEqualToString:@"<tombstone>"];
 }
 
 @end

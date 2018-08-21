@@ -133,7 +133,6 @@
     NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:configuration.authorizationEndpoint resolvingAgainstBaseURL:NO];
     NSDictionary *parameters = [self authorizationParametersFromConfiguration:configuration requestState:state];
     
-    urlComponents.queryItems = [parameters urlQueryItemsArray];
     urlComponents.percentEncodedQuery = [parameters msidURLFormEncode];
     
     return urlComponents.URL;

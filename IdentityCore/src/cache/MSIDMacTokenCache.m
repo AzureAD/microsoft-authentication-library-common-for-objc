@@ -296,6 +296,13 @@ return NO; \
     if (item)
     {
         item = [item copy];
+
+        // Skip tombstones generated from previous versions of ADAL.
+        if ([item isTombstone])
+        {
+            return;
+        }
+
         [items addObject:item];
     }
 }
