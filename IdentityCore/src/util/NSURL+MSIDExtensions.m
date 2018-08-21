@@ -154,6 +154,26 @@ const unichar queryStringSeparator = '?';
     return pathComponents[1];
 }
 
+- (NSURL *)msidAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName
+{
+    if ([NSString msidIsStringNilOrBlank:cloudInstanceHostName])
+    {
+        return self;
+    }
+    
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:NO];
+    
+    // Invalid URL
+    if ([NSString msidIsStringNilOrBlank:urlComponents.host])
+    {
+        return self;
+    }
+    
+    urlComponents.host = cloudInstanceHostName;
+    
+    return urlComponents.URL;
+}
+
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant
 {
     if ([NSString msidIsStringNilOrBlank:environment])
