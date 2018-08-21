@@ -67,11 +67,20 @@
         return NO;
     }
     
-    // Add header values
-    NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:submitUrl]];
+    // Attach client version to response url
+    NSURLComponents *responseUrlComp = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:submitUrl] resolvingAgainstBaseURL:NO];
+    NSMutableDictionary *queryDict = [NSMutableDictionary new];
+    
+    for (NSURLQueryItem *item in responseUrlComp.queryItems)
+    {
+        [queryDict setValue:item.value forKey:item.name];
+    }
+    [queryDict setValue:MSIDDeviceId.deviceId[MSID_VERSION_KEY] forKey:MSID_VERSION_KEY];
+    responseUrlComp.percentEncodedQuery = [queryDict msidURLFormEncode];
+    
+    NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc]initWithURL:responseUrlComp.URL];
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
-    
     completionHandler(responseReq, nil);
     return YES;
 }
