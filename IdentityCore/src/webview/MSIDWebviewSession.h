@@ -36,6 +36,7 @@
 @property NSObject<MSIDWebviewInteracting> *webviewController;
 @property MSIDWebviewFactory *factory;
 @property NSString *requestState;
+@property BOOL stopAtStateVerificationFail;
 
 - (instancetype)init NS_UNAVAILABLE;
 

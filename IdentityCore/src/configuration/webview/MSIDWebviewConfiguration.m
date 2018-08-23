@@ -37,6 +37,7 @@
                                        scopes:(NSOrderedSet<NSString *> *)scopes
                                 correlationId:(NSUUID *)correlationId
                                    enablePkce:(BOOL)enablePkce
+                  stopAtStateVerificationFail:(BOOL)stopAtStateVerification
 
 {
     self = [super init];
@@ -54,6 +55,7 @@
             _pkce = [MSIDPkce new];
         }
         
+        _stopAtStateVerificationFail = stopAtStateVerification;
         _customHeaders = [NSMutableDictionary new];
     }
     return self;

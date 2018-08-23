@@ -90,6 +90,7 @@
 
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
                             requestState:(NSString *)requestState
+             stopAtStateVerificationFail:(BOOL)stopAtStateVerificationFail
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -106,6 +107,7 @@
     // Try to acreate AAD Auth response
     MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:url
                                                                       requestState:requestState
+                                                       stopAtStateVerificationFail:stopAtStateVerificationFail
                                                                            context:context
                                                                              error:error];
     

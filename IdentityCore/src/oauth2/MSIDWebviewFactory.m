@@ -141,6 +141,7 @@
 #pragma mark - Webview response parsing
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
                             requestState:(NSString *)requestState
+             stopAtStateVerificationFail:(BOOL)stopAtStateVerificationFail
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -148,6 +149,7 @@
     NSError *responseCreationError = nil;
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:url
                                                                     requestState:requestState
+                                                     stopAtStateVerificationFail:stopAtStateVerificationFail
                                                                          context:context
                                                                            error:&responseCreationError];
     if (responseCreationError)
