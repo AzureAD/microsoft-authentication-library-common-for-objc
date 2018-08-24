@@ -204,4 +204,15 @@ static NSDateFormatter *s_dateFormatter = nil;
     MSID_LOG_INFO_PII(context, @"%@", logString);
 }
 
+#pragma mark - Private
+
+- (NSString *)maskedString:(NSString *)string
+{
+    // Mask authorization code.
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(?<=\\?code=)[^&?]*" options:NSRegularExpressionCaseInsensitive error:nil];
+    NSString *modifiedString = [regex stringByReplacingMatchesInString:string options:0 range:NSMakeRange(0, [string length]) withTemplate:@"<masked authorization code>"];
+    
+    return modifiedString;
+}
+
 @end

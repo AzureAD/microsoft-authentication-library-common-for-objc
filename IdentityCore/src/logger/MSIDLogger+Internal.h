@@ -111,4 +111,11 @@ MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
     additionaLog:(NSString *)additionalLog
          context:(id<MSIDRequestContext>)context;
 
+/*!
+ Mask sensetive data in a string.
+ @param string String with sensitive data.
+ @return masked string.
+ */
+- (NSString *)maskedString:(NSString *)string;
+
 @end
