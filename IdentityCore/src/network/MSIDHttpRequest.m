@@ -29,6 +29,9 @@
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
 
+static NSInteger const s_defaultRetryCounter = 1;
+static NSTimeInterval const s_defaultRetryInterval = 0.5;
+
 @interface MSIDHttpRequest () <NSURLSessionDelegate>
 
 @property (nonatomic) NSURLSessionConfiguration *sessionConfiguration;
@@ -49,6 +52,8 @@
         _responseSerializer = [MSIDJsonResponseSerializer new];
         _requestSerializer = [MSIDUrlRequestSerializer new];
         _telemetry = [MSIDHttpRequestTelemetry new];
+        _retryCounter = s_defaultRetryCounter;
+        _retryInterval = s_defaultRetryInterval;
     }
     
     return self;
@@ -81,6 +86,18 @@
                                                      error:error];
           if (error)
           {
+              if (completionBlock) { completionBlock(nil, error); }
+          }
+          else if (httpResponse.statusCode == 200)
+          {
+              id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
+              
+              MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@, error domain: %@, error code: %ld", _PII_NULLIFY(responseObject), _PII_NULLIFY(error), error.domain, (long)error.code);
+              
+              if (completionBlock) { completionBlock(responseObject, error); }
+          }
+          else
+          {
               if (self.errorHandler)
               {
                   [self.errorHandler handleError:error
@@ -94,14 +111,6 @@
               {
                   if (completionBlock) { completionBlock(nil, error); }
               }
-          }
-          else
-          {
-              id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
-              
-              MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@", _PII_NULLIFY(responseObject), _PII_NULLIFY(error));
-              
-              if (completionBlock) { completionBlock(error ? nil : responseObject, error); }
           }
       }] resume];
 }
