@@ -60,7 +60,8 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
                                                                                          correlationId:correlationId
-                                                                                            enablePkce:YES];
+                                                                                            enablePkce:YES
+                                                                           stopAtStateVerificationFail:YES];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     config.promptBehavior = @"login";
