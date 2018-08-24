@@ -247,7 +247,6 @@
     self.request.errorHandler = testErrorHandler;
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
                                                          reponse:httpResponse];
-    response->_error = [NSError new];
     [MSIDTestURLSession addResponses:@[response]];
     [self keyValueObservingExpectationForObject:testErrorHandler keyPath:@"handleErrorInvokedCounts" expectedValue:@1];
     
@@ -265,7 +264,10 @@
 {
     __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
     __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
-    __auto_type httpResponse = [NSHTTPURLResponse new];
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
+                                                                  statusCode:200
+                                                                 HTTPVersion:nil
+                                                                headerFields:nil];
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
