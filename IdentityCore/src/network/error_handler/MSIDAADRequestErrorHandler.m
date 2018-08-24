@@ -68,13 +68,13 @@
     NSString* messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorData];
     
     MSID_LOG_WARN(context, @"%@", message);
-    MSID_LOG_WARN_PII(context, @"%@", messagePII);
+    MSID_LOG_VERBOSE_PII(context, @"%@", messagePII);
     
-    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, httpResponse.statusCode, messagePII, nil, nil, nil, context.correlationId, nil);
-    NSDictionary *response = @{@"headers" : httpResponse.allHeaderFields,
-                               @"body" : body};
+    NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
+    [additionalInfo setValue:httpResponse.allHeaderFields forKey:MSIDHTTPHeadersKey];
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, httpResponse.statusCode, messagePII, nil, nil, nil, context.correlationId, additionalInfo);
     
-    if (completionBlock) { completionBlock(response, httpError); }
+    if (completionBlock) { completionBlock(nil, httpError); }
 }
 
 @end

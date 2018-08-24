@@ -180,11 +180,9 @@
     
     XCTAssertEqualObjects(returnError.domain, MSIDHttpErrorCodeDomain);
     XCTAssertEqual(returnError.code, 400);
+    XCTAssertEqualObjects(returnError.userInfo[MSIDHTTPHeadersKey], @{@"headerKey":@"headerValue"});
     
-    XCTAssertTrue([errorResponse isKindOfClass:NSDictionary.class]);
-    NSDictionary *responseDic = (NSDictionary *)errorResponse;
-    XCTAssertEqualObjects(responseDic[@"headers"], @{@"headerKey":@"headerValue"});
-    XCTAssertEqualObjects(responseDic[@"body"], [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+    XCTAssertNil(errorResponse);
 }
 
 @end

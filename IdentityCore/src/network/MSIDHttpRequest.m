@@ -92,9 +92,9 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
           {
               id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
               
-              MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@", _PII_NULLIFY(responseObject), _PII_NULLIFY(error));
+              MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@, error domain: %@, error code: %ld", _PII_NULLIFY(responseObject), _PII_NULLIFY(error), error.domain, (long)error.code);
               
-              if (completionBlock) { completionBlock(error ? nil : responseObject, error); }
+              if (completionBlock) { completionBlock(responseObject, error); }
           }
           else
           {

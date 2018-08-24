@@ -156,7 +156,7 @@
     XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertNotNil(accessToken.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY]);
+    XCTAssertNotNil(accessToken.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
 
     NSArray *refreshTokens = [self getAllRefreshTokens];
     XCTAssertEqual([refreshTokens count], 1);
@@ -234,7 +234,7 @@
     XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertNotNil(accessToken.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY]);
+    XCTAssertNotNil(accessToken.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
 
     NSArray *refreshTokens = [self getAllRefreshTokens];
     XCTAssertEqual([refreshTokens count], 1);
