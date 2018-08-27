@@ -44,6 +44,7 @@
 
 - (NSString *)msidHostWithPortIfNecessary;
 - (NSString *)msidTenant;
+- (NSURL *)msidAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName;
 
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant;
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment;
