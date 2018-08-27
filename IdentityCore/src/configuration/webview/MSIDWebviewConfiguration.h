@@ -54,7 +54,7 @@
 // Set this to YES to have the request fail at state verification failure.
 // Set this to NO if request should continue at state verification failure.
 // By default, this is set to YES.
-@property (readonly) BOOL stopAtStateVerificationFail;
+@property (readonly) BOOL ignoreInvalidState;
 
 // User information
 @property (readwrite) NSString *loginHint;
@@ -75,7 +75,6 @@
                                      resource:(NSString *)resource
                                        scopes:(NSOrderedSet<NSString *> *)scopes
                                 correlationId:(NSUUID *)correlationId
-                                   enablePkce:(BOOL)enablePkce
-                  stopAtStateVerificationFail:(BOOL)stopAtStateVerification;
+                                   enablePkce:(BOOL)enablePkce;
 
 @end

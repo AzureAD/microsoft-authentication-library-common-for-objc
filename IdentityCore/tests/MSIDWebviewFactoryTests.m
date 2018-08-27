@@ -64,8 +64,7 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
                                                                                          correlationId:correlationId
-                                                                                            enablePkce:YES
-                                                                           stopAtStateVerificationFail:YES];
+                                                                                            enablePkce:YES];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     config.loginHint = @"fakeuser@contoso.com";
@@ -101,8 +100,7 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
                                                                                          correlationId:nil
-                                                                                            enablePkce:NO
-                                                                           stopAtStateVerificationFail:YES];
+                                                                                            enablePkce:NO];
                                         
                                         
     config.explicitStartURL = [NSURL URLWithString:@"https://contoso.com"];
@@ -130,8 +128,7 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
                                                                                          correlationId:nil
-                                                                                            enablePkce:YES
-                                                                           stopAtStateVerificationFail:YES];
+                                                                                            enablePkce:YES];
 
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     NSURL *url = [factory startURLFromConfiguration:config requestState:@"state"];

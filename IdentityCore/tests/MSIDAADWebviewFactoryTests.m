@@ -57,8 +57,7 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
                                                                                          correlationId:correlationId
-                                                                                            enablePkce:NO
-                                                                           stopAtStateVerificationFail:YES];
+                                                                                            enablePkce:NO];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     config.loginHint = @"fakeuser@contoso.com";
