@@ -150,13 +150,13 @@
     MSIDAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([accessToken.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNil(accessToken.extendedExpireTime);
+    XCTAssertNotNil(accessToken.extendedExpireTime);
     XCTAssertEqualObjects(accessToken.scopes, scopes);
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(accessToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertNotNil(accessToken.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
 
     NSArray *refreshTokens = [self getAllRefreshTokens];
     XCTAssertEqual([refreshTokens count], 1);
@@ -228,13 +228,13 @@
     MSIDAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([accessToken.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNil(accessToken.extendedExpireTime);
+    XCTAssertNotNil(accessToken.extendedExpireTime);
     XCTAssertEqualObjects(accessToken.scopes, scopes);
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(accessToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertNotNil(accessToken.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
 
     NSArray *refreshTokens = [self getAllRefreshTokens];
     XCTAssertEqual([refreshTokens count], 1);

@@ -164,7 +164,7 @@ static NSUInteger s_expirationBuffer = 300;
 
 - (NSDate *)extendedExpireTime
 {
-    return _additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY];
+    return _additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
 }
 
 - (BOOL)isExtendedLifetimeValid
