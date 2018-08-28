@@ -36,7 +36,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                requestState:(NSString *)requestState
-stopAtStateVerificationFail:(BOOL)stopAtStateVerificationFail
+         ignoreInvalidState:(BOOL)ignoreInvalidState
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error;
 

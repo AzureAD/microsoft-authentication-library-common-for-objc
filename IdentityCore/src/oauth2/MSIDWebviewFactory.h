@@ -51,7 +51,7 @@
 //   If this different per authorization setup (i.e./ v1 vs v2), implement it in subclasses.
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
                             requestState:(NSString *)requestState
-             stopAtStateVerificationFail:(BOOL)stopAtStateVerificationFail
+                      ignoreInvalidState:(BOOL)ignoreInvalidState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 

@@ -32,14 +32,15 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                requestState:(NSString *)requestState
-stopAtStateVerificationFail:(BOOL)stopAtStateVerificationFail
+         ignoreInvalidState:(BOOL)ignoreInvalidState
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
     // state check
     NSError *stateCheckError = nil;
+
     if (![self.class verifyRequestState:requestState responseURL:url error:&stateCheckError] &&
-        stopAtStateVerificationFail)
+        !ignoreInvalidState)
     {
         if (error)
         {

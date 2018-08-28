@@ -51,7 +51,7 @@
                                  }.urlQueryItemsArray;
     
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:nil stopAtStateVerificationFail:YES context:nil error:&error];
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:nil ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNil(response);
     XCTAssertNotNil(error);
     
@@ -69,7 +69,7 @@
                                  }.urlQueryItemsArray;
     
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" stopAtStateVerificationFail:YES context:nil error:&error];
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNil(response);
     XCTAssertNotNil(error);
     
@@ -91,7 +91,7 @@
                                  }.urlQueryItemsArray;
     
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" stopAtStateVerificationFail:YES context:nil error:&error];
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
@@ -112,7 +112,7 @@
                                  }.urlQueryItemsArray;
     
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" stopAtStateVerificationFail:YES context:nil error:&error];
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     

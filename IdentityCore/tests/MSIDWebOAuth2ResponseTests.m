@@ -94,7 +94,7 @@
     
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:urlComponents.URL
                                                                     requestState:state
-                                                     stopAtStateVerificationFail:YES
+                                                              ignoreInvalidState:NO
                                                                          context:nil
                                                                            error:&error];
     
@@ -151,7 +151,7 @@
     NSError *error = nil;
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host"]
                                                                     requestState:@"requestState"
-                                                     stopAtStateVerificationFail:YES
+                                                              ignoreInvalidState:NO
                                                                          context:nil
                                                                            error:&error];
     XCTAssertNil(response);
@@ -164,7 +164,7 @@
     NSError *error = nil;
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/?code=iamacode"]
                                                                     requestState:@"requestState"
-                                                     stopAtStateVerificationFail:YES
+                                                              ignoreInvalidState:NO
                                                                          context:nil
                                                                            error:&error];
     XCTAssertNil(response);
@@ -177,7 +177,7 @@
     NSError *error = nil;
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo"]
                                                                     requestState:@"requestState"
-                                                     stopAtStateVerificationFail:YES
+                                                              ignoreInvalidState:NO
                                                                          context:nil
                                                                            error:&error];
     XCTAssertNil(response);
@@ -190,7 +190,7 @@
     NSError *error = nil;
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/?code=iamacode&state=fake_state"]
                                                                     requestState:@"requestState"
-                                                     stopAtStateVerificationFail:YES
+                                                              ignoreInvalidState:NO
                                                                          context:nil
                                                                            error:&error];
     XCTAssertNil(response);
@@ -203,7 +203,7 @@
     NSError *error = nil;
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo&state=fake_state"]
                                                                     requestState:@"requestState"
-                                                     stopAtStateVerificationFail:YES
+                                                              ignoreInvalidState:NO
                                                                          context:nil
                                                                            error:&error];
     XCTAssertNil(response);
@@ -216,7 +216,7 @@
     NSError *error = nil;
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/?code=iamacode&state=fake_state"]
                                                                     requestState:@"requestState"
-                                                     stopAtStateVerificationFail:NO
+                                                              ignoreInvalidState:YES
                                                                          context:nil
                                                                            error:&error];
     XCTAssertEqualObjects(response.authorizationCode, @"iamacode");
@@ -229,7 +229,7 @@
     NSError *error = nil;
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo&state=fake_state"]
                                                                     requestState:@"requestState"
-                                                     stopAtStateVerificationFail:NO
+                                                              ignoreInvalidState:YES
                                                                          context:nil
                                                                            error:&error];
     
@@ -242,3 +242,4 @@
 }
 
 @end
+

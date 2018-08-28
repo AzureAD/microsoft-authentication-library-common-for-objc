@@ -82,7 +82,8 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
-                                                                           requestState:state];
+                                                                           requestState:state
+                                                                     ignoreInvalidState:configuration.ignoreInvalidState];
     return session;
 }
 
@@ -90,7 +91,7 @@
 
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
                             requestState:(NSString *)requestState
-             stopAtStateVerificationFail:(BOOL)stopAtStateVerificationFail
+                      ignoreInvalidState:(BOOL)ignoreInvalidState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -107,7 +108,7 @@
     // Try to acreate AAD Auth response
     MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:url
                                                                       requestState:requestState
-                                                       stopAtStateVerificationFail:stopAtStateVerificationFail
+                                                                ignoreInvalidState:ignoreInvalidState
                                                                            context:context
                                                                              error:error];
     

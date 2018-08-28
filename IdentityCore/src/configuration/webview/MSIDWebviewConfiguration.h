@@ -51,9 +51,9 @@
 @property (readonly) MSIDPkce *pkce;
 
 // State verification
-// Set this to YES to have the request fail at state verification failure.
-// Set this to NO if request should continue at state verification failure.
-// By default, this is set to YES.
+// Set this to YES to have the request continue even at state verification failure.
+// Set this to NO if request should stop at state verification failure.
+// By default, this is set to NO.
 @property (readwrite) BOOL ignoreInvalidState;
 
 // User information
