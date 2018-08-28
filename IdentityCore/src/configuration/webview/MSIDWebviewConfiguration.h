@@ -50,6 +50,12 @@
 // PKCE Support
 @property (readonly) MSIDPkce *pkce;
 
+// State verification
+// Set this to YES to have the request continue even at state verification failure.
+// Set this to NO if request should stop at state verification failure.
+// By default, this is set to NO.
+@property (readwrite) BOOL ignoreInvalidState;
+
 // User information
 @property (readwrite) NSString *loginHint;
 @property (readwrite) NSString *utid;
