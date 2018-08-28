@@ -61,8 +61,8 @@
 - (void)testLoadOpenIdConfigurationInfo_whenSent2Times_shouldUseCacheFor2ndRequest
 {
     __auto_type openIdConfigurationUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    __auto_type httpResponse = [NSHTTPURLResponse new];
-    
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
+
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:openIdConfigurationUrl
                                                          reponse:httpResponse];
     __auto_type responseJson = @{
@@ -72,7 +72,7 @@
                                  };
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
-    
+
     // Cache is empty, 'loadOpenIdConfigurationInfo' shoul make network request and save result into the cache (no network error).
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET OpenId Configuration Request"];
     [MSIDAuthority loadOpenIdConfigurationInfo:openIdConfigurationUrl context:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
@@ -85,9 +85,9 @@
          XCTAssertEqualObjects(metadata.issuer.absoluteString, @"https://login.microsoftonline.com/common/v2.0");
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    
+
     // Send same request 2nd time. Now 'loadOpenIdConfigurationInfo' shoul not make network request, but take result from cache.
     expectation = [self expectationWithDescription:@"GET OpenId Configuration From Cache"];
     [MSIDAuthority loadOpenIdConfigurationInfo:openIdConfigurationUrl context:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
@@ -100,14 +100,13 @@
          XCTAssertEqualObjects(metadata.issuer.absoluteString, @"https://login.microsoftonline.com/common/v2.0");
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testLoadOpenIdConfigurationInfo_whenSent2TimesAnd1stResponseWasWithError_shouldNotUseCacheFor2ndRequest
 {
     __auto_type openIdConfigurationUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    __auto_type httpResponse = [NSHTTPURLResponse new];
     
     MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:openIdConfigurationUrl
                                                          respondWithError:[NSError new]];
@@ -125,6 +124,7 @@
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:openIdConfigurationUrl
                                                          reponse:httpResponse];
     __auto_type responseJson = @{
@@ -223,7 +223,7 @@
 {
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
-    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/qwe/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
@@ -264,7 +264,7 @@
 {
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
-    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/qwe/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
@@ -305,7 +305,7 @@
 {
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
-    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/qwe/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
@@ -387,7 +387,7 @@
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
-    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     response->_requestHeaders = headers;
@@ -425,7 +425,7 @@
 {
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
-    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:400 HTTPVersion:nil headerFields:nil];
     __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/qwe/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
@@ -456,7 +456,7 @@
 {
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
-    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:400 HTTPVersion:nil headerFields:nil];
     __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/qwe/oauth2/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
@@ -506,7 +506,7 @@
     
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
-    __auto_type httpResponse = [NSHTTPURLResponse new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/qwe/oauth2/v2.0/authorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
@@ -569,27 +569,28 @@
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
-    
+
     // On Prem Drs Response
     __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
-                                                         reponse:[NSHTTPURLResponse new]];
+                                                         reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
-    
+
     // Web finger response.
     __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
-                                    reponse:[NSHTTPURLResponse new]];
+                                    reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
                                     @"href" : @"https://login.windows.com/adfs/qwe"}]};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
     [MSIDAuthority resolveAuthority:authority
                   userPrincipalName:upn
@@ -602,7 +603,7 @@
          XCTAssertNil(error);
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
@@ -610,11 +611,12 @@
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     
     // On Prem Drs Response
     __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
-                                                         reponse:[NSHTTPURLResponse new]];
+                                                         reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
     response->_requestHeaders = headers;
@@ -663,8 +665,9 @@
     
     // Cloud Drs Response
     requestUrl = [@"https://enterpriseregistration.windows.net/microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     __auto_type response = [MSIDTestURLResponse request:requestUrl
-                                                reponse:[NSHTTPURLResponse new]];
+                                                reponse:httpResponse];
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
@@ -673,7 +676,7 @@
     // Web finger response.
     __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
-                                    reponse:[NSHTTPURLResponse new]];
+                                    reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
                                     @"href" : @"https://login.windows.com/adfs/qwe"}]};
     [response setResponseJSON:responseJson];
@@ -720,11 +723,12 @@
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     
     // On Prem Drs Response
     __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
-                                                         reponse:[NSHTTPURLResponse new]];
+                                                         reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
     response->_requestHeaders = headers;
@@ -735,7 +739,7 @@
     // Web finger response.
     __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
-                                    reponse:[NSHTTPURLResponse new]];
+                                    reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
                                     @"href" : @"https://login.windows.com/adfs/qwe"}]};
     [response setResponseJSON:responseJson];
@@ -779,11 +783,12 @@
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     
     // On Prem Drs Response
     __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
-                                                         reponse:[NSHTTPURLResponse new]];
+                                                         reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
     response->_requestHeaders = headers;
@@ -794,7 +799,7 @@
     // Web finger response.
     __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
-                                    reponse:[NSHTTPURLResponse new]];
+                                    reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
                                     @"href" : @"https://otherhost.com/adfs/qwe"}]};
     [response setResponseJSON:responseJson];

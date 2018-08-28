@@ -65,7 +65,7 @@ static dispatch_queue_t s_aadValidationQueue;
     
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock
-    MSIDAadAuthorityCacheRecord *record = [self.aadCache tryCheckCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [self.aadCache tryCheckCache:authority.absoluteString];
     if (record)
     {
         [self handleRecord:record authority:authority completionBlock:completionBlock];
@@ -117,7 +117,7 @@ static dispatch_queue_t s_aadValidationQueue;
     
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    MSIDAadAuthorityCacheRecord *record = [self.aadCache checkCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [self.aadCache checkCache:authority.msidHostWithPortIfNecessary];
     if (record)
     {
         [self handleRecord:record authority:authority completionBlock:completionBlock];

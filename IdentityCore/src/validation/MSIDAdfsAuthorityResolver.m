@@ -100,7 +100,7 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
               }
               else
               {
-                  error = MSIDCreateError(MSIDErrorDomain, MSIDErrorDeveloperAuthorityValidation, @"WebFinger request was invalid or failed", nil, nil, nil, context.correlationId, nil);
+                  error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, @"WebFinger request was invalid or failed", nil, nil, nil, context.correlationId, nil);
                   if (completionBlock) completionBlock(nil, NO, error);
               }
           }];

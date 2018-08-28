@@ -45,21 +45,6 @@
     }
 
     __auto_type reponse = [MSIDAADAuthorityMetadataResponse new];
-    
-    NSString *oauthError = jsonObject[@"error"];
-    if (![NSString msidIsStringNilOrBlank:oauthError])
-    {
-        if (error) {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorDeveloperAuthorityValidation,
-                                     jsonObject[@"error_description"],
-                                     oauthError,
-                                     nil, nil, context.correlationId, nil);
-        }
-        
-        return nil;
-    }
-
     reponse.metadata = jsonObject[@"metadata"];
     reponse.openIdConfigurationEndpoint = [NSURL URLWithString:jsonObject[@"tenant_discovery_endpoint"]];
 
