@@ -30,12 +30,12 @@
 
 - (MSIDAADV2IdTokenClaims *)idTokenObj
 {
-    return [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken];
+    return [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
 }
 
 - (MSIDAccountType)accountType
 {
-    return MSIDAccountTypeAADV2;
+    return MSIDAccountTypeMSSTS;
 }
 
 @end

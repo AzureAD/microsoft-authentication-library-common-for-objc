@@ -215,6 +215,14 @@
     XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com:8080/tenant"]);
 }
 
+- (void)testCacheURLAuthority_whenConsumersWithPort_shouldReturnURLWithPort
+{
+    NSURL *url = [MSIDAuthority cacheUrlForAuthority:[NSURL URLWithString:@"https://login.microsoftonline.com:8080/consumers"] tenantId:@"tenant"];
+
+    XCTAssertNotNil(url);
+    XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com:8080/tenant"]);
+}
+
 - (void)testCacheURLAuthority_whenTenantSpecified_shouldReturnURL
 {
     NSURL *url = [MSIDAuthority cacheUrlForAuthority:[NSURL URLWithString:@"https://login.microsoftonline.com/tenant2"] tenantId:@"tenant1"];

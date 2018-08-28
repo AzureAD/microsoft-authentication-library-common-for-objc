@@ -75,14 +75,22 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
     }
     else
     {
-        // Parse error response.
-        id responseSerializer = [MSIDJsonResponseSerializer new];
-        id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:nil];
+        // Http error
+        NSString *body = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSString *errorData = [NSString stringWithFormat:@"Full response: %@", body];
         
-        MSID_LOG_VERBOSE(context, @"Parsed error response: %@", _PII_NULLIFY(responseObject));
+        NSString* message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
+        NSString* messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorData];
+        
+        MSID_LOG_WARN(context, @"%@", message);
+        MSID_LOG_VERBOSE_PII(context, @"%@", messagePII);
+        
+        NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
+        [additionalInfo setValue:httpResponse.allHeaderFields forKey:MSIDHTTPHeadersKey];
+        NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, httpResponse.statusCode, messagePII, nil, nil, nil, context.correlationId, additionalInfo);
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) completionBlock(responseObject, error);
+            if (completionBlock) { completionBlock(nil, httpError); }
         });
     }
 }

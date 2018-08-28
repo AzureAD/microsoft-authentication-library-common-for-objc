@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccessToken.h"
 #import "MSIDRefreshableToken.h"
+#import "MSIDLegacyAccessToken.h"
 
-@interface MSIDLegacySingleResourceToken : MSIDAccessToken <MSIDRefreshableToken>
+@interface MSIDLegacySingleResourceToken : MSIDLegacyAccessToken <MSIDRefreshableToken>
 
 @property (readwrite) NSString *refreshToken;
 @property (readwrite) NSString *familyId;

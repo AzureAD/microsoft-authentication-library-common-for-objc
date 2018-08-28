@@ -31,20 +31,20 @@
 
 @implementation MSIDAADIdTokenClaimsFactory
 
-+ (MSIDIdTokenClaims *)claimsFromRawIdToken:(NSString *)rawIdTokenString
++ (MSIDIdTokenClaims *)claimsFromRawIdToken:(NSString *)rawIdTokenString error:(NSError **)error
 {
-    MSIDIdTokenClaims *claims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:rawIdTokenString];
+    MSIDIdTokenClaims *claims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:rawIdTokenString error:error];
 
     NSDictionary *allClaims = [claims jsonDictionary];
     CGFloat idTokenVersion = [allClaims[@"ver"] floatValue];
 
     if (idTokenVersion == 1.0f)
     {
-        return [[MSIDAADV1IdTokenClaims alloc] initWithJSONDictionary:allClaims error:nil];
+        return [[MSIDAADV1IdTokenClaims alloc] initWithJSONDictionary:allClaims error:error];
     }
     else if (idTokenVersion == 2.0f)
     {
-        return [[MSIDAADV2IdTokenClaims alloc] initWithJSONDictionary:allClaims error:nil];
+        return [[MSIDAADV2IdTokenClaims alloc] initWithJSONDictionary:allClaims error:error];
     }
 
     return claims;

@@ -29,8 +29,9 @@
                         clientId:(NSString *)clientId
                            scope:(NSString *)scope
                     refreshToken:(NSString *)refreshToken
+                         context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope];
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope context:context];
     if (self)
     {
         NSParameterAssert(refreshToken);

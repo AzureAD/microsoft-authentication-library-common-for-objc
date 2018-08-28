@@ -94,4 +94,22 @@
     return mutableDict;
 }
 
+- (NSArray<NSURLQueryItem *> *)urlQueryItemsArray
+{
+    NSMutableArray<NSURLQueryItem *> *array = [NSMutableArray new];
+    
+    for (id key in self.allKeys)
+    {
+        
+        NSString *value = [self[key] isKindOfClass:NSUUID.class] ?
+        ((NSUUID *)self[key]).UUIDString : [self[key] description];
+        
+        [array addObject:[NSURLQueryItem queryItemWithName:[[key description] msidUrlFormEncode]
+                                                     value:[value description]]];
+    }
+    
+    return array;
+}
+
+
 @end

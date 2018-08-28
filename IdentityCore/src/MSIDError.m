@@ -31,6 +31,7 @@ NSString *MSIDHTTPResponseCodeKey = @"MSIDHTTPResponseCodeKey";
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
 NSString *MSIDKeychainErrorDomain = @"MSIDKeychainErrorDomain";
+NSString *MSIDHttpErrorCodeDomain = @"MSIDHttpErrorCodeDomain";
 
 NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo)
 {
@@ -48,4 +49,67 @@ NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescri
     return [NSError errorWithDomain:domain code:code userInfo:userInfo];
 }
 
+MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode)
+{
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame)
+    {
+        return MSIDErrorServerInvalidRequest;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_client"] == NSOrderedSame)
+    {
+        return MSIDErrorServerInvalidClient;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_scope"] == NSOrderedSame)
+    {
+        return MSIDErrorServerInvalidScope;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame)
+    {
+        return MSIDErrorServerInvalidGrant;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"unauthorized_client"] == NSOrderedSame)
+    {
+        return MSIDErrorServerUnauthorizedClient;
+    }
+    
+    return defaultCode;
+}
 
+NSDictionary* MSIDErrorDomainsAndCodes()
+{
+    return @{ MSIDErrorDomain : @[// General Errors
+                      @(MSIDErrorInternal),
+                      @(MSIDErrorInvalidInternalParameter),
+                      @(MSIDErrorInvalidDeveloperParameter),
+                      @(MSIDErrorUnsupportedFunctionality),
+                      
+                      // Cache Errors
+                      @(MSIDErrorCacheMultipleUsers),
+                      @(MSIDErrorCacheBadFormat),
+                      
+                      // Authority Validation Errors
+                      @(MSIDErrorAuthorityValidation),
+                      
+                      // Interactive flow errors
+                      @(MSIDErrorUserCancel),
+                      @(MSIDErrorSessionCanceledProgrammatically),
+                      @(MSIDErrorInteractiveSessionStartFailure),
+                      @(MSIDErrorInteractiveSessionAlreadyRunning),
+                      @(MSIDErrorNoMainViewController)
+                      ],
+              MSIDOAuthErrorDomain : @[// Server Errors
+                      @(MSIDErrorInteractionRequired),
+                      @(MSIDErrorServerOauth),
+                      @(MSIDErrorServerInvalidResponse),
+                      @(MSIDErrorServerRefreshTokenRejected),
+                      @(MSIDErrorServerInvalidRequest),
+                      @(MSIDErrorServerInvalidClient),
+                      @(MSIDErrorServerInvalidGrant),
+                      @(MSIDErrorServerInvalidScope),
+                      @(MSIDErrorServerInvalidState),
+                      @(MSIDErrorServerNonHttpsRedirect),
+                      @(MSIDErrorServerProtectionPoliciesRequired),
+                      @(MSIDErrorAuthorizationFailed)
+                      ]
+              };
+}

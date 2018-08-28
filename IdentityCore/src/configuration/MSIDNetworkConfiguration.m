@@ -23,41 +23,28 @@
 
 #import "MSIDNetworkConfiguration.h"
 
-static NSTimeInterval const s_defaultTimeout = 30;
-static int const s_defaultRetryCount = 2;
+static NSTimeInterval s_timeout = 30;
+static NSInteger s_retryCount = 2;
 
 @implementation MSIDNetworkConfiguration
 
-- (instancetype)init
++ (void)setTimeout:(NSTimeInterval)timeout
 {
-    self = [super init];
-    if (self)
-    {
-        _timeout = s_defaultTimeout;
-        _retryCount = s_defaultRetryCount;
-    }
-    return self;
+    s_timeout = timeout;
+}
++ (NSTimeInterval)timeout
+{
+    return s_timeout;
 }
 
-- (instancetype)initWithTimeout:(NSTimeInterval)timeout retryCount:(int)retryCount
++(void)setRetryCount:(NSInteger)retryCount
 {
-    self = [super init];
-    if (self)
-    {
-        _timeout = timeout;
-        _retryCount = retryCount;
-    }
-    return self;
+    s_retryCount = retryCount;
 }
 
-- (instancetype)copyWithZone:(NSZone*)zone
++ (NSInteger)retryCount
 {
-    MSIDNetworkConfiguration *configuration = [[MSIDNetworkConfiguration allocWithZone:zone] init];
-    configuration.timeout = _timeout;
-    configuration.retryCount = _retryCount;
-    
-    return configuration;
+    return s_retryCount;
 }
-
 
 @end

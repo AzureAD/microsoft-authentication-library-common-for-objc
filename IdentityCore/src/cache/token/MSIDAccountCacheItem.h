@@ -21,18 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCacheItem.h"
 #import "MSIDAccountType.h"
+#import "MSIDJsonSerializable.h"
 
-@interface MSIDAccountCacheItem : MSIDCacheItem
+@class MSIDClientInfo;
 
-@property (readwrite, nullable) NSString *legacyUserIdentifier;
+@interface MSIDAccountCacheItem : NSObject <NSCopying, MSIDJsonSerializable>
+
 @property (readwrite) MSIDAccountType accountType;
-@property (readwrite, nullable) NSString *firstName;
-@property (readwrite, nullable) NSString *lastName;
+@property (readwrite, nonnull) NSString *homeAccountId;
+@property (readwrite, nonnull) NSString *environment;
+@property (readwrite, nullable) NSString *localAccountId;
+@property (readwrite, nullable) NSString *username;
+@property (readwrite, nullable) NSString *givenName;
+@property (readwrite, nullable) NSString *middleName;
+@property (readwrite, nullable) NSString *familyName;
+@property (readwrite, nullable) NSString *name;
+@property (readwrite, nullable) NSString *realm;
+@property (readwrite, nullable) MSIDClientInfo *clientInfo;
+@property (readwrite, nullable) NSString *alternativeAccountId;
 
 @property (readwrite, nullable) NSDictionary *additionalAccountFields;
 
 - (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
+
+- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
+                     environment:(nullable NSString *)environment
+              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
 
 @end

@@ -27,6 +27,12 @@
 MSIDTestAccountProvider MSIDTestAccountProviderWW = @"AzureCloud";
 /*! Black Forest is an AMSID account hosted in the Black Forest sovereign cloud (.de) */
 MSIDTestAccountProvider MSIDTestAccountProviderBlackForest = @"AzureGermanyCloud";
+/*! MSA is a Microsoft consumer account */
+MSIDTestAccountProvider MSIDTestAccountProviderMSA = @"MSA";
+/*! B2C is a Microsoft B2C account */
+MSIDTestAccountProvider MSIDTestAccountProviderB2C = @"B2C";
+/*! B2C configured to support MSA accounts */
+MSIDTestAccountProvider MSIDTestAccountProviderB2CMSA = @"B2CMSA";
 /*! A WW account federated using MSIDFSv2 (these accounts can also be used for on-prem tests) */
 MSIDTestAccountProvider MSIDTestAccountProviderADfsv2 = @"ADFSv2";
 /*! A WW account federated using MSIDFSv3 (these accounts can also be used for on-prem tests) */
@@ -188,6 +194,11 @@ MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
     for (NSString *queryKey in [self.additionalQueryParameters allKeys])
     {
         [queryItems addObject:[[NSURLQueryItem alloc] initWithName:queryKey value:self.additionalQueryParameters[queryKey]]];
+    }
+
+    if (self.appName)
+    {
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"AppName" value:self.appName]];
     }
 
     components.queryItems = queryItems;

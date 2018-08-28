@@ -25,9 +25,33 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebViewInteracting.h"
+#if !MSID_EXCLUDE_WEBKIT
 
-@interface MSIDOAuth2EmbeddedWebviewController : NSObject <MSIDWebviewInteracting>
+#import <Foundation/Foundation.h>
+#import <WebKit/WebKit.h>
+#import "MSIDWebviewInteracting.h"
+#import "MSIDWebviewUIController.h"
+#import "MSIDWebviewConfiguration.h"
+
+@interface MSIDOAuth2EmbeddedWebviewController :
+MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
+
+- (id)init NS_UNAVAILABLE;
+- (id)initWithStartURL:(NSURL *)startURL
+                endURL:(NSURL *)endURL
+               webview:(WKWebView *)webview
+         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+               context:(id<MSIDRequestContext>)context;
+
+- (void)loadRequest:(NSURLRequest *)request;
+- (void)completeWebAuthWithURL:(NSURL *)endURL;
+- (BOOL)endWebAuthWithURL:(NSURL *)endURL error:(NSError *)error;
+- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
+                                webview:(WKWebView *)webView
+                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
+
+@property (readonly) NSURL *startURL;
 
 @end
+
+#endif

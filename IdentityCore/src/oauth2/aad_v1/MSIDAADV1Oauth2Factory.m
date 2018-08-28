@@ -28,6 +28,17 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
+#import "MSIDWebviewConfiguration.h"
+
+#import "MSIDAADV1IdTokenClaims.h"
+#import "MSIDOauth2Factory+Internal.h"
+#import "MSIDAuthority.h"
+#import "MSIDIdToken.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthority.h"
+#import "MSIDOAuth2Constants.h"
+
+#import "MSIDAADV1WebviewFactory.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -96,15 +107,28 @@
         if (response.error)
         {
             MSIDErrorCode errorCode = fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
+            MSIDErrorCode oauthErrorCode = MSIDErrorCodeForOAuthError(response.error, errorCode);
 
-            *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     errorCode,
-                                     response.errorDescription,
-                                     response.error,
-                                     nil,
-                                     nil,
-                                     context.correlationId,
-                                     nil);
+            /* This is a special error case for True MAM,
+             where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
+
+            if (oauthErrorCode == MSIDErrorServerUnauthorizedClient
+                && [response.suberror isEqualToString:MSID_PROTECTION_POLICY_REQUIRED])
+            {
+                errorCode = MSIDErrorServerProtectionPoliciesRequired;
+            }
+
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                         errorCode,
+                                         response.errorDescription,
+                                         response.error,
+                                         response.suberror,
+                                         nil,
+                                         context.correlationId,
+                                         nil);
+            }
         }
 
         return result;
@@ -121,45 +145,78 @@
 
 #pragma mark - Tokens
 
-- (MSIDAccessToken *)accessTokenFromResponse:(MSIDAADV1TokenResponse *)response
-                                     configuration:(MSIDConfiguration *)configuration
+- (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
+           fromResponse:(MSIDAADV1TokenResponse *)response
+          configuration:(MSIDConfiguration *)configuration
 {
-    if (![self checkResponseClass:response context:nil error:nil])
+    BOOL result = [super fillAccessToken:accessToken fromResponse:response configuration:configuration];
+
+    if (!result)
     {
-        return nil;
+        return NO;
     }
 
-    MSIDAccessToken *accessToken = [super accessTokenFromResponse:response configuration:configuration];
     accessToken.resource = response.target ? response.target : configuration.target;
-
-    return accessToken;
+    return YES;
 }
 
-- (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response
-                                                   configuration:(MSIDConfiguration *)configuration
+- (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken
+         fromResponse:(MSIDAADTokenResponse *)response
+        configuration:(MSIDConfiguration *)configuration
 {
-    if (![self checkResponseClass:response context:nil error:nil])
+    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
     {
-        return nil;
+        return NO;
     }
 
-    MSIDLegacySingleResourceToken *legacyToken = [super legacyTokenFromResponse:response configuration:configuration];
-    legacyToken.resource = response.target ? response.target : configuration.target;
-    return legacyToken;
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return NO;
+    }
+
+    return YES;
 }
 
-#pragma mark - Webview controllers
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
-                                                           Webview:(WKWebView *)webview
+- (BOOL)fillAccount:(MSIDAccount *)account
+       fromResponse:(MSIDTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
 {
-    // Create MSIDEmbeddedWebviewRequest and create EmbeddedWebviewController
-    return nil;
+    if (![super fillAccount:account fromResponse:response configuration:configuration])
+    {
+        return NO;
+    }
+
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return NO;
+    }
+
+    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:response.idTokenObj.realm];
+    return YES;
 }
 
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
+- (BOOL)fillIDToken:(MSIDIdToken *)token
+       fromResponse:(MSIDTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
 {
-    // Create MSIDSystemWebviewRequest and create SystemWebviewController
-    return nil;
+    if (![super fillIDToken:token fromResponse:response configuration:configuration])
+    {
+        return NO;
+    }
+
+    token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
+    return YES;
+}
+
+#pragma mark - Webview
+#pragma mark - Webview
+- (MSIDWebviewFactory *)webviewFactory
+{
+    if (!_webviewFactory)
+    {
+        _webviewFactory = [[MSIDAADV1WebviewFactory alloc] init];
+    }
+    return _webviewFactory;
 }
 
 @end

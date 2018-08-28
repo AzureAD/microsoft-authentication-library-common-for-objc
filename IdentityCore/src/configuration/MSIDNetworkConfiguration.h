@@ -24,11 +24,9 @@
 #import <Foundation/Foundation.h>
 
 
-@interface MSIDNetworkConfiguration : NSObject <NSCopying>
+@interface MSIDNetworkConfiguration : NSObject
 
-@property (readwrite) NSTimeInterval timeout;
-@property (readwrite) int retryCount;
-
-- (instancetype)initWithTimeout:(NSTimeInterval)timeout retryCount:(int)retryCount;
+@property (class, nonatomic, readwrite) NSTimeInterval timeout;
+@property (class, nonatomic, readwrite) NSInteger retryCount;
 
 @end

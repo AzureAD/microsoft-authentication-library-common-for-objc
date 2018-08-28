@@ -32,7 +32,7 @@
 @property (readonly) NSString *uid;
 @property (readonly) NSString *utid;
 @property (readonly) NSString *rawClientInfo;
-@property (readonly) NSString *userIdentifier;
+@property (readonly) NSString *accountIdentifier;
 
 - (id)initWithRawClientInfo:(NSString *)rawClientInfo
                       error:(NSError *__autoreleasing *)error;

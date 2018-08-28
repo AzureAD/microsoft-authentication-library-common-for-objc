@@ -27,6 +27,7 @@
 @interface MSIDTestAccountsProvider()
 
 @property (nonatomic, strong) NSMutableDictionary *cachedConfigurations;
+@property (nonatomic, strong) NSDictionary *appInstallLinks;
 @property (nonatomic, strong) KeyvaultAuthentication *keyvaultAuthentication;
 @property (nonatomic, strong) NSString *apiPath;
 
@@ -37,6 +38,7 @@
 - (instancetype)initWithClientCertificateContents:(NSString *)certificate
                               certificatePassword:(NSString *)password
                          additionalConfigurations:(NSDictionary *)additionalConfigurations
+                                  appInstallLinks:(NSDictionary *)appInstallLinks
                                           apiPath:(NSString *)apiPath
 {
     self = [super init];
@@ -47,6 +49,7 @@
         _keyvaultAuthentication = [[KeyvaultAuthentication alloc] initWithCertContents:certificate certPassword:password];
         _apiPath = apiPath;
         [_cachedConfigurations addEntriesFromDictionary:additionalConfigurations];
+        _appInstallLinks = appInstallLinks;
     }
 
     return self;
@@ -90,8 +93,14 @@
     return [self initWithClientCertificateContents:encodedCertificate
                                certificatePassword:certificatePassword
                           additionalConfigurations:additionalConfsDictionary
+                                   appInstallLinks:configurationDictionary[@"app_install_urls"]
                                            apiPath:apiPath];
 
+}
+
+- (NSDictionary *)appInstallForConfiguration:(NSString *)appId
+{
+    return _appInstallLinks[appId];
 }
 
 - (void)configurationWithRequest:(MSIDTestAutomationConfigurationRequest *)request

@@ -51,10 +51,10 @@
                certificatePassword:(NSString *)password
                  completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler
 {
-    MSIDLegacyTokenCacheKey *cacheKey = [MSIDLegacyTokenCacheKey keyWithAuthority:[NSURL URLWithString:authority]
-                                                                         clientId:clientId
-                                                                         resource:resource
-                                                                     legacyUserId:clientId];
+    MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authority]
+                                                                                  clientId:clientId
+                                                                                  resource:resource
+                                                                              legacyUserId:clientId];
     
     MSIDAccessToken *accessToken = self.accessTokenCache[cacheKey];
     

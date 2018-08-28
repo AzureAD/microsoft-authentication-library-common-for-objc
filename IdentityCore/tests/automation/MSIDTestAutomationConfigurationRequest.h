@@ -26,10 +26,16 @@
 /*! MSIDTestAccountProvider is the federation provider of the AMSID account, or none in the case of
  entirely in cloud accounts like WW and Black Forest. They are mutally exclusive of each other. */
 typedef NSString *MSIDTestAccountProvider;
+/*! B2C is a Microsoft B2C account */
+extern MSIDTestAccountProvider MSIDTestAccountProviderB2C;
+/*! B2C configured to support MSA accounts */
+extern MSIDTestAccountProvider MSIDTestAccountProviderB2CMSA;
 /*! WW is a world wide entirely on-cloud account */
 extern MSIDTestAccountProvider MSIDTestAccountProviderWW;
 /*! Black Forest is an AMSID account hosted in the Black Forest sovereign cloud (.de) */
 extern MSIDTestAccountProvider MSIDTestAccountProviderBlackForest;
+/*! MSA is a Microsoft consumer account */
+extern MSIDTestAccountProvider MSIDTestAccountProviderMSA;
 /*! A WW account federated using MSIDFSv2 (these accounts can also be used for on-prem tests) */
 extern MSIDTestAccountProvider MSIDTestAccountProviderADfsv2;
 /*! A WW account federated using MSIDFSv3 (these accounts can also be used for on-prem tests) */
@@ -74,6 +80,7 @@ extern MSIDAppVersion MSIDAppVersionOnPrem;
 @property (nonatomic) NSArray<MSIDTestAccountFeature> *accountFeatures;
 @property (nonatomic) BOOL needsMultipleUsers;
 @property (nonatomic) MSIDAppVersion appVersion;
+@property (nonatomic) NSString *appName;
 @property (nonatomic) NSDictionary *additionalQueryParameters;
 
 - (NSURL *)requestURLWithAPIPath:(NSString *)apiPath;

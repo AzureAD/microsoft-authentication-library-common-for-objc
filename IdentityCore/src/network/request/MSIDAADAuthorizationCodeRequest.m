@@ -32,6 +32,7 @@
                      redirectUri:(NSString *)redirectUri
                            scope:(NSString *)scope
                        loginHint:(NSString *)loginHint
+                         context:(nullable id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)
@@ -39,6 +40,8 @@
         NSParameterAssert(endpoint);
         NSParameterAssert(clientId);
         NSParameterAssert(redirectUri);
+        
+        self.context =  context;
         
         NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[MSID_OAUTH2_CLIENT_ID] = clientId;

@@ -172,6 +172,164 @@
     XCTAssertEqualObjects(tenant, @"contoso.onmicrosoft.com");
 }
 
+#pragma mark - Equivalent authority
 
+- (void)testMsidIsEquivalentAuthority_whenSameAuthority_shouldReturnTrue
+{
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    XCTAssertTrue([authority msidIsEquivalentAuthority:authority]);
+}
+
+- (void)testMsidIsEquivalentAuthority_whenEquivalentAuthority_shouldReturnTrue
+{
+    NSURL *authority1 = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSURL *authority2 = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com?test=test"];
+    XCTAssertTrue([authority1 msidIsEquivalentAuthority:authority2]);
+}
+
+- (void)testMsidIsEquivalentAuthority_whenEquivalentAuthorityButSchemeDifferent_shouldReturnFalse
+{
+    NSURL *authority1 = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com"];
+    NSURL *authority2 = [NSURL URLWithString:@"http://login.microsoftonline.com:88/contoso.com?test=test"];
+    XCTAssertFalse([authority1 msidIsEquivalentAuthority:authority2]);
+}
+
+- (void)testMsidIsEquivalentAuthority_whenEquivalentAuthorityButHostDifferent_shouldReturnFalse
+{
+    NSURL *authority1 = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSURL *authority2 = [NSURL URLWithString:@"https://login.windows.net/contoso.com?test=test"];
+    XCTAssertFalse([authority1 msidIsEquivalentAuthority:authority2]);
+}
+
+- (void)testMsidIsEquivalentAuthority_whenEquivalentAuthorityButPortDifferent_shouldReturnFalse
+{
+    NSURL *authority1 = [NSURL URLWithString:@"https://login.microsoftonline.com:89/contoso.com"];
+    NSURL *authority2 = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?test=test"];
+    XCTAssertFalse([authority1 msidIsEquivalentAuthority:authority2]);
+}
+
+- (void)testMsidIsEquivalentAuthority_whenEquivalentAuthorityButPathDifferent_shouldReturnFalse
+{
+    NSURL *authority1 = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com"];
+    NSURL *authority2 = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso2.com?test=test"];
+    XCTAssertFalse([authority1 msidIsEquivalentAuthority:authority2]);
+}
+
+#pragma mark - Equivalent authority host
+
+- (void)testMsidIsEquivalentAuthorityHost_whenSameAuthority_shouldReturnTrue
+{
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    XCTAssertTrue([authority msidIsEquivalentAuthorityHost:authority]);
+}
+
+- (void)testMsidIsEquivalentAuthorityHost_whenEquivalentAuthority_shouldReturnTrue
+{
+    NSURL *authority1 = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSURL *authority2 = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com?test=test"];
+    XCTAssertTrue([authority1 msidIsEquivalentAuthorityHost:authority2]);
+}
+
+- (void)testMsidIsEquivalentAuthorityHost_whenEquivalentAuthorityButSchemeDifferent_shouldReturnFalse
+{
+    NSURL *authority1 = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com"];
+    NSURL *authority2 = [NSURL URLWithString:@"http://login.microsoftonline.com:88/contoso.com?test=test"];
+    XCTAssertFalse([authority1 msidIsEquivalentAuthorityHost:authority2]);
+}
+
+- (void)testMsidIsEquivalentAuthorityHost_whenEquivalentAuthorityButHostDifferent_shouldReturnFalse
+{
+    NSURL *authority1 = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSURL *authority2 = [NSURL URLWithString:@"https://login.windows.net/contoso.com?test=test"];
+    XCTAssertFalse([authority1 msidIsEquivalentAuthorityHost:authority2]);
+}
+
+- (void)testMsidIsEquivalentAuthorityHost_whenEquivalentAuthorityButPortDifferent_shouldReturnFalse
+{
+    NSURL *authority1 = [NSURL URLWithString:@"https://login.microsoftonline.com:89/contoso.com"];
+    NSURL *authority2 = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?test=test"];
+    XCTAssertFalse([authority1 msidIsEquivalentAuthorityHost:authority2]);
+}
+
+- (void)testMsidIsEquivalentAuthorityHost_whenEquivalentAuthorityButPathDifferent_shouldReturnTrue
+{
+    NSURL *authority1 = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com"];
+    NSURL *authority2 = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso2.com?test=test"];
+    XCTAssertTrue([authority1 msidIsEquivalentAuthorityHost:authority2]);
+}
+
+#pragma mark - Authority with cloud instance host name
+
+- (void)testMsidAuthorityWithCloudInstanceHostname_whenPassNil_shouldReturnOriginal
+{
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:nil];
+    XCTAssertEqualObjects(authority, authorityWithCloudName);
+}
+
+- (void)testMsidAuthorityWithCloudInstanceHostname_whenPassInEmptyString_shouldReturnOriginal
+{
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"  "];
+    XCTAssertEqualObjects(authority, authorityWithCloudName);
+}
+
+- (void)testMsidAuthorityWithCloudInstanceHostname_whenCommon_shouldSwap
+{
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://login.microsoftonline.de/common");
+}
+
+- (void)testMsidAuthorityWithCloudInstanceHostname_whenWithTenant_shouldSwap
+{
+    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/b960c013-d381-403c-8d4d-939edac0d9ea"];
+    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://login.microsoftonline.de/b960c013-d381-403c-8d4d-939edac0d9ea");
+}
+                        
+- (void)testMsidAuthorityWithCloudInstanceHostname_whenLoginWindowsNet_shouldSwap
+{
+    NSURL *authority = [NSURL URLWithString:@"https://login.windows.net/common"];
+    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://login.microsoftonline.de/common");
+}
+                        
+- (void)testMsidAuthorityWithCloudInstanceHostname_whenLoginSts_shouldSwap
+{
+    NSURL *authority = [NSURL URLWithString:@"https://sts.microsoft.com/common"];
+    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://login.microsoftonline.de/common");
+}
+                        
+- (void)testMsidAuthorityWithCloudInstanceHostname_whenNoHost_shouldReturnSame
+{
+    NSURL *authority = [NSURL URLWithString:@"https://"];
+    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://");
+}
+    
+#pragma mark - add query parameters
+
+- (void)testmsidAddParametersToUrl_whenNilParameters_shouldReturnAsIs
+{
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?key1=value1"];
+    XCTAssertEqualObjects(url, [NSURL msidAddParameters:nil toUrl:url]);
+}
+
+- (void)testmsidAddParametersToUrl_whenEmptyParameters_shouldReturnAsIs
+{
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?key1=value1"];
+    XCTAssertEqualObjects(url, [NSURL msidAddParameters:@{} toUrl:url]);
+}
+
+- (void)testmsidAddParametersToUrl_whenParametersNotNil_shouldAddParameters
+{
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?k1=v1"];
+    NSURL *newUrl = [NSURL msidAddParameters:@{@"k2":@"v2", @"k3":@"v3"} toUrl:url];
+    NSURL *expectedUrl = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?k1=v1&k2=v2&k3=v3"];
+    XCTAssertEqualObjects(newUrl.msidQueryParameters, expectedUrl.msidQueryParameters);
+    XCTAssertTrue([newUrl msidIsEquivalentAuthority:expectedUrl]);
+}
 
 @end
