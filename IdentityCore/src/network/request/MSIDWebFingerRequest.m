@@ -25,7 +25,7 @@
 @implementation MSIDWebFingerRequest
 
 - (instancetype)initWithIssuer:(NSURL *)issuer
-                     authority:(NSURL *)authority;
+                     authority:(NSURL *)authority
 {
     self = [super init];
     if (self)

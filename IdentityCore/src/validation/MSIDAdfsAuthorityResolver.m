@@ -113,9 +113,9 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
                            context:(id<MSIDRequestContext>)context
                    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    __auto_type drsPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeOnPrems];
-    drsPremRequest.context = context;
-    [drsPremRequest sendWithBlock:^(id response, NSError *error)
+    __auto_type drsOnPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeOnPrems];
+    drsOnPremRequest.context = context;
+    [drsOnPremRequest sendWithBlock:^(id response, NSError *error)
      {
          if (response)
          {
