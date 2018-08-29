@@ -36,7 +36,7 @@
                           error:(NSError **)error
 {
     NSError *jsonError;
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
+    NSDictionary *jsonObject = [super responseObjectForResponse:httpResponse data:data context:context error:&jsonError];
 
     if (jsonError)
     {
