@@ -23,6 +23,7 @@
 
 @interface NSDictionary (MSIDExtensions)
 
++ (NSDictionary *)msidDictionaryFromString:(NSString *)string;
 + (NSDictionary *)msidURLFormDecode:(NSString *)string;
 - (NSString *)msidURLFormEncode;
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;

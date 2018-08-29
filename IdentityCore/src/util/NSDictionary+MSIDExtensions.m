@@ -27,6 +27,27 @@
 
 @implementation NSDictionary (MSIDExtensions)
 
++ (NSDictionary *)msidDictionaryFromString:(NSString *)query
+{
+    NSArray *queries = [query componentsSeparatedByString:@"&"];
+    NSMutableDictionary *queryDict = [NSMutableDictionary new];
+    
+    for (NSString *query in queries)
+    {
+        NSArray *queryElements = [query componentsSeparatedByString:@"="];
+        if (queryElements.count > 2)
+        {
+            MSID_LOG_WARN(nil, @"Query parameter must be a form key=value");
+            continue;
+        }
+        
+        [queryDict setValue:[NSString msidIsStringNilOrBlank:queryElements[1]] ? @"" : queryElements[1]
+                     forKey:queryElements[0]];
+    }
+    
+    return queryDict;
+}
+
 // Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
 // Always returns a dictionary, even if the string is nil, empty or contains no pairs
 + (NSDictionary *)msidURLFormDecode:(NSString *)string
