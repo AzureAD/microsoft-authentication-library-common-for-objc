@@ -212,7 +212,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertEqualObjects(returnError.domain, MSIDHttpErrorCodeDomain);
-    XCTAssertEqual(returnError.code, MSIDErrorServerInvalidRequest);
+    XCTAssertEqual(returnError.code, MSIDErrorServerUnhandledResponse);
     XCTAssertEqualObjects(returnError.userInfo[MSIDHTTPResponseCodeKey], @"404");
 }
 

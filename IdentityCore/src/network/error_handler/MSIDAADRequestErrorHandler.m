@@ -71,7 +71,7 @@
     NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
     [additionalInfo setValue:httpResponse.allHeaderFields forKey:MSIDHTTPHeadersKey];
     [additionalInfo setValue:[NSString stringWithFormat: @"%ld", (long)httpResponse.statusCode]          forKey:MSIDHTTPResponseCodeKey];
-    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerInvalidRequest, errorData, nil, nil, nil, context.correlationId, additionalInfo);
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorData, nil, nil, nil, context.correlationId, additionalInfo);
     
     if (completionBlock) { completionBlock(nil, httpError); }
 }

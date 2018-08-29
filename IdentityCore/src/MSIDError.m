@@ -109,7 +109,8 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorServerInvalidState),
                       @(MSIDErrorServerNonHttpsRedirect),
                       @(MSIDErrorServerProtectionPoliciesRequired),
-                      @(MSIDErrorAuthorizationFailed)
+                      @(MSIDErrorAuthorizationFailed),
+                      @(MSIDErrorServerUnhandledResponse)
                       ]
               };
 }
