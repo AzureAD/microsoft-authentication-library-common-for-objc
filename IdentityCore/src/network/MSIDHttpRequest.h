@@ -31,10 +31,6 @@
 @protocol MSIDHttpRequestErrorHandling;
 @class MSIDURLSessionManager;
 
-/**
- Important: You need to call `finishAndInvalidate` method in `completionBlock` of `sendWithBlock:`.
- If you don’t call, the app leaks memory until it exits.
- */
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
 {
     @protected NSDictionary<NSString *, NSString *> *_parameters;
