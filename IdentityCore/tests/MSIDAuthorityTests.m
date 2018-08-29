@@ -272,16 +272,15 @@
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"'authority' is a required parameter and must not be nil or empty.");
 }
 
-- (void)testNormalizeAuthority_whenAuthorityIsDeprecated_shouldReturnError
+- (void)testNormalizeAuthority_whenAuthorityIsWindows_shouldReturnNormalizedAuthority
 {
-    __auto_type authority = [@"http://login.windows.net" msidUrl];
+    __auto_type authority = [@"https://login.windows.net/common/qwe" msidUrl];
     NSError *error;
     
     __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
     
-    XCTAssertNil(updatedAuthority);
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"login.windows.net has been deprecated. Use login.microsoftonline.com instead.");
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.windows.net/common" msidUrl]);
+    XCTAssertNil(error);
 }
 
 - (void)testNormalizeAuthority_whenAuthoritySchemeIsNotHttps_shouldReturnError
