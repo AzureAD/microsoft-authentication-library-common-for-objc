@@ -147,7 +147,7 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
         NSURL *targetURL = [NSURL URLWithString:target];
         
         if ([rel caseInsensitiveCompare:s_kTrustedRelation] == NSOrderedSame &&
-            [targetURL msidIsEquivalentAuthority:authority])
+            [targetURL msidIsEquivalentAuthorityHost:authority])
         {
             return YES;
         }
