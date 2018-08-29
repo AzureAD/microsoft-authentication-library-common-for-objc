@@ -26,7 +26,8 @@
 @interface MSIDDRSDiscoveryRequest : MSIDHttpRequest
 
 - (instancetype _Nullable)initWithDomain:(nonnull NSString *)domain
-                                adfsType:(MSIDADFSType)adfsType NS_DESIGNATED_INITIALIZER;
+                                adfsType:(MSIDADFSType)adfsType
+                                 context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable)init NS_UNAVAILABLE;
 + (instancetype _Nullable)new NS_UNAVAILABLE;

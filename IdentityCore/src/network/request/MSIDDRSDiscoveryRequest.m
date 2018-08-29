@@ -76,6 +76,7 @@
 
 - (instancetype)initWithDomain:(NSString *)domain
                       adfsType:(MSIDADFSType)adfsType
+                       context:(id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)
@@ -84,6 +85,7 @@
         
         _domain = domain;
         _adfsType = adfsType;
+        _context = context;
         
         NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[@"api-version"] = MSIDAADNetworkConfiguration.defaultConfiguration.drsDiscoveryApiVersion;

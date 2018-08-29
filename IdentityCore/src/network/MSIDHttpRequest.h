@@ -39,6 +39,7 @@
     @protected id<MSIDResponseSerialization> _responseSerializer;
     @protected id<MSIDHttpRequestTelemetryHandling> _telemetry;
     @protected id<MSIDHttpRequestErrorHandling> _errorHandler;
+    @protected id<MSIDRequestContext> _context;
 }
 
 @property (nonatomic, nonnull) MSIDURLSessionManager *sessionManager;

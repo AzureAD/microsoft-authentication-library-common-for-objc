@@ -113,8 +113,7 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
                            context:(id<MSIDRequestContext>)context
                    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    __auto_type drsOnPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeOnPrems];
-    drsOnPremRequest.context = context;
+    __auto_type drsOnPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeOnPrems context:context];
     [drsOnPremRequest sendWithBlock:^(id response, NSError *error)
      {
          if (response)
@@ -123,7 +122,7 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
              return;
          }
          
-         __auto_type drsCloudRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeCloud];
+         __auto_type drsCloudRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeCloud context:context];
          drsCloudRequest.context = context;
          [drsCloudRequest sendWithBlock:^(id response, NSError *error)
           {
