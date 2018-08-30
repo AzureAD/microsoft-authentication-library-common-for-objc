@@ -27,9 +27,27 @@
 
 @implementation NSDictionary (MSIDExtensions)
 
-+ (NSDictionary *)msidDictionaryFromString:(NSString *)query
++ (NSDictionary *)msidDictionaryFromString:(NSString *)string
 {
-    NSArray *queries = [query componentsSeparatedByString:@"&"];
+    return [self msidDictionaryFromString:string decode:NO];
+}
+
+// Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
+// Always returns a dictionary, even if the string is nil, empty or contains no pairs
++ (NSDictionary *)msidURLFormDecode:(NSString *)string
+{
+    return [self msidDictionaryFromString:string decode:YES];
+}
+
++ (NSDictionary *)msidDictionaryFromString:(NSString *)string
+                                    decode:(BOOL)decode
+{
+    if (!string)
+    {
+        return nil;
+    }
+    
+    NSArray *queries = [string componentsSeparatedByString:@"&"];
     NSMutableDictionary *queryDict = [NSMutableDictionary new];
     
     for (NSString *query in queries)
@@ -41,42 +59,23 @@
             continue;
         }
         
-        [queryDict setValue:[NSString msidIsStringNilOrBlank:queryElements[1]] ? @"" : queryElements[1]
-                     forKey:queryElements[0]];
+        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidUrlFormDecode : [queryElements[0] msidTrimmedString];
+        if (!key)
+        {
+            MSID_LOG_WARN(nil, @"Query parameter must have a key");
+            continue;
+        }
+        
+        NSString *value = @"";
+        if (queryElements.count == 2)
+        {
+            value = decode ? [queryElements[1] msidTrimmedString].msidUrlFormDecode : [queryElements[1] msidTrimmedString];
+        }
+        
+        [queryDict setValue:value forKey:key];
     }
     
     return queryDict;
-}
-
-// Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
-// Always returns a dictionary, even if the string is nil, empty or contains no pairs
-+ (NSDictionary *)msidURLFormDecode:(NSString *)string
-{
-    if (!string)
-    {
-        return nil;
-    }
-    
-    NSMutableDictionary *configuration = [[NSMutableDictionary alloc] init];
-    
-    if ( nil != string && string.length != 0 )
-    {
-        NSArray *pairs = [string componentsSeparatedByString:@"&"];
-        
-        for ( NSString *pair in pairs )
-        {
-            NSArray *elements = [pair componentsSeparatedByString:@"="];
-            
-            if ( elements != nil && elements.count == 2 )
-            {
-                NSString *key     = [[[elements objectAtIndex:0] msidTrimmedString] msidUrlFormDecode];
-                NSString *value   = [[[elements objectAtIndex:1] msidTrimmedString] msidUrlFormDecode];
-                if ( nil != key && key.length != 0 )
-                    [configuration setObject:value forKey:key];
-            }
-        }
-    }
-    return configuration;
 }
 
 // Encodes a dictionary consisting of a set of name/values pairs that are strings to www-form-urlencoded

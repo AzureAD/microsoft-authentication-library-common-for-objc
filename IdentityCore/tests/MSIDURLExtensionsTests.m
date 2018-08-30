@@ -39,9 +39,10 @@
     [super tearDown];
 }
 
+
 //tests the fragment extraction. Does not test any other URL logic,
 //which should have been handled by the NSURL class
-- (void)testFragmentParameters
+- (void)DISABLED_testFragmentParameters
 {
     //Missing or invalid fragment:
     XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com"]).msidFragmentParameters);
