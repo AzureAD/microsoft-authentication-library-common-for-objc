@@ -698,6 +698,54 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+- (void)testDiscoverAuthority_whenValidCloudADFSWithNilResponseAndErrorAuthorityValidateYes_shouldReturnError
+{
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type upn = @"user@microsoft.com";
+    
+    // On Prem Drs Response
+    __auto_type requestUrl = [@"https://enterpriseregistration.microsoft.com/enrollmentserver/contract?x-client-Ver=1.0.0&api-version=1.0" msidUrl];
+    __auto_type error = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:nil];
+    MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:requestUrl
+                                                         respondWithError:error];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    responseWithError->_requestHeaders = headers;
+    [MSIDTestURLSession addResponse:responseWithError];
+
+    // Cloud Drs Response
+    requestUrl = [@"https://enterpriseregistration.windows.net/microsoft.com/enrollmentserver/contract?api-version=1.0&x-client-Ver=1.0.0" msidUrl];
+    responseWithError = [MSIDTestURLResponse request:requestUrl
+                                    respondWithError:error];
+    responseWithError->_requestHeaders = headers;
+    [MSIDTestURLSession addResponse:responseWithError];
+    
+    // Web finger response.
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
+    __auto_type response = [MSIDTestURLResponse request:webFingerRequestUrl
+                                    reponse:httpResponse];
+    __auto_type responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
+                                                @"href" : @"https://login.windows.com/adfs/qwe"}]};
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
+    [MSIDAuthority resolveAuthority:authority
+                  userPrincipalName:upn
+                           validate:YES
+                            context:nil
+                    completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
 - (void)testDiscoverAuthority_whenValidateNo_shouldReturnErrorNil
 {
     __auto_type authority = [@"https://login.windows.com/adfs/qwe" msidUrl];

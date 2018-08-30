@@ -77,6 +77,12 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
     
     [self sendDrsDiscoveryWithDomain:domain context:context completionBlock:^(NSURL *issuer, NSError *error)
      {
+         if (error)
+         {
+             if (completionBlock) completionBlock(nil, NO, error);
+             return;
+         }
+         
          __auto_type webFingerRequest = [[MSIDWebFingerRequest alloc] initWithIssuer:issuer
                                                                            authority:authority];
          [webFingerRequest sendWithBlock:^(id response, NSError *error)
@@ -123,14 +129,9 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
          }
          
          __auto_type drsCloudRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeCloud context:context];
-         drsCloudRequest.context = context;
          [drsCloudRequest sendWithBlock:^(id response, NSError *error)
           {
-              if (response)
-              {
-                  if (completionBlock) completionBlock(response, error);
-                  return;
-              }
+              if (completionBlock) completionBlock(response, error);
           }];
      }];
 }
