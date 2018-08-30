@@ -33,7 +33,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    MSID_LOG_VERBOSE(nil, @"%@ - %@. Previous challenge failure count: %ld", @"session:didReceiveChallenge:completionHandler", authMethod, (long)challenge.previousFailureCount);
+    MSID_LOG_VERBOSE(nil, @"%@ - %@. Host: %@. Previous challenge failure count: %ld", @"session:didReceiveChallenge:completionHandler", authMethod, challenge.protectionSpace.host, (long)challenge.previousFailureCount);
     
     if (self.sessionDidReceiveAuthenticationChallengeBlock)
     {
