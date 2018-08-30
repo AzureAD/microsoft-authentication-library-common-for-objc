@@ -54,9 +54,28 @@
     
     MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider = [MSIDAADEndpointProvider new];
     MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    
+    [MSIDTestURLSession clearResponses];
 }
 
 #pragma mark - loadOpenIdConfigurationInfo
+
+- (void)testLoadOpenIdConfigurationInfo_whenUrlNil_shouldReturnError
+{
+    NSURL *openIdConfigurationUrl = nil;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"GET OpenId Configuration Request"];
+    [MSIDAuthority loadOpenIdConfigurationInfo:openIdConfigurationUrl context:nil completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+     {
+         XCTAssertNotNil(error);
+         XCTAssertNil(metadata);
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
+}
 
 - (void)testLoadOpenIdConfigurationInfo_whenSent2Times_shouldUseCacheFor2ndRequest
 {
@@ -102,6 +121,8 @@
      }];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testLoadOpenIdConfigurationInfo_whenSent2TimesAnd1stResponseWasWithError_shouldNotUseCacheFor2ndRequest
@@ -149,6 +170,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 #pragma mark - discoverAuthority, B2C
@@ -258,6 +281,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsNotKnown_shouldReturnErrorNil
@@ -299,6 +324,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenSent2Times_shouldUseCacheFor2ndRequest
@@ -356,6 +383,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenSent2TimesAnd1stResponseWasWithError_shouldNotUseCacheFor2ndRequest
@@ -419,6 +448,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsInvalid_shouldReturnError
@@ -450,6 +481,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenAuthroityIsInvalid_shoulStoreInvalidRecordInCache
@@ -498,6 +531,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnownAADApiVersionV2_shouldReturnErrorNil
@@ -540,6 +575,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 #pragma mark - discoverAuthority, ADFS
@@ -563,6 +600,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenValidOnPremADFSAuthorityValidateYes_shouldReturnErrorNil
@@ -605,6 +644,8 @@
      }];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenWebFingerRequestFailed_shouldReturnError
@@ -646,6 +687,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenValidCloudADFSAuthorityValidateYes_shouldReturnErrorNil
@@ -696,6 +739,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenValidCloudADFSWithNilResponseAndErrorAuthorityValidateYes_shouldReturnError
@@ -720,16 +765,6 @@
     responseWithError->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:responseWithError];
     
-    // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs/qwe" msidUrl];
-    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
-    __auto_type response = [MSIDTestURLResponse request:webFingerRequestUrl
-                                    reponse:httpResponse];
-    __auto_type responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
-                                                @"href" : @"https://login.windows.com/adfs/qwe"}]};
-    [response setResponseJSON:responseJson];
-    [MSIDTestURLSession addResponse:response];
-    
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover ADFS Authority"];
     [MSIDAuthority resolveAuthority:authority
                   userPrincipalName:upn
@@ -744,6 +779,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenValidateNo_shouldReturnErrorNil
@@ -825,6 +862,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenWebFingerResponseShowsThatAuthorityIsNotValid_shouldReturnError
@@ -867,6 +906,8 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
 - (void)testDiscoverAuthority_whenValidateYesUpnNil_shouldReturnError

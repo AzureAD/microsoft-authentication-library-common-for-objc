@@ -270,6 +270,13 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
 {
     NSParameterAssert(completionBlock);
     
+    if (openIdConfigurationEndpoint == nil)
+    {
+        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"openIdConfigurationEndpoint is nil.", nil, nil, nil, context.correlationId, nil);
+        completionBlock(nil, error);
+        return;
+    }
+    
     __auto_type cacheKey = openIdConfigurationEndpoint.absoluteString.lowercaseString;
     __auto_type metadata = [s_openIdConfigurationCache objectForKey:cacheKey];
     
