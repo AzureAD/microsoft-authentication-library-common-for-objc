@@ -89,6 +89,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorServerInvalidGrant         = -51433,
     MSIDErrorServerInvalidScope         = -51434,
     MSIDErrorServerUnauthorizedClient   = -51435,
+    MSIDErrorServerUnhandledResponse    = -51436,
     
     // State verification has failed
     MSIDErrorServerInvalidState         = -51441,

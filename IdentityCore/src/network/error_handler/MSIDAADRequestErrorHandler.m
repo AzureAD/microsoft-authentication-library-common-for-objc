@@ -61,9 +61,7 @@
     }
     
     // Http error
-    NSString *body = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSString *errorData = [NSString stringWithFormat:@"Full response: %@", body];
-    
+    NSString *errorData = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];
     NSString* message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
     NSString* messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorData];
     
@@ -72,7 +70,8 @@
     
     NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
     [additionalInfo setValue:httpResponse.allHeaderFields forKey:MSIDHTTPHeadersKey];
-    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, httpResponse.statusCode, messagePII, nil, nil, nil, context.correlationId, additionalInfo);
+    [additionalInfo setValue:[NSString stringWithFormat: @"%ld", (long)httpResponse.statusCode]          forKey:MSIDHTTPResponseCodeKey];
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorData, nil, nil, nil, context.correlationId, additionalInfo);
     
     if (completionBlock) { completionBlock(nil, httpError); }
 }
