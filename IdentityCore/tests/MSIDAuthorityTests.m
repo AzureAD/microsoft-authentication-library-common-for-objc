@@ -249,7 +249,8 @@
     XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.de" msidUrl]]);
     XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.com" msidUrl]]);
     XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login-us.microsoftonline.com" msidUrl]]);
-    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.cloudgovapi.us" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.usgovcloudapi.net" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.partner.microsoftonline.cn" msidUrl]]);
 }
 
 - (void)testIsKnownHost_whenHostIsNotInListOfKnownHost_shouldReturnNo
