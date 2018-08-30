@@ -60,7 +60,7 @@
         }
         
         NSString *key = decode ? [queryElements[0] msidTrimmedString].msidUrlFormDecode : [queryElements[0] msidTrimmedString];
-        if (!key)
+        if ([NSString msidIsStringNilOrBlank:key])
         {
             MSID_LOG_WARN(nil, @"Query parameter must have a key");
             continue;
@@ -82,29 +82,37 @@
 // Returns nil if the dictionary is empty, otherwise the encoded value
 - (NSString *)msidURLFormEncode
 {
-    __block NSMutableString *configuration = nil;
+    __block NSMutableString *encodedString = nil;
     
     [self enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL __unused *stop)
      {
          NSString *encodedKey = [[[key description] msidTrimmedString] msidUrlFormEncode];
+         
+         if (!encodedString)
+         {
+             encodedString = [NSMutableString new];
+         }
+         else
+         {
+             [encodedString appendString:@"&"];
+         }
+         
+         [encodedString appendFormat:@"%@", encodedKey];
+         
          NSString *v = [value description];
          if ([value isKindOfClass:NSUUID.class])
          {
              v = ((NSUUID *)value).UUIDString;
          }
-         NSString* encodedValue = [[v msidTrimmedString] msidUrlFormEncode];
+         NSString *encodedValue = [[v msidTrimmedString] msidUrlFormEncode];
          
-         if ( configuration == nil )
+         if (![NSString msidIsStringNilOrBlank:encodedValue])
          {
-             configuration = [NSMutableString new];
-             [configuration appendFormat:@"%@=%@", encodedKey, encodedValue];
+             [encodedString appendFormat:@"=%@", encodedValue];
          }
-         else
-         {
-             [configuration appendFormat:@"&%@=%@", encodedKey, encodedValue];
-         }
+         
      }];
-    return configuration;
+    return encodedString;
 }
 
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove
