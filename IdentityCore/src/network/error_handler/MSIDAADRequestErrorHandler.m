@@ -58,25 +58,25 @@
         return;
     }
     
-    // Http error
-    NSString *body = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSString *errorData = [NSString stringWithFormat:@"Full response: %@", body];
+    NSString *errorData = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];
     
     id responseSerializer = [MSIDJsonResponseSerializer new];
     id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:nil];
     id oauthError = responseObject[MSID_OAUTH2_ERROR];
-    id errorDescription = responseObject[MSID_OAUTH2_ERROR_DESCRIPTION];
+    id errorDescription = responseObject[MSID_OAUTH2_ERROR_DESCRIPTION] ?: errorData;
     id suberror = responseObject[MSID_OAUTH2_SUB_ERROR];
     
-    NSString *message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
-    NSString *messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorData];
+    NSString* message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
+    NSString* messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorData];
     
     MSID_LOG_WARN(context, @"%@", message);
     MSID_LOG_VERBOSE_PII(context, @"%@", messagePII);
     
     NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
     [additionalInfo setValue:httpResponse.allHeaderFields forKey:MSIDHTTPHeadersKey];
-    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, httpResponse.statusCode, errorDescription, oauthError, suberror, nil, context.correlationId, additionalInfo);
+    [additionalInfo setValue:[NSString stringWithFormat: @"%ld", (long)httpResponse.statusCode]          forKey:MSIDHTTPResponseCodeKey];
+    
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, oauthError, suberror, nil, context.correlationId, additionalInfo);
     
     if (completionBlock) { completionBlock(nil, httpError); }
 }
