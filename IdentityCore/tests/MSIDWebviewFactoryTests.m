@@ -66,7 +66,7 @@
                                                                                          correlationId:correlationId
                                                                                             enablePkce:YES];
     
-    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"eqp3" : @""};
     config.loginHint = @"fakeuser@contoso.com";
     
     NSString *requestState = @"state";
@@ -82,6 +82,7 @@
                                           @"code_challenge" : config.pkce.codeChallenge,
                                           @"eqp1" : @"val1",
                                           @"eqp2" : @"val2",
+                                          @"eqp3" : @"",
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
                                           @"scope" : @"scope1"
@@ -137,6 +138,26 @@
     XCTAssertEqualObjects(url.host, @"contoso.com");
 }
 
+- (void)testStartURLFromConfiguration_whenExtraQueryParameters_shouldHaveQueryParams
+{
+    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:@"https://contoso.com/paths"]
+                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
+                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                              resource:nil
+                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                                         correlationId:nil
+                                                                                            enablePkce:YES];
+    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"eqp3" : @""};
+    
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    NSURL *url = [factory startURLFromConfiguration:config requestState:@"state"];
+    
+    XCTAssertEqualObjects(url.scheme, @"https");
+    XCTAssertEqualObjects(url.host, @"contoso.com");
+    XCTAssertTrue([url.query containsString:@"eqp1=val1"]);
+    XCTAssertTrue([url.query containsString:@"eqp2=val2"]);
+    XCTAssertTrue([url.query containsString:@"eqp3&"]);
+}
 
 #pragma mark - Webview (Response)
 - (void)testResponseWithURL_whenNilURL_shouldReturnNilAndError

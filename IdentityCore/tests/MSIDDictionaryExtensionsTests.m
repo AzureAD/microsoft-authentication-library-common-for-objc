@@ -44,7 +44,7 @@
 {
     NSDictionary *dictionary = @{@"key": @"value"};
     
-    id result = [dictionary msidURLFormEncode];
+    NSString *result = [dictionary msidURLFormEncode];
 
     XCTAssertEqualObjects(result, @"key=value");
 }
@@ -53,17 +53,24 @@
 {
     NSDictionary *dictionary = @{@"key": [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"]};
     
-    id result = [dictionary msidURLFormEncode];
+    NSString *result = [dictionary msidURLFormEncode];
     
     XCTAssertEqualObjects(result, @"key=E621E1F8-C36C-495A-93FC-0C247A3E6E5F");
 }
 
+- (void)testMsidURLFormEncode_whenKeyWithEmptyValue_shouldReturnUrlEncodedStringWithNoEqualSign
+{
+    NSDictionary *dictionary = @{@"key":@""};
+    NSString *result = [dictionary msidURLFormEncode];
+    XCTAssertEqualObjects(result, @"key");
+}
+
 - (void)testDictionaryByRemovingFields_whenNilKeysArray_shouldNotRemoveFields
 {
-    NSDictionary *inputDictionary = @{@"key1": @"value1",
+    NSDictionary *inputDictionary = @{@"key":@"",
+                                      @"key1": @"value1",
                                       @"key2": @"value2",
                                       @"key3": @"value3"};
-    
     NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:nil];
     XCTAssertEqualObjects(inputDictionary, resultDictionary);
 }

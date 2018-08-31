@@ -27,64 +27,92 @@
 
 @implementation NSDictionary (MSIDExtensions)
 
++ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
+{
+    return [self msidDictionaryFromString:string decode:NO];
+}
+
 // Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
 // Always returns a dictionary, even if the string is nil, empty or contains no pairs
 + (NSDictionary *)msidURLFormDecode:(NSString *)string
+{
+    return [self msidDictionaryFromString:string decode:YES];
+}
+
++ (NSDictionary *)msidDictionaryFromString:(NSString *)string
+                                    decode:(BOOL)decode
 {
     if (!string)
     {
         return nil;
     }
     
-    NSMutableDictionary *configuration = [[NSMutableDictionary alloc] init];
+    NSArray *queries = [string componentsSeparatedByString:@"&"];
+    NSMutableDictionary *queryDict = [NSMutableDictionary new];
     
-    if ( nil != string && string.length != 0 )
+    for (NSString *query in queries)
     {
-        NSArray *pairs = [string componentsSeparatedByString:@"&"];
-        
-        for ( NSString *pair in pairs )
+        NSArray *queryElements = [query componentsSeparatedByString:@"="];
+        if (queryElements.count > 2)
         {
-            NSArray *elements = [pair componentsSeparatedByString:@"="];
-            
-            if ( elements != nil && elements.count == 2 )
-            {
-                NSString *key     = [[[elements objectAtIndex:0] msidTrimmedString] msidUrlFormDecode];
-                NSString *value   = [[[elements objectAtIndex:1] msidTrimmedString] msidUrlFormDecode];
-                if ( nil != key && key.length != 0 )
-                    [configuration setObject:value forKey:key];
-            }
+            MSID_LOG_WARN(nil, @"Query parameter must be a form key=value: %@", query);
+            continue;
         }
+        
+        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidUrlFormDecode : [queryElements[0] msidTrimmedString];
+        if ([NSString msidIsStringNilOrBlank:key])
+        {
+            MSID_LOG_WARN(nil, @"Query parameter must have a key");
+            continue;
+        }
+        
+        NSString *value = @"";
+        if (queryElements.count == 2)
+        {
+            value = decode ? [queryElements[1] msidTrimmedString].msidUrlFormDecode : [queryElements[1] msidTrimmedString];
+        }
+        
+        [queryDict setValue:value forKey:key];
     }
-    return configuration;
+    
+    return queryDict;
 }
 
 // Encodes a dictionary consisting of a set of name/values pairs that are strings to www-form-urlencoded
 // Returns nil if the dictionary is empty, otherwise the encoded value
 - (NSString *)msidURLFormEncode
 {
-    __block NSMutableString *configuration = nil;
+    __block NSMutableString *encodedString = nil;
     
     [self enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL __unused *stop)
      {
          NSString *encodedKey = [[[key description] msidTrimmedString] msidUrlFormEncode];
+         
+         if (!encodedString)
+         {
+             encodedString = [NSMutableString new];
+         }
+         else
+         {
+             [encodedString appendString:@"&"];
+         }
+         
+         [encodedString appendFormat:@"%@", encodedKey];
+         
          NSString *v = [value description];
          if ([value isKindOfClass:NSUUID.class])
          {
              v = ((NSUUID *)value).UUIDString;
          }
-         NSString* encodedValue = [[v msidTrimmedString] msidUrlFormEncode];
+         NSString *encodedValue = [[v msidTrimmedString] msidUrlFormEncode];
          
-         if ( configuration == nil )
+         if (![NSString msidIsStringNilOrBlank:encodedValue])
          {
-             configuration = [NSMutableString new];
-             [configuration appendFormat:@"%@=%@", encodedKey, encodedValue];
+             [encodedString appendFormat:@"=%@", encodedValue];
          }
-         else
-         {
-             [configuration appendFormat:@"&%@=%@", encodedKey, encodedValue];
-         }
+         
      }];
-    return configuration;
+    return encodedString;
 }
 
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove
