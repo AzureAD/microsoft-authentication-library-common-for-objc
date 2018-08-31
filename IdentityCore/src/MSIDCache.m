@@ -34,14 +34,14 @@
 
 - (instancetype)init
 {
-    if (!(self = [super init]))
+    self = [super init];
+
+    if (self)
     {
-        return nil;
+        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidcache-%@", [NSUUID UUID].UUIDString];
+        _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+        _container = [NSMutableDictionary new];
     }
-    
-    NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidcache-%@", [NSUUID UUID].UUIDString];
-    _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
-    _container = [NSMutableDictionary new];
     
     return self;
 }
