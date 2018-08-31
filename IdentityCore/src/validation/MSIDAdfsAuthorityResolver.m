@@ -84,7 +84,8 @@ static NSCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
          }
          
          __auto_type webFingerRequest = [[MSIDWebFingerRequest alloc] initWithIssuer:issuer
-                                                                           authority:authority];
+                                                                           authority:authority
+                                                                             context:context];
          [webFingerRequest sendWithBlock:^(id response, NSError *error)
           {
               if (error)

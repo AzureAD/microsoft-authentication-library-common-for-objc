@@ -286,7 +286,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
         return;
     }
     
-    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:openIdConfigurationEndpoint];
+    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:openIdConfigurationEndpoint context:context];
     [request sendWithBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
     {
         if (cacheKey && metadata)

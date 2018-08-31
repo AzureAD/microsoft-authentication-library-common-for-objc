@@ -29,12 +29,15 @@
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                        authority:(NSURL *)authority
+                         context:(nullable id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)
     {
         NSParameterAssert(endpoint);
         NSParameterAssert(authority);
+        
+        _context = context;
         
         NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[@"api-version"] = MSIDAADNetworkConfiguration.defaultConfiguration.aadAuthorityDiscoveryApiVersion;

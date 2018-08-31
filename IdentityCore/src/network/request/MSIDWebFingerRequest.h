@@ -25,7 +25,8 @@
 @interface MSIDWebFingerRequest : MSIDHttpRequest
 
 - (instancetype _Nullable)initWithIssuer:(nonnull NSURL *)issuer
-                               authority:(nonnull NSURL *)authority NS_DESIGNATED_INITIALIZER;
+                               authority:(nonnull NSURL *)authority
+                                 context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable)init NS_UNAVAILABLE;
 + (instancetype _Nullable)new NS_UNAVAILABLE;
