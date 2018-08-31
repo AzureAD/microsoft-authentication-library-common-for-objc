@@ -59,7 +59,8 @@
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
                                                                                 factory:self
-                                                                           requestState:state];
+                                                                           requestState:state
+                                                                     ignoreInvalidState:configuration.ignoreInvalidState];
                                    
     return session;
 }
@@ -86,7 +87,8 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWVC
                                                                                 factory:self
-                                                                           requestState:state];
+                                                                           requestState:state
+                                                                     ignoreInvalidState:configuration.ignoreInvalidState];
     return session;
 }
 #endif
@@ -141,6 +143,7 @@
 #pragma mark - Webview response parsing
 - (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
                             requestState:(NSString *)requestState
+                      ignoreInvalidState:(BOOL)ignoreInvalidState
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -148,6 +151,7 @@
     NSError *responseCreationError = nil;
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:url
                                                                     requestState:requestState
+                                                              ignoreInvalidState:ignoreInvalidState
                                                                          context:context
                                                                            error:&responseCreationError];
     if (responseCreationError)

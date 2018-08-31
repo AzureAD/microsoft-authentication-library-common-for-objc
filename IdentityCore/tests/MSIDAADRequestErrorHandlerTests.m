@@ -179,10 +179,42 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertEqualObjects(returnError.domain, MSIDHttpErrorCodeDomain);
-    XCTAssertEqual(returnError.code, 400);
+    XCTAssertEqual(returnError.code, MSIDErrorServerUnhandledResponse);
     XCTAssertEqualObjects(returnError.userInfo[MSIDHTTPHeadersKey], @{@"headerKey":@"headerValue"});
     
     XCTAssertNil(errorResponse);
 }
+
+- (void)testHandleError_whenItIsServerError_shouldReturnResponseCodeInError
+{
+    __auto_type error = [NSError new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
+                                                           statusCode:404
+                                                          HTTPVersion:nil
+                                                         headerFields:nil];
+    __auto_type httpRequest = [MSIDHttpTestRequest new];
+    __auto_type context = [MSIDTestContext new];
+    __block NSError *returnError;
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
+    __auto_type block = ^(id response, NSError *error) {
+        returnError = error;
+        [expectation fulfill];
+    };
+    
+    [self.errorHandler handleError:error
+                      httpResponse:httpResponse
+                              data:nil
+                       httpRequest:httpRequest
+                           context:context
+                   completionBlock:block];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertEqualObjects(returnError.domain, MSIDHttpErrorCodeDomain);
+    XCTAssertEqual(returnError.code, MSIDErrorServerUnhandledResponse);
+    XCTAssertEqualObjects(returnError.userInfo[MSIDHTTPResponseCodeKey], @"404");
+}
+
 
 @end

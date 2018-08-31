@@ -36,11 +36,13 @@
 @property NSObject<MSIDWebviewInteracting> *webviewController;
 @property MSIDWebviewFactory *factory;
 @property NSString *requestState;
+@property BOOL ignoreInvalidState;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
                                   factory:(MSIDWebviewFactory *)factory
-                             requestState:(NSString *)state;
+                             requestState:(NSString *)state
+                       ignoreInvalidState:(BOOL)ignoreInvalidState;
 
 @end
