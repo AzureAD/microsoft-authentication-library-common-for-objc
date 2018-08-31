@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDTestAccount : NSObject
+@interface MSIDTestAccount : NSObject <NSCopying>
 
 @property (nonatomic) NSString *account;
 @property (nonatomic) NSString *username;
@@ -31,10 +31,13 @@
 @property (nonatomic) NSString *keyvaultName;
 @property (nonatomic) NSString *labName;
 @property (nonatomic) NSString *homeTenantId;
+@property (nonatomic) NSString *homeObjectId;
 @property (nonatomic) NSString *targetTenantId;
+@property (nonatomic) NSString *tenantName;
 
 - (instancetype)initWithJSONResponse:(NSDictionary *)response;
 - (NSString *)passwordFromData:(NSData *)responseData;
+- (NSString *)homeAccountId;
 
 @end
 

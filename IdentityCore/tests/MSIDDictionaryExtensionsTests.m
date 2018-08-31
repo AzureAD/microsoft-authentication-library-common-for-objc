@@ -91,4 +91,56 @@
     XCTAssertEqualObjects(resultDictionary, expectedDictionary);
 }
 
+- (void)testAssertContainsField_whenFieldIsInDictionary_shouldReturnTrue
+{
+    NSDictionary *inputDictionary = @{@"key1": @"value1",
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSError *error;
+    BOOL result = [inputDictionary assertContainsField:@"key1" context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+}
+
+- (void)testAssertContainsField_whenFieldIsNotInDictionary_shouldReturnFalse
+{
+    NSDictionary *inputDictionary = @{@"key4": @"value1",
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSError *error;
+    BOOL result = [inputDictionary assertContainsField:@"key1" context:nil error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+}
+
+- (void)testAssertType_whenFieldOfCorrectType_shouldReturnTrue
+{
+    NSDictionary *inputDictionary = @{@"key1": @"value1",
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSError *error;
+    BOOL result = [inputDictionary assertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+}
+
+- (void)testAssertType_whenFieldOfIncorrectType_shouldReturnFalse
+{
+    NSDictionary *inputDictionary = @{@"key1": @1,
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSError *error;
+    BOOL result = [inputDictionary assertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result);
+}
+
 @end

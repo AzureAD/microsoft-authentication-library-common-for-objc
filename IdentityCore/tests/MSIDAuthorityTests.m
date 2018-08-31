@@ -215,6 +215,14 @@
     XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com:8080/tenant"]);
 }
 
+- (void)testCacheURLAuthority_whenConsumersWithPort_shouldReturnURLWithPort
+{
+    NSURL *url = [MSIDAuthority cacheUrlForAuthority:[NSURL URLWithString:@"https://login.microsoftonline.com:8080/consumers"] tenantId:@"tenant"];
+
+    XCTAssertNotNil(url);
+    XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com:8080/tenant"]);
+}
+
 - (void)testCacheURLAuthority_whenTenantSpecified_shouldReturnURL
 {
     NSURL *url = [MSIDAuthority cacheUrlForAuthority:[NSURL URLWithString:@"https://login.microsoftonline.com/tenant2"] tenantId:@"tenant1"];
@@ -241,7 +249,8 @@
     XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.de" msidUrl]]);
     XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.com" msidUrl]]);
     XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login-us.microsoftonline.com" msidUrl]]);
-    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.cloudgovapi.us" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.usgovcloudapi.net" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.partner.microsoftonline.cn" msidUrl]]);
 }
 
 - (void)testIsKnownHost_whenHostIsNotInListOfKnownHost_shouldReturnNo
@@ -264,16 +273,15 @@
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"'authority' is a required parameter and must not be nil or empty.");
 }
 
-- (void)testNormalizeAuthority_whenAuthorityIsDeprecated_shouldReturnError
+- (void)testNormalizeAuthority_whenAuthorityIsWindows_shouldReturnNormalizedAuthority
 {
-    __auto_type authority = [@"http://login.windows.net" msidUrl];
+    __auto_type authority = [@"https://login.windows.net/common/qwe" msidUrl];
     NSError *error;
     
     __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
     
-    XCTAssertNil(updatedAuthority);
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"login.windows.net has been deprecated. Use login.microsoftonline.com instead.");
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.windows.net/common" msidUrl]);
+    XCTAssertNil(error);
 }
 
 - (void)testNormalizeAuthority_whenAuthoritySchemeIsNotHttps_shouldReturnError

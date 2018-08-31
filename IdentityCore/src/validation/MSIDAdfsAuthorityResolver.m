@@ -77,8 +77,15 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
     
     [self sendDrsDiscoveryWithDomain:domain context:context completionBlock:^(NSURL *issuer, NSError *error)
      {
+         if (error)
+         {
+             if (completionBlock) completionBlock(nil, NO, error);
+             return;
+         }
+         
          __auto_type webFingerRequest = [[MSIDWebFingerRequest alloc] initWithIssuer:issuer
-                                                                           authority:authority];
+                                                                           authority:authority
+                                                                             context:context];
          [webFingerRequest sendWithBlock:^(id response, NSError *error)
           {
               if (error)
@@ -100,7 +107,7 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
               }
               else
               {
-                  error = MSIDCreateError(MSIDErrorDomain, MSIDErrorDeveloperAuthorityValidation, @"WebFinger request was invalid or failed", nil, nil, nil, context.correlationId, nil);
+                  error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidationWebFinger, @"WebFinger request was invalid or failed", nil, nil, nil, context.correlationId, nil);
                   if (completionBlock) completionBlock(nil, NO, error);
               }
           }];
@@ -113,9 +120,8 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
                            context:(id<MSIDRequestContext>)context
                    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    __auto_type drsPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeOnPrems];
-    drsPremRequest.context = context;
-    [drsPremRequest sendWithBlock:^(id response, NSError *error)
+    __auto_type drsOnPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeOnPrems context:context];
+    [drsOnPremRequest sendWithBlock:^(id response, NSError *error)
      {
          if (response)
          {
@@ -123,15 +129,10 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
              return;
          }
          
-         __auto_type drsCloudRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeCloud];
-         drsCloudRequest.context = context;
+         __auto_type drsCloudRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeCloud context:context];
          [drsCloudRequest sendWithBlock:^(id response, NSError *error)
           {
-              if (response)
-              {
-                  if (completionBlock) completionBlock(response, error);
-                  return;
-              }
+              if (completionBlock) completionBlock(response, error);
           }];
      }];
 }
@@ -148,7 +149,7 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
         NSURL *targetURL = [NSURL URLWithString:target];
         
         if ([rel caseInsensitiveCompare:s_kTrustedRelation] == NSOrderedSame &&
-            [targetURL msidIsEquivalentAuthority:authority])
+            [targetURL msidIsEquivalentAuthorityHost:authority])
         {
             return YES;
         }

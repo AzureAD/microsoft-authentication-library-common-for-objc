@@ -23,8 +23,8 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAccountItemSerializer.h"
-#import "MSIDTokenItemSerializer.h"
+#import "MSIDCredentialItemSerializer.h"
 
-@interface MSIDKeyedArchiverSerializer : NSObject <MSIDTokenItemSerializer, MSIDAccountItemSerializer>
+@interface MSIDKeyedArchiverSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer>
 
 @end

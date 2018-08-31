@@ -94,4 +94,73 @@
     return mutableDict;
 }
 
+- (NSArray<NSURLQueryItem *> *)urlQueryItemsArray
+{
+    NSMutableArray<NSURLQueryItem *> *array = [NSMutableArray new];
+    
+    for (id key in self.allKeys)
+    {
+        
+        NSString *value = [self[key] isKindOfClass:NSUUID.class] ?
+        ((NSUUID *)self[key]).UUIDString : [self[key] description];
+        
+        [array addObject:[NSURLQueryItem queryItemWithName:[[key description] msidUrlFormEncode]
+                                                     value:[value description]]];
+    }
+    
+    return array;
+}
+
+- (BOOL)assertType:(Class)type
+           ofField:(NSString *)field
+           context:(id <MSIDRequestContext>)context
+         errorCode:(NSInteger)errorCode
+             error:(NSError **)error;
+{
+    id fieldValue = self[field];
+    if (![fieldValue isKindOfClass:type])
+    {
+        __auto_type message = [NSString stringWithFormat:@"%@ is not a %@.", field, type];
+        
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain,
+                                     errorCode,
+                                     message,
+                                     nil,
+                                     nil, nil, context.correlationId, nil);
+        }
+        
+        MSID_LOG_ERROR(nil, @"%@", message);
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (BOOL)assertContainsField:(NSString *)field
+                    context:(id <MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    id fieldValue = self[field];
+    if (!fieldValue)
+    {
+        __auto_type message = [NSString stringWithFormat:@"%@ is missing.", field];
+        
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     message,
+                                     nil,
+                                     nil, nil, context.correlationId, nil);
+        }
+        
+        MSID_LOG_ERROR_PII(nil, @"%@", message);
+        return NO;
+    }
+    
+    return YES;
+}
+
 @end

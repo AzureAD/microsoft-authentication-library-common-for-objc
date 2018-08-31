@@ -22,7 +22,20 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDChallengeHandling.h"
 
-@interface MSIDURLSessionDelegate : NSObject <NSURLSessionDelegate>
+typedef void (^MSIDURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, ChallengeCompletionHandler completionHandler);
+
+typedef void (^MSIDHttpRedirectionCompletionHandler)(NSURLRequest *);
+
+typedef void (^MSIDURLSessionTaskWillPerformHTTPRedirectionBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLResponse *response, NSURLRequest *request, MSIDHttpRedirectionCompletionHandler completionHandler);
+
+typedef void (^MSIDURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, ChallengeCompletionHandler completionHandler);
+
+@interface MSIDURLSessionDelegate : NSObject <NSURLSessionDelegate, NSURLSessionTaskDelegate>
+
+@property (nonatomic, copy) MSIDURLSessionDidReceiveAuthenticationChallengeBlock sessionDidReceiveAuthenticationChallengeBlock;
+@property (nonatomic, copy) MSIDURLSessionTaskDidReceiveAuthenticationChallengeBlock taskDidReceiveAuthenticationChallengeBlock;
+@property (nonatomic, copy) MSIDURLSessionTaskWillPerformHTTPRedirectionBlock taskWillPerformHTTPRedirectionBlock;
 
 @end

@@ -72,11 +72,14 @@ static NSString *s_tenantIdPlaceholder = @"{tenantid}";
 @implementation MSIDOpenIdConfigurationInfoRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
+                         context:(id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)
     {
         NSParameterAssert(endpoint);
+        
+        _context = context;
         
         NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
         urlRequest.URL = endpoint;

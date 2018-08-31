@@ -27,6 +27,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCacheRecord.h"
+#import "MSIDAADAuthorityMetadataResponse.h"
 
 static dispatch_queue_t s_aadValidationQueue;
 
@@ -127,8 +128,7 @@ static dispatch_queue_t s_aadValidationQueue;
     
     __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider aadAuthorityDiscoveryEndpointWithHost:trustedHost];
     
-    __auto_type *request = [[MSIDAADAuthorityMetadataRequest alloc] initWithEndpoint:endpoint authority:authority];
-    request.context = context;
+    __auto_type *request = [[MSIDAADAuthorityMetadataRequest alloc] initWithEndpoint:endpoint authority:authority context: context];
     [request sendWithBlock:^(MSIDAADAuthorityMetadataResponse *response, NSError *error)
      {
          if (error)

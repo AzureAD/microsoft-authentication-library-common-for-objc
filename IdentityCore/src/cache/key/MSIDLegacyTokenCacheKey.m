@@ -38,12 +38,12 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 #pragma mark - Helpers
 
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
-+ (NSString *)getAttributeName:(NSString *)original
+- (NSString *)getAttributeName:(NSString *)attribute
 {
-    return ([NSString msidIsStringNilOrBlank:original]) ? s_nilKey : [original msidBase64UrlEncode];
+    return ([NSString msidIsStringNilOrBlank:attribute]) ? s_nilKey : [attribute msidBase64UrlEncode];
 }
 
-+ (NSString *)serviceWithAuthority:(NSURL *)authority
+- (NSString *)serviceWithAuthority:(NSURL *)authority
                           resource:(NSString *)resource
                           clientId:(NSString *)clientId
 {
@@ -57,62 +57,56 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     return [NSString stringWithFormat:s_adalServiceFormat,
             s_adalLibraryString,
             authorityString.msidBase64UrlEncode,
-            [self.class getAttributeName:resource],
+            [self getAttributeName:resource],
             clientId.msidBase64UrlEncode];
 }
 
-#pragma mark - Legacy keys
-
-+ (MSIDLegacyTokenCacheKey *)keyForLegacySingleResourceTokenWithAuthority:(NSURL *)authority
-                                                                 clientId:(NSString *)clientId
-                                                                 resource:(NSString *)resource
+- (instancetype)initWithAccount:(NSString *)account
+                        service:(NSString *)service
+                        generic:(NSData *)generic
+                           type:(NSNumber *)type
 {
-    NSString *service = [self.class serviceWithAuthority:authority
-                                                resource:resource
-                                                clientId:clientId];
-    
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:[self adalAccountWithUserId:@""]
-                                                                            service:service
-                                                                            generic:[s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding]
-                                                                               type:nil];
-    
-    return key;
-}
+    self = [super initWithAccount:account service:service generic:generic type:type];
 
-
-+ (MSIDLegacyTokenCacheKey *)keyWithAuthority:(NSURL *)authority
-                                     clientId:(NSString *)clientId
-                                     resource:(NSString *)resource
-                                 legacyUserId:(NSString *)legacyUserId
-{
-    // For legacy token cache both key and query should produce the same result
-    // The separation here is just for clarity and possible future optimisations
-    return [self queryWithAuthority:authority
-                           clientId:clientId
-                           resource:resource
-                       legacyUserId:legacyUserId];
-}
-
-+ (MSIDLegacyTokenCacheKey *)queryWithAuthority:(NSURL *)authority
-                                       clientId:(NSString *)clientId
-                                       resource:(NSString *)resource
-                                   legacyUserId:(NSString *)legacyUserId
-{
-    NSString *service = nil;
-    
-    if (authority && clientId)
+    if (self)
     {
-        service = [self.class serviceWithAuthority:authority
-                                          resource:resource
-                                          clientId:clientId];
+        [self setServiceKeyComponents];
     }
-    
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAccount:[self adalAccountWithUserId:legacyUserId]
-                                                                            service:service
-                                                                            generic:[s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding]
-                                                                               type:nil];
-    
-    return key;
+
+    return self;
+}
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource
+                     legacyUserId:(NSString *)legacyUserId
+{
+    self = [super init];
+
+    if (self)
+    {
+        _authority = authority;
+        _clientId = clientId;
+        _resource = resource;
+        _legacyUserId = legacyUserId;
+    }
+
+    return self;
+}
+
+- (NSString *)account
+{
+    return _account ? _account : [self adalAccountWithUserId:self.legacyUserId];
+}
+
+- (NSString *)service
+{
+    return _service ? _service : [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+}
+
+- (NSData *)generic
+{
+    return [s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 #pragma mark - NSSecureCoding
@@ -128,19 +122,25 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     {
         return nil;
     }
-    
+
     _account = [coder decodeObjectOfClass:[NSString class] forKey:@"account"];
     _service = [coder decodeObjectOfClass:[NSString class] forKey:@"service"];
     _type = [coder decodeObjectOfClass:[NSNumber class] forKey:@"type"];
-    
+    _legacyUserId = [coder decodeObjectOfClass:[NSString class] forKey:@"userId"];
+
     // Backward compatibility with ADAL.
     if (!_service)
     {
         NSString *authority = [coder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+        self.authority = [NSURL URLWithString:authority];
+
         NSString *resource = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
+        self.resource = resource;
+
         NSString *clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-        
-        _service = [self.class serviceWithAuthority:[authority msidUrl] resource:resource clientId:clientId];
+        self.clientId = clientId;
+
+        _service = self.service;
     }
     
     return self;
@@ -148,26 +148,15 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    [coder encodeObject:_account forKey:@"account"];
-    [coder encodeObject:_service forKey:@"service"];
-    [coder encodeObject:_type forKey:@"type"];
+    [self setServiceKeyComponents];
 
-    // Backward compatibility with ADAL.
-    if (_service)
-    {
-        NSArray<NSString *> * items = [_service componentsSeparatedByString:@"|"];
-        if (items.count == 4) // See s_adalServiceFormat.
-        {
-            NSString *authority = [items[1] msidBase64UrlDecode];
-            [coder encodeObject:authority forKey:@"authority"];
-            
-            NSString *resource = [items[2] isEqualToString:s_nilKey] ? nil : [items[2] msidBase64UrlDecode];
-            [coder encodeObject:resource forKey:@"resource"];
-            
-            NSString *clientId = [items[3] msidBase64UrlDecode];
-            [coder encodeObject:clientId forKey:@"clientId"];
-        }
-    }
+    [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
+    [coder encodeObject:self.resource forKey:@"resource"];
+    [coder encodeObject:self.clientId forKey:@"clientId"];
+    [coder encodeObject:self.legacyUserId forKey:@"userId"];
+    [coder encodeObject:self.service forKey:@"service"];
+    [coder encodeObject:self.account forKey:@"account"];
+    [coder encodeObject:self.type forKey:@"type"];
 }
 
 #pragma mark - NSObject
@@ -179,7 +168,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
         return YES;
     }
     
-    if (![object isKindOfClass:MSIDTokenCacheKey.class])
+    if (![object isKindOfClass:MSIDCacheKey.class])
     {
         return NO;
     }
@@ -197,7 +186,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     BOOL result = YES;
     result &= (!self.account && !key.account) || [self.account isEqualToString:key.account];
     result &= (!self.service && !key.service) || [self.service isEqualToString:key.service];
-    result &= (!self.type && !key.type) || [self.type isEqualToNumber:key.type];
+    result &= (self.type == nil && key.type == nil) || [self.type isEqualToNumber:key.type];
     
     return result;
 }
@@ -217,10 +206,14 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey allocWithZone:zone] init];
-    key.account = [self.account copyWithZone:zone];
-    key.service = [self.service copyWithZone:zone];
-    key.type = [self.type copyWithZone:zone];
-    
+    key->_account = [self.account copyWithZone:zone];
+    key->_service = [self.service copyWithZone:zone];
+    key->_generic = [self.generic copyWithZone:zone];
+    key->_type = [self.type copyWithZone:zone];
+    key->_authority = [self.authority copyWithZone:zone];
+    key->_legacyUserId = [self.legacyUserId copyWithZone:zone];
+    key->_resource = [self.resource copyWithZone:zone];
+    key->_clientId = [self.clientId copyWithZone:zone];
     return key;
 }
 
@@ -230,7 +223,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
  in ADAL we must to encode userId as base64 string
  for iOS only. For ADAL Mac we don't encode upn.
  */
-+ (NSString *)adalAccountWithUserId:(NSString *)userId
+- (NSString *)adalAccountWithUserId:(NSString *)userId
 {
     if ([userId length])
     {
@@ -242,6 +235,26 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 #endif
     
     return userId;
+}
+
+- (void)setServiceKeyComponents
+{
+    // Backward compatibility with ADAL.
+    if (_service)
+    {
+        NSArray<NSString *> * items = [_service componentsSeparatedByString:@"|"];
+        if (items.count == 4) // See s_adalServiceFormat.
+        {
+            NSString *authority = [items[1] msidBase64UrlDecode];
+            self.authority = [NSURL URLWithString:authority];
+
+            NSString *resource = [items[2] isEqualToString:s_nilKey] ? nil : [items[2] msidBase64UrlDecode];
+            self.resource = resource;
+
+            NSString *clientId = [items[3] msidBase64UrlDecode];
+            self.clientId = clientId;
+        }
+    }
 }
 
 @end

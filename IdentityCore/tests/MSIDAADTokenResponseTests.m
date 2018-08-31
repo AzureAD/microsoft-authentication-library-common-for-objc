@@ -25,7 +25,7 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDRefreshToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 
 @interface MSIDAADTokenResponseTests : XCTestCase
 
@@ -173,7 +173,7 @@
 
 #pragma mark - Refresh token
 
-- (void)testInitWithJson_andRefreshToken_shouldTakeFieldsFromRefreshToken
+- (void)testInitWithJson_andRefreshToken_andNilClientInfoInResponse_shouldTakeClientInfoFromRefreshToken
 {
     NSDictionary *jsonInput = @{@"access_token": @"at",
                                 @"token_type": @"Bearer",
@@ -196,6 +196,26 @@
     XCTAssertNil(error);
     
     XCTAssertEqualObjects(response.clientInfo, clientInfo);
+}
+
+- (void)testInitWithJson_andRefreshToken_andNilRefreshTokenInResponse_shouldTakeRefreshTokenFromInput
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600"};
+
+    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    refreshToken.refreshToken = @"rt from refresh token";
+
+    NSError *error = nil;
+    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:jsonInput
+                                                                             refreshToken:refreshToken
+                                                                                    error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+
+    XCTAssertEqualObjects(response.refreshToken, @"rt from refresh token");
 }
 
 - (void)testInitWithJson_andNilRefreshToken_shouldNotTakeFieldsFromRefreshToken
@@ -227,6 +247,7 @@
                                 };
     
     MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    refreshToken.refreshToken = @"rt2";
     
     MSIDClientInfo *clientInfo = [MSIDClientInfo new];
     [clientInfo setValue:@"clientinfo" forKey:@"rawClientInfo"];
@@ -242,6 +263,7 @@
     XCTAssertNil(error);
     
     XCTAssertEqualObjects(response.clientInfo.rawClientInfo, clientInfoString);
+    XCTAssertEqualObjects(response.refreshToken, @"rt");
 }
 
 @end

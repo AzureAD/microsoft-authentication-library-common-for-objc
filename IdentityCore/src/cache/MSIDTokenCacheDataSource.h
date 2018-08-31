@@ -23,30 +23,30 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDTokenCacheItem;
+@class MSIDCredentialCacheItem;
 @class MSIDAccountCacheItem;
-@class MSIDTokenCacheKey;
+@class MSIDCacheKey;
 
 @protocol MSIDRequestContext;
 @protocol MSIDAccountItemSerializer;
-@protocol MSIDTokenItemSerializer;
+@protocol MSIDCredentialItemSerializer;
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
 // Tokens
-- (BOOL)saveToken:(MSIDTokenCacheItem *)item
-              key:(MSIDTokenCacheKey *)key
-       serializer:(id<MSIDTokenItemSerializer>)serializer
+- (BOOL)saveToken:(MSIDCredentialCacheItem *)item
+              key:(MSIDCacheKey *)key
+       serializer:(id<MSIDCredentialItemSerializer>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error;
 
-- (MSIDTokenCacheItem *)tokenWithKey:(MSIDTokenCacheKey *)key
-                          serializer:(id<MSIDTokenItemSerializer>)serializer
+- (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
+                          serializer:(id<MSIDCredentialItemSerializer>)serializer
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
-- (NSArray<MSIDTokenCacheItem *> *)tokensWithKey:(MSIDTokenCacheKey *)key
-                                      serializer:(id<MSIDTokenItemSerializer>)serializer
+- (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
+                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 
@@ -60,26 +60,29 @@
 
 // Removal
 
-- (BOOL)removeItemsWithKey:(MSIDTokenCacheKey *)key
+- (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
 // Accounts
 
 - (BOOL)saveAccount:(MSIDAccountCacheItem *)item
-                key:(MSIDTokenCacheKey *)key
+                key:(MSIDCacheKey *)key
          serializer:(id<MSIDAccountItemSerializer>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error;
 
-- (MSIDAccountCacheItem *)accountWithKey:(MSIDTokenCacheKey *)key
+- (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
                               serializer:(id<MSIDAccountItemSerializer>)serializer
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 
-- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDTokenCacheKey *)key
+- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
                                           serializer:(id<MSIDAccountItemSerializer>)serializer
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error;
+
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context
+                   error:(NSError **)error;
 
 @end

@@ -35,7 +35,7 @@
         case MSIDAccountTypeMSA:
             return @"MSA";
             
-        case MSIDAccountTypeAADV2:
+        case MSIDAccountTypeMSSTS:
             return @"MSSTS";
             
         default:
@@ -53,11 +53,11 @@ static NSDictionary *sAccountTypes = nil;
         
         sAccountTypes = @{@"AAD": @(MSIDAccountTypeAADV1),
                           @"MSA": @(MSIDAccountTypeMSA),
-                          @"MSSTS": @(MSIDAccountTypeAADV2)};
+                          @"MSSTS": @(MSIDAccountTypeMSSTS)};
     });
     
     NSNumber *accountType = sAccountTypes[type];
-    return accountType ? [accountType integerValue] : MSIDAccountTypeOther;
+    return accountType != nil ? [accountType integerValue] : MSIDAccountTypeOther;
 }
 
 @end

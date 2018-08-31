@@ -24,7 +24,8 @@
 
 @interface MSIDOpenIdConfigurationInfoRequest : MSIDHttpRequest
 
-- (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint NS_DESIGNATED_INITIALIZER;
+- (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
+                                   context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable)init NS_UNAVAILABLE;
 + (instancetype _Nullable)new NS_UNAVAILABLE;

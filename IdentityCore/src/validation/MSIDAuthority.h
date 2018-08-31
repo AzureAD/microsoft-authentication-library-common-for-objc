@@ -51,6 +51,8 @@ extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
  Otherwise, returns original authority */
 + (NSURL * _Nullable)universalAuthorityURL:(nullable NSURL *)authorityURL;
 
++ (NSURL * _Nullable)commonAuthorityWithURL:(nullable NSURL *)authorityURL;
+
 + (BOOL)isTenantless:(nonnull NSURL *)authority;
 + (NSURL *_Nullable)cacheUrlForAuthority:(nonnull NSURL *)authority
                                 tenantId:(nullable NSString *)tenantId;

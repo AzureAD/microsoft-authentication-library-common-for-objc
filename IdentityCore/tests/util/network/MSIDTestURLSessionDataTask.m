@@ -85,14 +85,14 @@
         return;
     }
     
+    [self.session dispatchIfNeed:^{
+        if (self.completionHandler) self.completionHandler(response->_responseData, response->_response, response->_error);
+    }];
+
     if (response->_waitSemaphore)
     {
         dispatch_semaphore_wait(response->_waitSemaphore, DISPATCH_TIME_FOREVER);
     }
-    
-    [self.session dispatchIfNeed:^{
-        if (self.completionHandler) self.completionHandler(response->_responseData, response->_response, response->_error);
-    }];
     
     if (response->_error)
     {

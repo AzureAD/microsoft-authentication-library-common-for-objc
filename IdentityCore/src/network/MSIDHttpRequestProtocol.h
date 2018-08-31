@@ -27,6 +27,9 @@ typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
 
 @protocol MSIDHttpRequestProtocol <NSObject>
 
+@property (nonatomic) NSInteger retryCounter;
+@property (nonatomic) NSTimeInterval retryInterval;
+
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
 
 @end

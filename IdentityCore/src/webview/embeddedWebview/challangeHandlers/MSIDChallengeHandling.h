@@ -25,16 +25,17 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef ChallengeHandler_h
-#define ChallengeHandler_h
+#import <WebKit/WebKit.h>
 
 typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential);
 
 @protocol MSIDChallengeHandling
 
-- (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
++ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
+                webview:(WKWebView *)webview
+                context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler;
 
-@end
++ (void)resetHandler;
 
-#endif /* ChallengeHandler_h */
+@end

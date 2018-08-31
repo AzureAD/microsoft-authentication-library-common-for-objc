@@ -25,11 +25,26 @@
 
 @property (readonly, nonatomic) NSDictionary *msidFragmentParameters;
 
+/*
+ Checks that authority is equivalent by checking:
+    * scheme
+    * host
+    * port
+    * path
+ */
 - (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL;
-- (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSURL *> *)aliases;
+
+/*
+ Checks that authority is equivalent by checking:
+    * scheme
+    * host
+    * port
+ */
+- (BOOL)msidIsEquivalentAuthorityHost:(NSURL *)aURL;
 
 - (NSString *)msidHostWithPortIfNecessary;
 - (NSString *)msidTenant;
+- (NSURL *)msidAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName;
 
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant;
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment;

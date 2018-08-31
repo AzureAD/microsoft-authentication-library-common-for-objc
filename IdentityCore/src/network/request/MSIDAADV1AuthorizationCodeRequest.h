@@ -29,12 +29,14 @@
                                 redirectUri:(nonnull NSString *)redirectUri
                                       scope:(nullable NSString *)scope
                                   loginHint:(nullable NSString *)loginHint
-                                   resource:(nonnull NSString *)resource NS_DESIGNATED_INITIALIZER;
+                                   resource:(nonnull NSString *)resource
+                                    context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
                                    clientId:(nonnull NSString *)clientId
                                 redirectUri:(nonnull NSString *)redirectUri
                                       scope:(nullable NSString *)scope
-                                  loginHint:(nullable NSString *)loginHint NS_UNAVAILABLE;
+                                  loginHint:(nullable NSString *)loginHint
+                                    context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
 @end

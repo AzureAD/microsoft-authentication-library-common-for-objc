@@ -36,7 +36,7 @@
 {
     if (validate && ![MSIDAuthority isKnownHost:authority])
     {
-        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidRequest, @"Authority validation is not supported for this type of authority", nil, nil, nil, context.correlationId, nil);
+        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"Authority validation is not supported for this type of authority", nil, nil, nil, context.correlationId, nil);
         if (completionBlock) completionBlock(nil, NO, error);
         return;
     }

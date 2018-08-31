@@ -34,6 +34,7 @@
 @property (readonly) NSInteger extendedExpiresIn;
 @property (readonly) MSIDClientInfo *clientInfo;
 @property (readonly) NSString *familyId;
+@property (readonly) NSString *suberror;
 
 // Custom properties that ADAL/MSAL handles
 @property (readonly) NSString *speInfo;

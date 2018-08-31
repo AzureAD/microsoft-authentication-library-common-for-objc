@@ -22,17 +22,11 @@
 
 #import "MSIDHttpRequest.h"
 
-@interface MSIDAADAuthorityMetadataResponse : NSObject
-
-@property (nonatomic, nullable) NSURL *openIdConfigurationEndpoint;
-@property (nonatomic, nullable) NSArray<NSDictionary *> *metadata;
-
-@end
-
 @interface MSIDAADAuthorityMetadataRequest : MSIDHttpRequest
 
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
-                                  authority:(nonnull NSURL *)authority NS_DESIGNATED_INITIALIZER;
+                                  authority:(nonnull NSURL *)authority
+                                    context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable)init NS_UNAVAILABLE;
 + (instancetype _Nullable)new NS_UNAVAILABLE;

@@ -30,12 +30,14 @@
                            scope:(NSString *)scope
                        loginHint:(NSString *)loginHint
                         resource:(NSString *)resource
+                         context:(nullable id<MSIDRequestContext>)context
 {
     self = [super initWithEndpoint:endpoint
                           clientId:clientId
                        redirectUri:redirectUri
                              scope:scope
-                         loginHint:loginHint];
+                         loginHint:loginHint
+                           context:context];
     if (self)
     {
         NSParameterAssert(resource);

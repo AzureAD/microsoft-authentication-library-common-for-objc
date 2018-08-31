@@ -38,6 +38,12 @@
 
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority
                         context:(id<MSIDRequestContext>)context;
+
+- (NSString *)cacheEnvironmentForEnvironment:(NSString *)environment
+                                     context:(id<MSIDRequestContext>)context;
+
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)environment;
+
 /*!
  Returns an array of authority URLs for the provided URL, in the order that cache lookups
  should be attempted.
@@ -45,6 +51,8 @@
  @param  authority   The authority URL the developer provided for the authority context
  */
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
+
+- (NSArray<NSURL *> *)cacheAliasesForAuthorities:(NSArray<NSURL *> *)authorities;
 
 - (void)processMetadata:(NSArray<NSDictionary *> *)metadata
    openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint

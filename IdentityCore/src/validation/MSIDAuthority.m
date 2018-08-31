@@ -45,10 +45,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
 NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
 NSString *const MSIDTrustedAuthorityChina        = @"login.chinacloudapi.cn";
+NSString *const MSIDTrustedAuthorityChina2       = @"login.partner.microsoftonline.cn";
 NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
 NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
-NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
+NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
 
 @implementation MSIDAuthority
 
@@ -59,6 +60,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
         s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority,
                              MSIDTrustedAuthorityUS,
                              MSIDTrustedAuthorityChina,
+                             MSIDTrustedAuthorityChina2,
                              MSIDTrustedAuthorityGermany,
                              MSIDTrustedAuthorityWorldWide,
                              MSIDTrustedAuthorityUSGovernment,
@@ -157,6 +159,26 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
     return authorityURL;
 }
 
++ (NSURL *)commonAuthorityWithURL:(NSURL *)authorityURL
+{
+    if (!authorityURL)
+    {
+        return nil;
+    }
+    
+    NSArray *paths = authorityURL.pathComponents;
+    
+    if ([paths count] >= 2)
+    {
+        NSURLComponents *components = [NSURLComponents componentsWithURL:authorityURL resolvingAgainstBaseURL:NO];
+        components.path = @"/common";
+        return [components URL];
+    }
+    
+    return authorityURL;
+}
+
+
 + (BOOL)isTenantless:(NSURL *)authority
 {
     NSArray *authorityURLPaths = authority.pathComponents;
@@ -188,7 +210,8 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
         return authority;
     }
     
-    if (![self isTenantless:authority])
+    if (![self isTenantless:authority]
+        && ![self isConsumerInstanceURL:authority])
     {
         return authority;
     }
@@ -247,6 +270,13 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
 {
     NSParameterAssert(completionBlock);
     
+    if (openIdConfigurationEndpoint == nil)
+    {
+        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"openIdConfigurationEndpoint is nil.", nil, nil, nil, context.correlationId, nil);
+        completionBlock(nil, error);
+        return;
+    }
+    
     __auto_type cacheKey = openIdConfigurationEndpoint.absoluteString.lowercaseString;
     __auto_type metadata = [s_openIdConfigurationCache objectForKey:cacheKey];
     
@@ -256,7 +286,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
         return;
     }
     
-    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:openIdConfigurationEndpoint];
+    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:openIdConfigurationEndpoint context:context];
     [request sendWithBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
     {
         if (cacheKey && metadata)
@@ -291,17 +321,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
 + (BOOL)isAuthorityFormatValid:(NSURL *)authority
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
-{
-    if ([authority.host.lowercaseString isEqualToString:MSIDTrustedAuthority])
-    {
-        if (error)
-        {
-            __auto_type message = [NSString stringWithFormat:@"%@ has been deprecated. Use %@ instead.", MSIDTrustedAuthority, MSIDTrustedAuthorityWorldWide];
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil);
-        }
-        return NO;
-    }
-    
+{    
     if ([NSString msidIsStringNilOrBlank:authority.absoluteString])
     {
         if (error)

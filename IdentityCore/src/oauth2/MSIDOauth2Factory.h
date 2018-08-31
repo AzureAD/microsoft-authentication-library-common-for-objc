@@ -22,21 +22,26 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDCredentialType.h"
 
 @class MSIDTokenResponse;
 @class MSIDBaseToken;
 @class MSIDAccessToken;
+@class MSIDLegacyAccessToken;
 @class MSIDRefreshToken;
 @class MSIDIdToken;
 @class MSIDLegacySingleResourceToken;
+@class MSIDLegacyRefreshToken;
 @class MSIDAccount;
 @class MSIDConfiguration;
-@class WKWebView;
+@class MSIDWebviewFactory;
 
 @protocol MSIDRequestContext;
-@protocol MSIDWebviewInteracting;
 
 @interface MSIDOauth2Factory : NSObject
+{
+    MSIDWebviewFactory *_webviewFactory;
+}
 
 // Response handling
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
@@ -50,14 +55,23 @@
 // Tokens
 - (MSIDBaseToken *)baseTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDLegacyAccessToken *)legacyAccessTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (MSIDLegacyRefreshToken *)legacyRefreshTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDRefreshToken *)refreshTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
-// Webviews
-- (id<MSIDWebviewInteracting>)embeddedWebviewControllerWithRequest:(MSIDConfiguration *)requestParams
-                                                     customWebview:(WKWebView *)webview;
-- (id<MSIDWebviewInteracting>)systemWebviewControllerWithRequest:(MSIDConfiguration *)requestParams;
+
+// Webview Factory
+@property (readonly) MSIDWebviewFactory *webviewFactory;
+
+// Cache URL
+- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context;
+- (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context;
+- (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority;
+- (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities:(NSURL *)originalAuthority;
+- (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment;
 
 @end
+

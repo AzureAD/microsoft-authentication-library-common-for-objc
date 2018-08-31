@@ -29,10 +29,13 @@
                                    clientId:(nonnull NSString *)clientId
                                       scope:(nullable NSString *)scope
                                 redirectUri:(nonnull NSString *)redirectUri
-                                       code:(nonnull NSString *)code NS_DESIGNATED_INITIALIZER;
+                                       code:(nonnull NSString *)code
+                               codeVerifier:(nullable NSString *)codeVerifier
+                                    context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
                                    clientId:(nonnull NSString *)clientId
-                                      scope:(nullable NSString *)scope NS_UNAVAILABLE;
+                                      scope:(nullable NSString *)scope
+                                    context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
 @end

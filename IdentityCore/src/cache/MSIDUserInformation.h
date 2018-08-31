@@ -26,7 +26,6 @@
 @interface MSIDUserInformation : NSObject <NSSecureCoding>
 
 @property (nonatomic, readonly) NSString *rawIdToken;
-@property (nonatomic, readonly) NSString *userId;
 
 - (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString;
 

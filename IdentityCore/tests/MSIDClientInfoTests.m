@@ -59,7 +59,7 @@
     XCTAssertNil(clientInfo);
 }
 
-- (void)testUserIdentifier_whenUniqueUserIdentifier_shouldReturnUserIndentifier
+- (void)testAccountIdentifier_whenHomeAccountId_shouldReturnUserIndentifier
 {
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     
@@ -68,7 +68,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(clientInfo);
-    XCTAssertEqualObjects(clientInfo.userIdentifier, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(clientInfo.accountIdentifier, @"1.1234-5678-90abcdefg");
 }
 
 #pragma mark - Copy tests
