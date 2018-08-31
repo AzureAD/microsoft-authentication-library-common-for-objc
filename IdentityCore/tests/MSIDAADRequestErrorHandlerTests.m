@@ -216,5 +216,65 @@
     XCTAssertEqualObjects(returnError.userInfo[MSIDHTTPResponseCodeKey], @"404");
 }
 
+- (void)testHandleError_whenNoErorDescriptionInBody_shouldReturnLocalizedErrorDescription
+{
+    __auto_type error = [NSError new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
+                                                           statusCode:400
+                                                          HTTPVersion:nil
+                                                         headerFields:nil];
+    __auto_type httpRequest = [MSIDHttpTestRequest new];
+    __auto_type context = [MSIDTestContext new];
+    __block NSError *returnError;
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
+    __auto_type block = ^(id response, NSError *error) {
+        returnError = error;
+        [expectation fulfill];
+    };
+    
+    [self.errorHandler handleError:error
+                      httpResponse:httpResponse
+                              data:nil
+                       httpRequest:httpRequest
+                           context:context
+                   completionBlock:block];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertEqualObjects(returnError.userInfo[MSIDErrorDescriptionKey], @"bad request");
+}
+
+- (void)testHandleError_whenErorDescriptionInBody_shouldReturnDescriptionFromBody
+{
+    __auto_type error = [NSError new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
+                                                           statusCode:400
+                                                          HTTPVersion:nil
+                                                         headerFields:nil];
+    __auto_type httpRequest = [MSIDHttpTestRequest new];
+    __auto_type context = [MSIDTestContext new];
+    __block NSError *returnError;
+    
+    __auto_type json = @{@"error" : @"invalid_request", @"error_description": @"Invalid format for 'authorization_endpoint' value.",};
+    NSData *responseData = [NSJSONSerialization dataWithJSONObject:json options:0 error:&error];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
+    __auto_type block = ^(id response, NSError *error) {
+        returnError = error;
+        [expectation fulfill];
+    };
+    
+    [self.errorHandler handleError:error
+                      httpResponse:httpResponse
+                              data:responseData
+                       httpRequest:httpRequest
+                           context:context
+                   completionBlock:block];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertEqualObjects(returnError.userInfo[MSIDErrorDescriptionKey], @"Invalid format for 'authorization_endpoint' value.");
+}
 
 @end
