@@ -27,7 +27,7 @@
 
 @implementation NSDictionary (MSIDExtensions)
 
-+ (NSDictionary *)msidDictionaryFromString:(NSString *)string
++ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
 {
     return [self msidDictionaryFromString:string decode:NO];
 }
