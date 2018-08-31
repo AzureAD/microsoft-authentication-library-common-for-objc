@@ -247,7 +247,7 @@
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/qwe/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Fqwe%2Foauth2%2Fauthorize&x-client-Ver=1.0.0" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -290,7 +290,7 @@
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/qwe/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Fexample.com%2Fcommon%2Fqwe%2Foauth2%2Fauthorize&x-client-Ver=1.0.0" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -457,7 +457,7 @@
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:400 HTTPVersion:nil headerFields:nil];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/qwe/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Fexample.com%2Fcommon%2Fqwe%2Foauth2%2Fauthorize&x-client-Ver=1.0.0" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -490,7 +490,7 @@
     __auto_type authority = [@"https://example.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:400 HTTPVersion:nil headerFields:nil];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://example.com/common/qwe/oauth2/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Fexample.com%2Fcommon%2Fqwe%2Foauth2%2Fauthorize&x-client-Ver=1.0.0" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -542,7 +542,7 @@
     __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
     __auto_type upn = @"user@microsoft.com";
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?x-client-Ver=1.0.0&api-version=1.1&authorization_endpoint=https://login.microsoftonline.com/common/qwe/oauth2/v2.0/authorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Fqwe%2Foauth2%2Fv2.0%2Fauthorize&x-client-Ver=1.0.0" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
