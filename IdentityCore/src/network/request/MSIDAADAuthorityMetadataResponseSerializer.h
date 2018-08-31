@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -20,14 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDHttpRequest.h"
+#import <Foundation/Foundation.h>
+#import "MSIDAADResponseSerializer.h"
 
-@interface MSIDAADAuthorityMetadataRequest : MSIDHttpRequest
-
-- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
-                                  authority:(nonnull NSURL *)authority NS_DESIGNATED_INITIALIZER;
-
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
+@interface MSIDAADAuthorityMetadataResponseSerializer : MSIDAADResponseSerializer
 
 @end

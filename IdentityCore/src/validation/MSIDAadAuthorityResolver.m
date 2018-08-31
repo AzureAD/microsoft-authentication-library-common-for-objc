@@ -26,6 +26,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAADAuthorityMetadataResponse.h"
 
 static dispatch_queue_t s_aadValidationQueue;
 

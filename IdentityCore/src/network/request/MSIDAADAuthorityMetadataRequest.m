@@ -21,40 +21,9 @@
 // THE SOFTWARE.
 
 #import "MSIDAADAuthorityMetadataRequest.h"
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDAADAuthorityMetadataResponseSerializer.h"
 #import "MSIDAADRequestConfigurator.h"
 #import "MSIDAADNetworkConfiguration.h"
-
-@interface MSIDAADAuthorityMetadataResponseSerializer : MSIDAADResponseSerializer
-@end
-
-@implementation MSIDAADAuthorityMetadataResponseSerializer
-
-- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
-                           data:(NSData *)data
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
-{
-    NSError *jsonError;
-    NSDictionary *jsonObject = [super responseObjectForResponse:httpResponse data:data context:context error:&jsonError];
-
-    if (jsonError)
-    {
-        if (error) *error = jsonError;
-        return nil;
-    }
-
-    __auto_type reponse = [MSIDAADAuthorityMetadataResponse new];
-    reponse.metadata = jsonObject[@"metadata"];
-    reponse.openIdConfigurationEndpoint = [NSURL URLWithString:jsonObject[@"tenant_discovery_endpoint"]];
-
-    return reponse;
-}
-
-@end
-
-@implementation MSIDAADAuthorityMetadataResponse
-@end
 
 @implementation MSIDAADAuthorityMetadataRequest
 
