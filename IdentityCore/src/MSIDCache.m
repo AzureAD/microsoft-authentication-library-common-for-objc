@@ -50,7 +50,7 @@
 {
     __block id object;
     dispatch_sync(self.synchronizationQueue, ^{
-        object = [self.container objectForKey:key];
+        object = self.container[key];
     });
     
     return object;
@@ -59,7 +59,7 @@
 - (void)setObject:(id)obj forKey:(id)key
 {
     dispatch_barrier_sync(self.synchronizationQueue, ^{
-        [self.container setObject:obj forKey:key];
+        self.container[key] = obj;
     });
 }
 

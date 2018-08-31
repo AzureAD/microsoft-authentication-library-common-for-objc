@@ -60,6 +60,16 @@
     XCTAssertEqualObjects(object, @"v1");
 }
 
+- (void)testSetObject_whenObjectNil_shouldRemoteItFromCache
+{
+    __auto_type cache = [MSIDCache new];
+    
+    [cache setObject:@"v1" forKey:@"k1"];
+    [cache setObject:nil forKey:@"k1"];
+    
+    XCTAssertEqual([cache count], 0);
+}
+
 - (void)testRemoveObjectForKey_whenObjectInCache_shouldRemoveObject
 {
     __auto_type cache = [MSIDCache new];
