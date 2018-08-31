@@ -55,7 +55,7 @@
         NSArray *queryElements = [query componentsSeparatedByString:@"="];
         if (queryElements.count > 2)
         {
-            MSID_LOG_WARN(nil, @"Query parameter must be a form key=value");
+            MSID_LOG_WARN(nil, @"Query parameter must be a form key=value: %@", query);
             continue;
         }
         
