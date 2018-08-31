@@ -91,11 +91,27 @@
     
     NSError *error = nil;
     
-    BOOL result = [factory verifyResponse:nil context:nil error:&error];
+    BOOL result = [factory verifyResponse:nil context:nil configuration:[MSIDTestConfiguration v2DefaultConfiguration] error:&error];
     
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDErrorDomain);
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"processTokenResponse called without a response dictionary");
+}
+
+- (void)testVerifyResponse_whenValidResponseAndNilConfiguration_shouldReturnError
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+
+    NSError *error = nil;
+
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_grant"} error:nil];
+
+    BOOL result = [factory verifyResponse:response context:nil configuration:nil error:&error];
+
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"processTokenResponse called without a configuration");
 }
 
 - (void)testVerifyResponse_whenOAuthError_shouldReturnError
@@ -105,7 +121,7 @@
     MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_grant"} error:nil];
     
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v2DefaultConfiguration] error:&error];
     
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
@@ -123,7 +139,7 @@
                                                                                       }
                                                                               error:nil];
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v2DefaultConfiguration] error:&error];
     
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDErrorDomain);
@@ -141,7 +157,7 @@
                                                                                       }
                                                                               error:nil];
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v2DefaultConfiguration] error:&error];
     
     XCTAssertTrue(result);
     XCTAssertNil(error);

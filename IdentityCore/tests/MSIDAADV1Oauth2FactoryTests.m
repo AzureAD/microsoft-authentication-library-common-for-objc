@@ -114,7 +114,7 @@
     MSIDTokenResponse *response = [MSIDTokenResponse new];
     
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v1DefaultConfiguration] error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -132,7 +132,7 @@
                                                                                                 }
                                                                                         error:nil];
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v1DefaultConfiguration] error:&error];
     
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -145,7 +145,7 @@
     MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_grant"}
                                                                                         error:nil];
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response fromRefreshToken:YES context:nil error:&error];
+    BOOL result = [factory verifyResponse:response fromRefreshToken:YES context:nil configuration:[MSIDTestConfiguration v1DefaultConfiguration] error:&error];
     
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
@@ -162,7 +162,7 @@
                                                                                                 }
                                                                                         error:nil];
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response fromRefreshToken:YES context:nil error:&error];
+    BOOL result = [factory verifyResponse:response fromRefreshToken:YES context:nil configuration:[MSIDTestConfiguration v1DefaultConfiguration] error:&error];
 
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
@@ -177,7 +177,7 @@
     MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_grant"}
                                                                                         error:nil];
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v1DefaultConfiguration] error:&error];
     
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);

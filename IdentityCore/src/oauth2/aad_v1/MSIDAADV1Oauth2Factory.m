@@ -82,25 +82,28 @@
 
 - (BOOL)verifyResponse:(MSIDAADV1TokenResponse *)response
                context:(id<MSIDRequestContext>)context
-                 error:(NSError * __autoreleasing *)error
+         configuration:(MSIDConfiguration *)configuration
+                 error:(NSError **)error
 {
     return [self verifyResponse:response
                fromRefreshToken:NO
                         context:context
+                  configuration:configuration
                           error:error];
 }
 
 - (BOOL)verifyResponse:(MSIDAADV1TokenResponse *)response
       fromRefreshToken:(BOOL)fromRefreshToken
                context:(id<MSIDRequestContext>)context
-                 error:(NSError * __autoreleasing *)error
+         configuration:(MSIDConfiguration *)configuration
+                 error:(NSError **)error
 {
     if (![self checkResponseClass:response context:context error:error])
     {
         return NO;
     }
 
-    BOOL result = [super verifyResponse:response context:context error:error];
+    BOOL result = [super verifyResponse:response context:context configuration:configuration error:error];
 
     if (!result)
     {

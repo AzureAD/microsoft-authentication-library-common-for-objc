@@ -50,6 +50,7 @@
 
 - (BOOL)verifyResponse:(MSIDTokenResponse *)response
                context:(id<MSIDRequestContext>)context
+         configuration:(MSIDConfiguration *)configuration
                  error:(NSError * __autoreleasing *)error;
 
 // Tokens
