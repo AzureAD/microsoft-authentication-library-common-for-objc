@@ -113,8 +113,11 @@
     NSError *error;
     BOOL result = [inputDictionary assertContainsField:@"key1" context:nil error:&error];
     
-    XCTAssertNotNil(error);
     XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"key1 is missing.");
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
 }
 
 - (void)testAssertType_whenFieldOfCorrectType_shouldReturnTrue
@@ -139,8 +142,11 @@
     NSError *error;
     BOOL result = [inputDictionary assertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
     
-    XCTAssertNotNil(error);
     XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"key1 is not a NSString.");
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, 1);
 }
 
 @end
