@@ -112,7 +112,7 @@
     MSIDTokenResponse *response = [MSIDTokenResponse new];
     
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v2DefaultConfiguration] error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -130,7 +130,7 @@
                                                                                             }
                                                                                     error:nil];
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v2DefaultConfiguration] error:&error];
     
     XCTAssertTrue(result);
     XCTAssertNil(error);

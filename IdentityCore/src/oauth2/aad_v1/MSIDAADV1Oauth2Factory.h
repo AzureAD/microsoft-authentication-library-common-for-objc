@@ -32,6 +32,7 @@
 - (BOOL)verifyResponse:(MSIDTokenResponse *)response
       fromRefreshToken:(BOOL)fromRefreshToken
                context:(id<MSIDRequestContext>)context
+         configuration:(MSIDConfiguration *)configuration
                  error:(NSError * __autoreleasing *)error;
 
 @end

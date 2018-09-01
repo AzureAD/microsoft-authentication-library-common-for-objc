@@ -49,6 +49,7 @@
 
 - (BOOL)verifyResponse:(MSIDTokenResponse *)response
                context:(id<MSIDRequestContext>)context
+         configuration:(MSIDConfiguration *)configuration
                  error:(NSError **)error
 {
     if (!response)
@@ -57,6 +58,16 @@
         {
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInternal, @"processTokenResponse called without a response dictionary", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
+
+    if (!configuration)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorInternal, @"processTokenResponse called without a configuration", nil, nil, nil, context.correlationId, nil);
         }
         return NO;
     }

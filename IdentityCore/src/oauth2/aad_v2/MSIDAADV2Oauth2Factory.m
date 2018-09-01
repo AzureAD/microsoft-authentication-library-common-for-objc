@@ -34,6 +34,7 @@
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAADV2WebviewFactory.h"
 #import "MSIDAadAuthorityCache.h"
+#import "NSString+MSIDExtensions.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -77,14 +78,15 @@
 
 - (BOOL)verifyResponse:(MSIDAADV2TokenResponse *)response
                context:(id<MSIDRequestContext>)context
-                 error:(NSError * __autoreleasing *)error
+         configuration:(MSIDConfiguration *)configuration
+                 error:(NSError **)error
 {
     if (![self checkResponseClass:response context:context error:error])
     {
         return NO;
     }
 
-    BOOL result = [super verifyResponse:response context:context error:error];
+    BOOL result = [super verifyResponse:response context:context configuration:configuration error:error];
 
     if (!result)
     {
@@ -114,6 +116,32 @@
         return NO;
     }
 
+    /*
+
+     If server returns less scopes than developer requested,
+     we'd like to throw an error and specify which scopes were granted and which ones not
+     */
+
+    NSOrderedSet *grantedScopes = [response.scope scopeSet];
+
+    if (![configuration.scopes isSubsetOfOrderedSet:grantedScopes])
+    {
+        if (error)
+        {
+            NSMutableDictionary *additionalUserInfo = [NSMutableDictionary new];
+            additionalUserInfo[MSIDGrantedScopesKey] = [grantedScopes array];
+
+            NSMutableOrderedSet *requestedScopeSet = [configuration.scopes mutableCopy];
+            [requestedScopeSet minusOrderedSet:grantedScopes];
+
+            additionalUserInfo[MSIDDeclinedScopesKey] = [requestedScopeSet array];
+
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInsufficientScopes, @"Server returned less scopes than requested", nil, nil, nil, context.correlationId, additionalUserInfo);
+        }
+
+        return NO;
+    }
+
     return YES;
 }
 
@@ -135,17 +163,6 @@
     if (!response.scope)
     {
         responseScopes = configuration.scopes;
-    }
-    else
-    {
-        NSOrderedSet<NSString *> *reqScopes = configuration.scopes;
-
-        if (reqScopes.count == 1 && [reqScopes.firstObject.lowercaseString hasSuffix:@".default"])
-        {
-            NSMutableOrderedSet<NSString *> *targetScopeSet = [responseScopes mutableCopy];
-            [targetScopeSet unionOrderedSet:reqScopes];
-            responseScopes = targetScopeSet;
-        }
     }
 
     accessToken.scopes = responseScopes;

@@ -118,7 +118,7 @@
     MSIDAADV1TokenResponse *response = [MSIDAADV1TokenResponse new];
     
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v2DefaultConfiguration] error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -132,11 +132,12 @@
     NSString *rawClientInfo = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
                                                                                                 @"refresh_token":@"fake_refresh_token",
-                                                                                                @"client_info":rawClientInfo
+                                                                                                @"client_info":rawClientInfo,
+                                                                                                @"scope": @"https://graph.microsoft.com/mail.read"
                                                                                                 }
                                                                                         error:nil];
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v2DefaultConfiguration] error:&error];
     
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -149,7 +150,7 @@
     MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_grant"}
                                                                                         error:nil];
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v2DefaultConfiguration] error:&error];
     
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
@@ -165,11 +166,88 @@
                                                                                                 @"refresh_token":@"fake_refresh_token"}
                                                                                         error:nil];
     NSError *error = nil;
-    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    BOOL result = [factory verifyResponse:response context:nil configuration:[MSIDTestConfiguration v2DefaultConfiguration] error:&error];
     
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDErrorDomain);
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Client info was not returned in the server response");
+}
+
+- (void)testVerifyResponse_whenSameScopesReturned_shouldReturnYESNoError
+{
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
+                                                                        redirectUri:nil
+                                                                           clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             target:@"user.read user.write"];
+
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    NSString *rawClientInfo = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
+                                                                                                @"refresh_token":@"fake_refresh_token",
+                                                                                                @"scope": @"user.write user.read",
+                                                                                                @"client_info": rawClientInfo
+                                                                                                }
+                                                                                        error:nil];
+
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil configuration:configuration error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+}
+
+- (void)testVerifyResponse_whenMoreScopesReturned_shouldReturnYESNoError
+{
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
+                                                                        redirectUri:nil
+                                                                           clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             target:@"user.read user.write"];
+
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    NSString *rawClientInfo = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
+                                                                                                @"refresh_token":@"fake_refresh_token",
+                                                                                                @"scope": @"user.write user.read additional.scope",
+                                                                                                @"client_info": rawClientInfo
+                                                                                                }
+                                                                                        error:nil];
+
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil configuration:configuration error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+}
+
+- (void)testVerifyResponse_whenLessScopesReturned_shouldReturnNoAndInsufficientScopesError
+{
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
+                                                                        redirectUri:nil
+                                                                           clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             target:@"user.read user.write tasks.read"];
+
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    NSString *rawClientInfo = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
+                                                                                                @"refresh_token":@"fake_refresh_token",
+                                                                                                @"scope": @"user.read additional.scope",
+                                                                                                @"client_info": rawClientInfo
+                                                                                                }
+                                                                                        error:nil];
+
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil configuration:configuration error:&error];
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorServerInsufficientScopes);
+    XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
+
+    NSArray *expectedGrantedScopes = @[@"user.read", @"additional.scope"];
+    XCTAssertEqualObjects(error.userInfo[MSIDGrantedScopesKey], expectedGrantedScopes);
+
+    NSArray *expectedDeclinedScopes = @[@"user.write", @"tasks.read"];
+    XCTAssertEqualObjects(error.userInfo[MSIDDeclinedScopesKey], expectedDeclinedScopes);
 }
 
 #pragma mark - Tokens
@@ -362,38 +440,6 @@
     
     // scope should be the same as it is in response
     XCTAssertEqualObjects(accessToken.scopes.msidToString, scopeInResposne);
-}
-
-- (void)testAccessTokenFromResponse_withAdditionFromRequest_whenOnlyDefaultScopeInRequest_shouldAddDefaultScope
-{
-    NSString *scopeInRequest = @"abc://abc/.default";
-    NSString *scopeInResposne = @"user.read";
-    
-    // construct configuration
-    MSIDConfiguration *configuration = [MSIDConfiguration new];
-    [configuration setTarget:scopeInRequest];
-    
-    // construct response
-    NSDictionary *jsonInput = @{@"access_token": @"at",
-                                @"token_type": @"Bearer",
-                                @"expires_in": @"xyz",
-                                @"expires_on": @"xyz",
-                                @"refresh_token": @"rt",
-                                @"scope": scopeInResposne
-                                };
-    NSError *error = nil;
-    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
-    
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
-    
-    // both scopes in request and response should be included
-    NSOrderedSet<NSString *> *scopeWithAddition = accessToken.scopes;
-    XCTAssertEqual(scopeWithAddition.count, 2);
-    XCTAssertTrue([scopeInRequest.scopeSet isSubsetOfOrderedSet:scopeWithAddition]);
-    XCTAssertTrue([scopeInResposne.scopeSet isSubsetOfOrderedSet:scopeWithAddition]);
 }
 
 - (void)testAccountFromTokenResponse_whenAADV2TokenResponse_shouldInitAccountAndSetProperties

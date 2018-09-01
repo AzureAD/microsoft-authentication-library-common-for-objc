@@ -27,6 +27,8 @@ NSString *MSIDOAuthSubErrorKey = @"MSIDOAuthSubErrorKey";
 NSString *MSIDCorrelationIdKey = @"MSIDCorrelationIdKey";
 NSString *MSIDHTTPHeadersKey = @"MSIDHTTPHeadersKey";
 NSString *MSIDHTTPResponseCodeKey = @"MSIDHTTPResponseCodeKey";
+NSString *MSIDDeclinedScopesKey = @"MSIDDeclinedScopesKey";
+NSString *MSIDGrantedScopesKey = @"MSIDGrantedScopesKey";
 
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";

@@ -82,14 +82,15 @@
 
 - (BOOL)verifyResponse:(MSIDAADTokenResponse *)response
                context:(id<MSIDRequestContext>)context
-                 error:(NSError * __autoreleasing *)error
+         configuration:(MSIDConfiguration *)configuration
+                 error:(NSError **)error
 {
     if (![self checkResponseClass:response context:context error:error])
     {
         return NO;
     }
 
-    BOOL result = [super verifyResponse:response context:context error:error];
+    BOOL result = [super verifyResponse:response context:context configuration:configuration error:error];
 
     if (!result)
     {
