@@ -115,7 +115,7 @@
            ofField:(NSString *)field
            context:(id <MSIDRequestContext>)context
          errorCode:(NSInteger)errorCode
-             error:(NSError **)error;
+             error:(NSError **)error
 {
     id fieldValue = self[field];
     if (![fieldValue isKindOfClass:type])
