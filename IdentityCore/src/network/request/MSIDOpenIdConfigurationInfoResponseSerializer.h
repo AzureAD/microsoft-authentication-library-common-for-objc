@@ -20,34 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDOpenIdConfigurationInfoRequest.h"
-#import "MSIDOpenIdProviderMetadata.h"
-#import "MSIDOpenIdConfigurationInfoResponseSerializer.h"
-#import "MSIDAuthority.h"
+#import <Foundation/Foundation.h>
+#import "MSIDAADResponseSerializer.h"
 
-@implementation MSIDOpenIdConfigurationInfoRequest
+@interface MSIDOpenIdConfigurationInfoResponseSerializer : MSIDAADResponseSerializer
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                         context:(id<MSIDRequestContext>)context
-{
-    self = [super init];
-    if (self)
-    {
-        NSParameterAssert(endpoint);
-        
-        _context = context;
-        
-        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
-        urlRequest.URL = endpoint;
-        urlRequest.HTTPMethod = @"GET";
-        _urlRequest = urlRequest;
-        
-        __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
-        responseSerializer.endpoint = endpoint;
-        _responseSerializer = responseSerializer;
-    }
-    
-    return self;
-}
+@property (nonatomic) NSURL *endpoint;
 
 @end
