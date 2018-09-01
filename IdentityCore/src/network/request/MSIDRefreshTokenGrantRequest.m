@@ -35,7 +35,6 @@
     if (self)
     {
         NSParameterAssert(refreshToken);
-        NSParameterAssert(clientId);
         
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;

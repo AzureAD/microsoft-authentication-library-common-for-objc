@@ -106,7 +106,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      =========================================================
      */
     // Authority validation response failure
-    MSIDErrorAuthorityValidation  = -51500,
+    MSIDErrorAuthorityValidation            = -51500,
+    MSIDErrorAuthorityValidationWebFinger   = -51501,
 
     /*!
      =========================================================

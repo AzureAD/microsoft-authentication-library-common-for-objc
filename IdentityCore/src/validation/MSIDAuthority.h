@@ -25,25 +25,51 @@
 //
 //------------------------------------------------------------------------------
 
+#import <Foundation/Foundation.h>
+#import "MSIDAuthorityResolving.h"
+
+@class MSIDOpenIdProviderMetadata;
+
+typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error);
+
+extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
+
 @interface MSIDAuthority : NSObject
 
-+ (BOOL)isADFSInstance:(NSString *)endpoint;
-+ (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl;
-+ (BOOL)isConsumerInstanceURL:(NSURL *)authorityURL;
+@property (class, readonly, nonnull) NSCache *openIdConfigurationCache;
+
++ (BOOL)isADFSInstance:(nonnull NSString *)endpoint;
++ (BOOL)isADFSInstanceURL:(nonnull NSURL *)endpointUrl;
++ (BOOL)isConsumerInstanceURL:(nonnull NSURL *)authorityURL;
++ (BOOL)isB2CInstanceURL:(nonnull NSURL *)endpointUrl;
 
 /* AAD v1 endpoint supports only "common" path.
-   AAD v2 endpoint supports both common and organizations.
-   For legacy cache lookups we need to use common authority for compatibility purposes.
-   This method returns "common" authority if "organizations" authority was passed
-   Otherwise, returns original authority */
-+ (NSURL *)universalAuthorityURL:(NSURL *)authorityURL;
+ AAD v2 endpoint supports both common and organizations.
+ For legacy cache lookups we need to use common authority for compatibility purposes.
+ This method returns "common" authority if "organizations" authority was passed
+ Otherwise, returns original authority */
++ (NSURL * _Nullable)universalAuthorityURL:(nullable NSURL *)authorityURL;
 
-+ (NSURL *)commonAuthorityWithURL:(NSURL *)authorityURL;
++ (NSURL * _Nullable)commonAuthorityWithURL:(nullable NSURL *)authorityURL;
 
-+ (BOOL)isTenantless:(NSURL *)authority;
-+ (NSURL *)cacheUrlForAuthority:(NSURL *)authority
-                       tenantId:(NSString *)tenantId;
++ (BOOL)isTenantless:(nonnull NSURL *)authority;
++ (NSURL *_Nullable)cacheUrlForAuthority:(nonnull NSURL *)authority
+                                tenantId:(nullable NSString *)tenantId;
 
-+ (BOOL)isKnownHost:(NSURL *)url;
++ (void)resolveAuthority:(nonnull NSURL *)authority
+       userPrincipalName:(nullable NSString *)upn
+                validate:(BOOL)validate
+                 context:(nullable id<MSIDRequestContext>)context
+         completionBlock:(nonnull MSIDAuthorityInfoBlock)completionBlock;
+
++ (void)loadOpenIdConfigurationInfo:(nonnull NSURL *)openIdConfigurationEndpoint
+                            context:(nullable id<MSIDRequestContext>)context
+                    completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionB_Nullable_Nonnulllock;
+
++ (NSURL *_Nullable)normalizeAuthority:(nonnull NSURL *)authority
+                               context:(nullable id<MSIDRequestContext>)context
+                                 error:(NSError * _Nullable __autoreleasing *_Nullable)error;
+
++ (BOOL)isKnownHost:(nonnull NSURL *)url;
 
 @end

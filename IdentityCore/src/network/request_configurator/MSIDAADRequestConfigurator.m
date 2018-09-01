@@ -67,8 +67,6 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     mutableUrlRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
     [mutableUrlRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
-    mutableUrlRequest.URL = [NSURL msidAddParameters:@{MSID_VERSION_KEY : MSIDVersion.sdkVersion} toUrl:requestUrl];
-    
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
     [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     

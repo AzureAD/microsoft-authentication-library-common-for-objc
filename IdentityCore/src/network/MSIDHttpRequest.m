@@ -24,20 +24,14 @@
 #import "MSIDHttpRequest.h"
 #import "MSIDJsonResponseSerializer.h"
 #import "MSIDUrlRequestSerializer.h"
-#import "MSIDHttpRequestTelemetryProtocol.h"
-#import "MSIDHttpRequestErrorHandlerProtocol.h"
+#import "MSIDHttpRequestTelemetryHandling.h"
+#import "MSIDHttpRequestErrorHandling.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
+#import "MSIDURLSessionManager.h"
 
 static NSInteger const s_defaultRetryCounter = 1;
 static NSTimeInterval const s_defaultRetryInterval = 0.5;
-
-@interface MSIDHttpRequest () <NSURLSessionDelegate>
-
-@property (nonatomic) NSURLSessionConfiguration *sessionConfiguration;
-@property (nonatomic) NSURLSession *session;
-
-@end
 
 @implementation MSIDHttpRequest
 
@@ -47,8 +41,7 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
     
     if (self)
     {
-        _sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        _session = [NSURLSession sessionWithConfiguration:_sessionConfiguration delegate:self delegateQueue:nil];
+        _sessionManager = MSIDURLSessionManager.defaultManager;
         _responseSerializer = [MSIDJsonResponseSerializer new];
         _requestSerializer = [MSIDUrlRequestSerializer new];
         _telemetry = [MSIDHttpRequestTelemetry new];
@@ -65,17 +58,15 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
     
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
     
-    if (self.requestConfigurator) { [self.requestConfigurator configure:self]; }
-    
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
     
     MSID_LOG_VERBOSE(self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));
     
-    [[self.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+    [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
       {
           MSID_LOG_VERBOSE(self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
           
-          if (response) { NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL); }
+          if (response) NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
           
           __auto_type httpResponse = (NSHTTPURLResponse *)response;
           
@@ -84,13 +75,14 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
                                               httpResponse:httpResponse
                                                       data:data
                                                      error:error];
+          
           if (error)
           {
               if (completionBlock) { completionBlock(nil, error); }
           }
           else if (httpResponse.statusCode == 200)
           {
-              id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data error:&error];
+              id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data context:self.context error:&error];
               
               MSID_LOG_VERBOSE(self.context, @"Parsed response: %@, error %@, error domain: %@, error code: %ld", _PII_NULLIFY(responseObject), _PII_NULLIFY(error), error.domain, (long)error.code);
               
@@ -112,17 +104,8 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
                   if (completionBlock) { completionBlock(nil, error); }
               }
           }
+
       }] resume];
-}
-
-- (void)finishAndInvalidate
-{
-    [self.session finishTasksAndInvalidate];
-}
-
-- (void)cancel
-{
-    [self.session invalidateAndCancel];
 }
 
 @end

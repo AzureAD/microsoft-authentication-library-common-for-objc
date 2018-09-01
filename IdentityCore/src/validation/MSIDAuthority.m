@@ -26,32 +26,52 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDAuthority.h"
-
-@implementation MSIDAuthority
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthorityResolving.h"
+#import "MSIDAadAuthorityResolver.h"
+#import "MSIDAADAuthorityMetadataRequest.h"
+#import "MSIDDRSDiscoveryRequest.h"
+#import "MSIDWebFingerRequest.h"
+#import "MSIDAuthorityResolving.h"
+#import "MSIDAadAuthorityResolver.h"
+#import "MSIDB2CAuthorityResolver.h"
+#import "MSIDAdfsAuthorityResolver.h"
+#import "MSIDOpenIdConfigurationInfoRequest.h"
 
 static NSSet<NSString *> *s_trustedHostList;
+static NSCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
 
 // Trusted authorities
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
 NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
 NSString *const MSIDTrustedAuthorityChina        = @"login.chinacloudapi.cn";
+NSString *const MSIDTrustedAuthorityChina2       = @"login.partner.microsoftonline.cn";
 NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
 NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
-NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
+NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
+
+@implementation MSIDAuthority
 
 + (void)initialize
 {
-    s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority, MSIDTrustedAuthorityUS,
-                         MSIDTrustedAuthorityChina, MSIDTrustedAuthorityGermany,
-                         MSIDTrustedAuthorityWorldWide, MSIDTrustedAuthorityUSGovernment, MSIDTrustedAuthorityCloudGovApi, nil];
+    if (self == [MSIDAuthority self])
+    {
+        s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority,
+                             MSIDTrustedAuthorityUS,
+                             MSIDTrustedAuthorityChina,
+                             MSIDTrustedAuthorityChina2,
+                             MSIDTrustedAuthorityGermany,
+                             MSIDTrustedAuthorityWorldWide,
+                             MSIDTrustedAuthorityUSGovernment,
+                             MSIDTrustedAuthorityCloudGovApi, nil];
+        s_openIdConfigurationCache = [NSCache new];
+    }
 }
 
-+ (BOOL)isKnownHost:(NSURL *)url
++ (NSCache *)openIdConfigurationCache
 {
-    if (!url) return NO;
-    
-    return [s_trustedHostList containsObject:url.host.lowercaseString];
+    return s_openIdConfigurationCache;
 }
 
 + (BOOL)isADFSInstance:(NSString *)endpoint
@@ -76,6 +96,22 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
     {
         NSString *tenant = [paths objectAtIndex:1];
         return [@"adfs" isEqualToString:tenant];
+    }
+    return NO;
+}
+
++ (BOOL)isB2CInstanceURL:(NSURL *)endpointUrl
+{
+    if (!endpointUrl)
+    {
+        return NO;
+    }
+    
+    NSArray *paths = endpointUrl.pathComponents;
+    if (paths.count >= 2)
+    {
+        NSString *tenant = [paths objectAtIndex:1];
+        return [@"tfp" isEqualToString:tenant];
     }
     return NO;
 }
@@ -129,18 +165,19 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
     {
         return nil;
     }
-
+    
     NSArray *paths = authorityURL.pathComponents;
-
+    
     if ([paths count] >= 2)
     {
         NSURLComponents *components = [NSURLComponents componentsWithURL:authorityURL resolvingAgainstBaseURL:NO];
         components.path = @"/common";
         return [components URL];
     }
-
+    
     return authorityURL;
 }
+
 
 + (BOOL)isTenantless:(NSURL *)authority
 {
@@ -180,6 +217,158 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
     }
     
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authority msidHostWithPortIfNecessary], tenantId]];
+}
+
++ (void)resolveAuthority:(NSURL *)authority
+       userPrincipalName:(NSString *)upn
+                validate:(BOOL)validate
+                 context:(id<MSIDRequestContext>)context
+         completionBlock:(MSIDAuthorityInfoBlock)completionBlock
+{
+    NSParameterAssert(completionBlock);
+    
+    NSError *error;
+    if (![self isAuthorityFormatValid:authority context:nil error:&error])
+    {
+        completionBlock(nil, NO, error);
+        return;
+    }
+    
+    if (error)
+    {
+        completionBlock(nil, NO, error);
+        return;
+    }
+    
+    id <MSIDAuthorityResolving> resolver;
+    // ADFS.
+    if ([MSIDAuthority isADFSInstanceURL:authority])
+    {
+        resolver = [MSIDAdfsAuthorityResolver new];
+    }
+    // B2C.
+    else if ([MSIDAuthority isB2CInstanceURL:authority])
+    {
+        resolver = [MSIDB2CAuthorityResolver new];
+    }
+    // AAD.
+    else
+    {
+        resolver = [MSIDAadAuthorityResolver new];
+    }
+    
+    [resolver resolveAuthority:authority
+             userPrincipalName:upn
+                      validate:validate
+                       context:context
+               completionBlock:completionBlock];
+}
+
++ (void)loadOpenIdConfigurationInfo:(NSURL *)openIdConfigurationEndpoint
+                            context:(id<MSIDRequestContext>)context
+                    completionBlock:(MSIDOpenIdConfigurationInfoBlock)completionBlock
+{
+    NSParameterAssert(completionBlock);
+    
+    if (openIdConfigurationEndpoint == nil)
+    {
+        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"openIdConfigurationEndpoint is nil.", nil, nil, nil, context.correlationId, nil);
+        completionBlock(nil, error);
+        return;
+    }
+    
+    __auto_type cacheKey = openIdConfigurationEndpoint.absoluteString.lowercaseString;
+    __auto_type metadata = [s_openIdConfigurationCache objectForKey:cacheKey];
+    
+    if (metadata)
+    {
+        completionBlock(metadata, nil);
+        return;
+    }
+    
+    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:openIdConfigurationEndpoint context:context];
+    [request sendWithBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+    {
+        if (cacheKey && metadata)
+        {
+            [s_openIdConfigurationCache setObject:metadata forKey:cacheKey];
+        }
+        
+        completionBlock(metadata, error);
+    }];
+}
+
++ (NSURL *)normalizeAuthority:(NSURL *)authority
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
+{
+    if (![MSIDAuthority isAuthorityFormatValid:authority context:context error:error])
+    {
+        return nil;
+    }
+    
+    // B2C
+    if ([self isB2CInstanceURL:authority])
+    {
+        NSString *updatedAuthorityString = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [authority msidHostWithPortIfNecessary], authority.pathComponents[1], authority.pathComponents[2], authority.pathComponents[3]];
+        return [NSURL URLWithString:updatedAuthorityString];
+    }
+    
+    // ADFS and AAD
+    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authority msidHostWithPortIfNecessary], authority.pathComponents[1]]];
+}
+
++ (BOOL)isAuthorityFormatValid:(NSURL *)authority
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
+{    
+    if ([NSString msidIsStringNilOrBlank:authority.absoluteString])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"'authority' is a required parameter and must not be nil or empty.", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
+    
+    if (![authority.scheme isEqualToString:@"https"])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must use HTTPS.", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
+    
+    if (authority.pathComponents.count < 2)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have at least 2 path components.", nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
+    
+    // B2C
+    if ([self isB2CInstanceURL:authority])
+    {
+        if (authority.pathComponents.count < 4)
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"B2C authority should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)", nil, nil, nil, context.correlationId, nil);
+            }
+            return NO;
+        }
+    }
+    
+    return YES;
+    
+}
+
++ (BOOL)isKnownHost:(NSURL *)url
+{
+    return [s_trustedHostList containsObject:url.host.lowercaseString];
 }
 
 @end

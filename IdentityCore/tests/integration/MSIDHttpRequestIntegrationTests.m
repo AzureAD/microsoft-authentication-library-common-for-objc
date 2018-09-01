@@ -28,7 +28,7 @@
 #import "MSIDTestURLSession.h"
 #import "MSIDTestURLResponse.h"
 #import "MSIDTestContext.h"
-#import "MSIDHttpRequestErrorHandlerProtocol.h"
+#import "MSIDHttpRequestErrorHandling.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
 
@@ -49,7 +49,7 @@
 
 @end
 
-@interface MSIDTestErrorHandler : NSObject <MSIDHttpRequestErrorHandlerProtocol>
+@interface MSIDTestErrorHandler : NSObject <MSIDHttpRequestErrorHandling>
 
 @property (nonatomic) int handleErrorInvokedCounts;
 @property (nonatomic) NSError *passedError;
@@ -121,11 +121,6 @@
 - (void)testErrorHandler_byDefaultIsNil
 {
     XCTAssertNil(self.request.errorHandler);
-}
-
-- (void)testRequestConfigurator_byDefaultIsNil
-{
-    XCTAssertNil(self.request.requestConfigurator);
 }
 
 - (void)testRequestTelemtry_byDefaultIsNotNil
@@ -290,30 +285,6 @@
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
-}
-
-- (void)testSendWithContext_whenRequestConfiguratorNotNil_shouldInvokeIt
-{
-    __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
-    __auto_type requestConfigurator = [MSIDTestRequestConfigurator new];
-    NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
-    urlRequest.HTTPMethod = @"GET";
-    self.request.urlRequest = urlRequest;
-    self.request.requestConfigurator = requestConfigurator;
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:baseUrl
-                                                         reponse:[NSHTTPURLResponse new]];
-    [MSIDTestURLSession addResponse:response];
-    
-    XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request"];
-    [self.request sendWithBlock:^(id response, NSError *error)
-     {
-         [expectation fulfill];
-     }];
-    
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-    
-    XCTAssertEqual(1, requestConfigurator.configureInvokedCounts);
-    XCTAssertEqualObjects(self.request, requestConfigurator.passedHttpRequest);
 }
 
 @end
