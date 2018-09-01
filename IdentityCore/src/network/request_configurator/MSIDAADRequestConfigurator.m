@@ -67,9 +67,6 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     mutableUrlRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
     [mutableUrlRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
-    // TODO: Do we need to send it in query params? (it is already added to headers)
-    mutableUrlRequest.URL = [NSURL msidAddParameters:@{MSID_VERSION_KEY : MSIDVersion.sdkVersion} toUrl:requestUrl];
-    
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
     [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     

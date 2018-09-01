@@ -70,7 +70,7 @@
     XCTAssertEqualObjects(httpRequest.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/json");
     XCTAssertEqual(httpRequest.urlRequest.timeoutInterval, 60);
     XCTAssertEqual(httpRequest.urlRequest.cachePolicy, NSURLRequestReloadIgnoringCacheData);
-    XCTAssertEqualObjects(httpRequest.urlRequest.URL.absoluteString, @"https://fake.url?x-client-Ver=1.0.0");
+    XCTAssertEqualObjects(httpRequest.urlRequest.URL.absoluteString, @"https://fake.url");
     __auto_type headers = httpRequest.urlRequest.allHTTPHeaderFields;
     XCTAssertEqualObjects(headers[MSID_OAUTH2_CORRELATION_ID_REQUEST], @"true");
     XCTAssertEqualObjects(headers[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE], @"E621E1F8-C36C-495A-93FC-0C247A3E6E5F");
