@@ -86,4 +86,15 @@
     XCTAssertNil(response);
 }
 
+- (void)testResponseObjectForResponse_whenJsonNil_shouldReturnNilWithNilError
+{
+    __auto_type responseSerializer = [MSIDAADAuthorityMetadataResponseSerializer new];
+    
+    NSError *error = nil;
+    __auto_type response = (MSIDAADAuthorityMetadataResponse *)[responseSerializer responseObjectForResponse:[NSHTTPURLResponse new] data:nil context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNil(response);
+}
+
 @end
