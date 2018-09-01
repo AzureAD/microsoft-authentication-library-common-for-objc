@@ -136,7 +136,7 @@
           
           MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
           
-          BOOL checkResult = [factory verifyResponse:tokenResponse context:nil error:&msidError];
+          BOOL checkResult = [factory verifyResponse:tokenResponse context:nil configuration:configuration error:&msidError];
           
           if (!checkResult)
           {
