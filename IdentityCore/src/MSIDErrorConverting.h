@@ -23,20 +23,16 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @protocol MSIDErrorConverting <NSObject>
 
 @required
-- (NSError *)errorWithDomain:(NSString *)domain
-                        code:(NSInteger)code
-            errorDescription:(NSString *)errorDescription
-                  oauthError:(NSString *)oauthError
-                    subError:(NSString *)subError
-             underlyingError:(NSError *)underlyingError
-               correlationId:(NSUUID *)correlationId
-                    userInfo:(NSDictionary *)userInfo;
+- (nullable NSError *)errorWithDomain:(nonnull NSString *)domain
+                                 code:(NSInteger)code
+                     errorDescription:(nullable NSString *)errorDescription
+                           oauthError:(nullable NSString *)oauthError
+                             subError:(nullable NSString *)subError
+                      underlyingError:(nullable NSError *)underlyingError
+                        correlationId:(nullable NSUUID *)correlationId
+                             userInfo:(nullable NSDictionary *)userInfo;
 
 @end
-
-NS_ASSUME_NONNULL_END
