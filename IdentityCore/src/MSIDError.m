@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDErrorConverter.h"
+
 NSString *MSIDErrorDescriptionKey = @"MSIDErrorDescriptionKey";
 NSString *MSIDOAuthErrorKey = @"MSIDOAuthErrorKey";
 NSString *MSIDOAuthSubErrorKey = @"MSIDOAuthSubErrorKey";
@@ -35,18 +37,21 @@ NSString *MSIDHttpErrorCodeDomain = @"MSIDHttpErrorCodeDomain";
 
 NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo)
 {
-    NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    userInfo[MSIDErrorDescriptionKey] = errorDescription;
-    userInfo[MSIDOAuthErrorKey] = oauthError;
-    userInfo[MSIDOAuthSubErrorKey] = subError;
-    userInfo[NSUnderlyingErrorKey]  = underlyingError;
-    userInfo[MSIDCorrelationIdKey] = correlationId;
-    if (additionalUserInfo)
+    id<MSIDErrorConverting> errorConverter = MSIDErrorConverter.errorConverter;
+
+    if (!errorConverter)
     {
-        [userInfo addEntriesFromDictionary:additionalUserInfo];
+        errorConverter = MSIDErrorConverter.defaultErrorConverter;
     }
-    
-    return [NSError errorWithDomain:domain code:code userInfo:userInfo];
+
+    return [errorConverter errorWithDomain:domain
+                                      code:code
+                          errorDescription:errorDescription
+                                oauthError:oauthError
+                                  subError:subError
+                           underlyingError:underlyingError
+                             correlationId:correlationId
+                                  userInfo:additionalUserInfo];
 }
 
 MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode)
