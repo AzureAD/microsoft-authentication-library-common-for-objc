@@ -35,6 +35,11 @@
                correlationId:(NSUUID *)correlationId
                     userInfo:(NSDictionary *)additionalUserInfo
 {
+    if (!domain)
+    {
+        return nil;
+    }
+
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     userInfo[MSIDErrorDescriptionKey] = errorDescription;
     userInfo[MSIDOAuthErrorKey] = oauthError;
