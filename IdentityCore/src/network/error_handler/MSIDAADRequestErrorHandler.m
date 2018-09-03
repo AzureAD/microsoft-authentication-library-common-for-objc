@@ -24,6 +24,7 @@
 
 #import "MSIDAADRequestErrorHandler.h"
 #import "MSIDJsonResponseSerializer.h"
+#import "MSIDAADTokenResponse.h"
 
 @implementation MSIDAADRequestErrorHandler
 
@@ -57,28 +58,54 @@
         
         return;
     }
-    
-    NSString *errorData = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];
-    
+
     id responseSerializer = [MSIDJsonResponseSerializer new];
     id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:nil];
-    id oauthError = responseObject[MSID_OAUTH2_ERROR];
-    id errorDescription = responseObject[MSID_OAUTH2_ERROR_DESCRIPTION] ?: errorData;
-    id suberror = responseObject[MSID_OAUTH2_SUB_ERROR];
-    
-    NSString* message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
-    NSString* messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorData];
+
+    if (responseObject)
+    {
+        MSIDAADTokenResponse *tokenResponse = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:responseObject error:nil];
+
+        if (![NSString msidIsStringNilOrBlank:tokenResponse.error])
+        {
+            NSError *oauthError = MSIDCreateError(MSIDOAuthErrorDomain,
+                                                  tokenResponse.oauthErrorCode,
+                                                  tokenResponse.errorDescription,
+                                                  tokenResponse.error,
+                                                  tokenResponse.suberror,
+                                                  nil,
+                                                  context.correlationId,
+                                                  nil);
+
+            NSString *message = [NSString stringWithFormat:@"Oauth error raised: %@, sub error: %@, correlation ID: %@", tokenResponse.error, tokenResponse.suberror, tokenResponse.correlationId];
+            NSString *messagePII = [NSString stringWithFormat:@"Oauth error raised: %@, sub error: %@, correlation ID: %@, description: %@", tokenResponse.error, tokenResponse.suberror, tokenResponse.correlationId, tokenResponse.errorDescription];
+
+            MSID_LOG_WARN(context, @"%@", message);
+            MSID_LOG_WARN_PII(context, @"%@", messagePII);
+
+            if (completionBlock) completionBlock(nil, oauthError);
+            return;
+        }
+    }
+
+    id errorDescription = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];
+
+    NSString *message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
+    NSString *messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorDescription];
     
     MSID_LOG_WARN(context, @"%@", message);
     MSID_LOG_VERBOSE_PII(context, @"%@", messagePII);
     
     NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
-    [additionalInfo setValue:httpResponse.allHeaderFields forKey:MSIDHTTPHeadersKey];
-    [additionalInfo setValue:[NSString stringWithFormat: @"%ld", (long)httpResponse.statusCode]          forKey:MSIDHTTPResponseCodeKey];
+    [additionalInfo setValue:httpResponse.allHeaderFields
+                      forKey:MSIDHTTPHeadersKey];
+
+    [additionalInfo setValue:[NSString stringWithFormat: @"%ld", (long)httpResponse.statusCode]
+                      forKey:MSIDHTTPResponseCodeKey];
     
-    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, oauthError, suberror, nil, context.correlationId, additionalInfo);
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, nil, nil, nil, context.correlationId, additionalInfo);
     
-    if (completionBlock) { completionBlock(nil, httpError); }
+    if (completionBlock) completionBlock(nil, httpError);
 }
 
 @end
