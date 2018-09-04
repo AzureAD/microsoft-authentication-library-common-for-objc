@@ -27,30 +27,22 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorityCacheRecord.h"
+#import "MSIDCache.h"
 
-@interface MSIDAadAuthorityCacheRecord : MSIDAuthorityCacheRecord
-
-@property NSString *networkHost;
-@property NSString *cacheHost;
-@property NSArray<NSString *> *aliases;
-
-@end
-
-@interface MSIDAadAuthorityCache : NSObject
-{
-    NSMutableDictionary<NSString *, MSIDAadAuthorityCacheRecord *> *_recordMap;
-    pthread_rwlock_t _rwLock;
-}
+@interface MSIDAadAuthorityCache : MSIDCache
 
 + (MSIDAadAuthorityCache *)sharedInstance;
 
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
                           context:(id<MSIDRequestContext>)context;
+
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority
                         context:(id<MSIDRequestContext>)context;
 
 - (NSString *)cacheEnvironmentForEnvironment:(NSString *)environment
                                      context:(id<MSIDRequestContext>)context;
+
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)environment;
 
 /*!
  Returns an array of authority URLs for the provided URL, in the order that cache lookups
@@ -60,19 +52,16 @@
  */
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
 
-- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)environment;
 - (NSArray<NSURL *> *)cacheAliasesForAuthorities:(NSArray<NSURL *> *)authorities;
 
-- (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
+- (void)processMetadata:(NSArray<NSDictionary *> *)metadata
    openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
               authority:(NSURL *)authority
                 context:(id<MSIDRequestContext>)context
-                  error:(NSError * __autoreleasing *)error;
+             completion:(void (^)(BOOL result, NSError *error))completion;
+
 - (void)addInvalidRecord:(NSURL *)authority
               oauthError:(NSError *)oauthError
                  context:(id<MSIDRequestContext>)context;
-
-- (MSIDAadAuthorityCacheRecord *)tryCheckCache:(NSString *)environment;
-- (MSIDAadAuthorityCacheRecord *)checkCache:(NSString *)environment;
 
 @end

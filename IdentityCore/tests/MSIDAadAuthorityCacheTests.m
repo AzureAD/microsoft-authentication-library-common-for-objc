@@ -23,7 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDAadAuthorityCache+TestUtil.h"
+#import "MSIDAadAuthorityCacheRecord.h"
 
 @interface MSIDAadAuthorityCache ()
 
@@ -50,100 +50,14 @@
 
 #pragma mark - Tests
 
-// Test cases testing the test utilities! It's test-ception!
-- (void)testCheckCache_whenNilNoCache_shouldReturnNil
-{
-    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    
-    XCTAssertNil([cache checkCache:nil]);
-    // We do a try write lock check here to make sure that no one is still holding onto the lock
-    // after this is done.
-    XCTAssertTrue([cache tryWriteLock]);
-}
-
-- (void)testCheckCache_whenWhitespaceStringhNoCache_shouldReturnNoRecordNoLock
-{
-    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    
-    XCTAssertNil([cache checkCache:@"  "]);
-    XCTAssertTrue([cache tryWriteLock]);
-}
-
-- (void)testCheckCache_whenValidURLNoCache_shouldReturnNoRecordNoLock
-{
-    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    
-    XCTAssertNil([cache checkCache:@"somedomain.com"]);
-    XCTAssertTrue([cache tryWriteLock]);
-}
-
-- (void)testCheckCache_whenNotValidCached_shouldReturnNonValidRecordNoLock
-{
-    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    cache.recordMap = @{ @"somedomain.com" : [MSIDAadAuthorityCacheRecord new] };
-    
-    MSIDAadAuthorityCacheRecord *record = [cache checkCache:@"somedomain.com"];
-    
-    XCTAssertNotNil(record);
-    XCTAssertFalse(record.validated);
-    XCTAssertTrue([cache tryWriteLock]);
-}
-
-- (void)testTryCheckCache_whenNotValidCached_shouldReturnNonValidRecordNoLock
-{
-    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    cache.recordMap = @{ @"somedomain.com" : [MSIDAadAuthorityCacheRecord new] };
-    
-    MSIDAadAuthorityCacheRecord *record = [cache tryCheckCache:@"somedomain.com"];
-    
-    XCTAssertNotNil(record);
-    XCTAssertFalse(record.validated);
-    XCTAssertTrue([cache tryWriteLock]);
-}
-
-- (void)testTryCheckCache_whenNotValidCacheReadLockHeld_shouldReturnNonValidRecordNoLock
-{
-    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    cache.recordMap = @{ @"somedomain.com" : [MSIDAadAuthorityCacheRecord new] };
-    XCTAssertTrue([cache grabReadLock]);
-    
-    // tryCheckCache should still be able to read the cache even if the read lock is being held
-    MSIDAadAuthorityCacheRecord *record = [cache tryCheckCache:@"somedomain.com"];
-    
-    XCTAssertNotNil(record);
-    XCTAssertFalse(record.validated);
-}
-
-- (void)testTryCheckCache_whenNotValidCacheReadLockHeld_shouldReturnNil
-{
-    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    cache.recordMap = @{ @"somedomain.com" : [MSIDAadAuthorityCacheRecord new] };
-    XCTAssertTrue([cache grabWriteLock]);
-    
-    // The write lock prevents any readers until it gets unlocked, so this should prevent tryCheckCache
-    // from accessing the cache and it should immediately return nil.
-    MSIDAadAuthorityCacheRecord *record = [cache tryCheckCache:@"somedomain.com"];
-    
-    XCTAssertNil(record);
-}
 
 #pragma mark -
 #pragma mark Network URL Utility Tests
 
-- (void)testNetworkUrlForAuthority_whenNotCached_shouldReturnNil
-{
-    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
-    
-    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
-    
-    XCTAssertNil(cachedAuthority);
-}
-
 - (void)testNetworkUrlForAuthority_whenCachedNotValid_shouldReturnSameURL
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    cache.recordMap = @{ @"fakeauthority.com" : [MSIDAadAuthorityCacheRecord new] };
+    [cache setObject:[MSIDAadAuthorityCacheRecord new] forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
@@ -155,7 +69,7 @@
 - (void)testNetworkUrlForAuthority_whenCachedNotValidWithPort_shouldReturnSameURL
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    cache.recordMap = @{ @"fakeauthority.com:444" : [MSIDAadAuthorityCacheRecord new] };
+    [cache setObject:[MSIDAadAuthorityCacheRecord new] forKey:@"fakeauthority.com:444"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
@@ -169,7 +83,7 @@
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
-    cache.recordMap = @{ @"fakeauthority.com" : record };
+    [cache setObject:record forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
@@ -183,7 +97,7 @@
     MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
-    cache.recordMap = @{ @"fakeauthority.com" : record };
+    [cache setObject:record forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
@@ -197,7 +111,7 @@
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     record.networkHost = @"fakeauthority.com";
-    cache.recordMap = @{ @"fakeauthority.com" : record };
+    [cache setObject:record forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
@@ -212,7 +126,7 @@
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     record.networkHost = @"preferredauthority.com";
-    cache.recordMap = @{ @"fakeauthority.com" : record };
+    [cache setObject:record forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
@@ -228,7 +142,7 @@
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     record.networkHost = @"preferredauthority.com:444";
-    cache.recordMap = @{ @"fakeauthority.com:444" : record };
+    [cache setObject:record forKey:@"fakeauthority.com:444"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com:444/v2/oauth/endpoint"];
     
@@ -244,7 +158,7 @@
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     record.networkHost = @"preferredauthority.com";
-    cache.recordMap = @{ @"fakeauthority.com" : record };
+    [cache setObject:record forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
@@ -270,7 +184,7 @@
 - (void)testCacheUrlForAuthority_whenCachedNotValid_shouldReturnSameURL
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    cache.recordMap = @{ @"fakeauthority.com" : [MSIDAadAuthorityCacheRecord new] };
+    [cache setObject:[MSIDAadAuthorityCacheRecord new] forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
@@ -282,7 +196,7 @@
 - (void)testCacheUrlForAuthority_whenCachedNotValidWithPort_shouldReturnSameURL
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    cache.recordMap = @{ @"fakeauthority.com:444" : [MSIDAadAuthorityCacheRecord new] };
+    [cache setObject:[MSIDAadAuthorityCacheRecord new] forKey:@"fakeauthority.com:444"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
@@ -294,7 +208,7 @@
 - (void)testCacheUrlForAuthority_whenCacheMismatchOnPort_shouldReturnNil
 {
     MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
-    cache.recordMap = @{ @"fakeauthority.com" : [MSIDAadAuthorityCacheRecord new] };
+    [cache setObject:[MSIDAadAuthorityCacheRecord new] forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
@@ -308,7 +222,7 @@
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
-    cache.recordMap = @{ @"fakeauthority.com" : record };
+    [cache setObject:record forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
@@ -323,7 +237,7 @@
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     record.cacheHost = @"fakeauthority.com";
-    cache.recordMap = @{ @"fakeauthority.com" : record };
+    [cache setObject:record forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
@@ -338,7 +252,7 @@
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     record.cacheHost = @"preferredauthority.com";
-    cache.recordMap = @{ @"fakeauthority.com" : record };
+    [cache setObject:record forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
@@ -354,7 +268,7 @@
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     record.cacheHost = @"preferredauthority.com";
-    cache.recordMap = @{ @"fakeauthority.com" : record };
+    [cache setObject:record forKey:@"fakeauthority.com"];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
@@ -392,7 +306,7 @@
     NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
-    cache.recordMap = @{ @"login.contoso.com" : record };
+    [cache setObject:record forKey:@"login.contoso.com"];
     
     NSArray *aliases = [cache cacheAliasesForAuthority:authority];
     
@@ -408,7 +322,7 @@
     record.networkHost = @"login.contoso.com";
     record.cacheHost = @"login.contoso.com";
     record.aliases = @[ @"login.contoso.com" ];
-    cache.recordMap = @{ @"login.contoso.com" : record };
+    [cache setObject:record forKey:@"login.contoso.com"];
     
     NSArray *aliases = [cache cacheAliasesForAuthority:authority];
     
@@ -424,7 +338,7 @@
     record.networkHost = @"login.contoso.com";
     record.cacheHost = @"login.contoso.net";
     record.aliases = @[ @"sts.contoso.com", @"login.contoso.net", @"sts.contoso.net", @"login.contoso.com" ];
-    cache.recordMap = @{ @"login.contoso.com" : record };
+    [cache setObject:record forKey:@"login.contoso.com"];
                           // cacheAliasesForAuthority should be returning the preferred host first
     NSArray *expected = @[[NSURL URLWithString:@"https://login.contoso.net/endpoint"],
                           // The host the API was called with second
@@ -447,7 +361,7 @@
     record.networkHost = @"login.contoso.com:8888";
     record.cacheHost = @"login.contoso.net:9000";
     record.aliases = @[ @"sts.contoso.com", @"login.contoso.net:9000", @"sts.contoso.net", @"login.contoso.com:8888" ];
-    cache.recordMap = @{ @"login.contoso.com:8888" : record };
+    [cache setObject:record forKey:@"login.contoso.com:8888"];
     // cacheAliasesForAuthority should be returning the preferred host first
     NSArray *expected = @[[NSURL URLWithString:@"https://login.contoso.net:9000/endpoint"],
                           // The host the API was called with second
@@ -470,18 +384,21 @@
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     NSString *expectedHost = @"fakeauthority.com";
     
-    NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:nil openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:nil openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertTrue(result);
+         XCTAssertNil(error);
+         MSIDAadAuthorityCacheRecord *record = [cache objectForKey:expectedHost];
+         XCTAssertNotNil(record);
+         XCTAssertEqualObjects(expectedHost, record.networkHost);
+         XCTAssertEqualObjects(expectedHost, record.cacheHost);
+         XCTAssertNil(record.aliases);
+         
+         [expectation fulfill];
+     }];
     
-    XCTAssertNil(error);
-    __auto_type map = cache.recordMap;
-    XCTAssertNotNil(map);
-    XCTAssertEqual(map.count, 1);
-    __auto_type record = map[expectedHost];
-    XCTAssertNotNil(record);
-    XCTAssertEqualObjects(expectedHost, record.networkHost);
-    XCTAssertEqualObjects(expectedHost, record.cacheHost);
-    XCTAssertNil(record.aliases);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenMetadataProvided_shouldCreateExpectedRecords
@@ -496,30 +413,33 @@
                               @"preferred_cache" :  expectedCacheHost,
                               @"aliases" : expectedAliases } ];
     
-    NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertTrue(result);
+         XCTAssertNil(error);
+         // A record should be created for each of the aliases, and each of those records should be
+         // identical
+         MSIDAadAuthorityCacheRecord *record = [cache objectForKey:expectedHost];
+         XCTAssertNotNil(record);
+         XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
+         XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
+         XCTAssertEqualObjects(expectedAliases, record.aliases);
+         record = [cache objectForKey:expectedNetworkHost];
+         XCTAssertNotNil(record);
+         XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
+         XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
+         XCTAssertEqualObjects(expectedAliases, record.aliases);
+         record = [cache objectForKey:expectedCacheHost];
+         XCTAssertNotNil(record);
+         XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
+         XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
+         XCTAssertEqualObjects(expectedAliases, record.aliases);
+         
+         [expectation fulfill];
+     }];
     
-    XCTAssertNil(error);
-    __auto_type map = cache.recordMap;
-    XCTAssertNotNil(map);
-    // A record should be created for each of the aliases, and each of those records should be
-    // identical
-    XCTAssertEqual(map.count, 3);
-    __auto_type record = map[expectedHost];
-    XCTAssertNotNil(record);
-    XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
-    XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
-    XCTAssertEqualObjects(expectedAliases, record.aliases);
-    record = map[expectedNetworkHost];
-    XCTAssertNotNil(record);
-    XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
-    XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
-    XCTAssertEqualObjects(expectedAliases, record.aliases);
-    record = map[expectedCacheHost];
-    XCTAssertNotNil(record);
-    XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
-    XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
-    XCTAssertEqualObjects(expectedAliases, record.aliases);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenMetadataProvidedUsingAuthorityWithPort_shouldCreateExpectedRecords
@@ -530,21 +450,24 @@
     NSArray *metadata = @[ @{ @"preferred_network" : expectedHost,
                               @"preferred_cache" :  expectedHost,
                               @"aliases" : @[ expectedHost ] } ];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertTrue(result);
+         XCTAssertNil(error);
+         // A record should be created for each of the aliases, and each of those records should be
+         // identical
+         MSIDAadAuthorityCacheRecord *record = [cache objectForKey:expectedHost];
+         XCTAssertNotNil(record);
+         XCTAssertEqualObjects(expectedHost, record.networkHost);
+         XCTAssertEqualObjects(expectedHost, record.cacheHost);
+         XCTAssertEqualObjects(@[ expectedHost ], record.aliases);
+         
+         [expectation fulfill];
+     }];
     
-    NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
-    
-    XCTAssertNil(error);
-    __auto_type map = cache.recordMap;
-    XCTAssertNotNil(map);
-    // A record should be created for each of the aliases, and each of those records should be
-    // identical
-    XCTAssertEqual(map.count, 1);
-    __auto_type record = map[expectedHost];
-    XCTAssertNotNil(record);
-    XCTAssertEqualObjects(expectedHost, record.networkHost);
-    XCTAssertEqualObjects(expectedHost, record.cacheHost);
-    XCTAssertEqualObjects(@[ expectedHost ], record.aliases);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenMetadataProvidedWithNonStandardPortUsingAuthorityWithNonStandardPort_shouldCreateExpectedRecords
@@ -556,20 +479,23 @@
                               @"preferred_cache" :  expectedHost,
                               @"aliases" : @[ expectedHost ] } ];
     
-    NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertTrue(result);
+         XCTAssertNil(error);
+         // A record should be created for each of the aliases, and each of those records should be
+         // identical
+         MSIDAadAuthorityCacheRecord *record = [cache objectForKey:expectedHost];
+         XCTAssertNotNil(record);
+         XCTAssertEqualObjects(expectedHost, record.networkHost);
+         XCTAssertEqualObjects(expectedHost, record.cacheHost);
+         XCTAssertEqualObjects(@[ expectedHost ], record.aliases);
+         
+         [expectation fulfill];
+     }];
     
-    XCTAssertNil(error);
-    __auto_type map = cache.recordMap;
-    XCTAssertNotNil(map);
-    // A record should be created for each of the aliases, and each of those records should be
-    // identical
-    XCTAssertEqual(map.count, 1);
-    __auto_type record = map[expectedHost];
-    XCTAssertNotNil(record);
-    XCTAssertEqualObjects(expectedHost, record.networkHost);
-    XCTAssertEqualObjects(expectedHost, record.cacheHost);
-    XCTAssertEqualObjects(@[ expectedHost ], record.aliases);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenBadMetadataWrongNetworkHostType_shouldReturnErrorCreateNoRecords
@@ -583,15 +509,19 @@
     NSArray *metadata = @[ @{ @"preferred_network" : @1,
                               @"preferred_cache" :  expectedCacheHost,
                               @"aliases" : expectedAliases } ];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse(result);
+         // Verify the correct error code is returned and no records were added to the cache
+         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+         
+         [expectation fulfill];
+     }];
     
-    NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
-    
-    
-    // Verify the correct error code is returned and no records were added to the cache
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    XCTAssertEqual(cache.recordMap.count, 0);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenBadMetadataWrongCacheHostType_shouldReturnErrorCreateNoRecords
@@ -605,15 +535,19 @@
     NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
                               @"preferred_cache" :  @1,
                               @"aliases" : expectedAliases } ];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse(result);
+         // Verify the correct error code is returned and no records were added to the cache
+         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+         
+         [expectation fulfill];
+     }];
     
-    NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
-    
-    
-    // Verify the correct error code is returned and no records were added to the cache
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    XCTAssertEqual(cache.recordMap.count, 0);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenBadMetadataWrongAliasesType_shouldReturnErrorCreateNoRecords
@@ -625,15 +559,19 @@
     NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
                               @"preferred_cache" :  expectedCacheHost,
                               @"aliases" : @1 } ];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse(result);
+         // Verify the correct error code is returned and no records were added to the cache
+         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+         
+         [expectation fulfill];
+     }];
     
-    NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
-    
-    
-    // Verify the correct error code is returned and no records were added to the cache
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    XCTAssertEqual(cache.recordMap.count, 0);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenBadMetadataWrongTypeInAliases_shouldReturnErrorCreateNoRecords
@@ -647,15 +585,19 @@
     NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
                               @"preferred_cache" :  expectedCacheHost,
                               @"aliases" : expectedAliases } ];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse(result);
+         // Verify the correct error code is returned and no records were added to the cache
+         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+         
+         [expectation fulfill];
+     }];
     
-    NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
-    
-    
-    // Verify the correct error code is returned and no records were added to the cache
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    XCTAssertEqual(cache.recordMap.count, 0);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidHostInPreferredNetwork_shouldReturnErrorCreateNoRecords
@@ -669,15 +611,19 @@
     NSArray *metadata = @[ @{ @"preferred_network" : @"bad920354@#%$90-213423!!!:43",
                               @"preferred_cache" :  expectedCacheHost,
                               @"aliases" : expectedAliases } ];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse(result);
+         // Verify the correct error code is returned and no records were added to the cache
+         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+         
+         [expectation fulfill];
+     }];
     
-    NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
-    
-    
-    // Verify the correct error code is returned and no records were added to the cache
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    XCTAssertEqual(cache.recordMap.count, 0);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidHostInPreferredCache_shouldReturnErrorCreateNoRecords
@@ -691,15 +637,19 @@
     NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
                               @"preferred_cache" :  @"bad920354@#%$90-213423!!!:43",
                               @"aliases" : expectedAliases } ];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse(result);
+         // Verify the correct error code is returned and no records were added to the cache
+         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+         
+         [expectation fulfill];
+     }];
     
-    NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
-    
-    
-    // Verify the correct error code is returned and no records were added to the cache
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    XCTAssertEqual(cache.recordMap.count, 0);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidHostInAliases_shouldReturnErrorCreateNoRecords
@@ -713,15 +663,19 @@
     NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
                               @"preferred_cache" :  expectedCacheHost,
                               @"aliases" : expectedAliases } ];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse(result);
+         // Verify the correct error code is returned and no records were added to the cache
+         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+         
+         [expectation fulfill];
+     }];
     
-    NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
-    
-    
-    // Verify the correct error code is returned and no records were added to the cache
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    XCTAssertEqual(cache.recordMap.count, 0);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidPortInPreferredNetwork_shouldReturnErrorCreateNoRecords
@@ -736,14 +690,18 @@
                               @"preferred_cache" :  expectedCacheHost,
                               @"aliases" : expectedAliases } ];
     
-    NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse(result);
+         // Verify the correct error code is returned and no records were added to the cache
+         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+         
+         [expectation fulfill];
+     }];
     
-    
-    // Verify the correct error code is returned and no records were added to the cache
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    XCTAssertEqual(cache.recordMap.count, 0);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidPortInPreferredCache_shouldReturnErrorCreateNoRecords
@@ -758,14 +716,18 @@
                               @"preferred_cache" :  @"sts.contoso.com:43as",
                               @"aliases" : expectedAliases } ];
     
-    NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse(result);
+         // Verify the correct error code is returned and no records were added to the cache
+         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+         
+         [expectation fulfill];
+     }];
     
-    
-    // Verify the correct error code is returned and no records were added to the cache
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    XCTAssertEqual(cache.recordMap.count, 0);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidPortInAliases_shouldReturnErrorCreateNoRecords
@@ -779,15 +741,19 @@
     NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
                               @"preferred_cache" :  expectedCacheHost,
                               @"aliases" : expectedAliases } ];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse(result);
+         // Verify the correct error code is returned and no records were added to the cache
+         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+         
+         [expectation fulfill];
+     }];
     
-    NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
-    
-    
-    // Verify the correct error code is returned and no records were added to the cache
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    XCTAssertEqual(cache.recordMap.count, 0);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 @end

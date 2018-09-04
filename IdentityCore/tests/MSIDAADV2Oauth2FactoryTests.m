@@ -41,7 +41,6 @@
 #import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccount.h"
-#import "MSIDAadAuthorityCache+TestUtil.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDPkce.h"
