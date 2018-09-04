@@ -21,8 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <CommonCrypto/CommonDigest.h>
-
+#import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 
 typedef unsigned char byte;
@@ -146,45 +145,20 @@ typedef unsigned char byte;
     return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];
 }
 
-- (NSData *)msalSHA256Data
-{
-    NSData *inputData = [self dataUsingEncoding:NSASCIIStringEncoding];
-    NSMutableData *outData = [NSMutableData dataWithLength:CC_SHA256_DIGEST_LENGTH];
-    
-    // input length shouldn't be this big
-    if (inputData.length > UINT32_MAX)
-    {
-        MSID_LOG_WARN(nil, @"Input length is too big to convert SHA256 data");
-        return nil;
-    }
-    CC_SHA256(inputData.bytes, (uint32_t)inputData.length, outData.mutableBytes);
-    
-    return outData;
-}
-
-- (NSString *)msidComputeSHA256
-{
-        // TODO: Check if this is in fact right implementation
-//    const char* inputStr = [self UTF8String];
-//    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
-//    CC_SHA256(inputStr, (int)strlen(inputStr), hash);
-//    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
-//    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
-//    {
-//        [toReturn appendFormat:@"%02x", hash[i]];
-//    }
-//    return toReturn;
-    return [NSString msidBase64UrlEncodeData:[self msalSHA256Data]];
-}
-
 - (NSURL *)msidUrl
 {
     return [[NSURL alloc] initWithString:self];
 }
 
+- (NSData *)msidData
+{
+    const char *str = [self UTF8String];
+    return [NSData dataWithBytes:str length:strlen(str)];
+}
+
 - (NSString *)msidTokenHash
 {
-    NSMutableString *returnStr = [[self msidComputeSHA256] mutableCopy];
+    NSString *returnStr = [[[self msidData] msidSHA256] hexString];
     
     // 7 characters is sufficient to differentiate tokens in the log, otherwise the hashes start making log lines hard to read
     return [returnStr substringToIndex:7];
