@@ -1,7 +1,7 @@
 
 # For Cocoapods developers
 
-This is indicating that brandwe@microsoft.com (Brandon Werner) that requested ownership of MSAL coocapod is representing this repo.
+This is indicating that brandwe@microsoft.com (Brandon Werner) that requested ownership of `MSAL` coocapod is representing this repo.
 
 # Contributing
 
