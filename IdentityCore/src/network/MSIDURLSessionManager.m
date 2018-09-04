@@ -46,7 +46,6 @@ static MSIDURLSessionManager *s_defaultManager = nil;
     {
         _configuration = configuration;
         _session = [NSURLSession sessionWithConfiguration:configuration delegate:delegate delegateQueue:nil];
-        _delegate = delegate;
     }
     
     return self;

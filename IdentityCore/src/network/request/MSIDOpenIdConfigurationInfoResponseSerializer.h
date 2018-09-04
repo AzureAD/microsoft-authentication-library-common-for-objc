@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -21,25 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@protocol MSIDRequestContext;
+#import <Foundation/Foundation.h>
+#import "MSIDAADResponseSerializer.h"
 
-@interface NSDictionary (MSIDExtensions)
+@interface MSIDOpenIdConfigurationInfoResponseSerializer : MSIDAADResponseSerializer
 
-+ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string;
-+ (NSDictionary *)msidURLFormDecode:(NSString *)string;
-- (NSString *)msidURLFormEncode;
-- (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
-
-- (NSArray<NSURLQueryItem *> *)urlQueryItemsArray;
-
-- (BOOL)assertType:(Class)type
-           ofField:(NSString *)field
-           context:(id <MSIDRequestContext>)context
-         errorCode:(NSInteger)errorCode
-             error:(NSError **)error;
-
-- (BOOL)assertContainsField:(NSString *)field
-                    context:(id <MSIDRequestContext>)context
-                      error:(NSError **)error;
+@property (nonatomic) NSURL *endpoint;
 
 @end

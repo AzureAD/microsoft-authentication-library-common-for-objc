@@ -39,6 +39,7 @@
     [super tearDown];
 }
 
+
 //tests the fragment extraction. Does not test any other URL logic,
 //which should have been handled by the NSURL class
 - (void)testFragmentParameters
@@ -53,8 +54,8 @@
     
     //Valid fragment, but missing/invalid configuration:
     NSDictionary* empty = [NSDictionary new];
-    XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com#bar"]).msidFragmentParameters);
-    XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar"]).msidFragmentParameters);
+    XCTAssertEqualObjects(@{@"bar":@""}, ((NSURL*)[NSURL URLWithString:@"https://stuff.com#bar"]).msidFragmentParameters);
+    XCTAssertEqualObjects(@{@"bar":@""}, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar"]).msidFragmentParameters);
     XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo=bar"]).msidFragmentParameters);
     
     //At least some of the configuration are valid:

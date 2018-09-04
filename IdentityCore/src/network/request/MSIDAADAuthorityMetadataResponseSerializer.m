@@ -34,7 +34,7 @@
     NSError *jsonError;
     NSDictionary *jsonObject = [super responseObjectForResponse:httpResponse data:data context:context error:&jsonError];
     
-    if (jsonError)
+    if (!jsonObject)
     {
         if (error) *error = jsonError;
         return nil;
