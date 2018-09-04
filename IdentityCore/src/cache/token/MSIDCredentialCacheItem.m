@@ -231,9 +231,9 @@
         case MSIDExactStringMatch:
             return [self.target isEqualToString:target];
         case MSIDSubSet:
-            return [[target scopeSet] isSubsetOfOrderedSet:[self.target scopeSet]];
+            return [[target msidScopeSet] isSubsetOfOrderedSet:[self.target msidScopeSet]];
         case MSIDIntersect:
-            return [[target scopeSet] intersectsOrderedSet:[self.target scopeSet]];
+            return [[target msidScopeSet] intersectsOrderedSet:[self.target msidScopeSet]];
         default:
             return NO;
     }

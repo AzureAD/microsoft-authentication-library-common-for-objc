@@ -1905,7 +1905,7 @@
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v2TokenResponseWithAT:accessToken
                                                                             RT:refreshToken
-                                                                        scopes:[responseScopes scopeSet]
+                                                                        scopes:[responseScopes msidScopeSet]
                                                                        idToken:idToken
                                                                            uid:uid
                                                                           utid:utid

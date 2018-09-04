@@ -130,7 +130,7 @@
         return NO;
     }
 
-    NSOrderedSet *responseScopes = response.scope.scopeSet;
+    NSOrderedSet *responseScopes = response.scope.msidScopeSet;
 
     if (!response.scope)
     {

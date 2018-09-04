@@ -145,7 +145,7 @@ typedef unsigned char byte;
     return [returnStr substringToIndex:7];
 }
 
-+ (NSString *)randomUrlSafeStringOfSize:(NSUInteger)size
++ (NSString *)msidRandomUrlSafeStringOfSize:(NSUInteger)size
 {
     if (size > RANDOM_STRING_MAX_SIZE)
     {
@@ -245,7 +245,7 @@ typedef unsigned char byte;
 }
 
 
-- (NSOrderedSet<NSString *> *)scopeSet
+- (NSOrderedSet<NSString *> *)msidScopeSet
 {
     return [NSOrderedSet msidOrderedSetFromString:self];
 }

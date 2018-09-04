@@ -62,7 +62,7 @@
  =============================================================================
  */
 /*! Generate a URL-safe string of random data */
-+ (NSString *)randomUrlSafeStringOfSize:(NSUInteger)size;
++ (NSString *)msidRandomUrlSafeStringOfSize:(NSUInteger)size;
 
 /*! Generate a URL-safe string of random data */
 + (NSString *)msidHexStringFromData:(NSData *)data;
@@ -85,6 +85,6 @@
 - (NSData *)msidData;
 
 /*! Convenience method to convert string to scope set */
-- (NSOrderedSet<NSString *> *)scopeSet;
+- (NSOrderedSet<NSString *> *)msidScopeSet;
 
 @end

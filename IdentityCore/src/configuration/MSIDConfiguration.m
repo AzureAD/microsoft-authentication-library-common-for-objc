@@ -64,7 +64,7 @@
 
 - (NSOrderedSet<NSString *> *)scopes
 {
-    return [_target scopeSet];
+    return [_target msidScopeSet];
 }
 
 @end
