@@ -82,7 +82,7 @@
     
     XCTAssertEqual(_receivedEvents.count, 1);
     //expect hashed Pii
-    XCTAssertEqualObjects([_receivedEvents[0] propertyWithName:MSID_TELEMETRY_KEY_USER_ID], [[@"user".msidData msidSHA256] hexString]);
+    XCTAssertEqualObjects([_receivedEvents[0] propertyWithName:MSID_TELEMETRY_KEY_USER_ID], [[@"user".msidData msidSHA256] msidHexString]);
     //expect unhashed Oii
     XCTAssertEqualObjects([_receivedEvents[0] propertyWithName:MSID_TELEMETRY_KEY_CLIENT_ID], @"clientid");
 }

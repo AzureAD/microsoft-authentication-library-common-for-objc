@@ -42,7 +42,7 @@
     return [NSData dataWithBytes:hash length:CC_SHA256_DIGEST_LENGTH];
 }
 
-- (NSString *)hexString
+- (NSString *)msidHexString
 {
     const unsigned char *charBytes = (const unsigned char *)self.bytes;
     
@@ -58,7 +58,7 @@
     return result;
 }
 
-- (NSString *)base64EncodedString
+- (NSString *)msidBase64EncodedString
 {
     return [self base64EncodedStringWithOptions:0];
 }

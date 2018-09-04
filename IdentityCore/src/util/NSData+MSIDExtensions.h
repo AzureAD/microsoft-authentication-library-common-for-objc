@@ -30,7 +30,7 @@
 - (NSData *)msidSHA1;
 - (NSData *)msidSHA256;
 
-- (NSString *)hexString;
-- (NSString *)base64EncodedString;
+- (NSString *)msidHexString;
+- (NSString *)msidBase64EncodedString;
 
 @end

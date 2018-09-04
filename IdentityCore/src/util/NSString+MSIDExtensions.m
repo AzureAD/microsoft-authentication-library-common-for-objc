@@ -152,13 +152,12 @@ typedef unsigned char byte;
 
 - (NSData *)msidData
 {
-    const char *str = [self UTF8String];
-    return [NSData dataWithBytes:str length:strlen(str)];
+    return [self dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSString *)msidTokenHash
 {
-    NSString *returnStr = [[[self msidData] msidSHA256] hexString];
+    NSString *returnStr = [[[self msidData] msidSHA256] msidHexString];
     
     // 7 characters is sufficient to differentiate tokens in the log, otherwise the hashes start making log lines hard to read
     return [returnStr substringToIndex:7];
