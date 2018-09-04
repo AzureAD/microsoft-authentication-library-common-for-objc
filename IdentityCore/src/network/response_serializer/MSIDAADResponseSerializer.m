@@ -27,10 +27,13 @@
 
 @implementation MSIDAADResponseSerializer
 
-- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse data:(NSData *)data error:(NSError **)error
+- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
+                           data:(NSData *)data
+                        context:(id <MSIDRequestContext>)context
+                          error:(NSError **)error
 {
     NSError *jsonError;
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data error:&jsonError] mutableCopy];
+    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
     
     if (jsonError)
     {

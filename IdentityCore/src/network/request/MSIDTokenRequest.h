@@ -29,12 +29,12 @@
  */
 @interface MSIDTokenRequest : MSIDHttpRequest
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                         context:(id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
+- (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
+                                  clientId:(nonnull NSString *)clientId
+                                     scope:(nullable NSString *)scope
+                                   context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
 
 @end

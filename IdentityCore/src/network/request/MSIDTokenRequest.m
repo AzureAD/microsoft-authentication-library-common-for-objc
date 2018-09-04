@@ -34,6 +34,7 @@
     if (self)
     {
         NSParameterAssert(clientId);
+        NSParameterAssert(endpoint);
         
         self.context = context;
         

@@ -471,7 +471,7 @@
     NSString *expectedHost = @"fakeauthority.com";
     
     NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:nil authority:authority context:nil error:&error]);
+    XCTAssertTrue([cache processMetadata:nil openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     XCTAssertNil(error);
     __auto_type map = cache.recordMap;
@@ -497,7 +497,7 @@
                               @"aliases" : expectedAliases } ];
     
     NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertTrue([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     XCTAssertNil(error);
     __auto_type map = cache.recordMap;
@@ -532,7 +532,7 @@
                               @"aliases" : @[ expectedHost ] } ];
     
     NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertTrue([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     XCTAssertNil(error);
     __auto_type map = cache.recordMap;
@@ -557,7 +557,7 @@
                               @"aliases" : @[ expectedHost ] } ];
     
     NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertTrue([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     XCTAssertNil(error);
     __auto_type map = cache.recordMap;
@@ -585,7 +585,7 @@
                               @"aliases" : expectedAliases } ];
     
     NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     
     // Verify the correct error code is returned and no records were added to the cache
@@ -607,7 +607,7 @@
                               @"aliases" : expectedAliases } ];
     
     NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     
     // Verify the correct error code is returned and no records were added to the cache
@@ -627,7 +627,7 @@
                               @"aliases" : @1 } ];
     
     NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     
     // Verify the correct error code is returned and no records were added to the cache
@@ -649,7 +649,7 @@
                               @"aliases" : expectedAliases } ];
     
     NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     
     // Verify the correct error code is returned and no records were added to the cache
@@ -671,7 +671,7 @@
                               @"aliases" : expectedAliases } ];
     
     NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     
     // Verify the correct error code is returned and no records were added to the cache
@@ -693,7 +693,7 @@
                               @"aliases" : expectedAliases } ];
     
     NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     
     // Verify the correct error code is returned and no records were added to the cache
@@ -715,7 +715,7 @@
                               @"aliases" : expectedAliases } ];
     
     NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     
     // Verify the correct error code is returned and no records were added to the cache
@@ -737,7 +737,7 @@
                               @"aliases" : expectedAliases } ];
     
     NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     
     // Verify the correct error code is returned and no records were added to the cache
@@ -759,7 +759,7 @@
                               @"aliases" : expectedAliases } ];
     
     NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     
     // Verify the correct error code is returned and no records were added to the cache
@@ -781,7 +781,7 @@
                               @"aliases" : expectedAliases } ];
     
     NSError *error = nil;
-    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertFalse([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
     
     
     // Verify the correct error code is returned and no records were added to the cache

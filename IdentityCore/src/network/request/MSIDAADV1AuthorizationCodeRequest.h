@@ -24,19 +24,19 @@
 
 @interface MSIDAADV1AuthorizationCodeRequest : MSIDAADAuthorizationCodeRequest
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                     redirectUri:(NSString *)redirectUri
-                           scope:(NSString *)scope
-                       loginHint:(NSString *)loginHint
-                        resource:(NSString *)resource
-                         context:(id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                   clientId:(nonnull NSString *)clientId
+                                redirectUri:(nonnull NSString *)redirectUri
+                                      scope:(nullable NSString *)scope
+                                  loginHint:(nullable NSString *)loginHint
+                                   resource:(nonnull NSString *)resource
+                                    context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                     redirectUri:(NSString *)redirectUri
-                           scope:(NSString *)scope
-                       loginHint:(NSString *)loginHint
-                         context:(id<MSIDRequestContext>)context NS_UNAVAILABLE;
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                   clientId:(nonnull NSString *)clientId
+                                redirectUri:(nonnull NSString *)redirectUri
+                                      scope:(nullable NSString *)scope
+                                  loginHint:(nullable NSString *)loginHint
+                                    context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
 @end

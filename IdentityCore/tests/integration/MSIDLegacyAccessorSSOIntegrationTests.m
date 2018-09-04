@@ -2319,7 +2319,7 @@
                               @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com" ] } ];
 
     NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTAssertTrue([cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil error:&error]);
 
     // Save first token
     [self saveResponseWithUPN:@"upn@test.com"

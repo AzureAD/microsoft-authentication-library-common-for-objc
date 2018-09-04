@@ -38,7 +38,9 @@
 
 - (void)testIsADFSInstance_withNilEndpoint_shouldReturnNO
 {
-    BOOL result = [MSIDAuthority isADFSInstance:nil];
+    NSURL *authority = nil;
+    
+    BOOL result = [MSIDAuthority isADFSInstance:authority.absoluteString];
     
     XCTAssertFalse(result);
 }
@@ -75,7 +77,9 @@
 
 - (void)testIsADFSInstanceURL_withNilAuthority_shouldReturnNO
 {
-    BOOL result = [MSIDAuthority isADFSInstanceURL:nil];
+    NSURL *authority = nil;
+    
+    BOOL result = [MSIDAuthority isADFSInstanceURL:authority];
     
     XCTAssertFalse(result);
 }
@@ -105,7 +109,9 @@
 
 - (void)testIsConsumerInstanceURL_withNilAuthority_shouldReturnNO
 {
-    BOOL result = [MSIDAuthority isConsumerInstanceURL:nil];
+    NSURL *authority = nil;
+    
+    BOOL result = [MSIDAuthority isConsumerInstanceURL:authority];
     
     XCTAssertFalse(result);
 }
@@ -233,49 +239,129 @@
     XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://login.microsoftonline.com:8080/tenant2"]);
 }
 
-- (void)testIsKnownHost_whenTrustedAuthority_shuldReturnTrue
+#pragma mark - isKnownHost
+
+- (void)testIsKnownHost_whenHostInListOfKnownHost_shouldReturnYes
 {
-    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.windows.net"]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.com" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.us" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.chinacloudapi.cn" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.de" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.microsoftonline.com" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login-us.microsoftonline.com" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.usgovcloudapi.net" msidUrl]]);
+    XCTAssertTrue([MSIDAuthority isKnownHost:[@"https://login.partner.microsoftonline.cn" msidUrl]]);
 }
 
-- (void)testIsKnownHost_whenTrustedAuthorityUS_shuldReturnTrue
+- (void)testIsKnownHost_whenHostIsNotInListOfKnownHost_shouldReturnNo
 {
-    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.microsoftonline.us"]]);
+    XCTAssertFalse([MSIDAuthority isKnownHost:[@"https://some.net" msidUrl]]);
+    XCTAssertFalse([MSIDAuthority isKnownHost:[@"https://example.com" msidUrl]]);
 }
 
-- (void)testIsKnownHost_whenTrustedAuthorityChina_shuldReturnTrue
+#pragma mark - normalizeAuthority
+
+- (void)testNormalizeAuthority_whenAuthorityIsNil_shouldReturnError
 {
-    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.chinacloudapi.cn"]]);
+    NSError *error;
+    NSURL *authority = nil;
+    
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
+    
+    XCTAssertNil(updatedAuthority);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"'authority' is a required parameter and must not be nil or empty.");
 }
 
-- (void)testIsKnownHost_whenTrustedAuthorityGermany_shuldReturnTrue
+- (void)testNormalizeAuthority_whenAuthorityIsWindows_shouldReturnNormalizedAuthority
 {
-    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.microsoftonline.de"]]);
+    __auto_type authority = [@"https://login.windows.net/common/qwe" msidUrl];
+    NSError *error;
+    
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
+    
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.windows.net/common" msidUrl]);
+    XCTAssertNil(error);
 }
 
-- (void)testIsKnownHost_whenTrustedAuthorityWorldWide_shuldReturnTrue
+- (void)testNormalizeAuthority_whenAuthoritySchemeIsNotHttps_shouldReturnError
 {
-    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.microsoftonline.com"]]);
+    __auto_type authority = [@"http://login.microsoftonline.com" msidUrl];
+    NSError *error;
+    
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
+    
+    XCTAssertNil(updatedAuthority);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"authority must use HTTPS.");
 }
 
-- (void)testIsKnownHost_whenTrustedAuthorityUSGovernment_shuldReturnTrue
+- (void)testNormalizeAuthority_whenAADAuthorityWithoutTenant_shouldReturnError
 {
-    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login-us.microsoftonline.com"]]);
+    __auto_type authority = [@"https://login.microsoftonline.com" msidUrl];
+    NSError *error;
+    
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
+    
+    XCTAssertNil(updatedAuthority);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"authority must have at least 2 path components.");
 }
 
-- (void)testIsKnownHost_whenTrustedAuthorityCloudGovApi_shuldReturnTrue
+- (void)testNormalizeAuthority_whenAADAuthorityWithTenant_shouldReturnNormalizedAuthority
 {
-    XCTAssertTrue([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://login.cloudgovapi.us"]]);
+    __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" msidUrl];
+    NSError *error;
+    
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
+    
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.microsoftonline.com/common" msidUrl]);
+    XCTAssertNil(error);
 }
 
-- (void)testIsKnownHost_whenUnknownHost_shouldReturnFalse
+- (void)testNormalizeAuthority_whenAADAuthorityWithTenantAndSlash_shouldReturnNormalizedAuthority
 {
-    XCTAssertFalse([MSIDAuthority isKnownHost:[NSURL URLWithString:@"https://www.noknownhost.com"]]);
+    __auto_type authority = [@"https://login.microsoftonline.com/common/" msidUrl];
+    NSError *error;
+    
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
+    
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.microsoftonline.com/common" msidUrl]);
+    XCTAssertNil(error);
 }
 
-- (void)testIsKnownHost_whenNilHost_shouldReturnFalse
+- (void)testNormalizeAuthority_whenB2CAuthorityInvalid_shouldReturnError
 {
-    XCTAssertFalse([MSIDAuthority isKnownHost:nil]);
+    __auto_type authority = [@"https://login.microsoftonline.com/tfp/tenant" msidUrl];
+    NSError *error;
+    
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
+    
+    XCTAssertNil(updatedAuthority);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"B2C authority should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)");
+}
+
+- (void)testNormalizeAuthority_whenB2CAuthorityValid_shouldReturnNormalizedAuthority
+{
+    __auto_type authority = [@"https://login.microsoftonline.com/tfp/tenant/policy/qwe" msidUrl];
+    NSError *error;
+    
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
+    
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.microsoftonline.com/tfp/tenant/policy" msidUrl]);
+    XCTAssertNil(error);
+}
+
+- (void)testNormalizeAuthority_whenB2CAuthorityValidAndSlash_shouldReturnNormalizedAuthority
+{
+    __auto_type authority = [@"https://login.microsoftonline.com/tfp/tenant/policy/" msidUrl];
+    NSError *error;
+    
+    __auto_type updatedAuthority = [MSIDAuthority normalizeAuthority:authority context:nil error:&error];
+    
+    XCTAssertEqualObjects(updatedAuthority, [@"https://login.microsoftonline.com/tfp/tenant/policy" msidUrl]);
+    XCTAssertNil(error);
 }
 
 @end

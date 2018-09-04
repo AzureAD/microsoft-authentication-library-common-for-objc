@@ -27,13 +27,6 @@
 
 @implementation MSIDAADRequestErrorHandler
 
-- (instancetype)init
-{
-    self = [super init];
-    
-    return self;
-}
-
 - (void)handleError:(NSError * )error
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
@@ -43,25 +36,36 @@
 {
     if (!httpResponse)
     {
-        if (completionBlock) { completionBlock(nil, error); }
+        if (completionBlock) completionBlock(nil, error);
         return;
     }
     
-    if (httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599 && httpRequest.retryCounter > 0)
+    BOOL shouldRetry = YES;
+    shouldRetry &= httpRequest.retryCounter > 0;
+    // 5xx Server errors.
+    shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
+
+    if (shouldRetry)
     {
-        httpRequest.retryCounter--;
+        self.retryCounter--;
         
-        MSID_LOG_VERBOSE(context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
+        MSID_LOG_VERBOSE(context, @"Retrying network request, retryCounter: %ld", (long)self.retryCounter);
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(httpRequest.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.retryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [httpRequest sendWithBlock:completionBlock];
         });
         
         return;
     }
     
-    // Http error
     NSString *errorData = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];
+    
+    id responseSerializer = [MSIDJsonResponseSerializer new];
+    id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:nil];
+    id oauthError = responseObject[MSID_OAUTH2_ERROR];
+    id errorDescription = responseObject[MSID_OAUTH2_ERROR_DESCRIPTION] ?: errorData;
+    id suberror = responseObject[MSID_OAUTH2_SUB_ERROR];
+    
     NSString* message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
     NSString* messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorData];
     
@@ -71,7 +75,8 @@
     NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
     [additionalInfo setValue:httpResponse.allHeaderFields forKey:MSIDHTTPHeadersKey];
     [additionalInfo setValue:[NSString stringWithFormat: @"%ld", (long)httpResponse.statusCode]          forKey:MSIDHTTPResponseCodeKey];
-    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorData, nil, nil, nil, context.correlationId, additionalInfo);
+    
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, oauthError, suberror, nil, context.correlationId, additionalInfo);
     
     if (completionBlock) { completionBlock(nil, httpError); }
 }

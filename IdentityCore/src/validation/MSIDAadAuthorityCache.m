@@ -75,9 +75,10 @@
 }
 
 - (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
+   openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
               authority:(NSURL *)authority
                 context:(id<MSIDRequestContext>)context
-                  error:(NSError * __autoreleasing *)error
+                  error:(NSError **)error
 {
     if (metadata != nil)
     {
@@ -85,7 +86,7 @@
     }
     
     [self getWriteLock];
-    BOOL ret = [self processImpl:metadata authority:authority context:context error:error];
+    BOOL ret = [self processImpl:metadata authority:authority openIdConfigEndpoint:openIdConfigEndpoint context:context error:error];
     pthread_rwlock_unlock(&_rwLock);
     
     return ret;
@@ -126,6 +127,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
 
 - (BOOL)processImpl:(NSArray<NSDictionary *> *)metadata
           authority:(NSURL *)authority
+openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
             context:(id<MSIDRequestContext>)context
               error:(NSError * __autoreleasing *)error
 {
@@ -163,6 +165,8 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
         {
             VERIFY_HOST_STRING(alias, @"aliases", YES);
         }
+        
+        record.openIdConfigurationEndpoint = openIdConfigEndpoint;
         
         [recordsToAdd addObject:record];
     }

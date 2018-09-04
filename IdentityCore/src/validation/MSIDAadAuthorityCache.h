@@ -26,11 +26,9 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDAuthorityCacheRecord.h"
 
-@interface MSIDAadAuthorityCacheRecord : NSObject
-
-@property BOOL validated;
-@property NSError *error;
+@interface MSIDAadAuthorityCacheRecord : MSIDAuthorityCacheRecord
 
 @property NSString *networkHost;
 @property NSString *cacheHost;
@@ -66,6 +64,7 @@
 - (NSArray<NSURL *> *)cacheAliasesForAuthorities:(NSArray<NSURL *> *)authorities;
 
 - (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
+   openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
               authority:(NSURL *)authority
                 context:(id<MSIDRequestContext>)context
                   error:(NSError * __autoreleasing *)error;

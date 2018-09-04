@@ -38,7 +38,11 @@
     {
         NSAssert(mutableRequest.URL, NULL);
         
-        mutableRequest.URL = [NSURL msidAddParameters:parameters toUrl:mutableRequest.URL];
+        NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:mutableRequest.URL resolvingAgainstBaseURL:NO];
+        NSMutableDictionary *urlParameters = [[mutableRequest.URL msidQueryParameters] mutableCopy] ?: [NSMutableDictionary new];
+        [urlParameters addEntriesFromDictionary:parameters];
+        urlComponents.percentEncodedQuery = [urlParameters msidURLFormEncode];
+        mutableRequest.URL = urlComponents.URL;
     }
     else
     {

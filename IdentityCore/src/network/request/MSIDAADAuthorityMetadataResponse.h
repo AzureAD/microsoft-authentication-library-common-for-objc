@@ -22,15 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDHttpRequestProtocol.h"
 
-@protocol MSIDHttpRequestErrorHandlerProtocol <NSObject>
+@interface MSIDAADAuthorityMetadataResponse : NSObject
 
-- (void)handleError:(NSError * )error
-       httpResponse:(NSHTTPURLResponse *)httpResponse
-               data:(NSData *)data
-        httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
-            context:(id<MSIDRequestContext>)context
-    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+@property (nonatomic, nullable) NSURL *openIdConfigurationEndpoint;
+@property (nonatomic, nullable) NSArray<NSDictionary *> *metadata;
 
 @end
