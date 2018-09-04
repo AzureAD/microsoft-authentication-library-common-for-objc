@@ -64,4 +64,6 @@
 
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases;
 
+/*! Removes a trailing padding for base64url encoding */
+- (NSString *)msidStringByRemovingPadding;
 @end

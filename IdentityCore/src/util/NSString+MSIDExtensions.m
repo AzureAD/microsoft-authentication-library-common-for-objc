@@ -37,6 +37,7 @@ typedef unsigned char byte;
 /// <remarks>
 /// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
 /// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
+/// This SDK will use rfc7515 and decode using padding. See https://tools.ietf.org/html/rfc7515#appendix-C
 /// </remarks>
 + (NSData *)msidBase64UrlDecodeData:(NSString *)encodedString
 {
@@ -73,12 +74,13 @@ typedef unsigned char byte;
 /// <remarks>
 /// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
 /// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
+/// This SDK will use rfc7515 and encode without using padding.
+/// See https://tools.ietf.org/html/rfc7515#appendix-C
 /// </remarks>
 + (NSString *)msidBase64UrlEncodeData:(NSData *)data
 {
     return [data base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed].msidStringByRemovingPadding;
 }
-    
 
 
 // Base64 URL encodes a string
@@ -241,7 +243,7 @@ typedef unsigned char byte;
 
 - (NSString *)msidStringByRemovingPadding
 {
-    return [self stringByReplacingOccurrencesOfString:@"=" withString:@""];
+    return [self componentsSeparatedByString:@"="].firstObject;
 }
 
 @end

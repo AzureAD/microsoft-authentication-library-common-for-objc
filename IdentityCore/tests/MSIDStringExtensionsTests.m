@@ -193,4 +193,19 @@
     XCTAssertEqualObjects([encoded msidUrlFormDecode], testString);
 }
 
+- (void)testmsidStringByRemovingPadding_whenTrailingPadding_shouldRemovePadding
+{
+    NSString *testString = @"this+is_a string_with-padding===";
+    
+    XCTAssertEqualObjects(@"this+is_a string_with-padding", testString.msidStringByRemovingPadding);
+}
+
+- (void)testmsidStringByRemovingPadding_whenNoTrailingPadding_shouldReturnAsIs
+{
+    NSString *testString = @"this+is_a string_without-padding";
+    
+    XCTAssertEqualObjects(@"this+is_a string_without-padding", testString.msidStringByRemovingPadding);
+}
+
+
 @end
