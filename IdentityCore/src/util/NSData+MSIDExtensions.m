@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "NSData+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
+#import "NSDictionary+MSIDExtensions.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation NSData (MSIDExtensions)
@@ -34,6 +36,7 @@
     return [NSData dataWithBytes:hash length:CC_SHA1_DIGEST_LENGTH];
 }
 
+
 - (NSData *)msidSHA256
 {
     unsigned char hash[CC_SHA256_DIGEST_LENGTH];
@@ -42,34 +45,22 @@
     return [NSData dataWithBytes:hash length:CC_SHA256_DIGEST_LENGTH];
 }
 
+
 - (NSString *)msidHexString
 {
-    const unsigned char *charBytes = (const unsigned char *)self.bytes;
-    
-    if (!charBytes) return nil;
-    NSUInteger dataLength = self.length;
-    NSMutableString *result = [NSMutableString stringWithCapacity:dataLength];
-    
-    for (int i = 0; i < dataLength; i++)
-    {
-        [result appendFormat:@"%02x", charBytes[i]];
-    }
-    
-    return result;
+    return [NSString msidHexStringFromData:self];
 }
 
-- (NSString *)msidBase64EncodedString
+
+- (NSString *)msidBase64UrlEncodedString
 {
-    return [self base64EncodedStringWithOptions:0];
+    return [NSString msidBase64UrlEncodedStringFromData:self];
 }
 
 - (NSDictionary *)msidToJsonDictionary:(NSError **)error
 {
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:self
-                                                         options:NSJSONReadingMutableContainers
-                                                           error:error];
-    
-    return json;
+    return [NSDictionary msidDictionaryFromData:self error:error];
 }
+
 
 @end

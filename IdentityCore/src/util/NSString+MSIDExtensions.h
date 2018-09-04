@@ -24,7 +24,11 @@
 #import <Foundation/Foundation.h>
 
 @interface NSString (MSIDExtensions)
-
+/*!
+ =============================================================================
+ Encoding/Decoding and other string calculations/manipulations
+ =============================================================================
+ */
 /*! Encodes string to the Base64 encoding. */
 - (NSString *)msidBase64UrlEncode;
 /*! Decodes string from the Base64 encoding. */
@@ -42,29 +46,45 @@
 /*! Encodes the string to pass it as a URL agrument. */
 - (NSString *)msidUrlFormEncode;
 
-/*! Converts base64 String to NSData */
-+ (NSData *)msidBase64UrlDecodeData:(NSString *)encodedString;
-
-/*! Converts NSData to base64 String */
-+ (NSString *)msidBase64UrlEncodeData:(NSData *)data;
-
-/*! Converts string to url */
-- (NSURL *)msidUrl;
-
-/*! Converts string to NSData */
-- (NSData *)msidData;
-
 /*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
  the actual contents, but still want to log something that can be correlated. */
 - (NSString *)msidTokenHash;
 
-- (NSOrderedSet<NSString *> *)scopeSet;
-
-/*! Generate a URL-safe string of random data */
-+ (NSString *)randomUrlSafeStringOfSize:(NSUInteger)size;
-
+/*! Check if current string is included in the array - case insensitive */
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases;
 
 /*! Removes a trailing padding for base64url encoding */
 - (NSString *)msidStringByRemovingPadding;
+
+/*!
+ =============================================================================
+ String constructors
+ =============================================================================
+ */
+/*! Generate a URL-safe string of random data */
++ (NSString *)randomUrlSafeStringOfSize:(NSUInteger)size;
+
+/*! Generate a URL-safe string of random data */
++ (NSString *)msidHexStringFromData:(NSData *)data;
+
+/*! Generate a base64 url-encoded string of random data */
++ (NSString *)msidBase64UrlEncodedStringFromData:(NSData *)data;
+
+/*!
+ =============================================================================
+ Convenience methods
+ =============================================================================
+ */
+/*! Convenience method to convert string to url */
++ (NSString *)msidStringFromOrderedSet:(NSOrderedSet *)set;
+
+/*! Convenience method to convert string to url */
+- (NSURL *)msidUrl;
+
+/*! Convenience method to convert string to NSData */
+- (NSData *)msidData;
+
+/*! Convenience method to convert string to scope set */
+- (NSOrderedSet<NSString *> *)scopeSet;
+
 @end

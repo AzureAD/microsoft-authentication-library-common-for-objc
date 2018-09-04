@@ -78,6 +78,15 @@
     return queryDict;
 }
 
++ (NSDictionary *)msidDictionaryFromData:(NSData *)data error:(NSError **)error
+{
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:error];
+    
+    return json;
+}
+
 // Encodes a dictionary consisting of a set of name/values pairs that are strings to www-form-urlencoded
 // Returns nil if the dictionary is empty, otherwise the encoded value
 - (NSString *)msidURLFormEncode

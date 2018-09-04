@@ -23,6 +23,8 @@
 
 #import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#import "NSData+MSIDExtensions.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 typedef unsigned char byte;
 
@@ -47,6 +49,15 @@ typedef unsigned char byte;
 }
 
 
+// Base64 URL encodes a string
+- (NSString *)msidBase64UrlEncode
+{
+    NSData *decodedData = [self dataUsingEncoding:NSUTF8StringEncoding];
+    
+    return [decodedData msidBase64UrlEncodedString];
+}
+
+
 - (NSString *)msidBase64UrlDecode
 {
     NSData *data = [self.class msidBase64UrlDecodeData:self];
@@ -67,29 +78,6 @@ typedef unsigned char byte;
 }
 
 
-/// <summary>
-/// Base64 URL encode a set of bytes.
-/// </summary>
-/// <remarks>
-/// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
-/// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
-/// This SDK will use rfc7515 and encode without using padding.
-/// See https://tools.ietf.org/html/rfc7515#appendix-C
-/// </remarks>
-+ (NSString *)msidBase64UrlEncodeData:(NSData *)data
-{
-    return [data base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed].msidStringByRemovingPadding;
-}
-
-
-// Base64 URL encodes a string
-- (NSString *)msidBase64UrlEncode
-{
-    NSData *decodedData = [self dataUsingEncoding:NSUTF8StringEncoding];
-    
-    return [self.class msidBase64UrlEncodeData:decodedData];
-}
-
 + (BOOL)msidIsStringNilOrBlank:(NSString *)string
 {
     if (!string || [string isKindOfClass:[NSNull class]] || !string.length)
@@ -106,12 +94,14 @@ typedef unsigned char byte;
     return [string rangeOfCharacterFromSet:nonWhiteCharSet].location == NSNotFound;
 }
 
+
 - (NSString *)msidTrimmedString
 {
     //The white characters set is cached by the system:
     NSCharacterSet* set = [NSCharacterSet whitespaceAndNewlineCharacterSet];
     return [self stringByTrimmingCharactersInSet:set];
 }
+
 
 - (NSString *)msidUrlFormDecode
 {
@@ -126,6 +116,7 @@ typedef unsigned char byte;
     
     return CFBridgingRelease(unescapedString);
 }
+
 
 - (NSString *)msidUrlFormEncode
 {
@@ -145,15 +136,6 @@ typedef unsigned char byte;
     return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];
 }
 
-- (NSURL *)msidUrl
-{
-    return [[NSURL alloc] initWithString:self];
-}
-
-- (NSData *)msidData
-{
-    return [self dataUsingEncoding:NSUTF8StringEncoding];
-}
 
 - (NSString *)msidTokenHash
 {
@@ -162,21 +144,6 @@ typedef unsigned char byte;
     // 7 characters is sufficient to differentiate tokens in the log, otherwise the hashes start making log lines hard to read
     return [returnStr substringToIndex:7];
 }
-
-- (NSOrderedSet<NSString *> *)scopeSet
-{
-    NSMutableOrderedSet<NSString *> *scope = [NSMutableOrderedSet<NSString *> new];
-    NSArray* parts = [self componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" "]];
-    for (NSString *part in parts)
-    {
-        if (![NSString msidIsStringNilOrBlank:part])
-        {
-            [scope addObject:part.msidTrimmedString.lowercaseString];
-        }
-    }
-    return scope;
-}
-
 
 + (NSString *)randomUrlSafeStringOfSize:(NSUInteger)size
 {
@@ -193,7 +160,39 @@ typedef unsigned char byte;
         return nil;
     }
     
-    return [NSString msidBase64UrlEncodeData:data];
+    return [data msidBase64UrlEncodedString];
+}
+
+
++ (NSString *)msidHexStringFromData:(NSData *)data
+{
+    const unsigned char *charBytes = (const unsigned char *)data.bytes;
+    
+    if (!charBytes) return nil;
+    NSUInteger dataLength = data.length;
+    NSMutableString *result = [NSMutableString stringWithCapacity:dataLength];
+    
+    for (int i = 0; i < dataLength; i++)
+    {
+        [result appendFormat:@"%02x", charBytes[i]];
+    }
+    
+    return result;
+}
+
+
+/// <summary>
+/// Base64 URL encode a set of bytes.
+/// </summary>
+/// <remarks>
+/// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
+/// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
+/// This SDK will use rfc7515 and encode without using padding.
+/// See https://tools.ietf.org/html/rfc7515#appendix-C
+/// </remarks>
++ (NSString *)msidBase64UrlEncodedStringFromData:(NSData *)data
+{
+    return [[data base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed] msidStringByRemovingPadding];
 }
 
 
@@ -214,9 +213,48 @@ typedef unsigned char byte;
     return NO;
 }
 
+
++ (NSString *)msidStringFromOrderedSet:(NSOrderedSet *)set
+{
+    NSInteger cSet = set.count;
+    if (cSet == 0)
+    {
+        return @"";
+    }
+    
+    NSMutableString *queryString = [[set objectAtIndex:0] mutableCopy];
+    
+    for (NSInteger i = 1; i < cSet; i++)
+    {
+        [queryString appendString:@" "];
+        [queryString appendString:[set objectAtIndex:i]];
+    }
+    
+    return queryString;
+}
+
+
+- (NSURL *)msidUrl
+{
+    return [[NSURL alloc] initWithString:self];
+}
+
+- (NSData *)msidData
+{
+    return [self dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+
+- (NSOrderedSet<NSString *> *)scopeSet
+{
+    return [NSOrderedSet msidOrderedSetFromString:self];
+}
+
+
 - (NSString *)msidStringByRemovingPadding
 {
     return [self componentsSeparatedByString:@"="].firstObject;
 }
+
 
 @end

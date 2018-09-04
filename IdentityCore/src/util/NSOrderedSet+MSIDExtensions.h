@@ -30,6 +30,7 @@
 @interface NSOrderedSet (MSIDExtensions)
 
 - (NSString *)msidToString;
++ (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string;
 
 @end
 
