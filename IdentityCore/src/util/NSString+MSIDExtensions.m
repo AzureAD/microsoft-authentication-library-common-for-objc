@@ -44,7 +44,7 @@ typedef unsigned char byte;
 {
     NSUInteger paddedLength = encodedString.length + (4 - (encodedString.length % 4));
     NSString *paddedString = [encodedString stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
-    NSData *data = [[NSData alloc] initWithBase64EncodedString:paddedString options:0];
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:paddedString options:NSDataBase64DecodingIgnoreUnknownCharacters];
     return data;
 }
 

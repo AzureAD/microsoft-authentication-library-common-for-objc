@@ -99,19 +99,19 @@
     XCTAssertEqualObjects(withEncoded, ([[NSURL URLWithString:@"https://contoso.com?foo1=bar1&foo2=bar2&foo3%3Dbar3=foo4%26bar4%3Dbar5"] msidQueryParameters]));
 }
 
-- (void)testmsidHostWithPortIfNecessary_whenNoPortSpecified
+- (void)testMsidHostWithPortIfNecessary_whenNoPortSpecified
 {
     NSURL *url = [NSURL URLWithString:@"https://somehost.com"];
     XCTAssertEqualObjects(url.msidHostWithPortIfNecessary, @"somehost.com");
 }
 
-- (void)testmsidHostWithPortIfNecessary_whenStandardPortSpecified
+- (void)testMsidHostWithPortIfNecessary_whenStandardPortSpecified
 {
     NSURL *url = [NSURL URLWithString:@"https://somehost.com:443"];
     XCTAssertEqualObjects(url.msidHostWithPortIfNecessary, @"somehost.com");
 }
 
-- (void)testmsidHostWithPortIfNecessary_whenNonStandardPortSpecified
+- (void)testMsidHostWithPortIfNecessary_whenNonStandardPortSpecified
 {
     NSURL *url = [NSURL URLWithString:@"https://somehost.com:652"];
     XCTAssertEqualObjects(url.msidHostWithPortIfNecessary, @"somehost.com:652");

@@ -247,20 +247,65 @@
     XCTAssertFalse([@"authorityX" msidIsEquivalentWithAnyAlias:alias]);
 }
 
-- (void)testmsidStringByRemovingPadding_whenTrailingPadding_shouldRemovePadding
+- (void)testMsidStringByRemovingPadding_whenTrailingPadding_shouldRemovePadding
 {
     NSString *testString = @"this+is_a string_with-padding===";
     
     XCTAssertEqualObjects(@"this+is_a string_with-padding", testString.msidStringByRemovingPadding);
 }
 
-- (void)testmsidStringByRemovingPadding_whenNoTrailingPadding_shouldReturnAsIs
+- (void)testMsidStringByRemovingPadding_whenNoTrailingPadding_shouldReturnAsIs
 {
     NSString *testString = @"this+is_a string_without-padding";
     
     XCTAssertEqualObjects(@"this+is_a string_without-padding", testString.msidStringByRemovingPadding);
 }
 
+- (void)testMsidHexStringFromData_whenJsonData_shouldReturnCorrectHexString
+{
+    NSString *string = @"{\"key\":\"val\"}";
+    NSString *hexString = [NSString msidHexStringFromData:string.msidData];
+    
+    XCTAssertEqualObjects(hexString, @"7b226b6579223a2276616c227d");
+}
 
+- (void)testMsidHexStringFromData_whenRandomStringData_shouldReturnCorrectHexString
+{
+    NSString *string = @"some string here";
+    NSString *hexString = [NSString msidHexStringFromData:string.msidData];
+    
+    XCTAssertEqualObjects(hexString, @"736f6d6520737472696e672068657265");
+}
+
+- (void)testMsidBase64UrlEncodedStringFromData
+{
+    NSString *string = @"   here is a string with padding  \n";
+    NSString *base64urlEncodedString = [NSString msidBase64UrlEncodedStringFromData:string.msidData];
+    
+    XCTAssertEqualObjects(base64urlEncodedString, @"ICAgaGVyZSBpcyBhIHN0cmluZyB3aXRoIHBhZGRpbmcgIAo");
+    
+    XCTAssertEqualObjects(base64urlEncodedString.msidBase64UrlDecode, string);
+}
+
+- (void)testMsidUrlFormEncodedStringFromDictionary_whenKeyValueStrings_shouldReturnUrlEncoded
+{
+    NSDictionary *dictionary = @{@"key": @"value"};
+    NSString *result = [NSString msidUrlFormEncodedStringFromDictionary:dictionary];
+    XCTAssertEqualObjects(result, @"key=value");
+}
+
+- (void)testMsidUrlFormEncodedStringFromDictionary_whenKeyStringValueUUID_shouldReturnUrlEncodedStr
+{
+    NSDictionary *dictionary = @{@"key": [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"]};
+    NSString *result = [NSString msidUrlFormEncodedStringFromDictionary:dictionary];
+    XCTAssertEqualObjects(result, @"key=vE621E1F8-C36C-495A-93FC-0C247A3E6E5F");
+}
+
+- (void)testMsidUrlFormEncodedStringFromDictionary_whenKeyWithEmptyValue_shouldReturnUrlEncodedStri
+{
+    NSDictionary *dictionary = @{@"key":@""};
+    NSString *result = [NSString msidUrlFormEncodedStringFromDictionary:dictionary];
+    XCTAssertEqualObjects(result, @"key");
+}
 
 @end
