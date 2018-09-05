@@ -49,7 +49,7 @@
         return nil;
     }
     
-    NSDictionary *form = [NSDictionary msidURLFormDecode:encodedString];
+    NSDictionary *form = [NSDictionary msidDictionaryFromUrlFormEncodedString:encodedString];
     
     if (!form)
     {

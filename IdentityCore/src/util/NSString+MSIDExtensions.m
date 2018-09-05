@@ -196,6 +196,44 @@ typedef unsigned char byte;
 }
 
 
+/*! Generate a www-form-urlencoded string of random data */
++ (NSString *)msidUrlFormEncodedStringFromDictionary:(NSDictionary *)dict
+{
+    __block NSMutableString *encodedString = nil;
+    
+    [dict enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL __unused *stop)
+     {
+         NSString *encodedKey = [[[key description] msidTrimmedString] msidUrlFormEncode];
+         
+         if (!encodedString)
+         {
+             encodedString = [NSMutableString new];
+         }
+         else
+         {
+             [encodedString appendString:@"&"];
+         }
+         
+         [encodedString appendFormat:@"%@", encodedKey];
+         
+         NSString *v = [value description];
+         if ([value isKindOfClass:NSUUID.class])
+         {
+             v = ((NSUUID *)value).UUIDString;
+         }
+         NSString *encodedValue = [[v msidTrimmedString] msidUrlFormEncode];
+         
+         if (![NSString msidIsStringNilOrBlank:encodedValue])
+         {
+             [encodedString appendFormat:@"=%@", encodedValue];
+         }
+         
+     }];
+    return encodedString;
+}
+
+
+
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases
 {
     if (!aliases)

@@ -392,8 +392,8 @@
     // both scopes in request and response should be included
     NSOrderedSet<NSString *> *scopeWithAddition = accessToken.scopes;
     XCTAssertEqual(scopeWithAddition.count, 2);
-    XCTAssertTrue([scopeInRequest.scopeSet isSubsetOfOrderedSet:scopeWithAddition]);
-    XCTAssertTrue([scopeInResposne.scopeSet isSubsetOfOrderedSet:scopeWithAddition]);
+    XCTAssertTrue([scopeInRequest.msidScopeSet isSubsetOfOrderedSet:scopeWithAddition]);
+    XCTAssertTrue([scopeInResposne.msidScopeSet isSubsetOfOrderedSet:scopeWithAddition]);
 }
 
 - (void)testAccountFromTokenResponse_whenAADV2TokenResponse_shouldInitAccountAndSetProperties

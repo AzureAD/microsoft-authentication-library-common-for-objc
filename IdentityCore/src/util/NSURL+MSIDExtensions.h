@@ -50,6 +50,5 @@
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment;
 
 - (NSDictionary *)msidQueryParameters;
-+ (NSURL *)msidAddParameters:(NSDictionary<NSString *, NSString *> *)parameters toUrl:(NSURL *)url;
 
 @end

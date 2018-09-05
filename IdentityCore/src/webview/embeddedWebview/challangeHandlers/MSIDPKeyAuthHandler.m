@@ -41,7 +41,7 @@
     
     NSArray *parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
-    NSDictionary *queryParamsMap = [NSDictionary msidURLFormDecode:qp];
+    NSDictionary *queryParamsMap = [NSDictionary msidDictionaryFromUrlFormEncodedString:qp];
     NSString *submitUrl = [queryParamsMap valueForKey:@"SubmitUrl"];
     
     // Fail if the PKeyAuth challenge doesn't contain the required info

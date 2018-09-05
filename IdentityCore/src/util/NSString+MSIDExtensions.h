@@ -70,6 +70,9 @@
 /*! Generate a base64 url-encoded string of random data */
 + (NSString *)msidBase64UrlEncodedStringFromData:(NSData *)data;
 
+/*! Generate a www-form-urlencoded string of random data */
++ (NSString *)msidUrlFormEncodedStringFromDictionary:(NSDictionary *)dict;
+
 /*!
  =============================================================================
  Convenience methods

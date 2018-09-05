@@ -26,13 +26,12 @@
 @interface NSDictionary (MSIDExtensions)
 
 + (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string;
-+ (NSDictionary *)msidURLFormDecode:(NSString *)string;
++ (NSDictionary *)msidDictionaryFromUrlFormEncodedString:(NSString *)string;
 + (NSDictionary *)msidDictionaryFromData:(NSData *)data error:(NSError **)error;
 
 - (NSString *)msidURLFormEncode;
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
 
-- (NSArray<NSURLQueryItem *> *)urlQueryItemsArray;
 
 - (BOOL)assertType:(Class)type
            ofField:(NSString *)field

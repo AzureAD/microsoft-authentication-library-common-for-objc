@@ -34,7 +34,7 @@ const unichar queryStringSeparator = '?';
 // Decodes configuration contained in a URL fragment
 - (NSDictionary *)msidFragmentParameters
 {
-    return [NSDictionary msidURLFormDecode:self.fragment];
+    return [NSDictionary msidDictionaryFromUrlFormEncodedString:self.fragment];
 }
 
 // Decodes configuration contains in a URL query
@@ -42,7 +42,7 @@ const unichar queryStringSeparator = '?';
 {
     NSURLComponents* components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];
     
-    return [NSDictionary msidURLFormDecode:[components percentEncodedQuery]];
+    return [NSDictionary msidDictionaryFromUrlFormEncodedString:[components percentEncodedQuery]];
 }
 
 - (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL
@@ -195,35 +195,5 @@ const unichar queryStringSeparator = '?';
     return [self msidURLWithEnvironment:environment tenant:@"common"];
 }
 
-+ (NSURL *)msidAddParameters:(NSDictionary<NSString *, NSString *> *)parameters toUrl:(NSURL *)url
-{
-    __auto_type urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:YES];
-    
-    NSMutableDictionary *queryDic = [NSMutableDictionary new];
-    for (NSURLQueryItem * queryItem in urlComponents.queryItems)
-    {
-        [queryDic setValue:queryItem.value forKey:queryItem.name];
-    }
-    
-    for (id key in parameters)
-    {
-        id value = parameters[key];
-        
-        NSAssert([value isKindOfClass:NSString.class], NULL);
-        NSAssert([key isKindOfClass:NSString.class], NULL);
-        
-        if (![key isKindOfClass:NSString.class] || ![value isKindOfClass:NSString.class])
-        {
-            MSID_LOG_WARN(nil, @"Ignoring key/value.");
-            MSID_LOG_WARN_PII(nil, @"Ignoring key: %@ value: %@", key, value);
-            continue;
-        }
-        [queryDic setValue:value forKey:key];
-    }
-    
-    urlComponents.queryItems = [(NSDictionary *)queryDic urlQueryItemsArray];
-    
-    return urlComponents.URL;
-}
 
 @end

@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
 
 @interface MSIDDictionaryExtensionsTests : XCTestCase
 
@@ -40,32 +41,37 @@
     [super tearDown];
 }
 
-- (void)testMsidURLFormEncode_whenKeyAndValueAreStrings_shouldReturnUrlEncodedString
+- (void)testMsidDictionaryFromQueryString_whenStringContainsQuery_shouldReturnDictWithoutDecoding
 {
-    NSDictionary *dictionary = @{@"key": @"value"};
+    NSString *string = @"key=val+val";
+    NSDictionary *dict = [NSDictionary msidDictionaryFromQueryString:string];
     
-    NSString *result = [dictionary msidURLFormEncode];
-
-    XCTAssertEqualObjects(result, @"key=value");
+    XCTAssertTrue([[dict allKeys] containsObject:@"key"]);
+    XCTAssertEqualObjects(dict[@"key"], @"val+val");
 }
 
-- (void)testMsidURLFormEncode_whenKeyStringValueUUID_shouldReturnUrlEncodedString
+- (void)testMsidDictionaryFromUrlFormEncodedString_whenStringContainsQuery_shouldReturnDictWithDecoding
 {
-    NSDictionary *dictionary = @{@"key": [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"]};
+    NSString *string = @"key=Some+interesting+test%2F%2B-%29%28%2A%26%5E%25%24%23%40%21~%7C";
+    NSDictionary *dict = [NSDictionary msidDictionaryFromUrlFormEncodedString:string];
     
-    NSString *result = [dictionary msidURLFormEncode];
-    
-    XCTAssertEqualObjects(result, @"key=E621E1F8-C36C-495A-93FC-0C247A3E6E5F");
+    XCTAssertTrue([[dict allKeys] containsObject:@"key"]);
+    XCTAssertEqualObjects(dict[@"key"], @"Some interesting test/+-)(*&^%$#@!~|");
 }
 
-- (void)testMsidURLFormEncode_whenKeyWithEmptyValue_shouldReturnUrlEncodedStringWithNoEqualSign
+- (void)testMsidDictionaryFromQueryString_whenMalformedQuery_shouldReturnDictWithoutBadQuery
 {
-    NSDictionary *dictionary = @{@"key":@""};
-    NSString *result = [dictionary msidURLFormEncode];
-    XCTAssertEqualObjects(result, @"key");
+    NSString *string = @"key=val+val&malformed=v1=v2&=noval";
+    NSDictionary *dict = [NSDictionary msidDictionaryFromQueryString:string];
+    
+    XCTAssertTrue(dict.count == 1);
+    XCTAssertTrue([dict.allKeys containsObject:@"key"]);
+    
+    XCTAssertEqualObjects(dict[@"key"], @"val+val");
 }
 
-- (void)testDictionaryByRemovingFields_whenNilKeysArray_shouldNotRemoveFields
+
+- (void)testMsidDictionaryByRemovingFields_whenNilKeysArray_shouldNotRemoveFields
 {
     NSDictionary *inputDictionary = @{@"key":@"",
                                       @"key1": @"value1",
@@ -75,7 +81,7 @@
     XCTAssertEqualObjects(inputDictionary, resultDictionary);
 }
 
-- (void)testDictionaryByRemovingFields_whenEmptyKeysArray_shouldNotRemoveFields
+- (void)testMsidDictionaryByRemovingFields_whenEmptyKeysArray_shouldNotRemoveFields
 {
     NSDictionary *inputDictionary = @{@"key1": @"value1",
                                       @"key2": @"value2",
@@ -85,7 +91,7 @@
     XCTAssertEqualObjects(inputDictionary, resultDictionary);
 }
 
-- (void)testDictionaryByRemovingFields_whenDictionaryWithFields_shouldRemoveFields
+- (void)testMsidDictionaryByRemovingFields_whenDictionaryWithFields_shouldRemoveFields
 {
     NSDictionary *inputDictionary = @{@"key1": @"value1",
                                       @"key2": @"value2",
