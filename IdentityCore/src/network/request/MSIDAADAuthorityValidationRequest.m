@@ -35,15 +35,15 @@
     {
         NSParameterAssert(endpoint);
         
-        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
-        [requestConfigurator configure:self];
-        
         self.context =  context;
         
         NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];;
         urlRequest.URL = endpoint;
         urlRequest.HTTPMethod = @"GET";
         _urlRequest = urlRequest;
+
+        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
+        [requestConfigurator configure:self];
     }
     
     return self;
