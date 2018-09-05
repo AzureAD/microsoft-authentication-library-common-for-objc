@@ -41,6 +41,7 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAADTenant.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -139,9 +140,37 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:originalEnvironment context:context];
 }
 
-- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment
+- (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities:(NSURL *)originalAuthority
+{
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:originalAuthority context:nil error:nil];
+    
+    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+}
+
+- (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment
 {
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
+}
+
+- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
+                        context:(id<MSIDRequestContext>)context
+{
+    if (!originalAuthority)
+    {
+        return nil;
+    }
+    
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:originalAuthority context:nil error:nil];
+    authority = [[MSIDAADAuthority alloc] initWithURL:[authority universalAuthorityURL] context:nil error:nil];
+
+    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
+}
+
+- (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority
+{
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:originalAuthority context:nil error:nil];
+    __auto_type aliases = [authority legacyCacheRefreshTokenLookupAliases] ?: @[];
+    return aliases;
 }
 
 #pragma mark - Tokens
@@ -160,7 +189,7 @@
     if (!response.extendedExpiresOnDate) return YES;
 
     NSMutableDictionary *additionalServerInfo = [accessToken.additionalServerInfo mutableCopy];
-    additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY] = response.extendedExpiresOnDate;
+    additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = response.extendedExpiresOnDate;
     accessToken.additionalServerInfo = additionalServerInfo;
 
     return YES;
@@ -216,10 +245,8 @@
     account.accountType = MSIDAccountTypeMSSTS;
     account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
-    if (response.clientInfo.accountIdentifier)
-    {
-        account.homeAccountId = response.clientInfo.accountIdentifier;
-    }
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:account.accountIdentifier.legacyAccountId
+                                                                         homeAccountId:response.clientInfo.accountIdentifier];
 
     return YES;
 }
@@ -242,10 +269,8 @@
 
     baseToken.clientInfo = response.clientInfo;
 
-    if (response.clientInfo.accountIdentifier)
-    {
-        baseToken.homeAccountId = response.clientInfo.accountIdentifier;
-    }
+    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:baseToken.accountIdentifier.legacyAccountId
+                                                                           homeAccountId:response.clientInfo.accountIdentifier];
 
     if (response.speInfo)
     {

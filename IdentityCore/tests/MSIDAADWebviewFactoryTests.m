@@ -31,8 +31,9 @@
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDWebWPJAuthResponse.h"
+#import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebOpenBrowserResponse.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -56,7 +57,6 @@
                                                                                               resource:nil
                                                                                                 scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
                                                                                          correlationId:correlationId
-                                                                                           verifyState:NO
                                                                                             enablePkce:NO];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -81,10 +81,11 @@
                                           @"client-request-id" : correlationId.UUIDString,
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
-                                          @"scope" : @"scope1 openid",
                                           @"prompt" : @"login",
                                           @"slice": @"myslice",
-                                          @"haschrome" : @"1"
+                                          @"haschrome" : @"1",
+                                          @"scope" : @"scope1"
+                                          
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     [expectedQPs addEntriesFromDictionary:DEFAULT_TEST_SLICE_PARAMS_DICT];
@@ -100,13 +101,14 @@
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link"]
                                        requestState:nil
-                                        verifyState:NO
+                        ignoreInvalidState:NO
                                             context:nil
                                               error:&error];
     
-    XCTAssertTrue([response isKindOfClass:MSIDWebWPJAuthResponse.class]);
+    XCTAssertTrue([response isKindOfClass:MSIDWebMSAuthResponse.class]);
     XCTAssertNil(error);
 }
+
 
 
 - (void)testResponseWithURL_whenURLSchemeNotMsauth_shouldReturnAADAuthResponse
@@ -116,7 +118,7 @@
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode&cloud_instance_host_name=somename"]
                                        requestState:nil
-                                        verifyState:NO
+                        ignoreInvalidState:NO
                                             context:nil
                                               error:&error];
     
@@ -124,6 +126,21 @@
     XCTAssertNil(error);
 }
 
+
+- (void)testResponseWithURL_whenURLSchemeBrowser_shouldReturnBrowserResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"browser://somehost"]
+                                       requestState:nil
+                        ignoreInvalidState:NO
+                                            context:nil
+                                              error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebOpenBrowserResponse.class]);
+    XCTAssertNil(error);
+}
 
 
 @end

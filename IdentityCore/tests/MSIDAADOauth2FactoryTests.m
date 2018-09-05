@@ -44,6 +44,9 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDAadAuthorityCacheRecord.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDAADOauth2FactoryTest : XCTestCase
 
@@ -157,7 +160,7 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -188,7 +191,7 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -214,7 +217,7 @@
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -256,7 +259,7 @@
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -279,7 +282,7 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    XCTAssertEqualObjects(token.homeAccountId, homeAccountId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     
     NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     
@@ -297,22 +300,113 @@
     XCTAssertNotNil(token.expiresOn);
 }
 
-- (void)testCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnNilAuthorities
+- (void)testCacheURLFromAuthority_whenTenantedAuthority_shouldReturnTenantedCacheAuthority
 {
     [self setupAADAuthorityCache];
 
     MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
-    NSArray *aliases = [factory cacheAliasesForEnvironment:nil];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSURL *cacheAuthority = [factory cacheURLForAuthority:originalAuthority context:nil];
+    NSURL *expectedURL = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
+    XCTAssertEqualObjects(cacheAuthority, expectedURL);
+}
+
+- (void)testCacheURLFromAuthority_whenCommonAuthority_shouldReturnCommonCacheAuthority
+{
+    [self setupAADAuthorityCache];
+
+    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    NSURL *cacheAuthority = [factory cacheURLForAuthority:originalAuthority context:nil];
+    NSURL *expectedURL = [NSURL URLWithString:@"https://login.windows.net/common"];
+    XCTAssertEqualObjects(cacheAuthority, expectedURL);
+}
+
+- (void)testCacheURLFromAuthority_whenOrganizationalAuthority_shouldReturnCommonCacheAuthority
+{
+    [self setupAADAuthorityCache];
+
+    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/organizations"];
+    NSURL *cacheAuthority = [factory cacheURLForAuthority:originalAuthority context:nil];
+    NSURL *expectedURL = [NSURL URLWithString:@"https://login.windows.net/common"];
+    XCTAssertEqualObjects(cacheAuthority, expectedURL);
+}
+
+- (void)testLegacyRefreshTokenLookupAuthorities_whenAuthorityNil_shouldReturnEmptyAuthorities
+{
+    [self setupAADAuthorityCache];
+
+    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    NSArray *aliases = [factory legacyRefreshTokenLookupAuthorities:nil];
     XCTAssertEqualObjects(aliases, @[]);
 }
 
-- (void)testCacheAliasesForEnvirobment_whenEnvironmentNil_shouldReturnAllAliases
+- (void)testLegacyRefreshTokenLookupAuthorities_whenAuthorityProvided_shouldReturnAllAliases
+{
+    [self setupAADAuthorityCache];
+
+    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSArray *aliases = [factory legacyRefreshTokenLookupAuthorities:originalAuthority];
+    NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.microsoft.com/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.windows.net/common"],
+                                 [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
+                                 [NSURL URLWithString:@"https://login.microsoft.com/common"]];
+    XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+- (void)testLegacyRefreshTokenLookupAuthorities_whenAuthorityProvidedWithConsumers_shouldReturnEmptyAliases
+{
+    [self setupAADAuthorityCache];
+
+    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/consumers"];
+    NSArray *aliases = [factory legacyRefreshTokenLookupAuthorities:originalAuthority];
+    NSArray *expectedAliases = @[];
+    XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+- (void)testLegacyAccessTokenLookupAuthorities_whenAuthorityNil_shouldReturnNilAuthorities
+{
+    [self setupAADAuthorityCache];
+
+    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    NSArray *aliases = [factory legacyAccessTokenLookupAuthorities:nil];
+    XCTAssertEqualObjects(aliases, @[]);
+}
+
+- (void)testLegacyAccessTokenLookupAuthorities_whenAuthorityProvided_shouldReturnAllAliases
+{
+    [self setupAADAuthorityCache];
+
+    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSArray *aliases = [factory legacyAccessTokenLookupAuthorities:originalAuthority];
+    NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.microsoft.com/contoso.com"]];
+    XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+- (void)testDefaultCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnNilAuthorities
+{
+    [self setupAADAuthorityCache];
+
+    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    NSArray *aliases = [factory defaultCacheAliasesForEnvironment:nil];
+    XCTAssertEqualObjects(aliases, @[]);
+}
+
+- (void)testDefaultCacheAliasesForEnvirobment_whenEnvironmentNil_shouldReturnAllAliases
 {
     [self setupAADAuthorityCache];
 
     MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
     NSString *originalEnvironment = @"login.microsoftonline.com";
-    NSArray *aliases = [factory cacheAliasesForEnvironment:originalEnvironment];
+    NSArray *aliases = [factory defaultCacheAliasesForEnvironment:originalEnvironment];
     NSArray *expectedAliases = @[@"login.windows.net", @"login.microsoftonline.com", @"login.microsoft.com"];
     XCTAssertEqualObjects(aliases, expectedAliases);
 }

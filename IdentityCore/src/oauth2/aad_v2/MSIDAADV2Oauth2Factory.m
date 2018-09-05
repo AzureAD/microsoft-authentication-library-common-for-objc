@@ -88,7 +88,19 @@
 
     if (!result)
     {
-        return NO;
+        if (response.error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     response.oauthErrorCode,
+                                     response.errorDescription,
+                                     response.error,
+                                     response.suberror,
+                                     nil,
+                                     context.correlationId,
+                                     nil);
+        }
+
+        return result;
     }
 
     if (!response.clientInfo)

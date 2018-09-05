@@ -509,7 +509,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.homeAccountId, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     
     NSArray *allAccessTokens = [self getAllLegacyAccessTokens];
     XCTAssertEqual([allAccessTokens count], 2);

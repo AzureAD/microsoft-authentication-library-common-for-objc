@@ -36,9 +36,7 @@
                                      resource:(NSString *)resource
                                        scopes:(NSOrderedSet<NSString *> *)scopes
                                 correlationId:(NSUUID *)correlationId
-                                  verifyState:(BOOL)verifyState
                                    enablePkce:(BOOL)enablePkce
-
 {
     self = [super init];
     if (self)
@@ -49,12 +47,14 @@
         _resource = resource;
         _scopes = scopes;
         _correlationId = correlationId;
-        _verifyState = verifyState;
         
         if (enablePkce)
         {
             _pkce = [MSIDPkce new];
         }
+        
+        _ignoreInvalidState = NO;
+        _customHeaders = [NSMutableDictionary new];
     }
     return self;
 }

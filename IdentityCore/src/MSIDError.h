@@ -38,6 +38,7 @@ extern NSString *MSIDHTTPResponseCodeKey;
 extern NSString *MSIDErrorDomain;
 extern NSString *MSIDOAuthErrorDomain;
 extern NSString *MSIDKeychainErrorDomain;
+extern NSString *MSIDHttpErrorCodeDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
@@ -87,12 +88,17 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorServerInvalidClient        = -51432,
     MSIDErrorServerInvalidGrant         = -51433,
     MSIDErrorServerInvalidScope         = -51434,
+    MSIDErrorServerUnauthorizedClient   = -51435,
+    MSIDErrorServerUnhandledResponse    = -51436,
     
     // State verification has failed
     MSIDErrorServerInvalidState         = -51441,
     
     // Redirect to non HTTPS detected
     MSIDErrorServerNonHttpsRedirect     = -51451,
+
+    // Intune Protection Policies Required
+    MSIDErrorServerProtectionPoliciesRequired = -51461,
     
     /*!
      =========================================================
@@ -100,7 +106,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      =========================================================
      */
     // Authority validation response failure
-    MSIDErrorAuthorityValidation  = -51500,
+    MSIDErrorAuthorityValidation            = -51500,
+    MSIDErrorAuthorityValidationWebFinger   = -51501,
 
     /*!
      =========================================================

@@ -234,7 +234,7 @@ static NSMutableArray* s_responses = nil;
         
         if (AmIBeingDebugged())
         {
-            fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"\nFailed to find repsonse for request:"] UTF8String]);
+            fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"\nFailed to find response for request:"] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"URL: %@", request.URL] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"BODY: %@", request.HTTPBody] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"HEADERS: %@", request.allHTTPHeaderFields] UTF8String]);

@@ -31,7 +31,8 @@
 
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
                                   clientId:(nonnull NSString *)clientId
-                                     scope:(nullable NSString *)scope NS_DESIGNATED_INITIALIZER;
+                                     scope:(nullable NSString *)scope
+                                   context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable)init NS_UNAVAILABLE;
 + (instancetype _Nullable)new NS_UNAVAILABLE;

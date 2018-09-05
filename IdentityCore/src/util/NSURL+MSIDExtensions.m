@@ -46,35 +46,9 @@ const unichar queryStringSeparator = '?';
 
 - (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL
 {
-    
-    // Check if equal
-    if ([self isEqual:aURL])
-    {
-        return YES;
-    }
-    
-    // Check scheme and host
-    if (!self.scheme ||
-        !aURL.scheme ||
-        [self.scheme caseInsensitiveCompare:aURL.scheme] != NSOrderedSame)
+    if (![self msidIsEquivalentAuthorityHost:aURL])
     {
         return NO;
-    }
-    
-    if (!self.host ||
-        !aURL.host ||
-        [self.host caseInsensitiveCompare:aURL.host] != NSOrderedSame)
-    {
-        return NO;
-    }
-    
-    // Check port
-    if (self.port || aURL.port)
-    {
-        if (![self.port isEqual:aURL.port])
-        {
-            return NO;
-        }
     }
     
     // Check path
@@ -86,6 +60,41 @@ const unichar queryStringSeparator = '?';
         }
     }
     
+    return YES;
+}
+
+- (BOOL)msidIsEquivalentAuthorityHost:(NSURL *)aURL
+{
+    // Check if equal
+    if ([self isEqual:aURL])
+    {
+        return YES;
+    }
+
+    // Check scheme and host
+    if (!self.scheme ||
+        !aURL.scheme ||
+        [self.scheme caseInsensitiveCompare:aURL.scheme] != NSOrderedSame)
+    {
+        return NO;
+    }
+
+    if (!self.host ||
+        !aURL.host ||
+        [self.host caseInsensitiveCompare:aURL.host] != NSOrderedSame)
+    {
+        return NO;
+    }
+
+    // Check port
+    if (self.port || aURL.port)
+    {
+        if (![self.port isEqual:aURL.port])
+        {
+            return NO;
+        }
+    }
+
     return YES;
 }
 
@@ -144,6 +153,26 @@ const unichar queryStringSeparator = '?';
     return pathComponents[1];
 }
 
+- (NSURL *)msidAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName
+{
+    if ([NSString msidIsStringNilOrBlank:cloudInstanceHostName])
+    {
+        return self;
+    }
+    
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:NO];
+    
+    // Invalid URL
+    if ([NSString msidIsStringNilOrBlank:urlComponents.host])
+    {
+        return self;
+    }
+    
+    urlComponents.host = cloudInstanceHostName;
+    
+    return urlComponents.URL;
+}
+
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant
 {
     if ([NSString msidIsStringNilOrBlank:environment])
@@ -168,7 +197,12 @@ const unichar queryStringSeparator = '?';
 + (NSURL *)msidAddParameters:(NSDictionary<NSString *, NSString *> *)parameters toUrl:(NSURL *)url
 {
     __auto_type urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:YES];
-    NSMutableArray<NSURLQueryItem *> *queryItems = urlComponents.queryItems ? [urlComponents.queryItems mutableCopy] : [NSMutableArray new];
+    
+    NSMutableDictionary *queryDic = [NSMutableDictionary new];
+    for (NSURLQueryItem * queryItem in urlComponents.queryItems)
+    {
+        [queryDic setValue:queryItem.value forKey:queryItem.name];
+    }
     
     for (id key in parameters)
     {
@@ -183,11 +217,10 @@ const unichar queryStringSeparator = '?';
             MSID_LOG_WARN_PII(nil, @"Ignoring key: %@ value: %@", key, value);
             continue;
         }
-        __auto_type item = [[NSURLQueryItem alloc] initWithName:key value:value];
-        [queryItems addObject:item];
+        [queryDic setValue:value forKey:key];
     }
     
-    urlComponents.queryItems = queryItems;
+    urlComponents.queryItems = [(NSDictionary *)queryDic urlQueryItemsArray];
     
     return urlComponents.URL;
 }

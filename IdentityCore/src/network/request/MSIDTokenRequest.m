@@ -28,12 +28,15 @@
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                         clientId:(NSString *)clientId
                            scope:(NSString *)scope
+                         context:(nullable id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)
     {
         NSParameterAssert(clientId);
         NSParameterAssert(endpoint);
+        
+        self.context = context;
         
         NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[MSID_OAUTH2_CLIENT_ID] = clientId;

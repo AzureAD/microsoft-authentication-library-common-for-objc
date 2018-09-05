@@ -21,66 +21,23 @@
 // THE SOFTWARE.
 
 #import "MSIDAADAuthorityMetadataRequest.h"
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDAADAuthorityMetadataResponseSerializer.h"
 #import "MSIDAADRequestConfigurator.h"
 #import "MSIDAADNetworkConfiguration.h"
-
-@interface MSIDAADAuthorityMetadataResponseSerializer : MSIDAADResponseSerializer
-@end
-
-@implementation MSIDAADAuthorityMetadataResponseSerializer
-
-- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
-                           data:(NSData *)data
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
-{
-    NSError *jsonError;
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
-
-    if (jsonError)
-    {
-        if (error) *error = jsonError;
-        return nil;
-    }
-
-    __auto_type reponse = [MSIDAADAuthorityMetadataResponse new];
-    
-    NSString *oauthError = jsonObject[@"error"];
-    if (![NSString msidIsStringNilOrBlank:oauthError])
-    {
-        if (error) {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorAuthorityValidation,
-                                     jsonObject[@"error_description"],
-                                     oauthError,
-                                     nil, nil, context.correlationId, nil);
-        }
-        
-        return nil;
-    }
-
-    reponse.metadata = jsonObject[@"metadata"];
-    reponse.openIdConfigurationEndpoint = [NSURL URLWithString:jsonObject[@"tenant_discovery_endpoint"]];
-
-    return reponse;
-}
-
-@end
-
-@implementation MSIDAADAuthorityMetadataResponse
-@end
 
 @implementation MSIDAADAuthorityMetadataRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                        authority:(NSURL *)authority
+                         context:(nullable id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)
     {
         NSParameterAssert(endpoint);
         NSParameterAssert(authority);
+        
+        _context = context;
         
         NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[@"api-version"] = MSIDAADNetworkConfiguration.defaultConfiguration.aadAuthorityDiscoveryApiVersion;

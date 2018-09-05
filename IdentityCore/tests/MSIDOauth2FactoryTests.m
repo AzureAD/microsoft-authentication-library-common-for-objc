@@ -39,6 +39,7 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccount.h"
+#import "MSIDAccountIdentifier.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAuthority.h"
 #import "NSString+MSIDTestUtil.h"
@@ -183,7 +184,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
 }
@@ -204,7 +205,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
@@ -248,7 +249,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
@@ -287,7 +288,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
@@ -304,7 +305,7 @@
     XCTAssertNotNil(token.expiresOn);
     XCTAssertNil(token.familyId);
     XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(token.legacyUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
 }
 
 - (void)testLegacyAccessTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -323,7 +324,7 @@
 
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertNotNil(token.cachedAt);
@@ -338,7 +339,7 @@
     XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertNotNil(token.expiresOn);
     XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(token.legacyUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
 }
 
 - (void)testLegacyRefreshTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -357,7 +358,7 @@
 
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
@@ -367,7 +368,7 @@
     XCTAssertEqualObjects(token.idToken, idToken);
 
     XCTAssertNil(token.familyId);
-    XCTAssertEqualObjects(token.legacyUserId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
 }
 
 - (void)testIDTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -386,7 +387,7 @@
     
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
-    XCTAssertEqualObjects(token.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertNil(token.clientInfo);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     
@@ -417,7 +418,7 @@
     XCTAssertEqualObjects(token.authority, configuration.authority);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
-    XCTAssertEqualObjects(token.homeAccountId, @"subject");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"subject");
     
     NSDictionary *expectedAdditionalInfo = @{@"additional_key1": @"additional_value1",
                                              @"additional_key2": @"additional_value2"};
@@ -444,7 +445,7 @@
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.homeAccountId, @"subject");
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"subject");
     XCTAssertNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeOther);
     XCTAssertEqualObjects(account.username, @"eric999");
@@ -456,18 +457,65 @@
     XCTAssertEqualObjects(account.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
 
-- (void)testCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnNilAuthorities
+
+- (void)testCacheURLFromAuthority_whenAccessTokenType_shouldReturnOriginalAuthority
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    NSArray *aliases = [factory cacheAliasesForEnvironment:nil];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSURL *cacheAuthority = [factory cacheURLForAuthority:originalAuthority context:nil];
+    XCTAssertEqualObjects(cacheAuthority, originalAuthority);
+}
+
+- (void)testCacheURLFromAuthority_whenRefreshTokenType_shouldReturnOriginalAuthority
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSURL *cacheAuthority = [factory cacheURLForAuthority:originalAuthority context:nil];
+    XCTAssertEqualObjects(cacheAuthority, originalAuthority);
+}
+
+- (void)testLegacyRefreshTokenLookupAuthorities_whenAuthorityNil_shouldReturnEmptyAuthorities
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    NSArray *aliases = [factory legacyRefreshTokenLookupAuthorities:nil];
     XCTAssertEqualObjects(aliases, @[]);
 }
 
-- (void)testCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnOriginalAuthority
+- (void)testLegacyRefreshTokenLookupAuthorities_whenAuthorityProvided_shouldReturnOriginalAuthority
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSArray *aliases = [factory legacyRefreshTokenLookupAuthorities:originalAuthority];
+    XCTAssertEqualObjects(aliases, @[originalAuthority]);
+}
+
+- (void)testLegacyAccessTokenLookupAuthorities_whenAuthorityNil_shouldReturnNilAuthorities
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    NSArray *aliases = [factory legacyAccessTokenLookupAuthorities:nil];
+    XCTAssertEqualObjects(aliases, @[]);
+}
+
+- (void)testLegacyAccessTokenLookupAuthorities_whenAuthorityProvided_shouldReturnOriginalAuthority
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    NSArray *aliases = [factory legacyAccessTokenLookupAuthorities:originalAuthority];
+    XCTAssertEqualObjects(aliases, @[originalAuthority]);
+}
+
+- (void)testDefaultCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnNilAuthorities
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    NSArray *aliases = [factory defaultCacheAliasesForEnvironment:nil];
+    XCTAssertEqualObjects(aliases, @[]);
+}
+
+- (void)testDefaultCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnOriginalAuthority
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
     NSString *originalEnvironment = @"login.microsoftonline.com";
-    NSArray *aliases = [factory cacheAliasesForEnvironment:originalEnvironment];
+    NSArray *aliases = [factory defaultCacheAliasesForEnvironment:originalEnvironment];
     XCTAssertEqualObjects(aliases, @[originalEnvironment]);
 }
 

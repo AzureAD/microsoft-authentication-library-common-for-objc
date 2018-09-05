@@ -299,13 +299,30 @@
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions
 {
-    if (clientIDMatchingOptions == MSIDSuperSet && (clientId || familyId))
+    if (realm && ![self.realm isEqualToString:realm])
     {
-        if (![self.clientId isEqualToString:clientId]
-            && ![self.familyId isEqualToString:familyId])
+        return NO;
+    }
+
+    if (![self matchesTarget:target comparisonOptions:matchingOptions])
+    {
+        return NO;
+    }
+
+    if (!clientId && !familyId)
+    {
+        return YES;
+    }
+
+    if (clientIDMatchingOptions == MSIDSuperSet)
+    {
+        if ((clientId && [self.clientId isEqualToString:clientId])
+            || (familyId && [self.familyId isEqualToString:familyId]))
         {
-            return NO;
+            return YES;
         }
+
+        return NO;
     }
     else
     {
@@ -320,17 +337,12 @@
         }
     }
 
-    if (realm && ![self.realm isEqualToString:realm])
-    {
-        return NO;
-    }
-
-    if (![self matchesTarget:target comparisonOptions:matchingOptions])
-    {
-        return NO;
-    }
-
     return YES;
+}
+
+- (BOOL)isTombstone
+{
+    return [self.secret isEqualToString:@"<tombstone>"];
 }
 
 @end

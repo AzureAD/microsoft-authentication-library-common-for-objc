@@ -72,7 +72,7 @@
 - (void)tearDown
 {
     [super tearDown];
-    
+
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [_dataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
 }
@@ -560,11 +560,10 @@
 
 - (void)testGetTokenWithType_whenTypeRefreshAccountWithLegacyIDProvided_shouldReturnToken
 {
-    [_cacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
-                                         response:[MSIDTestTokenResponse v2DefaultTokenResponse]
-                                          context:nil
-                                            error:nil];
-
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                        context:nil
+                                          error:nil];
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:nil];

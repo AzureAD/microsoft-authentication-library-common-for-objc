@@ -25,6 +25,7 @@
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDBaseTokenTests : XCTestCase
 
@@ -155,20 +156,40 @@
 - (void)testBaseTokenIsEqual_whenHomeAccountIdIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@"value 1" forKey:@"homeAccountId"];
+    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"value 1"];
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@"value 2" forKey:@"homeAccountId"];
-    
+    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"value 2"];
+
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
 - (void)testBaseTokenIsEqual_whenHomeAccountIdIdIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:@"value 1" forKey:@"homeAccountId"];
+    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"value 1"];
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:@"value 1" forKey:@"homeAccountId"];
+    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"value 1"];
     
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testBaseTokenIsEqual_whenLegacyAccountIdIsNotEqual_shouldReturnFalse
+{
+    MSIDBaseToken *lhs = [MSIDBaseToken new];
+    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"value 1" homeAccountId:@"value 1"];
+    MSIDBaseToken *rhs = [MSIDBaseToken new];
+    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"value 2" homeAccountId:@"value 2"];
+
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testBaseTokenIsEqual_whenLegacyAccountIdIdIsEqual_shouldReturnTrue
+{
+    MSIDBaseToken *lhs = [MSIDBaseToken new];
+    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"value 1" homeAccountId:@"value 1"];
+    MSIDBaseToken *rhs = [MSIDBaseToken new];
+    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"value 1" homeAccountId:@"value 1"];
+
     XCTAssertEqualObjects(lhs, rhs);
 }
 
@@ -226,7 +247,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
 
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
@@ -248,7 +269,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
-    XCTAssertEqualObjects(token.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
 
     token.storageAuthority = [@"https://login.windows.net/common" authority];
 
@@ -263,12 +284,11 @@
 - (MSIDBaseToken *)createToken
 {
     MSIDBaseToken *token = [MSIDBaseToken new];
-    [token setValue:[NSURL URLWithString:@"https://contoso.com/common"] forKey:@"authority"];
-    [token setValue:@"some clientId" forKey:@"clientId"];
-    [token setValue:[self createClientInfo:@{@"key" : @"value"}] forKey:@"clientInfo"];
-    [token setValue:@{@"spe_info" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:@"uid.utid" forKey:@"homeAccountId"];
-
+    token.authority = [@"https://contoso.com/common" authority];
+    token.clientId = @"some clientId";
+    token.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
+    token.additionalServerInfo = @{@"spe_info" : @"value2"};
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"uid.utid"];
     return token;
 }
 

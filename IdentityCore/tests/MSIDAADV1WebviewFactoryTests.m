@@ -60,7 +60,6 @@
                                                                                               resource:DEFAULT_TEST_RESOURCE
                                                                                                 scopes:nil
                                                                                          correlationId:correlationId
-                                                                                           verifyState:NO
                                                                                             enablePkce:NO];
     
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -88,9 +87,56 @@
                                           @"client-request-id" : correlationId.UUIDString,
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
-                                          @"scope" : @"openid",
                                           @"prompt" : @"login",
                                           @"haschrome" : @"1"
+                                          }];
+    
+    [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+    [expectedQPs addEntriesFromDictionary:DEFAULT_TEST_SLICE_PARAMS_DICT];
+    
+    XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
+}
+
+- (void)testAuthorizationParametersFromConfiguration_withValidParamsWithScopes_shouldContainAADV1ConfigurationWithScopes
+{
+    __block NSUUID *correlationId = [NSUUID new];
+    
+    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
+                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
+                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                              resource:DEFAULT_TEST_RESOURCE
+                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
+                                                                                         correlationId:correlationId
+                                                                                            enablePkce:NO];
+    
+    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    config.promptBehavior = @"login";
+    config.claims = @"claims";
+    config.sliceParameters = DEFAULT_TEST_SLICE_PARAMS_DICT;
+    config.loginHint = @"fakeuser@contoso.com";
+    
+    NSString *requestState = @"state";
+    
+    MSIDAADV1WebviewFactory *factory = [MSIDAADV1WebviewFactory new];
+    
+    NSDictionary *params = [factory authorizationParametersFromConfiguration:config requestState:requestState];
+    
+    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
+                                        @{
+                                          @"client_id" : DEFAULT_TEST_CLIENT_ID,
+                                          @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
+                                          @"resource" : DEFAULT_TEST_RESOURCE,
+                                          @"response_type" : @"code",
+                                          @"eqp1" : @"val1",
+                                          @"eqp2" : @"val2",
+                                          @"claims" : @"claims",
+                                          @"return-client-request-id" : @"true",
+                                          @"client-request-id" : correlationId.UUIDString,
+                                          @"login_hint" : @"fakeuser@contoso.com",
+                                          @"state" : requestState.msidBase64UrlEncode,
+                                          @"prompt" : @"login",
+                                          @"haschrome" : @"1",
+                                          @"scope" : @"scope1"
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];

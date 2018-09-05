@@ -29,10 +29,6 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
 
-#if TARGET_OS_IPHONE
-#import "MSIDAppExtensionUtil.h"
-#endif
-
 #if !MSID_EXCLUDE_WEBKIT
 
 @implementation MSIDAADOAuthEmbeddedWebviewController
@@ -40,24 +36,28 @@
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
-         configuration:(MSIDWebviewConfiguration *)configuration
+         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
                context:(id<MSIDRequestContext>)context
 {
+    NSMutableDictionary *headers = [NSMutableDictionary new];
+    if (customHeaders)
+    {
+        [headers addEntriesFromDictionary:customHeaders];
+    }
+    
 #if TARGET_OS_IPHONE
     // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
     // It swallows the challenge response rather than sending it to server.
     // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
-    NSMutableDictionary *headers = [NSMutableDictionary new];
-    if (configuration.customHeaders)
-    {
-        [headers addEntriesFromDictionary:configuration.customHeaders];
-    }
+
     [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
     
-    configuration.customHeaders = headers;
 #endif
     
-    return [super initWithStartURL:startURL endURL:endURL webview:webview configuration:configuration context:context];
+    return [super initWithStartURL:startURL endURL:endURL
+                           webview:webview
+                     customHeaders:headers
+                           context:context];
 }
 
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
@@ -66,10 +66,10 @@
 {
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
-    NSString *requestURLString = [requestURL.absoluteString lowercaseString];
     
     // Stop at broker
-    if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"])
+    if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"] ||
+        [requestURL.scheme.lowercaseString isEqualToString:@"browser"] )
     {
         self.complete = YES;
         
@@ -80,31 +80,10 @@
         return;
     }
     
-    if ([requestURL.scheme.lowercaseString isEqualToString:@"browser"])
-    {
-        self.complete = YES;
-        requestURLString = [requestURLString stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
-        
-#if TARGET_OS_IPHONE
-        if (![MSIDAppExtensionUtil isExecutingInAppExtension])
-        {
-            [self cancel];
-            [MSIDAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:requestURLString]];
-        }
-        else
-        {
-            MSID_LOG_INFO(self.context, @"unable to redirect to browser from extension");
-        }
-#else
-        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestURLString]];
-#endif
-        
-        decisionHandler(WKNavigationActionPolicyCancel);
-        return;
-    }
-    
 #if TARGET_OS_IPHONE
     // check for pkeyauth challenge.
+    NSString *requestURLString = [requestURL.absoluteString lowercaseString];
+    
     if ([requestURLString hasPrefix:[kMSIDPKeyAuthUrn lowercaseString]])
     {
         decisionHandler(WKNavigationActionPolicyCancel);

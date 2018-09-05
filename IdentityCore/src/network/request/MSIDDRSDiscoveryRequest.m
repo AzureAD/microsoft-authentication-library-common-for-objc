@@ -21,49 +21,9 @@
 // THE SOFTWARE.
 
 #import "MSIDDRSDiscoveryRequest.h"
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDDRSDiscoveryResponseSerializer.h"
 #import "MSIDAADRequestConfigurator.h"
 #import "MSIDAADNetworkConfiguration.h"
-
-@interface MSIDDRSDiscoveryResponseSerializer : MSIDAADResponseSerializer
-@end
-
-@implementation MSIDDRSDiscoveryResponseSerializer
-
-- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
-                           data:(NSData *)data
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
-{
-    NSError *jsonError;
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
-    
-    if (jsonError)
-    {
-        if (error) *error = jsonError;
-        return nil;
-    }
-    
-    __auto_type endpoint = (NSString *)jsonObject[@"IdentityProviderService"][@"PassiveAuthEndpoint"];
-    if (![endpoint isKindOfClass:NSString.class])
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorServerInvalidResponse,
-                                     @"PassiveAuthEndpoint is not a string.",
-                                     nil,
-                                     nil, nil, context.correlationId, nil);
-        }
-        
-        MSID_LOG_ERROR(nil, @"PassiveAuthEndpoint is not a string.");
-        return nil;
-    }
-    
-    return [NSURL URLWithString:endpoint];
-}
-
-@end
 
 @interface MSIDDRSDiscoveryRequest()
 
@@ -76,6 +36,7 @@
 
 - (instancetype)initWithDomain:(NSString *)domain
                       adfsType:(MSIDDRSType)adfsType
+                       context:(id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)
@@ -84,6 +45,7 @@
         
         _domain = domain;
         _adfsType = adfsType;
+        _context = context;
         
         NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[@"api-version"] = MSIDAADNetworkConfiguration.defaultConfiguration.drsDiscoveryApiVersion;

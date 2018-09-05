@@ -44,7 +44,7 @@
 {
     NSDictionary *dictionary = @{@"key": @"value"};
     
-    id result = [dictionary msidURLFormEncode];
+    NSString *result = [dictionary msidURLFormEncode];
 
     XCTAssertEqualObjects(result, @"key=value");
 }
@@ -53,17 +53,24 @@
 {
     NSDictionary *dictionary = @{@"key": [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"]};
     
-    id result = [dictionary msidURLFormEncode];
+    NSString *result = [dictionary msidURLFormEncode];
     
     XCTAssertEqualObjects(result, @"key=E621E1F8-C36C-495A-93FC-0C247A3E6E5F");
 }
 
+- (void)testMsidURLFormEncode_whenKeyWithEmptyValue_shouldReturnUrlEncodedStringWithNoEqualSign
+{
+    NSDictionary *dictionary = @{@"key":@""};
+    NSString *result = [dictionary msidURLFormEncode];
+    XCTAssertEqualObjects(result, @"key");
+}
+
 - (void)testDictionaryByRemovingFields_whenNilKeysArray_shouldNotRemoveFields
 {
-    NSDictionary *inputDictionary = @{@"key1": @"value1",
+    NSDictionary *inputDictionary = @{@"key":@"",
+                                      @"key1": @"value1",
                                       @"key2": @"value2",
                                       @"key3": @"value3"};
-    
     NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:nil];
     XCTAssertEqualObjects(inputDictionary, resultDictionary);
 }
@@ -89,6 +96,64 @@
     
     NSDictionary *expectedDictionary = @{@"key3": @"value3"};
     XCTAssertEqualObjects(resultDictionary, expectedDictionary);
+}
+
+- (void)testAssertContainsField_whenFieldIsInDictionary_shouldReturnTrue
+{
+    NSDictionary *inputDictionary = @{@"key1": @"value1",
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSError *error;
+    BOOL result = [inputDictionary assertContainsField:@"key1" context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+}
+
+- (void)testAssertContainsField_whenFieldIsNotInDictionary_shouldReturnFalse
+{
+    NSDictionary *inputDictionary = @{@"key4": @"value1",
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSError *error;
+    BOOL result = [inputDictionary assertContainsField:@"key1" context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"key1 is missing.");
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+}
+
+- (void)testAssertType_whenFieldOfCorrectType_shouldReturnTrue
+{
+    NSDictionary *inputDictionary = @{@"key1": @"value1",
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSError *error;
+    BOOL result = [inputDictionary assertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+}
+
+- (void)testAssertType_whenFieldOfIncorrectType_shouldReturnFalse
+{
+    NSDictionary *inputDictionary = @{@"key1": @1,
+                                      @"key2": @"value2",
+                                      @"key3": @"value3"};
+    
+    NSError *error;
+    BOOL result = [inputDictionary assertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"key1 is not a NSString.");
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, 1);
 }
 
 @end

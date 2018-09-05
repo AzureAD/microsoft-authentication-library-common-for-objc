@@ -29,6 +29,7 @@
 @class MSIDTokenResponse;
 @class MSIDConfiguration;
 @class MSIDAuthority;
+@class MSIDAccountIdentifier;
 
 /*!
  This is the base class for all possible tokens.
@@ -39,9 +40,9 @@
 {
     MSIDAuthority *_authority;
     NSString *_clientId;
-    NSString *_homeAccountId;
     MSIDClientInfo *_clientInfo;
     NSDictionary *_additionalServerInfo;
+    MSIDAccountIdentifier *_accountIdentifier;
 }
 
 @property (readonly) MSIDCredentialType credentialType;
@@ -53,11 +54,9 @@
  */
 @property (readwrite) MSIDAuthority *storageAuthority;
 @property (readwrite) NSString *clientId;
-@property (readwrite) NSString *homeAccountId;
-
 @property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSDictionary *additionalServerInfo;
-@property (readonly) NSString *primaryUserId;
+@property (readwrite) MSIDAccountIdentifier *accountIdentifier;
 
 - (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem;
 - (MSIDCredentialCacheItem *)tokenCacheItem;

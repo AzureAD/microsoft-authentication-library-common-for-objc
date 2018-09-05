@@ -25,13 +25,16 @@
 @implementation MSIDWebFingerRequest
 
 - (instancetype)initWithIssuer:(NSURL *)issuer
-                     authority:(NSURL *)authority;
+                     authority:(NSURL *)authority
+                       context:(nullable id<MSIDRequestContext>)context
 {
     self = [super init];
     if (self)
     {
         NSParameterAssert(issuer);
         NSParameterAssert(authority);
+        
+        _context = context;
         
         NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[@"resource"] = authority.absoluteString;

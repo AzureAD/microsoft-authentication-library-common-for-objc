@@ -33,7 +33,6 @@
 @property (class, nonnull) MSIDURLSessionManager *defaultManager;
 @property (nonatomic, readonly, nonnull) NSURLSessionConfiguration *configuration;
 @property (nonatomic, readonly, nonnull) NSURLSession *session;
-@property (nonatomic, readonly, nullable) MSIDURLSessionDelegate *delegate;
 
 - (instancetype _Nullable )init NS_UNAVAILABLE;
 + (instancetype _Nullable )new NS_UNAVAILABLE;

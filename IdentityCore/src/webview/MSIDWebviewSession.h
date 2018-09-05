@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 
 @protocol MSIDWebviewInteracting;
+
 @class MSIDWebviewFactory;
 
 @interface MSIDWebviewSession : NSObject
@@ -35,17 +36,13 @@
 @property NSObject<MSIDWebviewInteracting> *webviewController;
 @property MSIDWebviewFactory *factory;
 @property NSString *requestState;
-@property BOOL verifyState;
+@property BOOL ignoreInvalidState;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
                                   factory:(MSIDWebviewFactory *)factory
-                             requestState:(NSString *)state;
-
-- (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
-                                  factory:(MSIDWebviewFactory *)factory
                              requestState:(NSString *)state
-                              verifyState:(BOOL)verifyState;
-                             
+                       ignoreInvalidState:(BOOL)ignoreInvalidState;
+
 @end

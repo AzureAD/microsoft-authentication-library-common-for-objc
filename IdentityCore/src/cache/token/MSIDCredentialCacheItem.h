@@ -85,4 +85,6 @@
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions;
 
+- (BOOL)isTombstone;
+
 @end

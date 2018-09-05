@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,31 +15,17 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
-#if !MSID_EXCLUDE_SYSTEMWV
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
 
-@class MSIDOauth2Factory;
+@interface MSIDAADAuthorityMetadataResponse : NSObject
 
-@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
-
-- (instancetype)initWithStartURL:(NSURL *)startURL
-               callbackURLScheme:(NSString *)callbackURLScheme
-                         context:(id<MSIDRequestContext>)context;
-
-- (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;
-
-@property (readonly) NSURL *startURL;
-@property (readonly) NSString *callbackURLScheme;
+@property (nonatomic, nullable) NSURL *openIdConfigurationEndpoint;
+@property (nonatomic, nullable) NSArray<NSDictionary *> *metadata;
 
 @end
-#endif
-

@@ -42,14 +42,14 @@
 
 #pragma mark - Tests
 
-- (void)testOnInit_countIs0
+- (void)testInit_countShouldBe0
 {
     __auto_type cache = [MSIDCache new];
     
     XCTAssertEqual([cache count], 0);
 }
 
-- (void)testOnSetObject_shouldReturnSameOnObjectForKey
+- (void)testSetObject_whenSetSuccessfully_shouldReturnSameOnObjectForKey
 {
     __auto_type cache = [MSIDCache new];
     
@@ -60,7 +60,17 @@
     XCTAssertEqualObjects(object, @"v1");
 }
 
-- (void)testOnRemoveObjectForKey_shouldRemoveObject
+- (void)testSetObject_whenObjectNil_shouldRemoteItFromCache
+{
+    __auto_type cache = [MSIDCache new];
+    
+    [cache setObject:@"v1" forKey:@"k1"];
+    [cache setObject:nil forKey:@"k1"];
+    
+    XCTAssertEqual([cache count], 0);
+}
+
+- (void)testRemoveObjectForKey_whenObjectInCache_shouldRemoveObject
 {
     __auto_type cache = [MSIDCache new];
     
@@ -77,7 +87,7 @@
     XCTAssertEqualObjects(object2, @"v2");
 }
 
-- (void)testOnRemoveAllObjects_shouldRemoveAll
+- (void)testRemoveAllObjects_whenCacheContainsObjects_shouldRemoveAll
 {
     __auto_type cache = [MSIDCache new];
     

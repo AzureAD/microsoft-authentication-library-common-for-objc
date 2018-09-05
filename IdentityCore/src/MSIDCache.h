@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable ObjectType)objectForKey:(KeyType)key;
 
-- (void)setObject:(ObjectType)obj forKey:(KeyType)key;
+- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
 
 - (void)removeObjectForKey:(KeyType)key;
 

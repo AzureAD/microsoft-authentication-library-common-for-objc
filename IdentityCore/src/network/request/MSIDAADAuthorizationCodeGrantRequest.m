@@ -31,8 +31,10 @@
                            scope:(NSString *)scope
                      redirectUri:(NSString *)redirectUri
                             code:(NSString *)code
+                    codeVerifier:(NSString *)codeVerifier
+                         context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope redirectUri:redirectUri code:code];
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope redirectUri:redirectUri code:code codeVerifier:codeVerifier context:context];
     if (self)
     {
         __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];

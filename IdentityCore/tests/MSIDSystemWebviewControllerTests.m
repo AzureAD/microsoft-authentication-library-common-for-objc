@@ -45,16 +45,24 @@
 
 - (void)testInitWithStartURL_whenURLisNil_shouldFail
 {
-    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:nil callbackURLScheme:@"scheme" context:nil];
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:nil
+                                                                             callbackURLScheme:@"scheme"
+                                                                              parentController:nil
+                                                                      useAuthenticationSession:YES
+                                                                     allowSafariViewController:YES
+                                                                                       context:nil];
     XCTAssertNil(webVC);
-
 }
 
 
 - (void)testInitWithStartURL_whenCallbackURLSchemeisNil_shouldFail
 {
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
-                                                                             callbackURLScheme:nil context:nil];
+                                                                             callbackURLScheme:nil
+                                                                              parentController:nil
+                                                                      useAuthenticationSession:YES
+                                                                     allowSafariViewController:YES
+                                                                                       context:nil];
     XCTAssertNil(webVC);
 
 }
@@ -64,6 +72,9 @@
 {
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                                              callbackURLScheme:@"scheme"
+                                                                              parentController:nil
+                                                                      useAuthenticationSession:YES
+                                                                     allowSafariViewController:YES
                                                                                        context:nil];
     XCTAssertNotNil(webVC);
     
@@ -72,4 +83,3 @@
 @end
 
 #endif
-

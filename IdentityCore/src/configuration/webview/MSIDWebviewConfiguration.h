@@ -43,14 +43,18 @@
 @property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
-@property (readwrite) NSDictionary<NSString *, NSString *> *customHeaders;
 
-// State verifier: Recommended verifier for state value of the response.
-//  Set to YES to stop if verifying state fails
-@property (readonly) BOOL verifyState;
+// Embedded webview
+@property (readwrite) NSMutableDictionary<NSString *, NSString *> *customHeaders;
 
 // PKCE Support
 @property (readonly) MSIDPkce *pkce;
+
+// State verification
+// Set this to YES to have the request continue even at state verification failure.
+// Set this to NO if request should stop at state verification failure.
+// By default, this is set to NO.
+@property (readwrite) BOOL ignoreInvalidState;
 
 // User information
 @property (readwrite) NSString *loginHint;
@@ -62,7 +66,7 @@
 
 #if TARGET_OS_IPHONE
 @property (weak) UIViewController *parentController;
-@property (readwrite)UIModalPresentationStyle presentationType;
+@property (readwrite) UIModalPresentationStyle presentationType;
 #endif
 
 - (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint
@@ -71,7 +75,6 @@
                                      resource:(NSString *)resource
                                        scopes:(NSOrderedSet<NSString *> *)scopes
                                 correlationId:(NSUUID *)correlationId
-                                  verifyState:(BOOL)verifyState
                                    enablePkce:(BOOL)enablePkce;
 
 @end

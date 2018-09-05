@@ -25,23 +25,7 @@
 #import "MSIDAADRequestErrorHandler.h"
 #import "MSIDJsonResponseSerializer.h"
 
-static NSInteger const s_defaultRetryCounter = 1;
-static NSTimeInterval const s_defaultRetryInterval = 0.5;
-
 @implementation MSIDAADRequestErrorHandler
-
-- (instancetype)init
-{
-    self = [super init];
-    
-    if (self)
-    {
-        _retryCounter = s_defaultRetryCounter;
-        _retryInterval = s_defaultRetryInterval;
-    }
-    
-    return self;
-}
 
 - (void)handleError:(NSError * )error
        httpResponse:(NSHTTPURLResponse *)httpResponse
@@ -52,14 +36,12 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
 {
     if (!httpResponse)
     {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) completionBlock(nil, error);
-        });
+        if (completionBlock) completionBlock(nil, error);
         return;
     }
     
     BOOL shouldRetry = YES;
-    shouldRetry &= self.retryCounter > 0;
+    shouldRetry &= httpRequest.retryCounter > 0;
     // 5xx Server errors.
     shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
 
@@ -72,19 +54,31 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.retryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [httpRequest sendWithBlock:completionBlock];
         });
-    }
-    else
-    {
-        // Parse error response.
-        id responseSerializer = [MSIDJsonResponseSerializer new];
-        id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:nil];
         
-        MSID_LOG_VERBOSE(context, @"Parsed error response: %@", _PII_NULLIFY(responseObject));
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) completionBlock(responseObject, error);
-        });
+        return;
     }
+    
+    NSString *errorData = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];
+    
+    id responseSerializer = [MSIDJsonResponseSerializer new];
+    id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:nil];
+    id oauthError = responseObject[MSID_OAUTH2_ERROR];
+    id errorDescription = responseObject[MSID_OAUTH2_ERROR_DESCRIPTION] ?: errorData;
+    id suberror = responseObject[MSID_OAUTH2_SUB_ERROR];
+    
+    NSString* message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
+    NSString* messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorData];
+    
+    MSID_LOG_WARN(context, @"%@", message);
+    MSID_LOG_VERBOSE_PII(context, @"%@", messagePII);
+    
+    NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
+    [additionalInfo setValue:httpResponse.allHeaderFields forKey:MSIDHTTPHeadersKey];
+    [additionalInfo setValue:[NSString stringWithFormat: @"%ld", (long)httpResponse.statusCode]          forKey:MSIDHTTPResponseCodeKey];
+    
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, oauthError, suberror, nil, context.correlationId, additionalInfo);
+    
+    if (completionBlock) { completionBlock(nil, httpError); }
 }
 
 @end

@@ -34,14 +34,14 @@
 
 - (instancetype)init
 {
-    if (!(self = [super init]))
+    self = [super init];
+
+    if (self)
     {
-        return nil;
+        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidcache-%@", [NSUUID UUID].UUIDString];
+        _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+        _container = [NSMutableDictionary new];
     }
-    
-    NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidcache-%@", [NSUUID UUID].UUIDString];
-    _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
-    _container = [NSMutableDictionary new];
     
     return self;
 }
@@ -50,7 +50,7 @@
 {
     __block id object;
     dispatch_sync(self.synchronizationQueue, ^{
-        object = [self.container objectForKey:key];
+        object = self.container[key];
     });
     
     return object;
@@ -59,7 +59,7 @@
 - (void)setObject:(id)obj forKey:(id)key
 {
     dispatch_barrier_sync(self.synchronizationQueue, ^{
-        [self.container setObject:obj forKey:key];
+        self.container[key] = obj;
     });
 }
 

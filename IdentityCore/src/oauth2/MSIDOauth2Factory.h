@@ -68,8 +68,11 @@
 @property (readonly) MSIDWebviewFactory *webviewFactory;
 
 // Cache URL
+- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context;
 - (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context;
-- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)originalEnvironment;
+- (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority;
+- (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities:(NSURL *)originalAuthority;
+- (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment;
 
 @end
 

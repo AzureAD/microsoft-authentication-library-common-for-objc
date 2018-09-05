@@ -38,13 +38,16 @@
     {
         NSAssert(mutableRequest.URL, NULL);
         
-        mutableRequest.URL = [NSURL msidAddParameters:parameters toUrl:mutableRequest.URL];
+        NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:mutableRequest.URL resolvingAgainstBaseURL:NO];
+        NSMutableDictionary *urlParameters = [[mutableRequest.URL msidQueryParameters] mutableCopy] ?: [NSMutableDictionary new];
+        [urlParameters addEntriesFromDictionary:parameters];
+        urlComponents.percentEncodedQuery = [urlParameters msidURLFormEncode];
+        mutableRequest.URL = urlComponents.URL;
     }
     else
     {
         mutableRequest.HTTPBody = [[parameters msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
         [mutableRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
-        [mutableRequest setValue:[NSString stringWithFormat:@"%ld", (unsigned long)mutableRequest.HTTPBody.length] forHTTPHeaderField:@"Content-Length"];
     }
     
     return mutableRequest;

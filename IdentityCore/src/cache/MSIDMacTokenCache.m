@@ -57,7 +57,8 @@ return NO; \
     
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidmactokencache-%@", [NSUUID UUID].UUIDString];
     _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
-    
+    [self initializeCacheIfNecessary];
+
     return self;
 }
 
@@ -79,36 +80,35 @@ return NO; \
     {
         return nil;
     }
+
+    __block NSData *result = nil;
     
-    __block NSDictionary *cacheCopy = nil;
     dispatch_sync(self.synchronizationQueue, ^{
-        cacheCopy = [self.cache mutableCopy];
+        NSDictionary *cacheCopy = [self.cache mutableCopy];
+
+        // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
+        NSDictionary *wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",@CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
+
+        @try
+        {
+            NSMutableData *data = [NSMutableData data];
+
+            NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+            // Maintain backward compatibility with ADAL.
+            [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDLegacyTokenCacheKey.class];
+            [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDLegacyTokenCacheItem.class];
+            [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
+            [archiver encodeObject:wrapper forKey:NSKeyedArchiveRootObjectKey];
+            [archiver finishEncoding];
+
+            result = data;
+        }
+        @catch (id exception)
+        {
+            // This should be exceedingly rare as all of the objects in the cache we placed there.
+            MSID_LOG_ERROR(nil, @"Failed to serialize the cache!");
+        }
     });
-    
-    NSData *result = nil;
-    
-    // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
-    NSDictionary *wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",@CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
-    
-    @try
-    {
-        NSMutableData *data = [NSMutableData data];
-        
-        NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-        // Maintain backward compatibility with ADAL.
-        [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDLegacyTokenCacheKey.class];
-        [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDLegacyTokenCacheItem.class];
-        [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
-        [archiver encodeObject:wrapper forKey:NSKeyedArchiveRootObjectKey];
-        [archiver finishEncoding];
-        
-        result = data;
-    }
-    @catch (id exception)
-    {
-        // This should be exceedingly rare as all of the objects in the cache we placed there.
-        MSID_LOG_ERROR(nil, @"Failed to serialize the cache!");
-    }
     
     return result;
 }
@@ -154,25 +154,26 @@ return NO; \
     return result;
 }
 
-- (NSMutableDictionary *)cache
+- (void)initializeCacheIfNecessary
 {
     if (!_cache)
     {
         _cache = [NSMutableDictionary new];
     }
-    
+
     if (!_cache[@"tokens"])
     {
         NSMutableDictionary *tokens = [NSMutableDictionary new];
         _cache[@"tokens"] = tokens;
     }
-    
-    return _cache;
 }
 
 - (void)clear
 {
-    self.cache = nil;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        self.cache = nil;
+        [self initializeCacheIfNecessary];
+    });
 }
 
 #pragma mark - Tokens
@@ -295,6 +296,13 @@ return NO; \
     if (item)
     {
         item = [item copy];
+
+        // Skip tombstones generated from previous versions of ADAL.
+        if ([item isTombstone])
+        {
+            return;
+        }
+
         [items addObject:item];
     }
 }
@@ -458,6 +466,9 @@ return NO; \
     }
     
     dispatch_barrier_sync(self.synchronizationQueue, ^{
+
+        [self initializeCacheIfNecessary];
+
         // Grab the token dictionary for this user id.
         NSMutableDictionary *userDict = self.cache[@"tokens"][account];
         if (!userDict)
@@ -479,6 +490,11 @@ return NO; \
 {
     MSID_LOG_INFO(context, @"Get items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Get items, key info (account: %@ service: %@)", key.account, key.service);
+
+    if (!self.cache)
+    {
+        return nil;
+    }
     
     __block NSDictionary *tokens;
     dispatch_sync(self.synchronizationQueue, ^{

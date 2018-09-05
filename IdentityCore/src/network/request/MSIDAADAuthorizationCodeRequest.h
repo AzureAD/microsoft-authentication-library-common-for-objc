@@ -35,7 +35,8 @@
                                    clientId:(nonnull NSString *)clientId
                                 redirectUri:(nonnull NSString *)redirectUri
                                       scope:(nullable NSString *)scope
-                                  loginHint:(nullable NSString *)loginHint NS_DESIGNATED_INITIALIZER;
+                                  loginHint:(nullable NSString *)loginHint
+                                    context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable )init NS_UNAVAILABLE;
 + (instancetype _Nullable )new NS_UNAVAILABLE;

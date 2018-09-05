@@ -44,7 +44,7 @@ NSString *const MSID_OAUTH2_RESOURCE           = @"resource";
 NSString *const MSID_OAUTH2_RESPONSE_TYPE      = @"response_type";
 NSString *const MSID_OAUTH2_SCOPE              = @"scope";
 NSString *const MSID_OAUTH2_STATE              = @"state";
-NSString *const MSID_OAUTH2_SUB_ERROR          = @"sub_error";
+NSString *const MSID_OAUTH2_SUB_ERROR          = @"suberror";
 NSString *const MSID_OAUTH2_TOKEN              = @"token";
 NSString *const MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX = @"common/discovery/instance";
 NSString *const MSID_OAUTH2_TOKEN_TYPE         = @"token_type";
@@ -81,6 +81,8 @@ NSString *const MSID_OAUTH2_LOGIN_REQ                    = @"login_req";
 NSString *const MSID_OAUTH2_ADDITIONAL_SERVER_INFO       = @"additional_server_info";
 NSString *const MSID_OAUTH2_ENVIRONMENT                  = @"environment";
 
+NSString *const MSID_PROTECTION_POLICY_REQUIRED          = @"protection_policy_required";
+
 NSString *const MSID_AUTH_CLOUD_INSTANCE_HOST_NAME       = @"cloud_instance_host_name";
 
 NSString *const MSID_CREDENTIAL_TYPE_CACHE_KEY           = @"credential_type";
@@ -98,9 +100,8 @@ NSString *const MSID_ID_TOKEN_CACHE_KEY                  = @"id_token";
 NSString *const MSID_ADDITIONAL_INFO_CACHE_KEY           = @"additional_info";
 NSString *const MSID_EXPIRES_ON_CACHE_KEY                = @"expires_on";
 NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY          = @"access_token_type";
-NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"extended_expires_on";
 NSString *const MSID_CACHED_AT_CACHE_KEY                 = @"cached_at";
-NSString *const MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY       = @"ext_expires_on";
+NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"ext_expires_on";
 NSString *const MSID_SPE_INFO_CACHE_KEY                  = @"spe_info";
 NSString *const MSID_RESOURCE_RT_CACHE_KEY               = @"resource_refresh_token";
 NSString *const MSID_LOCAL_ACCOUNT_ID_CACHE_KEY          = @"local_account_id";

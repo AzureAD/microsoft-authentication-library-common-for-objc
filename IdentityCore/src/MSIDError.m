@@ -31,6 +31,7 @@ NSString *MSIDHTTPResponseCodeKey = @"MSIDHTTPResponseCodeKey";
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
 NSString *MSIDKeychainErrorDomain = @"MSIDKeychainErrorDomain";
+NSString *MSIDHttpErrorCodeDomain = @"MSIDHttpErrorCodeDomain";
 
 NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo)
 {
@@ -66,6 +67,10 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     {
         return MSIDErrorServerInvalidGrant;
     }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"unauthorized_client"] == NSOrderedSame)
+    {
+        return MSIDErrorServerUnauthorizedClient;
+    }
     
     return defaultCode;
 }
@@ -86,7 +91,6 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorAuthorityValidation),
                       
                       // Interactive flow errors
-                      @(MSIDErrorAuthorizationFailed),
                       @(MSIDErrorUserCancel),
                       @(MSIDErrorSessionCanceledProgrammatically),
                       @(MSIDErrorInteractiveSessionStartFailure),
@@ -103,7 +107,10 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorServerInvalidGrant),
                       @(MSIDErrorServerInvalidScope),
                       @(MSIDErrorServerInvalidState),
-                      @(MSIDErrorServerNonHttpsRedirect)
+                      @(MSIDErrorServerNonHttpsRedirect),
+                      @(MSIDErrorServerProtectionPoliciesRequired),
+                      @(MSIDErrorAuthorizationFailed),
+                      @(MSIDErrorServerUnhandledResponse)
                       ]
               };
 }
