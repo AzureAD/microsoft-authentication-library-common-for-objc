@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorityResolving.h"
+#import "MSIDCache.h"
 
 @class MSIDOpenIdProviderMetadata;
 
@@ -36,7 +37,7 @@ extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
 
 @interface MSIDAuthority : NSObject
 
-@property (class, readonly, nonnull) NSCache *openIdConfigurationCache;
+@property (class, readonly, nonnull) MSIDCache *openIdConfigurationCache;
 
 + (BOOL)isADFSInstance:(nonnull NSString *)endpoint;
 + (BOOL)isADFSInstanceURL:(nonnull NSURL *)endpointUrl;

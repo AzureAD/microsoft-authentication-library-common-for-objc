@@ -41,7 +41,6 @@
 #import "MSIDTestConfiguration.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccount.h"
-#import "MSIDAadAuthorityCache+TestUtil.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDPkce.h"
@@ -364,37 +363,6 @@
     XCTAssertEqualObjects(accessToken.scopes.msidToString, scopeInResposne);
 }
 
-- (void)testAccessTokenFromResponse_withAdditionFromRequest_whenOnlyDefaultScopeInRequest_shouldAddDefaultScope
-{
-    NSString *scopeInRequest = @"abc://abc/.default";
-    NSString *scopeInResposne = @"user.read";
-    
-    // construct configuration
-    MSIDConfiguration *configuration = [MSIDConfiguration new];
-    [configuration setTarget:scopeInRequest];
-    
-    // construct response
-    NSDictionary *jsonInput = @{@"access_token": @"at",
-                                @"token_type": @"Bearer",
-                                @"expires_in": @"xyz",
-                                @"expires_on": @"xyz",
-                                @"refresh_token": @"rt",
-                                @"scope": scopeInResposne
-                                };
-    NSError *error = nil;
-    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
-    
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
-    
-    // both scopes in request and response should be included
-    NSOrderedSet<NSString *> *scopeWithAddition = accessToken.scopes;
-    XCTAssertEqual(scopeWithAddition.count, 2);
-    XCTAssertTrue([scopeInRequest.msidScopeSet isSubsetOfOrderedSet:scopeWithAddition]);
-    XCTAssertTrue([scopeInResposne.msidScopeSet isSubsetOfOrderedSet:scopeWithAddition]);
-}
 
 - (void)testAccountFromTokenResponse_whenAADV2TokenResponse_shouldInitAccountAndSetProperties
 {

@@ -185,6 +185,49 @@
     XCTAssertNil(errorResponse);
 }
 
+- (void)testHandleError_whenItIsServerErrorAndJSONResponseReturned_shouldReturnOauthError
+{
+    __auto_type error = [NSError new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
+                                                           statusCode:400
+                                                          HTTPVersion:nil
+                                                         headerFields:@{@"headerKey":@"headerValue"}];
+    __auto_type httpRequest = [MSIDHttpTestRequest new];
+    __auto_type context = [MSIDTestContext new];
+
+    __block id errorResponse;
+    __block NSError *returnError;
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
+    __auto_type block = ^(id response, NSError *error) {
+        errorResponse = response;
+        returnError = error;
+        [expectation fulfill];
+    };
+
+    __auto_type jsonErrorPayload = @{@"error" : @"invalid_grant",
+                                     @"error_description": @"I'm a description",
+                                     @"correlation_id": @"I'm a correlation id",
+                                     @"suberror": @"I'm a suberror"
+                                     };
+    id data = [NSJSONSerialization dataWithJSONObject:jsonErrorPayload options:0 error:nil];
+
+    [self.errorHandler handleError:error
+                      httpResponse:httpResponse
+                              data:data
+                       httpRequest:httpRequest
+                           context:context
+                   completionBlock:block];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
+    XCTAssertEqualObjects(returnError.domain, MSIDOAuthErrorDomain);
+    XCTAssertEqual(returnError.code, MSIDErrorServerInvalidGrant);
+    XCTAssertEqualObjects(returnError.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
+    XCTAssertEqualObjects(returnError.userInfo[MSIDOAuthSubErrorKey], @"I'm a suberror");
+
+    XCTAssertNil(errorResponse);
+}
+
 - (void)testHandleError_whenItIsServerError_shouldReturnResponseCodeInError
 {
     __auto_type error = [NSError new];

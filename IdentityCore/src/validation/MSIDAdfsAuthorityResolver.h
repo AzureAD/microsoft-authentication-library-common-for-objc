@@ -23,9 +23,10 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorityResolving.h"
+#import "MSIDCache.h"
 
 @interface MSIDAdfsAuthorityResolver : NSObject <MSIDAuthorityResolving>
 
-@property (class, readonly, nonnull) NSCache *cache;
+@property (class, readonly, nonnull) MSIDCache *cache;
 
 @end

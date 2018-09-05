@@ -28,7 +28,6 @@
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDAadAuthorityCache+TestUtil.h"
 #import "MSIDAdfsAuthorityResolver.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAADEndpointProvider.h"
@@ -49,7 +48,7 @@
     [super tearDown];
     
     [MSIDAuthority.openIdConfigurationCache removeAllObjects];
-    [[MSIDAadAuthorityCache sharedInstance] clear];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [MSIDAdfsAuthorityResolver.cache removeAllObjects];
     
     MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider = [MSIDAADEndpointProvider new];

@@ -21,32 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADAuthorityValidationRequest.h"
-#import "MSIDHttpRequest.h"
-#import "MSIDAADRequestConfigurator.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDAADAuthorityValidationRequest
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithUrl:(NSURL *)endpoint
-                    context:(id<MSIDRequestContext>)context
-{
-    self = [super init];
-    if (self)
-    {
-        NSParameterAssert(endpoint);
-        
-        self.context =  context;
-        
-        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];;
-        urlRequest.URL = endpoint;
-        urlRequest.HTTPMethod = @"GET";
-        _urlRequest = urlRequest;
+@interface MSIDCache <KeyType, ObjectType> : NSObject
 
-        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
-        [requestConfigurator configure:self];
-    }
-    
-    return self;
-}
+- (nullable ObjectType)objectForKey:(KeyType)key;
+
+- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
+
+- (void)removeObjectForKey:(KeyType)key;
+
+- (void)removeAllObjects;
+
+- (NSUInteger)count;
 
 @end
+
+NS_ASSUME_NONNULL_END

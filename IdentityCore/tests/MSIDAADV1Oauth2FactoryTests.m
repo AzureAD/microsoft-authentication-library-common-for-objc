@@ -42,8 +42,9 @@
 #import "MSIDAccount.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDLegacyRefreshToken.h"
-#import "MSIDAadAuthorityCache+TestUtil.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAadAuthorityCacheRecord.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDAADV1Oauth2FactoryTests : XCTestCase
 
@@ -503,7 +504,7 @@
     record.cacheHost = @"login.windows.net";
     record.aliases = @[@"login.microsoft.com"];
     MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
-    cache.recordMap = @{ @"login.microsoftonline.com" : record };
+    [cache setObject:record forKey:@"login.microsoftonline.com"];
 }
 
 @end
