@@ -102,11 +102,11 @@
 }
 
 
-- (BOOL)assertType:(Class)type
-           ofField:(NSString *)field
-           context:(id <MSIDRequestContext>)context
-         errorCode:(NSInteger)errorCode
-             error:(NSError **)error
+- (BOOL)msidAssertType:(Class)type
+               ofField:(NSString *)field
+               context:(id <MSIDRequestContext>)context
+             errorCode:(NSInteger)errorCode
+                 error:(NSError **)error
 {
     id fieldValue = self[field];
     if (![fieldValue isKindOfClass:type])
@@ -129,9 +129,9 @@
     return YES;
 }
 
-- (BOOL)assertContainsField:(NSString *)field
-                    context:(id <MSIDRequestContext>)context
-                      error:(NSError **)error
+- (BOOL)msidAssertContainsField:(NSString *)field
+                        context:(id <MSIDRequestContext>)context
+                          error:(NSError **)error
 {
     id fieldValue = self[field];
     if (!fieldValue)

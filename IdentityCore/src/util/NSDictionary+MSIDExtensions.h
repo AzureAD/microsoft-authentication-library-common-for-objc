@@ -33,14 +33,14 @@
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
 
 
-- (BOOL)assertType:(Class)type
-           ofField:(NSString *)field
-           context:(id <MSIDRequestContext>)context
-         errorCode:(NSInteger)errorCode
-             error:(NSError **)error;
+- (BOOL)msidAssertType:(Class)type
+               ofField:(NSString *)field
+               context:(id <MSIDRequestContext>)context
+             errorCode:(NSInteger)errorCode
+                 error:(NSError **)error;
 
-- (BOOL)assertContainsField:(NSString *)field
-                    context:(id <MSIDRequestContext>)context
-                      error:(NSError **)error;
+- (BOOL)msidAssertContainsField:(NSString *)field
+                        context:(id <MSIDRequestContext>)context
+                          error:(NSError **)error;
 
 @end
