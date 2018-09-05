@@ -298,7 +298,7 @@
 {
     NSDictionary *dictionary = @{@"key": [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"]};
     NSString *result = [NSString msidUrlFormEncodedStringFromDictionary:dictionary];
-    XCTAssertEqualObjects(result, @"key=vE621E1F8-C36C-495A-93FC-0C247A3E6E5F");
+    XCTAssertEqualObjects(result, @"key=E621E1F8-C36C-495A-93FC-0C247A3E6E5F");
 }
 
 - (void)testMsidUrlFormEncodedStringFromDictionary_whenKeyWithEmptyValue_shouldReturnUrlEncodedStri
