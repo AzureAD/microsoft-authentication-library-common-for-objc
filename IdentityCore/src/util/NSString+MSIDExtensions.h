@@ -62,7 +62,7 @@
  =============================================================================
  */
 /*! Generate a URL-safe string of random data */
-+ (NSString *)msidRandomUrlSafeStringOfSize:(NSUInteger)size;
++ (NSString *)msidRandomUrlSafeStringOfByteSize:(NSUInteger)size;
 
 /*! Generate a URL-safe string of random data */
 + (NSString *)msidHexStringFromData:(NSData *)data;

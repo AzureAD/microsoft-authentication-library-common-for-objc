@@ -145,7 +145,7 @@ typedef unsigned char byte;
     return [returnStr substringToIndex:7];
 }
 
-+ (NSString *)msidRandomUrlSafeStringOfSize:(NSUInteger)size
++ (NSString *)msidRandomUrlSafeStringOfByteSize:(NSUInteger)size
 {
     if (size > RANDOM_STRING_MAX_SIZE)
     {

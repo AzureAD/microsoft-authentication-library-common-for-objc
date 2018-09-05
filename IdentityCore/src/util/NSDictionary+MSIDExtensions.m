@@ -42,7 +42,7 @@
 + (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
                                   urlFormDecode:(BOOL)decode
 {
-    if (!string)
+    if ([NSString msidIsStringNilOrBlank:string])
     {
         return nil;
     }

@@ -50,7 +50,7 @@ static NSUInteger const s_kCodeVerifierByteSize = 32;
 
 + (NSString *)createCodeVerifier
 {
-    return [NSString msidRandomUrlSafeStringOfSize:s_kCodeVerifierByteSize];
+    return [NSString msidRandomUrlSafeStringOfByteSize:s_kCodeVerifierByteSize];
 }
 
 + (NSString *)createChallangeFromCodeVerifier:(NSString *)codeVerifier
