@@ -111,7 +111,7 @@
                                       @"key3": @"value3"};
     
     NSError *error;
-    BOOL result = [inputDictionary assertContainsField:@"key1" context:nil error:&error];
+    BOOL result = [inputDictionary msidAssertContainsField:@"key1" context:nil error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -124,7 +124,7 @@
                                       @"key3": @"value3"};
     
     NSError *error;
-    BOOL result = [inputDictionary assertContainsField:@"key1" context:nil error:&error];
+    BOOL result = [inputDictionary msidAssertContainsField:@"key1" context:nil error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -140,7 +140,7 @@
                                       @"key3": @"value3"};
     
     NSError *error;
-    BOOL result = [inputDictionary assertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
+    BOOL result = [inputDictionary msidAssertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -153,7 +153,7 @@
                                       @"key3": @"value3"};
     
     NSError *error;
-    BOOL result = [inputDictionary assertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
+    BOOL result = [inputDictionary msidAssertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
