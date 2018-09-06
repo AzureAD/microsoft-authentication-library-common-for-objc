@@ -21,47 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAadAuthorityCache+TestUtil.h"
+#import "MSIDAadAuthorityCacheRecord.h"
 
-#include <pthread.h>
-
-@implementation MSIDAadAuthorityCache (TestUtil)
-
-- (NSDictionary<NSString *, MSIDAadAuthorityCacheRecord *> *)recordMap
-{
-    return _recordMap;
-}
-
-- (void)setRecordMap:(NSDictionary<NSString *, MSIDAadAuthorityCacheRecord *> *)cacheDictionary
-{
-    _recordMap = [cacheDictionary mutableCopy];
-}
-
-- (BOOL)grabWriteLock
-{
-    return 0 == pthread_rwlock_wrlock(&_rwLock);
-}
-
-- (BOOL)tryWriteLock
-{
-    return 0 == pthread_rwlock_trywrlock(&_rwLock);
-}
-
-- (BOOL)grabReadLock
-{
-    return 0 == pthread_rwlock_rdlock(&_rwLock);
-}
-
-- (BOOL)unlock
-{
-    return 0 == pthread_rwlock_unlock(&_rwLock);
-}
-
-- (void)clear
-{
-    [self grabWriteLock];
-    [_recordMap removeAllObjects];
-    [self unlock];
-}
+@implementation MSIDAadAuthorityCacheRecord
 
 @end

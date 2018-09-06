@@ -26,6 +26,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDAADAuthorityMetadataResponse.h"
 
 static dispatch_queue_t s_aadValidationQueue;
@@ -64,17 +65,13 @@ static dispatch_queue_t s_aadValidationQueue;
 {
     NSParameterAssert(completionBlock);
     
-    // We first try to get a record from the cache, this will return immediately if it couldn't
-    // obtain a read lock
-    MSIDAadAuthorityCacheRecord *record = [self.aadCache tryCheckCache:authority.absoluteString];
+    MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.msidHostWithPortIfNecessary];
     if (record)
     {
         [self handleRecord:record authority:authority completionBlock:completionBlock];
         return;
     }
     
-    // If we wither didn't have a cache, or couldn't get the read lock (which only happens if someone
-    // has or is trying to get the write lock) then dispatch onto the AAD validation queue.
     dispatch_async(s_aadValidationQueue, ^{
         
         // If we didn't have anything in the cache then we need to hold onto the queue until we
@@ -86,9 +83,7 @@ static dispatch_queue_t s_aadValidationQueue;
              // Because we're on a serialized queue here to ensure that we don't have more then one
              // validation network request at a time, we want to jump off this queue as quick as
              // possible whenever we hit an error to unblock the queue
-             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                 completionBlock(openIdConfigurationEndpoint, validated, error);
-             });
+             completionBlock(openIdConfigurationEndpoint, validated, error);
              
              dispatch_semaphore_signal(dsem);
          }];
@@ -118,7 +113,7 @@ static dispatch_queue_t s_aadValidationQueue;
     
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    MSIDAadAuthorityCacheRecord *record = [self.aadCache checkCache:authority.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.msidHostWithPortIfNecessary];
     if (record)
     {
         [self handleRecord:record authority:authority completionBlock:completionBlock];
@@ -150,17 +145,21 @@ static dispatch_queue_t s_aadValidationQueue;
              return;
          }
          
-         if (![self.aadCache processMetadata:response.metadata
-                        openIdConfigEndpoint:response.openIdConfigurationEndpoint
-                                   authority:authority
-                                     context:context
-                                       error:&error])
+         [self.aadCache processMetadata:response.metadata
+                   openIdConfigEndpoint:response.openIdConfigurationEndpoint
+                              authority:authority
+                                context:context
+                             completion:^(BOOL result, NSError *error)
          {
-             completionBlock(nil, NO, error);
-             return;
-         }
-         
-         completionBlock(response.openIdConfigurationEndpoint, YES, nil);
+             if (result)
+             {
+                 completionBlock(response.openIdConfigurationEndpoint, YES, nil);
+             }
+             else
+             {
+                 completionBlock(nil, NO, error);
+             }
+         }];
      }];
 }
 

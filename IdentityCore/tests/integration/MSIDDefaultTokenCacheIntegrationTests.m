@@ -36,7 +36,6 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDAadAuthorityCache+TestUtil.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
@@ -73,7 +72,7 @@
 {
     [super tearDown];
 
-    [[MSIDAadAuthorityCache sharedInstance] clear];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [_dataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
 }
 

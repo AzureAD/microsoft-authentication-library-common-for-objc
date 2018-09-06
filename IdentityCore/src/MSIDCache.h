@@ -22,11 +22,21 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAuthorityResolving.h"
-#import "MSIDCache.h"
 
-@interface MSIDAdfsAuthorityResolver : NSObject <MSIDAuthorityResolving>
+NS_ASSUME_NONNULL_BEGIN
 
-@property (class, readonly, nonnull) MSIDCache *cache;
+@interface MSIDCache <KeyType, ObjectType> : NSObject
+
+- (nullable ObjectType)objectForKey:(KeyType)key;
+
+- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
+
+- (void)removeObjectForKey:(KeyType)key;
+
+- (void)removeAllObjects;
+
+- (NSUInteger)count;
 
 @end
+
+NS_ASSUME_NONNULL_END

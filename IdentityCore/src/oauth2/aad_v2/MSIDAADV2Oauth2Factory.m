@@ -136,17 +136,6 @@
     {
         responseScopes = configuration.scopes;
     }
-    else
-    {
-        NSOrderedSet<NSString *> *reqScopes = configuration.scopes;
-
-        if (reqScopes.count == 1 && [reqScopes.firstObject.lowercaseString hasSuffix:@".default"])
-        {
-            NSMutableOrderedSet<NSString *> *targetScopeSet = [responseScopes mutableCopy];
-            [targetScopeSet unionOrderedSet:reqScopes];
-            responseScopes = targetScopeSet;
-        }
-    }
 
     accessToken.scopes = responseScopes;
     accessToken.authority = [MSIDAuthority cacheUrlForAuthority:accessToken.authority tenantId:response.idTokenObj.realm];
