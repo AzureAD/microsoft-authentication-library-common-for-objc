@@ -66,8 +66,6 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (nonnull NSURL *)networkUrlWithContext:(nullable id<MSIDRequestContext>)context;
 
-// + (NSURL * _Nullable)commonAuthorityWithURL:(nullable NSURL *)authorityURL;
-
 - (nonnull NSURL *)cacheUrlWithContext:(nullable id<MSIDRequestContext>)context;
 
 - (nonnull NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities;
