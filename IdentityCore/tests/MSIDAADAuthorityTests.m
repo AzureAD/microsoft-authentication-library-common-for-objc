@@ -325,16 +325,16 @@
     XCTAssertEqual(cacheMock.networkUrlForAuthorityInvokedCount, 1);
 }
 
-#pragma mark - cacheAliases
+#pragma mark - legacyAccessTokenLookupAuthorities
 
-- (void)testCacheAliases_whenAADAuhority_shouldInvokeAADCache
+- (void)testLegacyAccessTokenLookupAuthorities_whenAADAuhority_shouldInvokeAADCache
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
     __auto_type cacheMock = [MSIDAADAuthorityCacheMock new];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     [authority setValue:cacheMock forKey:@"authorityCache"];
     
-    __auto_type aliases = [authority cacheAliases];
+    __auto_type aliases = [authority legacyAccessTokenLookupAuthorities];
     
     XCTAssertEqual(cacheMock.cacheAliasesForAuthorityInvokedCount, 1);
     XCTAssertEqualObjects(@[authorityUrl], aliases);
@@ -386,6 +386,22 @@
     authorityUrl = [[NSURL alloc] initWithString:@"https://example.com/common"];
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertFalse([authority isKnown]);
+}
+
+#pragma mark - legacyAccessTokenLookupAuthorities
+
+- (void)testLegacyAccessTokenLookupAuthorities_whenAuthorityProvided_shouldReturnAllAliases
+{
+    [self setupAADAuthorityCache];
+    
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.microsoft.com/contoso.com"]];
+    
+    NSArray *aliases = [authority legacyAccessTokenLookupAuthorities];
+    
+    XCTAssertEqualObjects(aliases, expectedAliases);
 }
 
 #pragma mark - legacyRefreshTokenLookupAliases

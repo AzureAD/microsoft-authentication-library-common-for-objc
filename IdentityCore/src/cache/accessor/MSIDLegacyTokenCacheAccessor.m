@@ -327,8 +327,7 @@
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
-    // NSArray *aliases = [configuration.authority cacheAliases] ?: @[];
-    NSArray *aliases = [_factory legacyAccessTokenLookupAuthorities:configuration.authority.url];
+    NSArray *aliases = [configuration.authority legacyAccessTokenLookupAuthorities] ?: @[];
 
     return (MSIDLegacyAccessToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                             type:MSIDAccessTokenType
@@ -345,8 +344,7 @@
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error
 {
-    // NSArray *aliases = [configuration.authority cacheAliases] ?: @[];
-    NSArray *aliases = [_factory legacyAccessTokenLookupAuthorities:configuration.authority.url];
+    NSArray *aliases = [configuration.authority legacyAccessTokenLookupAuthorities] ?: @[];
 
     return (MSIDLegacySingleResourceToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                                     type:MSIDLegacySingleResourceTokenType

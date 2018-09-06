@@ -92,7 +92,7 @@
     return [self.authorityCache cacheUrlForAuthority:authority context:context];
 }
 
-- (NSArray<NSURL *> *)cacheAliases
+- (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
     __auto_type authority = (MSIDAADAuthority *)[self.authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
@@ -132,15 +132,15 @@
     if (self.tenant.type == MSIDAADTenantTypeIdentifier)
     {
         // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
-        [aliases addObjectsFromArray:[self cacheAliases]];
+        [aliases addObjectsFromArray:[self legacyAccessTokenLookupAuthorities]];
         
         __auto_type aadAuthorityCommon = [MSIDAADAuthority aadAuthorityWithEnvironment:[self.url msidHostWithPortIfNecessary] rawTenant:MSIDAADTenantTypeCommonRawValue context:nil error:nil];
-        [aliases addObjectsFromArray:[aadAuthorityCommon cacheAliases]];
+        [aliases addObjectsFromArray:[aadAuthorityCommon legacyAccessTokenLookupAuthorities]];
     }
     else
     {
         // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
-        [aliases addObjectsFromArray:[self cacheAliases]];
+        [aliases addObjectsFromArray:[self legacyAccessTokenLookupAuthorities]];
     }
     
     return aliases;

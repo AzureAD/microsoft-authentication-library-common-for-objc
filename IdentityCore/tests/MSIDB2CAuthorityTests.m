@@ -128,17 +128,19 @@
     XCTAssertEqualObjects(authorityUrl, [authority networkUrlWithContext:nil]);
 }
 
-#pragma mark - cacheAliases
+#pragma mark - legacyAccessTokenLookupAuthorities
 
-- (void)testCacheAliases_whenB2CAuhority_shouldReturnOriginalAuthority
+- (void)testLegacyAccessTokenLookupAuthorities_whenB2CAuhority_shouldReturnOriginalAuthority
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://contoso.com:8080/tfp/tenant/policy"];
     __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    __auto_type aliases = [authority cacheAliases];
+    __auto_type aliases = [authority legacyAccessTokenLookupAuthorities];
     
     XCTAssertEqualObjects(@[authorityUrl], aliases);
 }
+
+#pragma mark - legacyRefreshTokenLookupAliases
 
 - (void)testLegacyRefreshTokenLookupAliases_shouldReturnOriginalAuthority
 {
