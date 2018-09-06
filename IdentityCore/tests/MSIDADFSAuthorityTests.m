@@ -155,6 +155,10 @@
     authority = [[MSIDADFSAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
     
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.partner.microsoftonline.cn/adfs"];
+    authority = [[MSIDADFSAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    XCTAssertTrue([authority isKnown]);
+    
     authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.de/adfs"];
     authority = [[MSIDADFSAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
@@ -167,7 +171,7 @@
     authority = [[MSIDADFSAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
     
-    authorityUrl = [[NSURL alloc] initWithString:@"https://login.cloudgovapi.us/adfs"];
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.usgovcloudapi.net/adfs"];
     authority = [[MSIDADFSAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
 }

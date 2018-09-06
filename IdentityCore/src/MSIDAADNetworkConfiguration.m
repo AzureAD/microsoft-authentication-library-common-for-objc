@@ -39,6 +39,7 @@ static NSSet<NSString *> *s_trustedHostList;
         s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority,
                              MSIDTrustedAuthorityUS,
                              MSIDTrustedAuthorityChina,
+                             MSIDTrustedAuthorityChina2,
                              MSIDTrustedAuthorityGermany,
                              MSIDTrustedAuthorityWorldWide,
                              MSIDTrustedAuthorityUSGovernment,

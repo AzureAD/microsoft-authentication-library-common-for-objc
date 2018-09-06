@@ -317,6 +317,10 @@
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
     
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.partner.microsoftonline.cn/common"];
+    authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    XCTAssertTrue([authority isKnown]);
+    
     authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.de/common"];
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
@@ -329,7 +333,7 @@
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
     
-    authorityUrl = [[NSURL alloc] initWithString:@"https://login.cloudgovapi.us/common"];
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.usgovcloudapi.net/common"];
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
 }

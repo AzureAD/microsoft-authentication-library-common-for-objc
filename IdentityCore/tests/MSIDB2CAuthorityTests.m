@@ -166,6 +166,10 @@
     authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
     
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.partner.microsoftonline.cn/tfp/tenant/policy"];
+    authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    XCTAssertTrue([authority isKnown]);
+    
     authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.de/tfp/tenant/policy"];
     authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
@@ -178,7 +182,7 @@
     authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
     
-    authorityUrl = [[NSURL alloc] initWithString:@"https://login.cloudgovapi.us/tfp/tenant/policy"];
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.usgovcloudapi.net/tfp/tenant/policy"];
     authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
 }

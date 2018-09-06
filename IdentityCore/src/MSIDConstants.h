@@ -30,6 +30,7 @@ extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
 extern NSString * _Nonnull const MSIDTrustedAuthority;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUS;
 extern NSString * _Nonnull const MSIDTrustedAuthorityChina;
+extern NSString * _Nonnull const MSIDTrustedAuthorityChina2;
 extern NSString * _Nonnull const MSIDTrustedAuthorityGermany;
 extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUSGovernment;
