@@ -69,7 +69,6 @@
 
 // Cache URL
 - (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context;
-- (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority;
 - (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities:(NSURL *)originalAuthority;
 - (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment;
 

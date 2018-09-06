@@ -74,7 +74,7 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (nonnull NSURL *)universalAuthorityURL;
 
-- (nonnull NSArray<NSURL *> *)legacyCacheRefreshTokenLookupAliases;
+- (nonnull NSArray<NSURL *> *)legacyRefreshTokenLookupAliases;
 
 - (BOOL)isKnown;
 

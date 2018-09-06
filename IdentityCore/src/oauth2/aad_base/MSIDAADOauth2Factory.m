@@ -152,13 +152,6 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
 }
 
-- (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority
-{
-    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:originalAuthority context:nil error:nil];
-    __auto_type aliases = [authority legacyCacheRefreshTokenLookupAliases] ?: @[];
-    return aliases;
-}
-
 #pragma mark - Tokens
 
 - (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken

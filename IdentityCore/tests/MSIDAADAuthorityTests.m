@@ -388,9 +388,9 @@
     XCTAssertFalse([authority isKnown]);
 }
 
-#pragma mark - legacyCacheRefreshTokenLookupAliases
+#pragma mark - legacyRefreshTokenLookupAliases
 
-- (void)testLegacyCacheRefreshTokenLookupAliases_whenAuthorityIsNotConsumers_shouldReturnAliases
+- (void)testLegacyRefreshTokenLookupAliases_whenAuthorityIsNotConsumers_shouldReturnAliases
 {
     [self setupAADAuthorityCache];
     
@@ -402,12 +402,12 @@
                                  [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
                                  [NSURL URLWithString:@"https://login.microsoft.com/common"]];
     
-    NSArray *aliases = [authority legacyCacheRefreshTokenLookupAliases];
+    NSArray *aliases = [authority legacyRefreshTokenLookupAliases];
     
     XCTAssertEqualObjects(aliases, expectedAliases);
 }
 
-- (void)testLegacyCacheRefreshTokenLookupAliases_whenAuthorityIsOrganizations_shouldReturnAliases
+- (void)testLegacyRefreshTokenLookupAliases_whenAuthorityIsOrganizations_shouldReturnAliases
 {
     [self setupAADAuthorityCache];
     
@@ -416,7 +416,7 @@
                                  [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
                                  [NSURL URLWithString:@"https://login.microsoft.com/common"]];
     
-    NSArray *aliases = [authority legacyCacheRefreshTokenLookupAliases];
+    NSArray *aliases = [authority legacyRefreshTokenLookupAliases];
     
     XCTAssertEqualObjects(aliases, expectedAliases);
 }
@@ -430,19 +430,36 @@
                                  [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
                                  [NSURL URLWithString:@"https://login.microsoft.com/common"]];
     
-    NSArray *aliases = [authority legacyCacheRefreshTokenLookupAliases];
+    NSArray *aliases = [authority legacyRefreshTokenLookupAliases];
     
     XCTAssertEqualObjects(aliases, expectedAliases);
 }
 
-- (void)testLegacyCacheRefreshTokenLookupAliases_whenAuthorityIsConsumers_shouldReturnEmptyAliases
+- (void)testLegacyCacheRefreshTokenLookupAliases_whenAuthorityIsTenanted_shouldReturnAliases
+{
+    [self setupAADAuthorityCache];
+    
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.microsoft.com/contoso.com"],
+                                 [NSURL URLWithString:@"https://login.windows.net/common"],
+                                 [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
+                                 [NSURL URLWithString:@"https://login.microsoft.com/common"]];
+    
+    NSArray *aliases = [authority legacyRefreshTokenLookupAliases];
+    
+    XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+- (void)testLegacyRefreshTokenLookupAliases_whenAuthorityIsConsumers_shouldReturnEmptyAliases
 {
     [self setupAADAuthorityCache];
     
     __auto_type authority = [@"https://login.microsoftonline.com/consumers" authority];
     NSArray *expectedAliases = @[];
     
-    NSArray *aliases = [authority legacyCacheRefreshTokenLookupAliases];
+    NSArray *aliases = [authority legacyRefreshTokenLookupAliases];
     
     XCTAssertEqualObjects(aliases, expectedAliases);
 }

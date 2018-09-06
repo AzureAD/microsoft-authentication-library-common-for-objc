@@ -119,7 +119,7 @@
     return self.url;
 }
 
-- (nonnull NSArray<NSURL *> *)legacyCacheRefreshTokenLookupAliases
+- (nonnull NSArray<NSURL *> *)legacyRefreshTokenLookupAliases
 {
     if (self.tenant.type == MSIDAADTenantTypeConsumers)
     {

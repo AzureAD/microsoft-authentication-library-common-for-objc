@@ -495,8 +495,7 @@
     
     
     NSString *clientId = familyId ? [MSIDCacheKey familyClientId:familyId] : configuration.clientId;
-    // NSArray<NSURL *> *aliases = [configuration.authority legacyCacheRefreshTokenLookupAliases];
-    NSArray<NSURL *> *aliases = [_factory legacyRefreshTokenLookupAuthorities:configuration.authority.url];
+    NSArray<NSURL *> *aliases = [configuration.authority legacyRefreshTokenLookupAliases] ?: @[];
 
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", clientId, aliases);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, clientId, aliases);

@@ -145,7 +145,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return self.url;
 }
 
-- (NSArray<NSURL *> *)legacyCacheRefreshTokenLookupAliases
+- (NSArray<NSURL *> *)legacyRefreshTokenLookupAliases
 {
      return @[self.url];
 }

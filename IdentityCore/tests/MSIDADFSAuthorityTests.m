@@ -129,12 +129,12 @@
     XCTAssertEqualObjects(@[authorityUrl], aliases);
 }
 
-- (void)testLegacyCacheRefreshTokenLookupAliases_shouldReturnOriginalAuthority
+- (void)testLegacyRefreshTokenLookupAliases_shouldReturnOriginalAuthority
 {
     __auto_type authority = [@"https://login.microsoftonline.com/adfs" authority];
     NSArray *expectedAliases = @[authority.url];
     
-    NSArray *aliases = [authority legacyCacheRefreshTokenLookupAliases];
+    NSArray *aliases = [authority legacyRefreshTokenLookupAliases];
     
     XCTAssertEqualObjects(aliases, expectedAliases);
 }

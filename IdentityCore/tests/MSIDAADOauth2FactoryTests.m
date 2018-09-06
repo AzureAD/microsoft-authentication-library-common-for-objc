@@ -300,42 +300,6 @@
     XCTAssertNotNil(token.expiresOn);
 }
 
-- (void)testLegacyRefreshTokenLookupAuthorities_whenAuthorityNil_shouldReturnEmptyAuthorities
-{
-    [self setupAADAuthorityCache];
-
-    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
-    NSArray *aliases = [factory legacyRefreshTokenLookupAuthorities:nil];
-    XCTAssertEqualObjects(aliases, @[]);
-}
-
-- (void)testLegacyRefreshTokenLookupAuthorities_whenAuthorityProvided_shouldReturnAllAliases
-{
-    [self setupAADAuthorityCache];
-
-    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
-    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
-    NSArray *aliases = [factory legacyRefreshTokenLookupAuthorities:originalAuthority];
-    NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/contoso.com"],
-                                 [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"],
-                                 [NSURL URLWithString:@"https://login.microsoft.com/contoso.com"],
-                                 [NSURL URLWithString:@"https://login.windows.net/common"],
-                                 [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
-                                 [NSURL URLWithString:@"https://login.microsoft.com/common"]];
-    XCTAssertEqualObjects(aliases, expectedAliases);
-}
-
-- (void)testLegacyRefreshTokenLookupAuthorities_whenAuthorityProvidedWithConsumers_shouldReturnEmptyAliases
-{
-    [self setupAADAuthorityCache];
-
-    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
-    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/consumers"];
-    NSArray *aliases = [factory legacyRefreshTokenLookupAuthorities:originalAuthority];
-    NSArray *expectedAliases = @[];
-    XCTAssertEqualObjects(aliases, expectedAliases);
-}
-
 - (void)testLegacyAccessTokenLookupAuthorities_whenAuthorityNil_shouldReturnNilAuthorities
 {
     [self setupAADAuthorityCache];

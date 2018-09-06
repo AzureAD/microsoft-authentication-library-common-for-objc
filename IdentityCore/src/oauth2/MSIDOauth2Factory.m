@@ -363,16 +363,6 @@
     return @[originalAuthority];
 }
 
-- (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority
-{
-    if (!originalAuthority)
-    {
-        return @[];
-    }
-
-    return @[originalAuthority];
-}
-
 - (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment
 {
     if (!originalEnvironment)
