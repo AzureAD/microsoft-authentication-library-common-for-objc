@@ -348,12 +348,6 @@
     return YES;
 }
 
-- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
-                        context:(id<MSIDRequestContext>)context
-{
-    return originalAuthority;
-}
-
 - (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
 {
     return originalEnvironment;

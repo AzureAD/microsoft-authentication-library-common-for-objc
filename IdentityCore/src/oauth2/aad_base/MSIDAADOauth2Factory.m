@@ -152,20 +152,6 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
 }
 
-- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
-                        context:(id<MSIDRequestContext>)context
-{
-    if (!originalAuthority)
-    {
-        return nil;
-    }
-    
-    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:originalAuthority context:nil error:nil];
-    authority = [[MSIDAADAuthority alloc] initWithURL:[authority universalAuthorityURL] context:nil error:nil];
-
-    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
-}
-
 - (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority
 {
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:originalAuthority context:nil error:nil];

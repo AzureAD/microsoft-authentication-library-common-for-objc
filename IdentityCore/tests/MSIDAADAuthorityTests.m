@@ -258,9 +258,48 @@
 
 #pragma mark - cacheUrlWithContext
 
-- (void)testCacheUrlWithContext_whenAADAuhority_shouldInvokeAADCache
+- (void)testCacheUrlWithContext_whenCommonAADAuhority_shouldInvokeAADCacheWithCommonAuthority
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
+    __auto_type cacheMock = [MSIDAADAuthorityCacheMock new];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    [authority setValue:cacheMock forKey:@"authorityCache"];
+    
+    __auto_type url = [authority cacheUrlWithContext:nil];
+    
+    XCTAssertEqualObjects(authorityUrl, url);
+    XCTAssertEqual(cacheMock.cacheUrlForAuthorityInvokedCount, 1);
+}
+
+- (void)testCacheUrlWithContext_whenOrganizationsAADAuhority_shouldInvokeAADCacheWithCommonAuthority
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/organizations"];
+    __auto_type cacheMock = [MSIDAADAuthorityCacheMock new];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    [authority setValue:cacheMock forKey:@"authorityCache"];
+    
+    __auto_type url = [authority cacheUrlWithContext:nil];
+    
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com:8080/common", url.absoluteString);
+    XCTAssertEqual(cacheMock.cacheUrlForAuthorityInvokedCount, 1);
+}
+
+- (void)testCacheUrlWithContext_whenConsumersAADAuhority_shouldInvokeAADCacheWithConsumersAuthority
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/consumers"];
+    __auto_type cacheMock = [MSIDAADAuthorityCacheMock new];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    [authority setValue:cacheMock forKey:@"authorityCache"];
+    
+    __auto_type url = [authority cacheUrlWithContext:nil];
+    
+    XCTAssertEqualObjects(authorityUrl, url);
+    XCTAssertEqual(cacheMock.cacheUrlForAuthorityInvokedCount, 1);
+}
+
+- (void)testCacheUrlWithContext_whenTenantedAADAuhority_shouldInvokeAADCacheWithTenantedAuthority
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/contoso.com"];
     __auto_type cacheMock = [MSIDAADAuthorityCacheMock new];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     [authority setValue:cacheMock forKey:@"authorityCache"];

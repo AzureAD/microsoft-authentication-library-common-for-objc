@@ -300,39 +300,6 @@
     XCTAssertNotNil(token.expiresOn);
 }
 
-- (void)testCacheURLFromAuthority_whenTenantedAuthority_shouldReturnTenantedCacheAuthority
-{
-    [self setupAADAuthorityCache];
-
-    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
-    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
-    NSURL *cacheAuthority = [factory cacheURLForAuthority:originalAuthority context:nil];
-    NSURL *expectedURL = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
-    XCTAssertEqualObjects(cacheAuthority, expectedURL);
-}
-
-- (void)testCacheURLFromAuthority_whenCommonAuthority_shouldReturnCommonCacheAuthority
-{
-    [self setupAADAuthorityCache];
-
-    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
-    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
-    NSURL *cacheAuthority = [factory cacheURLForAuthority:originalAuthority context:nil];
-    NSURL *expectedURL = [NSURL URLWithString:@"https://login.windows.net/common"];
-    XCTAssertEqualObjects(cacheAuthority, expectedURL);
-}
-
-- (void)testCacheURLFromAuthority_whenOrganizationalAuthority_shouldReturnCommonCacheAuthority
-{
-    [self setupAADAuthorityCache];
-
-    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
-    NSURL *originalAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/organizations"];
-    NSURL *cacheAuthority = [factory cacheURLForAuthority:originalAuthority context:nil];
-    NSURL *expectedURL = [NSURL URLWithString:@"https://login.windows.net/common"];
-    XCTAssertEqualObjects(cacheAuthority, expectedURL);
-}
-
 - (void)testLegacyRefreshTokenLookupAuthorities_whenAuthorityNil_shouldReturnEmptyAuthorities
 {
     [self setupAADAuthorityCache];
