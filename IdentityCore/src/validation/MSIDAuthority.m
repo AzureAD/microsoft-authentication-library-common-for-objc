@@ -156,7 +156,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:self.url.host.lowercaseString];
 }
 
-- (nonnull NSString *)authorityType
+- (nonnull NSString *)telemetryAuthorityType
 {
     NSAssert(NO, @"Abstract method.");
     

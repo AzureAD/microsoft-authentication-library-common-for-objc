@@ -65,7 +65,7 @@
     return YES;
 }
 
-- (nonnull NSString *)authorityType
+- (nonnull NSString *)telemetryAuthorityType
 {
     return MSID_TELEMETRY_VALUE_AUTHORITY_ADFS;
 }
