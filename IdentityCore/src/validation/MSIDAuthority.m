@@ -61,6 +61,7 @@
 #import "MSIDAdfsAuthorityResolver.h"
 #import "MSIDOpenIdConfigurationInfoRequest.h"
 #import "MSIDAADNetworkConfiguration.h"
+#import "MSIDOpenIdProviderMetadata.h"
 
 static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
 
@@ -245,6 +246,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 {
     NSUInteger hash = 0;
     hash = hash * 31 + self.url.hash;
+    hash = hash * 31 + self.openIdConfigurationEndpoint.hash;
+    hash = hash * 31 + self.metadata.hash;
     return hash;
 }
 
@@ -257,6 +260,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     
     BOOL result = YES;
     result &= (!self.url && !authority.url) || [self.url isEqual:authority.url];
+    result &= (!self.openIdConfigurationEndpoint && !authority.openIdConfigurationEndpoint) || [self.openIdConfigurationEndpoint isEqual:authority.openIdConfigurationEndpoint];
+    result &= (!self.metadata && !authority.metadata) || [self.metadata isEqual:authority.metadata];
     return result;
 }
 
@@ -270,6 +275,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAuthority *authority = [[self.class allocWithZone:zone] initWithURL:_url context:nil error:nil];
+    authority->_openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
+    authority->_metadata = _metadata;
     authority->_url = [_url copyWithZone:zone];
     
     return authority;

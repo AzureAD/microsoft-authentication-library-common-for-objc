@@ -32,6 +32,8 @@
 #import "MSIDAadAuthorityCache.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAadAuthorityCacheRecord.h"
+#import "MSIDAuthority+Internal.h"
+#import "MSIDOpenIdProviderMetadata.h"
 
 @interface MSIDAADAuthorityCacheMock : MSIDAadAuthorityCache
 
@@ -478,6 +480,57 @@
     NSArray *aliases = [authority legacyRefreshTokenLookupAliases];
     
     XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+#pragma mark - NSCopying
+
+- (void)testCopy_whenAllPropertiesAreSet_shouldReturnEqualCopy
+{
+    __auto_type authority = [@"https://login.microsoftonline.com/common" authority];
+    authority.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
+    authority.metadata = [MSIDOpenIdProviderMetadata new];
+    MSIDAADAuthority *authorityCopy = [authority copy];
+    
+    XCTAssertEqualObjects(authority, authorityCopy);
+}
+
+#pragma mark - isEqual
+
+- (void)testisEqual_whenAllPropertiesAreEqual_shouldReturnTrue
+{
+    __auto_type metadata = [MSIDOpenIdProviderMetadata new];
+    
+    MSIDAADAuthority *lhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    lhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
+    lhs.metadata = metadata;
+    
+    MSIDAADAuthority *rhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    rhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
+    rhs.metadata = metadata;
+
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenOpenIdConfigurationEndpointsAreNotEqual_shouldReturnFalse
+{
+    MSIDAADAuthority *lhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    lhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
+    
+    MSIDAADAuthority *rhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    rhs.openIdConfigurationEndpoint = [@"https://example.com/qwe" msidUrl];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenMetadataAreNotEqual_shouldReturnFalse
+{
+    MSIDAADAuthority *lhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    lhs.metadata = [MSIDOpenIdProviderMetadata new];
+    
+    MSIDAADAuthority *rhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    rhs.metadata = [MSIDOpenIdProviderMetadata new];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
 }
 
 #pragma mark - Private

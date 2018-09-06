@@ -31,14 +31,11 @@
 @interface MSIDAADAuthority()
 
 @property (nonatomic) MSIDAadAuthorityCache *authorityCache;
-@property (nonatomic) NSURL *openIdConfigurationEndpoint;
 @property (nonatomic) MSIDAuthorityFactory *authorityFactory;
 
 @end
 
 @implementation MSIDAADAuthority
-
-@synthesize openIdConfigurationEndpoint;
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context

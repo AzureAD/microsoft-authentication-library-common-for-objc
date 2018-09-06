@@ -28,6 +28,8 @@
 #import <XCTest/XCTest.h>
 #import "MSIDADFSAuthority.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDADFSAuthorityTests : XCTestCase
 
@@ -187,6 +189,45 @@
     authorityUrl = [[NSURL alloc] initWithString:@"https://example.com/adfs"];
     authority = [[MSIDADFSAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertFalse([authority isKnown]);
+}
+
+#pragma mark - isEqual
+
+- (void)testisEqual_whenAllPropertiesAreEqual_shouldReturnTrue
+{
+    __auto_type metadata = [MSIDOpenIdProviderMetadata new];
+    
+    __auto_type *lhs = (MSIDADFSAuthority *)[@"https://login.microsoftonline.com/adfs" authority];
+    lhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
+    lhs.metadata = metadata;
+    
+    __auto_type *rhs = (MSIDADFSAuthority *)[@"https://login.microsoftonline.com/adfs" authority];
+    rhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
+    rhs.metadata = metadata;
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenOpenIdConfigurationEndpointsAreNotEqual_shouldReturnFalse
+{
+    __auto_type *lhs = (MSIDADFSAuthority *)[@"https://login.microsoftonline.com/adfs" authority];
+    lhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
+    
+    __auto_type *rhs = (MSIDADFSAuthority *)[@"https://login.microsoftonline.com/adfs" authority];
+    rhs.openIdConfigurationEndpoint = [@"https://example.com/qwe" msidUrl];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenMetadataAreNotEqual_shouldReturnFalse
+{
+    __auto_type *lhs = (MSIDADFSAuthority *)[@"https://login.microsoftonline.com/adfs" authority];
+    lhs.metadata = [MSIDOpenIdProviderMetadata new];
+    
+    __auto_type *rhs = (MSIDADFSAuthority *)[@"https://login.microsoftonline.com/adfs" authority];
+    rhs.metadata = [MSIDOpenIdProviderMetadata new];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
 }
 
 @end

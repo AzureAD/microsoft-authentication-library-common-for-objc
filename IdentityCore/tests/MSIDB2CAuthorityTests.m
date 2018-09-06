@@ -29,6 +29,8 @@
 #import "MSIDAuthority.h"
 #import "MSIDB2CAuthority.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDB2CAuthorityTests : XCTestCase
 
@@ -198,6 +200,45 @@
     authorityUrl = [[NSURL alloc] initWithString:@"https://example.com/tfp/tenant/policy"];
     authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertFalse([authority isKnown]);
+}
+
+#pragma mark - isEqual
+
+- (void)testisEqual_whenAllPropertiesAreEqual_shouldReturnTrue
+{
+    __auto_type metadata = [MSIDOpenIdProviderMetadata new];
+    
+    __auto_type *lhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    lhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
+    lhs.metadata = metadata;
+    
+    __auto_type *rhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    rhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
+    rhs.metadata = metadata;
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenOpenIdConfigurationEndpointsAreNotEqual_shouldReturnFalse
+{
+    __auto_type *lhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    lhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
+    
+    __auto_type *rhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    rhs.openIdConfigurationEndpoint = [@"https://example.com/qwe" msidUrl];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenMetadataAreNotEqual_shouldReturnFalse
+{
+    __auto_type *lhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    lhs.metadata = [MSIDOpenIdProviderMetadata new];
+    
+    __auto_type *rhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    rhs.metadata = [MSIDOpenIdProviderMetadata new];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
 }
 
 @end
