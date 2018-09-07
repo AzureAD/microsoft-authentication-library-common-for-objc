@@ -67,13 +67,13 @@
 {
     if ([MSIDB2CAuthority isAuthorityFormatValid:url context:context error:nil])
     {
-        __auto_type b2cAuthority = [[MSIDB2CAuthority alloc] initWithURL:url rawTenant:rawTenant context:context error:nil];
+        __auto_type b2cAuthority = [[MSIDB2CAuthority alloc] initWithURL:url context:context error:nil];
         if (b2cAuthority) return b2cAuthority;
     }
     
     if ([MSIDAADAuthority isAuthorityFormatValid:url context:context error:nil])
     {
-        __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:url rawTenant:rawTenant context:context error:nil];
+        __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:url context:context error:nil];
         if (adfsAuthority) return adfsAuthority;
     }
     

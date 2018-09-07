@@ -96,14 +96,6 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return self;
 }
 
-- (nullable instancetype)initWithURL:(nonnull NSURL *)url
-                           rawTenant:(nullable NSString *)rawTenant
-                             context:(nullable id<MSIDRequestContext>)context
-                               error:(NSError * _Nullable __autoreleasing * _Nullable)error
-{
-    return [self initWithURL:url context:context error:error];
-}
-
 - (void)resolveAndValidate:(BOOL)validate
          userPrincipalName:(__unused NSString *)upn
                    context:(id<MSIDRequestContext>)context

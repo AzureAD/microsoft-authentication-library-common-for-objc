@@ -54,11 +54,6 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
                              context:(nullable id<MSIDRequestContext>)context
                                error:(NSError * _Nullable __autoreleasing * _Nullable)error NS_DESIGNATED_INITIALIZER;
 
-- (nullable instancetype)initWithURL:(nonnull NSURL *)url
-                           rawTenant:(nullable NSString *)rawTenant
-                             context:(nullable id<MSIDRequestContext>)context
-                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
-
 - (void)resolveAndValidate:(BOOL)validate
          userPrincipalName:(nullable NSString *)upn
                    context:(nullable id<MSIDRequestContext>)context
