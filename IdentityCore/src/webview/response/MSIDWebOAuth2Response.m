@@ -77,7 +77,7 @@
         }
         
         // populate auth code
-        _authorizationCode = authCode;
+        _authorizationCode = [NSString msidIsStringNilOrBlank:authCode] ? nil : authCode;
         
         // populate oauth error
         _oauthError = oauthError;
