@@ -66,13 +66,19 @@ typedef unsigned char byte;
     char lastByte;
     [data getBytes:&lastByte range:NSMakeRange([data length] - 1, 1)];
     
+    // Data here can be null terminated or not
+    // - stringWithUTF8String expects a null-terminated c array of bytes in UTF8 encoding
+    //   https://developer.apple.com/documentation/foundation/nsstring/1497379-stringwithutf8string
+    // - initWithData expects UTF16 which cannot be stored in a null-terminated byte string.
+    //   https://developer.apple.com/documentation/foundation/nsstring/1416374-initwithdata?language=objc
+    //
     // We need to check for null terminated string data by looking at the last bit.
     // If we call initWithData on null-terminated, we get back a nil string.
     if (lastByte == 0x0) {
-        //string is null-terminated
+        // If null terminated
         return [NSString stringWithUTF8String:[data bytes]];
     } else {
-        //string is not null-terminated
+        // string is not null-terminated
         return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     }
 }
@@ -103,7 +109,7 @@ typedef unsigned char byte;
 }
 
 
-- (NSString *)msidUrlFormDecode
+- (NSString *)msidWwwFormUrlDecode
 {
     // Two step decode: first replace + with a space, then percent unescape
     CFMutableStringRef decodedString = CFStringCreateMutableCopy( NULL, 0, (__bridge CFStringRef)self );
@@ -118,7 +124,7 @@ typedef unsigned char byte;
 }
 
 
-- (NSString *)msidUrlFormEncode
+- (NSString *)msidWwwFormUrlEncode
 {
     static NSCharacterSet* set = nil;
  
@@ -192,7 +198,7 @@ typedef unsigned char byte;
 /// </remarks>
 + (NSString *)msidBase64UrlEncodedStringFromData:(NSData *)data
 {
-    return [[data base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed] msidStringByRemovingPadding];
+    return [[data base64EncodedStringWithOptions:0] componentsSeparatedByString:@"="].firstObject;
 }
 
 
@@ -203,7 +209,12 @@ typedef unsigned char byte;
     
     [dict enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL __unused *stop)
      {
-         NSString *encodedKey = [[[key description] msidTrimmedString] msidUrlFormEncode];
+         if ([NSString msidIsStringNilOrBlank:key])
+         {
+             return;
+         }
+         
+         NSString *encodedKey = [[key msidTrimmedString] msidWwwFormUrlEncode];
          
          if (!encodedString)
          {
@@ -214,14 +225,14 @@ typedef unsigned char byte;
              [encodedString appendString:@"&"];
          }
          
-         [encodedString appendFormat:@"%@", encodedKey];
+         [encodedString appendString:encodedKey];
          
          NSString *v = [value description];
          if ([value isKindOfClass:NSUUID.class])
          {
              v = ((NSUUID *)value).UUIDString;
          }
-         NSString *encodedValue = [[v msidTrimmedString] msidUrlFormEncode];
+         NSString *encodedValue = [[v msidTrimmedString] msidWwwFormUrlEncode];
          
          if (![NSString msidIsStringNilOrBlank:encodedValue])
          {
@@ -231,7 +242,6 @@ typedef unsigned char byte;
      }];
     return encodedString;
 }
-
 
 
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases
@@ -260,15 +270,7 @@ typedef unsigned char byte;
         return @"";
     }
     
-    NSMutableString *queryString = [[set objectAtIndex:0] mutableCopy];
-    
-    for (NSInteger i = 1; i < cSet; i++)
-    {
-        [queryString appendString:@" "];
-        [queryString appendString:[set objectAtIndex:i]];
-    }
-    
-    return queryString;
+    return [[set array] componentsJoinedByString:@" "];
 }
 
 
@@ -287,12 +289,5 @@ typedef unsigned char byte;
 {
     return [NSOrderedSet msidOrderedSetFromString:self];
 }
-
-
-- (NSString *)msidStringByRemovingPadding
-{
-    return [self componentsSeparatedByString:@"="].firstObject;
-}
-
 
 @end

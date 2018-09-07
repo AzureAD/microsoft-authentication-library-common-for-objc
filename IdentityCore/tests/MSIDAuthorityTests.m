@@ -27,6 +27,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDAuthority.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDAuthorityTests : XCTestCase
 

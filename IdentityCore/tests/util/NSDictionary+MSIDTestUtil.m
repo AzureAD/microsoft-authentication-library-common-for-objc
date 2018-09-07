@@ -39,7 +39,7 @@
         NSString *value = [self[key] isKindOfClass:NSUUID.class] ?
         ((NSUUID *)self[key]).UUIDString : [self[key] description];
         
-        [array addObject:[NSURLQueryItem queryItemWithName:[[key description] msidUrlFormEncode]
+        [array addObject:[NSURLQueryItem queryItemWithName:[[key description] msidWwwFormUrlEncode]
                                                      value:[value description]]];
     }
     

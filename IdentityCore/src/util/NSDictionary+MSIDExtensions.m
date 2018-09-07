@@ -59,7 +59,7 @@
             continue;
         }
         
-        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidUrlFormDecode : [queryElements[0] msidTrimmedString];
+        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidWwwFormUrlDecode : [queryElements[0] msidTrimmedString];
         if ([NSString msidIsStringNilOrBlank:key])
         {
             MSID_LOG_WARN(nil, @"Query parameter must have a key");
@@ -69,7 +69,7 @@
         NSString *value = @"";
         if (queryElements.count == 2)
         {
-            value = decode ? [queryElements[1] msidTrimmedString].msidUrlFormDecode : [queryElements[1] msidTrimmedString];
+            value = decode ? [queryElements[1] msidTrimmedString].msidWwwFormUrlDecode : [queryElements[1] msidTrimmedString];
         }
         
         [queryDict setValue:value forKey:key];
@@ -78,7 +78,7 @@
     return queryDict;
 }
 
-+ (NSDictionary *)msidDictionaryFromData:(NSData *)data error:(NSError **)error
++ (NSDictionary *)msidDictionaryFromJsonData:(NSData *)data error:(NSError **)error
 {
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
                                                          options:NSJSONReadingMutableContainers

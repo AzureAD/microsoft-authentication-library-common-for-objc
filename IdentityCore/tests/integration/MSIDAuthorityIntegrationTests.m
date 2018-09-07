@@ -31,6 +31,7 @@
 #import "MSIDAdfsAuthorityResolver.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAADEndpointProvider.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDAuthorityIntegrationTests : XCTestCase
 

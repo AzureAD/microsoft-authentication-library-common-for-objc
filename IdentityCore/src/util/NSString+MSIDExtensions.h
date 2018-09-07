@@ -39,12 +39,14 @@
 
 /*! Returns the same string, but without the leading and trailing whitespace */
 - (NSString *)msidTrimmedString;
+ 
+/*! Decodes a application/x-www-form-urlencoded string.
+ See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details. */
+- (NSString *)msidWwwFormUrlDecode;
 
-/*! Decodes a previously URL encoded string. */
-- (NSString *)msidUrlFormDecode;
-
-/*! Encodes the string to pass it as a URL agrument. */
-- (NSString *)msidUrlFormEncode;
+/*! Encodes the string to be application/x-www-form-urlencoded.
+ See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details.  */
+- (NSString *)msidWwwFormUrlEncode;
 
 /*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
  the actual contents, but still want to log something that can be correlated. */
@@ -52,9 +54,6 @@
 
 /*! Check if current string is included in the array - case insensitive */
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases;
-
-/*! Removes a trailing padding for base64url encoding */
-- (NSString *)msidStringByRemovingPadding;
 
 /*!
  =============================================================================
@@ -64,13 +63,17 @@
 /*! Generate a URL-safe string of random data */
 + (NSString *)msidRandomUrlSafeStringOfByteSize:(NSUInteger)size;
 
-/*! Generate a URL-safe string of random data */
+/*! Generate a hex string from data */
 + (NSString *)msidHexStringFromData:(NSData *)data;
 
-/*! Generate a base64 url-encoded string of random data */
+/*! Generate a base64 url-encoded string from data */
 + (NSString *)msidBase64UrlEncodedStringFromData:(NSData *)data;
 
-/*! Generate a www-form-urlencoded string of random data */
+/*! Generate a www-form-urlencoded string from dictionary
+ Key and value are separated by '=' and key-value tuples are separated by &.
+ Non-alphanumeric characters are percent encoded for both keys and values.
+ See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details.
+ */
 + (NSString *)msidUrlFormEncodedStringFromDictionary:(NSDictionary *)dict;
 
 /*!
@@ -78,14 +81,8 @@
  Convenience methods
  =============================================================================
  */
-/*! Convenience method to convert string to url */
+/*! Convenience method to convert string to NSOrderedSet */
 + (NSString *)msidStringFromOrderedSet:(NSOrderedSet *)set;
-
-/*! Convenience method to convert string to url */
-- (NSURL *)msidUrl;
-
-/*! Convenience method to convert string to NSData */
-- (NSData *)msidData;
 
 /*! Convenience method to convert string to scope set */
 - (NSOrderedSet<NSString *> *)msidScopeSet;

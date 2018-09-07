@@ -171,56 +171,55 @@
 - (void)testMsidUrlFormDecode_and_msidUrlFormEncode_whenHasSymbols_shouldEncodeDecode
 {
     NSString *testString = @"Some interesting test/+-)(*&^%$#@!~|";
-    NSString *encoded = [testString msidUrlFormEncode];
+    NSString *encoded = [testString msidWwwFormUrlEncode];
     
     XCTAssertEqualObjects(encoded, @"Some+interesting+test%2F%2B-%29%28%2A%26%5E%25%24%23%40%21~%7C");
-    XCTAssertEqualObjects([encoded msidUrlFormDecode], testString);
+    XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
-
 
 - (void)testMsidUrlFormDecode_and_msidUrlFormEncode_whenHasNewLine_shouldEncodeDecode
 {
     NSString* testString = @"test\r\ntest2";
-    NSString* encoded = [testString msidUrlFormEncode];
+    NSString* encoded = [testString msidWwwFormUrlEncode];
     
     XCTAssertEqualObjects(encoded, @"test%0D%0Atest2");
-    XCTAssertEqualObjects([encoded msidUrlFormDecode], testString);
+    XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
 
 - (void)testMsidUrlFormDecode_and_msidUrlFormEncode__whenHasSpace_shouldEncodeWithPlus
 {
     NSString* testString = @"test test2";
-    NSString* encoded = [testString msidUrlFormEncode];
+    NSString* encoded = [testString msidWwwFormUrlEncode];
     
     XCTAssertEqualObjects(encoded, @"test+test2");
-    XCTAssertEqualObjects([encoded msidUrlFormDecode], testString);
+    XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
 
 - (void)testMsidUrlFormDecode_and_msidUrlFormEncode_whenHasIllegalChars_shouldEncodeAll
 {
     NSString* testString = @"` # % ^ [ ] { } \\ | \" < > ! # $ & ' ( ) * + , / : ; = ? @ [ ] % | ^";
-    NSString* encoded = [testString msidUrlFormEncode];
+    NSString* encoded = [testString msidWwwFormUrlEncode];
     
     XCTAssertEqualObjects(encoded, @"%60+%23+%25+%5E+%5B+%5D+%7B+%7D+%5C+%7C+%22+%3C+%3E+%21+%23+%24+%26+%27+%28+%29+%2A+%2B+%2C+%2F+%3A+%3B+%3D+%3F+%40+%5B+%5D+%25+%7C+%5E");
-    XCTAssertEqualObjects([encoded msidUrlFormDecode], testString);
+    XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
 
 - (void)testMsidUrlFormDecode_and_msidUrlFormEncode_whenHasLegalChars_shouldNotEncode
 {
     NSString* testString = @"test-test2-test3.test4";
-    NSString* encoded = [testString msidUrlFormEncode];
+    NSString* encoded = [testString msidWwwFormUrlEncode];
     
     XCTAssertEqualObjects(encoded, @"test-test2-test3.test4");
-    XCTAssertEqualObjects([encoded msidUrlFormDecode], testString);
+    XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
 
 - (void)testMsidUrlFormDecode_and_msidUrlFormEncode_whenHasMixedChars_shouldEncode
 {
     NSString* testString = @"CODE: The app needs access to a service (\"https://*.test.com/\") that your organization \"test.onmicrosoft.com\" has not subscribed to or enabled.\r\nTrace ID: 111111-1111-1111-1111-111111111111\r\nCorrelation ID: 111111-1111-1111-1111-111111111111\r\nTimestamp: 2000-01-01 23:59:00Z";
-    NSString* encoded = [testString msidUrlFormEncode];
+    NSString* encoded = [testString msidWwwFormUrlEncode];
     
     XCTAssertEqualObjects(encoded, @"CODE%3A+The+app+needs+access+to+a+service+%28%22https%3A%2F%2F%2A.test.com%2F%22%29+that+your+organization+%22test.onmicrosoft.com%22+has+not+subscribed+to+or+enabled.%0D%0ATrace+ID%3A+111111-1111-1111-1111-111111111111%0D%0ACorrelation+ID%3A+111111-1111-1111-1111-111111111111%0D%0ATimestamp%3A+2000-01-01+23%3A59%3A00Z");
-    XCTAssertEqualObjects([encoded msidUrlFormDecode], testString);
+    XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
 
 - (void)testMsidIsEquivalentWithAnyAlias_whenContainedInAlias_shouldReturnYes
@@ -247,24 +246,10 @@
     XCTAssertFalse([@"authorityX" msidIsEquivalentWithAnyAlias:alias]);
 }
 
-- (void)testMsidStringByRemovingPadding_whenTrailingPadding_shouldRemovePadding
-{
-    NSString *testString = @"this+is_a string_with-padding===";
-    
-    XCTAssertEqualObjects(@"this+is_a string_with-padding", testString.msidStringByRemovingPadding);
-}
-
-- (void)testMsidStringByRemovingPadding_whenNoTrailingPadding_shouldReturnAsIs
-{
-    NSString *testString = @"this+is_a string_without-padding";
-    
-    XCTAssertEqualObjects(@"this+is_a string_without-padding", testString.msidStringByRemovingPadding);
-}
-
 - (void)testMsidHexStringFromData_whenJsonData_shouldReturnCorrectHexString
 {
     NSString *string = @"{\"key\":\"val\"}";
-    NSString *hexString = [NSString msidHexStringFromData:string.msidData];
+    NSString *hexString = [NSString msidHexStringFromData:[string dataUsingEncoding:NSUTF8StringEncoding]];
     
     XCTAssertEqualObjects(hexString, @"7b226b6579223a2276616c227d");
 }
@@ -272,7 +257,7 @@
 - (void)testMsidHexStringFromData_whenRandomStringData_shouldReturnCorrectHexString
 {
     NSString *string = @"some string here";
-    NSString *hexString = [NSString msidHexStringFromData:string.msidData];
+    NSString *hexString = [NSString msidHexStringFromData:[string dataUsingEncoding:NSUTF8StringEncoding]];
     
     XCTAssertEqualObjects(hexString, @"736f6d6520737472696e672068657265");
 }
@@ -280,7 +265,7 @@
 - (void)testMsidBase64UrlEncodedStringFromData
 {
     NSString *string = @"   here is a string with padding  \n";
-    NSString *base64urlEncodedString = [NSString msidBase64UrlEncodedStringFromData:string.msidData];
+    NSString *base64urlEncodedString = [NSString msidBase64UrlEncodedStringFromData:[string dataUsingEncoding:NSUTF8StringEncoding]];
     
     XCTAssertEqualObjects(base64urlEncodedString, @"ICAgaGVyZSBpcyBhIHN0cmluZyB3aXRoIHBhZGRpbmcgIAo");
     

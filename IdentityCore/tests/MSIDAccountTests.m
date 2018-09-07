@@ -142,7 +142,7 @@
 - (void)testAccountCacheItem_shouldReturnProperCacheItem
 {
     MSIDAccount *account = [MSIDAccount new];
-    account.authority = [@"https://login.microsoftonline.com/common" msidUrl];
+    account.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
     account.username = @"eric999";
     account.givenName = @"Eric";
     account.familyName = @"Cartman";

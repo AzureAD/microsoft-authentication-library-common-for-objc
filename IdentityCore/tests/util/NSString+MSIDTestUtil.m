@@ -21,45 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "NSData+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSDictionary+MSIDExtensions.h"
-#import <CommonCrypto/CommonDigest.h>
+#import "NSString+MSIDTestUtil.h"
 
-@implementation NSData (MSIDExtensions)
+@implementation NSString (ADTestUtil)
 
-- (NSData *)msidSHA1
+- (NSURL *)msidUrl
 {
-    unsigned char hash[CC_SHA1_DIGEST_LENGTH];
-    CC_SHA1(self.bytes, (CC_LONG)self.length, hash);
-    
-    return [NSData dataWithBytes:hash length:CC_SHA1_DIGEST_LENGTH];
+    return [[NSURL alloc] initWithString:self];
 }
 
-
-- (NSData *)msidSHA256
+- (NSData *)msidData
 {
-    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
-    CC_SHA256(self.bytes, (CC_LONG)self.length, hash);
-    
-    return [NSData dataWithBytes:hash length:CC_SHA256_DIGEST_LENGTH];
-}
-
-
-- (NSString *)msidHexString
-{
-    return [NSString msidHexStringFromData:self];
-}
-
-
-- (NSString *)msidBase64UrlEncodedString
-{
-    return [NSString msidBase64UrlEncodedStringFromData:self];
-}
-
-- (NSDictionary *)msidToJsonDictionary:(NSError **)error
-{
-    return [NSDictionary msidDictionaryFromJsonData:self error:error];
+    return [self dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 

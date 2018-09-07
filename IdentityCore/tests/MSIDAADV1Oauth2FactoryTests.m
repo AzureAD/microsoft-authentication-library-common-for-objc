@@ -423,7 +423,7 @@
     NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
 
     MSIDConfiguration *configuration =
-    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY msidUrl]
+    [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
                                      redirectUri:@"redirect uri"
                                         clientId:@"client id"
                                           target:@"target"];
