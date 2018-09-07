@@ -71,7 +71,7 @@
         if (b2cAuthority) return b2cAuthority;
     }
     
-    if ([MSIDAADAuthority isAuthorityFormatValid:url context:context error:nil])
+    if ([MSIDADFSAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:url context:context error:nil];
         if (adfsAuthority) return adfsAuthority;
