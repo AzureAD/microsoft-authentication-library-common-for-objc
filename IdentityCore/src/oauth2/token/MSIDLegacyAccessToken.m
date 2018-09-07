@@ -122,7 +122,7 @@
     cacheItem.idToken = self.idToken;
     cacheItem.oauthTokenType = self.accessTokenType;
     cacheItem.authority = self.storageAuthority.url ? self.storageAuthority.url : self.authority.url;
-    cacheItem.environment = self.authority.url.msidHostWithPortIfNecessary;
+    cacheItem.environment = self.authority.environment;
     cacheItem.realm = self.authority.url.msidTenant;
     cacheItem.clientId = self.clientId;
     cacheItem.clientInfo = self.clientInfo;

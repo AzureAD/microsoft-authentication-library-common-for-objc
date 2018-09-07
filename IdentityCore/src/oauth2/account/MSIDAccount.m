@@ -141,7 +141,7 @@
     }
     else
     {
-        cacheItem.environment = self.authority.url.msidHostWithPortIfNecessary;
+        cacheItem.environment = self.authority.environment;
     }
 
     cacheItem.realm = self.authority.url.msidTenant;

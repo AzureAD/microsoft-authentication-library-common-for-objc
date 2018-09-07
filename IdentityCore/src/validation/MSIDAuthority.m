@@ -91,6 +91,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
         if (!isValid) return nil;
         
         _url = url;
+        _environment = url.msidHostWithPortIfNecessary;
     }
     
     return self;

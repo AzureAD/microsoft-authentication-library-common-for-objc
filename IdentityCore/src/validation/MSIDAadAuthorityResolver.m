@@ -67,7 +67,7 @@ static dispatch_queue_t s_aadValidationQueue;
     NSParameterAssert(completionBlock);
     NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.self]);
     
-    MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.url.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.environment];
     if (record)
     {
         [self handleRecord:record completionBlock:completionBlock];
@@ -115,7 +115,7 @@ static dispatch_queue_t s_aadValidationQueue;
     
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.url.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.environment];
     if (record)
     {
         [self handleRecord:record completionBlock:completionBlock];
@@ -125,7 +125,7 @@ static dispatch_queue_t s_aadValidationQueue;
     __auto_type trustedHost = MSIDTrustedAuthorityWorldWide;
     if ([authority isKnown])
     {
-        trustedHost = authority.url.msidHostWithPortIfNecessary;
+        trustedHost = authority.environment;
     }
     
     __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider aadAuthorityDiscoveryEndpointWithHost:trustedHost];

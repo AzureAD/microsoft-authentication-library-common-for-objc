@@ -150,16 +150,16 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
     }
     
     // In case the authority we were looking for wasn't in the metadata
-    NSString *authorityHost = authority.url.msidHostWithPortIfNecessary;
+    NSString *environment = authority.environment;
     
-    if (![self objectForKey:authorityHost])
+    if (![self objectForKey:environment])
     {
         __auto_type record = [MSIDAadAuthorityCacheRecord new];
         record.validated = YES;
-        record.cacheHost = authorityHost;
-        record.networkHost = authorityHost;
+        record.cacheHost = environment;
+        record.networkHost = environment;
         
-        [self setObject:record forKey:authorityHost];
+        [self setObject:record forKey:environment];
     }
     
     return YES;
@@ -173,7 +173,7 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
-    [self setObject:record forKey:authority.url.msidHostWithPortIfNecessary];
+    [self setObject:record forKey:authority.environment];
 }
 
 #pragma mark -
@@ -281,7 +281,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 
 - (NSURL *)networkUrlForAuthorityImpl:(MSIDAADAuthority *)authority
 {
-    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.url.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.environment];
     if (!record)
     {
         return nil;
@@ -292,7 +292,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
 
 - (NSURL *)cacheUrlForAuthorityImpl:(MSIDAADAuthority *)authority
 {
-    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.url.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [self objectForKey:authority.environment];
     if (!record)
     {
         return nil;
@@ -325,12 +325,12 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     
     NSArray<NSString *> *aliases = record.aliases;
     NSString *cacheHost = record.cacheHost;
-    NSString *host = authority.url.msidHostWithPortIfNecessary;
+    NSString *environment = authority.environment;
     if (cacheHost)
     {
         // The cache lookup order for authorities is defined as the preferred host first
         [authorities addObject:urlForPreferredHost(authority.url, cacheHost)];
-        if (![cacheHost isEqualToString:host])
+        if (![cacheHost isEqualToString:environment])
         {
             // Followed by the authority provided by the developer, provided here by the authority
             // URL passed into this method
@@ -345,7 +345,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     // And then we add any remaining aliases listed in the metadata
     for (NSString *alias in aliases)
     {
-        if ([alias isEqualToString:host] || (cacheHost && [alias isEqualToString:cacheHost]))
+        if ([alias isEqualToString:environment] || (cacheHost && [alias isEqualToString:cacheHost]))
         {
             continue;
         }

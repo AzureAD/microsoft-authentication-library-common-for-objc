@@ -97,6 +97,28 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitADFSAuthority_whenValidUrl_shouldParseEnvironment
+{
+    __auto_type authorityUrl = [@"https://login.microsoftonline.com/tfp/tenant/policy" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.environment, @"login.microsoftonline.com");
+    XCTAssertNil(error);
+}
+
+- (void)testInitADFSAuthority_whenValidUrlWithPort_shouldParseEnvironment
+{
+    __auto_type authorityUrl = [@"https://login.microsoftonline.com:8080/tfp/tenant/policy" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.environment, @"login.microsoftonline.com:8080");
+    XCTAssertNil(error);
+}
+
 #pragma mark - universalAuthorityURL
 
 - (void)testUniversalAuthorityURL_whenB2CAuhority_shouldReturnOriginalAuthority

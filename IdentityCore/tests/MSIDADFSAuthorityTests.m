@@ -86,6 +86,28 @@
     XCTAssertEqualObjects(@"authority must use HTTPS.", error.userInfo[MSIDErrorDescriptionKey]);
 }
 
+- (void)testInitADFSAuthority_whenValidUrl_shouldParseEnvironment
+{
+    __auto_type authorityUrl = [@"https://contoso.com/adfs" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDADFSAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.environment, @"contoso.com");
+    XCTAssertNil(error);
+}
+
+- (void)testInitADFSAuthority_whenValidUrlWithPort_shouldParseEnvironment
+{
+    __auto_type authorityUrl = [@"https://contoso.com:8080/adfs" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDADFSAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.environment, @"contoso.com:8080");
+    XCTAssertNil(error);
+}
+
 #pragma mark - universalAuthorityURL
 
 - (void)testUniversalAuthorityURL_whenADFSAuhority_shouldReturnOriginalAuthority

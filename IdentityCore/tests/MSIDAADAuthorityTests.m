@@ -220,6 +220,28 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitAADAuthority_whenValidUrl_shouldParseEnvironment
+{
+    __auto_type authorityUrl = [@"https://login.microsoftonline.com/common" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.environment, @"login.microsoftonline.com");
+    XCTAssertNil(error);
+}
+
+- (void)testInitAADAuthority_whenValidUrlWithPort_shouldParseEnvironment
+{
+    __auto_type authorityUrl = [@"https://login.microsoftonline.com:8080/common" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.environment, @"login.microsoftonline.com:8080");
+    XCTAssertNil(error);
+}
+
 #pragma mark - universalAuthorityURL
 
 - (void)testUniversalAuthorityURL_whenTenantedAADAuhority_shouldReturnOriginalAuthority
