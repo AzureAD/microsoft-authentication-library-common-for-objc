@@ -143,4 +143,3 @@ extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *erro
 extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode);
 
 extern NSDictionary<NSString *, NSArray *> *MSIDErrorDomainsAndCodes(void);
-

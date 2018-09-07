@@ -74,6 +74,19 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitWithParameters_whenAuthCodeIsEmptyString_shouldReturnNil
+{
+    NSError *error = nil;
+    NSString *state = @"state";
+    
+    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://contoso.com?code=&state=%@", state.msidBase64UrlEncode]]
+                                                                         context:nil
+                                                                           error:&error];
+    
+    XCTAssertNil(response.authorizationCode);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+}
+
 - (void)testInitWithParameters_whenNoRequestStateAndOAuthServerErrorWithValidState_shouldOAuthError
 {
     NSError *error = nil;
