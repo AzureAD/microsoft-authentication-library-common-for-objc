@@ -50,10 +50,10 @@
     XCTAssertEqualObjects(dict[@"key"], @"val+val");
 }
 
-- (void)testMsidDictionaryFromUrlFormEncodedString_whenStringContainsQuery_shouldReturnDictWithDecoding
+- (void)testmsidDictionaryFromWwwUrlFormEncodedString_whenStringContainsQuery_shouldReturnDictWithDecoding
 {
     NSString *string = @"key=Some+interesting+test%2F%2B-%29%28%2A%26%5E%25%24%23%40%21~%7C";
-    NSDictionary *dict = [NSDictionary msidDictionaryFromUrlFormEncodedString:string];
+    NSDictionary *dict = [NSDictionary msidDictionaryFromWwwUrlFormEncodedString:string];
     
     XCTAssertTrue([[dict allKeys] containsObject:@"key"]);
     XCTAssertEqualObjects(dict[@"key"], @"Some interesting test/+-)(*&^%$#@!~|");

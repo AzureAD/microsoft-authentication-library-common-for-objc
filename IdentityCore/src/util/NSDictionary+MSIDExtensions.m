@@ -34,7 +34,7 @@
 
 // Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
 // Always returns a dictionary, even if the string is nil, empty or contains no pairs
-+ (NSDictionary *)msidDictionaryFromUrlFormEncodedString:(NSString *)string
++ (NSDictionary *)msidDictionaryFromWwwUrlFormEncodedString:(NSString *)string
 {
     return [self msidDictionaryFromQueryString:string urlFormDecode:YES];
 }
@@ -88,9 +88,9 @@
 }
 
 
-- (NSString *)msidURLFormEncode
+- (NSString *)msidWwwUrlFormEncodedString
 {
-    return [NSString msidUrlFormEncodedStringFromDictionary:self];
+    return [NSString msidWwwUrlFormEncodedStringdStringFromDictionary:self];
 }
 
 

@@ -168,7 +168,7 @@
     XCTAssertEqualObjects(@"string", string.msidTrimmedString);
 }
 
-- (void)testMsidUrlFormDecode_and_msidUrlFormEncode_whenHasSymbols_shouldEncodeDecode
+- (void)testMsidUrlFormDecode_and_msidWwwUrlFormEncodedString_whenHasSymbols_shouldEncodeDecode
 {
     NSString *testString = @"Some interesting test/+-)(*&^%$#@!~|";
     NSString *encoded = [testString msidWwwFormUrlEncode];
@@ -177,7 +177,7 @@
     XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
 
-- (void)testMsidUrlFormDecode_and_msidUrlFormEncode_whenHasNewLine_shouldEncodeDecode
+- (void)testMsidUrlFormDecode_and_msidWwwUrlFormEncodedString_whenHasNewLine_shouldEncodeDecode
 {
     NSString* testString = @"test\r\ntest2";
     NSString* encoded = [testString msidWwwFormUrlEncode];
@@ -186,7 +186,7 @@
     XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
 
-- (void)testMsidUrlFormDecode_and_msidUrlFormEncode__whenHasSpace_shouldEncodeWithPlus
+- (void)testMsidUrlFormDecode_and_msidWwwUrlFormEncodedString__whenHasSpace_shouldEncodeWithPlus
 {
     NSString* testString = @"test test2";
     NSString* encoded = [testString msidWwwFormUrlEncode];
@@ -195,7 +195,7 @@
     XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
 
-- (void)testMsidUrlFormDecode_and_msidUrlFormEncode_whenHasIllegalChars_shouldEncodeAll
+- (void)testMsidUrlFormDecode_and_msidWwwUrlFormEncodedString_whenHasIllegalChars_shouldEncodeAll
 {
     NSString* testString = @"` # % ^ [ ] { } \\ | \" < > ! # $ & ' ( ) * + , / : ; = ? @ [ ] % | ^";
     NSString* encoded = [testString msidWwwFormUrlEncode];
@@ -204,7 +204,7 @@
     XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
 
-- (void)testMsidUrlFormDecode_and_msidUrlFormEncode_whenHasLegalChars_shouldNotEncode
+- (void)testMsidUrlFormDecode_and_msidWwwUrlFormEncodedString_whenHasLegalChars_shouldNotEncode
 {
     NSString* testString = @"test-test2-test3.test4";
     NSString* encoded = [testString msidWwwFormUrlEncode];
@@ -213,7 +213,7 @@
     XCTAssertEqualObjects([encoded msidWwwFormUrlDecode], testString);
 }
 
-- (void)testMsidUrlFormDecode_and_msidUrlFormEncode_whenHasMixedChars_shouldEncode
+- (void)testMsidUrlFormDecode_and_msidWwwUrlFormEncodedString_whenHasMixedChars_shouldEncode
 {
     NSString* testString = @"CODE: The app needs access to a service (\"https://*.test.com/\") that your organization \"test.onmicrosoft.com\" has not subscribed to or enabled.\r\nTrace ID: 111111-1111-1111-1111-111111111111\r\nCorrelation ID: 111111-1111-1111-1111-111111111111\r\nTimestamp: 2000-01-01 23:59:00Z";
     NSString* encoded = [testString msidWwwFormUrlEncode];
@@ -272,24 +272,24 @@
     XCTAssertEqualObjects(base64urlEncodedString.msidBase64UrlDecode, string);
 }
 
-- (void)testMsidUrlFormEncodedStringFromDictionary_whenKeyValueStrings_shouldReturnUrlEncoded
+- (void)testmsidWwwUrlFormEncodedStringdStringFromDictionary_whenKeyValueStrings_shouldReturnUrlEncoded
 {
     NSDictionary *dictionary = @{@"key": @"value"};
-    NSString *result = [NSString msidUrlFormEncodedStringFromDictionary:dictionary];
+    NSString *result = [NSString msidWwwUrlFormEncodedStringdStringFromDictionary:dictionary];
     XCTAssertEqualObjects(result, @"key=value");
 }
 
-- (void)testMsidUrlFormEncodedStringFromDictionary_whenKeyStringValueUUID_shouldReturnUrlEncodedStr
+- (void)testmsidWwwUrlFormEncodedStringdStringFromDictionary_whenKeyStringValueUUID_shouldReturnUrlEncodedStr
 {
     NSDictionary *dictionary = @{@"key": [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"]};
-    NSString *result = [NSString msidUrlFormEncodedStringFromDictionary:dictionary];
+    NSString *result = [NSString msidWwwUrlFormEncodedStringdStringFromDictionary:dictionary];
     XCTAssertEqualObjects(result, @"key=E621E1F8-C36C-495A-93FC-0C247A3E6E5F");
 }
 
-- (void)testMsidUrlFormEncodedStringFromDictionary_whenKeyWithEmptyValue_shouldReturnUrlEncodedStri
+- (void)testmsidWwwUrlFormEncodedStringdStringFromDictionary_whenKeyWithEmptyValue_shouldReturnUrlEncodedStri
 {
     NSDictionary *dictionary = @{@"key":@""};
-    NSString *result = [NSString msidUrlFormEncodedStringFromDictionary:dictionary];
+    NSString *result = [NSString msidWwwUrlFormEncodedStringdStringFromDictionary:dictionary];
     XCTAssertEqualObjects(result, @"key");
 }
 

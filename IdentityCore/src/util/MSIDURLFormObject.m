@@ -49,7 +49,7 @@
         return nil;
     }
     
-    NSDictionary *form = [NSDictionary msidDictionaryFromUrlFormEncodedString:encodedString];
+    NSDictionary *form = [NSDictionary msidDictionaryFromWwwUrlFormEncodedString:encodedString];
     
     if (!form)
     {
@@ -95,7 +95,7 @@
 
 - (NSString *)encode
 {
-    return [_urlForm msidURLFormEncode];
+    return [_urlForm msidWwwUrlFormEncodedString];
 }
 
 @end

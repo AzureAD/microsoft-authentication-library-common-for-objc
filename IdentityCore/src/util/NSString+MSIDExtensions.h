@@ -74,7 +74,7 @@
  Non-alphanumeric characters are percent encoded for both keys and values.
  See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details.
  */
-+ (NSString *)msidUrlFormEncodedStringFromDictionary:(NSDictionary *)dict;
++ (NSString *)msidWwwUrlFormEncodedStringdStringFromDictionary:(NSDictionary *)dict;
 
 /*!
  =============================================================================

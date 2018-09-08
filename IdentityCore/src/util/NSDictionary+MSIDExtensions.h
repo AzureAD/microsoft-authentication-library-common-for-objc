@@ -26,10 +26,10 @@
 @interface NSDictionary (MSIDExtensions)
 
 + (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string;
-+ (NSDictionary *)msidDictionaryFromUrlFormEncodedString:(NSString *)string;
++ (NSDictionary *)msidDictionaryFromWwwUrlFormEncodedString:(NSString *)string;
 + (NSDictionary *)msidDictionaryFromJsonData:(NSData *)data error:(NSError **)error;
 
-- (NSString *)msidURLFormEncode;
+- (NSString *)msidWwwUrlFormEncodedString;
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
 
 

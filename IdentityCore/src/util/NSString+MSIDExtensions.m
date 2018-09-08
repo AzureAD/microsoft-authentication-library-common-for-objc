@@ -202,8 +202,7 @@ typedef unsigned char byte;
 }
 
 
-/*! Generate a www-form-urlencoded string of random data */
-+ (NSString *)msidUrlFormEncodedStringFromDictionary:(NSDictionary *)dict
++ (NSString *)msidWwwUrlFormEncodedStringdStringFromDictionary:(NSDictionary *)dict
 {
     __block NSMutableString *encodedString = nil;
     

@@ -211,7 +211,7 @@
     
     _requestURL = requestURL;
     NSString *query = [requestURL query];
-    _QPs = [NSString msidIsStringNilOrBlank:query] ? nil : [NSDictionary msidDictionaryFromUrlFormEncodedString:query];
+    _QPs = [NSString msidIsStringNilOrBlank:query] ? nil : [NSDictionary msidDictionaryFromWwwUrlFormEncodedString:query];
 }
 
 - (void)setRequestHeaders:(NSDictionary *)headers
@@ -293,7 +293,7 @@
     if (_requestParamsBody)
     {
         NSString * string = [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding];
-        NSDictionary *obj = [NSDictionary msidDictionaryFromUrlFormEncodedString:string];
+        NSDictionary *obj = [NSDictionary msidDictionaryFromWwwUrlFormEncodedString:string];
         return [_requestParamsBody compareAndPrintDiff:obj dictionaryDescription:@"URL Encoded Body Parameters"];
     }
     
