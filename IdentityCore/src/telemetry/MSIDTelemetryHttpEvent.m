@@ -103,7 +103,7 @@
         return;
     }
     
-    NSArray *parameterKeys = [[NSDictionary msidDictionaryFromWwwUrlFormEncodedString:params] allKeys];
+    NSArray *parameterKeys = [[NSDictionary msidDictionaryFromWWWFormURLEncodedString:params] allKeys];
     
     [self setProperty:MSID_TELEMETRY_KEY_REQUEST_QUERY_PARAMS value:[parameterKeys componentsJoinedByString:@";"]];
 }

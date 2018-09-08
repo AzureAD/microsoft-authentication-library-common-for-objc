@@ -29,18 +29,18 @@
 
 + (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
 {
-    return [self msidDictionaryFromQueryString:string urlFormDecode:NO];
+    return [self msidDictionaryFromQueryString:string WWWURLFormDecode:NO];
 }
 
 // Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
 // Always returns a dictionary, even if the string is nil, empty or contains no pairs
-+ (NSDictionary *)msidDictionaryFromWwwUrlFormEncodedString:(NSString *)string
++ (NSDictionary *)msidDictionaryFromWWWFormURLEncodedString:(NSString *)string
 {
-    return [self msidDictionaryFromQueryString:string urlFormDecode:YES];
+    return [self msidDictionaryFromQueryString:string WWWURLFormDecode:YES];
 }
 
 + (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
-                                  urlFormDecode:(BOOL)decode
+                                WWWURLFormDecode:(BOOL)decode
 {
     if ([NSString msidIsStringNilOrBlank:string])
     {
@@ -59,7 +59,7 @@
             continue;
         }
         
-        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidWwwFormUrlDecode : [queryElements[0] msidTrimmedString];
+        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString];
         if ([NSString msidIsStringNilOrBlank:key])
         {
             MSID_LOG_WARN(nil, @"Query parameter must have a key");
@@ -69,7 +69,7 @@
         NSString *value = @"";
         if (queryElements.count == 2)
         {
-            value = decode ? [queryElements[1] msidTrimmedString].msidWwwFormUrlDecode : [queryElements[1] msidTrimmedString];
+            value = decode ? [queryElements[1] msidTrimmedString].msidWWWFormURLDecode : [queryElements[1] msidTrimmedString];
         }
         
         [queryDict setValue:value forKey:key];
@@ -88,9 +88,9 @@
 }
 
 
-- (NSString *)msidWwwUrlFormEncodedString
+- (NSString *)msidWWWFormURLEncode
 {
-    return [NSString msidWwwUrlFormEncodedStringdStringFromDictionary:self];
+    return [NSString msidWWWFormURLEncodedStringFromDictionary:self];
 }
 
 

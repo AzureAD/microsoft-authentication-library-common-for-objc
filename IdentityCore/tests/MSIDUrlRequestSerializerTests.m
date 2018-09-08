@@ -50,7 +50,7 @@
     __auto_type parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"POST";;
-    __auto_type expectedBody = [[parameters msidWwwUrlFormEncodedString] dataUsingEncoding:NSUTF8StringEncoding];
+    __auto_type expectedBody = [[parameters msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding];
     
     __auto_type newUrlRequest = [self.urlRequestSerializer serializeWithRequest:urlRequest parameters:parameters];
     

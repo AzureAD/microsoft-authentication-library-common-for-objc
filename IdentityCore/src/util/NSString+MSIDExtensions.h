@@ -42,11 +42,11 @@
  
 /*! Decodes a application/x-www-form-urlencoded string.
  See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details. */
-- (NSString *)msidWwwFormUrlDecode;
+- (NSString *)msidWWWFormURLDecode;
 
 /*! Encodes the string to be application/x-www-form-urlencoded.
  See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details.  */
-- (NSString *)msidWwwFormUrlEncode;
+- (NSString *)msidWWWFormURLEncode;
 
 /*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
  the actual contents, but still want to log something that can be correlated. */
@@ -74,7 +74,7 @@
  Non-alphanumeric characters are percent encoded for both keys and values.
  See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details.
  */
-+ (NSString *)msidWwwUrlFormEncodedStringdStringFromDictionary:(NSDictionary *)dict;
++ (NSString *)msidWWWFormURLEncodedStringFromDictionary:(NSDictionary *)dict;
 
 /*!
  =============================================================================

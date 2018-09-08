@@ -41,12 +41,12 @@
         NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:mutableRequest.URL resolvingAgainstBaseURL:NO];
         NSMutableDictionary *urlParameters = [[mutableRequest.URL msidQueryParameters] mutableCopy] ?: [NSMutableDictionary new];
         [urlParameters addEntriesFromDictionary:parameters];
-        urlComponents.percentEncodedQuery = [urlParameters msidWwwUrlFormEncodedString];
+        urlComponents.percentEncodedQuery = [urlParameters msidWWWFormURLEncode];
         mutableRequest.URL = urlComponents.URL;
     }
     else
     {
-        mutableRequest.HTTPBody = [[parameters msidWwwUrlFormEncodedString] dataUsingEncoding:NSUTF8StringEncoding];
+        mutableRequest.HTTPBody = [[parameters msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding];
         [mutableRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     }
     

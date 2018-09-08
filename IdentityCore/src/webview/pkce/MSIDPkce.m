@@ -54,7 +54,7 @@ static NSUInteger const s_kCodeVerifierByteSize = 32;
 
 + (NSString *)createChallangeFromCodeVerifier:(NSString *)codeVerifier
 {
-    return [codeVerifier dataUsingEncoding:NSUTF8StringEncoding].msidSHA256.msidHexString;
+    return [codeVerifier dataUsingEncoding:NSUTF8StringEncoding].msidSHA256.msidBase64UrlEncodedString;
 }
 
 - (NSString *)codeChallengeMethod

@@ -42,8 +42,12 @@ typedef unsigned char byte;
 /// </remarks>
 + (NSData *)msidBase64UrlDecodeData:(NSString *)encodedString
 {
-    NSUInteger paddedLength = encodedString.length + (4 - (encodedString.length % 4));
-    NSString *paddedString = [encodedString stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
+    NSString *base64encoded = [[encodedString stringByReplacingOccurrencesOfString:@"-" withString:@"+"]
+                     stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
+    NSUInteger paddedLength = base64encoded.length + (4 - (base64encoded.length % 4));
+    NSString *paddedString = [base64encoded stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
+    
+    
     NSData *data = [[NSData alloc] initWithBase64EncodedString:paddedString options:NSDataBase64DecodingIgnoreUnknownCharacters];
     return data;
 }
@@ -109,7 +113,7 @@ typedef unsigned char byte;
 }
 
 
-- (NSString *)msidWwwFormUrlDecode
+- (NSString *)msidWWWFormURLDecode
 {
     // Two step decode: first replace + with a space, then percent unescape
     CFMutableStringRef decodedString = CFStringCreateMutableCopy( NULL, 0, (__bridge CFStringRef)self );
@@ -124,7 +128,7 @@ typedef unsigned char byte;
 }
 
 
-- (NSString *)msidWwwFormUrlEncode
+- (NSString *)msidWWWFormURLEncode
 {
     static NSCharacterSet* set = nil;
  
@@ -166,7 +170,7 @@ typedef unsigned char byte;
         return nil;
     }
     
-    return [data msidBase64UrlEncodedString];
+    return [NSString msidBase64UrlEncodedStringFromData:data];
 }
 
 
@@ -198,11 +202,15 @@ typedef unsigned char byte;
 /// </remarks>
 + (NSString *)msidBase64UrlEncodedStringFromData:(NSData *)data
 {
-    return [[data base64EncodedStringWithOptions:0] componentsSeparatedByString:@"="].firstObject;
+    NSString *base64EncodedString = [data base64EncodedStringWithOptions:0];
+    return [[[base64EncodedString stringByReplacingOccurrencesOfString:@"+" withString:@"-"]        // 62nd char of encoding
+                stringByReplacingOccurrencesOfString:@"/" withString:@"_"]      // 63rd char of encoding
+                stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"="]];
 }
 
 
-+ (NSString *)msidWwwUrlFormEncodedStringdStringFromDictionary:(NSDictionary *)dict
+/*! Generate a www-form-urlencoded string of random data */
++ (NSString *)msidWWWFormURLEncodedStringFromDictionary:(NSDictionary *)dict
 {
     __block NSMutableString *encodedString = nil;
     
@@ -213,7 +221,7 @@ typedef unsigned char byte;
              return;
          }
          
-         NSString *encodedKey = [[key msidTrimmedString] msidWwwFormUrlEncode];
+         NSString *encodedKey = [[key msidTrimmedString] msidWWWFormURLEncode];
          
          if (!encodedString)
          {
@@ -231,7 +239,7 @@ typedef unsigned char byte;
          {
              v = ((NSUUID *)value).UUIDString;
          }
-         NSString *encodedValue = [[v msidTrimmedString] msidWwwFormUrlEncode];
+         NSString *encodedValue = [[v msidTrimmedString] msidWWWFormURLEncode];
          
          if (![NSString msidIsStringNilOrBlank:encodedValue])
          {

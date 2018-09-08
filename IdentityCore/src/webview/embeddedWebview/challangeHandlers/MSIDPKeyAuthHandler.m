@@ -41,7 +41,7 @@
     
     NSArray *parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
-    NSDictionary *queryParamsMap = [NSDictionary msidDictionaryFromWwwUrlFormEncodedString:qp];
+    NSDictionary *queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
     NSString *submitUrl = [queryParamsMap valueForKey:@"SubmitUrl"];
     
     // Fail if the PKeyAuth challenge doesn't contain the required info
@@ -76,7 +76,7 @@
         [queryDict setValue:item.value forKey:item.name];
     }
     [queryDict setValue:MSIDDeviceId.deviceId[MSID_VERSION_KEY] forKey:MSID_VERSION_KEY];
-    responseUrlComp.percentEncodedQuery = [queryDict msidWwwUrlFormEncodedString];
+    responseUrlComp.percentEncodedQuery = [queryDict msidWWWFormURLEncode];
     
     NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc] initWithURL:responseUrlComp.URL];
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
