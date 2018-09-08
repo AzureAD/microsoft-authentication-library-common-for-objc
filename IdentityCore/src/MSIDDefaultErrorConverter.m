@@ -21,32 +21,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADAuthorityValidationRequest.h"
-#import "MSIDHttpRequest.h"
-#import "MSIDAADRequestConfigurator.h"
+#import "MSIDDefaultErrorConverter.h"
+#import "MSIDError.h"
 
-@implementation MSIDAADAuthorityValidationRequest
+@implementation MSIDDefaultErrorConverter
 
-- (instancetype)initWithUrl:(NSURL *)endpoint
-                    context:(id<MSIDRequestContext>)context
+- (NSError *)errorWithDomain:(NSString *)domain
+                        code:(NSInteger)code
+            errorDescription:(NSString *)errorDescription
+                  oauthError:(NSString *)oauthError
+                    subError:(NSString *)subError
+             underlyingError:(NSError *)underlyingError
+               correlationId:(NSUUID *)correlationId
+                    userInfo:(NSDictionary *)additionalUserInfo
 {
-    self = [super init];
-    if (self)
+    if (!domain)
     {
-        NSParameterAssert(endpoint);
-        
-        self.context =  context;
-        
-        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];;
-        urlRequest.URL = endpoint;
-        urlRequest.HTTPMethod = @"GET";
-        _urlRequest = urlRequest;
-
-        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
-        [requestConfigurator configure:self];
+        return nil;
     }
-    
-    return self;
+
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    userInfo[MSIDErrorDescriptionKey] = errorDescription;
+    userInfo[MSIDOAuthErrorKey] = oauthError;
+    userInfo[MSIDOAuthSubErrorKey] = subError;
+    userInfo[NSUnderlyingErrorKey]  = underlyingError;
+    userInfo[MSIDCorrelationIdKey] = [correlationId UUIDString];
+    if (additionalUserInfo)
+    {
+        [userInfo addEntriesFromDictionary:additionalUserInfo];
+    }
+
+    return [NSError errorWithDomain:domain code:code userInfo:userInfo];
 }
 
 @end

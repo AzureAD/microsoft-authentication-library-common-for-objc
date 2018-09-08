@@ -21,32 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADAuthorityValidationRequest.h"
-#import "MSIDHttpRequest.h"
-#import "MSIDAADRequestConfigurator.h"
+#import "MSIDErrorConverter.h"
+#import "MSIDDefaultErrorConverter.h"
 
-@implementation MSIDAADAuthorityValidationRequest
+static id<MSIDErrorConverting> s_errorConverter = nil;
+static id<MSIDErrorConverting> s_defaultErrorConverter = nil;
 
-- (instancetype)initWithUrl:(NSURL *)endpoint
-                    context:(id<MSIDRequestContext>)context
+@implementation MSIDErrorConverter
+
++ (void)initialize
 {
-    self = [super init];
-    if (self)
+    if (self == [MSIDErrorConverter self])
     {
-        NSParameterAssert(endpoint);
-        
-        self.context =  context;
-        
-        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];;
-        urlRequest.URL = endpoint;
-        urlRequest.HTTPMethod = @"GET";
-        _urlRequest = urlRequest;
-
-        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
-        [requestConfigurator configure:self];
+        s_defaultErrorConverter = [MSIDDefaultErrorConverter new];
     }
-    
-    return self;
+}
+
++ (void)setErrorConverter:(id<MSIDErrorConverting>)errorConverter
+{
+    s_errorConverter = errorConverter;
+}
+
++ (id<MSIDErrorConverting>)errorConverter
+{
+    return s_errorConverter;
+}
+
++ (id<MSIDErrorConverting>)defaultErrorConverter
+{
+    return s_defaultErrorConverter;
 }
 
 @end
