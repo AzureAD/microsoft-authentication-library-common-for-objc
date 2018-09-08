@@ -107,7 +107,9 @@
 {
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
 
-    __auto_type authority = [self.authorityFactory authorityFromUrl:[response.authority msidUrl] context:nil error:nil];
+    __auto_type authority = [self.authorityFactory authorityFromUrl:[response.authority msidUrl] context:context error:error];
+    
+    if (!authority) return NO;
     
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:nil
@@ -268,7 +270,8 @@
         __auto_type account = [MSIDAccount new];
         account.accountIdentifier = refreshToken.accountIdentifier;
         account.username = refreshToken.accountIdentifier.legacyAccountId;
-        __auto_type authority = [self.authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:nil error:nil];
+        // TODO: Should we skip account if authority is nil?
+        __auto_type authority = [self.authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:context error:nil];
         account.authority = authority;
         account.accountType = MSIDAccountTypeMSSTS;
         [resultAccounts addObject:account];
@@ -296,6 +299,7 @@
     {
         MSIDAccount *account = [MSIDAccount new];
         account.accountIdentifier = refreshToken.accountIdentifier;
+        // TODO: Should we create account if authority is nil?
         __auto_type authority = [_authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:context error:nil];
         account.authority = authority;
         account.accountType = MSIDAccountTypeMSSTS;
@@ -372,11 +376,12 @@
     MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
 
     __auto_type storageAuthority = token.storageAuthority ? token.storageAuthority : token.authority;
+    __auto_type lookupAliases = storageAuthority.url ? @[storageAuthority.url] : @[];
 
     MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.accountIdentifier.legacyAccountId
                                                                                              type:cacheItem.credentialType
                                                                                         authority:token.authority
-                                                                                    lookupAliases:@[storageAuthority.url]
+                                                                                    lookupAliases:lookupAliases
                                                                                          clientId:cacheItem.clientId
                                                                                          resource:cacheItem.target
                                                                                           context:context

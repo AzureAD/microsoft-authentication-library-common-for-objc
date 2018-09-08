@@ -49,6 +49,16 @@
     XCTAssertEqual([cache count], 0);
 }
 
+- (void)testGetObject_whenKeyIsNil_shouldReturnNil
+{
+    __auto_type cache = [MSIDCache new];
+    id key = nil;
+    
+    id result = [cache objectForKey:key];
+    
+    XCTAssertNil(result);
+}
+
 - (void)testSetObject_whenSetSuccessfully_shouldReturnSameOnObjectForKey
 {
     __auto_type cache = [MSIDCache new];

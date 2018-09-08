@@ -84,7 +84,7 @@
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
     __auto_type authority = (MSIDAADAuthority *)[self.authorityFactory authorityFromUrl:universalAuthorityURL context:context error:nil];
-    NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
+    if (authority) NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheUrlForAuthority:authority context:context];
 }
@@ -93,7 +93,7 @@
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
     __auto_type authority = (MSIDAADAuthority *)[self.authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
-    NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
+    if (authority) NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheAliasesForAuthority:authority];
 }
