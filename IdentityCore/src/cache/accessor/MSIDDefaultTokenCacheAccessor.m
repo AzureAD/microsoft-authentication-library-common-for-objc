@@ -139,8 +139,8 @@
 
         MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
         query.homeAccountId = account.homeAccountId;
-        query.environment = configuration.authority.environment;
-        query.clientId = configuration.clientId;
+        query.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
+        query.clientId = familyId ? nil : configuration.clientId;
         query.familyId = familyId;
         query.credentialType = MSIDRefreshTokenType;
 
@@ -221,7 +221,7 @@
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = account.homeAccountId;
-    query.environment = configuration.authority.environment;
+    query.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
     query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
     query.target = configuration.target;
@@ -241,7 +241,7 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = account.homeAccountId;
-    query.environment = configuration.authority.environment;
+    query.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
     query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
     query.credentialType = MSIDIDTokenType;
@@ -267,11 +267,11 @@
     NSArray<NSString *> *environmentAliases = [_factory defaultCacheAliasesForEnvironment:environment];
     __auto_type accountsPerUserId = [self getAccountsPerUserIdForAliases:environmentAliases context:context error:error];
 
-    if (!accountsPerUserId)
+    if (![accountsPerUserId count])
     {
         MSID_LOG_INFO(context, @"No accounts found, returning!");
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-        return nil;
+        return @[];
     }
 
     MSIDDefaultCredentialCacheQuery *credentialsQuery = [MSIDDefaultCredentialCacheQuery new];
@@ -736,35 +736,30 @@
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *aliases = [_factory defaultCacheAliasesForEnvironment:authority.environment];
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for token with aliases %@, tenant %@, clientId %@, scopes %@", cacheQuery.environmentAliases, cacheQuery.realm, cacheQuery.clientId, cacheQuery.target);
 
-    for (NSString *alias in aliases)
+    NSError *cacheError = nil;
+
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = [_accountCredentialCache getCredentialsWithQuery:cacheQuery legacyUserId:nil context:context error:error];
+
+    if (cacheError)
     {
-        MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for token with alias %@, tenant %@, clientId %@, scopes %@", alias, cacheQuery.realm, cacheQuery.clientId, cacheQuery.target);
+        if (error) *error = cacheError;
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+        return nil;
+    }
 
-        NSError *cacheError = nil;
+    if ([cacheItems count])
+    {
+        MSIDBaseToken *resultToken = [cacheItems[0] tokenWithType:cacheQuery.credentialType];
 
-        NSArray<MSIDCredentialCacheItem *> *cacheItems = [_accountCredentialCache getCredentialsWithQuery:cacheQuery legacyUserId:nil context:context error:error];
-
-        if (cacheError)
+        if (resultToken)
         {
-            if (error) *error = cacheError;
-            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-            return nil;
-        }
-
-        if ([cacheItems count])
-        {
-            MSIDBaseToken *resultToken = [cacheItems[0] tokenWithType:cacheQuery.credentialType];
-
-            if (resultToken)
-            {
-                MSID_LOG_VERBOSE(context, @"(Default accessor) Found %lu tokens", (unsigned long)[cacheItems count]);
-                resultToken.storageAuthority = resultToken.authority;
-                resultToken.authority = authority;
-                [MSIDTelemetry stopCacheEvent:event withItem:resultToken success:YES context:context];
-                return resultToken;
-            }
+            MSID_LOG_VERBOSE(context, @"(Default accessor) Found %lu tokens", (unsigned long)[cacheItems count]);
+            resultToken.storageAuthority = resultToken.authority;
+            resultToken.authority = authority;
+            [MSIDTelemetry stopCacheEvent:event withItem:resultToken success:YES context:context];
+            return resultToken;
         }
     }
 
