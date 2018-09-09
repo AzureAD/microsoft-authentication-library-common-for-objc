@@ -29,6 +29,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDClientCredentialHelper
 
@@ -130,7 +131,8 @@
           }
           
           MSIDConfiguration *configuration = [MSIDConfiguration new];
-          configuration.authority = [NSURL URLWithString:authority];
+          MSIDAuthorityFactory *authorityFactory = [MSIDAuthorityFactory new];
+          configuration.authority = [authorityFactory authorityFromUrl:[NSURL URLWithString:authority] context:nil error:nil];
           configuration.clientId = clientId;
           configuration.target = resource;
           
