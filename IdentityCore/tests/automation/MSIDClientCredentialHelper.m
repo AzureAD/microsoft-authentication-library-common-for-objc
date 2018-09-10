@@ -45,14 +45,14 @@
     return accessTokenCache;
 }
 
-+ (void)getAccessTokenForAuthority:(NSString *)authority
++ (void)getAccessTokenForAuthority:(NSString *)authorityString
                           resource:(NSString *)resource
                           clientId:(NSString *)clientId
                        certificate:(NSData *)certificateData
                certificatePassword:(NSString *)password
                  completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler
 {
-    MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authority]
+    MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authorityString]
                                                                                   clientId:clientId
                                                                                   resource:resource
                                                                               legacyUserId:clientId];
@@ -69,7 +69,7 @@
         return;
     }
     
-    NSString *tokenEndpoint = [NSString stringWithFormat:@"%@/oauth2/token", authority];
+    NSString *tokenEndpoint = [NSString stringWithFormat:@"%@/oauth2/token", authorityString];
     NSString *assertion = [self clientCertificateAssertionForAudience:tokenEndpoint
                                                              clientId:clientId
                                                       certificateData:certificateData
@@ -130,9 +130,12 @@
               return;
           }
           
+          __auto_type authorityFactory = [MSIDAuthorityFactory new];
+          __auto_type authorityUrl = [[NSURL alloc] initWithString:authorityString];
+          __auto_type authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+          
           MSIDConfiguration *configuration = [MSIDConfiguration new];
-          MSIDAuthorityFactory *authorityFactory = [MSIDAuthorityFactory new];
-          configuration.authority = [authorityFactory authorityFromUrl:[NSURL URLWithString:authority] context:nil error:nil];
+          configuration.authority = authority;
           configuration.clientId = clientId;
           configuration.target = resource;
           
