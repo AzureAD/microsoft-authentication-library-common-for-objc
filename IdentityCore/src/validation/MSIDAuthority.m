@@ -158,7 +158,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 }
 
 - (void)loadOpenIdMetadataWithContext:(nullable id<MSIDRequestContext>)context
-                      completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionBlock;
+                      completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionBlock
 {
     NSParameterAssert(completionBlock);
     
