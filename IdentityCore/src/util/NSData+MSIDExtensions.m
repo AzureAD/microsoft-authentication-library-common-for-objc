@@ -62,5 +62,25 @@
     return [NSDictionary msidDictionaryFromJsonData:self error:error];
 }
 
+/// <summary>
+/// Base64 URL decode a set of bytes.
+/// </summary>
+/// <remarks>
+/// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
+/// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
+/// This SDK will use rfc7515 and decode using padding. See https://tools.ietf.org/html/rfc7515#appendix-C
+/// </remarks>
++ (NSData *)msidDataFromBase64UrlEncodedString:(NSString *)encodedString
+{
+    NSString *base64encoded = [[encodedString stringByReplacingOccurrencesOfString:@"-" withString:@"+"]
+                               stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
+    NSUInteger paddedLength = base64encoded.length + (4 - (base64encoded.length % 4));
+    NSString *paddedString = [base64encoded stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
+    
+    
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:paddedString options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    return data;
+}
+
 
 @end
