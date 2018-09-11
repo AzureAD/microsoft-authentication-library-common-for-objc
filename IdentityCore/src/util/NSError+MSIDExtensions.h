@@ -23,11 +23,18 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_OPTIONS(NSUInteger, MSIDNSErrorFilteringOptions)
+{
+    MSIDNSErrorFilteringOptionNone        = 0,
+    MSIDNSErrorFilteringOptionFailingURL  = 1 << 0,
+};
+
+
 @interface NSError (MSIDExtensions)
 
 /*!
- Return error without sensitive information in description (like auth code).
+ Return filtered error based on provided filtering options.
  */
-- (NSError *)msidFilteredError;
+- (nonnull NSError *)msidErrorWithFilteringOptions:(MSIDNSErrorFilteringOptions)option;
 
 @end

@@ -42,7 +42,7 @@
 
 #pragma mark - Tests
 
-- (void)testFilteredError_whenErrorContainsFailedUrlKey_shouldRemoveParametersFromUrl
+- (void)testErrorWithFilteringOptions_whenOptionIsFailingURLAndErrorContainsFailedUrlKey_shouldRemoveParametersFromUrl
 {
     __auto_type failedUrl = [[NSURL alloc] initWithString:@"myapp://com.myapp/?code=some_code_value&session_state=12345678&x-client-Ver=2.6.4"];
     __auto_type userInfo = @{
@@ -52,7 +52,7 @@
                              };
     __auto_type errorWithSensitiveInfo = [[NSError alloc] initWithDomain:@"domain" code:0 userInfo:userInfo];
     
-    __auto_type resultError = [errorWithSensitiveInfo msidFilteredError];
+    __auto_type resultError = [errorWithSensitiveInfo msidErrorWithFilteringOptions:MSIDNSErrorFilteringOptionFailingURL];
     
     __auto_type expectedUrl = [[NSURL alloc] initWithString:@"myapp://com.myapp/"];
     __auto_type expectedUserInfo = @{
@@ -61,6 +61,21 @@
                                      NSURLErrorFailingURLStringErrorKey: expectedUrl.absoluteString,
                                      };
     XCTAssertEqualObjects(expectedUserInfo, resultError.userInfo);
+}
+
+- (void)testErrorWithFilteringOptions_whenOptionIsNoneAndErrorContainsFailedUrlKey_shouldNotRemoveParametersFromUrl
+{
+    __auto_type failedUrl = [[NSURL alloc] initWithString:@"myapp://com.myapp/?code=some_code_value&session_state=12345678&x-client-Ver=2.6.4"];
+    __auto_type userInfo = @{
+                             NSLocalizedDescriptionKey: @"unsupported URL",
+                             NSURLErrorFailingURLErrorKey: failedUrl,
+                             NSURLErrorFailingURLStringErrorKey: failedUrl.absoluteString,
+                             };
+    __auto_type errorWithSensitiveInfo = [[NSError alloc] initWithDomain:@"domain" code:0 userInfo:userInfo];
+    
+    __auto_type resultError = [errorWithSensitiveInfo msidErrorWithFilteringOptions:MSIDNSErrorFilteringOptionNone];
+    
+    XCTAssertEqualObjects(userInfo, resultError.userInfo);
 }
 
 @end

@@ -25,29 +25,32 @@
 
 @implementation NSError (MSIDExtensions)
 
-- (NSError *)msidFilteredError
+- (NSError *)msidErrorWithFilteringOptions:(MSIDNSErrorFilteringOptions)option
 {
-    // Don't put raw url in NSError because it can contain sensitive data.
     NSMutableDictionary *errorUserInfo = [self.userInfo mutableCopy];
-    NSURL *failedUrl = errorUserInfo[NSURLErrorFailingURLErrorKey];
-    [errorUserInfo removeObjectForKey:NSURLErrorFailingURLErrorKey];
-    [errorUserInfo removeObjectForKey:NSURLErrorFailingURLStringErrorKey];
     
-    if (failedUrl)
+    if (option & MSIDNSErrorFilteringOptionFailingURL)
     {
-        // Remove parameters from failed url.
-        NSURLComponents *components = [NSURLComponents componentsWithURL:failedUrl resolvingAgainstBaseURL:YES];
-        components.queryItems = nil;
-        failedUrl = components.URL;
+        // Don't put raw url in NSError because it can contain sensitive data.
+        NSURL *failedUrl = errorUserInfo[NSURLErrorFailingURLErrorKey];
+        [errorUserInfo removeObjectForKey:NSURLErrorFailingURLErrorKey];
+        [errorUserInfo removeObjectForKey:NSURLErrorFailingURLStringErrorKey];
         
-        errorUserInfo[NSURLErrorFailingURLErrorKey] = failedUrl;
-        errorUserInfo[NSURLErrorFailingURLStringErrorKey] = failedUrl.absoluteString;
-        __auto_type error = [[NSError alloc] initWithDomain:self.domain code:self.code userInfo:errorUserInfo];
-        
-        return error;
+        if (failedUrl)
+        {
+            // Remove parameters from failed url.
+            NSURLComponents *components = [NSURLComponents componentsWithURL:failedUrl resolvingAgainstBaseURL:YES];
+            components.queryItems = nil;
+            failedUrl = components.URL;
+            
+            errorUserInfo[NSURLErrorFailingURLErrorKey] = failedUrl;
+            errorUserInfo[NSURLErrorFailingURLStringErrorKey] = failedUrl.absoluteString;
+        }
     }
     
-    return self;
+    __auto_type error = [[NSError alloc] initWithDomain:self.domain code:self.code userInfo:errorUserInfo];
+    
+    return error;
 }
 
 @end
