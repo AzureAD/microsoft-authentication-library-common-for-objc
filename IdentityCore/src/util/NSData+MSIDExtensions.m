@@ -74,11 +74,28 @@
 {
     NSString *base64encoded = [[encodedString stringByReplacingOccurrencesOfString:@"-" withString:@"+"]
                                stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
-    NSUInteger paddedLength = base64encoded.length + (4 - (base64encoded.length % 4));
+    
+    // The input string lacks the usual '=' padding at the end, so the valid end sequences
+    // are:
+    //      ........XX           (cbEncodedSize % 4) == 2    (2 chars of virtual padding)
+    //      ........XXX          (cbEncodedSize % 4) == 3    (1 char of virtual padding)
+    //      ........XXXX         (cbEncodedSize % 4) == 0    (no virtual padding)
+    // Invalid sequences are:
+    //      ........X            (cbEncodedSize % 4) == 1
+    
+    // Input string is not sized correctly to be base64 URL encoded.
+    if (base64encoded.length % 4 == 1)
+    {
+        return nil;
+    }
+    
+    // 'virtual padding'
+    NSUInteger padding = (base64encoded.length % 4) == 2 ? 2 : ((base64encoded.length % 4) == 3) ? 1 : 0;
+    
+    NSUInteger paddedLength = base64encoded.length + padding;
     NSString *paddedString = [base64encoded stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
     
-    
-    NSData *data = [[NSData alloc] initWithBase64EncodedString:paddedString options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:paddedString options:0];
     return data;
 }
 

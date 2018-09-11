@@ -154,10 +154,10 @@
    //Decode invalid:
     XCTAssertFalse([@" " msidBase64UrlDecode].length, "Contains non-suppurted character < 128");
     XCTAssertNil([@" " msidBase64UrlDecode]);
-    
+
     XCTAssertFalse([@"™" msidBase64UrlDecode].length, "Contains characters beyond 128");
     XCTAssertNil([@"™" msidBase64UrlDecode]);
-    
+
     XCTAssertFalse([@"денят" msidBase64UrlDecode].length, "Contains unicode characters.");
     XCTAssertNil([@"денят" msidBase64UrlDecode]);
 }

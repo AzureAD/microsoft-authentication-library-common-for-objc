@@ -44,7 +44,9 @@ typedef unsigned char byte;
 - (NSString *)msidBase64UrlDecode
 {
     NSData *data = [NSData msidDataFromBase64UrlEncodedString:self];
+    
     if (!data) return nil;
+    if (data.length == 0) return @"";
     
     char lastByte;
     [data getBytes:&lastByte range:NSMakeRange([data length] - 1, 1)];
