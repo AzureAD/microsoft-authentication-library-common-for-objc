@@ -84,14 +84,16 @@
     //      ........X            (cbEncodedSize % 4) == 1
     
     // Input string is not sized correctly to be base64 URL encoded.
-    if (base64encoded.length % 4 == 1)
+    
+    NSUInteger stringMod4 = base64encoded.length % 4;
+    
+    if (stringMod4 == 1)
     {
         return nil;
     }
     
     // 'virtual padding'
-    NSUInteger padding = (base64encoded.length % 4) == 2 ? 2 : ((base64encoded.length % 4) == 3) ? 1 : 0;
-    
+    NSUInteger padding = (4 - stringMod4) % 4;
     NSUInteger paddedLength = base64encoded.length + padding;
     NSString *paddedString = [base64encoded stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
     

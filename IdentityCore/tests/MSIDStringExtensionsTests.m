@@ -122,33 +122,6 @@
     XCTAssertEqualObjects(decodeEmpty, @"");
 }
 
-- (void)testMsidBase64UrlEncode_when15characters_shouldReturnEncodedString
-{
-    //15 characters, aka 3k:
-    NSString* test = @"1$)=- \t\r\nfoo%^!";
-    VERIFY_BASE64(test, @"MSQpPS0gCQ0KZm9vJV4h");
-}
-
-- (void)testMsidBase64UrlEncode_when16characters_shouldReturnEncodedString
-{
-    //16 characters, aka 3k + 1:
-    NSString *test = @"1$)=- \t\r\nfoo%^!@";
-    VERIFY_BASE64(test, @"MSQpPS0gCQ0KZm9vJV4hQA");
-}
-
-- (void)testMsidBase64UrlEncode_when17characters_shouldReturnEncodedString
-{
-    //17 characters, aka 3k + 2:
-    NSString *test = @"1$)=- \t\r\nfoo%^!@<";
-    VERIFY_BASE64(test, @"MSQpPS0gCQ0KZm9vJV4hQDw");
-}
-
-- (void)testMsidBase64UrlEncode_whenMisedSpacesAndSlashes_shouldReturnEncodedString
-{
-    //Ensure that URL encoded is in place through encoding correctly the '+' and '/' signs (just in case)
-    VERIFY_BASE64(@"++++/////", @"KysrKy8vLy8v");
-}
-
 - (void)testMsidBase64UrlDecode_whenInvalid_shouldReturnNil
 {
    //Decode invalid:
