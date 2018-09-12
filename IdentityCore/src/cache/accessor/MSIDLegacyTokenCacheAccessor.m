@@ -41,6 +41,7 @@
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Cache.h"
+#import "MSIDAuthorityFactory.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -49,6 +50,8 @@
     MSIDOauth2Factory *_factory;
     NSArray *_otherAccessors;
 }
+
+@property (nonatomic) MSIDAuthorityFactory *authorityFactory;
 
 @end
 
@@ -68,6 +71,7 @@
         _serializer = [[MSIDKeyedArchiverSerializer alloc] init];
         _otherAccessors = otherAccessors;
         _factory = factory;
+        _authorityFactory = [MSIDAuthorityFactory new];
     }
 
     return self;
@@ -103,7 +107,11 @@
 {
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
 
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:response.authority]
+    __auto_type authority = [self.authorityFactory authorityFromUrl:[response.authority msidUrl] context:context error:error];
+    
+    if (!authority) return NO;
+    
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:nil
                                                                            clientId:response.clientId
                                                                              target:response.resource];
@@ -259,10 +267,12 @@
 
     for (MSIDLegacyRefreshToken *refreshToken in refreshTokens)
     {
-        MSIDAccount *account = [MSIDAccount new];
+        __auto_type account = [MSIDAccount new];
         account.accountIdentifier = refreshToken.accountIdentifier;
         account.username = refreshToken.accountIdentifier.legacyAccountId;
-        account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
+        // TODO: Should we skip account if authority is nil?
+        __auto_type authority = [self.authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:context error:nil];
+        account.authority = authority;
         account.accountType = MSIDAccountTypeMSSTS;
         [resultAccounts addObject:account];
     }
@@ -289,7 +299,9 @@
     {
         MSIDAccount *account = [MSIDAccount new];
         account.accountIdentifier = refreshToken.accountIdentifier;
-        account.authority = [MSIDAuthority cacheUrlForAuthority:refreshToken.authority tenantId:refreshToken.realm];
+        // TODO: Should we create account if authority is nil?
+        __auto_type authority = [_authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:context error:nil];
+        account.authority = authority;
         account.accountType = MSIDAccountTypeMSSTS;
         return account;
     }
@@ -319,7 +331,7 @@
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
-    NSArray *aliases = [_factory legacyAccessTokenLookupAuthorities:configuration.authority];
+    NSArray *aliases = [configuration.authority legacyAccessTokenLookupAuthorities] ?: @[];
 
     return (MSIDLegacyAccessToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                             type:MSIDAccessTokenType
@@ -336,7 +348,7 @@
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error
 {
-    NSArray *aliases = [_factory legacyAccessTokenLookupAuthorities:configuration.authority];
+    NSArray *aliases = [configuration.authority legacyAccessTokenLookupAuthorities] ?: @[];
 
     return (MSIDLegacySingleResourceToken *)[self getTokenByLegacyUserId:account.legacyAccountId
                                                                     type:MSIDLegacySingleResourceTokenType
@@ -363,12 +375,13 @@
 
     MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
 
-    NSURL *storageAuthority = token.storageAuthority ? token.storageAuthority : token.authority;
+    __auto_type storageAuthority = token.storageAuthority ? token.storageAuthority : token.authority;
+    __auto_type lookupAliases = storageAuthority.url ? @[storageAuthority.url] : @[];
 
     MSIDLegacyRefreshToken *tokenInCache = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:token.accountIdentifier.legacyAccountId
                                                                                              type:cacheItem.credentialType
                                                                                         authority:token.authority
-                                                                                    lookupAliases:@[storageAuthority]
+                                                                                    lookupAliases:lookupAliases
                                                                                          clientId:cacheItem.clientId
                                                                                          resource:cacheItem.target
                                                                                           context:context
@@ -482,8 +495,10 @@
                                                   context:(id<MSIDRequestContext>)context
                                                     error:(NSError **)error
 {
+    
+    
     NSString *clientId = familyId ? [MSIDCacheKey familyClientId:familyId] : configuration.clientId;
-    NSArray<NSURL *> *aliases = [_factory legacyRefreshTokenLookupAuthorities:configuration.authority];
+    NSArray<NSURL *> *aliases = [configuration.authority legacyRefreshTokenLookupAliases] ?: @[];
 
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", clientId, aliases);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, clientId, aliases);
@@ -619,7 +634,7 @@
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
 
-    NSURL *alias = [_factory cacheURLForAuthority:token.authority context:context];
+    NSURL *alias = [token.authority cacheUrlWithContext:context];;
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving token %@ with authority %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:tokenCacheItem.credentialType], alias, tokenCacheItem.clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Saving token %@ for account %@ with authority %@, clientID %@", tokenCacheItem, userId, alias, tokenCacheItem.clientId);
 
@@ -710,7 +725,7 @@
 
 - (MSIDBaseToken *)getTokenByLegacyUserId:(NSString *)legacyUserId
                                      type:(MSIDCredentialType)type
-                                authority:(NSURL *)authority
+                                authority:(MSIDAuthority *)authority
                             lookupAliases:(NSArray<NSURL *> *)aliases
                                  clientId:(NSString *)clientId
                                  resource:(NSString *)resource
@@ -768,7 +783,7 @@
 
 - (MSIDBaseToken *)getTokenByHomeAccountId:(NSString *)homeAccountId
                                  tokenType:(MSIDCredentialType)tokenType
-                                 authority:(NSURL *)authority
+                                 authority:(MSIDAuthority *)authority
                              lookupAliases:(NSArray<NSURL *> *)aliases
                                   clientId:(NSString *)clientId
                                   resource:(NSString *)resource
@@ -807,7 +822,7 @@
                                                                         filterBy:filterBlock];
         
         if ([matchedTokens count])
-        {
+        {            
             MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found token");
             MSIDBaseToken *token = matchedTokens[0];
             token.storageAuthority = token.authority;

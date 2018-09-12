@@ -24,11 +24,13 @@
 #import <XCTest/XCTest.h>
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAadAuthorityCacheRecord.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 @interface MSIDAadAuthorityCache ()
 
-- (NSURL *)networkUrlForAuthorityImpl:(NSURL *)authority;
-- (NSURL *)cacheUrlForAuthorityImpl:(NSURL *)authority;
+- (NSURL *)networkUrlForAuthorityImpl:(MSIDAADAuthority *)authority;
+- (NSURL *)cacheUrlForAuthorityImpl:(MSIDAADAuthority *)authority;
 
 @end
 
@@ -58,24 +60,26 @@
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     [cache setObject:[MSIDAadAuthorityCacheRecord new] forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache networkUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(authority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(authority.url, cachedAuthorityUrl);
 }
 
 - (void)testNetworkUrlForAuthority_whenCachedNotValidWithPort_shouldReturnSameURL
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     [cache setObject:[MSIDAadAuthorityCacheRecord new] forKey:@"fakeauthority.com:444"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com:444/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache networkUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(authority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(authority.url, cachedAuthorityUrl);
 }
 
 - (void)testNetworkUrlForAuthority_whenCachedValidNoPreferredNetwork_shouldReturnSameURL
@@ -84,12 +88,13 @@
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     [cache setObject:record forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache networkUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(authority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(authority.url, cachedAuthorityUrl);
 }
 
 - (void)testNetworkUrlForAuthority_whenCacheMismatchOnPort_shouldReturnNil
@@ -98,11 +103,12 @@
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     [cache setObject:record forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com:444/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache networkUrlForAuthorityImpl:authority];
     
-    XCTAssertNil(cachedAuthority);
+    XCTAssertNil(cachedAuthorityUrl);
 }
 
 - (void)testNetworkUrlForAuthority_whenCachedValidSamePreferredNetwork_shouldReturnSameURL
@@ -112,12 +118,13 @@
     record.validated = YES;
     record.networkHost = @"fakeauthority.com";
     [cache setObject:record forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache networkUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(authority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(authority.url, cachedAuthorityUrl);
 }
 
 - (void)testNetworkUrlForAuthority_whenCachedValidDifferentPreferredNetwork_shouldReturnPreferredURL
@@ -127,13 +134,14 @@
     record.validated = YES;
     record.networkHost = @"preferredauthority.com";
     [cache setObject:record forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
-    NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSURL *expectedAuthorityUrl = [NSURL URLWithString:@"https://preferredauthority.com/common"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache networkUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(expectedAuthorityUrl, cachedAuthorityUrl);
 }
 
 - (void)testNetworkUrlForAuthority_whenCachedValidDifferentPreferredNetworkAndURLContainsNonStandardPort_shouldReturnPreferredURL
@@ -143,13 +151,14 @@
     record.validated = YES;
     record.networkHost = @"preferredauthority.com:444";
     [cache setObject:record forKey:@"fakeauthority.com:444"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
-    NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com:444/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com:444/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSURL *expectedAuthorityUrl = [NSURL URLWithString:@"https://preferredauthority.com:444/common"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache networkUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(expectedAuthorityUrl, cachedAuthorityUrl);
 }
 
 - (void)testNetworkUrlForAuthority_whenCachedValidDifferentPreferredNetworkAndURLContainsPort_shouldReturnPreferredURL
@@ -159,13 +168,14 @@
     record.validated = YES;
     record.networkHost = @"preferredauthority.com";
     [cache setObject:record forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
-    NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com:443/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSURL *expectedAuthorityUrl = [NSURL URLWithString:@"https://preferredauthority.com/common"];
     
-    NSURL *cachedAuthority = [cache networkUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache networkUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(expectedAuthorityUrl, cachedAuthorityUrl);
 }
 
 #pragma mark -
@@ -174,46 +184,50 @@
 - (void)testCacheUrlForAuthority_whenNotCached_shouldReturnNil
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache cacheUrlForAuthorityImpl:authority];
     
-    XCTAssertNil(cachedAuthority);
+    XCTAssertNil(cachedAuthorityUrl);
 }
 
 - (void)testCacheUrlForAuthority_whenCachedNotValid_shouldReturnSameURL
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     [cache setObject:[MSIDAadAuthorityCacheRecord new] forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache cacheUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(authority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(authority.url, cachedAuthorityUrl);
 }
 
 - (void)testCacheUrlForAuthority_whenCachedNotValidWithPort_shouldReturnSameURL
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
     [cache setObject:[MSIDAadAuthorityCacheRecord new] forKey:@"fakeauthority.com:444"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com:444/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache cacheUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(authority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(authority.url, cachedAuthorityUrl);
 }
 
 - (void)testCacheUrlForAuthority_whenCacheMismatchOnPort_shouldReturnNil
 {
     MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
     [cache setObject:[MSIDAadAuthorityCacheRecord new] forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com:444/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache cacheUrlForAuthorityImpl:authority];
     
-    XCTAssertNil(cachedAuthority);
+    XCTAssertNil(cachedAuthorityUrl);
 }
 
 
@@ -223,12 +237,13 @@
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     [cache setObject:record forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache cacheUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(authority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(authority.url, cachedAuthorityUrl);
 }
 
 - (void)testCacheUrlForAuthority_whenCachedValidSameCacheNetwork_shouldReturnSameURL
@@ -238,12 +253,13 @@
     record.validated = YES;
     record.cacheHost = @"fakeauthority.com";
     [cache setObject:record forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache cacheUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(authority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(authority.url, cachedAuthorityUrl);
 }
 
 - (void)testCacheUrlForAuthority_whenCachedValidDifferentPreferredNetwork_shouldReturnPreferredURL
@@ -253,13 +269,14 @@
     record.validated = YES;
     record.cacheHost = @"preferredauthority.com";
     [cache setObject:record forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
-    NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSURL *expectedAuthorityUrl = [NSURL URLWithString:@"https://preferredauthority.com/common"];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache cacheUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(expectedAuthorityUrl, cachedAuthorityUrl);
 }
 
 - (void)testCacheUrlForAuthority_whenCachedValidDifferentPreferredNetworkAndUrlIncludesPort_shouldReturnPreferredURL
@@ -269,13 +286,14 @@
     record.validated = YES;
     record.cacheHost = @"preferredauthority.com";
     [cache setObject:record forKey:@"fakeauthority.com"];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
-    NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com:443/common/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSURL *expectedAuthorityUrl = [NSURL URLWithString:@"https://preferredauthority.com/common"];
     
-    NSURL *cachedAuthority = [cache cacheUrlForAuthorityImpl:authority];
+    NSURL *cachedAuthorityUrl = [cache cacheUrlForAuthorityImpl:authority];
     
-    XCTAssertNotNil(cachedAuthority);
-    XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
+    XCTAssertNotNil(cachedAuthorityUrl);
+    XCTAssertEqualObjects(expectedAuthorityUrl, cachedAuthorityUrl);
 }
 
 #pragma mark -
@@ -293,30 +311,33 @@
 - (void)testCacheAliasesForAuthority_whenNilCache_shouldReturnArrayWithAuthority
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     
     NSArray *aliases = [cache cacheAliasesForAuthority:authority];
     
-    XCTAssertEqualObjects(aliases, @[authority]);
+    XCTAssertEqualObjects(aliases, @[authority.url]);
 }
 
 - (void)testCacheAliasesForAuthority_withNoMetadata_shouldReturnArrayWithAuthority
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     [cache setObject:record forKey:@"login.contoso.com"];
     
     NSArray *aliases = [cache cacheAliasesForAuthority:authority];
     
-    XCTAssertEqualObjects(aliases, @[authority]);
+    XCTAssertEqualObjects(aliases, @[authority.url]);
 }
 
 - (void)testCacheAliasesForAuthority_withSimpleMetadata_shouldReturnArrayWithAuthority
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     record.networkHost = @"login.contoso.com";
@@ -326,13 +347,14 @@
     
     NSArray *aliases = [cache cacheAliasesForAuthority:authority];
     
-    XCTAssertEqualObjects(aliases, @[authority]);
+    XCTAssertEqualObjects(aliases, @[authority.url]);
 }
 
 - (void)testCacheAliasesForAuthority_withDifferentPreferredCache_shouldReturnArrayInProperOrder
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     record.networkHost = @"login.contoso.com";
@@ -342,7 +364,7 @@
                           // cacheAliasesForAuthority should be returning the preferred host first
     NSArray *expected = @[[NSURL URLWithString:@"https://login.contoso.net/endpoint"],
                           // The host the API was called with second
-                          authority,
+                          authority.url,
                           // And then any remaining hosts in the alias list
                           [NSURL URLWithString:@"https://sts.contoso.com/endpoint"],
                           [NSURL URLWithString:@"https://sts.contoso.net/endpoint"]];
@@ -355,7 +377,8 @@
 - (void)testCacheAliasesForAuthority_withPortDifferentPreferredCache_shouldReturnArrayInProperOrder
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com:8888/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://login.contoso.com:8888/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     __auto_type record = [MSIDAadAuthorityCacheRecord new];
     record.validated = YES;
     record.networkHost = @"login.contoso.com:8888";
@@ -365,7 +388,7 @@
     // cacheAliasesForAuthority should be returning the preferred host first
     NSArray *expected = @[[NSURL URLWithString:@"https://login.contoso.net:9000/endpoint"],
                           // The host the API was called with second
-                          authority,
+                          authority.url,
                           // And then any remaining hosts in the alias list
                           [NSURL URLWithString:@"https://sts.contoso.com/endpoint"],
                           [NSURL URLWithString:@"https://sts.contoso.net/endpoint"]];
@@ -381,7 +404,8 @@
 - (void)testProcessMetadata_whenNilMetadata_shouldCreateDefaultEntry
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
@@ -404,7 +428,8 @@
 - (void)testProcessMetadata_whenMetadataProvided_shouldCreateExpectedRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";
@@ -445,7 +470,8 @@
 - (void)testProcessMetadata_whenMetadataProvidedUsingAuthorityWithPort_shouldCreateExpectedRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSArray *metadata = @[ @{ @"preferred_network" : expectedHost,
                               @"preferred_cache" :  expectedHost,
@@ -473,7 +499,8 @@
 - (void)testProcessMetadata_whenMetadataProvidedWithNonStandardPortUsingAuthorityWithNonStandardPort_shouldCreateExpectedRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com:444";
     NSArray *metadata = @[ @{ @"preferred_network" : expectedHost,
                               @"preferred_cache" :  expectedHost,
@@ -501,7 +528,8 @@
 - (void)testProcessMetadata_whenBadMetadataWrongNetworkHostType_shouldReturnErrorCreateNoRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";
@@ -527,7 +555,8 @@
 - (void)testProcessMetadata_whenBadMetadataWrongCacheHostType_shouldReturnErrorCreateNoRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";
@@ -553,7 +582,8 @@
 - (void)testProcessMetadata_whenBadMetadataWrongAliasesType_shouldReturnErrorCreateNoRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";
     NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
@@ -577,7 +607,8 @@
 - (void)testProcessMetadata_whenBadMetadataWrongTypeInAliases_shouldReturnErrorCreateNoRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";
@@ -603,7 +634,8 @@
 - (void)testProcessMetadata_whenInvalidHostInPreferredNetwork_shouldReturnErrorCreateNoRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";
@@ -629,7 +661,8 @@
 - (void)testProcessMetadata_whenInvalidHostInPreferredCache_shouldReturnErrorCreateNoRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";
@@ -655,7 +688,8 @@
 - (void)testProcessMetadata_whenInvalidHostInAliases_shouldReturnErrorCreateNoRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";
@@ -681,7 +715,8 @@
 - (void)testProcessMetadata_whenInvalidPortInPreferredNetwork_shouldReturnErrorCreateNoRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";
@@ -707,7 +742,8 @@
 - (void)testProcessMetadata_whenInvalidPortInPreferredCache_shouldReturnErrorCreateNoRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";
@@ -733,7 +769,8 @@
 - (void)testProcessMetadata_whenInvalidPortInAliases_shouldReturnErrorCreateNoRecords
 {
     MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
-    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSString *expectedHost = @"fakeauthority.com";
     NSString *expectedNetworkHost = @"fakeauthority.net";
     NSString *expectedCacheHost = @"sts.fakeauthority.com";

@@ -40,6 +40,7 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDAccountIdentifier.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDDefaultTokenCacheIntegrationTests : XCTestCase
 {
@@ -219,7 +220,8 @@
 
     // save 2nd token with different authority
     MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://contoso2.com"
+    
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/8eaef023-2b34-4da1-9baa-8bc8c9d6a490"
                                                                                 clientId:DEFAULT_TEST_CLIENT_ID
                                                                              redirectUri:nil
                                                                                   target:DEFAULT_TEST_SCOPE];
@@ -446,7 +448,7 @@
     XCTAssertEqual([accessTokensInCache count], 4);
 
     configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
 
     // retrieve first at
     NSError *error = nil;
@@ -474,7 +476,7 @@
                                           error:nil];
 
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
 
     NSError *error = nil;
 
@@ -503,7 +505,7 @@
 
     // Retrieve token
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
 
     NSError *error = nil;
     MSIDAccessToken *returnedToken = [_cacheAccessor getAccessTokenForAccount:account

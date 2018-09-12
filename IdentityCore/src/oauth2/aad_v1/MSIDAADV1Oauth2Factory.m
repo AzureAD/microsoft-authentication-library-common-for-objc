@@ -29,16 +29,17 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
 #import "MSIDWebviewConfiguration.h"
-
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
-#import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
 #import "MSIDOAuth2Constants.h"
 
 #import "MSIDAADV1WebviewFactory.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAADTenant.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -190,8 +191,10 @@
     {
         return NO;
     }
-
-    account.authority = [MSIDAuthority cacheUrlForAuthority:account.authority tenantId:response.idTokenObj.realm];
+    
+    __auto_type authority = [self.authorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
+    
+    account.authority = authority;
     return YES;
 }
 
@@ -203,8 +206,10 @@
     {
         return NO;
     }
+    
+    __auto_type authority = [self.authorityFactory authorityFromUrl:token.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
 
-    token.authority = [MSIDAuthority cacheUrlForAuthority:token.authority tenantId:response.idTokenObj.realm];
+    token.authority = authority;
     return YES;
 }
 

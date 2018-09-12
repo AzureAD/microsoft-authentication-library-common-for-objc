@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAdfsAuthorityResolver.h"
-#import "MSIDAuthority.h"
+#import "MSIDADFSAuthority.h"
 #import "MSIDWebFingerRequest.h"
 #import "MSIDDRSDiscoveryRequest.h"
 #import "MSIDAuthorityCacheRecord.h"
@@ -45,7 +45,7 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
     return s_cache;
 }
 
-- (void)resolveAuthority:(NSURL *)authority
+- (void)resolveAuthority:(MSIDADFSAuthority *)authority
        userPrincipalName:(NSString *)upn
                 validate:(BOOL)validate
                  context:(id<MSIDRequestContext>)context
@@ -53,12 +53,12 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
 {
     if (!validate)
     {
-        __auto_type openIdConfigurationEndpoint = [self openIdConfigurationEndpointForAuthority:authority];
+        __auto_type openIdConfigurationEndpoint = [self openIdConfigurationEndpointForAuthority:authority.url];
         if (completionBlock) completionBlock(openIdConfigurationEndpoint, NO, nil);
         return;
     }
     
-    __auto_type record = [s_cache objectForKey:authority.absoluteString.lowercaseString];
+    __auto_type record = [s_cache objectForKey:authority.url.absoluteString.lowercaseString];
     if (record)
     {
         if (completionBlock) completionBlock(record.openIdConfigurationEndpoint, record.validated, nil);
@@ -84,7 +84,7 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
          }
          
          __auto_type webFingerRequest = [[MSIDWebFingerRequest alloc] initWithIssuer:issuer
-                                                                           authority:authority
+                                                                           authority:authority.url
                                                                              context:context];
          [webFingerRequest sendWithBlock:^(id response, NSError *error)
           {
@@ -94,14 +94,14 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
                   return;
               }
               
-              if ([self isRealmTrustedFromWebFingerPayload:response authority:authority])
+              if ([self isRealmTrustedFromWebFingerPayload:response authority:authority.url])
               {
-                  __auto_type openIdConfigurationEndpoint = [self openIdConfigurationEndpointForAuthority:authority];
+                  __auto_type openIdConfigurationEndpoint = [self openIdConfigurationEndpointForAuthority:authority.url];
                   
                   __auto_type cacheRecord = [MSIDAuthorityCacheRecord new];
                   cacheRecord.validated = YES;
                   cacheRecord.openIdConfigurationEndpoint = openIdConfigurationEndpoint;
-                  [s_cache setObject:cacheRecord forKey:authority.absoluteString.lowercaseString];
+                  [s_cache setObject:cacheRecord forKey:authority.url.absoluteString.lowercaseString];
                   
                   if (completionBlock) completionBlock(openIdConfigurationEndpoint, YES, nil);
               }
@@ -120,7 +120,7 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
                            context:(id<MSIDRequestContext>)context
                    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    __auto_type drsOnPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeOnPrems context:context];
+    __auto_type drsOnPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDDRSTypeOnPrem context:context];
     [drsOnPremRequest sendWithBlock:^(id response, NSError *error)
      {
          if (response)
@@ -129,7 +129,7 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
              return;
          }
          
-         __auto_type drsCloudRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDADFSTypeCloud context:context];
+         __auto_type drsCloudRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDDRSTypeInCloud context:context];
          [drsCloudRequest sendWithBlock:^(id response, NSError *error)
           {
               if (completionBlock) completionBlock(response, error);

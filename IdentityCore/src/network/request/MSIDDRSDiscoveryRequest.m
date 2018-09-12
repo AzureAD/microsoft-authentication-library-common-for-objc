@@ -28,14 +28,14 @@
 @interface MSIDDRSDiscoveryRequest()
 
 @property (nonatomic) NSString *domain;
-@property (nonatomic) MSIDADFSType adfsType;
+@property (nonatomic) MSIDDRSType adfsType;
 
 @end
 
 @implementation MSIDDRSDiscoveryRequest
 
 - (instancetype)initWithDomain:(NSString *)domain
-                      adfsType:(MSIDADFSType)adfsType
+                      adfsType:(MSIDDRSType)adfsType
                        context:(id<MSIDRequestContext>)context
 {
     self = [super init];
@@ -65,14 +65,14 @@
     return self;
 }
 
-- (NSURL *)endpointWithDomain:(NSString *)domain adfsType:(MSIDADFSType)type
+- (NSURL *)endpointWithDomain:(NSString *)domain adfsType:(MSIDDRSType)type
 {
-    if (type == MSIDADFSTypeOnPrems)
+    if (type == MSIDDRSTypeOnPrem)
     {
         return [NSURL URLWithString:
                 [NSString stringWithFormat:@"https://enterpriseregistration.%@/enrollmentserver/contract", domain.lowercaseString]];
     }
-    else if (type == MSIDADFSTypeCloud)
+    else if (type == MSIDDRSTypeInCloud)
     {
         return [NSURL URLWithString:
                 [NSString stringWithFormat:@"https://enterpriseregistration.windows.net/%@/enrollmentserver/contract", domain.lowercaseString]];

@@ -474,8 +474,8 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error
 {    
-    MSID_LOG_INFO(context, @"Get keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
-    MSID_LOG_INFO_PII(context, @"Get keychain items, key info (account: %@ service: %@)", key.account, key.service);
+    MSID_LOG_INFO(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type);
+    MSID_LOG_INFO_PII(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@)", key.account, key.service, key.generic, key.type);
     
     NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
     if (key.service)

@@ -30,6 +30,7 @@
 #import "MSIDChallengeHandler.h"
 #import "MSIDAuthority.h"
 #import "MSIDWorkPlaceJoinConstants.h"
+#import "MSIDAADNetworkConfiguration.h"
 #import "MSIDNotifications.h"
 
 #import "MSIDTelemetry+Internal.h"
@@ -226,8 +227,9 @@
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     NSURL *requestURL = navigationAction.request.URL;
+    __auto_type isKnown = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:requestURL.host];
     
-    MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", [MSIDAuthority isKnownHost:requestURL] ? requestURL.host : @"unknown host");
+    MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", isKnown ? requestURL.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestURL.host);
     
     [MSIDNotifications notifyWebAuthDidStartLoad:requestURL];
@@ -256,7 +258,8 @@
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation
 {
     NSURL *url = webView.URL;
-    MSID_LOG_VERBOSE(self.context, @"-didFinishNavigation host: %@", [MSIDAuthority isKnownHost:url] ? url.host : @"unknown host");
+    __auto_type isKnown = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:url.host];
+    MSID_LOG_VERBOSE(self.context, @"-didFinishNavigation host: %@", isKnown ? url.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-didFinishNavigation host: %@", url.host);
     
     [MSIDNotifications notifyWebAuthDidFinishLoad:url];
@@ -286,7 +289,8 @@
 
 - (void)completeWebAuthWithURL:(NSURL *)endURL
 {
-    MSID_LOG_INFO(self.context, @"-completeWebAuthWithURL: %@", [MSIDAuthority isKnownHost:endURL] ? endURL.host : @"unknown host");
+    __auto_type isKnown = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:endURL.host];
+    MSID_LOG_INFO(self.context, @"-completeWebAuthWithURL: %@", isKnown ? endURL.host : @"unknown host");
     MSID_LOG_INFO_PII(self.context, @"-completeWebAuthWithURL: %@", endURL);
     
     [self endWebAuthWithURL:endURL error:nil];

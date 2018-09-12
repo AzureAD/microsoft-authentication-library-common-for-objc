@@ -24,9 +24,6 @@
 #import <Foundation/Foundation.h>
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 
-@class MSIDHttpRequest;
-@class MSIDAadAuthorityCache;
-
 @interface MSIDAADRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
 
 @property (nonatomic) NSTimeInterval timeoutInterval;

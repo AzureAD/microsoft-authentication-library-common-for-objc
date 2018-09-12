@@ -29,18 +29,19 @@
 @class MSIDTokenResponse;
 @class MSIDClientInfo;
 @class MSIDAccountIdentifier;
+@class MSIDAuthority;
 
 @interface MSIDAccount : NSObject <NSCopying>
 
 @property (readwrite) MSIDAccountType accountType;
 @property (readwrite) NSString *localAccountId;
-@property (readwrite) NSURL *authority;
+@property (readwrite) MSIDAuthority *authority;
 /*
  'storageAuthority' is used only for latter token deletion.
  We can not use 'authority' because cache item could be saved with
  'preferred authority' and it might not be equal to provided 'authority'.
  */
-@property (readwrite) NSURL *storageAuthority;
+@property (readwrite) MSIDAuthority *storageAuthority;
 
 @property (readwrite) NSString *username;
 @property (readwrite) NSString *givenName;

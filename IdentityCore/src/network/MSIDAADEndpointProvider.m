@@ -42,14 +42,14 @@
     return [baseUrl URLByAppendingPathComponent:[NSString stringWithFormat:@"/oauth2/%@token", apiVersion]];
 }
 
-- (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDADFSType)type
+- (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDDRSType)type
 {
-    if (type == MSIDADFSTypeOnPrems)
+    if (type == MSIDDRSTypeOnPrem)
     {
         return [NSURL URLWithString:
                 [NSString stringWithFormat:@"https://enterpriseregistration.%@/enrollmentserver/contract", domain.lowercaseString]];
     }
-    else if (type == MSIDADFSTypeCloud)
+    else if (type == MSIDDRSTypeInCloud)
     {
         return [NSURL URLWithString:
                 [NSString stringWithFormat:@"https://enterpriseregistration.windows.net/%@/enrollmentserver/contract", domain.lowercaseString]];
