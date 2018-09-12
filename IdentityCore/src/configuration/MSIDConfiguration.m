@@ -24,6 +24,7 @@
 #import "MSIDConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDPkce.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDConfiguration
 
@@ -39,7 +40,7 @@
 }
 
 
-- (instancetype)initWithAuthority:(NSURL *)authority
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target
@@ -64,7 +65,7 @@
 
 - (NSOrderedSet<NSString *> *)scopes
 {
-    return [_target scopeSet];
+    return [_target msidScopeSet];
 }
 
 @end

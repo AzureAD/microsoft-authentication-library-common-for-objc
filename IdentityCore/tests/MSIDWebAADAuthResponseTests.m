@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDWebAADAuthResponse.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDWebAADAuthResponseTests : XCTestCase
 

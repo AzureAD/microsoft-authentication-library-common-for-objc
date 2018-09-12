@@ -21,12 +21,12 @@
 // THE SOFTWARE.
 
 #import "MSIDHttpRequest.h"
-#import "MSIDADFSType.h"
+#import "MSIDDRSType.h"
 
 @interface MSIDDRSDiscoveryRequest : MSIDHttpRequest
 
 - (instancetype _Nullable)initWithDomain:(nonnull NSString *)domain
-                                adfsType:(MSIDADFSType)adfsType
+                                adfsType:(MSIDDRSType)adfsType
                                  context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable)init NS_UNAVAILABLE;

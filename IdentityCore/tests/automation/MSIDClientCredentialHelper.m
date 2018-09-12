@@ -29,6 +29,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDClientCredentialHelper
 
@@ -44,14 +45,14 @@
     return accessTokenCache;
 }
 
-+ (void)getAccessTokenForAuthority:(NSString *)authority
++ (void)getAccessTokenForAuthority:(NSString *)authorityString
                           resource:(NSString *)resource
                           clientId:(NSString *)clientId
                        certificate:(NSData *)certificateData
                certificatePassword:(NSString *)password
                  completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler
 {
-    MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authority]
+    MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authorityString]
                                                                                   clientId:clientId
                                                                                   resource:resource
                                                                               legacyUserId:clientId];
@@ -68,7 +69,7 @@
         return;
     }
     
-    NSString *tokenEndpoint = [NSString stringWithFormat:@"%@/oauth2/token", authority];
+    NSString *tokenEndpoint = [NSString stringWithFormat:@"%@/oauth2/token", authorityString];
     NSString *assertion = [self clientCertificateAssertionForAudience:tokenEndpoint
                                                              clientId:clientId
                                                       certificateData:certificateData
@@ -96,7 +97,7 @@
     [request setHTTPMethod:@"POST"];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     
-    NSData *requestBody = [[postParams msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *requestBody = [[postParams msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding];
     [request setHTTPBody:requestBody];
     
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
@@ -129,8 +130,12 @@
               return;
           }
           
+          __auto_type authorityFactory = [MSIDAuthorityFactory new];
+          __auto_type authorityUrl = [[NSURL alloc] initWithString:authorityString];
+          __auto_type authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+          
           MSIDConfiguration *configuration = [MSIDConfiguration new];
-          configuration.authority = [NSURL URLWithString:authority];
+          configuration.authority = authority;
           configuration.clientId = clientId;
           configuration.target = resource;
           

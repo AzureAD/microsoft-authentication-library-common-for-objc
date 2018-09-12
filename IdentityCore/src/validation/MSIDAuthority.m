@@ -1,3 +1,26 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 //------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
@@ -26,7 +49,7 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDAuthority.h"
-#import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthority+Internal.h"
 #import "MSIDAuthorityResolving.h"
 #import "MSIDAadAuthorityResolver.h"
 #import "MSIDAADAuthorityMetadataRequest.h"
@@ -37,19 +60,10 @@
 #import "MSIDB2CAuthorityResolver.h"
 #import "MSIDAdfsAuthorityResolver.h"
 #import "MSIDOpenIdConfigurationInfoRequest.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDOpenIdProviderMetadata.h"
 
-static NSSet<NSString *> *s_trustedHostList;
 static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
-
-// Trusted authorities
-NSString *const MSIDTrustedAuthority             = @"login.windows.net";
-NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
-NSString *const MSIDTrustedAuthorityChina        = @"login.chinacloudapi.cn";
-NSString *const MSIDTrustedAuthorityChina2       = @"login.partner.microsoftonline.cn";
-NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
-NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
-NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
-NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
 
 @implementation MSIDAuthority
 
@@ -57,14 +71,6 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
 {
     if (self == [MSIDAuthority self])
     {
-        s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority,
-                             MSIDTrustedAuthorityUS,
-                             MSIDTrustedAuthorityChina,
-                             MSIDTrustedAuthorityChina2,
-                             MSIDTrustedAuthorityGermany,
-                             MSIDTrustedAuthorityWorldWide,
-                             MSIDTrustedAuthorityUSGovernment,
-                             MSIDTrustedAuthorityCloudGovApi, nil];
         s_openIdConfigurationCache = [MSIDCache new];
     }
 }
@@ -74,255 +80,124 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
     return s_openIdConfigurationCache;
 }
 
-+ (BOOL)isADFSInstance:(NSString *)endpoint
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
 {
-    if ([NSString msidIsStringNilOrBlank:endpoint])
+    self = [super init];
+    if (self)
     {
-        return NO;
-    }
-    
-    return [[self class] isADFSInstanceURL:[NSURL URLWithString:endpoint.lowercaseString]];
-}
-
-+ (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl
-{
-    if (!endpointUrl)
-    {
-        return NO;
-    }
-    
-    NSArray *paths = endpointUrl.pathComponents;
-    if (paths.count >= 2)
-    {
-        NSString *tenant = [paths objectAtIndex:1];
-        return [@"adfs" isEqualToString:tenant];
-    }
-    return NO;
-}
-
-+ (BOOL)isB2CInstanceURL:(NSURL *)endpointUrl
-{
-    if (!endpointUrl)
-    {
-        return NO;
-    }
-    
-    NSArray *paths = endpointUrl.pathComponents;
-    if (paths.count >= 2)
-    {
-        NSString *tenant = [paths objectAtIndex:1];
-        return [@"tfp" isEqualToString:tenant];
-    }
-    return NO;
-}
-
-+ (BOOL)isConsumerInstanceURL:(NSURL *)authorityURL
-{
-    if (!authorityURL)
-    {
-        return NO;
-    }
-    
-    NSArray *paths = authorityURL.pathComponents;
-    
-    if ([paths count] >= 2)
-    {
-        NSString *tenantName = [paths[1] lowercaseString];
+        BOOL isValid = [self.class isAuthorityFormatValid:url context:context error:error];
+        if (!isValid) return nil;
         
-        return [tenantName isEqualToString:@"consumers"];
+        _url = url;
+        _environment = url.msidHostWithPortIfNecessary;
     }
     
-    return NO;
+    return self;
 }
 
-+ (NSURL *)universalAuthorityURL:(NSURL *)authorityURL
-{
-    if (!authorityURL)
-    {
-        return nil;
-    }
-    
-    NSArray *paths = authorityURL.pathComponents;
-    
-    if ([paths count] >= 2)
-    {
-        NSString *tenantName = [paths[1] lowercaseString];
-        
-        if ([tenantName isEqualToString:@"organizations"])
-        {
-            NSURLComponents *components = [NSURLComponents componentsWithURL:authorityURL resolvingAgainstBaseURL:NO];
-            components.path = @"/common";
-            return [components URL];
-        }
-    }
-    
-    return authorityURL;
-}
-
-+ (NSURL *)commonAuthorityWithURL:(NSURL *)authorityURL
-{
-    if (!authorityURL)
-    {
-        return nil;
-    }
-    
-    NSArray *paths = authorityURL.pathComponents;
-    
-    if ([paths count] >= 2)
-    {
-        NSURLComponents *components = [NSURLComponents componentsWithURL:authorityURL resolvingAgainstBaseURL:NO];
-        components.path = @"/common";
-        return [components URL];
-    }
-    
-    return authorityURL;
-}
-
-
-+ (BOOL)isTenantless:(NSURL *)authority
-{
-    NSArray *authorityURLPaths = authority.pathComponents;
-    
-    if ([authorityURLPaths count] >= 2)
-    {
-        NSString *tenantName = [authorityURLPaths[1] lowercaseString];
-        
-        if ([tenantName isEqualToString:@"common"] ||
-            [tenantName isEqualToString:@"organizations"])
-        {
-            return YES;
-        }
-    }
-    
-    return NO;
-}
-
-+ (NSURL *)cacheUrlForAuthority:(NSURL *)authority
-                       tenantId:(NSString *)tenantId
-{
-    if (!tenantId)
-    {
-        return authority;
-    }
-    
-    if ([self isADFSInstanceURL:authority])
-    {
-        return authority;
-    }
-    
-    if (![self isTenantless:authority]
-        && ![self isConsumerInstanceURL:authority])
-    {
-        return authority;
-    }
-    
-    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authority msidHostWithPortIfNecessary], tenantId]];
-}
-
-+ (void)resolveAuthority:(NSURL *)authority
-       userPrincipalName:(NSString *)upn
-                validate:(BOOL)validate
-                 context:(id<MSIDRequestContext>)context
-         completionBlock:(MSIDAuthorityInfoBlock)completionBlock
+- (void)resolveAndValidate:(BOOL)validate
+         userPrincipalName:(__unused NSString *)upn
+                   context:(id<MSIDRequestContext>)context
+           completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
     NSParameterAssert(completionBlock);
     
-    NSError *error;
-    if (![self isAuthorityFormatValid:authority context:nil error:&error])
-    {
-        completionBlock(nil, NO, error);
-        return;
-    }
+    id <MSIDAuthorityResolving> resolver = [self resolver];
+    NSParameterAssert(resolver);
     
-    if (error)
-    {
-        completionBlock(nil, NO, error);
-        return;
-    }
-    
-    id <MSIDAuthorityResolving> resolver;
-    // ADFS.
-    if ([MSIDAuthority isADFSInstanceURL:authority])
-    {
-        resolver = [MSIDAdfsAuthorityResolver new];
-    }
-    // B2C.
-    else if ([MSIDAuthority isB2CInstanceURL:authority])
-    {
-        resolver = [MSIDB2CAuthorityResolver new];
-    }
-    // AAD.
-    else
-    {
-        resolver = [MSIDAadAuthorityResolver new];
-    }
-    
-    [resolver resolveAuthority:authority
+    [resolver resolveAuthority:self
              userPrincipalName:upn
                       validate:validate
                        context:context
-               completionBlock:completionBlock];
+               completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         self.openIdConfigurationEndpoint = openIdConfigurationEndpoint;
+         
+         if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
+     }];
 }
 
-+ (void)loadOpenIdConfigurationInfo:(NSURL *)openIdConfigurationEndpoint
-                            context:(id<MSIDRequestContext>)context
-                    completionBlock:(MSIDOpenIdConfigurationInfoBlock)completionBlock
+- (NSURL *)networkUrlWithContext:(id<MSIDRequestContext>)context
+{
+    return self.url;
+}
+
+- (NSURL *)cacheUrlWithContext:(id<MSIDRequestContext>)context
+{
+    return self.url;
+}
+
+- (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities
+{
+    return @[self.url];
+}
+
+- (NSURL *)universalAuthorityURL
+{
+    return self.url;
+}
+
+- (NSArray<NSURL *> *)legacyRefreshTokenLookupAliases
+{
+     return @[self.url];
+}
+
+- (BOOL)isKnown
+{
+    // TODO: Can we move it out from here? What about ADFS & B2C?
+    return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:self.url.host.lowercaseString];
+}
+
+- (nonnull NSString *)telemetryAuthorityType
+{
+    NSAssert(NO, @"Abstract method.");
+    
+    return @"";
+}
+
+- (void)loadOpenIdMetadataWithContext:(nullable id<MSIDRequestContext>)context
+                      completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionBlock
 {
     NSParameterAssert(completionBlock);
     
-    if (openIdConfigurationEndpoint == nil)
+    if (self.openIdConfigurationEndpoint == nil)
     {
         __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"openIdConfigurationEndpoint is nil.", nil, nil, nil, context.correlationId, nil);
         completionBlock(nil, error);
         return;
     }
     
-    __auto_type cacheKey = openIdConfigurationEndpoint.absoluteString.lowercaseString;
+    __auto_type cacheKey = self.openIdConfigurationEndpoint.absoluteString.lowercaseString;
     __auto_type metadata = [s_openIdConfigurationCache objectForKey:cacheKey];
     
     if (metadata)
     {
+        self.metadata = metadata;
         completionBlock(metadata, nil);
         return;
     }
     
-    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:openIdConfigurationEndpoint context:context];
+    __auto_type request = [[MSIDOpenIdConfigurationInfoRequest alloc] initWithEndpoint:self.openIdConfigurationEndpoint context:context];
     [request sendWithBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
-    {
-        if (cacheKey && metadata)
-        {
-            [s_openIdConfigurationCache setObject:metadata forKey:cacheKey];
-        }
-        
-        completionBlock(metadata, error);
-    }];
+     {
+         if (cacheKey && metadata)
+         {
+             [s_openIdConfigurationCache setObject:metadata forKey:cacheKey];
+         }
+         
+         if (!error) self.metadata = metadata;
+         
+         completionBlock(metadata, error);
+     }];
 }
 
-+ (NSURL *)normalizeAuthority:(NSURL *)authority
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
-{
-    if (![MSIDAuthority isAuthorityFormatValid:authority context:context error:error])
-    {
-        return nil;
-    }
-    
-    // B2C
-    if ([self isB2CInstanceURL:authority])
-    {
-        NSString *updatedAuthorityString = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [authority msidHostWithPortIfNecessary], authority.pathComponents[1], authority.pathComponents[2], authority.pathComponents[3]];
-        return [NSURL URLWithString:updatedAuthorityString];
-    }
-    
-    // ADFS and AAD
-    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [authority msidHostWithPortIfNecessary], authority.pathComponents[1]]];
-}
-
-+ (BOOL)isAuthorityFormatValid:(NSURL *)authority
++ (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
-{    
-    if ([NSString msidIsStringNilOrBlank:authority.absoluteString])
+{
+    if ([NSString msidIsStringNilOrBlank:url.absoluteString])
     {
         if (error)
         {
@@ -331,7 +206,7 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
         return NO;
     }
     
-    if (![authority.scheme isEqualToString:@"https"])
+    if (![url.scheme isEqualToString:@"https"])
     {
         if (error)
         {
@@ -340,35 +215,72 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
         return NO;
     }
     
-    if (authority.pathComponents.count < 2)
+    return YES;
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have at least 2 path components.", nil, nil, nil, context.correlationId, nil);
-        }
+        return YES;
+    }
+    
+    if (![object isKindOfClass:MSIDAuthority.class])
+    {
         return NO;
     }
     
-    // B2C
-    if ([self isB2CInstanceURL:authority])
-    {
-        if (authority.pathComponents.count < 4)
-        {
-            if (error)
-            {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"B2C authority should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)", nil, nil, nil, context.correlationId, nil);
-            }
-            return NO;
-        }
-    }
-    
-    return YES;
-    
+    return [self isEqualToItem:(MSIDAuthority *)object];
 }
 
-+ (BOOL)isKnownHost:(NSURL *)url
+- (NSUInteger)hash
 {
-    return [s_trustedHostList containsObject:url.host.lowercaseString];
+    NSUInteger hash = 0;
+    hash = hash * 31 + self.url.hash;
+    hash = hash * 31 + self.openIdConfigurationEndpoint.hash;
+    hash = hash * 31 + self.metadata.hash;
+    return hash;
+}
+
+- (BOOL)isEqualToItem:(MSIDAuthority *)authority
+{
+    if (!authority)
+    {
+        return NO;
+    }
+    
+    BOOL result = YES;
+    result &= (!self.url && !authority.url) || [self.url isEqual:authority.url];
+    result &= (!self.openIdConfigurationEndpoint && !authority.openIdConfigurationEndpoint) || [self.openIdConfigurationEndpoint isEqual:authority.openIdConfigurationEndpoint];
+    result &= (!self.metadata && !authority.metadata) || [self.metadata isEqual:authority.metadata];
+    return result;
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"%@", self.url.absoluteString];
+}
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAuthority *authority = [[self.class allocWithZone:zone] initWithURL:_url context:nil error:nil];
+    authority->_openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
+    authority->_metadata = _metadata;
+    authority->_url = [_url copyWithZone:zone];
+    
+    return authority;
+}
+
+#pragma mark - Protected
+
+- (id<MSIDAuthorityResolving>)resolver
+{
+    return nil;
 }
 
 @end
+

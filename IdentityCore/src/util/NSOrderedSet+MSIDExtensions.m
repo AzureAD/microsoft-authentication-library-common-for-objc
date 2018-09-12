@@ -26,26 +26,28 @@
 //------------------------------------------------------------------------------
 
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
 
 @implementation NSOrderedSet (MSIDExtensions)
 
 - (NSString *)msidToString
 {
-    NSInteger cSet = self.count;
-    if (cSet == 0)
+    return [NSString msidStringFromOrderedSet:self];
+}
+
+
++ (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string
+{
+    NSMutableOrderedSet<NSString *> *scope = [NSMutableOrderedSet<NSString *> new];
+    NSArray* parts = [string componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" "]];
+    for (NSString *part in parts)
     {
-        return @"";
+        if (![NSString msidIsStringNilOrBlank:part])
+        {
+            [scope addObject:part.msidTrimmedString.lowercaseString];
+        }
     }
-    
-    NSMutableString *queryString = [[self objectAtIndex:0] mutableCopy];
-    
-    for (NSInteger i = 1; i < cSet; i++)
-    {
-        [queryString appendString:@" "];
-        [queryString appendString:[self objectAtIndex:i]];
-    }
-    
-    return queryString;
+    return scope;
 }
 
 @end

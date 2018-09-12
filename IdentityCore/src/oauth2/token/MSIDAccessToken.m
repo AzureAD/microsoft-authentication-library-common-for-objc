@@ -194,7 +194,7 @@ static NSUInteger s_expirationBuffer = 300;
 
 - (NSOrderedSet<NSString *> *)scopes
 {
-    return [_target scopeSet];
+    return [_target msidScopeSet];
 }
 
 - (void)setScopes:(NSOrderedSet<NSString *> *)scopes

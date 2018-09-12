@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDCache <KeyType, ObjectType> : NSObject
+@interface MSIDCache <KeyType, ObjectType> : NSObject <NSCopying>
 
 - (nullable ObjectType)objectForKey:(KeyType)key;
 

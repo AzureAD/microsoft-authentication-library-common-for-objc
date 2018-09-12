@@ -27,6 +27,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDConfiguration.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 
 @interface MSIDAccessTokenTests : XCTestCase
@@ -228,7 +229,7 @@
 
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/contoso.com" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     NSDictionary *additionalServerInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
@@ -329,7 +330,7 @@
 {
     MSIDAccessToken *token = [MSIDAccessToken new];
     token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"uid.utid"];
-    token.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    token.authority = [@"https://contoso.com/common" authority];
     token.clientId = @"clientId";
     token.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     token.additionalServerInfo = @{@"spe_info" : @"value2"};

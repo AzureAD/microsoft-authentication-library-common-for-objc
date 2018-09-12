@@ -40,6 +40,7 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAccountIdentifier.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDLegacyTokenCacheTests : XCTestCase
 {
@@ -419,7 +420,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
+    XCTAssertEqualObjects(token.authority.url, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
     NSArray *allAccessTokens = [self getAllLegacyAccessTokens];
     XCTAssertEqual([allAccessTokens count], 2);
 }
@@ -709,9 +710,9 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(returnedToken);
-    token.storageAuthority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    token.storageAuthority = [@"https://login.microsoftonline.com/common" authority];
     XCTAssertEqualObjects(token, returnedToken);
-    XCTAssertEqualObjects(returnedToken.storageAuthority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+    XCTAssertEqualObjects(returnedToken.storageAuthority, [@"https://login.microsoftonline.com/common" authority]);
 }
 
 - (void)testGetSharedRTForAccountAfterSaving_whenConsumerAuthority_shouldReturnNil

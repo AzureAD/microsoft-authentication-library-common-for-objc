@@ -35,6 +35,7 @@
 #import "MSIDAccount.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDIdToken.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDTokenFilteringHelperTests : XCTestCase
 
@@ -65,7 +66,7 @@
     XCTAssertEqual([result count], 1);
     
     MSIDIdToken *expectedToken = [MSIDIdToken new];
-    expectedToken.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    expectedToken.authority = [@"https://login.microsoftonline.com/contoso.com" authority];
     expectedToken.clientId = DEFAULT_TEST_CLIENT_ID;
     expectedToken.rawIdToken = @"id";
     
@@ -93,7 +94,7 @@
     XCTAssertEqual([result count], 2);
     
     MSIDIdToken *expectedToken = [MSIDIdToken new];
-    expectedToken.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    expectedToken.authority = [@"https://login.microsoftonline.com/contoso.com" authority];
     expectedToken.clientId = DEFAULT_TEST_CLIENT_ID;
     expectedToken.rawIdToken = @"id";
     

@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,60 +15,72 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorityResolving.h"
 #import "MSIDCache.h"
 
+extern NSString * _Nonnull const MSIDTrustedAuthority;
+extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
+
 @class MSIDOpenIdProviderMetadata;
 
 typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error);
 
-extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
-
-@interface MSIDAuthority : NSObject
+@interface MSIDAuthority : NSObject <NSCopying>
+{
+@protected
+    NSURL *_url;
+    NSURL *_openIdConfigurationEndpoint;
+}
 
 @property (class, readonly, nonnull) MSIDCache *openIdConfigurationCache;
 
-+ (BOOL)isADFSInstance:(nonnull NSString *)endpoint;
-+ (BOOL)isADFSInstanceURL:(nonnull NSURL *)endpointUrl;
-+ (BOOL)isConsumerInstanceURL:(nonnull NSURL *)authorityURL;
-+ (BOOL)isB2CInstanceURL:(nonnull NSURL *)endpointUrl;
+@property (nonatomic, readonly, nonnull) NSURL *url;
 
-/* AAD v1 endpoint supports only "common" path.
- AAD v2 endpoint supports both common and organizations.
- For legacy cache lookups we need to use common authority for compatibility purposes.
- This method returns "common" authority if "organizations" authority was passed
- Otherwise, returns original authority */
-+ (NSURL * _Nullable)universalAuthorityURL:(nullable NSURL *)authorityURL;
+@property (nonatomic, readonly, nonnull) NSString *environment;
 
-+ (NSURL * _Nullable)commonAuthorityWithURL:(nullable NSURL *)authorityURL;
+@property (nonatomic, readonly, nullable) NSURL *openIdConfigurationEndpoint;
 
-+ (BOOL)isTenantless:(nonnull NSURL *)authority;
-+ (NSURL *_Nullable)cacheUrlForAuthority:(nonnull NSURL *)authority
-                                tenantId:(nullable NSString *)tenantId;
+@property (nonatomic, readonly, nullable) MSIDOpenIdProviderMetadata *metadata;
 
-+ (void)resolveAuthority:(nonnull NSURL *)authority
-       userPrincipalName:(nullable NSString *)upn
-                validate:(BOOL)validate
-                 context:(nullable id<MSIDRequestContext>)context
-         completionBlock:(nonnull MSIDAuthorityInfoBlock)completionBlock;
+- (instancetype _Nullable )init NS_UNAVAILABLE;
++ (instancetype _Nullable )new NS_UNAVAILABLE;
 
-+ (void)loadOpenIdConfigurationInfo:(nonnull NSURL *)openIdConfigurationEndpoint
-                            context:(nullable id<MSIDRequestContext>)context
-                    completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionB_Nullable_Nonnulllock;
+- (nullable instancetype)initWithURL:(nonnull NSURL *)url
+                             context:(nullable id<MSIDRequestContext>)context
+                               error:(NSError * _Nullable __autoreleasing * _Nullable)error NS_DESIGNATED_INITIALIZER;
 
-+ (NSURL *_Nullable)normalizeAuthority:(nonnull NSURL *)authority
-                               context:(nullable id<MSIDRequestContext>)context
-                                 error:(NSError * _Nullable __autoreleasing *_Nullable)error;
+- (void)resolveAndValidate:(BOOL)validate
+         userPrincipalName:(nullable NSString *)upn
+                   context:(nullable id<MSIDRequestContext>)context
+           completionBlock:(nonnull MSIDAuthorityInfoBlock)completionBlock;
 
-+ (BOOL)isKnownHost:(nonnull NSURL *)url;
+- (nonnull NSURL *)networkUrlWithContext:(nullable id<MSIDRequestContext>)context;
+
+- (nonnull NSURL *)cacheUrlWithContext:(nullable id<MSIDRequestContext>)context;
+
+- (nonnull NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities;
+
+- (nonnull NSURL *)universalAuthorityURL;
+
+- (nonnull NSArray<NSURL *> *)legacyRefreshTokenLookupAliases;
+
+- (BOOL)isKnown;
+
+/* It is used in telemetry */
+- (nonnull NSString *)telemetryAuthorityType;
+
+- (void)loadOpenIdMetadataWithContext:(nullable id<MSIDRequestContext>)context
+                      completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionBlock;
+
++ (BOOL)isAuthorityFormatValid:(nonnull NSURL *)url
+                       context:(nullable id<MSIDRequestContext>)context
+                         error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

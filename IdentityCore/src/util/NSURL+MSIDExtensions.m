@@ -24,7 +24,6 @@
 #import "NSURL+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
-#import "MSIDAadAuthorityCache.h"
 
 const unichar fragmentSeparator = '#';
 const unichar queryStringSeparator = '?';
@@ -34,7 +33,7 @@ const unichar queryStringSeparator = '?';
 // Decodes configuration contained in a URL fragment
 - (NSDictionary *)msidFragmentParameters
 {
-    return [NSDictionary msidURLFormDecode:self.fragment];
+    return [NSDictionary msidDictionaryFromWWWFormURLEncodedString:self.fragment];
 }
 
 // Decodes configuration contains in a URL query
@@ -42,7 +41,7 @@ const unichar queryStringSeparator = '?';
 {
     NSURLComponents* components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];
     
-    return [NSDictionary msidURLFormDecode:[components percentEncodedQuery]];
+    return [NSDictionary msidDictionaryFromWWWFormURLEncodedString:[components percentEncodedQuery]];
 }
 
 - (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL
@@ -195,35 +194,63 @@ const unichar queryStringSeparator = '?';
     return [self msidURLWithEnvironment:environment tenant:@"common"];
 }
 
-+ (NSURL *)msidAddParameters:(NSDictionary<NSString *, NSString *> *)parameters toUrl:(NSURL *)url
+
+- (NSURL *)msidURLForPreferredHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError **)error
 {
-    __auto_type urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:YES];
+    NSURL *url = [self copy];
     
-    NSMutableDictionary *queryDic = [NSMutableDictionary new];
-    for (NSURLQueryItem * queryItem in urlComponents.queryItems)
+    if (!preferredHost)
     {
-        [queryDic setValue:queryItem.value forKey:queryItem.name];
+        return url;
     }
     
-    for (id key in parameters)
+    if ([url.msidHostWithPortIfNecessary isEqualToString:preferredHost])
     {
-        id value = parameters[key];
+        return url;
+    }
+    
+    // Otherwise switch the host for the preferred one.
+    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+    
+    @try
+    {
+        NSArray *hostComponents = [preferredHost componentsSeparatedByString:@":"];
         
-        NSAssert([value isKindOfClass:NSString.class], NULL);
-        NSAssert([key isKindOfClass:NSString.class], NULL);
+        // I hope there's never a case where there's percent encoded characters in the host, but using
+        // this setter prevents NSURLComponents from trying to do any further mangling on the string,
+        // probably a good thing.
+        components.percentEncodedHost = hostComponents[0];
         
-        if (![key isKindOfClass:NSString.class] || ![value isKindOfClass:NSString.class])
+        if (hostComponents.count > 1)
         {
-            MSID_LOG_WARN(nil, @"Ignoring key/value.");
-            MSID_LOG_WARN_PII(nil, @"Ignoring key: %@ value: %@", key, value);
-            continue;
+            NSScanner *scanner = [NSScanner scannerWithString:hostComponents[1]];
+            int port = 0;
+            if (![scanner scanInt:&port] || !scanner.isAtEnd || port < 1 )
+            {
+                // setPercentEncodedHost and setPort both throw if there's an error, so it's okay for
+                // us to throw here as well to propogate the error
+                @throw [NSException exceptionWithName:@"InvalidNumberFormatException" reason:@"Port is not a valid integer or port" userInfo:nil];
+                MSID_LOG_ERROR(context, @"Port is not a valid integer or port.");
+            }
+            components.port = [NSNumber numberWithInt:port];
         }
-        [queryDic setValue:value forKey:key];
+        else
+        {
+            components.port = nil;
+        }
+    }
+    @catch (NSException *ex)
+    {
+        NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Failed to replace a host in url.", nil, nil, nil, context.correlationId, nil);
+        
+        if (error) *error = msidError;
+        
+        MSID_LOG_ERROR(context, @"Failed to replace a host in url.");
+        
+        return nil;
     }
     
-    urlComponents.queryItems = [(NSDictionary *)queryDic urlQueryItemsArray];
-    
-    return urlComponents.URL;
+    return components.URL;
 }
 
 @end

@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDADFSType.h"
+#import "MSIDDRSType.h"
 
 @protocol MSIDAADEndpointProviding <NSObject>
 
@@ -30,7 +30,7 @@
 
 - (NSURL *)oauth2TokenEndpointWithUrl:(NSURL *)baseUrl;
 
-- (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDADFSType)type;
+- (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDDRSType)type;
 
 - (NSURL *)webFingerDiscoveryEndpointWithIssuer:(NSURL *)issuer;
 

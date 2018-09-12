@@ -43,16 +43,16 @@ static NSString *s_tenantIdPlaceholder = @"{tenantid}";
     
     __auto_type metadata = [MSIDOpenIdProviderMetadata new];
     
-    if (![jsonObject assertContainsField:@"authorization_endpoint" context:context error:error])
+    if (![jsonObject msidAssertContainsField:@"authorization_endpoint" context:context error:error])
     {
         return nil;
     }
     
-    if (![jsonObject assertType:NSString.class
-                        ofField:@"authorization_endpoint"
-                        context:context
-                      errorCode:MSIDErrorServerInvalidResponse
-                          error:error])
+    if (![jsonObject msidAssertType:NSString.class
+                            ofField:@"authorization_endpoint"
+                            context:context
+                          errorCode:MSIDErrorServerInvalidResponse
+                              error:error])
     {
         return nil;
     }
@@ -61,16 +61,16 @@ static NSString *s_tenantIdPlaceholder = @"{tenantid}";
     
     metadata.authorizationEndpoint = [NSURL URLWithString:authorizationEndpoint];
     
-    if (![jsonObject assertContainsField:@"token_endpoint" context:context error:error])
+    if (![jsonObject msidAssertContainsField:@"token_endpoint" context:context error:error])
     {
         return nil;
     }
     
-    if (![jsonObject assertType:NSString.class
-                        ofField:@"token_endpoint"
-                        context:context
-                      errorCode:MSIDErrorServerInvalidResponse
-                          error:error])
+    if (![jsonObject msidAssertType:NSString.class
+                            ofField:@"token_endpoint"
+                            context:context
+                          errorCode:MSIDErrorServerInvalidResponse
+                              error:error])
     {
         return nil;
     }
@@ -79,16 +79,16 @@ static NSString *s_tenantIdPlaceholder = @"{tenantid}";
     
     metadata.tokenEndpoint = [NSURL URLWithString:tokenEndpoint];
     
-    if (![jsonObject assertContainsField:@"issuer" context:context error:error])
+    if (![jsonObject msidAssertContainsField:@"issuer" context:context error:error])
     {
         return nil;
     }
     
-    if (![jsonObject assertType:NSString.class
-                        ofField:@"issuer"
-                        context:context
-                      errorCode:MSIDErrorServerInvalidResponse
-                          error:error])
+    if (![jsonObject msidAssertType:NSString.class
+                            ofField:@"issuer"
+                            context:context
+                          errorCode:MSIDErrorServerInvalidResponse
+                              error:error])
     {
         return nil;
     }

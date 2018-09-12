@@ -26,6 +26,7 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDTestIdTokenUtil.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 
 @interface MSIDLegacyRefreshTokenTests : XCTestCase
@@ -154,7 +155,7 @@
     
     MSIDLegacyRefreshToken *token = [[MSIDLegacyRefreshToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
@@ -196,7 +197,7 @@
 
     MSIDLegacyRefreshToken *token = [[MSIDLegacyRefreshToken alloc] initWithLegacyTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.windows.net/contoso.com"]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.windows.net/contoso.com" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
@@ -216,7 +217,7 @@
 - (MSIDLegacyRefreshToken *)createToken
 {
     MSIDLegacyRefreshToken *token = [MSIDLegacyRefreshToken new];
-    token.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    token.authority = [@"https://contoso.com/common" authority];
     token.clientId = @"some clientId";
     token.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     token.additionalServerInfo = @{@"spe_info" : @"value2"};

@@ -25,9 +25,33 @@
 
 @interface NSData (MSIDExtensions)
 
+/*!
+ =============================================================================
+ Hashing
+ =============================================================================
+ */
+- (NSData *)msidSHA1;
+- (NSData *)msidSHA256;
+
+/*!
+ =============================================================================
+ Constructors
+ =============================================================================
+ */
++ (NSData *)msidDataFromBase64UrlEncodedString:(NSString *)encodedString;
+
+/*!
+ =============================================================================
+ Convenience methods
+ =============================================================================
+ */
+/*! Converts to hex string */
+- (NSString *)msidHexString;
+
+/*! Converts NSData to base64 String */
+- (NSString *)msidBase64UrlEncodedString;
+
+/*! Converts NSData to JSON Dictionary */
 - (NSDictionary *)msidToJsonDictionary:(NSError **)error;
-- (NSString *)msidComputeSHA256;
-- (NSString *)msidComputeSHA1;
-- (NSString *)msidComputeSHA1Base64Encoded;
 
 @end
