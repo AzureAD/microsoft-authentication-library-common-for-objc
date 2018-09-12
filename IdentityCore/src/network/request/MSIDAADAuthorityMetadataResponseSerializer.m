@@ -43,16 +43,16 @@
     __auto_type reponse = [MSIDAADAuthorityMetadataResponse new];
     reponse.metadata = jsonObject[@"metadata"];
     
-    if (![jsonObject assertContainsField:@"tenant_discovery_endpoint" context:context error:error])
+    if (![jsonObject msidAssertContainsField:@"tenant_discovery_endpoint" context:context error:error])
     {
         return nil;
     }
     
-    if (![jsonObject assertType:NSString.class
-                        ofField:@"tenant_discovery_endpoint"
-                        context:context
-                      errorCode:MSIDErrorServerInvalidResponse
-                          error:error])
+    if (![jsonObject msidAssertType:NSString.class
+                            ofField:@"tenant_discovery_endpoint"
+                            context:context
+                          errorCode:MSIDErrorServerInvalidResponse
+                              error:error])
     {
         return nil;
     }

@@ -24,7 +24,11 @@
 #import <Foundation/Foundation.h>
 
 @interface NSString (MSIDExtensions)
-
+/*!
+ =============================================================================
+ Encoding/Decoding and other string calculations/manipulations
+ =============================================================================
+ */
 /*! Encodes string to the Base64 encoding. */
 - (NSString *)msidBase64UrlEncode;
 /*! Decodes string from the Base64 encoding. */
@@ -35,33 +39,52 @@
 
 /*! Returns the same string, but without the leading and trailing whitespace */
 - (NSString *)msidTrimmedString;
+ 
+/*! Decodes a application/x-www-form-urlencoded string.
+ See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details. */
+- (NSString *)msidWWWFormURLDecode;
 
-/*! Decodes a previously URL encoded string. */
-- (NSString *)msidUrlFormDecode;
-
-/*! Encodes the string to pass it as a URL agrument. */
-- (NSString *)msidUrlFormEncode;
-
-/*! Converts base64 String to NSData */
-+ (NSData *)msidBase64UrlDecodeData:(NSString *)encodedString;
-
-/*! Converts NSData to base64 String */
-+ (NSString *)msidBase64UrlEncodeData:(NSData *)data;
-
-- (NSString*)msidComputeSHA256;
-
-/*! Converts string to url */
-- (NSURL *)msidUrl;
+/*! Encodes the string to be application/x-www-form-urlencoded.
+ See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details.  */
+- (NSString *)msidWWWFormURLEncode;
 
 /*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
  the actual contents, but still want to log something that can be correlated. */
 - (NSString *)msidTokenHash;
 
-- (NSOrderedSet<NSString *> *)scopeSet;
-
-/*! Generate a URL-safe string of random data */
-+ (NSString *)randomUrlSafeStringOfSize:(NSUInteger)size;
-
+/*! Check if current string is included in the array - case insensitive */
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases;
+
+/*!
+ =============================================================================
+ String constructors
+ =============================================================================
+ */
+/*! Generate a URL-safe string of random data */
++ (NSString *)msidRandomUrlSafeStringOfByteSize:(NSUInteger)size;
+
+/*! Generate a hex string from data */
++ (NSString *)msidHexStringFromData:(NSData *)data;
+
+/*! Generate a base64 url-encoded string from data */
++ (NSString *)msidBase64UrlEncodedStringFromData:(NSData *)data;
+
+/*! Generate a www-form-urlencoded string from dictionary
+ Key and value are separated by '=' and key-value tuples are separated by &.
+ Non-alphanumeric characters are percent encoded for both keys and values.
+ See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details.
+ */
++ (NSString *)msidWWWFormURLEncodedStringFromDictionary:(NSDictionary *)dict;
+
+/*!
+ =============================================================================
+ Convenience methods
+ =============================================================================
+ */
+/*! Convenience method to convert string to NSOrderedSet */
++ (NSString *)msidStringFromOrderedSet:(NSOrderedSet *)set;
+
+/*! Convenience method to convert string to scope set */
+- (NSOrderedSet<NSString *> *)msidScopeSet;
 
 @end

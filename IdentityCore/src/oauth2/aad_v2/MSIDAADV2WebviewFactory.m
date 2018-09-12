@@ -34,7 +34,7 @@
     NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
                                                                                                  requestState:state];
  
-    NSMutableOrderedSet<NSString *> *allScopes = parameters[MSID_OAUTH2_SCOPE].scopeSet.mutableCopy;
+    NSMutableOrderedSet<NSString *> *allScopes = parameters[MSID_OAUTH2_SCOPE].msidScopeSet.mutableCopy;
     if (!allScopes)
     {
         allScopes = [NSMutableOrderedSet new];

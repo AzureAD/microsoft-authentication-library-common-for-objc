@@ -202,7 +202,7 @@
         return NO;
     }
     
-    token.scopes = [response.target scopeSet];
+    token.scopes = [response.target msidScopeSet];
     token.accessToken = response.accessToken;
     
     if (!token.accessToken)

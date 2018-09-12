@@ -97,7 +97,7 @@
     [request setHTTPMethod:@"POST"];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     
-    NSData *requestBody = [[postParams msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *requestBody = [[postParams msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding];
     [request setHTTPBody:requestBody];
     
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];

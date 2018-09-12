@@ -29,6 +29,8 @@
 
 @interface NSDictionary (MSIDTestUtil)
 
+- (NSArray<NSURLQueryItem *> *)urlQueryItemsArray;
+
 - (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary;
 - (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary
       dictionaryDescription:(NSString *)description;

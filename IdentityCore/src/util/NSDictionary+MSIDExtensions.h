@@ -26,20 +26,21 @@
 @interface NSDictionary (MSIDExtensions)
 
 + (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string;
-+ (NSDictionary *)msidURLFormDecode:(NSString *)string;
-- (NSString *)msidURLFormEncode;
++ (NSDictionary *)msidDictionaryFromWWWFormURLEncodedString:(NSString *)string;
++ (NSDictionary *)msidDictionaryFromJsonData:(NSData *)data error:(NSError **)error;
+
+- (NSString *)msidWWWFormURLEncode;
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
 
-- (NSArray<NSURLQueryItem *> *)urlQueryItemsArray;
 
-- (BOOL)assertType:(Class)type
-           ofField:(NSString *)field
-           context:(id <MSIDRequestContext>)context
-         errorCode:(NSInteger)errorCode
-             error:(NSError **)error;
+- (BOOL)msidAssertType:(Class)type
+               ofField:(NSString *)field
+               context:(id <MSIDRequestContext>)context
+             errorCode:(NSInteger)errorCode
+                 error:(NSError **)error;
 
-- (BOOL)assertContainsField:(NSString *)field
-                    context:(id <MSIDRequestContext>)context
-                      error:(NSError **)error;
+- (BOOL)msidAssertContainsField:(NSString *)field
+                        context:(id <MSIDRequestContext>)context
+                          error:(NSError **)error;
 
 @end

@@ -107,7 +107,8 @@
 {
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
 
-    __auto_type authority = [self.authorityFactory authorityFromUrl:[response.authority msidUrl] context:context error:error];
+    __auto_type authority = [self.authorityFactory authorityFromUrl:[NSURL URLWithString:response.authority]
+                                                            context:context error:error];
     
     if (!authority) return NO;
     
