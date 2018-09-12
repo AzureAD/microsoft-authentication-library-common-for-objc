@@ -39,6 +39,8 @@
 #import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Cache.h"
+#import "MSIDAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -137,8 +139,8 @@
 
         MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
         query.homeAccountId = account.homeAccountId;
-        query.environment = configuration.authority.msidHostWithPortIfNecessary;
-        query.clientId = configuration.clientId;
+        query.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
+        query.clientId = familyId ? nil : configuration.clientId;
         query.familyId = familyId;
         query.credentialType = MSIDRefreshTokenType;
 
@@ -219,8 +221,8 @@
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = account.homeAccountId;
-    query.environment = configuration.authority.msidHostWithPortIfNecessary;
-    query.realm = configuration.authority.msidTenant;
+    query.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
+    query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
     query.target = configuration.target;
     query.targetMatchingOptions = MSIDSubSet;
@@ -239,8 +241,8 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = account.homeAccountId;
-    query.environment = configuration.authority.msidHostWithPortIfNecessary;
-    query.realm = configuration.authority.msidTenant;
+    query.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
+    query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
     query.credentialType = MSIDIDTokenType;
 
@@ -265,11 +267,11 @@
     NSArray<NSString *> *environmentAliases = [_factory defaultCacheAliasesForEnvironment:environment];
     __auto_type accountsPerUserId = [self getAccountsPerUserIdForAliases:environmentAliases context:context error:error];
 
-    if (!accountsPerUserId)
+    if (![accountsPerUserId count])
     {
         MSID_LOG_INFO(context, @"No accounts found, returning!");
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-        return nil;
+        return @[];
     }
 
     MSIDDefaultCredentialCacheQuery *credentialsQuery = [MSIDDefaultCredentialCacheQuery new];
@@ -321,7 +323,7 @@
 
     MSIDDefaultAccountCacheQuery *cacheQuery = [MSIDDefaultAccountCacheQuery new];
     cacheQuery.homeAccountId = accountIdentifier.homeAccountId;
-    cacheQuery.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.msidHostWithPortIfNecessary];
+    cacheQuery.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
     cacheQuery.accountType = MSIDAccountTypeMSSTS;
 
     NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:cacheQuery context:context error:error];
@@ -440,7 +442,7 @@
     MSID_LOG_VERBOSE(context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
     MSID_LOG_VERBOSE_PII(context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.accountIdentifier.homeAccountId, _PII_NULLIFY(token.refreshToken));
 
-    NSURL *authority = token.storageAuthority ? token.storageAuthority : token.authority;
+    NSURL *authority = token.storageAuthority.url ? token.storageAuthority.url : token.authority.url;
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = token.accountIdentifier.homeAccountId;
@@ -650,8 +652,8 @@
     // Delete access tokens with intersecting scopes
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = accessToken.accountIdentifier.homeAccountId;
-    query.environment = accessToken.authority.msidHostWithPortIfNecessary;
-    query.realm = accessToken.authority.msidTenant;
+    query.environment = accessToken.authority.environment;
+    query.realm = accessToken.authority.url.msidTenant;
     query.clientId = accessToken.clientId;
     query.target = [accessToken.scopes msidToString];
     query.targetMatchingOptions = MSIDIntersect;
@@ -727,42 +729,37 @@
 
 #pragma mark - Private
 
-- (MSIDBaseToken *)getTokenWithAuthority:(NSURL *)authority
+- (MSIDBaseToken *)getTokenWithAuthority:(MSIDAuthority *)authority
                               cacheQuery:(MSIDDefaultCredentialCacheQuery *)cacheQuery
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *aliases = [_factory defaultCacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for token with aliases %@, tenant %@, clientId %@, scopes %@", cacheQuery.environmentAliases, cacheQuery.realm, cacheQuery.clientId, cacheQuery.target);
 
-    for (NSString *alias in aliases)
+    NSError *cacheError = nil;
+
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = [_accountCredentialCache getCredentialsWithQuery:cacheQuery legacyUserId:nil context:context error:error];
+
+    if (cacheError)
     {
-        MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for token with alias %@, tenant %@, clientId %@, scopes %@", alias, cacheQuery.realm, cacheQuery.clientId, cacheQuery.target);
+        if (error) *error = cacheError;
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+        return nil;
+    }
 
-        NSError *cacheError = nil;
+    if ([cacheItems count])
+    {
+        MSIDBaseToken *resultToken = [cacheItems[0] tokenWithType:cacheQuery.credentialType];
 
-        NSArray<MSIDCredentialCacheItem *> *cacheItems = [_accountCredentialCache getCredentialsWithQuery:cacheQuery legacyUserId:nil context:context error:error];
-
-        if (cacheError)
+        if (resultToken)
         {
-            if (error) *error = cacheError;
-            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-            return nil;
-        }
-
-        if ([cacheItems count])
-        {
-            MSIDBaseToken *resultToken = [cacheItems[0] tokenWithType:cacheQuery.credentialType];
-
-            if (resultToken)
-            {
-                MSID_LOG_VERBOSE(context, @"(Default accessor) Found %lu tokens", (unsigned long)[cacheItems count]);
-                resultToken.storageAuthority = resultToken.authority;
-                resultToken.authority = authority;
-                [MSIDTelemetry stopCacheEvent:event withItem:resultToken success:YES context:context];
-                return resultToken;
-            }
+            MSID_LOG_VERBOSE(context, @"(Default accessor) Found %lu tokens", (unsigned long)[cacheItems count]);
+            resultToken.storageAuthority = resultToken.authority;
+            resultToken.authority = authority;
+            [MSIDTelemetry stopCacheEvent:event withItem:resultToken success:YES context:context];
+            return resultToken;
         }
     }
 
@@ -778,7 +775,7 @@
 }
 
 - (MSIDBaseToken *)getRefreshTokenByLegacyUserId:(NSString *)legacyUserId
-                                       authority:(NSURL *)authority
+                                       authority:(MSIDAuthority *)authority
                                         clientId:(NSString *)clientId
                                         familyId:(NSString *)familyId
                                          context:(id<MSIDRequestContext>)context
@@ -789,7 +786,7 @@
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *aliases = [_factory defaultCacheAliasesForEnvironment:authority.msidHostWithPortIfNecessary];
+    NSArray<NSString *> *aliases = [_factory defaultCacheAliasesForEnvironment:authority.environment];
 
     NSString *clientIdForQueries = clientId;
 
@@ -875,7 +872,7 @@
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
     MSIDAccountCacheItem *cacheItem = account.accountCacheItem;
-    cacheItem.environment = [_factory cacheEnvironmentFromEnvironment:account.authority.msidHostWithPortIfNecessary context:context];
+    cacheItem.environment = [_factory cacheEnvironmentFromEnvironment:account.authority.environment context:context];
 
     BOOL result = [_accountCredentialCache saveAccount:cacheItem context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];

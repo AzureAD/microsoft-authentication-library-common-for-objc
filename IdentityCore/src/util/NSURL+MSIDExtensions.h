@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+@protocol MSIDRequestContext;
+
 @interface NSURL (MSIDExtensions)
 
 @property (readonly, nonatomic) NSDictionary *msidFragmentParameters;
@@ -50,5 +52,7 @@
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment;
 
 - (NSDictionary *)msidQueryParameters;
+
+- (NSURL *)msidURLForPreferredHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error;
 
 @end

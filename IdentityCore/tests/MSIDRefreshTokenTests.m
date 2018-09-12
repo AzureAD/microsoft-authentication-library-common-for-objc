@@ -24,7 +24,9 @@
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDAuthority.h"
 #import "MSIDAccountIdentifier.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDRefreshTokenTests : XCTestCase
 
@@ -139,7 +141,7 @@
 
     MSIDRefreshToken *token = [[MSIDRefreshToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+    XCTAssertEqualObjects(token.authority.url, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
@@ -155,7 +157,7 @@
 - (MSIDRefreshToken *)createToken
 {
     MSIDRefreshToken *token = [MSIDRefreshToken new];
-    token.authority = [NSURL URLWithString:@"https://contoso.com/common"];
+    token.authority = [@"https://contoso.com/common" authority];
     token.clientId = @"some clientId";
     token.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     token.additionalServerInfo = @{@"spe_info" : @"value2"};

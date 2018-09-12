@@ -21,22 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDDRSType.h"
+#import "MSIDAuthority.h"
 
-@protocol MSIDAADEndpointProviding <NSObject>
+@interface MSIDADFSAuthority : MSIDAuthority
 
-- (NSURL *)oauth2AuthorizeEndpointWithUrl:(NSURL *)baseUrl;
-
-- (NSURL *)oauth2TokenEndpointWithUrl:(NSURL *)baseUrl;
-
-- (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDDRSType)type;
-
-- (NSURL *)webFingerDiscoveryEndpointWithIssuer:(NSURL *)issuer;
-
-- (NSURL *)openIdConfigurationEndpointWithUrl:(NSURL *)baseUrl;
-
-- (NSURL *)aadAuthorityDiscoveryEndpointWithHost:(NSString *)host;
-
++ (BOOL)isAuthorityFormatValid:(nonnull NSURL *)url
+                       context:(nullable id<MSIDRequestContext>)context
+                         error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

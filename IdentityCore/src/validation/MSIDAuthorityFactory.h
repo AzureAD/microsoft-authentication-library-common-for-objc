@@ -22,21 +22,18 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDDRSType.h"
 
-@protocol MSIDAADEndpointProviding <NSObject>
+@class MSIDAuthority;
 
-- (NSURL *)oauth2AuthorizeEndpointWithUrl:(NSURL *)baseUrl;
+@interface MSIDAuthorityFactory : NSObject
 
-- (NSURL *)oauth2TokenEndpointWithUrl:(NSURL *)baseUrl;
+- (nullable MSIDAuthority *)authorityFromUrl:(nonnull NSURL *)url
+                                        context:(nullable id<MSIDRequestContext>)context
+                                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
-- (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDDRSType)type;
-
-- (NSURL *)webFingerDiscoveryEndpointWithIssuer:(NSURL *)issuer;
-
-- (NSURL *)openIdConfigurationEndpointWithUrl:(NSURL *)baseUrl;
-
-- (NSURL *)aadAuthorityDiscoveryEndpointWithHost:(NSString *)host;
-
+- (nullable MSIDAuthority *)authorityFromUrl:(nonnull NSURL *)url
+                                   rawTenant:(nullable NSString *)rawTenant
+                                     context:(nullable id<MSIDRequestContext>)context
+                                       error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

@@ -22,26 +22,28 @@
 // THE SOFTWARE.
 
 #import "MSIDB2CAuthorityResolver.h"
-#import "MSIDAuthority.h"
+#import "MSIDB2CAuthority.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAADEndpointProviding.h"
 
 @implementation MSIDB2CAuthorityResolver
 
-- (void)resolveAuthority:(NSURL *)authority
+- (void)resolveAuthority:(MSIDB2CAuthority *)authority
        userPrincipalName:(NSString *)upn
                 validate:(BOOL)validate
                  context:(id<MSIDRequestContext>)context
          completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
-    if (validate && ![MSIDAuthority isKnownHost:authority])
+    NSParameterAssert([authority isKindOfClass:MSIDB2CAuthority.self]);
+    
+    if (validate && ![authority isKnown])
     {
         __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"Authority validation is not supported for this type of authority", nil, nil, nil, context.correlationId, nil);
         if (completionBlock) completionBlock(nil, NO, error);
         return;
     }
     
-    __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority];
+    __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
     
     if (completionBlock) completionBlock(endpoint, validate, nil);
 }

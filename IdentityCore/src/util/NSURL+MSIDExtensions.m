@@ -24,7 +24,6 @@
 #import "NSURL+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
-#import "MSIDAadAuthorityCache.h"
 
 const unichar fragmentSeparator = '#';
 const unichar queryStringSeparator = '?';
@@ -195,5 +194,63 @@ const unichar queryStringSeparator = '?';
     return [self msidURLWithEnvironment:environment tenant:@"common"];
 }
 
+
+- (NSURL *)msidURLForPreferredHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError **)error
+{
+    NSURL *url = [self copy];
+    
+    if (!preferredHost)
+    {
+        return url;
+    }
+    
+    if ([url.msidHostWithPortIfNecessary isEqualToString:preferredHost])
+    {
+        return url;
+    }
+    
+    // Otherwise switch the host for the preferred one.
+    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+    
+    @try
+    {
+        NSArray *hostComponents = [preferredHost componentsSeparatedByString:@":"];
+        
+        // I hope there's never a case where there's percent encoded characters in the host, but using
+        // this setter prevents NSURLComponents from trying to do any further mangling on the string,
+        // probably a good thing.
+        components.percentEncodedHost = hostComponents[0];
+        
+        if (hostComponents.count > 1)
+        {
+            NSScanner *scanner = [NSScanner scannerWithString:hostComponents[1]];
+            int port = 0;
+            if (![scanner scanInt:&port] || !scanner.isAtEnd || port < 1 )
+            {
+                // setPercentEncodedHost and setPort both throw if there's an error, so it's okay for
+                // us to throw here as well to propogate the error
+                @throw [NSException exceptionWithName:@"InvalidNumberFormatException" reason:@"Port is not a valid integer or port" userInfo:nil];
+                MSID_LOG_ERROR(context, @"Port is not a valid integer or port.");
+            }
+            components.port = [NSNumber numberWithInt:port];
+        }
+        else
+        {
+            components.port = nil;
+        }
+    }
+    @catch (NSException *ex)
+    {
+        NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Failed to replace a host in url.", nil, nil, nil, context.correlationId, nil);
+        
+        if (error) *error = msidError;
+        
+        MSID_LOG_ERROR(context, @"Failed to replace a host in url.");
+        
+        return nil;
+    }
+    
+    return components.URL;
+}
 
 @end

@@ -25,23 +25,27 @@
 #import "MSIDConfiguration.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "NSString+MSIDTestUtil.h"
 
 @implementation MSIDTestConfiguration
 
 + (MSIDConfiguration *)defaultParams
 {
-    return [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY]
+    
+    
+    return [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY authority]
                                             redirectUri:nil
                                                clientId:DEFAULT_TEST_CLIENT_ID
                                                  target:nil];
 }
 
-+ (MSIDConfiguration *)configurationWithAuthority:(NSString *)authority
++ (MSIDConfiguration *)configurationWithAuthority:(NSString *)authorityUrlString
                                          clientId:(NSString *)clientId
                                       redirectUri:(NSString *)redirectUri
                                            target:(NSString *)target
 {
-    return [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:authority]
+    
+    return [[MSIDConfiguration alloc] initWithAuthority:[authorityUrlString authority]
                                             redirectUri:redirectUri
                                                clientId:clientId
                                                  target:target];

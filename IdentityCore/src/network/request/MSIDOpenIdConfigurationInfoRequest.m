@@ -24,6 +24,7 @@
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDOpenIdConfigurationInfoResponseSerializer.h"
 #import "MSIDAuthority.h"
+#import "MSIDAADRequestConfigurator.h"
 
 @implementation MSIDOpenIdConfigurationInfoRequest
 
@@ -41,6 +42,11 @@
         urlRequest.URL = endpoint;
         urlRequest.HTTPMethod = @"GET";
         _urlRequest = urlRequest;
+        
+        _context = context;
+        
+        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
+        [requestConfigurator configure:self];
         
         __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
         responseSerializer.endpoint = endpoint;

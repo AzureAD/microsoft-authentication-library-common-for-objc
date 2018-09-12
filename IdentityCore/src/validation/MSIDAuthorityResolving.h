@@ -24,12 +24,13 @@
 #import <Foundation/Foundation.h>
 
 @protocol MSIDRequestContext;
+@class MSIDAuthority;
 
 typedef void(^MSIDAuthorityInfoBlock)(NSURL * _Nullable openIdConfigurationEndpoint, BOOL validated, NSError * _Nullable error);
 
 @protocol MSIDAuthorityResolving <NSObject>
 
-- (void)resolveAuthority:(nonnull NSURL *)authority
+- (void)resolveAuthority:(nonnull MSIDAuthority *)authority
        userPrincipalName:(nullable NSString *)upn
                 validate:(BOOL)validate
                  context:(nullable id<MSIDRequestContext>)context

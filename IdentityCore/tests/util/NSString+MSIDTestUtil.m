@@ -21,9 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "NSString+MSIDTestUtil.h"
+#import "MSIDAuthorityFactory.h"
 
-@implementation NSString (ADTestUtil)
+@implementation NSString (MSIDTestUtil)
+
+- (MSIDAuthority *)authority
+{
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authorityUrl = [[NSURL alloc] initWithString:self];
+    __auto_type authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+    
+    return authority;
+}
 
 - (NSURL *)msidUrl
 {
@@ -34,6 +43,5 @@
 {
     return [self dataUsingEncoding:NSUTF8StringEncoding];
 }
-
 
 @end
