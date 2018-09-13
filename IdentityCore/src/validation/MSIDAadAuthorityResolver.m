@@ -70,7 +70,7 @@ static dispatch_queue_t s_aadValidationQueue;
     MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.environment];
     if (record)
     {
-        [self handleRecord:record completionBlock:completionBlock];
+        [self handleRecord:record authority:authority completionBlock:completionBlock];
         return;
     }
     
@@ -118,7 +118,7 @@ static dispatch_queue_t s_aadValidationQueue;
     MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.environment];
     if (record)
     {
-        [self handleRecord:record completionBlock:completionBlock];
+        [self handleRecord:record authority:authority completionBlock:completionBlock];
         return;
     }
     
@@ -155,7 +155,8 @@ static dispatch_queue_t s_aadValidationQueue;
          {
              if (result)
              {
-                 completionBlock(response.openIdConfigurationEndpoint, YES, nil);
+                 __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
+                 completionBlock(endpoint, YES, nil);
              }
              else
              {
@@ -166,11 +167,14 @@ static dispatch_queue_t s_aadValidationQueue;
 }
 
 - (void)handleRecord:(MSIDAadAuthorityCacheRecord *)record
+           authority:(MSIDAuthority *)authority
      completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
     NSParameterAssert(completionBlock);
+
+    __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
     
-    completionBlock(record.openIdConfigurationEndpoint, record.validated, record.error);
+    completionBlock(endpoint, record.validated, record.error);
 }
 
 @end
