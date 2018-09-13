@@ -93,25 +93,25 @@
     XCTAssertEqualObjects(simple, ([[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2#foo3=bar3"] msidQueryParameters]));
 }
 
-- (void)testAdQueryParameters_whenContainsPercentEncoding
+- (void)testMsQueryParameters_whenContainsPercentEncoding
 {
     NSDictionary *withEncoded = @{@"foo1" : @"bar1", @"foo2" : @"bar2", @"foo3=bar3" : @"foo4&bar4=bar5"};
     XCTAssertEqualObjects(withEncoded, ([[NSURL URLWithString:@"https://contoso.com?foo1=bar1&foo2=bar2&foo3%3Dbar3=foo4%26bar4%3Dbar5"] msidQueryParameters]));
 }
 
-- (void)testmsidHostWithPortIfNecessary_whenNoPortSpecified
+- (void)testMsidHostWithPortIfNecessary_whenNoPortSpecified
 {
     NSURL *url = [NSURL URLWithString:@"https://somehost.com"];
     XCTAssertEqualObjects(url.msidHostWithPortIfNecessary, @"somehost.com");
 }
 
-- (void)testmsidHostWithPortIfNecessary_whenStandardPortSpecified
+- (void)testMsidHostWithPortIfNecessary_whenStandardPortSpecified
 {
     NSURL *url = [NSURL URLWithString:@"https://somehost.com:443"];
     XCTAssertEqualObjects(url.msidHostWithPortIfNecessary, @"somehost.com");
 }
 
-- (void)testmsidHostWithPortIfNecessary_whenNonStandardPortSpecified
+- (void)testMsidHostWithPortIfNecessary_whenNonStandardPortSpecified
 {
     NSURL *url = [NSURL URLWithString:@"https://somehost.com:652"];
     XCTAssertEqualObjects(url.msidHostWithPortIfNecessary, @"somehost.com:652");
@@ -310,27 +310,5 @@
     XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://");
 }
     
-#pragma mark - add query parameters
-
-- (void)testmsidAddParametersToUrl_whenNilParameters_shouldReturnAsIs
-{
-    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?key1=value1"];
-    XCTAssertEqualObjects(url, [NSURL msidAddParameters:nil toUrl:url]);
-}
-
-- (void)testmsidAddParametersToUrl_whenEmptyParameters_shouldReturnAsIs
-{
-    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?key1=value1"];
-    XCTAssertEqualObjects(url, [NSURL msidAddParameters:@{} toUrl:url]);
-}
-
-- (void)testmsidAddParametersToUrl_whenParametersNotNil_shouldAddParameters
-{
-    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?k1=v1"];
-    NSURL *newUrl = [NSURL msidAddParameters:@{@"k2":@"v2", @"k3":@"v3"} toUrl:url];
-    NSURL *expectedUrl = [NSURL URLWithString:@"https://login.microsoftonline.com:88/contoso.com?k1=v1&k2=v2&k3=v3"];
-    XCTAssertEqualObjects(newUrl.msidQueryParameters, expectedUrl.msidQueryParameters);
-    XCTAssertTrue([newUrl msidIsEquivalentAuthority:expectedUrl]);
-}
 
 @end

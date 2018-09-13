@@ -29,20 +29,20 @@
 
 + (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
 {
-    return [self msidDictionaryFromString:string decode:NO];
+    return [self msidDictionaryFromQueryString:string WWWURLFormDecode:NO];
 }
 
 // Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
 // Always returns a dictionary, even if the string is nil, empty or contains no pairs
-+ (NSDictionary *)msidURLFormDecode:(NSString *)string
++ (NSDictionary *)msidDictionaryFromWWWFormURLEncodedString:(NSString *)string
 {
-    return [self msidDictionaryFromString:string decode:YES];
+    return [self msidDictionaryFromQueryString:string WWWURLFormDecode:YES];
 }
 
-+ (NSDictionary *)msidDictionaryFromString:(NSString *)string
-                                    decode:(BOOL)decode
++ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
+                                WWWURLFormDecode:(BOOL)decode
 {
-    if (!string)
+    if ([NSString msidIsStringNilOrBlank:string])
     {
         return nil;
     }
@@ -59,7 +59,7 @@
             continue;
         }
         
-        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidUrlFormDecode : [queryElements[0] msidTrimmedString];
+        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString];
         if ([NSString msidIsStringNilOrBlank:key])
         {
             MSID_LOG_WARN(nil, @"Query parameter must have a key");
@@ -69,7 +69,7 @@
         NSString *value = @"";
         if (queryElements.count == 2)
         {
-            value = decode ? [queryElements[1] msidTrimmedString].msidUrlFormDecode : [queryElements[1] msidTrimmedString];
+            value = decode ? [queryElements[1] msidTrimmedString].msidWWWFormURLDecode : [queryElements[1] msidTrimmedString];
         }
         
         [queryDict setValue:value forKey:key];
@@ -78,42 +78,21 @@
     return queryDict;
 }
 
-// Encodes a dictionary consisting of a set of name/values pairs that are strings to www-form-urlencoded
-// Returns nil if the dictionary is empty, otherwise the encoded value
-- (NSString *)msidURLFormEncode
++ (NSDictionary *)msidDictionaryFromJsonData:(NSData *)data error:(NSError **)error
 {
-    __block NSMutableString *encodedString = nil;
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:error];
     
-    [self enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL __unused *stop)
-     {
-         NSString *encodedKey = [[[key description] msidTrimmedString] msidUrlFormEncode];
-         
-         if (!encodedString)
-         {
-             encodedString = [NSMutableString new];
-         }
-         else
-         {
-             [encodedString appendString:@"&"];
-         }
-         
-         [encodedString appendFormat:@"%@", encodedKey];
-         
-         NSString *v = [value description];
-         if ([value isKindOfClass:NSUUID.class])
-         {
-             v = ((NSUUID *)value).UUIDString;
-         }
-         NSString *encodedValue = [[v msidTrimmedString] msidUrlFormEncode];
-         
-         if (![NSString msidIsStringNilOrBlank:encodedValue])
-         {
-             [encodedString appendFormat:@"=%@", encodedValue];
-         }
-         
-     }];
-    return encodedString;
+    return json;
 }
+
+
+- (NSString *)msidWWWFormURLEncode
+{
+    return [NSString msidWWWFormURLEncodedStringFromDictionary:self];
+}
+
 
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove
 {
@@ -122,28 +101,12 @@
     return mutableDict;
 }
 
-- (NSArray<NSURLQueryItem *> *)urlQueryItemsArray
-{
-    NSMutableArray<NSURLQueryItem *> *array = [NSMutableArray new];
-    
-    for (id key in self.allKeys)
-    {
-        
-        NSString *value = [self[key] isKindOfClass:NSUUID.class] ?
-        ((NSUUID *)self[key]).UUIDString : [self[key] description];
-        
-        [array addObject:[NSURLQueryItem queryItemWithName:[[key description] msidUrlFormEncode]
-                                                     value:[value description]]];
-    }
-    
-    return array;
-}
 
-- (BOOL)assertType:(Class)type
-           ofField:(NSString *)field
-           context:(id <MSIDRequestContext>)context
-         errorCode:(NSInteger)errorCode
-             error:(NSError **)error
+- (BOOL)msidAssertType:(Class)type
+               ofField:(NSString *)field
+               context:(id <MSIDRequestContext>)context
+             errorCode:(NSInteger)errorCode
+                 error:(NSError **)error
 {
     id fieldValue = self[field];
     if (![fieldValue isKindOfClass:type])
@@ -166,9 +129,9 @@
     return YES;
 }
 
-- (BOOL)assertContainsField:(NSString *)field
-                    context:(id <MSIDRequestContext>)context
-                      error:(NSError **)error
+- (BOOL)msidAssertContainsField:(NSString *)field
+                        context:(id <MSIDRequestContext>)context
+                          error:(NSError **)error
 {
     id fieldValue = self[field];
     if (!fieldValue)

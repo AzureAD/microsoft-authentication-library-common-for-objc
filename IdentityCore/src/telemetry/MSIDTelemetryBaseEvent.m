@@ -29,6 +29,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDVersion.h"
 #import "MSIDTelemetry.h"
+#import "NSData+MSIDExtensions.h"
 
 @implementation MSIDTelemetryBaseEvent
 
@@ -71,7 +72,7 @@
     
     if ([MSIDTelemetryPiiOiiRules isPii:name])
     {
-        value = [value msidComputeSHA256];
+        value = [[value dataUsingEncoding:NSUTF8StringEncoding] msidSHA256].msidHexString;
     }
     
     [_propertyMap setValue:value forKey:name];
@@ -151,7 +152,7 @@
         NSString *value = rawParameters[key];
         if ([MSIDTelemetryPiiOiiRules isPii:key])
         {
-            value = [value msidComputeSHA256];
+            value = [[value dataUsingEncoding:NSUTF8StringEncoding] msidSHA256].msidHexString;
         }
         
         [defaultParameters setValue:value forKey:key];

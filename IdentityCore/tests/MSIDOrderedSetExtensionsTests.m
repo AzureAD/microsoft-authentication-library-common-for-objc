@@ -21,37 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
+#import "NSOrderedSet+MSIDExtensions.h"
 
-@interface NSData (MSIDExtensions)
+@interface MSIDOrderedSetExtensionsTests : XCTestCase
 
-/*!
- =============================================================================
- Hashing
- =============================================================================
- */
-- (NSData *)msidSHA1;
-- (NSData *)msidSHA256;
+@end
 
-/*!
- =============================================================================
- Constructors
- =============================================================================
- */
-+ (NSData *)msidDataFromBase64UrlEncodedString:(NSString *)encodedString;
+@implementation MSIDOrderedSetExtensionsTests
 
-/*!
- =============================================================================
- Convenience methods
- =============================================================================
- */
-/*! Converts to hex string */
-- (NSString *)msidHexString;
+- (void)setUp {
+    [super setUp];
+    // Put setup code here. This method is called before the invocation of each test method in the class.
+}
 
-/*! Converts NSData to base64 String */
-- (NSString *)msidBase64UrlEncodedString;
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [super tearDown];
+}
 
-/*! Converts NSData to JSON Dictionary */
-- (NSDictionary *)msidToJsonDictionary:(NSError **)error;
+- (void)testMsidOrderedSetFromString_whenNilString_shouldReturnEmptySet
+{
+    NSString *string = nil;
+    NSOrderedSet *set = [NSOrderedSet msidOrderedSetFromString:string];
+    
+    XCTAssertTrue(set.count == 0);
+}
+
+- (void)testMsidOrderedSetFromString_whenSpaceSeparatedStrings_shouldReturnSeparatedStrings
+{
+    NSString *string = @"scope1 scope2   scope3";
+    NSOrderedSet *set = [NSOrderedSet msidOrderedSetFromString:string];
+    
+    XCTAssertTrue(set.count == 3);
+    
+    XCTAssertTrue([set containsObject:@"scope1"]);
+    XCTAssertTrue([set containsObject:@"scope2"]);
+    XCTAssertTrue([set containsObject:@"scope3"]);
+}
 
 @end

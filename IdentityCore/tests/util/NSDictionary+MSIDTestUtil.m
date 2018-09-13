@@ -29,6 +29,23 @@
 
 @implementation NSDictionary (MSIDTestUtil)
 
+- (NSArray<NSURLQueryItem *> *)urlQueryItemsArray
+{
+    NSMutableArray<NSURLQueryItem *> *array = [NSMutableArray new];
+    
+    for (id key in self.allKeys)
+    {
+        
+        NSString *value = [self[key] isKindOfClass:NSUUID.class] ?
+        ((NSUUID *)self[key]).UUIDString : [self[key] description];
+        
+        [array addObject:[NSURLQueryItem queryItemWithName:[[key description] msidWWWFormURLEncode]
+                                                     value:[value description]]];
+    }
+    
+    return array;
+}
+
 - (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary
 {
     return [self compareAndPrintDiff:dictionary dictionaryDescription:@"dictionary"];
@@ -80,7 +97,7 @@
 - (NSString *)msidBase64UrlJson
 {
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self options:0 error:nil];
-    return [NSString msidBase64UrlEncodeData:jsonData];
+    return [NSString msidBase64UrlEncodedStringFromData:jsonData];
 }
 
 @end

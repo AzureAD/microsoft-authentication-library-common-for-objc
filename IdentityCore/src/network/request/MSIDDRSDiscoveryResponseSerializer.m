@@ -38,12 +38,12 @@
         return nil;
     }
     
-    if (![jsonObject assertContainsField:@"IdentityProviderService" context:context error:error])
+    if (![jsonObject msidAssertContainsField:@"IdentityProviderService" context:context error:error])
     {
         return nil;
     }
     
-    if (![jsonObject assertType:NSDictionary.class
+    if (![jsonObject msidAssertType:NSDictionary.class
                         ofField:@"IdentityProviderService"
                         context:context
                       errorCode:MSIDErrorServerInvalidResponse
@@ -54,16 +54,16 @@
     
     __auto_type serviceInfo = (NSDictionary *)jsonObject[@"IdentityProviderService"];
     
-    if (![serviceInfo assertContainsField:@"PassiveAuthEndpoint" context:context error:error])
+    if (![serviceInfo msidAssertContainsField:@"PassiveAuthEndpoint" context:context error:error])
     {
         return nil;
     }
     
-    if (![serviceInfo assertType:NSString.class
-                         ofField:@"PassiveAuthEndpoint"
-                         context:context
-                       errorCode:MSIDErrorServerInvalidResponse
-                           error:error])
+    if (![serviceInfo msidAssertType:NSString.class
+                             ofField:@"PassiveAuthEndpoint"
+                             context:context
+                           errorCode:MSIDErrorServerInvalidResponse
+                               error:error])
     {
         return nil;
     }

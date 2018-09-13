@@ -52,7 +52,6 @@
 + (NSURL *)msidURLWithEnvironment:(NSString *)environment;
 
 - (NSDictionary *)msidQueryParameters;
-+ (NSURL *)msidAddParameters:(NSDictionary<NSString *, NSString *> *)parameters toUrl:(NSURL *)url;
 
 - (NSURL *)msidURLForPreferredHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error;
 

@@ -22,48 +22,84 @@
 // THE SOFTWARE.
 
 #import "NSData+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
+#import "NSDictionary+MSIDExtensions.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation NSData (MSIDExtensions)
 
-- (NSString *)msidComputeSHA256
-{
-    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
-    CC_SHA256(self.bytes, (CC_LONG)self.length, hash);
-    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
-    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
-    {
-        [toReturn appendFormat:@"%02x", hash[i]];
-    }
-    return toReturn;
-}
-
-- (NSString *)msidComputeSHA1
+- (NSData *)msidSHA1
 {
     unsigned char hash[CC_SHA1_DIGEST_LENGTH];
     CC_SHA1(self.bytes, (CC_LONG)self.length, hash);
-    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA1_DIGEST_LENGTH*2];
-    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
-    {
-        [toReturn appendFormat:@"%02x", hash[i]];
-    }
-    return toReturn;
+    
+    return [NSData dataWithBytes:hash length:CC_SHA1_DIGEST_LENGTH];
 }
 
-- (NSString *)msidComputeSHA1Base64Encoded
+
+- (NSData *)msidSHA256
 {
-    NSMutableData *hashData = [NSMutableData dataWithLength:CC_SHA1_DIGEST_LENGTH];
-    CC_SHA1(self.bytes, (CC_LONG)self.length, [hashData mutableBytes]);
-    return [hashData base64EncodedStringWithOptions:0];
+    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(self.bytes, (CC_LONG)self.length, hash);
+    
+    return [NSData dataWithBytes:hash length:CC_SHA256_DIGEST_LENGTH];
+}
+
+
+- (NSString *)msidHexString
+{
+    return [NSString msidHexStringFromData:self];
+}
+
+
+- (NSString *)msidBase64UrlEncodedString
+{
+    return [NSString msidBase64UrlEncodedStringFromData:self];
 }
 
 - (NSDictionary *)msidToJsonDictionary:(NSError **)error
 {
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:self
-                                                         options:NSJSONReadingMutableContainers
-                                                           error:error];
-    
-    return json;
+    return [NSDictionary msidDictionaryFromJsonData:self error:error];
 }
+
+/// <summary>
+/// Base64 URL decode a set of bytes.
+/// </summary>
+/// <remarks>
+/// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
+/// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
+/// This SDK will use rfc7515 and decode using padding. See https://tools.ietf.org/html/rfc7515#appendix-C
+/// </remarks>
++ (NSData *)msidDataFromBase64UrlEncodedString:(NSString *)encodedString
+{
+    NSString *base64encoded = [[encodedString stringByReplacingOccurrencesOfString:@"-" withString:@"+"]
+                               stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
+    
+    // The input string lacks the usual '=' padding at the end, so the valid end sequences
+    // are:
+    //      ........XX           (cbEncodedSize % 4) == 2    (2 chars of virtual padding)
+    //      ........XXX          (cbEncodedSize % 4) == 3    (1 char of virtual padding)
+    //      ........XXXX         (cbEncodedSize % 4) == 0    (no virtual padding)
+    // Invalid sequences are:
+    //      ........X            (cbEncodedSize % 4) == 1
+    
+    // Input string is not sized correctly to be base64 URL encoded.
+    
+    NSUInteger stringMod4 = base64encoded.length % 4;
+    
+    if (stringMod4 == 1)
+    {
+        return nil;
+    }
+    
+    // 'virtual padding'
+    NSUInteger padding = (4 - stringMod4) % 4;
+    NSUInteger paddedLength = base64encoded.length + padding;
+    NSString *paddedString = [base64encoded stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
+    
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:paddedString options:0];
+    return data;
+}
+
 
 @end
