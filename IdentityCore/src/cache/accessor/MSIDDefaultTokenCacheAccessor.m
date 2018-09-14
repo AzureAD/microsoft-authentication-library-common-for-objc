@@ -394,7 +394,7 @@
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.clientId = clientId;
     query.homeAccountId = account.homeAccountId;
-    query.environment = environment;
+    query.environmentAliases = [_factory defaultCacheAliasesForEnvironment:environment];
     query.matchAnyCredentialType = YES;
 
     BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
@@ -407,7 +407,7 @@
 
     MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
     accountsQuery.homeAccountId = account.homeAccountId;
-    accountsQuery.environment = environment;
+    accountsQuery.environmentAliases = [_factory defaultCacheAliasesForEnvironment:environment];
 
     result = [_accountCredentialCache removeAccountsWithQuery:accountsQuery context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
