@@ -68,7 +68,7 @@
     __auto_type openIdConfigurationUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration" msidUrl];
+    __auto_type requestUrl = [@"https://example.com/common/.well-known/openid-configuration" msidUrl];
 
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
@@ -123,7 +123,7 @@
 {
     __auto_type openIdConfigurationUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration" msidUrl];
+    __auto_type requestUrl = [@"https://example.com/common/.well-known/openid-configuration" msidUrl];
 
     MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:requestUrl
                                                          respondWithError:[NSError new]];
@@ -444,7 +444,7 @@
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
 
-- (void)testDiscoverAuthority_whenAuthroityIsInvalid_shoulStoreInvalidRecordInCache
+- (void)testDiscoverAuthority_whenAuthorityIsInvalid_shoulStoreInvalidRecordInCache
 {
     __auto_type authorityUrl = [@"https://example.com/common/qwe" msidUrl];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
@@ -475,7 +475,7 @@
     expectation = [self expectationWithDescription:@"Read Invalid Authority From Cache"];
     [authority resolveAndValidate:YES userPrincipalName:nil context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertNil(openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(openIdConfigurationEndpoint.absoluteString, @"https://example.com/common/.well-known/openid-configuration");
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
          [expectation fulfill];
@@ -515,7 +515,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
     [authority resolveAndValidate:YES userPrincipalName:nil context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
-         XCTAssertEqualObjects(@"https://login.microsoftonline.com/common/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
+         XCTAssertEqualObjects(@"https://example.com/common/v2.0/.well-known/openid-configuration", openIdConfigurationEndpoint.absoluteString);
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          [expectation fulfill];

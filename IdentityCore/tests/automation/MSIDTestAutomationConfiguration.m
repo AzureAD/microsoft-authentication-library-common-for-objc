@@ -119,7 +119,8 @@
             _username = response[@"DomainAccount"];
         }
 
-        _homeTenantId = response[@"hometenantId"];
+        // TODO: lab doesn't return home tenant ID for non guest users...
+        _homeTenantId = [response[@"hometenantId"] length] ? response[@"hometenantId"] : response[@"tenantId"];
         _targetTenantId = response[@"tenantId"];
         _homeObjectId = response[@"objectId"];
         _password = response[@"password"];

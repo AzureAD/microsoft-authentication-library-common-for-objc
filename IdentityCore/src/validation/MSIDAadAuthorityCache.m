@@ -132,9 +132,9 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
         {
             VERIFY_HOST_STRING(alias, @"aliases", YES);
         }
-        
+
         record.openIdConfigurationEndpoint = openIdConfigEndpoint;
-        
+
         [recordsToAdd addObject:record];
     }
     

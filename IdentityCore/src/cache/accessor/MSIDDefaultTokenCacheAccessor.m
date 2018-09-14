@@ -391,10 +391,12 @@
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
+    NSArray *aliases = [_factory defaultCacheAliasesForEnvironment:environment];
+
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.clientId = clientId;
     query.homeAccountId = account.homeAccountId;
-    query.environment = environment;
+    query.environmentAliases = aliases;
     query.matchAnyCredentialType = YES;
 
     BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
@@ -407,7 +409,7 @@
 
     MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
     accountsQuery.homeAccountId = account.homeAccountId;
-    accountsQuery.environment = environment;
+    accountsQuery.environmentAliases = aliases;
 
     result = [_accountCredentialCache removeAccountsWithQuery:accountsQuery context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
@@ -852,11 +854,7 @@
     }
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
-
-    MSIDCredentialCacheItem *cacheItem = token.tokenCacheItem;
-    cacheItem.environment = [_factory cacheEnvironmentFromEnvironment:cacheItem.environment context:context];
-
-    BOOL result = [_accountCredentialCache saveCredential:cacheItem context:context error:error];
+    BOOL result = [_accountCredentialCache saveCredential:token.tokenCacheItem context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:token success:result context:context];
     return result;
 }
@@ -871,10 +869,7 @@
     }
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
-    MSIDAccountCacheItem *cacheItem = account.accountCacheItem;
-    cacheItem.environment = [_factory cacheEnvironmentFromEnvironment:account.authority.environment context:context];
-
-    BOOL result = [_accountCredentialCache saveAccount:cacheItem context:context error:error];
+    BOOL result = [_accountCredentialCache saveAccount:account.accountCacheItem context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
 }
