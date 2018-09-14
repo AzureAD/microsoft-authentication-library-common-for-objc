@@ -21,12 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+@protocol MSIDRequestContext;
+
 @interface NSDictionary (MSIDExtensions)
 
++ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string;
 + (NSDictionary *)msidURLFormDecode:(NSString *)string;
 - (NSString *)msidURLFormEncode;
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
 
 - (NSArray<NSURLQueryItem *> *)urlQueryItemsArray;
+
+- (BOOL)assertType:(Class)type
+           ofField:(NSString *)field
+           context:(id <MSIDRequestContext>)context
+         errorCode:(NSInteger)errorCode
+             error:(NSError **)error;
+
+- (BOOL)assertContainsField:(NSString *)field
+                    context:(id <MSIDRequestContext>)context
+                      error:(NSError **)error;
 
 @end

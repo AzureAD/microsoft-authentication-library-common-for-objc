@@ -22,11 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDHttpRequestErrorHandlerProtocol.h"
+#import "MSIDHttpRequestErrorHandling.h"
 
-@interface MSIDAADRequestErrorHandler : NSObject <MSIDHttpRequestErrorHandlerProtocol>
-
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
+@interface MSIDAADRequestErrorHandler : NSObject <MSIDHttpRequestErrorHandling>
 
 @end

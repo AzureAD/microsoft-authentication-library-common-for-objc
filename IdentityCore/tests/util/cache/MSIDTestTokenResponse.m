@@ -96,6 +96,7 @@
     
     NSMutableDictionary *jsonDictionary = [@{MSID_OAUTH2_TOKEN_TYPE: @"Bearer",
                                             MSID_OAUTH2_EXPIRES_IN: @"3600",
+                                            MSID_OAUTH2_EXT_EXPIRES_IN: @"3600",
                                             MSID_OAUTH2_SCOPE: scopesString
                                              } mutableCopy];
 

@@ -35,6 +35,7 @@
 @class MSIDAccount;
 @class MSIDConfiguration;
 @class MSIDWebviewFactory;
+@class MSIDAuthority;
 
 @protocol MSIDRequestContext;
 
@@ -62,15 +63,11 @@
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
-
 // Webview Factory
 @property (readonly) MSIDWebviewFactory *webviewFactory;
 
 // Cache URL
-- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority context:(id<MSIDRequestContext>)context;
 - (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context;
-- (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority;
-- (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities:(NSURL *)originalAuthority;
 - (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment;
 
 @end

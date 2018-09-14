@@ -21,16 +21,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDHttpRequestProtocol.h"
+#import "MSIDDefaultErrorConverter.h"
+#import "MSIDError.h"
 
-@protocol MSIDHttpRequestErrorHandlerProtocol <NSObject>
+@implementation MSIDDefaultErrorConverter
 
-- (void)handleError:(NSError * )error
-       httpResponse:(NSHTTPURLResponse *)httpResponse
-               data:(NSData *)data
-        httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
-            context:(id<MSIDRequestContext>)context
-    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+- (NSError *)errorWithDomain:(NSString *)domain
+                        code:(NSInteger)code
+            errorDescription:(NSString *)errorDescription
+                  oauthError:(NSString *)oauthError
+                    subError:(NSString *)subError
+             underlyingError:(NSError *)underlyingError
+               correlationId:(NSUUID *)correlationId
+                    userInfo:(NSDictionary *)additionalUserInfo
+{
+    if (!domain)
+    {
+        return nil;
+    }
+
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    userInfo[MSIDErrorDescriptionKey] = errorDescription;
+    userInfo[MSIDOAuthErrorKey] = oauthError;
+    userInfo[MSIDOAuthSubErrorKey] = subError;
+    userInfo[NSUnderlyingErrorKey]  = underlyingError;
+    userInfo[MSIDCorrelationIdKey] = [correlationId UUIDString];
+    if (additionalUserInfo)
+    {
+        [userInfo addEntriesFromDictionary:additionalUserInfo];
+    }
+
+    return [NSError errorWithDomain:domain code:code userInfo:userInfo];
+}
 
 @end

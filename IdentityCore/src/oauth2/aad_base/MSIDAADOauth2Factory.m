@@ -38,9 +38,22 @@
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAADTenant.h"
 #import "MSIDAccountIdentifier.h"
 
 @implementation MSIDAADOauth2Factory
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _authorityFactory = [MSIDAuthorityFactory new];
+    }
+    return self;
+}
 
 #pragma mark - Helpers
 
@@ -127,56 +140,9 @@
     return [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:originalEnvironment context:context];
 }
 
-- (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities:(NSURL *)originalAuthority
-{
-    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:originalAuthority];
-}
-
 - (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment
 {
     return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
-}
-
-- (NSURL *)cacheURLForAuthority:(NSURL *)originalAuthority
-                        context:(id<MSIDRequestContext>)context
-{
-    if (!originalAuthority)
-    {
-        return nil;
-    }
-
-    NSURL *authority = [MSIDAuthority universalAuthorityURL:originalAuthority];
-    return [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:authority context:context];
-}
-
-- (NSArray<NSURL *> *)legacyRefreshTokenLookupAuthorities:(NSURL *)originalAuthority
-{
-    if (!originalAuthority)
-    {
-        return @[];
-    }
-
-    if ([MSIDAuthority isConsumerInstanceURL:originalAuthority])
-    {
-        // AAD v1 doesn't support consumer authority
-        return @[];
-    }
-
-    NSMutableArray *lookupAuthorities = [NSMutableArray array];
-
-    if ([MSIDAuthority isTenantless:originalAuthority])
-    {
-        // If it's a tenantless authority, lookup by universal "common" authority, which is supported by both v1 and v2
-        [lookupAuthorities addObject:[MSIDAuthority universalAuthorityURL:originalAuthority]];
-    }
-    else
-    {
-        // If it's a tenanted authority, lookup original authority and common as those are the same, but start with original authority
-        [lookupAuthorities addObject:originalAuthority];
-        [lookupAuthorities addObject:[MSIDAuthority commonAuthorityWithURL:originalAuthority]];
-    }
-
-    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthorities:lookupAuthorities];
 }
 
 #pragma mark - Tokens
@@ -195,7 +161,7 @@
     if (!response.extendedExpiresOnDate) return YES;
 
     NSMutableDictionary *additionalServerInfo = [accessToken.additionalServerInfo mutableCopy];
-    additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY] = response.extendedExpiresOnDate;
+    additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = response.extendedExpiresOnDate;
     accessToken.additionalServerInfo = additionalServerInfo;
 
     return YES;

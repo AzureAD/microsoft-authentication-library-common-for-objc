@@ -22,11 +22,12 @@
 // THE SOFTWARE.
 
 #import "MSIDOAuth2Constants.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 NSString *const MSID_OAUTH2_ACCESS_TOKEN       = @"access_token";
 NSString *const MSID_OAUTH2_AUTHORIZATION      = @"authorization";
 NSString *const MSID_OAUTH2_AUTHORIZE_SUFFIX   = @"/oauth2/authorize";
-NSString *const MSID_OAUTH2_V2_AUTHORIZE_SUFFIX   = @"/oauth2/v2.0/authorize";
+NSString *const MSID_OAUTH2_TOKEN_SUFFIX       = @"/oauth2/token";
 NSString *const MSID_OAUTH2_AUTHORITY           = @"authority";
 NSString *const MSID_OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const MSID_OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
@@ -47,7 +48,6 @@ NSString *const MSID_OAUTH2_SCOPE              = @"scope";
 NSString *const MSID_OAUTH2_STATE              = @"state";
 NSString *const MSID_OAUTH2_SUB_ERROR          = @"suberror";
 NSString *const MSID_OAUTH2_TOKEN              = @"token";
-NSString *const MSID_OAUTH2_TOKEN_SUFFIX       = @"/oauth2/token";
 NSString *const MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX = @"common/discovery/instance";
 NSString *const MSID_OAUTH2_TOKEN_TYPE         = @"token_type";
 NSString *const MSID_OAUTH2_LOGIN_HINT         = @"login_hint";
@@ -102,9 +102,8 @@ NSString *const MSID_ID_TOKEN_CACHE_KEY                  = @"id_token";
 NSString *const MSID_ADDITIONAL_INFO_CACHE_KEY           = @"additional_info";
 NSString *const MSID_EXPIRES_ON_CACHE_KEY                = @"expires_on";
 NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY          = @"access_token_type";
-NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"extended_expires_on";
 NSString *const MSID_CACHED_AT_CACHE_KEY                 = @"cached_at";
-NSString *const MSID_EXTENDED_EXPIRES_ON_LEGACY_CACHE_KEY       = @"ext_expires_on";
+NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"ext_expires_on";
 NSString *const MSID_SPE_INFO_CACHE_KEY                  = @"spe_info";
 NSString *const MSID_RESOURCE_RT_CACHE_KEY               = @"resource_refresh_token";
 NSString *const MSID_LOCAL_ACCOUNT_ID_CACHE_KEY          = @"local_account_id";
@@ -120,3 +119,5 @@ NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"refreshtoken";
 NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE             = @"legacysingleresourcetoken";
 NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"idtoken";
 NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"token";
+
+NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-configuration";

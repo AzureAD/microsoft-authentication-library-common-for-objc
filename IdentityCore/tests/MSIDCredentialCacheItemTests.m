@@ -53,7 +53,7 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.target = DEFAULT_TEST_RESOURCE;
 
-    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
+    NSDictionary *additionalInfo = @{@"ext_expires_on": extExpiresOn,
                                      @"spe_info": @"2"};
     
     cacheItem.additionalInfo = additionalInfo;
@@ -70,7 +70,7 @@
                                          @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                          @"realm": @"contoso.com",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
-                                         @"extended_expires_on": extExpiresOnString,
+                                         @"ext_expires_on": extExpiresOnString,
                                          @"spe_info": @"2",
                                          @"home_account_id": @"uid.utid"
                                          };
@@ -149,7 +149,7 @@
                                      @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                      @"realm": @"contoso.com",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
-                                     @"extended_expires_on": extExpiresOnString,
+                                     @"ext_expires_on": extExpiresOnString,
                                      @"spe_info": @"2",
                                      @"home_account_id": @"uid.utid",
                                      @"client_info": clientInfo
@@ -167,7 +167,7 @@
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
     XCTAssertEqualObjects(cacheItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ACCESS_TOKEN);
-    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"extended_expires_on": extExpiresOn};
+    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"ext_expires_on": extExpiresOn};
     XCTAssertEqualObjects(cacheItem.additionalInfo, additionalInfo);
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
 

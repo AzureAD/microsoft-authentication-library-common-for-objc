@@ -38,6 +38,7 @@ extern NSString *MSIDHTTPResponseCodeKey;
 extern NSString *MSIDErrorDomain;
 extern NSString *MSIDOAuthErrorDomain;
 extern NSString *MSIDKeychainErrorDomain;
+extern NSString *MSIDHttpErrorCodeDomain;
 
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
@@ -88,6 +89,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorServerInvalidGrant         = -51433,
     MSIDErrorServerInvalidScope         = -51434,
     MSIDErrorServerUnauthorizedClient   = -51435,
+    MSIDErrorServerUnhandledResponse    = -51436,
     
     // State verification has failed
     MSIDErrorServerInvalidState         = -51441,
@@ -104,7 +106,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      =========================================================
      */
     // Authority validation response failure
-    MSIDErrorAuthorityValidation  = -51500,
+    MSIDErrorAuthorityValidation            = -51500,
+    MSIDErrorAuthorityValidationWebFinger   = -51501,
 
     /*!
      =========================================================
@@ -140,4 +143,3 @@ extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *erro
 extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode);
 
 extern NSDictionary<NSString *, NSArray *> *MSIDErrorDomainsAndCodes(void);
-

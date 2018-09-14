@@ -25,7 +25,10 @@
 
 @implementation MSIDHttpResponseSerializer
 
-- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse data:(NSData *)data error:(NSError **)error
+- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
+                           data:(NSData *)data
+                        context:(id <MSIDRequestContext>)context
+                          error:(NSError **)error
 {
     return data;
 }

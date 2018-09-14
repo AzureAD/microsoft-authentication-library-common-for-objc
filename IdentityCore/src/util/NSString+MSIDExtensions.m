@@ -22,8 +22,8 @@
 // THE SOFTWARE.
 
 #import <CommonCrypto/CommonDigest.h>
-
 #import "NSString+MSIDExtensions.h"
+#import "MSIDConstants.h"
 
 typedef unsigned char byte;
 

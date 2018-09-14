@@ -40,8 +40,8 @@
 #import "MSIDBrokerResponse.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDAadAuthorityCache+TestUtil.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAADAuthority.h"
 
 @interface MSIDLegacyAccessorSSOIntegrationTests : XCTestCase
 {
@@ -80,7 +80,7 @@
     [super tearDown];
     [_legacyDataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
     [_otherDataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
-    [[MSIDAadAuthorityCache sharedInstance] clear];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
 
 #if !TARGET_OS_IOS
     [[MSIDMacTokenCache defaultCache] clear];
@@ -149,7 +149,7 @@
     XCTAssertNil(accessToken.extendedExpireTime);
     XCTAssertEqualObjects(accessToken.resource, @"graph resource");
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
-    XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(accessToken.additionalServerInfo, [NSDictionary dictionary]);
@@ -164,7 +164,7 @@
     XCTAssertEqualObjects(refreshToken.refreshToken, @"refresh token");
     XCTAssertNil(refreshToken.familyId);
     XCTAssertEqual(refreshToken.credentialType, MSIDRefreshTokenType);
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(refreshToken.additionalServerInfo, [NSDictionary dictionary]);
@@ -207,7 +207,7 @@
     XCTAssertNil(accessToken.extendedExpireTime);
     XCTAssertEqualObjects(accessToken.resource, @"graph resource");
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
-    XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(accessToken.additionalServerInfo, [NSDictionary dictionary]);
@@ -222,7 +222,7 @@
     XCTAssertEqualObjects(refreshToken.refreshToken, @"refresh token");
     XCTAssertNil(refreshToken.familyId);
     XCTAssertEqual(refreshToken.credentialType, MSIDRefreshTokenType);
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(refreshToken.additionalServerInfo, [NSDictionary dictionary]);
@@ -241,7 +241,7 @@
     XCTAssertEqualObjects(defaultRefreshToken.refreshToken, @"refresh token");
     XCTAssertNil(defaultRefreshToken.familyId);
     XCTAssertEqual(defaultRefreshToken.credentialType, MSIDRefreshTokenType);
-    XCTAssertEqualObjects(defaultRefreshToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(defaultRefreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(defaultRefreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultRefreshToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, [NSDictionary dictionary]);
@@ -263,7 +263,7 @@
     XCTAssertEqualObjects(account.name, DEFAULT_TEST_ID_TOKEN_NAME);
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tid");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tid");
 }
 
 - (void)testSaveTokensWithFactory_whenMultiResourceFOCIResponse_savesTokensToBothAccessors
@@ -389,7 +389,7 @@
     XCTAssertNil(token.extendedExpireTime);
     XCTAssertEqualObjects(token.resource, @"graph");
     XCTAssertEqual(token.credentialType, MSIDLegacySingleResourceTokenType);
-    XCTAssertEqualObjects(token.authority.absoluteString, @"https://login.windows.net/contoso.com");
+    XCTAssertEqualObjects(token.authority.url.absoluteString, @"https://login.windows.net/contoso.com");
     XCTAssertEqualObjects(token.clientId, @"test_client_id");
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.additionalServerInfo, [NSDictionary dictionary]);
@@ -458,7 +458,7 @@
     XCTAssertNil(token.extendedExpireTime);
     XCTAssertEqualObjects(token.resource, @"graph");
     XCTAssertEqual(token.credentialType, MSIDLegacySingleResourceTokenType);
-    XCTAssertEqualObjects(token.authority.absoluteString, @"https://login.windows.net/contoso.com");
+    XCTAssertEqualObjects(token.authority.url.absoluteString, @"https://login.windows.net/contoso.com");
     XCTAssertEqualObjects(token.clientId, @"test_client_id");
     XCTAssertNil(token.accountIdentifier.homeAccountId);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSDictionary dictionary]);
@@ -527,7 +527,7 @@
     XCTAssertNil(accessToken.extendedExpireTime);
     XCTAssertEqualObjects(accessToken.resource, @"graph resource");
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
-    XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
 
@@ -541,7 +541,7 @@
     XCTAssertEqualObjects(refreshToken.refreshToken, @"refresh token");
     XCTAssertNil(refreshToken.familyId);
     XCTAssertEqual(refreshToken.credentialType, MSIDRefreshTokenType);
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
 
@@ -559,7 +559,7 @@
     XCTAssertEqualObjects(defaultRefreshToken.refreshToken, @"refresh token");
     XCTAssertNil(defaultRefreshToken.familyId);
     XCTAssertEqual(defaultRefreshToken.credentialType, MSIDRefreshTokenType);
-    XCTAssertEqualObjects(defaultRefreshToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(defaultRefreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(defaultRefreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultRefreshToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, [NSDictionary dictionary]);
@@ -581,7 +581,7 @@
     XCTAssertEqualObjects(account.name, DEFAULT_TEST_ID_TOKEN_NAME);
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tid");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tid");
 }
 
 - (void)testSaveTokensWithFactoryAndBrokerResponse_whenSaveSSOStateOnlyTrue_savesOnlySSOStateToBothAccessors
@@ -627,7 +627,7 @@
     XCTAssertEqualObjects(refreshToken.refreshToken, @"refresh token");
     XCTAssertNil(refreshToken.familyId);
     XCTAssertEqual(refreshToken.credentialType, MSIDRefreshTokenType);
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
 
@@ -645,7 +645,7 @@
     XCTAssertEqualObjects(defaultRefreshToken.refreshToken, @"refresh token");
     XCTAssertNil(defaultRefreshToken.familyId);
     XCTAssertEqual(defaultRefreshToken.credentialType, MSIDRefreshTokenType);
-    XCTAssertEqualObjects(defaultRefreshToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(defaultRefreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(defaultRefreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultRefreshToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, [NSDictionary dictionary]);
@@ -667,7 +667,7 @@
     XCTAssertEqualObjects(account.name, DEFAULT_TEST_ID_TOKEN_NAME);
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.authority.absoluteString, @"https://login.microsoftonline.com/tid");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tid");
 }
 
 - (void)testSaveTokens_withNoHomeAccountIdForSecondaryFormat_shouldSaveToLegacyFormatOnly
@@ -811,7 +811,7 @@
     MSIDLegacyRefreshToken *legacyRefreshToken = (MSIDLegacyRefreshToken *) refreshToken;
     XCTAssertEqualObjects(legacyRefreshToken.accountIdentifier.legacyAccountId, @"upn2@test.com");
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.windows.net/common");
 }
 
 - (void)testGetRefreshTokenWithAccount_whenNoFamilyId_andTokenInSecondaryAccessor_shouldReturnToken
@@ -868,7 +868,7 @@
     XCTAssertEqualObjects(refreshToken.refreshToken, @"refresh token 2");
     XCTAssertTrue([refreshToken isKindOfClass:[MSIDRefreshToken class]]);
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.windows.net/common");
 }
 
 - (void)testGetRefreshTokenWithAccount_whenFamilyIdProvided_andTokenInPrimaryAccessor_shouldReturnToken
@@ -929,7 +929,7 @@
     XCTAssertEqualObjects(legacyRefreshToken.accountIdentifier.legacyAccountId, @"upn2@test.com");
     XCTAssertEqualObjects(refreshToken.clientId, @"foci-2");
     XCTAssertEqualObjects(refreshToken.familyId, @"2");
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.windows.net/common");
 }
 
 - (void)testGetRefreshTokenWithAccount_whenFamilyIdProvided_andTokenInSecondaryAccessor_shouldReturnToken
@@ -987,7 +987,7 @@
     XCTAssertTrue([refreshToken isKindOfClass:[MSIDRefreshToken class]]);
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.familyId, @"2");
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.windows.net/common");
 }
 
 - (void)testGetRefreshTokenWithAccount_whenFamilyIdProvided_andTokensInBothAccessors_shouldReturnTokenFromPrimary
@@ -1051,7 +1051,7 @@
     XCTAssertEqualObjects(legacyRefreshToken.accountIdentifier.legacyAccountId, @"upn@test.com");
     XCTAssertEqualObjects(refreshToken.clientId, @"foci-1");
     XCTAssertEqualObjects(refreshToken.familyId, @"1");
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.windows.net/common");
 }
 
 - (void)testGetRefreshTokenWithAccount_whenNoFamilyIdProvided_andTokensInBothAccessors_shouldReturnTokenFromPrimary
@@ -1115,7 +1115,7 @@
     XCTAssertEqualObjects(legacyRefreshToken.accountIdentifier.legacyAccountId, @"upn@test.com");
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertNil(refreshToken.familyId);
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.windows.net/common");
 }
 
 - (void)testGetRefreshTokenWithAccount_whenNoFamilyId_andOnlyFamilyTokenInPrimaryAccessor_shouldReturnNil
@@ -1700,7 +1700,7 @@
     XCTAssertEqualObjects(accessToken.accessToken, @"access token 2");
     XCTAssertEqualObjects(accessToken.accountIdentifier.legacyAccountId, @"upn@test.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id2");
-    XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.windows.net/common");
 }
 
 - (void)testGetAccessTokenForAccount_whenAccessTokensInSecondaryCache_shouldNotReturnToken
@@ -1789,7 +1789,7 @@
     XCTAssertEqualObjects(accessToken.accessToken, @"access token");
     XCTAssertEqualObjects(accessToken.accountIdentifier.legacyAccountId, @"upn@test.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
-    XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.windows.net/common");
 }
 
 - (void)testGetAccessTokenWithAccount_whenNoUserID_andMultipleTokensInCache_shouldReturnNilAndFillError
@@ -1896,7 +1896,7 @@
     XCTAssertEqualObjects(accessToken.accountIdentifier.legacyAccountId, @"upn@test.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.refreshToken, @"refresh token 2");
-    XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.windows.com/common");
+    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.windows.com/common");
 }
 
 - (void)testGetSingleResourceTokenTokenForAccount_whenNoLegacyUserId_whenAccessTokensInPrimaryCache_shouldReturnToken
@@ -1940,7 +1940,7 @@
     XCTAssertEqualObjects(accessToken.accountIdentifier.legacyAccountId, @"upn@test.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.refreshToken, @"refresh token");
-    XCTAssertEqualObjects(accessToken.authority.absoluteString, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.windows.net/common");
 }
 
 #pragma mark - Remove
@@ -2313,13 +2313,21 @@
 - (void)testGetRefreshTokenWithAccount_whenDifferentAuthority_shouldReturnToken
 {
     MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
-    NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSArray *metadata = @[ @{ @"preferred_network" : @"login.windows.net",
                               @"preferred_cache" :  @"login.windows.net",
                               @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com" ] } ];
 
-    NSError *error = nil;
-    XCTAssertTrue([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertTrue(result);
+         XCTAssertNil(error);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 
     // Save first token
     [self saveResponseWithUPN:@"upn@test.com"
@@ -2348,6 +2356,7 @@
                                                                                   target:@"graph"];
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"upn@test.com" homeAccountId:nil];
+    NSError *error = nil;
     MSIDRefreshToken *refreshToken = [_legacyAccessor getRefreshTokenWithAccount:account
                                                                         familyId:nil
                                                                    configuration:configuration
@@ -2362,8 +2371,8 @@
     MSIDLegacyRefreshToken *legacyRefreshToken = (MSIDLegacyRefreshToken *) refreshToken;
     XCTAssertEqualObjects(legacyRefreshToken.accountIdentifier.legacyAccountId, @"upn@test.com");
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
-    XCTAssertEqualObjects(refreshToken.authority.absoluteString, @"https://login.microsoftonline.com/common");
-    XCTAssertEqualObjects(refreshToken.storageAuthority.absoluteString, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.storageAuthority.url.absoluteString, @"https://login.windows.net/common");
 }
 
 #pragma mark - Helpers

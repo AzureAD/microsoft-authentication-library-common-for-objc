@@ -54,7 +54,7 @@
                             MSID_OAUTH2_CLIENT_TELEMETRY : clientTelemetry};
     __auto_type response = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:0 HTTPVersion:nil headerFields:headers];
     
-    id serializedResponse = [self.responseSerializer responseObjectForResponse:response data:data error:nil];
+    id serializedResponse = [self.responseSerializer responseObjectForResponse:response data:data context:nil error:nil];
     
     XCTAssertEqualObjects(serializedResponse[@"spe_info"], @"I");
     XCTAssertEqualObjects(serializedResponse[@"correlation_id"], @"correlation_id_value");

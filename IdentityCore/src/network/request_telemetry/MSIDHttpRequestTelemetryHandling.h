@@ -21,18 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAadAuthorityCache.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDAadAuthorityCache (TestUtil)
+@protocol MSIDHttpRequestTelemetryHandling <NSObject>
 
-- (NSDictionary<NSString *, MSIDAadAuthorityCacheRecord *> *)recordMap;
-- (void)setRecordMap:(NSDictionary<NSString *, MSIDAadAuthorityCacheRecord *> *)cacheDictionary;
+- (void)sendRequestEventWithId:(NSString *)telemetryRequestId;
 
-- (BOOL)grabReadLock;
-- (BOOL)grabWriteLock;
-- (BOOL)tryWriteLock;
-- (BOOL)unlock;
-
-- (void)clear;
+- (void)responseReceivedEventWithContext:(id<MSIDRequestContext>)context
+                         urlRequest:(NSURLRequest *)urlRequest
+                       httpResponse:(NSHTTPURLResponse *)httpResponse
+                               data:(NSData *)data
+                              error:(NSError *)error;
 
 @end

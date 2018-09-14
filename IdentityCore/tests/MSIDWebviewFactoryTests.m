@@ -66,7 +66,7 @@
                                                                                          correlationId:correlationId
                                                                                             enablePkce:YES];
     
-    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"eqp3" : @""};
     config.loginHint = @"fakeuser@contoso.com";
     
     NSString *requestState = @"state";
@@ -82,6 +82,7 @@
                                           @"code_challenge" : config.pkce.codeChallenge,
                                           @"eqp1" : @"val1",
                                           @"eqp2" : @"val2",
+                                          @"eqp3" : @"",
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
                                           @"scope" : @"scope1"
@@ -137,6 +138,26 @@
     XCTAssertEqualObjects(url.host, @"contoso.com");
 }
 
+- (void)testStartURLFromConfiguration_whenExtraQueryParameters_shouldHaveQueryParams
+{
+    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:@"https://contoso.com/paths"]
+                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
+                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                              resource:nil
+                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                                         correlationId:nil
+                                                                                            enablePkce:YES];
+    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"eqp3" : @""};
+    
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    NSURL *url = [factory startURLFromConfiguration:config requestState:@"state"];
+    
+    XCTAssertEqualObjects(url.scheme, @"https");
+    XCTAssertEqualObjects(url.host, @"contoso.com");
+    XCTAssertTrue([url.query containsString:@"eqp1=val1"]);
+    XCTAssertTrue([url.query containsString:@"eqp2=val2"]);
+    XCTAssertTrue([url.query containsString:@"eqp3&"]);
+}
 
 #pragma mark - Webview (Response)
 - (void)testResponseWithURL_whenNilURL_shouldReturnNilAndError
@@ -144,7 +165,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil ignoreInvalidState:NO context:nil error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -156,7 +177,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:nil requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:nil requestState:nil ignoreInvalidState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -169,7 +190,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil ignoreInvalidState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -180,7 +201,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"]  requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"]  requestState:nil ignoreInvalidState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -191,7 +212,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"] requestState:nil context:nil error:&error];
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"] requestState:nil ignoreInvalidState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -203,7 +224,10 @@
     
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/msal?error=iamanerror&error_description=evenmoreinfo"]
-                                       requestState:nil context:nil error:&error];
+                                       requestState:nil
+                        ignoreInvalidState:NO
+                                            context:nil
+                                              error:&error];
     
     XCTAssertNotNil(response);
     XCTAssertNil(error);
@@ -227,6 +251,7 @@
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
                                        requestState:nil
+                        ignoreInvalidState:NO
                                             context:nil
                                               error:&error];
 
@@ -244,6 +269,7 @@
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode&state=wrongstate"]
                                        requestState:@"somerequeststate"
+                        ignoreInvalidState:NO
                                             context:nil
                                               error:&error];
 
@@ -260,6 +286,7 @@
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode"]
                                        requestState:nil
+                        ignoreInvalidState:NO
                                             context:nil
                                               error:&error];
 
@@ -275,6 +302,7 @@
     NSError *error = nil;
     __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com"]
                                        requestState:nil
+                        ignoreInvalidState:NO
                                             context:nil
                                               error:&error];
 

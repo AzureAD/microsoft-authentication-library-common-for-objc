@@ -234,18 +234,33 @@ static NSMutableArray* s_responses = nil;
         
         if (AmIBeingDebugged())
         {
-            fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"\nFailed to find repsonse for request:"] UTF8String]);
+            fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"\nFailed to find response for request:"] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"URL: %@", request.URL] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"BODY: %@", request.HTTPBody] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"HEADERS: %@", request.allHTTPHeaderFields] UTF8String]);
             
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"\nCurrent responses:"] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"---"] UTF8String]);
-            for (MSIDTestURLResponse *response in s_responses)
+            for (id obj in s_responses)
             {
-                fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"URL: %@", response->_requestURL] UTF8String]);
-                fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"BODY: %@", response->_requestBody] UTF8String]);
-                fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"HEADERS: %@", response->_requestHeaders] UTF8String]);
+                MSIDTestURLResponse *response;
+                if ([obj isKindOfClass:[MSIDTestURLResponse class]])
+                {
+                    response = (MSIDTestURLResponse *)obj;
+                    [self printResponse: response];
+                }
+                else if ([obj isKindOfClass:[NSMutableArray class]])
+                {
+                    for (id response in obj)
+                    {
+                        [self printResponse: response];
+                    }
+                }
+                else
+                {
+                    fprintf(stderr, "%s\n", [[obj description] UTF8String]);
+                }
+                
                 fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"---"] UTF8String]);
             }
             
@@ -253,11 +268,18 @@ static NSMutableArray* s_responses = nil;
             // hopefully making it a little easier to see why a test is failing. :)
             __builtin_trap();
         }
-        
+
         NSAssert(nil, @"did not find a matching response for %@", requestURL.absoluteString);
     }
     
     return nil;
+}
+
++ (void)printResponse:(MSIDTestURLResponse *)response
+{
+    fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"URL: %@", response->_requestURL] UTF8String]);
+    fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"BODY: %@", response->_requestBody] UTF8String]);
+    fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"HEADERS: %@", response->_requestHeaders] UTF8String]);
 }
 
 + (NSURLSession *)createMockSession

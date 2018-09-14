@@ -41,4 +41,18 @@
     return self;
 }
 
+- (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+         ignoreInvalidState:(BOOL)ignoreInvalidState
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    self = [super initWithURL:url requestState:requestState ignoreInvalidState:ignoreInvalidState context:context error:error];
+    if (self)
+    {
+        _cloudHostName = self.parameters[MSID_AUTH_CLOUD_INSTANCE_HOST_NAME];
+    }
+    return self;
+}
+
 @end

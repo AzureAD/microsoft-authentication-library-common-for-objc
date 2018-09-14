@@ -27,24 +27,23 @@
 @protocol MSIDRequestSerialization;
 @protocol MSIDResponseSerialization;
 @protocol MSIDRequestContext;
-@protocol MSIDHttpRequestTelemetryProtocol;
-@protocol MSIDHttpRequestErrorHandlerProtocol;
-@protocol MSIDHttpRequestConfiguratorProtocol;
+@protocol MSIDHttpRequestTelemetryHandling;
+@protocol MSIDHttpRequestErrorHandling;
+@class MSIDURLSessionManager;
 
-/**
- Important: You need to call `finishAndInvalidate` method in `completionBlock` of `sendWithBlock:`.
- If you don’t call, the app leaks memory until it exits.
- */
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
 {
-    @protected NSDictionary<NSString *, NSString *> *_parameters;
-    @protected NSURLRequest *_urlRequest;
-    @protected id<MSIDRequestSerialization> _requestSerializer;
-    @protected id<MSIDResponseSerialization> _responseSerializer;
-    @protected id<MSIDHttpRequestConfiguratorProtocol> _requestConfigurator;
-    @protected id<MSIDHttpRequestTelemetryProtocol> _telemetry;
-    @protected id<MSIDHttpRequestErrorHandlerProtocol> _errorHandler;
+@protected
+    NSDictionary<NSString *, NSString *> *_parameters;
+    NSURLRequest *_urlRequest;
+    id<MSIDRequestSerialization> _requestSerializer;
+    id<MSIDResponseSerialization> _responseSerializer;
+    id<MSIDHttpRequestTelemetryHandling> _telemetry;
+    id<MSIDHttpRequestErrorHandling> _errorHandler;
+    id<MSIDRequestContext> _context;
 }
+
+@property (nonatomic, nonnull) MSIDURLSessionManager *sessionManager;
 
 @property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *parameters;
 
@@ -54,12 +53,14 @@
 
 @property (nonatomic, nonnull) id<MSIDResponseSerialization> responseSerializer;
 
-@property (nonatomic, nullable) id<MSIDHttpRequestConfiguratorProtocol> requestConfigurator;
+@property (nonatomic, nullable) id<MSIDHttpRequestTelemetryHandling> telemetry;
 
-@property (nonatomic, nullable) id<MSIDHttpRequestTelemetryProtocol> telemetry;
-
-@property (nonatomic, nullable) id<MSIDHttpRequestErrorHandlerProtocol> errorHandler;
+@property (nonatomic, nullable) id<MSIDHttpRequestErrorHandling> errorHandler;
 
 @property (nonatomic, nullable) id<MSIDRequestContext> context;
+
+@property (nonatomic) NSInteger retryCounter;
+
+@property (nonatomic) NSTimeInterval retryInterval;
 
 @end
