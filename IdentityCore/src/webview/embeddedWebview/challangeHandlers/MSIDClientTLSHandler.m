@@ -56,7 +56,6 @@
         return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
     }
 #if TARGET_OS_IPHONE
-    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     return NO;
 #else
     return [self handleCertAuthChallenge:challenge webview:webview context:context completionHandler:completionHandler];
