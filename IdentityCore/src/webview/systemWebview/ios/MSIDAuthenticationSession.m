@@ -72,30 +72,23 @@
     return self;
 }
 
-
-- (NSError *)errorFromAuthResponse:(NSError *)error
+- (BOOL)isErrorCodeCanceledLogin:(NSError *)error
 {
     if (!error)
     {
-        return nil;
+        return NO;
     }
     
     if (@available(iOS 12.0, *))
     {
-        if (error.code == ASWebAuthenticationSessionErrorCodeCanceledLogin)
-        {
-            error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
-        }
+        if (error.code == ASWebAuthenticationSessionErrorCodeCanceledLogin) return YES;
     }
     else if (@available(iOS 11.0, *))
     {
-        if (error.code == SFAuthenticationErrorCanceledLogin)
-        {
-            error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
-        }
+        if (error.code == SFAuthenticationErrorCanceledLogin) return YES;
     }
     
-    return error;
+    return NO;
 }
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
@@ -119,11 +112,12 @@
         
         void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
         {
-            error = [self errorFromAuthResponse:authError];
-            if (error && error.code == MSIDErrorUserCancel)
+            if ([self isErrorCodeCanceledLogin:authError])
             {
+                authError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
                 [_telemetryEvent setIsCancelled:YES];
             }
+            
             [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
             
             [self notifyEndWebAuthWithURL:callbackURL error:error];
