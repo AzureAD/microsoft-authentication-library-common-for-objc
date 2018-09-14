@@ -204,8 +204,8 @@
     }
     
     NSData *certData = (__bridge NSData *)(data);
-    
-    NSString *thumbprint = [certData msidComputeSHA1Base64Encoded];
+
+    NSString *thumbprint = certData.msidSHA1.msidBase64UrlEncodedString;
     CFRelease(data);
     CFRelease(certificate);
     
