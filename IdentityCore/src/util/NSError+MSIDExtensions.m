@@ -29,7 +29,7 @@
 {
     NSMutableDictionary *errorUserInfo = [self.userInfo mutableCopy];
     
-    if (option & MSIDNSErrorFilteringOptionFailingURL)
+    if (option & MSIDNSErrorFilteringOptionRemoveUrlParameters)
     {
         // Don't put raw url in NSError because it can contain sensitive data.
         NSURL *failedUrl = errorUserInfo[NSURLErrorFailingURLErrorKey];

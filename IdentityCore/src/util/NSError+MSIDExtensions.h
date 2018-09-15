@@ -25,8 +25,9 @@
 
 typedef NS_OPTIONS(NSUInteger, MSIDNSErrorFilteringOptions)
 {
-    MSIDNSErrorFilteringOptionNone        = 0,
-    MSIDNSErrorFilteringOptionFailingURL  = 1 << 0,
+    MSIDNSErrorFilteringOptionNone                  = 0,
+    // Remove parameters from failed url.
+    MSIDNSErrorFilteringOptionRemoveUrlParameters   = 1 << 0,
 };
 
 
