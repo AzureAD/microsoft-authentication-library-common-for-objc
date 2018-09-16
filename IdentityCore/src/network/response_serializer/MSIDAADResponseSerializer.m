@@ -46,7 +46,7 @@
     NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
     if (![NSString msidIsStringNilOrBlank:clientTelemetry])
     {
-        NSString *speInfo = [clientTelemetry parsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
+        NSString *speInfo = [clientTelemetry msidParsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
         
         if (![NSString msidIsStringNilOrBlank:speInfo])
         {

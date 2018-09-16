@@ -122,7 +122,7 @@
 {
     if (![NSString msidIsStringNilOrBlank:clientTelemetry])
     {
-        [_propertyMap addEntriesFromDictionary:[clientTelemetry parsedClientTelemetry]];
+        [_propertyMap addEntriesFromDictionary:[clientTelemetry msidParsedClientTelemetry]];
     }
 }
 
