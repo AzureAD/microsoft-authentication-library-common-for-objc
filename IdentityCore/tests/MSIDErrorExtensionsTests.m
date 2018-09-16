@@ -52,7 +52,7 @@
                              };
     __auto_type errorWithSensitiveInfo = [[NSError alloc] initWithDomain:@"domain" code:0 userInfo:userInfo];
     
-    __auto_type resultError = [errorWithSensitiveInfo msidErrorWithFilteringOptions:MSIDNSErrorFilteringOptionRemoveUrlParameters];
+    __auto_type resultError = [errorWithSensitiveInfo msidErrorWithFilteringOptions:MSIDErrorFilteringOptionRemoveUrlParameters];
     
     __auto_type expectedUrl = [[NSURL alloc] initWithString:@"myapp://com.myapp/"];
     __auto_type expectedUserInfo = @{
@@ -73,7 +73,7 @@
                              };
     __auto_type errorWithSensitiveInfo = [[NSError alloc] initWithDomain:@"domain" code:0 userInfo:userInfo];
     
-    __auto_type resultError = [errorWithSensitiveInfo msidErrorWithFilteringOptions:MSIDNSErrorFilteringOptionNone];
+    __auto_type resultError = [errorWithSensitiveInfo msidErrorWithFilteringOptions:MSIDErrorFilteringOptionNone];
     
     XCTAssertEqualObjects(userInfo, resultError.userInfo);
 }
