@@ -42,6 +42,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Cache.h"
 #import "MSIDAuthorityFactory.h"
+#import "NSURL+MSIDExtensions.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {
@@ -271,9 +272,8 @@
         __auto_type account = [MSIDAccount new];
         account.accountIdentifier = refreshToken.accountIdentifier;
         account.username = refreshToken.accountIdentifier.legacyAccountId;
-        // TODO: Should we skip account if authority is nil?
-        __auto_type authority = [self.authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:context error:nil];
-        account.authority = authority;
+        NSURL *rtAuthority = [refreshToken.authority.url msidURLForPreferredHost:environment context:context error:error];
+        account.authority = [self.authorityFactory authorityFromUrl:rtAuthority rawTenant:refreshToken.realm context:context error:nil];
         account.accountType = MSIDAccountTypeMSSTS;
         [resultAccounts addObject:account];
     }
