@@ -25,6 +25,6 @@
 
 @interface NSString (MSIDTelemetryExtensions)
 
-- (NSDictionary *)parsedClientTelemetry;
+- (NSDictionary *)msidParsedClientTelemetry;
 
 @end
