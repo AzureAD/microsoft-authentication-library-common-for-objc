@@ -36,11 +36,15 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDNotifications.h"
 #import <SafariServices/SafariServices.h>
+#import <AuthenticationServices/AuthenticationServices.h>
 
 @implementation MSIDAuthenticationSession
 {
     API_AVAILABLE(ios(11.0))
     SFAuthenticationSession *_authSession;
+    
+    API_AVAILABLE(ios(12.0))
+    ASWebAuthenticationSession *_webAuthSession;
     
     NSURL *_startURL;
     NSString *_callbackURLScheme;
@@ -68,6 +72,24 @@
     return self;
 }
 
+- (BOOL)isErrorCodeCanceledLogin:(NSError *)error
+{
+    if (!error)
+    {
+        return NO;
+    }
+    
+    if (@available(iOS 12.0, *))
+    {
+        if (error.code == ASWebAuthenticationSessionErrorCodeCanceledLogin) return YES;
+    }
+    else if (@available(iOS 11.0, *))
+    {
+        if (error.code == SFAuthenticationErrorCanceledLogin) return YES;
+    }
+    
+    return NO;
+}
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
@@ -77,7 +99,7 @@
         return;
     }
     
-    NSError *error = nil;
+    __block NSError *error = nil;
     
     if (@available(iOS 11.0, *))
     {
@@ -88,29 +110,37 @@
         
         _completionHandler = [completionHandler copy];
         
-        _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
-                                                  callbackURLScheme:_callbackURLScheme
-                                                  completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error)
-                                            {
-                                                if (error)
-                                                {
-                                                    if (error.code == SFAuthenticationErrorCanceledLogin)
-                                                    {
-                                                        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
-                                                        [_telemetryEvent setIsCancelled:YES];
-                                                    }
-                                                }
-
-                                                [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
-                                                
-                                                [self notifyEndWebAuthWithURL:callbackURL error:error];
-                                                _completionHandler(callbackURL, error);
-                                            }];
+        void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
+        {
+            if ([self isErrorCodeCanceledLogin:authError])
+            {
+                authError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
+                [_telemetryEvent setIsCancelled:YES];
+            }
+            
+            [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
+            
+            [self notifyEndWebAuthWithURL:callbackURL error:error];
+            _completionHandler(callbackURL, error);
+        };
         
         [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
         
-        if ([_authSession start]) return;
-        
+        if (@available(iOS 12.0, *))
+        {
+            _webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:_startURL
+                                                            callbackURLScheme:_callbackURLScheme
+                                                            completionHandler:authCompletion];
+            if ([_webAuthSession start]) return;
+        }
+        else
+        {
+            _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
+                                                      callbackURLScheme:_callbackURLScheme
+                                                      completionHandler:authCompletion];
+            if ([_authSession start]) return;
+        }
+  
         error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
     }
     else

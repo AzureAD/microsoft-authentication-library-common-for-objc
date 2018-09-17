@@ -50,6 +50,7 @@
     {
         error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerOauth, @"Incomplete PKeyAuth challenge received.", nil, nil, nil, context.correlationId, nil);
         completionHandler(nil, error);
+        return YES;
     }
     
     // Extract authority from submit url
@@ -64,7 +65,7 @@
     if (!authHeader)
     {
         completionHandler(nil, error);
-        return NO;
+        return YES;
     }
     
     // Attach client version to response url
