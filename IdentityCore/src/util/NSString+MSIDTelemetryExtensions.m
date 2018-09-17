@@ -43,26 +43,28 @@
 
 @implementation NSString (MSIDTelemetryExtensions)
 
-- (NSDictionary *)parsedClientTelemetry
+- (NSDictionary *)msidParsedClientTelemetry
 {
     NSMutableDictionary *telemetryDict = [NSMutableDictionary dictionary];
+
+    MSID_LOG_VERBOSE(nil, @"Parsing telemetry header: %@", self);
     
     if (![NSString msidIsStringNilOrBlank:self])
     {
         NSArray *telemetryComponents = [self componentsSeparatedByString:@","];
         
-        // Check that there's exactly 5 components
-        if ([telemetryComponents count] == 5)
+        // Check that there're at least 5 components, as required by version 1 and 2
+        if ([telemetryComponents count] >= 5)
         {
-            // Check that the version number is supported
-            if ([telemetryComponents[0] isEqualToString:MSID_CLIENT_TELEMETRY_VERSION_NUMBER])
-            {
-                // Fill in the data
-                CHECK_AND_SET_OBJ_IF_NOT_ZERO(telemetryDict, telemetryComponents[1], MSID_TELEMETRY_KEY_SERVER_ERROR_CODE);
-                CHECK_AND_SET_OBJ_IF_NOT_ZERO(telemetryDict, telemetryComponents[2], MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE);
-                CHECK_AND_SET_OBJ(telemetryDict, telemetryComponents[3], MSID_TELEMETRY_KEY_RT_AGE);
-                CHECK_AND_SET_OBJ(telemetryDict, telemetryComponents[4], MSID_TELEMETRY_KEY_SPE_INFO);
-            }
+            // Fill in the data
+            CHECK_AND_SET_OBJ_IF_NOT_ZERO(telemetryDict, telemetryComponents[1], MSID_TELEMETRY_KEY_SERVER_ERROR_CODE);
+            CHECK_AND_SET_OBJ_IF_NOT_ZERO(telemetryDict, telemetryComponents[2], MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE);
+            CHECK_AND_SET_OBJ(telemetryDict, telemetryComponents[3], MSID_TELEMETRY_KEY_RT_AGE);
+            CHECK_AND_SET_OBJ(telemetryDict, telemetryComponents[4], MSID_TELEMETRY_KEY_SPE_INFO);
+        }
+        else if ([telemetryComponents count] >= 1)
+        {
+            MSID_LOG_WARN(nil, @"Received unsupported telemetry header. Telemetry version = %@", telemetryComponents[0]);
         }
     }
     

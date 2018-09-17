@@ -56,7 +56,6 @@
         return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
     }
 #if TARGET_OS_IPHONE
-    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     return NO;
 #else
     return [self handleCertAuthChallenge:challenge webview:webview context:context completionHandler:completionHandler];
@@ -170,21 +169,12 @@
                                      context:(id<MSIDRequestContext>)context
                            completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    SecCertificateRef cert = NULL;
-    OSStatus status = SecIdentityCopyCertificate(identity, &cert);
-    if (status != errSecSuccess)
-    {
-        CFRelease(identity);
-        MSID_LOG_ERROR(context, @"Failed to copy certificate from identity.");
-        
-        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
-        return;
-    }
-    
     MSID_LOG_INFO(context, @"Responding to cert auth challenge with certicate");
-    NSURLCredential *credential = [[NSURLCredential alloc] initWithIdentity:identity certificates:@[(__bridge id)cert] persistence:NSURLCredentialPersistenceNone];
+    /*
+     The `certificates` parameter accepts an array of /intermediate/ certificates leading from the leaf to the root.  It must not include the leaf certificate because the system gets that from the digital identity.  It should not include a root certificate because, when the server does trust evaluation on the leaf, it already has a copy of the relevant root. Therefore, we are sending "nil" to the certificates array.
+     */
+    NSURLCredential *credential = [[NSURLCredential alloc] initWithIdentity:identity certificates:nil persistence:NSURLCredentialPersistenceNone];
     completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
-    CFRelease(cert);
     CFRelease(identity);
 }
 
