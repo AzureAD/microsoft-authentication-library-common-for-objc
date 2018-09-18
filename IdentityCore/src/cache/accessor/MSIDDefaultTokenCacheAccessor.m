@@ -271,7 +271,7 @@
 
     if (!filteredAccountsSet)
     {
-        MSID_LOG_INFO(context, @"Failed accounts lookup, returning");
+        MSID_LOG_ERROR(context, @"(Default accessor) Failed accounts lookup");
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
         return @[];
     }
@@ -282,6 +282,7 @@
     }
     else
     {
+        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in default accessor");
         [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
     }
 
