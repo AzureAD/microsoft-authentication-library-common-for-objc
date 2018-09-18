@@ -23,7 +23,7 @@
 
 import Foundation
 
-@objc public class Secret : NSObject {
+public class Secret : NSObject {
     override public var description: String {
         return "\(name) : \(value)"
     }
