@@ -74,10 +74,11 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = 0;
-    hash = hash * 31 + self.accountIdentifier.hash;
+    hash = hash * 31 + self.accountIdentifier.legacyAccountId.hash;
     hash = hash * 31 + self.accountType;
     hash = hash * 31 + self.authority.hash;
     hash = hash * 31 + self.alternativeAccountId.hash;
+    hash = hash * 31 + self.username.hash;
     return hash;
 }
 
@@ -89,10 +90,23 @@
     }
     
     BOOL result = YES;
-    result &= (!self.accountIdentifier && !account.accountIdentifier) || [self.accountIdentifier isEqual:account.accountIdentifier];
+
+    if (self.accountIdentifier.homeAccountId && account.accountIdentifier.homeAccountId)
+    {
+        // In case we have 2 accounts in cache, but one of them doesn't have home account identifier,
+        // we'll compare those accounts by legacy account ID instead to avoid duplicates being returned
+        // due to presence of multiple caches
+        result &= [self.accountIdentifier isEqual:account.accountIdentifier];
+    }
+    else
+    {
+        result &= [self.accountIdentifier.legacyAccountId isEqual:account.accountIdentifier.legacyAccountId];
+    }
+
     result &= self.accountType == account.accountType;
     result &= (!self.alternativeAccountId && !account.alternativeAccountId) || [self.alternativeAccountId isEqualToString:account.alternativeAccountId];
     result &= (!self.authority && !account.authority) || [self.authority isEqual:account.authority];
+    result &= (!self.username && !account.username) || [self.username isEqualToString:account.username];
     return result;
 }
 

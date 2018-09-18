@@ -286,8 +286,6 @@
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
     
     // save a refresh token to keychain token cache
-    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
@@ -298,10 +296,15 @@
                                                                  error:nil];
     XCTAssertNil(error);
     
-    // remove the refresh token to trigger wipe data being written
-    result = [_defaultCacheAccessor validateAndRemoveRefreshToken:token
-                                                          context:reqContext
-                                                            error:&error];
+    // remove the account to trigger wipe data being written
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                              homeAccountId:homeAccountId];
+    result = [_defaultCacheAccessor clearCacheForAccount:account
+                                             environment:@"login.microsoftonline.com"
+                                                clientId:@"test_client_id"
+                                                 context:nil
+                                                   error:&error];
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry

@@ -48,6 +48,7 @@
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDAadAuthorityCacheRecord.h"
 
 @interface MSIDDefaultAccessorSSOIntegrationTests : XCTestCase
 {
@@ -1123,6 +1124,308 @@
     XCTAssertEqualObjects(account.familyName, @"World");
     XCTAssertEqualObjects(account.username, @"upn@test.com");
     XCTAssertEqualObjects(account.name, @"Hello World");
+}
+
+- (void)testAllAccountsWithEnvironment_whenMatchingTokenOnlyInLegacyCache_andNoAliases_shouldReturnMatchingAccount
+{
+    // Save test response
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.microsoftonline.com/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+
+    // Test accounts retrieval
+    NSError *error = nil;
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
+                                                           clientId:@"test_client_id"
+                                                           familyId:@"3"
+                                                            context:nil
+                                                              error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 1);
+    MSIDAccount *account = accounts[0];
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.username, @"upn@test.com");
+}
+
+- (void)testAllAccountsWithEnvironment_whenTokensInBothCachesWithDifferentAuthorities_andNoAliases_shouldReturnMatchingAccount
+{
+    // Save test response
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.microsoftonline.com/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.microsoftonline.com/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+
+    // Test accounts retrieval
+    NSError *error = nil;
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
+                                                           clientId:@"test_client_id"
+                                                           familyId:@"3"
+                                                            context:nil
+                                                              error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 1);
+    MSIDAccount *account = accounts[0];
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.username, @"upn@test.com");
+}
+
+- (void)testAllAccountsWithEnvironment_whenTokensInBothCachesWithDifferentAuthorities_andNoAliases_andNilEnvironment_shouldReturnTwoAccounts
+{
+    // Save test response
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.microsoftonline.com/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.microsoftonline.com/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+
+    // Test accounts retrieval
+    NSError *error = nil;
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:nil
+                                                           clientId:@"test_client_id"
+                                                           familyId:@"3"
+                                                            context:nil
+                                                              error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 2);
+    MSIDAccount *firstAccount = accounts[0];
+    XCTAssertEqualObjects(firstAccount.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(firstAccount.username, @"upn@test.com");
+
+    MSIDAccount *secondAccount = accounts[1];
+    XCTAssertEqualObjects(secondAccount.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(secondAccount.username, @"upn@test.com");
+}
+
+- (void)testAllAccountsWithEnvironment_whenTokensInBothCachesWithDifferentAuthorities_andAliasesAvailable_shouldReturnOneAccount
+{
+    // Save test response
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.microsoftonline.com/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.microsoftonline.com/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+
+    // Add authorities to cache
+    MSIDAadAuthorityCacheRecord *record = [MSIDAadAuthorityCacheRecord new];
+    record.networkHost = @"login.microsoftonline.com";
+    record.cacheHost = @"login.windows.net";
+    record.aliases = @[@"login.microsoftonline.com", @"login.windows.net", @"login.microsoft.com"];
+    record.validated = YES;
+
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
+    [cache setObject:record forKey:@"login.microsoftonline.com"];
+    [cache setObject:record forKey:@"login.windows.net"];
+    [cache setObject:record forKey:@"login.microsoft.com"];
+
+    // Test accounts retrieval
+    NSError *error = nil;
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoft.com"
+                                                           clientId:@"test_client_id"
+                                                           familyId:@"3"
+                                                            context:nil
+                                                              error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 1);
+    MSIDAccount *firstAccount = accounts[0];
+    XCTAssertEqualObjects(firstAccount.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(firstAccount.username, @"upn@test.com");
+    XCTAssertEqualObjects(firstAccount.authority.environment, @"login.microsoft.com");
+
+    accounts = [_defaultAccessor allAccountsForEnvironment:nil
+                                                  clientId:@"test_client_id"
+                                                  familyId:@"3"
+                                                   context:nil
+                                                     error:&error];
+
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 2);
+}
+
+- (void)testAllAccountsWithEnvironment_whenTokensInBothCachesWithDifferentAuthorities_andNoClientInfo_andAliasesAvailable_shouldReturnOneAccount
+{
+    // Save test response
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.microsoftonline.com/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:nil
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+
+    // Add authorities to cache
+    MSIDAadAuthorityCacheRecord *record = [MSIDAadAuthorityCacheRecord new];
+    record.networkHost = @"login.microsoftonline.com";
+    record.cacheHost = @"login.windows.net";
+    record.aliases = @[@"login.microsoftonline.com", @"login.windows.net", @"login.microsoft.com"];
+    record.validated = YES;
+
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
+    [cache setObject:record forKey:@"login.microsoftonline.com"];
+    [cache setObject:record forKey:@"login.windows.net"];
+    [cache setObject:record forKey:@"login.microsoft.com"];
+
+    // Test accounts retrieval
+    NSError *error = nil;
+    NSArray *accounts = [_defaultAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
+                                                           clientId:@"test_client_id"
+                                                           familyId:@"3"
+                                                            context:nil
+                                                              error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 1);
+    MSIDAccount *account = accounts[0];
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.givenName, @"Hello");
+    XCTAssertEqualObjects(account.familyName, @"World");
+    XCTAssertEqualObjects(account.username, @"upn@test.com");
+    XCTAssertEqualObjects(account.name, @"Hello World");
+
+    accounts = [_defaultAccessor allAccountsForEnvironment:nil
+                                                  clientId:@"test_client_id"
+                                                  familyId:@"3"
+                                                   context:nil
+                                                     error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 2);
 }
 
 #pragma mark - Get single account

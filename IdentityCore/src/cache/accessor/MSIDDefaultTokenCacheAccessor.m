@@ -260,53 +260,41 @@
 {
     MSID_LOG_VERBOSE(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@", environment, clientId, familyId);
 
-    NSMutableSet *filteredAccountsSet = [NSMutableSet set];
-
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     NSArray<NSString *> *environmentAliases = [_factory defaultCacheAliasesForEnvironment:environment];
-    __auto_type accountsPerUserId = [self getAccountsPerUserIdForAliases:environmentAliases context:context error:error];
 
-    if (![accountsPerUserId count])
+    NSMutableSet *filteredAccountsSet = [self getAccountsForEnvironment:environment
+                                                     environmentAliases:environmentAliases
+                                                                context:context
+                                                                  error:error];
+
+    if (!filteredAccountsSet)
     {
-        MSID_LOG_INFO(context, @"No accounts found, returning!");
+        MSID_LOG_ERROR(context, @"(Default accessor) Failed accounts lookup");
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
         return @[];
     }
 
-    MSIDDefaultCredentialCacheQuery *credentialsQuery = [MSIDDefaultCredentialCacheQuery new];
-    credentialsQuery.credentialType = MSIDRefreshTokenType;
-    credentialsQuery.clientId = clientId;
-    credentialsQuery.familyId = familyId;
-    credentialsQuery.clientIdMatchingOptions = MSIDSuperSet;
-    credentialsQuery.environmentAliases = environmentAliases;
-
-    NSArray<MSIDCredentialCacheItem *> *resultCredentials = [_accountCredentialCache getCredentialsWithQuery:credentialsQuery legacyUserId:nil context:context error:error];
-
-    for (MSIDCredentialCacheItem *credentialCacheItem in resultCredentials)
+    if ([filteredAccountsSet count])
     {
-        NSArray *accounts = accountsPerUserId[credentialCacheItem.homeAccountId];
-        if (!accounts) continue;
-
-        [filteredAccountsSet addObjectsFromArray:accounts];
-    }
-
-    if ([resultCredentials count] == 0)
-    {
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
     else
     {
-        [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
+        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in default accessor");
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
     }
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        [filteredAccountsSet addObjectsFromArray:[accessor allAccountsForEnvironment:environment
-                                                                            clientId:clientId
-                                                                            familyId:familyId
-                                                                             context:context
-                                                                               error:error]];
+        NSArray *accounts = [accessor allAccountsForEnvironment:environment
+                                                       clientId:clientId
+                                                       familyId:familyId
+                                                        context:context
+                                                          error:error];
+
+        [filteredAccountsSet addObjectsFromArray:accounts];
     }
 
     return [filteredAccountsSet allObjects];
@@ -696,9 +684,10 @@
     return result;
 }
 
-- (NSMutableDictionary<NSString *, NSMutableArray *> *)getAccountsPerUserIdForAliases:(NSArray<NSString *> *)environmentAliases
-                                                                              context:(id<MSIDRequestContext>)context
-                                                                                error:(NSError **)error
+- (NSMutableSet *)getAccountsForEnvironment:(NSString *)inputEnvironment
+                         environmentAliases:(NSArray<NSString *> *)environmentAliases
+                                    context:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error
 {
     MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
     accountsQuery.accountType = MSIDAccountTypeMSSTS;
@@ -706,27 +695,21 @@
 
     NSArray<MSIDAccountCacheItem *> *resultAccounts = [_accountCredentialCache getAccountsWithQuery:accountsQuery context:context error:error];
 
-    NSMutableDictionary<NSString *, NSMutableArray *> *accountsPerUserId = [NSMutableDictionary dictionary];
+    if (!resultAccounts)
+    {
+        return nil;
+    }
+
+    NSMutableSet *resultAccountSet = [NSMutableSet set];
 
     for (MSIDAccountCacheItem *accountCacheItem in resultAccounts)
     {
-        MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
+        if (inputEnvironment) accountCacheItem.environment = inputEnvironment;
 
-        if (account.accountIdentifier.homeAccountId)
-        {
-            NSMutableArray *accounts = accountsPerUserId[account.accountIdentifier.homeAccountId];
-
-            if (!accounts)
-            {
-                accounts = [NSMutableArray array];
-                accountsPerUserId[account.accountIdentifier.homeAccountId] = accounts;
-            }
-
-            [accounts addObject:account];
-        }
+        [resultAccountSet addObject:[[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem]];
     }
 
-    return accountsPerUserId;
+    return resultAccountSet;
 }
 
 #pragma mark - Private
@@ -854,7 +837,10 @@
     }
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
-    BOOL result = [_accountCredentialCache saveCredential:token.tokenCacheItem context:context error:error];
+
+    MSIDCredentialCacheItem *cacheItem = token.tokenCacheItem;
+    cacheItem.environment = [_factory cacheEnvironmentFromEnvironment:cacheItem.environment context:context];
+    BOOL result = [_accountCredentialCache saveCredential:cacheItem context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:token success:result context:context];
     return result;
 }
@@ -869,7 +855,10 @@
     }
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
-    BOOL result = [_accountCredentialCache saveAccount:account.accountCacheItem context:context error:error];
+
+    MSIDAccountCacheItem *cacheItem = account.accountCacheItem;
+    cacheItem.environment = [_factory cacheEnvironmentFromEnvironment:cacheItem.environment context:context];
+    BOOL result = [_accountCredentialCache saveAccount:cacheItem context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
 }
