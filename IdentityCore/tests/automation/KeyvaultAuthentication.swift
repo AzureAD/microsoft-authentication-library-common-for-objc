@@ -23,7 +23,7 @@
 
 import Foundation
 
-@objc public class KeyvaultAuthentication : NSObject {
+public class KeyvaultAuthentication : NSObject {
 
     private var certificateContents : String
     private var certificateData : Data
