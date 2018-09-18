@@ -263,11 +263,6 @@ typedef unsigned char byte;
 }
 
 
-- (NSURL *)msidUrl
-{
-    return [[NSURL alloc] initWithString:self];
-}
-
 - (NSData *)msidData
 {
     return [self dataUsingEncoding:NSUTF8StringEncoding];

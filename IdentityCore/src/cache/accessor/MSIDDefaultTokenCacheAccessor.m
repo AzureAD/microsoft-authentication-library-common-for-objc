@@ -271,18 +271,19 @@
 
     if (!filteredAccountsSet)
     {
-        MSID_LOG_INFO(context, @"No accounts found, returning!");
+        MSID_LOG_ERROR(context, @"(Default accessor) Failed accounts lookup");
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
         return @[];
     }
 
-    if ([filteredAccountsSet count] == 0)
+    if ([filteredAccountsSet count])
     {
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
     else
     {
-        [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
+        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in default accessor");
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
     }
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
