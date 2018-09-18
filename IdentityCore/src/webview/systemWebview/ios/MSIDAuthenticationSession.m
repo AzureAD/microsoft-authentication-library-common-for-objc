@@ -98,8 +98,8 @@
         MSID_LOG_WARN(_context, @"CompletionHandler cannot be nil for interactive session.");
         return;
     }
-    
-    __block NSError *error = nil;
+
+    NSError *error = nil;
     
     if (@available(iOS 11.0, *))
     {
@@ -120,10 +120,10 @@
             
             [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
             
-            [self notifyEndWebAuthWithURL:callbackURL error:error];
-            _completionHandler(callbackURL, error);
+            [self notifyEndWebAuthWithURL:callbackURL error:authError];
+            _completionHandler(callbackURL, authError);
         };
-        
+
         [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
         
         if (@available(iOS 12.0, *))
