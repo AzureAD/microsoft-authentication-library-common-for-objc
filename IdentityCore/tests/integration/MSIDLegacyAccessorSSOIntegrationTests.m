@@ -401,7 +401,7 @@
     NSArray *defaultIDTokens = [self getAllIDTokens];
     XCTAssertEqual([defaultIDTokens count], 0);
 
-    MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
 
     NSArray *accounts = [_otherAccessor allAccountsForConfiguration:configuration familyId:nil context:nil error:&error];
