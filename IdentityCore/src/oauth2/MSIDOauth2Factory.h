@@ -66,9 +66,5 @@
 // Webview Factory
 @property (readonly) MSIDWebviewFactory *webviewFactory;
 
-// Cache URL
-- (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context;
-- (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment;
-
 @end
 

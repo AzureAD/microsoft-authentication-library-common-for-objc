@@ -41,6 +41,7 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDAADAuthority.h"
 
 @interface MSIDTestRequestContext : NSObject <MSIDRequestContext>
 
@@ -176,17 +177,23 @@
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    NSArray *returnedTokens = [_legacyCacheAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
-                                                                     clientId:@"test_client_id"
-                                                                     familyId:nil
-                                                                      context:reqContext
-                                                                        error:&error];
+    MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                                          context:reqContext
+                                                            error:&error];
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:nil
+                                                                           clientId:@"test_client_id"
+                                                                             target:nil];
+
+    NSArray *returnedAccounts = [_legacyCacheAccessor allAccountsForConfiguration:configuration
+                                                                         familyId:nil
+                                                                          context:reqContext
+                                                                            error:&error];
     
     // expect no token because it has been deleted
     XCTAssertNil(error);
-    XCTAssertEqual(returnedTokens.count, 0);
-    
-    
+    XCTAssertEqual(returnedAccounts.count, 0);
     
     // test if wipe data is logged in telemetry
     XCTestExpectation *expectation = [self expectationWithDescription:@"Find wipe data in telemetry."];
@@ -300,19 +307,27 @@
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:homeAccountId];
+
+    MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+
     result = [_defaultCacheAccessor clearCacheForAccount:account
-                                             environment:@"login.microsoftonline.com"
-                                                clientId:@"test_client_id"
-                                                 context:nil
-                                                   error:&error];
+                                               authority:authority
+                                                    clientId:@"test_client_id"
+                                                    context:nil
+                                                    error:&error];
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    NSArray *returnedTokens = [_defaultCacheAccessor allAccountsForEnvironment:@"login.microsoftonline.com"
-                                                                      clientId:@"test_client_id"
-                                                                      familyId:nil
-                                                                       context:reqContext
-                                                                         error:&error];
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:nil
+                                                                           clientId:@"test_client_id"
+                                                                             target:nil];
+
+    NSArray *returnedTokens = [_defaultCacheAccessor allAccountsForConfiguration:configuration
+                                                                        familyId:nil
+                                                                         context:reqContext
+                                                                           error:&error];
     // expect no token because it has been deleted
     XCTAssertNil(error);
     XCTAssertEqual(returnedTokens.count, 0);

@@ -71,6 +71,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (nonnull NSArray<NSURL *> *)legacyRefreshTokenLookupAliases;
 
+- (nonnull NSArray<NSString *> *)defaultCacheEnvironmentAliases;
+
 - (BOOL)isKnown;
 
 /* It is used in telemetry */

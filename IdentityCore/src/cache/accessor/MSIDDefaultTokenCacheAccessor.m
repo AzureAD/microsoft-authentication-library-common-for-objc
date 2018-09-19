@@ -139,7 +139,7 @@
 
         MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
         query.homeAccountId = account.homeAccountId;
-        query.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
+        query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
         query.clientId = familyId ? nil : configuration.clientId;
         query.familyId = familyId;
         query.credentialType = MSIDRefreshTokenType;
@@ -221,7 +221,7 @@
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = account.homeAccountId;
-    query.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
+    query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
     query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
     query.target = configuration.target;
@@ -241,7 +241,7 @@
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = account.homeAccountId;
-    query.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
+    query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
     query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
     query.credentialType = MSIDIDTokenType;
@@ -252,19 +252,18 @@
                                                  error:error];
 }
 
-- (NSArray<MSIDAccount *> *)allAccountsForEnvironment:(NSString *)environment
-                                             clientId:(NSString *)clientId
-                                             familyId:(NSString *)familyId
-                                              context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+- (NSArray<MSIDAccount *> *)allAccountsForConfiguration:(MSIDConfiguration *)configuration
+                                               familyId:(NSString *)familyId
+                                                context:(id<MSIDRequestContext>)context
+                                                  error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@", environment, clientId, familyId);
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@", configuration.authority.environment, configuration.clientId, familyId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *environmentAliases = [_factory defaultCacheAliasesForEnvironment:environment];
+    NSArray<NSString *> *environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
 
-    NSMutableSet *filteredAccountsSet = [self getAccountsForEnvironment:environment
+    NSMutableSet *filteredAccountsSet = [self getAccountsForEnvironment:configuration.authority.environment
                                                      environmentAliases:environmentAliases
                                                                 context:context
                                                                   error:error];
@@ -288,11 +287,10 @@
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        NSArray *accounts = [accessor allAccountsForEnvironment:environment
-                                                       clientId:clientId
-                                                       familyId:familyId
-                                                        context:context
-                                                          error:error];
+        NSArray *accounts = [accessor allAccountsForConfiguration:configuration
+                                                         familyId:familyId
+                                                          context:context
+                                                            error:error];
 
         [filteredAccountsSet addObjectsFromArray:accounts];
     }
@@ -311,7 +309,7 @@
 
     MSIDDefaultAccountCacheQuery *cacheQuery = [MSIDDefaultAccountCacheQuery new];
     cacheQuery.homeAccountId = accountIdentifier.homeAccountId;
-    cacheQuery.environmentAliases = [_factory defaultCacheAliasesForEnvironment:configuration.authority.environment];
+    cacheQuery.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
     cacheQuery.accountType = MSIDAccountTypeMSSTS;
 
     NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:cacheQuery context:context error:error];
@@ -363,7 +361,7 @@
 }
 
 - (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
-                 environment:(NSString *)environment
+                   authority:(MSIDAuthority *)authority
                     clientId:(NSString *)clientId
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error
@@ -374,12 +372,12 @@
         return NO;
     }
 
-    MSID_LOG_VERBOSE(context, @"Clearing cache for environment: %@, client ID %@", environment, clientId);
-    MSID_LOG_VERBOSE(context, @"Clearing cache for environment: %@, client ID %@, account %@", environment, clientId, account.homeAccountId);
+    MSID_LOG_VERBOSE(context, @"Clearing cache for environment: %@, client ID %@", authority.environment, clientId);
+    MSID_LOG_VERBOSE(context, @"Clearing cache for environment: %@, client ID %@, account %@", authority.environment, clientId, account.homeAccountId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
-    NSArray *aliases = [_factory defaultCacheAliasesForEnvironment:environment];
+    NSArray *aliases = [authority defaultCacheEnvironmentAliases];
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.clientId = clientId;
@@ -470,7 +468,7 @@
     if (account.homeAccountId)
     {
         result = [self clearCacheForAccount:account
-                                environment:nil
+                                  authority:nil
                                    clientId:clientId
                                     context:context
                                       error:error];
@@ -491,7 +489,7 @@
                 account.homeAccountId = cacheItem.homeAccountId;
 
                 result &= [self clearCacheForAccount:account
-                                         environment:nil
+                                           authority:nil
                                             clientId:clientId
                                              context:context
                                                error:error];
@@ -771,7 +769,7 @@
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *aliases = [_factory defaultCacheAliasesForEnvironment:authority.environment];
+    NSArray<NSString *> *aliases = [authority defaultCacheEnvironmentAliases];
 
     NSString *clientIdForQueries = clientId;
 
@@ -839,7 +837,7 @@
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
 
     MSIDCredentialCacheItem *cacheItem = token.tokenCacheItem;
-    cacheItem.environment = [_factory cacheEnvironmentFromEnvironment:cacheItem.environment context:context];
+    cacheItem.environment = [[token.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
     BOOL result = [_accountCredentialCache saveCredential:cacheItem context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:token success:result context:context];
     return result;
@@ -857,7 +855,7 @@
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
 
     MSIDAccountCacheItem *cacheItem = account.accountCacheItem;
-    cacheItem.environment = [_factory cacheEnvironmentFromEnvironment:cacheItem.environment context:context];
+    cacheItem.environment = [[account.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
     BOOL result = [_accountCredentialCache saveAccount:cacheItem context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;

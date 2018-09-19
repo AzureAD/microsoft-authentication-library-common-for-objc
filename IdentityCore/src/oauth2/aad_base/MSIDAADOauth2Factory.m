@@ -135,16 +135,6 @@
     }
 }
 
-- (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
-{
-    return [[MSIDAadAuthorityCache sharedInstance] cacheEnvironmentForEnvironment:originalEnvironment context:context];
-}
-
-- (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment
-{
-    return [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForEnvironment:originalEnvironment];
-}
-
 #pragma mark - Tokens
 
 - (BOOL)fillAccessToken:(MSIDAccessToken *)accessToken
