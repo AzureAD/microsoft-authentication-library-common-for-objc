@@ -75,10 +75,11 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 
-- (NSArray<MSIDAccount *> *)allAccountsForConfiguration:(MSIDConfiguration *)configuration
-                                               familyId:(NSString *)familyId
-                                                context:(id<MSIDRequestContext>)context
-                                                  error:(NSError **)error;
+- (NSArray<MSIDAccount *> *)allAccountsForAuthority:(MSIDAuthority *)authority
+                                           clientId:(NSString *)clientId
+                                           familyId:(NSString *)familyId
+                                            context:(id<MSIDRequestContext>)context
+                                              error:(NSError **)error;
 
 - (MSIDAccount *)accountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                              familyId:(NSString *)familyId

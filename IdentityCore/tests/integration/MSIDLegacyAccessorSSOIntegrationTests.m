@@ -250,9 +250,12 @@
     XCTAssertEqual([defaultIDTokens count], 0);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
 
-    NSArray *accounts = [_otherAccessor allAccountsForConfiguration:configuration familyId:nil context:nil error:&error];
+    NSArray *accounts = [_otherAccessor allAccountsForAuthority:authority
+                                                       clientId:@"test_client_id"
+                                                       familyId:nil
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertNotNil(accounts);
     XCTAssertNil(error);
@@ -324,18 +327,28 @@
     XCTAssertEqual([defaultIDTokens count], 0);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    MSIDConfiguration *firstConfiguration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
-    MSIDConfiguration *secondConfiguration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:nil target:nil];
 
-    NSArray *clientAccounts = [_otherAccessor allAccountsForConfiguration:firstConfiguration familyId:nil context:nil error:&error];
+    NSArray *clientAccounts = [_otherAccessor allAccountsForAuthority:authority
+                                                             clientId:@"test_client_id"
+                                                             familyId:nil
+                                                              context:nil
+                                                                error:&error];
 
     XCTAssertEqual([clientAccounts count], 1);
 
-    NSArray *familyAccounts = [_otherAccessor allAccountsForConfiguration:secondConfiguration familyId:@"2" context:nil error:&error];
+    NSArray *familyAccounts = [_otherAccessor allAccountsForAuthority:authority
+                                                             clientId:nil
+                                                             familyId:@"2"
+                                                              context:nil
+                                                                error:&error];
 
     XCTAssertEqual([familyAccounts count], 1);
 
-    NSArray *allAccounts = [_otherAccessor allAccountsForConfiguration:firstConfiguration familyId:@"2" context:nil error:&error];
+    NSArray *allAccounts = [_otherAccessor allAccountsForAuthority:authority
+                                                          clientId:@"test_client_id"
+                                                          familyId:@"2"
+                                                           context:nil
+                                                             error:&error];
 
     XCTAssertEqual([allAccounts count], 1);
 }
@@ -402,9 +415,12 @@
     XCTAssertEqual([defaultIDTokens count], 0);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
 
-    NSArray *accounts = [_otherAccessor allAccountsForConfiguration:configuration familyId:nil context:nil error:&error];
+    NSArray *accounts = [_otherAccessor allAccountsForAuthority:authority
+                                                       clientId:@"test_client_id"
+                                                       familyId:nil
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 0);
@@ -470,9 +486,12 @@
     XCTAssertEqual([defaultIDTokens count], 0);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
 
-    NSArray *accounts = [_otherAccessor allAccountsForConfiguration:configuration familyId:nil context:nil error:&error];
+    NSArray *accounts = [_otherAccessor allAccountsForAuthority:authority
+                                                       clientId:@"test_client_id"
+                                                       familyId:nil
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 0);
@@ -562,9 +581,12 @@
     XCTAssertEqual([defaultIDTokens count], 0);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
 
-    NSArray *accounts = [_otherAccessor allAccountsForConfiguration:configuration familyId:nil context:nil error:&error];
+    NSArray *accounts = [_otherAccessor allAccountsForAuthority:authority
+                                                       clientId:@"test_client_id"
+                                                       familyId:nil
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertNotNil(accounts);
     XCTAssertNil(error);
@@ -652,9 +674,12 @@
     XCTAssertEqual([defaultIDTokens count], 0);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
 
-    NSArray *accounts = [_otherAccessor allAccountsForConfiguration:configuration familyId:nil context:nil error:&error];
+    NSArray *accounts = [_otherAccessor allAccountsForAuthority:authority
+                                                       clientId:@"test_client_id"
+                                                       familyId:nil
+                                                        context:nil
+                                                          error:&error];
 
     XCTAssertNotNil(accounts);
     XCTAssertNil(error);
@@ -749,9 +774,12 @@
     XCTAssertEqual([defaultIDTokens count], 0);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
 
-    NSArray *allAccounts = [_otherAccessor allAccountsForConfiguration:configuration familyId:nil context:nil error:&error];
+    NSArray *allAccounts = [_otherAccessor allAccountsForAuthority:authority
+                                                          clientId:@"test_client_id"
+                                                          familyId:nil
+                                                           context:nil
+                                                             error:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual([allAccounts count], 0);
@@ -1406,9 +1434,12 @@
     XCTAssertEqual([allDefaultTokens count], 2);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
 
-    NSArray *allAccounts = [_otherAccessor allAccountsForConfiguration:configuration familyId:@"1" context:nil error:&error];
+    NSArray *allAccounts = [_otherAccessor allAccountsForAuthority:authority
+                                                          clientId:@"test_client_id"
+                                                          familyId:@"1"
+                                                           context:nil
+                                                             error:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual([allAccounts count], 1);
@@ -1442,9 +1473,12 @@
     NSError *error = nil;
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
 
-    NSArray *accounts = [_legacyAccessor allAccountsForConfiguration:configuration familyId:nil context:nil error:&error];
+    NSArray *accounts = [_legacyAccessor allAccountsForAuthority:authority
+                                                        clientId:@"test_client_id"
+                                                        familyId:nil
+                                                         context:nil
+                                                           error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1470,9 +1504,12 @@
     NSError *error = nil;
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:nil target:nil];
 
-    NSArray *accounts = [_legacyAccessor allAccountsForConfiguration:configuration familyId:@"1" context:nil error:&error];
+    NSArray *accounts = [_legacyAccessor allAccountsForAuthority:authority
+                                                        clientId:nil
+                                                        familyId:@"1"
+                                                         context:nil
+                                                           error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1510,9 +1547,12 @@
     NSError *error = nil;
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:@"test_client_id" target:nil];
 
-    NSArray *accounts = [_legacyAccessor allAccountsForConfiguration:configuration familyId:nil context:nil error:&error];
+    NSArray *accounts = [_legacyAccessor allAccountsForAuthority:authority
+                                                        clientId:@"test_client_id"
+                                                        familyId:nil
+                                                         context:nil
+                                                           error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1550,9 +1590,12 @@
     NSError *error = nil;
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:nil target:nil];
 
-    NSArray *accounts = [_legacyAccessor allAccountsForConfiguration:configuration familyId:@"1" context:nil error:&error];
+    NSArray *accounts = [_legacyAccessor allAccountsForAuthority:authority
+                                                        clientId:nil
+                                                        familyId:@"1"
+                                                         context:nil
+                                                           error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);

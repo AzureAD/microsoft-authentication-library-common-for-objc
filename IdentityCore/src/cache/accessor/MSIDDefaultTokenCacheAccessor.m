@@ -252,18 +252,19 @@
                                                  error:error];
 }
 
-- (NSArray<MSIDAccount *> *)allAccountsForConfiguration:(MSIDConfiguration *)configuration
-                                               familyId:(NSString *)familyId
-                                                context:(id<MSIDRequestContext>)context
-                                                  error:(NSError **)error
+- (NSArray<MSIDAccount *> *)allAccountsForAuthority:(MSIDAuthority *)authority
+                                           clientId:(NSString *)clientId
+                                           familyId:(NSString *)familyId
+                                            context:(id<MSIDRequestContext>)context
+                                              error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@", configuration.authority.environment, configuration.clientId, familyId);
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@", authority.environment, clientId, familyId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    NSArray<NSString *> *environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
+    NSArray<NSString *> *environmentAliases = [authority defaultCacheEnvironmentAliases];
 
-    NSMutableSet *filteredAccountsSet = [self getAccountsForEnvironment:configuration.authority.environment
+    NSMutableSet *filteredAccountsSet = [self getAccountsForEnvironment:authority.environment
                                                      environmentAliases:environmentAliases
                                                                 context:context
                                                                   error:error];
@@ -287,10 +288,11 @@
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        NSArray *accounts = [accessor allAccountsForConfiguration:configuration
-                                                         familyId:familyId
-                                                          context:context
-                                                            error:error];
+        NSArray *accounts = [accessor allAccountsForAuthority:authority
+                                                     clientId:clientId
+                                                     familyId:familyId
+                                                      context:context
+                                                        error:error];
 
         [filteredAccountsSet addObjectsFromArray:accounts];
     }
