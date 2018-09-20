@@ -457,20 +457,5 @@
     XCTAssertEqualObjects(account.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY);
 }
 
-- (void)testDefaultCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnNilAuthorities
-{
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    NSArray *aliases = [factory defaultCacheAliasesForEnvironment:nil];
-    XCTAssertEqualObjects(aliases, @[]);
-}
-
-- (void)testDefaultCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnOriginalAuthority
-{
-    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
-    NSString *originalEnvironment = @"login.microsoftonline.com";
-    NSArray *aliases = [factory defaultCacheAliasesForEnvironment:originalEnvironment];
-    XCTAssertEqualObjects(aliases, @[originalEnvironment]);
-}
-
 @end
 

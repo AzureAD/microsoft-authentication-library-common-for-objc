@@ -144,6 +144,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
      return @[self.url];
 }
 
+- (NSArray<NSString *> *)defaultCacheEnvironmentAliases
+{
+    return @[self.environment];
+}
+
 - (BOOL)isKnown
 {
     // TODO: Can we move it out from here? What about ADFS & B2C?

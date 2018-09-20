@@ -348,21 +348,6 @@
     return YES;
 }
 
-- (NSString *)cacheEnvironmentFromEnvironment:(NSString *)originalEnvironment context:(id<MSIDRequestContext>)context
-{
-    return originalEnvironment;
-}
-
-- (NSArray<NSString *> *)defaultCacheAliasesForEnvironment:(NSString *)originalEnvironment
-{
-    if (!originalEnvironment)
-    {
-        return @[];
-    }
-
-    return @[originalEnvironment];
-}
-
 #pragma mark - Webview
 #pragma mark - Webview
 - (MSIDWebviewFactory *)webviewFactory

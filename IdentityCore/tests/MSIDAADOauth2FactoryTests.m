@@ -300,36 +300,5 @@
     XCTAssertNotNil(token.expiresOn);
 }
 
-- (void)testDefaultCacheAliasesForEnvironment_whenEnvironmentNil_shouldReturnNilAuthorities
-{
-    [self setupAADAuthorityCache];
-
-    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
-    NSArray *aliases = [factory defaultCacheAliasesForEnvironment:nil];
-    XCTAssertEqualObjects(aliases, @[]);
-}
-
-- (void)testDefaultCacheAliasesForEnvirobment_whenEnvironmentNil_shouldReturnAllAliases
-{
-    [self setupAADAuthorityCache];
-
-    MSIDOauth2Factory *factory = [MSIDAADOauth2Factory new];
-    NSString *originalEnvironment = @"login.microsoftonline.com";
-    NSArray *aliases = [factory defaultCacheAliasesForEnvironment:originalEnvironment];
-    NSArray *expectedAliases = @[@"login.windows.net", @"login.microsoftonline.com", @"login.microsoft.com"];
-    XCTAssertEqualObjects(aliases, expectedAliases);
-}
-
-- (void)setupAADAuthorityCache
-{
-    __auto_type record = [MSIDAadAuthorityCacheRecord new];
-    record.validated = YES;
-    record.networkHost = @"login.microsoftonline.com";
-    record.cacheHost = @"login.windows.net";
-    record.aliases = @[@"login.microsoft.com"];
-    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
-    [cache setObject:record forKey:@"login.microsoftonline.com"];
-}
-
 @end
 

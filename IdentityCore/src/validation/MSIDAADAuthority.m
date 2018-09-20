@@ -98,6 +98,11 @@
     return [self.authorityCache cacheAliasesForAuthority:authority];
 }
 
+- (NSArray<NSString *> *)defaultCacheEnvironmentAliases
+{
+    return [self.authorityCache cacheAliasesForEnvironment:self.environment];
+}
+
 - (nonnull NSURL *)universalAuthorityURL
 {
 //    AAD v1 endpoint supports only "common" path.

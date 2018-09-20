@@ -40,6 +40,7 @@
 @property (nonatomic) NSInteger networkUrlForAuthorityInvokedCount;
 @property (nonatomic) NSInteger cacheUrlForAuthorityInvokedCount;
 @property (nonatomic) NSInteger cacheAliasesForAuthorityInvokedCount;
+@property (nonatomic) NSInteger cacheAliasesForEnvironmentInvokedCount;
 
 @end
 
@@ -66,6 +67,13 @@
     self.cacheAliasesForAuthorityInvokedCount++;
     
     return [super cacheAliasesForAuthority:authority];
+}
+
+- (NSArray<NSString *> *)cacheAliasesForEnvironment:(NSString *)environment
+{
+    self.cacheAliasesForEnvironmentInvokedCount++;
+
+    return [super cacheAliasesForEnvironment:environment];
 }
 
 @end
@@ -364,6 +372,21 @@
     XCTAssertEqualObjects(@[authorityUrl], aliases);
 }
 
+#pragma mark - defaultCacheEnvironmentAliases
+
+- (void)testDefaultCacheEnvironmentAliases_whenAADAuthority_shouldInvokeAADCache
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
+    __auto_type cacheMock = [MSIDAADAuthorityCacheMock new];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    [authority setValue:cacheMock forKey:@"authorityCache"];
+
+    __auto_type aliases = [authority defaultCacheEnvironmentAliases];
+
+    XCTAssertEqual(cacheMock.cacheAliasesForEnvironmentInvokedCount, 1);
+    XCTAssertEqualObjects(@[@"login.microsoftonline.com:8080"], aliases);
+}
+
 #pragma mark - isKnownHost
 
 - (void)testIsKnownHost_whenAADAuhorityAndHostInListOfKnownHost_shouldReturnYes
@@ -425,6 +448,20 @@
     
     NSArray *aliases = [authority legacyAccessTokenLookupAuthorities];
     
+    XCTAssertEqualObjects(aliases, expectedAliases);
+}
+
+- (void)testDefaultCacheEnvironmentAliases_whenAuthorityProvided_shouldReturnAllEnvironments
+{
+    [self setupAADAuthorityCache];
+
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    NSArray *expectedAliases = @[@"login.windows.net",
+                                 @"login.microsoftonline.com",
+                                 @"login.microsoft.com"];
+
+    NSArray *aliases = [authority defaultCacheEnvironmentAliases];
+
     XCTAssertEqualObjects(aliases, expectedAliases);
 }
 

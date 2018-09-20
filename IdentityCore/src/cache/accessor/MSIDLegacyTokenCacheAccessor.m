@@ -215,20 +215,20 @@
     return [_dataSource clearWithContext:context error:error];
 }
 
-- (NSArray<MSIDAccount *> *)allAccountsForEnvironment:(NSString *)environment
-                                             clientId:(NSString *)clientId
-                                             familyId:(NSString *)familyId
-                                              context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+- (NSArray<MSIDAccount *> *)allAccountsForAuthority:(MSIDAuthority *)authority
+                                           clientId:(NSString *)clientId
+                                           familyId:(NSString *)familyId
+                                            context:(id<MSIDRequestContext>)context
+                                              error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get accounts with environment %@, clientId %@, familyId %@", environment, clientId, familyId);
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get accounts with environment %@, clientId %@, familyId %@", authority.environment, clientId, familyId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     __auto_type items = [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 
-    NSArray<NSString *> *environmentAliases = [_factory defaultCacheAliasesForEnvironment:environment];
+    NSArray<NSString *> *environmentAliases = [authority defaultCacheEnvironmentAliases];
 
     BOOL (^filterBlock)(MSIDCredentialCacheItem *tokenCacheItem) = ^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
         if ([environmentAliases count] && ![tokenCacheItem.environment msidIsEquivalentWithAnyAlias:environmentAliases])
@@ -272,7 +272,7 @@
         __auto_type account = [MSIDAccount new];
         account.accountIdentifier = refreshToken.accountIdentifier;
         account.username = refreshToken.accountIdentifier.legacyAccountId;
-        NSURL *rtAuthority = [refreshToken.authority.url msidURLForPreferredHost:environment context:context error:error];
+        NSURL *rtAuthority = [refreshToken.authority.url msidURLForPreferredHost:authority.environment context:context error:error];
         account.authority = [self.authorityFactory authorityFromUrl:rtAuthority rawTenant:refreshToken.realm context:context error:nil];
         account.accountType = MSIDAccountTypeMSSTS;
         [resultAccounts addObject:account];

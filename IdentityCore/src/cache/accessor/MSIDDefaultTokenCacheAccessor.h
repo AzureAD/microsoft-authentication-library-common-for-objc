@@ -31,6 +31,7 @@
 @class MSIDAccessToken;
 @class MSIDAccount;
 @class MSIDIdToken;
+@class MSIDAuthority;
 
 @interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDCacheAccessor>
 
@@ -49,7 +50,7 @@
                 error:(NSError **)error;
 
 - (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
-                 environment:(NSString *)environment
+                   authority:(MSIDAuthority *)authority
                     clientId:(NSString *)clientId
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error;
