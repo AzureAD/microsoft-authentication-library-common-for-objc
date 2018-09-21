@@ -88,7 +88,7 @@
 
     if (!result)
     {
-        if (response.error)
+        if (response.error && error)
         {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      response.oauthErrorCode,
