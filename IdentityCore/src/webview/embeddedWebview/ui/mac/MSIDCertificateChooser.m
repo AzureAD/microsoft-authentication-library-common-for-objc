@@ -87,7 +87,6 @@
     }
     
     SecIdentityRef identity = _panel.identity;
-    _panel = nil;
     _completionHandler(identity);
     _completionHandler = nil;
     //[[NSNotificationCenter defaultCenter] removeObserver:self name:ADWebAuthDidFailNotification object:nil];
