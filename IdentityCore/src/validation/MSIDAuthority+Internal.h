@@ -29,8 +29,8 @@
 
 @interface MSIDAuthority()
 
-@property (nonatomic) MSIDOpenIdProviderMetadata *metadata;
-@property (nonatomic) NSURL *openIdConfigurationEndpoint;
+@property (atomic) MSIDOpenIdProviderMetadata *metadata;
+@property (atomic) NSURL *openIdConfigurationEndpoint;
 
 - (id<MSIDAuthorityResolving>)resolver;
 

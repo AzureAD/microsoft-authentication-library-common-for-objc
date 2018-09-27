@@ -41,13 +41,13 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 @property (class, readonly, nonnull) MSIDCache *openIdConfigurationCache;
 
-@property (nonatomic, readonly, nonnull) NSURL *url;
+@property (readonly, nonnull) NSURL *url;
 
-@property (nonatomic, readonly, nonnull) NSString *environment;
+@property (readonly, nonnull) NSString *environment;
 
-@property (nonatomic, readonly, nullable) NSURL *openIdConfigurationEndpoint;
+@property (readonly, nullable) NSURL *openIdConfigurationEndpoint;
 
-@property (nonatomic, readonly, nullable) MSIDOpenIdProviderMetadata *metadata;
+@property (readonly, nullable) MSIDOpenIdProviderMetadata *metadata;
 
 - (instancetype _Nullable )init NS_UNAVAILABLE;
 + (instancetype _Nullable )new NS_UNAVAILABLE;
