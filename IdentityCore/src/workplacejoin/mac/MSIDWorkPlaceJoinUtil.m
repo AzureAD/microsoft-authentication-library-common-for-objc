@@ -135,7 +135,7 @@ _error:
 }
 
 
-+ (void)copyCertificate:(SecCertificateRef __nullable * __nonnull)certificate
++ (BOOL)copyCertificate:(SecCertificateRef __nullable * __nonnull)certificate
                identity:(SecIdentityRef __nullable * __nonnull)identity
                  issuer:(NSString * __nullable * __nonnull)issuer
                 context:(id<MSIDRequestContext>)context
@@ -170,7 +170,7 @@ _error:
     // If there's no certificate in the keychain, adError won't be set since this isn't an error condition.
     if (!*certificate)
     {
-        return;
+        return NO;
     }
     
     // In OS X the shared access group cannot be set, so the search needs to be more
@@ -199,7 +199,7 @@ _error:
     
     CFRelease(result);
     
-    return;
+    return YES;
     
 _error:
     
@@ -216,6 +216,8 @@ _error:
     *certificate = nil;
     
     *issuer = nil;
+    
+    return NO;
 }
 
 

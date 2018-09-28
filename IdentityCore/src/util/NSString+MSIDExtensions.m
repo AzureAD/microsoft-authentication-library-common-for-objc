@@ -162,7 +162,7 @@ typedef unsigned char byte;
     
     if (!charBytes) return nil;
     NSUInteger dataLength = data.length;
-    NSMutableString *result = [NSMutableString stringWithCapacity:dataLength];
+    NSMutableString *result = [NSMutableString stringWithCapacity:dataLength*2];
     
     for (int i = 0; i < dataLength; i++)
     {
