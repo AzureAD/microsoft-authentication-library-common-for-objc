@@ -27,6 +27,8 @@
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
 
+static WKWebViewConfiguration *s_webConfig;
+
 @interface MSIDWebviewUIController ( )
 {
     UIActivityIndicatorView *_loadingIndicator;
@@ -39,6 +41,14 @@
 @end
 
 @implementation MSIDWebviewUIController
+
++ (void)initialize
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        s_webConfig = [WKWebViewConfiguration new];
+    });
+}
 
 - (id)initWithContext:(id<MSIDRequestContext>)context
 {
@@ -86,8 +96,7 @@
     [rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     
     // Prepare the WKWebView
-    WKWebViewConfiguration *webConfiguration = [WKWebViewConfiguration new];
-    WKWebView *webView = [[WKWebView alloc] initWithFrame:rootView.frame configuration:webConfiguration];
+    WKWebView *webView = [[WKWebView alloc] initWithFrame:rootView.frame configuration:s_webConfig];
     [webView setAccessibilityIdentifier:@"MSID_SIGN_IN_WEBVIEW"];
     
     // Customize the UI
