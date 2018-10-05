@@ -27,22 +27,28 @@
 
 - (NSString *)account
 {
-    if (self.homeAccountId && self.environment)
+    if (!_account)
     {
-        return [super account];
+        if (self.homeAccountId && self.environment)
+        {
+            _account = [super account];
+        }
     }
-
-    return nil;
+    
+    return _account;
 }
 
 - (NSNumber *)type
 {
-    if (self.accountType != MSIDAccountTypeOther)
+    if (!_type)
     {
-        return [super type];
+        if (self.accountType != MSIDAccountTypeOther)
+        {
+            _type = [super type];
+        }
     }
-
-    return nil;
+    
+    return _type;
 }
 
 - (BOOL)exactMatch

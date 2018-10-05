@@ -41,40 +41,46 @@
 
 - (NSString *)account
 {
-    if (self.homeAccountId && self.environment)
+    if (!_account)
     {
-        return [self accountIdWithHomeAccountId:self.homeAccountId environment:self.environment];
+        if (self.homeAccountId && self.environment)
+        {
+            _account = [self accountIdWithHomeAccountId:self.homeAccountId environment:self.environment];
+        }
     }
-
-    return nil;
+    
+    return _account;
 }
 
 - (NSString *)service
 {
-    if (self.matchAnyCredentialType)
+    if(!_service)
     {
-        return nil;
-    }
+        if (self.matchAnyCredentialType)
+        {
+            return nil;
+        }
 
-    switch (self.credentialType)
-    {
-        case MSIDAccessTokenType:
+        switch (self.credentialType)
         {
-            return [self serviceForAccessToken];
+            case MSIDAccessTokenType:
+            {
+                _service = [self serviceForAccessToken];
+            }
+            case MSIDRefreshTokenType:
+            {
+                _service = [self serviceForRefreshToken];
+            }
+            case MSIDIDTokenType:
+            {
+                _service = [self serviceForIDToken];
+            }
+            default:
+                break;
         }
-        case MSIDRefreshTokenType:
-        {
-            return [self serviceForRefreshToken];
-        }
-        case MSIDIDTokenType:
-        {
-            return [self serviceForIDToken];
-        }
-        default:
-            break;
     }
-
-    return nil;
+    
+    return _service;
 }
 
 - (NSString *)serviceForAccessToken
@@ -111,40 +117,51 @@
 
 - (NSData *)generic
 {
-    if (self.matchAnyCredentialType)
+    if (!_generic)
     {
-        return nil;
+        if (self.matchAnyCredentialType)
+        {
+            return nil;
+        }
+        
+        NSString *clientId = self.queryClientId;
+        
+        if (!clientId)
+        {
+            return nil;
+        }
+        
+        NSString *genericString = nil;
+        
+        if (self.credentialType == MSIDRefreshTokenType)
+        {
+            genericString = [self credentialIdWithType:self.credentialType clientId:clientId realm:nil];
+        }
+        else if (self.realm)
+        {
+            genericString = [self credentialIdWithType:self.credentialType clientId:clientId realm:self.realm];
+        }
+        
+        _generic = [genericString dataUsingEncoding:NSUTF8StringEncoding];
     }
-
-    NSString *clientId = self.queryClientId;
-
-    if (!clientId)
-    {
-        return nil;
-    }
-
-    NSString *genericString = nil;
-
-    if (self.credentialType == MSIDRefreshTokenType)
-    {
-        genericString = [self credentialIdWithType:self.credentialType clientId:clientId realm:nil];
-    }
-    else if (self.realm)
-    {
-        genericString = [self credentialIdWithType:self.credentialType clientId:clientId realm:self.realm];
-    }
-
-    return [genericString dataUsingEncoding:NSUTF8StringEncoding];
+    
+    return _generic;
+    
 }
 
 - (NSNumber *)type
 {
-    if (self.matchAnyCredentialType)
+    if (!_type)
     {
-        return nil;
+        if (self.matchAnyCredentialType)
+        {
+            return nil;
+        }
+        
+        _type = [self credentialTypeNumber:self.credentialType];
     }
-
-    return [self credentialTypeNumber:self.credentialType];
+    
+    return _type;
 }
 
 - (BOOL)exactMatch

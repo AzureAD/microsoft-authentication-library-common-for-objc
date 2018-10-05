@@ -27,23 +27,29 @@
 
 - (NSString *)account
 {
-    if (self.legacyUserId)
+    if (!_account)
     {
-        return [self adalAccountWithUserId:self.legacyUserId];
+        if (self.legacyUserId)
+        {
+            _account = [self adalAccountWithUserId:self.legacyUserId];
+        }
     }
-
-    return nil;
+    
+    return _account;
 }
 
 - (NSString *)service
 {
-    if (self.authority
-        && self.clientId)
+    if (!_service)
     {
-        return [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+        if (self.authority
+            && self.clientId)
+        {
+            _service = [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+        }
     }
-
-    return nil;
+    
+    return _service;
 }
 
 - (BOOL)exactMatch

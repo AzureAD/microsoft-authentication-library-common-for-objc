@@ -96,17 +96,32 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
 - (NSString *)account
 {
-    return _account ? _account : [self adalAccountWithUserId:self.legacyUserId];
+    if (!_account)
+    {
+        _account = [self adalAccountWithUserId:self.legacyUserId];
+    }
+    
+    return _account;
 }
 
 - (NSString *)service
 {
-    return _service ? _service : [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+    if (!_service)
+    {
+        _service = [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+    }
+    
+    return _service;
 }
 
 - (NSData *)generic
 {
-    return [s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding];
+    if (!_generic)
+    {
+        _generic = [s_adalLibraryString dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    
+    return _generic;
 }
 
 #pragma mark - NSSecureCoding

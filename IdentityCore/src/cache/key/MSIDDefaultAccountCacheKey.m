@@ -53,25 +53,43 @@ static NSInteger kAccountTypePrefix = 1000;
 
 - (NSData *)generic
 {
-    return [self.username.msidTrimmedString.lowercaseString dataUsingEncoding:NSUTF8StringEncoding];
+    if (!_generic)
+    {
+        _generic = [self.username.msidTrimmedString.lowercaseString dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    
+    return _generic;
 }
 
 - (NSNumber *)type
 {
-    return [self accountTypeNumber:self.accountType];
+    if (!_type)
+    {
+        _type = [self accountTypeNumber:self.accountType];
+    }
+    return _type;
 }
 
 - (NSString *)account
 {
-    NSString *uniqueId = self.homeAccountId.msidTrimmedString.lowercaseString;
-
-    return [NSString stringWithFormat:@"%@%@%@",
-            uniqueId, keyDelimiter, self.environment];
+    if (!_account)
+    {
+        NSString *uniqueId = self.homeAccountId.msidTrimmedString.lowercaseString;
+        _account =  [NSString stringWithFormat:@"%@%@%@",
+                     uniqueId, keyDelimiter, self.environment];
+    }
+    
+    return _account;
 }
 
 - (NSString *)service
 {
-    return self.realm.msidTrimmedString.lowercaseString;
+    if (!_service)
+    {
+        _service = self.realm.msidTrimmedString.lowercaseString;
+    }
+    
+    return _service;
 }
 
 @end

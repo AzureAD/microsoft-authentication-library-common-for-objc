@@ -106,24 +106,44 @@ static NSInteger kCredentialTypePrefix = 2000;
 
 - (NSData *)generic
 {
-    NSString *clientId = self.familyId ? self.familyId : self.clientId;
-    return [[self credentialIdWithType:self.credentialType clientId:clientId realm:self.realm] dataUsingEncoding:NSUTF8StringEncoding];
+    if (!_generic)
+    {
+        NSString *clientId = self.familyId ? self.familyId : self.clientId;
+        _generic = [[self credentialIdWithType:self.credentialType clientId:clientId realm:self.realm] dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    
+    return _generic;
 }
 
 - (NSNumber *)type
 {
-    return [self credentialTypeNumber:self.credentialType];
+    if (!_type)
+    {
+        _type = [self credentialTypeNumber:self.credentialType];
+    }
+    
+    return _type;
 }
 
 - (NSString *)account
 {
-    return [self accountIdWithHomeAccountId:self.homeAccountId environment:self.environment];
+    if (!_account)
+    {
+        _account = [self accountIdWithHomeAccountId:self.homeAccountId environment:self.environment];
+    }
+    
+    return _account;
 }
 
 - (NSString *)service
 {
-    NSString *clientId = self.familyId ? self.familyId : self.clientId;
-    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm target:self.target];
+    if (!_service)
+    {
+        NSString *clientId = self.familyId ? self.familyId : self.clientId;
+        _service = [self serviceWithType:self.credentialType clientID:clientId realm:self.realm target:self.target];
+    }
+    
+    return _service;
 }
 
 @end
