@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nullable, nonatomic) NSString *homeAccountId;
 @property (nullable, nonatomic) NSString *environment;
-@property (nullable, nonatomic) NSString *username;
+@property (nullable, nonatomic) NSString *localAccountId;
 @property (nullable, nonatomic) NSString *realm;
 @property (nonatomic) MSIDAccountType accountType;
 

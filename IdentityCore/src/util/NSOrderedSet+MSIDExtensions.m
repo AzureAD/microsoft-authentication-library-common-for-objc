@@ -35,8 +35,12 @@
     return [NSString msidStringFromOrderedSet:self];
 }
 
-
 + (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string
+{
+    return [self msidOrderedSetFromString:string normalize:YES];
+}
+
++ (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string normalize:(BOOL)normalize
 {
     NSMutableOrderedSet<NSString *> *scope = [NSMutableOrderedSet<NSString *> new];
     NSArray* parts = [string componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" "]];
@@ -44,7 +48,14 @@
     {
         if (![NSString msidIsStringNilOrBlank:part])
         {
-            [scope addObject:part.msidTrimmedString.lowercaseString];
+            if (normalize)
+            {
+                [scope addObject:part.msidTrimmedString.lowercaseString];
+            }
+            else
+            {
+                [scope addObject:part.msidTrimmedString];
+            }
         }
     }
     return scope;

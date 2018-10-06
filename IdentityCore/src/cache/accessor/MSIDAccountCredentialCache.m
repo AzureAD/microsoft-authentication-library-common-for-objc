@@ -261,7 +261,7 @@
                                                                                           realm:account.realm
                                                                                            type:account.accountType];
 
-    key.username = account.username;
+    key.localAccountId = account.localAccountId;
 
     // Get previous account, so we don't loose any fields
     MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];

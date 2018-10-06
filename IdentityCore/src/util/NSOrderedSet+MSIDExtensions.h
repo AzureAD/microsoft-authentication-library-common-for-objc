@@ -31,6 +31,7 @@
 
 - (NSString *)msidToString;
 + (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string;
++ (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string normalize:(BOOL)normalize;
 
 @end
 

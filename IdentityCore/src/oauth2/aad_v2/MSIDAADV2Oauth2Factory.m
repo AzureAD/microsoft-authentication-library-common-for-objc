@@ -34,6 +34,7 @@
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAADV2WebviewFactory.h"
 #import "MSIDAuthorityFactory.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -130,7 +131,8 @@
         return NO;
     }
 
-    NSOrderedSet *responseScopes = response.scope.msidScopeSet;
+    // We want to keep case as it comes from the server side
+    NSOrderedSet *responseScopes = [NSOrderedSet msidOrderedSetFromString:response.scope normalize:NO];
 
     if (!response.scope)
     {

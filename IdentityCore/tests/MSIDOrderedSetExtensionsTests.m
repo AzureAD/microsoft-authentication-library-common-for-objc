@@ -60,4 +60,16 @@
     XCTAssertTrue([set containsObject:@"scope3"]);
 }
 
+- (void)testMsidOrderedSetFromString_NormalizeNO_whenSpaceSeparatedString_shouldReturnSeparatedStringWithCasePreserved
+{
+    NSString *string = @"scoPe1 Scope2   SCOPE3 ";
+    NSOrderedSet *set = [NSOrderedSet msidOrderedSetFromString:string normalize:NO];
+
+    XCTAssertTrue(set.count == 3);
+
+    XCTAssertTrue([set containsObject:@"scoPe1"]);
+    XCTAssertTrue([set containsObject:@"Scope2"]);
+    XCTAssertTrue([set containsObject:@"SCOPE3"]);
+}
+
 @end

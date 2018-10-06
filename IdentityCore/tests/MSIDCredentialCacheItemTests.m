@@ -62,7 +62,7 @@
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
     NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
     
-    NSDictionary *expectedDictionary = @{@"credential_type": @"accesstoken",
+    NSDictionary *expectedDictionary = @{@"credential_type": @"AccessToken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"target": DEFAULT_TEST_RESOURCE,
                                          @"cached_at": cachedAtString,
@@ -91,7 +91,7 @@
     NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
     cacheItem.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
     
-    NSDictionary *expectedDictionary = @{@"credential_type": @"refreshtoken",
+    NSDictionary *expectedDictionary = @{@"credential_type": @"RefreshToken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"secret": DEFAULT_TEST_REFRESH_TOKEN,
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
@@ -115,7 +115,7 @@
     NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
     cacheItem.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
     
-    NSDictionary *expectedDictionary = @{@"credential_type": @"idtoken",
+    NSDictionary *expectedDictionary = @{@"credential_type": @"IdToken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"secret": DEFAULT_TEST_ID_TOKEN,
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
@@ -141,7 +141,7 @@
 
     NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
 
-    NSDictionary *jsonDictionary = @{@"credential_type": @"accesstoken",
+    NSDictionary *jsonDictionary = @{@"credential_type": @"AccessToken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"target": DEFAULT_TEST_RESOURCE,
                                      @"cached_at": cachedAtString,
@@ -179,7 +179,7 @@
 {
     NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
 
-    NSDictionary *jsonDictionary = @{@"credential_type": @"refreshtoken",
+    NSDictionary *jsonDictionary = @{@"credential_type": @"RefreshToken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"secret": DEFAULT_TEST_REFRESH_TOKEN,
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
@@ -208,7 +208,7 @@
 {
     NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
 
-    NSDictionary *jsonDictionary = @{@"credential_type": @"idtoken",
+    NSDictionary *jsonDictionary = @{@"credential_type": @"IdToken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"secret": DEFAULT_TEST_ID_TOKEN,
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
