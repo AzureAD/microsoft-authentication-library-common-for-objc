@@ -71,13 +71,12 @@
             appDefaultAccessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
             MSID_LOG_INFO(nil, @"Defaul app's acces group: \"%@\".", _PII_NULLIFY(appDefaultAccessGroup));
             MSID_LOG_INFO_PII(nil, @"Defaul app's acces group: \"%@\".", appDefaultAccessGroup);
+            CFRelease(result);
         }
         else
         {
             MSID_LOG_ERROR(nil, @"fetching kSecAttrAccessGroup, status: %d", (int)status);
         }
-        
-        CFRelease(result);
     });
     
     return appDefaultAccessGroup;
