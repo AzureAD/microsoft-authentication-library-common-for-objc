@@ -457,26 +457,219 @@
     XCTAssertEqualObjects(key.type, @1003);
 }
 
-#pragma mark - B2C account
+#pragma mark - B2C account without tenantId (old conf)
 
-- (void)testSchemaCompliance_whentMSSTSResponse_withMSAAccount
+- (MSIDTokenResponse *)b2cTestTokenResponse
 {
+    NSString *jsonResponse = @"{\"access_token\":\"<removed_at>\",\"id_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mzg4MDQ4NjAsIm5iZiI6MTUzODgwMTI2MCwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2JhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOC92Mi4wLyIsInN1YiI6ImFkMDIwZjhlLWIxYmEtNDRiMi1iZDY5LWMyMmJlODY3MzdmNSIsImF1ZCI6IjBhN2Y1MmRkLTI2MGUtNDMyZi05NGRlLWI0NzgyOGMzZjM3MiIsImlhdCI6MTUzODgwMTI2MCwiYXV0aF90aW1lIjoxNTM4ODAxMjYwLCJpZHAiOiJsaXZlLmNvbSIsIm5hbWUiOiJNU0FMIFNESyBUZXN0Iiwib2lkIjoiYWQwMjBmOGUtYjFiYS00NGIyLWJkNjktYzIyYmU4NjczN2Y1IiwiZmFtaWx5X25hbWUiOiJTREsgVGVzdCIsImdpdmVuX25hbWUiOiJNU0FMIiwiZW1haWxzIjpbIm1zYWxzZGt0ZXN0QG91dGxvb2suY29tIl0sInRmcCI6IkIyQ18xX1NpZ25pbiIsImF0X2hhc2giOiJRNE8zSERDbGNhTGw3eTB1VS1iSkFnIn0.\",\"token_type\":\"Bearer\",\"not_before\":1538801260,\"expires_in\":3600,\"expires_on\":1538804860,\"resource\":\"14df2240-96cc-4f42-a133-ef0807492869\",\"client_info\":\"eyJ1aWQiOiJhZDAyMGY4ZS1iMWJhLTQ0YjItYmQ2OS1jMjJiZTg2NzM3ZjUtYjJjXzFfc2lnbmluIiwidXRpZCI6ImJhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOCJ9\",\"scope\":\"https://iosmsalb2c.onmicrosoft.com/webapitest/user.read\",\"refresh_token\":\"<removed_rt>\",\"refresh_token_expires_in\":1209600}";
 
+    NSError *responseError = nil;
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONData:[jsonResponse dataUsingEncoding:NSUTF8StringEncoding] error:&responseError];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(responseError);
+
+    return response;
 }
 
-- (void)testSchemaCompliance_whenB2CResponse_withMSAAccount
+- (MSIDConfiguration *)b2cTestConfiguration
 {
+    MSIDAuthorityFactory *authorityFactory = [MSIDAuthorityFactory new];
+    NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/iosmsalb2c.onmicrosoft.com/b2c_1_signin"];
+    MSIDAuthority *authority = [authorityFactory authorityFromUrl:authorityURL context:nil error:nil];
 
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"msal0a7f52dd-260e-432f-94de-b47828c3f372://auth"
+                                                                           clientId:@"0a7f52dd-260e-432f-94de-b47828c3f372"
+                                                                             target:@"https://iosmsalb2c.onmicrosoft.com/webapitest/user.read"];
+    return configuration;
 }
 
-- (void)testSchemaCompliance_whenGoogleResponse_withGoogleAccount
+- (void)testSchemaComplianceForAccessToken_whenMSSTSResponse_withB2CAccount
 {
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDTokenResponse *response = [self b2cTestTokenResponse];
+    MSIDConfiguration *configuration = [self b2cTestConfiguration];
 
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response
+                                                      configuration:configuration];
+
+    MSIDCredentialCacheItem *credential = accessToken.tokenCacheItem;
+    NSDictionary *accessTokenJSON = credential.jsonDictionary;
+
+    NSDate *currentDate = [NSDate new];
+    NSString *expiresOn = [NSString stringWithFormat:@"%ld", (long)([currentDate timeIntervalSince1970] + 3600)];
+    NSString *cachedAt = [NSString stringWithFormat:@"%ld", (long)[currentDate timeIntervalSince1970]];
+
+    // 1. Verify payload
+    NSDictionary *expectedJSON = @{
+                                   @"secret": @"<removed_at>",
+                                   @"target": @"https://iosmsalb2c.onmicrosoft.com/webapitest/user.read",
+                                   @"client_info": @"eyJ1aWQiOiJhZDAyMGY4ZS1iMWJhLTQ0YjItYmQ2OS1jMjJiZTg2NzM3ZjUtYjJjXzFfc2lnbmluIiwidXRpZCI6ImJhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOCJ9",
+                                   @"credential_type": @"AccessToken",
+                                   @"environment": @"login.microsoftonline.com",
+                                   @"realm": @"iosmsalb2c.onmicrosoft.com",
+                                   @"expires_on": expiresOn,
+                                   @"cached_at": cachedAt,
+                                   @"client_id": @"0a7f52dd-260e-432f-94de-b47828c3f372",
+                                   @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8"
+                                   };
+
+    XCTAssertEqualObjects(accessTokenJSON, expectedJSON);
+
+    // 2. Verify cache key
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
+                                                                                          environment:credential.environment
+                                                                                             clientId:credential.clientId
+                                                                                       credentialType:credential.credentialType];
+
+    key.familyId = credential.familyId;
+    key.realm = credential.realm;
+    key.target = credential.target;
+
+    NSString *expectedServiceKey = @"accesstoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com-https://iosmsalb2c.onmicrosoft.com/webapitest/user.read";
+    XCTAssertEqualObjects(key.service, expectedServiceKey);
+
+    NSString *expectedAccountKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.microsoftonline.com";
+    XCTAssertEqualObjects(key.account, expectedAccountKey);
+
+    NSString *expectedGenericKey = @"accesstoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com";
+    XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
+
+    XCTAssertEqualObjects(key.type, @2001);
 }
 
-- (void)testSchemaCompliance_whenFacebookResponse_withFacebookAccount
+- (void)testSchemaComplianceForIDToken_whenMSSTSResponse_withB2CAccount
 {
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDTokenResponse *response = [self b2cTestTokenResponse];
+    MSIDConfiguration *configuration = [self b2cTestConfiguration];
 
+    MSIDIdToken *idToken = [factory idTokenFromResponse:response configuration:configuration];
+    MSIDCredentialCacheItem *credential = idToken.tokenCacheItem;
+
+    // 1. Verify payload
+    NSDictionary *expectedJSON = @{
+                                   @"secret": @"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mzg4MDQ4NjAsIm5iZiI6MTUzODgwMTI2MCwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2JhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOC92Mi4wLyIsInN1YiI6ImFkMDIwZjhlLWIxYmEtNDRiMi1iZDY5LWMyMmJlODY3MzdmNSIsImF1ZCI6IjBhN2Y1MmRkLTI2MGUtNDMyZi05NGRlLWI0NzgyOGMzZjM3MiIsImlhdCI6MTUzODgwMTI2MCwiYXV0aF90aW1lIjoxNTM4ODAxMjYwLCJpZHAiOiJsaXZlLmNvbSIsIm5hbWUiOiJNU0FMIFNESyBUZXN0Iiwib2lkIjoiYWQwMjBmOGUtYjFiYS00NGIyLWJkNjktYzIyYmU4NjczN2Y1IiwiZmFtaWx5X25hbWUiOiJTREsgVGVzdCIsImdpdmVuX25hbWUiOiJNU0FMIiwiZW1haWxzIjpbIm1zYWxzZGt0ZXN0QG91dGxvb2suY29tIl0sInRmcCI6IkIyQ18xX1NpZ25pbiIsImF0X2hhc2giOiJRNE8zSERDbGNhTGw3eTB1VS1iSkFnIn0.",
+                                   @"client_info": @"eyJ1aWQiOiJhZDAyMGY4ZS1iMWJhLTQ0YjItYmQ2OS1jMjJiZTg2NzM3ZjUtYjJjXzFfc2lnbmluIiwidXRpZCI6ImJhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOCJ9",
+                                   @"credential_type": @"IdToken",
+                                   @"environment": @"login.microsoftonline.com",
+                                   @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
+                                   @"realm": @"iosmsalb2c.onmicrosoft.com",
+                                   @"client_id": @"0a7f52dd-260e-432f-94de-b47828c3f372"
+                                   };
+
+    XCTAssertEqualObjects(credential.jsonDictionary, expectedJSON);
+
+    // 2. Verify cache key
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
+                                                                                          environment:credential.environment
+                                                                                             clientId:credential.clientId
+                                                                                       credentialType:credential.credentialType];
+
+    key.familyId = credential.familyId;
+    key.realm = credential.realm;
+    key.target = credential.target;
+
+    NSString *expectedServiceKey = @"idtoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com-";
+    XCTAssertEqualObjects(key.service, expectedServiceKey);
+
+    NSString *expectedAccountKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.microsoftonline.com";
+    XCTAssertEqualObjects(key.account, expectedAccountKey);
+
+    NSString *expectedGenericKey = @"idtoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com";
+    XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
+
+    XCTAssertEqualObjects(key.type, @2003);
+}
+
+- (void)testSchemaComplianceForRefreshToken_whenMSSTSResponse_withB2CAccount
+{
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDTokenResponse *response = [self b2cTestTokenResponse];
+    MSIDConfiguration *configuration = [self b2cTestConfiguration];
+
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response configuration:configuration];
+    MSIDCredentialCacheItem *credential = refreshToken.tokenCacheItem;
+
+    // 1. Verify payload
+    NSDictionary *expectedJSON = @{
+                                   @"client_id": @"0a7f52dd-260e-432f-94de-b47828c3f372",
+                                   @"secret": @"<removed_rt>",
+                                   @"environment": @"login.microsoftonline.com",
+                                   @"credential_type": @"RefreshToken",
+                                   @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
+                                   @"client_info": @"eyJ1aWQiOiJhZDAyMGY4ZS1iMWJhLTQ0YjItYmQ2OS1jMjJiZTg2NzM3ZjUtYjJjXzFfc2lnbmluIiwidXRpZCI6ImJhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOCJ9"
+                                   };
+
+    XCTAssertEqualObjects(credential.jsonDictionary, expectedJSON);
+
+    // 2. Verify cache key
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
+                                                                                          environment:credential.environment
+                                                                                             clientId:credential.clientId
+                                                                                       credentialType:credential.credentialType];
+
+    key.familyId = credential.familyId;
+    key.realm = credential.realm;
+    key.target = credential.target;
+
+    NSString *expectedServiceKey = @"refreshtoken-0a7f52dd-260e-432f-94de-b47828c3f372--";
+    XCTAssertEqualObjects(key.service, expectedServiceKey);
+
+    NSString *expectedAccountKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.microsoftonline.com";
+    XCTAssertEqualObjects(key.account, expectedAccountKey);
+
+    NSString *expectedGenericKey = @"refreshtoken-0a7f52dd-260e-432f-94de-b47828c3f372-";
+    XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
+
+    XCTAssertEqualObjects(key.type, @2002);
+}
+
+- (void)testSchemaComplianceForAccount_whenMSSTSResponse_withB2CAccount
+{
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDTokenResponse *response = [self b2cTestTokenResponse];
+    MSIDConfiguration *configuration = [self b2cTestConfiguration];
+
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
+    MSIDAccountCacheItem *accountCacheItem = account.accountCacheItem;
+
+    // 1. Verify payload compliance
+    NSDictionary *expectedJSON = @{
+                                   @"family_name": @"SDK Test",
+                                   @"client_info": @"eyJ1aWQiOiJhZDAyMGY4ZS1iMWJhLTQ0YjItYmQ2OS1jMjJiZTg2NzM3ZjUtYjJjXzFfc2lnbmluIiwidXRpZCI6ImJhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOCJ9",
+                                   @"local_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5",
+                                   @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
+                                   @"username": @"Missing from the token response",
+                                   @"authority_type": @"MSSTS",
+                                   @"given_name": @"MSAL",
+                                   @"environment": @"login.microsoftonline.com",
+                                   @"name": @"MSAL SDK Test",
+                                   @"realm": @"iosmsalb2c.onmicrosoft.com"
+                                   };
+
+    XCTAssertEqualObjects(accountCacheItem.jsonDictionary, expectedJSON);
+
+    // 2. Verify cache key
+
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:accountCacheItem.homeAccountId
+                                                                                    environment:accountCacheItem.environment
+                                                                                          realm:accountCacheItem.realm
+                                                                                           type:accountCacheItem.accountType];
+
+    key.localAccountId = account.localAccountId;
+
+    NSString *expectedServiceKey = @"iosmsalb2c.onmicrosoft.com";
+    XCTAssertEqualObjects(key.service, expectedServiceKey);
+
+    NSString *expectedAccountKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.microsoftonline.com";
+    XCTAssertEqualObjects(key.account, expectedAccountKey);
+
+    NSString *expectedGenericKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5";
+    XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
+
+    XCTAssertEqualObjects(key.type, @1003);
 }
 
 @end

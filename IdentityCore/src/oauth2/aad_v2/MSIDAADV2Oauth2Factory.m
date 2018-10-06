@@ -185,6 +185,13 @@
     __auto_type authority = [self.authorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
 
     account.authority = authority;
+
+    // AAD v2 has to return preferred_username claim
+    if ([NSString msidIsStringNilOrBlank:response.idTokenObj.preferredUsername])
+    {
+        account.username = @"Missing from the token response";
+    }
+
     return YES;
 }
 
