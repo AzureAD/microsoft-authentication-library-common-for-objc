@@ -54,13 +54,13 @@
 
 - (NSString *)service
 {
-    if(!_service)
+    if (self.matchAnyCredentialType)
     {
-        if (self.matchAnyCredentialType)
-        {
-            return nil;
-        }
-
+        return nil;
+    }
+    
+    if (!_service)
+    {
         switch (self.credentialType)
         {
             case MSIDAccessTokenType:
@@ -120,13 +120,13 @@
 
 - (NSData *)generic
 {
+    if (self.matchAnyCredentialType)
+    {
+        return nil;
+    }
+    
     if (!_generic)
     {
-        if (self.matchAnyCredentialType)
-        {
-            return nil;
-        }
-        
         NSString *clientId = self.queryClientId;
         
         if (!clientId)
@@ -154,13 +154,13 @@
 
 - (NSNumber *)type
 {
+    if (self.matchAnyCredentialType)
+    {
+        return nil;
+    }
+    
     if (!_type)
     {
-        if (self.matchAnyCredentialType)
-        {
-            return nil;
-        }
-        
         _type = [self credentialTypeNumber:self.credentialType];
     }
     
