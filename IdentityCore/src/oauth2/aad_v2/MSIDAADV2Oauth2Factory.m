@@ -189,7 +189,7 @@
     // AAD v2 has to return preferred_username claim
     if ([NSString msidIsStringNilOrBlank:response.idTokenObj.preferredUsername])
     {
-        account.username = @"Missing from the token response";
+        account.username = MSID_PREFERRED_USERNAME_MISSING;
     }
 
     return YES;

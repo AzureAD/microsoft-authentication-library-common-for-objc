@@ -121,3 +121,4 @@ NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"IdToken";
 NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"token";
 
 NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-configuration";
+NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the token response";
