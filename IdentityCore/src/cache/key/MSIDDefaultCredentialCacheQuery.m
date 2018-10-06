@@ -66,14 +66,17 @@
             case MSIDAccessTokenType:
             {
                 _service = [self serviceForAccessToken];
+                break;
             }
             case MSIDRefreshTokenType:
             {
                 _service = [self serviceForRefreshToken];
+                break;
             }
             case MSIDIDTokenType:
             {
                 _service = [self serviceForIDToken];
+                break;
             }
             default:
                 break;
