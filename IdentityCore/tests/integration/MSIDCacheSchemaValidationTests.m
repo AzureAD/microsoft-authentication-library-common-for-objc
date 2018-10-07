@@ -757,7 +757,7 @@
                                    @"credential_type": @"IdToken",
                                    @"environment": @"login.microsoftonline.com",
                                    @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
-                                   @"realm": @"iosmsalb2c.onmicrosoft.com",
+                                   @"realm": @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
                                    @"client_id": @"0a7f52dd-260e-432f-94de-b47828c3f372"
                                    };
 

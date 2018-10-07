@@ -119,6 +119,17 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitB2CAuthority_andRawTenant_shouldReplaceTenantId
+{
+    __auto_type authorityUrl = [@"https://login.microsoftonline.com:8080/tfp/tenant/policy" msidUrl];
+    NSError *error = nil;
+
+    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl rawTenant:@"new_tenantId" context:nil error:&error];
+
+    XCTAssertEqualObjects(authority.url, [@"https://login.microsoftonline.com:8080/tfp/new_tenantId/policy" msidUrl]);
+    XCTAssertNil(error);
+}
+
 #pragma mark - universalAuthorityURL
 
 - (void)testUniversalAuthorityURL_whenB2CAuhority_shouldReturnOriginalAuthority
