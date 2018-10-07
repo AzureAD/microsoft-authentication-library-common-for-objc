@@ -53,26 +53,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testBaseTokenIsEqual_whenClientInfoIsNotEqual_shouldReturnFalse
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:[self createClientInfo:@{@"key1" : @"value1"}] forKey:@"clientInfo"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:[self createClientInfo:@{@"key2" : @"value2"}] forKey:@"clientInfo"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testBaseTokenIsEqual_whenClientInfoIsEqual_shouldReturnTrue
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:[self createClientInfo:@{@"key1" : @"value1"}] forKey:@"clientInfo"];
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:[self createClientInfo:@{@"key1" : @"value1"}] forKey:@"clientInfo"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
 - (void)testBaseTokenIsEqual_whenAdditionalInfoIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
@@ -236,7 +216,6 @@
     cacheItem.credentialType = MSIDCredentialTypeOther;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
@@ -245,7 +224,6 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/contoso.com" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
-    XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
 
@@ -258,7 +236,6 @@
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.credentialType = MSIDCredentialTypeOther;
     cacheItem.environment = @"login.microsoftonline.com";
-    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
@@ -267,7 +244,6 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
-    XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
 
@@ -286,7 +262,6 @@
     MSIDBaseToken *token = [MSIDBaseToken new];
     token.authority = [@"https://contoso.com/common" authority];
     token.clientId = @"some clientId";
-    token.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
     token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"uid.utid"];
     return token;

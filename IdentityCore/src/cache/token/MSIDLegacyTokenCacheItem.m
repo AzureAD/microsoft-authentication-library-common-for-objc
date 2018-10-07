@@ -132,18 +132,11 @@
     self.credentialType = [MSIDCredentialTypeHelpers credentialTypeWithRefreshToken:self.refreshToken accessToken:self.accessToken];
     self.oauthTokenType = [coder decodeObjectOfClass:[NSString class] forKey:@"accessTokenType"];
 
-    NSString *rawClientInfo = [coder decodeObjectOfClass:[NSString class] forKey:@"clientInfo"];
-    self.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
-
     NSString *homeAccountId = [coder decodeObjectOfClass:[NSString class] forKey:@"homeAccountId"];
 
     if (homeAccountId)
     {
         self.homeAccountId = homeAccountId;
-    }
-    else
-    {
-        self.homeAccountId = self.clientInfo.accountIdentifier;
     }
 
     return self;
@@ -170,7 +163,6 @@
 
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
     [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
-    [coder encodeObject:self.clientInfo.rawClientInfo forKey:@"clientInfo"];
     [coder encodeObject:self.homeAccountId forKey:@"homeAccountId"];
 }
 

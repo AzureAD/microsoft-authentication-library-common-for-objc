@@ -44,7 +44,6 @@
     MSIDLegacyTokenCacheItem *cacheItem = [[MSIDLegacyTokenCacheItem alloc] init];
     cacheItem.refreshToken = @"refresh token value";
     cacheItem.familyId = @"familyId value";
-    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"spe_info" : @"test"};
     cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
     cacheItem.clientId = @"some clientId";
@@ -65,7 +64,6 @@
     MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] init];
     cacheItem.secret = @"refresh token value";
     cacheItem.familyId = @"familyId value";
-    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"spe_info" : @"test"};
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.clientId = @"some clientId";

@@ -56,12 +56,6 @@
     cacheItem.familyId = @"family";
     cacheItem.homeAccountId = @"uid.utid";
 
-    NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
-
-    MSIDClientInfo *clientInfoObj = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
-
-    cacheItem.clientInfo = clientInfoObj;
-
     NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
                                      @"spe_info": @"2", @"test": @"test"};
 
@@ -90,7 +84,6 @@
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, @"family");
     XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(newItem.clientInfo, clientInfoObj);
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }
 
@@ -115,12 +108,6 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.homeAccountId = @"uid.utid";
-
-    NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
-
-    MSIDClientInfo *clientInfoObj = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
-
-    cacheItem.clientInfo = clientInfoObj;
 
     NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
                                      @"spe_info": @"2", @"test": @"test"};
@@ -148,7 +135,6 @@
     XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(newItem.clientInfo, clientInfoObj);
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }
 
@@ -174,12 +160,6 @@
     cacheItem.cachedAt = cachedAt;
     cacheItem.familyId = @"family";
     cacheItem.homeAccountId = @"uid.utid";
-
-    NSString *clientInfo = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
-
-    MSIDClientInfo *clientInfoObj = [[MSIDClientInfo alloc] initWithRawClientInfo:clientInfo error:nil];
-
-    cacheItem.clientInfo = clientInfoObj;
 
     NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
                                      @"spe_info": @"2", @"test": @"test"};
@@ -208,7 +188,6 @@
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, @"family");
     XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(newItem.clientInfo, clientInfoObj);
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }
 
