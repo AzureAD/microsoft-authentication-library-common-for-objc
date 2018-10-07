@@ -37,12 +37,12 @@
                                                                                               realm:@"contoso.com"
                                                                                                type:MSIDAccountTypeMSSTS];
 
-    cacheKey.localAccountId = @"localAccountID";
+    cacheKey.username = @"username";
 
     XCTAssertEqualObjects(cacheKey.account, @"uid.utid-login.microsoftonline.com");
     XCTAssertEqualObjects(cacheKey.service, @"contoso.com");
     XCTAssertEqualObjects(cacheKey.type, @1003);
-    XCTAssertEqualObjects(cacheKey.generic, [@"localAccountID" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertEqualObjects(cacheKey.generic, [@"username" dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
 @end

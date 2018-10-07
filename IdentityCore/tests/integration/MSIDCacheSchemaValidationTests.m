@@ -240,7 +240,7 @@
                                                                                           realm:accountCacheItem.realm
                                                                                            type:accountCacheItem.accountType];
 
-    key.localAccountId = account.localAccountId;
+    key.username = account.username;
 
     NSString *expectedServiceKey = @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
     XCTAssertEqualObjects(key.service, expectedServiceKey);
@@ -248,7 +248,7 @@
     NSString *expectedAccountKey = @"9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca-login.microsoftonline.com";
     XCTAssertEqualObjects(key.account, expectedAccountKey);
 
-    NSString *expectedGenericKey = @"9f4880d8-80ba-4c40-97bc-f7a23c703084";
+    NSString *expectedGenericKey = @"idlab@msidlab4.onmicrosoft.com";
     XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
 
     XCTAssertEqualObjects(key.type, @1003);
@@ -437,7 +437,7 @@
                                                                                           realm:accountCacheItem.realm
                                                                                            type:accountCacheItem.accountType];
 
-    key.localAccountId = account.localAccountId;
+    key.username = account.username;
 
     NSString *expectedServiceKey = @"9188040d-6c67-4c5b-b112-36a304b66dad";
     XCTAssertEqualObjects(key.service, expectedServiceKey);
@@ -445,7 +445,7 @@
     NSString *expectedAccountKey = @"00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad-login.microsoftonline.com";
     XCTAssertEqualObjects(key.account, expectedAccountKey);
 
-    NSString *expectedGenericKey = @"00000000-0000-0000-40c0-3bac188d01d1";
+    NSString *expectedGenericKey = @"msalsdktest@outlook.com";
     XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
 
     XCTAssertEqualObjects(key.type, @1003);
@@ -649,7 +649,7 @@
                                                                                           realm:accountCacheItem.realm
                                                                                            type:accountCacheItem.accountType];
 
-    key.localAccountId = account.localAccountId;
+    key.username = account.username;
 
     NSString *expectedServiceKey = @"iosmsalb2c.onmicrosoft.com";
     XCTAssertEqualObjects(key.service, expectedServiceKey);
@@ -657,7 +657,7 @@
     NSString *expectedAccountKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.microsoftonline.com";
     XCTAssertEqualObjects(key.account, expectedAccountKey);
 
-    NSString *expectedGenericKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5";
+    NSString *expectedGenericKey = @"missing from the token response";
     XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
 
     XCTAssertEqualObjects(key.type, @1003);
@@ -848,7 +848,7 @@
                                                                                           realm:accountCacheItem.realm
                                                                                            type:accountCacheItem.accountType];
 
-    key.localAccountId = account.localAccountId;
+    key.username = account.username;
 
     NSString *expectedServiceKey = @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8";
     XCTAssertEqualObjects(key.service, expectedServiceKey);
@@ -856,7 +856,7 @@
     NSString *expectedAccountKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.microsoftonline.com";
     XCTAssertEqualObjects(key.account, expectedAccountKey);
 
-    NSString *expectedGenericKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5";
+    NSString *expectedGenericKey = @"msalsdktest@outlook.com";
     XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
 
     XCTAssertEqualObjects(key.type, @1003);

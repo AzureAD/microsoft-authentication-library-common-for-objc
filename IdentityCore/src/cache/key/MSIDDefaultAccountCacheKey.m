@@ -53,7 +53,7 @@ static NSInteger kAccountTypePrefix = 1000;
 
 - (NSData *)generic
 {
-    return [self.localAccountId dataUsingEncoding:NSUTF8StringEncoding];
+    return [self.username.msidTrimmedString.lowercaseString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSNumber *)type

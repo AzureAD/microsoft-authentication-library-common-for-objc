@@ -37,12 +37,12 @@
                                                                                               realm:@"contoso.com"
                                                                                                type:MSIDAccountTypeMSSTS];
 
-    query.localAccountId = @"localAccountID";
+    query.username = @"username";
 
     XCTAssertEqualObjects(query.account, @"uid.utid-login.microsoftonline.com");
     XCTAssertEqualObjects(query.service, @"contoso.com");
     XCTAssertEqualObjects(query.type, @1003);
-    XCTAssertEqualObjects(query.generic, [@"localAccountID" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertEqualObjects(query.generic, [@"username" dataUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertTrue(query.exactMatch);
 }
 
