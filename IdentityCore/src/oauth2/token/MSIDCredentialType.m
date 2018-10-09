@@ -54,15 +54,15 @@ static NSDictionary *sCredentialTypes = nil;
     
     dispatch_once(&sCredentialTypesOnce, ^{
         
-        sCredentialTypes = @{MSID_ACCESS_TOKEN_CACHE_TYPE: @(MSIDAccessTokenType),
-                             MSID_REFRESH_TOKEN_CACHE_TYPE: @(MSIDRefreshTokenType),
-                             MSID_LEGACY_TOKEN_CACHE_TYPE: @(MSIDLegacySingleResourceTokenType),
-                             MSID_ID_TOKEN_CACHE_TYPE: @(MSIDIDTokenType),
-                             MSID_GENERAL_TOKEN_CACHE_TYPE: @(MSIDCredentialTypeOther)
+        sCredentialTypes = @{[MSID_ACCESS_TOKEN_CACHE_TYPE lowercaseString]: @(MSIDAccessTokenType),
+                             [MSID_REFRESH_TOKEN_CACHE_TYPE lowercaseString]: @(MSIDRefreshTokenType),
+                             [MSID_LEGACY_TOKEN_CACHE_TYPE lowercaseString]: @(MSIDLegacySingleResourceTokenType),
+                             [MSID_ID_TOKEN_CACHE_TYPE lowercaseString]: @(MSIDIDTokenType),
+                             [MSID_GENERAL_TOKEN_CACHE_TYPE lowercaseString]: @(MSIDCredentialTypeOther)
                              };
     });
     
-    NSNumber *credentialType = sCredentialTypes[type];
+    NSNumber *credentialType = sCredentialTypes[type.lowercaseString];
     return credentialType != nil ? [credentialType integerValue] : MSIDCredentialTypeOther;
 }
 
