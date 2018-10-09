@@ -586,6 +586,7 @@
 		B29A36C020B1289D00427B63 /* MSIDAccountIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = B29A36BE20B1289D00427B63 /* MSIDAccountIdentifier.m */; };
 		B29A36C120B1289D00427B63 /* MSIDAccountIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = B29A36BE20B1289D00427B63 /* MSIDAccountIdentifier.m */; };
 		B29CB6BB1FEC7CE900F880ED /* MSIDConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = B29CB6B91FEC7CE900F880ED /* MSIDConfiguration.h */; };
+		B29DB0FC216C4367008F846C /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 963C898C214B98F10051AFEE /* AuthenticationServices.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		B29F7805213DFA5600D61FC8 /* MSIDErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B29F7804213DFA5600D61FC8 /* MSIDErrorTests.m */; };
 		B29F7806213DFA5600D61FC8 /* MSIDErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B29F7804213DFA5600D61FC8 /* MSIDErrorTests.m */; };
 		B2A3C27E2145CFAC0082525C /* MSIDWebMSAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 96235F9B207D72CE007EAB36 /* MSIDWebMSAuthResponse.m */; };
@@ -1367,6 +1368,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B29DB0FC216C4367008F846C /* AuthenticationServices.framework in Frameworks */,
 				60D6ED0C20D9BB89002FCBBB /* Security.framework in Frameworks */,
 				60D6ED0A20D9BB79002FCBBB /* SafariServices.framework in Frameworks */,
 				60D6ED0820D9BB6A002FCBBB /* UIKit.framework in Frameworks */,
