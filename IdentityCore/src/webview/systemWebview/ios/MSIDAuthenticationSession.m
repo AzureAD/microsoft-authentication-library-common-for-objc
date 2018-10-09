@@ -82,7 +82,8 @@
     {
         return NO;
     }
-    
+
+#if !MSID_EXCLUDE_WEBKIT
     if (@available(iOS 12.0, *))
     {
         if (error.code == ASWebAuthenticationSessionErrorCodeCanceledLogin) return YES;
@@ -91,6 +92,7 @@
     {
         if (error.code == SFAuthenticationErrorCanceledLogin) return YES;
     }
+#endif
     
     return NO;
 }
