@@ -35,16 +35,20 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDNotifications.h"
+#if !MSID_EXCLUDE_WEBKIT
 #import <SafariServices/SafariServices.h>
 #import <AuthenticationServices/AuthenticationServices.h>
+#endif
 
 @implementation MSIDAuthenticationSession
 {
+#if !MSID_EXCLUDE_WEBKIT
     API_AVAILABLE(ios(11.0))
     SFAuthenticationSession *_authSession;
     
     API_AVAILABLE(ios(12.0))
     ASWebAuthenticationSession *_webAuthSession;
+#endif
     
     NSURL *_startURL;
     NSString *_callbackURLScheme;
@@ -56,7 +60,6 @@
     NSString *_telemetryRequestId;
     MSIDTelemetryUIEvent *_telemetryEvent;
 }
-
 
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme
@@ -99,6 +102,8 @@
         MSID_LOG_WARN(_context, @"CompletionHandler cannot be nil for interactive session.");
         return;
     }
+
+#if !MSID_EXCLUDE_WEBKIT
 
     NSError *error = nil;
     
@@ -151,6 +156,7 @@
     
     [self notifyEndWebAuthWithURL:nil error:error];
     completionHandler(nil, error);
+#endif
 }
 
 
