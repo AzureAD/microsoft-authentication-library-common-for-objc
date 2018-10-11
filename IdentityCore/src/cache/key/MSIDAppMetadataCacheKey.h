@@ -21,11 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAccountItemSerializer.h"
-#import "MSIDCredentialItemSerializer.h"
-#import "MSIDAppMetadataItemSerializer.h"
+#import "MSIDCacheKey.h"
+#import "MSIDGeneralType.h"
 
-@interface MSIDJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer>
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDAppMetadataCacheKey : MSIDCacheKey
+
+@property (nullable, nonatomic) NSString *clientId;
+@property (nullable, nonatomic) NSString *environment;
+@property (nullable, nonatomic) NSString *familyId;
+@property (nonatomic) MSIDGeneralType generalType;
+
+- (instancetype)initWithClientId:(NSString *)clientId
+                          environment:(NSString *)environment
+                       generalType:(MSIDGeneralType)type;
+
+- (NSString *)serviceWithType:(MSIDGeneralType)type clientId:(NSString *)clientId;
+- (NSNumber *)generalTypeNumber:(MSIDGeneralType)generalType;
+
+NS_ASSUME_NONNULL_END
 
 @end

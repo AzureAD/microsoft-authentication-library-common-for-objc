@@ -1,0 +1,90 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+#import "MSIDAppMetadataCacheKey.h"
+#import "NSString+MSIDExtensions.h"
+#import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDGeneralType.h"
+#import "NSURL+MSIDExtensions.h"
+
+static NSString *keyDelimiter = @"-";
+static NSInteger kGeneralTypePrefix = 3000;
+
+@implementation MSIDAppMetadataCacheKey
+
+#pragma mark - Helpers
+
+- (NSString *)serviceWithType:(MSIDGeneralType)type clientId:(NSString *)clientId
+{
+    clientId = clientId.msidTrimmedString.lowercaseString;
+    NSString *service = [NSString stringWithFormat:@"%@%@%@",
+                         [MSIDGeneralTypeHelpers generalTypeAsString:type],
+                         keyDelimiter,
+                         clientId];
+    return service;
+}
+
+- (NSNumber *)generalTypeNumber:(MSIDGeneralType)credentialType
+{
+    return @(kGeneralTypePrefix + credentialType);
+}
+
+#pragma mark - Public
+
+- (instancetype)initWithClientId:(NSString *)clientId
+                     environment:(NSString *)environment
+                     generalType:(MSIDGeneralType)type
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _clientId = clientId;
+        _environment = environment;
+        _generalType = type;
+    }
+    
+    return self;
+}
+
+- (NSData *)generic
+{
+    return self.familyId ? [self.familyId dataUsingEncoding:NSUTF8StringEncoding] : nil;
+}
+
+- (NSNumber *)type
+{
+    return [self generalTypeNumber:self.generalType];
+}
+
+- (NSString *)account
+{
+    return self.environment;
+}
+
+- (NSString *)service
+{
+    return [self serviceWithType:self.generalType clientId:self.clientId];
+}
+
+@end

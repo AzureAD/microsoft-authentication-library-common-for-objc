@@ -28,6 +28,7 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDError.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDAppMetadataItemSerializer.h"
 
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
 static MSIDKeychainTokenCache *s_defaultCache = nil;
@@ -622,6 +623,89 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     }
 
     return YES;
+}
+
+- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
+                key:(MSIDCacheKey *)key
+         serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    assert(item);
+    assert(serializer);
+    
+    NSData *itemData = [serializer serializeAppMetadataCacheItem:item];
+    
+    if (!itemData)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize app metadata item.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Failed to serialize app metadata item.");
+        return NO;
+    }
+    
+    MSID_LOG_INFO_PII(context, @"Save keychain item, item info %@", item);
+    
+    return [self saveData:itemData
+                      key:key
+                  context:context
+                    error:error];
+}
+
+- (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
+                serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
+{
+    MSID_LOG_INFO(context, @"Get app metadata, key info (account: %@ service: %@ generic: %@ type: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type);
+    MSID_LOG_INFO_PII(context, @"Get app metadata, key info (account: %@ service: %@ generic: %@ type: %@)", key.account, key.service, key.generic, key.type);
+    
+    NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
+    if (key.service)
+    {
+        [query setObject:key.service forKey:(id)kSecAttrService];
+    }
+    if (key.account)
+    {
+        [query setObject:key.account forKey:(id)kSecAttrAccount];
+    }
+    if (key.generic)
+    {
+        [query setObject:key.generic forKey:(id)kSecAttrGeneric];
+    }
+    if (key.type != nil)
+    {
+        [query setObject:key.type forKey:(id)kSecAttrType];
+    }
+    
+    [query setObject:@YES forKey:(id)kSecReturnData];
+    [query setObject:@YES forKey:(id)kSecReturnAttributes];
+    
+    CFDictionaryRef result = nil;
+    MSID_LOG_INFO(context, @"Trying to find keychain items...");
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&result);
+    MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
+    
+    if (status == errSecItemNotFound)
+    {
+        return nil;
+    }
+    else if (status != errSecSuccess)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get app metadata from keychain.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Failed to find app metadata keychain item (status: %d)", (int)status);
+        return nil;
+    }
+    
+    NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
+    NSData *itemData = [resultDict objectForKey:(id)kSecValueData];
+    MSIDAppMetadataCacheItem *appMetadataItem = [serializer deserializeAppMetadataCacheItem:itemData];
+    return appMetadataItem;
 }
 
 @end

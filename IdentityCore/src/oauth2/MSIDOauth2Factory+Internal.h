@@ -32,5 +32,6 @@
 - (BOOL)fillIDToken:(MSIDIdToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (BOOL)fillAccount:(MSIDAccount *)account fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (BOOL)fillLegacyToken:(MSIDLegacySingleResourceToken *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+- (BOOL)fillAppMetadata:(MSIDAppMetadataCacheItem *)token fromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 
 @end

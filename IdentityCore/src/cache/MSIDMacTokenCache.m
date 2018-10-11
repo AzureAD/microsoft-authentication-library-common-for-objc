@@ -256,6 +256,26 @@ return NO; \
     return nil;
 }
 
+#pragma mark - AppMetadata
+
+- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
+                key:(MSIDCacheKey *)key
+         serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    // TODO: implement me
+    return NO;
+}
+
+- (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
+                serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    return nil;
+}
+
 #pragma mark - Removal
 
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key

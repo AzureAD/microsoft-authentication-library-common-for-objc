@@ -21,11 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAccountItemSerializer.h"
-#import "MSIDCredentialItemSerializer.h"
-#import "MSIDAppMetadataItemSerializer.h"
+#import "MSIDGeneralType.h"
 
-@interface MSIDJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer>
+@implementation MSIDGeneralTypeHelpers
+
++ (NSString *)generalTypeAsString:(MSIDGeneralType)type
+{
+    switch (type)
+    {
+        case MSIDAppMetadataType:
+            return MSID_APP_METADATA_CACHE_TYPE;
+            
+        default:
+            return nil;
+    }
+}
+
+static NSDictionary *sGeneralTypes = nil;
+
++ (MSIDGeneralType)generalTypeFromString:(NSString *)type
+{
+    static dispatch_once_t sGeneralTypesOnce;
+    
+    dispatch_once(&sGeneralTypesOnce, ^{
+        
+        sGeneralTypes = @{MSID_APP_METADATA_CACHE_TYPE: @(MSIDAppMetadataType)};
+    });
+    
+    NSNumber *generalType = sGeneralTypes[type];
+    return generalType != nil ? [generalType integerValue] : -1;
+}
 
 @end

@@ -26,6 +26,7 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDLegacyTokenCacheItem.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @implementation MSIDKeyedArchiverSerializer
 
@@ -108,6 +109,20 @@
 - (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data
 {
     // Account cache item doesn't support keyed archiver deserialization
+    return nil;
+}
+
+#pragma mark - App Metadata
+
+- (NSData *)serializeAppMetadataCacheItem:(MSIDAppMetadataCacheItem *)item
+{
+    // App metadata cache item doesn't support keyed archiver serialization
+    return nil;
+}
+
+- (MSIDAppMetadataCacheItem *)deserializeAppMetadataCacheItem:(NSData *)data
+{
+    // App metadata item doesn't support keyed archiver deserialization
     return nil;
 }
 

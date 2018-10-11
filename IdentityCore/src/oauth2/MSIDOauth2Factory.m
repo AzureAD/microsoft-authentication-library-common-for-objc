@@ -35,6 +35,7 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDWebviewFactory.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @implementation MSIDOauth2Factory
 
@@ -169,6 +170,16 @@
 
     if (!result) return nil;
     return account;
+}
+
+- (MSIDAppMetadataCacheItem *)appMetadataFromResponse:(MSIDTokenResponse *)response
+                                        configuration:(MSIDConfiguration *)configuration
+{
+    MSIDAppMetadataCacheItem *metadata = [[MSIDAppMetadataCacheItem alloc] init];
+    BOOL result = [self fillAppMetadata:metadata fromResponse:response configuration:configuration];
+    
+    if (!result) return nil;
+    return metadata;
 }
 
 #pragma mark - Token helpers
@@ -345,6 +356,15 @@
     account.authority = configuration.authority;
     account.accountType = response.accountType;
     account.localAccountId = response.idTokenObj.uniqueId;
+    return YES;
+}
+
+- (BOOL)fillAppMetadata:(MSIDAppMetadataCacheItem *)metadata
+       fromResponse:(MSIDTokenResponse *)response
+      configuration:(MSIDConfiguration *)configuration
+{
+    metadata.clientId = configuration.clientId;
+    metadata.environment = configuration.authority.environment;
     return YES;
 }
 

@@ -119,3 +119,5 @@ extern NSString *const MSID_ID_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE;
 
 extern NSString *const MSID_OPENID_CONFIGURATION_SUFFIX;
+
+extern NSString *const MSID_APP_METADATA_CACHE_TYPE;
