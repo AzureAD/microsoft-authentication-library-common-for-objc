@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDCacheKey.h"
-#import "MSIDGeneralType.h"
+#import "MSIDGeneralCacheItemType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,14 +31,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *clientId;
 @property (nullable, nonatomic) NSString *environment;
 @property (nullable, nonatomic) NSString *familyId;
-@property (nonatomic) MSIDGeneralType generalType;
+@property (nonatomic) MSIDGeneralCacheItemType generalType;
 
 - (instancetype)initWithClientId:(NSString *)clientId
-                          environment:(NSString *)environment
-                       generalType:(MSIDGeneralType)type;
-
-- (NSString *)serviceWithType:(MSIDGeneralType)type clientId:(NSString *)clientId;
-- (NSNumber *)generalTypeNumber:(MSIDGeneralType)generalType;
+                     environment:(NSString *)environment
+                        familyId:(NSString *)familyId
+                     generalType:(MSIDGeneralCacheItemType)type;
 
 NS_ASSUME_NONNULL_END
 

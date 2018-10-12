@@ -433,8 +433,8 @@
 
 // Writing metadata
 - (BOOL)saveAppMetadata:(nonnull MSIDAppMetadataCacheItem *)metadata
-            context:(nullable id<MSIDRequestContext>)context
-              error:(NSError * _Nullable * _Nullable)error
+                context:(nullable id<MSIDRequestContext>)context
+                  error:(NSError * _Nullable * _Nullable)error
 {
     assert(metadata);
     
@@ -443,20 +443,19 @@
     
     MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:metadata.clientId
                                                                          environment:metadata.environment
+                                                                            familyId:metadata.familyId
                                                                          generalType:MSIDAppMetadataType];
-    key.familyId = metadata.familyId;
 
     return [_dataSource saveAppMetadata:metadata
                                 key:key
                          serializer:_serializer
                             context:context
                               error:error];
-    return YES;
 }
 
 - (nullable MSIDAppMetadataCacheItem *)getAppMetadata:(nonnull MSIDAppMetadataCacheKey *)key
-                                      context:(nullable id<MSIDRequestContext>)context
-                                        error:(NSError * _Nullable * _Nullable)error
+                                              context:(nullable id<MSIDRequestContext>)context
+                                                error:(NSError * _Nullable * _Nullable)error
 {
     assert(key);
     

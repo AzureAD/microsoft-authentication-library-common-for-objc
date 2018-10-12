@@ -88,14 +88,14 @@
                    error:(NSError **)error;
 
 - (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
-                key:(MSIDCacheKey *)key
-         serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error;
-
-- (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
+                    key:(MSIDCacheKey *)key
              serializer:(id<MSIDAppMetadataItemSerializer>)serializer
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error;
+
+- (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
+                                      serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error;
 
 @end

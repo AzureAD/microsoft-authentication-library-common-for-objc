@@ -164,14 +164,14 @@
                           error:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)saveAppMetadata:(nonnull MSIDAppMetadataCacheItem *)metadata
-            context:(nullable id<MSIDRequestContext>)context
-              error:(NSError * _Nullable * _Nullable)error;
+                context:(nullable id<MSIDRequestContext>)context
+                  error:(NSError * _Nullable * _Nullable)error;
 
 /*
  Gets app metadata for a particular key
  */
 - (nullable MSIDAppMetadataCacheItem *)getAppMetadata:(nonnull MSIDAppMetadataCacheKey *)key
-                                      context:(nullable id<MSIDRequestContext>)context
-                                        error:(NSError * _Nullable * _Nullable)error;
+                                              context:(nullable id<MSIDRequestContext>)context
+                                                error:(NSError * _Nullable * _Nullable)error;
 
 @end

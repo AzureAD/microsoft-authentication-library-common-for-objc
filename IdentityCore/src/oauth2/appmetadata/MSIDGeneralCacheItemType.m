@@ -21,16 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDGeneralCacheItemType.h"
 
-typedef NS_ENUM(NSInteger, MSIDGeneralType)
+@implementation MSIDGeneralCacheItemTypeHelpers
+
++ (NSString *)generalTypeAsString:(MSIDGeneralCacheItemType)type
 {
-    MSIDAppMetadataType = 0
-};
+    switch (type)
+    {
+        case MSIDAppMetadataType:
+            return MSID_APP_METADATA_CACHE_TYPE;
+            
+        default:
+            return nil;
+    }
+}
 
-@interface MSIDGeneralTypeHelpers : NSObject
+static NSDictionary *sGeneralTypes = nil;
 
-+ (NSString *)generalTypeAsString:(MSIDGeneralType)type;
-+ (MSIDGeneralType)generalTypeFromString:(NSString *)type;
++ (MSIDGeneralCacheItemType)generalTypeFromString:(NSString *)type
+{
+    static dispatch_once_t sGeneralTypesOnce;
+    
+    dispatch_once(&sGeneralTypesOnce, ^{
+        
+        sGeneralTypes = @{MSID_APP_METADATA_CACHE_TYPE: @(MSIDAppMetadataType)};
+    });
+    
+    NSNumber *generalType = sGeneralTypes[type];
+    return generalType != nil ? [generalType integerValue] : -1;
+}
 
 @end

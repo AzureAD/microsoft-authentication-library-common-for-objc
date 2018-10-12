@@ -259,19 +259,19 @@ return NO; \
 #pragma mark - AppMetadata
 
 - (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
-                key:(MSIDCacheKey *)key
-         serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
 {
     // TODO: implement me
     return NO;
 }
 
 - (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
-                serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                                      serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
 {
     return nil;
 }

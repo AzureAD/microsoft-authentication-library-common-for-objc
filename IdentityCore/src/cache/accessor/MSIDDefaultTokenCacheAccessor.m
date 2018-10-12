@@ -43,7 +43,7 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
-#import "MSIDGeneralType.h"
+#import "MSIDGeneralCacheItemType.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -92,11 +92,11 @@
     if (!result) return result;
     
     //Save App metadata
-    result = [self saveAppMetadataWithConfiguration:configuration response:(MSIDAADTokenResponse *)response context:context error:error];
+    result = [self saveAppMetadataWithConfiguration:configuration response:response context:context error:error];
     
     if (!result) return result;
     
-    // Save SSO state (refresh token and account and metadata)
+    // Save SSO state (refresh token and account)
     return [self saveSSOStateWithConfiguration:configuration response:response context:context error:error];
 }
 
@@ -885,31 +885,24 @@
 }
 
 - (BOOL)saveAppMetadataWithConfiguration:(MSIDConfiguration *)configuration
-                            response:(MSIDTokenResponse *)response
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
+                                response:(MSIDTokenResponse *)response
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error
 {
     MSIDAppMetadataCacheItem *metadata = [_factory appMetadataFromResponse:response configuration:configuration];
     metadata.environment = [[configuration.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
     
     if (metadata)
     {
-        return [self saveAppMetadata:metadata context:context error:error];
+        MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
+        
+        BOOL result = [_accountCredentialCache saveAppMetadata:metadata context:context error:error];
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+        
+        return result;
     }
    
     return YES;
-}
-
-- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)metadata
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
-{
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
-    
-    BOOL result = [_accountCredentialCache saveAppMetadata:metadata context:context error:error];
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
-    
-    return result;
 }
 
 - (MSIDAppMetadataCacheItem *)getAppAppMetadataForConfiguration:(MSIDConfiguration *)configuration
@@ -917,7 +910,9 @@
                                                           error:(NSError *__autoreleasing *)error
 {
     MSIDAppMetadataCacheKey *metadataKey = [[MSIDAppMetadataCacheKey alloc] initWithClientId:configuration.clientId
-                                environment:[[configuration.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary]     generalType:MSIDAppMetadataType];
+                                                                                 environment:[[configuration.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary]
+                                                                                    familyId:@""
+                                                                                 generalType:MSIDAppMetadataType];
     
     return [_accountCredentialCache getAppMetadata:metadataKey context:context error:error];
 }

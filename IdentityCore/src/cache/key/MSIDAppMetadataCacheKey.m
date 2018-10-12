@@ -24,7 +24,7 @@
 #import "MSIDAppMetadataCacheKey.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDGeneralType.h"
+#import "MSIDGeneralCacheItemType.h"
 #import "NSURL+MSIDExtensions.h"
 
 static NSString *keyDelimiter = @"-";
@@ -34,26 +34,27 @@ static NSInteger kGeneralTypePrefix = 3000;
 
 #pragma mark - Helpers
 
-- (NSString *)serviceWithType:(MSIDGeneralType)type clientId:(NSString *)clientId
+- (NSString *)serviceWithType:(MSIDGeneralCacheItemType)type clientId:(NSString *)clientId
 {
     clientId = clientId.msidTrimmedString.lowercaseString;
     NSString *service = [NSString stringWithFormat:@"%@%@%@",
-                         [MSIDGeneralTypeHelpers generalTypeAsString:type],
+                         [MSIDGeneralCacheItemTypeHelpers generalTypeAsString:type],
                          keyDelimiter,
                          clientId];
     return service;
 }
 
-- (NSNumber *)generalTypeNumber:(MSIDGeneralType)credentialType
+- (NSNumber *)generalTypeNumber:(MSIDGeneralCacheItemType)generalType
 {
-    return @(kGeneralTypePrefix + credentialType);
+    return @(kGeneralTypePrefix + generalType);
 }
 
 #pragma mark - Public
 
 - (instancetype)initWithClientId:(NSString *)clientId
                      environment:(NSString *)environment
-                     generalType:(MSIDGeneralType)type
+                        familyId:(NSString *)familyId
+                     generalType:(MSIDGeneralCacheItemType)type
 {
     self = [super init];
     
@@ -62,6 +63,7 @@ static NSInteger kGeneralTypePrefix = 3000;
         _clientId = clientId;
         _environment = environment;
         _generalType = type;
+        _familyId = familyId;
     }
     
     return self;
@@ -69,7 +71,7 @@ static NSInteger kGeneralTypePrefix = 3000;
 
 - (NSData *)generic
 {
-    return self.familyId ? [self.familyId dataUsingEncoding:NSUTF8StringEncoding] : nil;
+    return [self.familyId isEqualToString:@""] ? nil : [self.familyId dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSNumber *)type
