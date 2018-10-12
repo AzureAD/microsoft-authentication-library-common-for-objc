@@ -34,6 +34,7 @@
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAADV2WebviewFactory.h"
 #import "MSIDAuthorityFactory.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -130,7 +131,8 @@
         return NO;
     }
 
-    NSOrderedSet *responseScopes = response.scope.msidScopeSet;
+    // We want to keep case as it comes from the server side, because scopes are case sensitive by OIDC spec
+    NSOrderedSet *responseScopes = [NSOrderedSet msidOrderedSetFromString:response.scope normalize:NO];
 
     if (!response.scope)
     {
@@ -183,6 +185,13 @@
     __auto_type authority = [self.authorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
 
     account.authority = authority;
+
+    // AAD v2 has to return preferred_username claim
+    if ([NSString msidIsStringNilOrBlank:response.idTokenObj.preferredUsername])
+    {
+        account.username = MSID_PREFERRED_USERNAME_MISSING;
+    }
+
     return YES;
 }
 

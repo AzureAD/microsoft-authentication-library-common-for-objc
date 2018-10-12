@@ -173,31 +173,6 @@
 
 #pragma mark - Refresh token
 
-- (void)testInitWithJson_andRefreshToken_andNilClientInfoInResponse_shouldTakeClientInfoFromRefreshToken
-{
-    NSDictionary *jsonInput = @{@"access_token": @"at",
-                                @"token_type": @"Bearer",
-                                @"expires_in": @"3600",
-                                @"refresh_token": @"rt"};
-    
-    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
-    
-    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
-    [clientInfo setValue:@"clientinfo" forKey:@"rawClientInfo"];
-    
-    [refreshToken setValue:clientInfo forKey:@"clientInfo"];
-    
-    NSError *error = nil;
-    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:jsonInput
-                                                                             refreshToken:refreshToken
-                                                                                    error:&error];
-    
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
-    
-    XCTAssertEqualObjects(response.clientInfo, clientInfo);
-}
-
 - (void)testInitWithJson_andRefreshToken_andNilRefreshTokenInResponse_shouldTakeRefreshTokenFromInput
 {
     NSDictionary *jsonInput = @{@"access_token": @"at",
@@ -248,11 +223,6 @@
     
     MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
     refreshToken.refreshToken = @"rt2";
-    
-    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
-    [clientInfo setValue:@"clientinfo" forKey:@"rawClientInfo"];
-    
-    [refreshToken setValue:clientInfo forKey:@"clientInfo"];
     
     NSError *error = nil;
     MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:jsonInput

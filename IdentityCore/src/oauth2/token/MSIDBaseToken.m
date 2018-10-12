@@ -41,9 +41,7 @@
     item->_storageAuthority = [_storageAuthority copyWithZone:zone];
     item->_clientId = [_clientId copyWithZone:zone];
     item->_accountIdentifier = [_accountIdentifier copyWithZone:zone];
-    item->_clientInfo = [_clientInfo copyWithZone:zone];
     item->_additionalServerInfo = [_additionalServerInfo copyWithZone:zone];
-    item->_clientInfo = [_clientInfo copyWithZone:zone];
     return item;
 }
 
@@ -71,7 +69,6 @@
     hash = hash * 31 + self.storageAuthority.hash;
     hash = hash * 31 + self.clientId.hash;
     hash = hash * 31 + self.accountIdentifier.hash;
-    hash = hash * 31 + self.clientInfo.rawClientInfo.hash;
     hash = hash * 31 + self.additionalServerInfo.hash;
     hash = hash * 31 + self.credentialType;
     return hash;
@@ -89,7 +86,6 @@
     result &= (!self.storageAuthority && !item.storageAuthority) || [self.storageAuthority isEqual:item.storageAuthority];
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= (!self.accountIdentifier && !item.accountIdentifier) || [self.accountIdentifier isEqual:item.accountIdentifier];
-    result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
     result &= (!self.additionalServerInfo && !item.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:item.additionalServerInfo];
     result &= (self.credentialType == item.credentialType);
     
@@ -148,7 +144,6 @@
             return nil;
         }
         
-        _clientInfo = tokenCacheItem.clientInfo;
         _additionalServerInfo = tokenCacheItem.additionalInfo;
 
         if (tokenCacheItem.homeAccountId)
@@ -176,7 +171,6 @@
 
     cacheItem.realm = self.authority.url.msidTenant;
     cacheItem.clientId = self.clientId;
-    cacheItem.clientInfo = self.clientInfo;
     cacheItem.additionalInfo = self.additionalServerInfo;
     cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;
     return cacheItem;
@@ -186,8 +180,8 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ credentialType=%@ homeAccountId=%@ clientInfo=%@)",
-            _authority, _clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], _accountIdentifier.homeAccountId, _clientInfo];
+    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ credentialType=%@ homeAccountId=%@)",
+            _authority, _clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], _accountIdentifier.homeAccountId];
 }
 
 @end

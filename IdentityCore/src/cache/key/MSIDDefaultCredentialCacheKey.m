@@ -60,7 +60,7 @@ static NSInteger kCredentialTypePrefix = 2000;
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
 
-    NSString *credentialType = [MSIDCredentialTypeHelpers credentialTypeAsString:type];
+    NSString *credentialType = [MSIDCredentialTypeHelpers credentialTypeAsString:type].lowercaseString;
     
     return [NSString stringWithFormat:@"%@%@%@%@%@",
             credentialType, keyDelimiter, clientId,
