@@ -65,7 +65,7 @@
               error:(NSError **)error;
 
 - (MSIDAppMetadataCacheItem *)getAppAppMetadataForConfiguration:(MSIDConfiguration *)configuration
-                                      context:(id<MSIDRequestContext>)context
-                                        error:(NSError **)error;
+                                                        context:(id<MSIDRequestContext>)context
+                                                          error:(NSError **)error;
 
 @end

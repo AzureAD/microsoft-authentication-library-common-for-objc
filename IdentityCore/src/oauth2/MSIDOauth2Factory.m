@@ -360,8 +360,8 @@
 }
 
 - (BOOL)fillAppMetadata:(MSIDAppMetadataCacheItem *)metadata
-       fromResponse:(MSIDTokenResponse *)response
-      configuration:(MSIDConfiguration *)configuration
+           fromResponse:(MSIDTokenResponse *)response
+          configuration:(MSIDConfiguration *)configuration
 {
     metadata.clientId = configuration.clientId;
     metadata.environment = configuration.authority.environment;

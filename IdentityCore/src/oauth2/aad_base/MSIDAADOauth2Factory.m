@@ -189,8 +189,8 @@
 }
 
 - (BOOL)fillAppMetadata:(MSIDAppMetadataCacheItem *)metadata
-            fromResponse:(MSIDAADTokenResponse *)response
-           configuration:(MSIDConfiguration *)configuration
+           fromResponse:(MSIDAADTokenResponse *)response
+          configuration:(MSIDConfiguration *)configuration
 {
     BOOL result = [super fillAppMetadata:metadata fromResponse:response configuration:configuration];
     

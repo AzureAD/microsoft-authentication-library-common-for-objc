@@ -626,10 +626,10 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
 - (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
-                key:(MSIDCacheKey *)key
-         serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
 {
     assert(item);
     assert(serializer);
@@ -655,9 +655,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
 - (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
-                serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error;
+                                      serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error;
 {
     MSID_LOG_INFO(context, @"Get app metadata, key info (account: %@ service: %@ generic: %@ type: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type);
     MSID_LOG_INFO_PII(context, @"Get app metadata, key info (account: %@ service: %@ generic: %@ type: %@)", key.account, key.service, key.generic, key.type);
