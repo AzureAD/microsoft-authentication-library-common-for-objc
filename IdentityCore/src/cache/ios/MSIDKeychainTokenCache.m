@@ -659,51 +659,15 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 {
-    MSID_LOG_INFO(context, @"Get app metadata, key info (account: %@ service: %@ generic: %@ type: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type);
-    MSID_LOG_INFO_PII(context, @"Get app metadata, key info (account: %@ service: %@ generic: %@ type: %@)", key.account, key.service, key.generic, key.type);
+    NSArray *items = [self itemsWithKey:key context:context error:error];
     
-    NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
-    if (key.service)
-    {
-        [query setObject:key.service forKey:(id)kSecAttrService];
-    }
-    if (key.account)
-    {
-        [query setObject:key.account forKey:(id)kSecAttrAccount];
-    }
-    if (key.generic)
-    {
-        [query setObject:key.generic forKey:(id)kSecAttrGeneric];
-    }
-    if (key.type != nil)
-    {
-        [query setObject:key.type forKey:(id)kSecAttrType];
-    }
-    
-    [query setObject:@YES forKey:(id)kSecReturnData];
-    [query setObject:@YES forKey:(id)kSecReturnAttributes];
-    
-    CFDictionaryRef result = nil;
-    MSID_LOG_INFO(context, @"Trying to find keychain items...");
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&result);
-    MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
-    
-    if (status == errSecItemNotFound)
+    if (!items || items.count == 0)
     {
         return nil;
     }
-    else if (status != errSecSuccess)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get app metadata from keychain.", nil, nil, nil, context.correlationId, nil);
-        }
-        MSID_LOG_ERROR(context, @"Failed to find app metadata keychain item (status: %d)", (int)status);
-        return nil;
-    }
     
-    NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
-    NSData *itemData = [resultDict objectForKey:(id)kSecValueData];
+    NSDictionary *attributes = items[0];
+    NSData *itemData = [attributes objectForKey:(id)kSecValueData];
     MSIDAppMetadataCacheItem *appMetadataItem = [serializer deserializeAppMetadataCacheItem:itemData];
     return appMetadataItem;
 }

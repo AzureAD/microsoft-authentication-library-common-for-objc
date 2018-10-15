@@ -37,6 +37,7 @@ NSString *const MSID_TELEMETRY_EVENT_AUTHORIZATION_CODE     = @"authorization_co
 NSString *const MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP     = @"token_cache_lookup";
 NSString *const MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE      = @"token_cache_write";
 NSString *const MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE     = @"token_cache_delete";
+NSString *const MSID_TELEMETRY_EVENT_APP_METADATA_WRITE     = @"app_metadata_write";
 
 // Telemetry property name, only alphabetic letters, dots, and underscores are allowed.
 NSString *const MSID_TELEMETRY_KEY_EVENT_NAME                   = @"event_name";

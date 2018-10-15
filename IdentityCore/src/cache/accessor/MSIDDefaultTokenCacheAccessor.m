@@ -894,7 +894,7 @@
     
     if (metadata)
     {
-        MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
+        MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_APP_METADATA_WRITE context:context];
         
         BOOL result = [_accountCredentialCache saveAppMetadata:metadata context:context error:error];
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
@@ -909,9 +909,10 @@
                                                         context:(id<MSIDRequestContext>)context
                                                           error:(NSError *__autoreleasing *)error
 {
+    NSString *environment = [[configuration.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
     MSIDAppMetadataCacheKey *metadataKey = [[MSIDAppMetadataCacheKey alloc] initWithClientId:configuration.clientId
-                                                                                 environment:[[configuration.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary]
-                                                                                    familyId:@""
+                                                                                 environment:environment
+                                                                                    familyId:nil
                                                                                  generalType:MSIDAppMetadataType];
     
     return [_accountCredentialCache getAppMetadata:metadataKey context:context error:error];

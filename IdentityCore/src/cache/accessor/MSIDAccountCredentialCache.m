@@ -447,10 +447,10 @@
                                                                          generalType:MSIDAppMetadataType];
 
     return [_dataSource saveAppMetadata:metadata
-                                key:key
-                         serializer:_serializer
-                            context:context
-                              error:error];
+                                    key:key
+                             serializer:_serializer
+                                context:context
+                                  error:error];
 }
 
 - (nullable MSIDAppMetadataCacheItem *)getAppMetadata:(nonnull MSIDAppMetadataCacheKey *)key

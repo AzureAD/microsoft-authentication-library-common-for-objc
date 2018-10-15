@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithClientId:(NSString *)clientId
                      environment:(NSString *)environment
-                        familyId:(NSString *)familyId
+                        familyId:(nullable NSString *)familyId
                      generalType:(MSIDGeneralCacheItemType)type;
 
 NS_ASSUME_NONNULL_END

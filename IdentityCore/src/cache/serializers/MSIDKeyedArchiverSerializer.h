@@ -22,10 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAccountItemSerializer.h"
 #import "MSIDCredentialItemSerializer.h"
-#import "MSIDAppMetadataItemSerializer.h"
 
-@interface MSIDKeyedArchiverSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer>
+@interface MSIDKeyedArchiverSerializer : NSObject <MSIDCredentialItemSerializer>
 
 @end
