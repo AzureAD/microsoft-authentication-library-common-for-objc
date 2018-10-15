@@ -23,6 +23,7 @@
 
 #import <SecurityInterface/SFChooseIdentityPanel.h>
 #import "MSIDCertificateChooser.h"
+#import <MSIDNotifications.h>
 
 @implementation MSIDCertificateChooserHelper
 {
@@ -61,7 +62,7 @@
                      identities:identities
                         message:message];
     
-    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(webAuthDidFail:) name:ADWebAuthDidFailNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(webAuthDidFail:) name:MSIDNotifications.webAuthDidFailNotificationName object:nil];
 }
 
 - (void)showCertSelectionSheet:(NSArray *)identities
@@ -87,10 +88,9 @@
     }
     
     SecIdentityRef identity = _panel.identity;
-    _panel = nil;
     _completionHandler(identity);
     _completionHandler = nil;
-    //[[NSNotificationCenter defaultCenter] removeObserver:self name:ADWebAuthDidFailNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:MSIDNotifications.webAuthDidFailNotificationName object:nil];
 }
 
 - (void)webAuthDidFail:(__unused NSNotification *)aNotification

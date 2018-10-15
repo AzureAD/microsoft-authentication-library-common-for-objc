@@ -67,6 +67,7 @@
     {
         _startURL = url;
         _context = context;
+        _callbackURLScheme = callbackURLScheme;
     }
     
     return self;
