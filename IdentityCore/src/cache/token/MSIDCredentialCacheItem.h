@@ -58,9 +58,6 @@
 // Unique user ID
 @property (readwrite, nonnull) NSString *homeAccountId;
 
-// Client info
-@property (readwrite, nullable) MSIDClientInfo *clientInfo;
-
 // Additional fields
 @property (readwrite, nullable) NSDictionary *additionalInfo;
 

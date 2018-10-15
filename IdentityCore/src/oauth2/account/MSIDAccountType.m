@@ -51,12 +51,12 @@ static NSDictionary *sAccountTypes = nil;
     
     dispatch_once(&sAccountTypesOnce, ^{
         
-        sAccountTypes = @{@"AAD": @(MSIDAccountTypeAADV1),
-                          @"MSA": @(MSIDAccountTypeMSA),
-                          @"MSSTS": @(MSIDAccountTypeMSSTS)};
+        sAccountTypes = @{@"aad": @(MSIDAccountTypeAADV1),
+                          @"msa": @(MSIDAccountTypeMSA),
+                          @"mssts": @(MSIDAccountTypeMSSTS)};
     });
     
-    NSNumber *accountType = sAccountTypes[type];
+    NSNumber *accountType = sAccountTypes[type.lowercaseString];
     return accountType != nil ? [accountType integerValue] : MSIDAccountTypeOther;
 }
 

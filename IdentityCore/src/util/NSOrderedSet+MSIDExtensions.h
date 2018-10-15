@@ -31,6 +31,14 @@
 
 - (NSString *)msidToString;
 + (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string;
+/*
+ Scopes are case sensitive in OIDC spec.
+ So, when saving scopes in cache we want to keep the original casing.
+ However, AAD v2 treats scopes in a case insensitive manner.
+ So, for AAD v2, we always normalize (lowercase) scopes for all lookups.
+ If we add different IDP support, we shouldn't normalize it for that IDP.
+ */
++ (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string normalize:(BOOL)normalize;
 
 @end
 

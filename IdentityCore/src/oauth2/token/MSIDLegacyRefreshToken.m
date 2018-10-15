@@ -118,7 +118,6 @@
     cacheItem.environment = self.authority.environment;
     cacheItem.realm = self.authority.url.msidTenant;
     cacheItem.clientId = self.clientId;
-    cacheItem.clientInfo = self.clientInfo;
     cacheItem.additionalInfo = self.additionalServerInfo;
     cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;
     cacheItem.refreshToken = self.refreshToken;

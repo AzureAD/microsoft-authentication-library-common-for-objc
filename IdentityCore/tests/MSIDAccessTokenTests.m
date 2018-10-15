@@ -181,7 +181,6 @@
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
@@ -197,7 +196,6 @@
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.additionalInfo = @{@"test": @"test2"};
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
@@ -213,7 +211,6 @@
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     NSDate *extExpireTime = [NSDate date];
     cacheItem.additionalInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
     cacheItem.homeAccountId = @"uid.utid";
@@ -231,7 +228,6 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/contoso.com" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
-    XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     NSDictionary *additionalServerInfo = @{@"test": @"test2", @"ext_expires_on": extExpireTime};
     XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
     XCTAssertEqualObjects(token.extendedExpireTime, extExpireTime);
@@ -242,7 +238,6 @@
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"target", nil];
     XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertEqualObjects(token.accessToken, @"token");
-    XCTAssertEqualObjects(token.clientInfo, [self createClientInfo:@{@"key" : @"value"}]);
     XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
 
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
@@ -332,7 +327,6 @@
     token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"uid.utid"];
     token.authority = [@"https://contoso.com/common" authority];
     token.clientId = @"clientId";
-    token.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
     token.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     token.cachedAt = [NSDate dateWithTimeIntervalSince1970:1500000000];

@@ -55,12 +55,6 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_SUB_ERROR, suberror)
     
     if (self)
     {
-        if (token && [NSString msidIsStringNilOrBlank:self.rawClientInfo])
-        {
-            self.rawClientInfo = token.clientInfo.rawClientInfo;
-            _clientInfo = token.clientInfo;
-        }
-
         if (token && [NSString msidIsStringNilOrBlank:self.refreshToken])
         {
             self.refreshToken = token.refreshToken;
