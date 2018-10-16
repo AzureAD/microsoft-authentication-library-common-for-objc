@@ -2291,7 +2291,7 @@
     XCTAssertNotNil(appMetadata);
     XCTAssertEqualObjects(appMetadata.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(appMetadata.environment, configuration.authority.environment);
-    XCTAssertEqualObjects(appMetadata.environment, @"familyId");
+    XCTAssertEqualObjects(appMetadata.familyId, @"familyId");
 }
 
 #pragma mark - Helpers
