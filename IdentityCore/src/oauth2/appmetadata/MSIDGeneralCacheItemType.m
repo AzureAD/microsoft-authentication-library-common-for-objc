@@ -45,10 +45,10 @@ static NSDictionary *sGeneralTypes = nil;
     
     dispatch_once(&sGeneralTypesOnce, ^{
         
-        sGeneralTypes = @{MSID_APP_METADATA_CACHE_TYPE: @(MSIDAppMetadataType)};
+        sGeneralTypes = @{[MSID_APP_METADATA_CACHE_TYPE lowercaseString]: @(MSIDAppMetadataType)};
     });
     
-    NSNumber *generalType = sGeneralTypes[type];
+    NSNumber *generalType = sGeneralTypes[type.lowercaseString];
     return generalType != nil ? [generalType integerValue] : -1;
 }
 
