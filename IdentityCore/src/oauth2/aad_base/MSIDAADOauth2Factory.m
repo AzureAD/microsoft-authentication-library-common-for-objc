@@ -192,6 +192,11 @@
            fromResponse:(MSIDAADTokenResponse *)response
           configuration:(MSIDConfiguration *)configuration
 {
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return NO;
+    }
+    
     BOOL result = [super fillAppMetadata:metadata fromResponse:response configuration:configuration];
     
     if (!result)
