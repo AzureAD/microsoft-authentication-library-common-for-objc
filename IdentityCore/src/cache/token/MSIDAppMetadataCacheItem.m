@@ -117,4 +117,12 @@
     return dictionary;
 }
 
+#pragma mark - Description
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"(clientId=%@ environment=%@ familyId=%@)",
+            _clientId, _environment, _familyId];
+}
+
 @end

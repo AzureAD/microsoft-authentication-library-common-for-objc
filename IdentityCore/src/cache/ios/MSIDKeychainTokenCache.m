@@ -663,6 +663,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     
     if (!items || items.count == 0)
     {
+        MSID_LOG_VERBOSE(context, @"App metadata not found in keychain");
         return nil;
     }
     
