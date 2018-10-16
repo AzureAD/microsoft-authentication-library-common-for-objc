@@ -91,11 +91,6 @@
 
     if (!result) return result;
     
-    //Save App metadata
-    result = [self saveAppMetadataWithConfiguration:configuration response:response context:context error:error];
-    
-    if (!result) return result;
-    
     // Save SSO state (refresh token and account)
     return [self saveSSOStateWithConfiguration:configuration response:response context:context error:error];
 }
@@ -129,6 +124,11 @@
 
     BOOL result = [self saveRefreshTokenWithConfiguration:configuration response:response context:context error:error];
 
+    if (!result) return NO;
+    
+    //Save App metadata
+    result = [self saveAppMetadataWithConfiguration:configuration response:response context:context error:error];
+    
     if (!result) return NO;
 
     return [self saveAccountWithConfiguration:configuration response:response context:context error:error];
