@@ -28,6 +28,8 @@
 #define DEFAULT_WINDOW_WIDTH 420
 #define DEFAULT_WINDOW_HEIGHT 650
 
+static WKWebViewConfiguration *s_webConfig;
+
 @interface MSIDWebviewUIController ( ) <NSWindowDelegate>
 {
     NSProgressIndicator *_loadingIndicator;
@@ -36,6 +38,14 @@
 @end
 
 @implementation MSIDWebviewUIController
+
++ (void)initialize
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        s_webConfig = [WKWebViewConfiguration new];
+    });
+}
 
 - (id)initWithContext:(id<MSIDRequestContext>)context
 {
@@ -60,8 +70,7 @@
     NSView *rootView = window.contentView;
     
     // Prepare the WKWebView
-    WKWebViewConfiguration *webConfiguration = [WKWebViewConfiguration new];
-    WKWebView *webView = [[WKWebView alloc] initWithFrame:rootView.frame configuration:webConfiguration];
+    WKWebView *webView = [[WKWebView alloc] initWithFrame:rootView.frame configuration:s_webConfig];
     [webView setAccessibilityIdentifier:@"MSID_SIGN_IN_WEBVIEW"];
     
     // Customize the UI

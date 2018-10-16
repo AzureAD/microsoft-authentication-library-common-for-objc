@@ -245,8 +245,6 @@
         return NO;
     }
 
-    baseToken.clientInfo = response.clientInfo;
-
     baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:baseToken.accountIdentifier.legacyAccountId
                                                                            homeAccountId:response.clientInfo.accountIdentifier];
 

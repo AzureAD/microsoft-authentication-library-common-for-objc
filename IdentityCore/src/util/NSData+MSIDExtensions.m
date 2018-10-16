@@ -92,8 +92,13 @@
         return nil;
     }
     
+    if (stringMod4 == 0)// No Padding necessary
+    {
+        return [[NSData alloc] initWithBase64EncodedString:base64encoded options:0];
+    }
+    
     // 'virtual padding'
-    NSUInteger padding = (4 - stringMod4) % 4;
+    NSUInteger padding = 4 - stringMod4;
     NSUInteger paddedLength = base64encoded.length + padding;
     NSString *paddedString = [base64encoded stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
     

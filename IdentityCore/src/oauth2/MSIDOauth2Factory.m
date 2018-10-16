@@ -36,6 +36,7 @@
 #import "MSIDWebviewFactory.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDOauth2Factory
 
@@ -212,8 +213,9 @@
     {
         return NO;
     }
-    
-    token.scopes = [response.target msidScopeSet];
+
+    // We want to keep case as it comes from the server side
+    token.scopes = [NSOrderedSet msidOrderedSetFromString:response.target normalize:NO];
     token.accessToken = response.accessToken;
     
     if (!token.accessToken)

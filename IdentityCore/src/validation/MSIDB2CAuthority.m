@@ -41,6 +41,24 @@
     return self;
 }
 
+- (nullable instancetype)initWithURL:(nonnull NSURL *)url
+                           rawTenant:(NSString *)rawTenant
+                             context:(nullable id<MSIDRequestContext>)context
+                               error:(NSError **)error
+{
+    self = [self initWithURL:url context:context error:error];
+    if (self)
+    {
+        if (rawTenant)
+        {
+            _url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1], rawTenant, url.pathComponents[3]]];
+            if (![self.class isAuthorityFormatValid:_url context:context error:error]) return nil;
+        }
+    }
+
+    return self;
+}
+
 + (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error

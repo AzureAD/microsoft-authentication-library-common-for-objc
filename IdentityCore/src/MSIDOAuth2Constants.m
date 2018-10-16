@@ -114,12 +114,12 @@ NSString *const MSID_FAMILY_NAME_CACHE_KEY               = @"family_name";
 NSString *const MSID_NAME_CACHE_KEY                      = @"name";
 NSString *const MSID_ALTERNATIVE_ACCOUNT_ID_KEY          = @"alternative_account_id";
 
-NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"accesstoken";
-NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"refreshtoken";
-NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE             = @"legacysingleresourcetoken";
-NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"idtoken";
+NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"AccessToken";
+NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"RefreshToken";
+NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE             = @"LegacySingleResourceToken";
+NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"IdToken";
 NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"token";
+NSString *const MSID_APP_METADATA_CACHE_TYPE             = @"appmetadata";
 
 NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-configuration";
-
-NSString *const MSID_APP_METADATA_CACHE_TYPE            = @"appmetadata";
+NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the token response";

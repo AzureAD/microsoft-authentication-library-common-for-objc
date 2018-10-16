@@ -40,7 +40,6 @@
 {
     MSIDAuthority *_authority;
     NSString *_clientId;
-    MSIDClientInfo *_clientInfo;
     NSDictionary *_additionalServerInfo;
     MSIDAccountIdentifier *_accountIdentifier;
 }
@@ -54,7 +53,6 @@
  */
 @property (readwrite) MSIDAuthority *storageAuthority;
 @property (readwrite) NSString *clientId;
-@property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSDictionary *additionalServerInfo;
 @property (readwrite) MSIDAccountIdentifier *accountIdentifier;
 
