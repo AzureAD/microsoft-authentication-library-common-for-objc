@@ -42,6 +42,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @interface MSIDLegacyAccessorSSOIntegrationTests : XCTestCase
 {
@@ -2427,6 +2428,28 @@
     XCTAssertEqualObjects(refreshToken.storageAuthority.url.absoluteString, @"https://login.windows.net/common");
 }
 
+#pragma mark - Get App Metadata
+- (void)testSaveTokensWithFactory_whenMultiResourceFOCIResponse_savesAppMetadata
+{
+    
+    MSIDAADTokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponseWithAdditionalFields:@{@"foci": @"familyId"}];
+    
+    NSError *error = nil;
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
+    BOOL result = [_legacyAccessor saveTokensWithConfiguration:configuration
+                                                      response:response
+                                                       context:nil
+                                                         error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    MSIDAppMetadataCacheItem *appMetadata = [self getAppMetadata];
+    XCTAssertNotNil(appMetadata);
+    XCTAssertEqualObjects(appMetadata.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(appMetadata.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(appMetadata.environment, @"familyId");
+}
+
 #pragma mark - Helpers
 
 - (void)saveResponseWithUPN:(NSString *)upn
@@ -2516,6 +2539,13 @@
     }
 
     return results;
+}
+
+- (MSIDAppMetadataCacheItem *)getAppMetadata
+{
+    return [_otherAccessor getAppAppMetadataForConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
+                                                     context:nil
+                                                       error:nil];
 }
 
 @end

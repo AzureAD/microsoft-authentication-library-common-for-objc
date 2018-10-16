@@ -27,6 +27,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @interface MSIDJsonSerializerTests : XCTestCase
 
@@ -147,6 +148,61 @@
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
     MSIDAccountCacheItem *token = [serializer deserializeAccountCacheItem:data];
+    
+    XCTAssertNil(token);
+}
+
+#pragma mark - App Metadata item
+
+- (void)test_whenSerializeAppMetadataCacheItem_shouldReturnSameAppMetadataOnDeserialize
+{
+    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    
+    MSIDAppMetadataCacheItem *cacheItem = [[MSIDAppMetadataCacheItem alloc] init];
+    cacheItem.clientId = @"clientId";
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.familyId = @"1";
+    
+    NSData *data = [serializer serializeAppMetadataCacheItem:cacheItem];
+    MSIDAppMetadataCacheItem *resultItem = [serializer deserializeAppMetadataCacheItem:data];
+    
+    XCTAssertNotNil(data);
+    XCTAssertEqualObjects(resultItem, cacheItem);
+}
+
+- (void)testSerializeAppMetadataCacheItem_whenAppMetadataNil_shouldReturnNil
+{
+    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    
+    NSData *data = [serializer serializeAccountCacheItem:nil];
+    
+    XCTAssertNil(data);
+}
+
+- (void)testSerializeAppMetadataCacheItem_whenAppMetadataWithDefaultProperties_shouldReturnNotNilData
+{
+    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    
+    NSData *data = [serializer serializeAppMetadataCacheItem:[MSIDAppMetadataCacheItem new]];
+    
+    XCTAssertNotNil(data);
+}
+
+- (void)testDeserializeAppMetadataCacheItem_whenDataNilNil_shouldReturnNil
+{
+    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    
+    MSIDAppMetadataCacheItem *appMetdata = [serializer deserializeAppMetadataCacheItem:nil];
+    
+    XCTAssertNil(appMetdata);
+}
+
+- (void)testDeserializeAppMetadataCacheItem_whenDataInvalid_shouldReturnNil
+{
+    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    MSIDAppMetadataCacheItem *token = [serializer deserializeAppMetadataCacheItem:data];
     
     XCTAssertNil(token);
 }
