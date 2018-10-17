@@ -47,6 +47,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @interface MSIDAADOauth2FactoryTest : XCTestCase
 
@@ -282,6 +283,35 @@
     XCTAssertEqualObjects(token.idToken, idToken);
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
     XCTAssertNotNil(token.expiresOn);
+}
+
+- (void)testAppMetadataFromResponse_whenAADTokenResponseWithFamilyId_shouldReturnAppMetadataWithFamilyId
+{
+    MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponseWithFamilyId:@"familyId"];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    
+    MSIDAppMetadataCacheItem *metadata = [factory appMetadataFromResponse:(MSIDAADTokenResponse *)response
+                                                            configuration:configuration];
+    
+    XCTAssertEqualObjects(metadata.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(metadata.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(metadata.familyId, @"familyId");
+}
+
+- (void)testAppMetadataFromResponse_whenAADTokenResponseWithoutFamilyId_shouldReturnAppMetadataWithFamilyId_Nil
+{
+    MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    
+    MSIDAppMetadataCacheItem *metadata = [factory appMetadataFromResponse:(MSIDAADTokenResponse *)response
+                                                            configuration:configuration];
+    
+    XCTAssertNotNil(metadata);
+    XCTAssertEqualObjects(metadata.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(metadata.environment, configuration.authority.environment);
+    XCTAssertNil(metadata.familyId);
 }
 
 @end

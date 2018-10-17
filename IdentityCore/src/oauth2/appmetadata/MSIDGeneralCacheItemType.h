@@ -22,10 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAccountItemSerializer.h"
-#import "MSIDCredentialItemSerializer.h"
-#import "MSIDAppMetadataItemSerializer.h"
 
-@interface MSIDJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer>
+typedef NS_ENUM(NSInteger, MSIDGeneralCacheItemType)
+{
+    MSIDAppMetadataType = 0
+};
+
+@interface MSIDGeneralCacheItemTypeHelpers : NSObject
+
++ (NSString *)generalTypeAsString:(MSIDGeneralCacheItemType)type;
++ (MSIDGeneralCacheItemType)generalTypeFromString:(NSString *)type;
 
 @end

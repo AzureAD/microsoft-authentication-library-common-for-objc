@@ -32,6 +32,7 @@
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDAccount.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -485,6 +486,57 @@
 {
     [self reset];
     return YES;
+}
+
+- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
+{
+    if (!item
+        || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    NSData *serializedItem = [serializer serializeAppMetadataCacheItem:item];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_accountKeys
+                 cacheContent:_accountContents
+                      context:context
+                        error:error];
+}
+
+- (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
+                                      serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error;
+{
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSData *itemData = [self itemDataWithKey:key
+                              keysDictionary:_accountKeys
+                           contentDictionary:_accountContents
+                                     context:context
+                                       error:error];
+    
+    MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
+    return appMetadata;
 }
 
 #pragma mark - Test methods

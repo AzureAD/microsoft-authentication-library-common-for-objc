@@ -49,6 +49,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAadAuthorityCacheRecord.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @interface MSIDDefaultAccessorSSOIntegrationTests : XCTestCase
 {
@@ -2270,6 +2271,30 @@
                                                           context:nil
                                                             error:&error];
     XCTAssertEqual([accounts count], 0);
+}
+
+- (void)testSaveAppMetadataWithFactory_whenMultiResourceFOCIResponse
+{
+    MSIDTokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponseWithFamilyId:@"familyId"];
+    NSError *error = nil;
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
+    
+    BOOL result = [_defaultAccessor saveTokensWithConfiguration:configuration
+                                                       response:response
+                                                        context:nil
+                                                          error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    
+    MSIDAppMetadataCacheItem *appMetadata = [_defaultAccessor getAppAppMetadataForConfiguration:configuration
+                                                                                        context:nil
+                                                                                          error:nil];
+    
+    XCTAssertNotNil(appMetadata);
+    XCTAssertEqualObjects(appMetadata.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(appMetadata.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(appMetadata.familyId, @"familyId");
 }
 
 #pragma mark - Helpers

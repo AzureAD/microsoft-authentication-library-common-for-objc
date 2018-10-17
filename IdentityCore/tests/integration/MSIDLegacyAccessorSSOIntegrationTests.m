@@ -42,6 +42,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @interface MSIDLegacyAccessorSSOIntegrationTests : XCTestCase
 {
@@ -2425,6 +2426,32 @@
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(refreshToken.storageAuthority.url.absoluteString, @"https://login.windows.net/common");
+}
+
+#pragma mark - Get App Metadata
+- (void)testSaveTokensWithFactory_whenMultiResourceFOCIResponse_savesAppMetadata
+{
+    
+    MSIDAADTokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponseWithAdditionalFields:@{@"foci": @"familyId"}];
+    
+    NSError *error = nil;
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
+    BOOL result = [_legacyAccessor saveTokensWithConfiguration:configuration
+                                                      response:response
+                                                       context:nil
+                                                         error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    
+    MSIDAppMetadataCacheItem *appMetadata = [_otherAccessor getAppAppMetadataForConfiguration:configuration
+                                                                                      context:nil
+                                                                                        error:nil];
+    
+    XCTAssertNotNil(appMetadata);
+    XCTAssertEqualObjects(appMetadata.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(appMetadata.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(appMetadata.familyId, @"familyId");
 }
 
 #pragma mark - Helpers

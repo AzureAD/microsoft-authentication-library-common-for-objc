@@ -34,6 +34,9 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDTestCacheDataSource.h"
+#import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAppMetadataCacheKey.h"
+#import "MSIDGeneralCacheItemType.h"
 
 @interface MSIDAccountCredentialsCacheTests : XCTestCase
 
@@ -2059,6 +2062,32 @@
     XCTAssertNotNil(wipeInfo[@"bundleId"]);
     XCTAssertNotNil(wipeInfo[@"wipeTime"]);
 }
+
+#pragma mark - getAppMetadataWithQuery
+
+- (void)testGetAppMetadataWithUpdatedFamilyId_shouldReturnAppMetadata
+{
+    MSIDAppMetadataCacheItem *itemWithFamilyId = [self createAppMetadataCacheItem:@"1"];
+    [self saveAppMetadata:itemWithFamilyId];
+    
+    NSError *error = nil;
+    
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:@"client" environment:@"login.microsoftonline.com" familyId:nil generalType:MSIDAppMetadataType];
+    
+    MSIDAppMetadataCacheItem *item = [self.cache getAppMetadata:key context:nil error:&error];
+    XCTAssertNotNil(item);
+    XCTAssertNotNil(item.familyId);
+    XCTAssertNil(error);
+    
+    MSIDAppMetadataCacheItem *itemWithoutFamilyId = [self createAppMetadataCacheItem:nil];
+    [self saveAppMetadata:itemWithoutFamilyId];
+    
+    item = [self.cache getAppMetadata:key context:nil error:&error];
+    XCTAssertNotNil(item);
+    XCTAssertNil(item.familyId);
+    XCTAssertNil(error);
+}
+
 #endif
 
 #pragma mark - Helpers
@@ -2075,6 +2104,14 @@
 {
     NSError *error = nil;
     BOOL result = [self.cache saveAccount:item context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+}
+
+- (void)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
+{
+    NSError *error = nil;
+    BOOL result = [self.cache saveAppMetadata:item context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
 }
@@ -2140,6 +2177,15 @@
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Name" upn:upn tenantId:@"tid"];
     item.secret = idToken;
 
+    return item;
+}
+
+- (MSIDAppMetadataCacheItem *)createAppMetadataCacheItem:(NSString *)familyId
+{
+    MSIDAppMetadataCacheItem *item = [MSIDAppMetadataCacheItem new];
+    item.clientId = @"client";
+    item.environment = @"login.microsoftonline.com";
+    item.familyId = familyId;
     return item;
 }
 

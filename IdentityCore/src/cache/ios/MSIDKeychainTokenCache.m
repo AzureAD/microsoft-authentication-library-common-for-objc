@@ -28,6 +28,7 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDError.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDAppMetadataItemSerializer.h"
 
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
 static MSIDKeychainTokenCache *s_defaultCache = nil;
@@ -622,6 +623,54 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     }
 
     return YES;
+}
+
+- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
+{
+    assert(item);
+    assert(serializer);
+    
+    NSData *itemData = [serializer serializeAppMetadataCacheItem:item];
+    
+    if (!itemData)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize app metadata item.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Failed to serialize app metadata item.");
+        return NO;
+    }
+    
+    MSID_LOG_INFO_PII(context, @"Save keychain item, item info %@", item);
+    
+    return [self saveData:itemData
+                      key:key
+                  context:context
+                    error:error];
+}
+
+- (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
+                                      serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                         context:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error;
+{
+    NSArray *items = [self itemsWithKey:key context:context error:error];
+    
+    if (!items || items.count == 0)
+    {
+        MSID_LOG_VERBOSE(context, @"App metadata not found in keychain");
+        return nil;
+    }
+    
+    NSDictionary *attributes = items[0];
+    NSData *itemData = [attributes objectForKey:(id)kSecValueData];
+    MSIDAppMetadataCacheItem *appMetadataItem = [serializer deserializeAppMetadataCacheItem:itemData];
+    return appMetadataItem;
 }
 
 @end

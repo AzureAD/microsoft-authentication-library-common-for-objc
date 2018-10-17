@@ -25,6 +25,7 @@
 #import "MSIDJsonObject.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @implementation MSIDJsonSerializer
 
@@ -131,6 +132,30 @@
         return nil;
     }
 
+    return item;
+}
+
+#pragma mark - App metadata
+
+- (NSData *)serializeAppMetadataCacheItem:(MSIDAccountCacheItem *)item
+{
+    return [self serialize:item.jsonDictionary];
+}
+
+- (MSIDAppMetadataCacheItem *)deserializeAppMetadataCacheItem:(NSData *)data
+{
+    NSDictionary *jsonDictionary = [self deserialize:data];
+    
+    NSError *error = nil;
+    
+    MSIDAppMetadataCacheItem *item = [[MSIDAppMetadataCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    
+    if (!item)
+    {
+        MSID_LOG_WARN(nil, @"Failed to deserialize app metadata %@", error);
+        return nil;
+    }
+    
     return item;
 }
 

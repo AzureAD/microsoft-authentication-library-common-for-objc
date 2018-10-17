@@ -31,6 +31,8 @@
 #import "MSIDCacheKey.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDDefaultAccountCacheQuery.h"
+#import "MSIDAppMetaDataCacheItem.h"
+#import "MSIDAppMetadataCacheKey.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -427,6 +429,40 @@
                           error:(NSError * _Nullable * _Nullable)error
 {
     return [_dataSource saveWipeInfoWithContext:context error:error];
+}
+
+// Writing metadata
+- (BOOL)saveAppMetadata:(nonnull MSIDAppMetadataCacheItem *)metadata
+                context:(nullable id<MSIDRequestContext>)context
+                  error:(NSError * _Nullable * _Nullable)error
+{
+    assert(metadata);
+    
+    MSID_LOG_VERBOSE(context, @"Saving app's metadata with clientId %@", metadata.clientId);
+    MSID_LOG_VERBOSE_PII(context, @"Saving app's metadata %@", metadata);
+    
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:metadata.clientId
+                                                                         environment:metadata.environment
+                                                                            familyId:metadata.familyId
+                                                                         generalType:MSIDAppMetadataType];
+
+    return [_dataSource saveAppMetadata:metadata
+                                    key:key
+                             serializer:_serializer
+                                context:context
+                                  error:error];
+}
+
+- (nullable MSIDAppMetadataCacheItem *)getAppMetadata:(nonnull MSIDAppMetadataCacheKey *)key
+                                              context:(nullable id<MSIDRequestContext>)context
+                                                error:(NSError * _Nullable * _Nullable)error
+{
+    assert(key);
+    
+    MSID_LOG_VERBOSE(context, @"(Default cache) Get app metadata for key %@", key.logDescription);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get app metadata for key %@", key.piiLogDescription);
+    
+    return [_dataSource appMetadataWithKey:key serializer:_serializer context:context error:error];
 }
 
 @end

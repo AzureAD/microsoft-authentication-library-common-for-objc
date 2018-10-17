@@ -42,6 +42,7 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDAADTenant.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -184,6 +185,26 @@
     }
 
     token.familyId = response.familyId;
+    return YES;
+}
+
+- (BOOL)fillAppMetadata:(MSIDAppMetadataCacheItem *)metadata
+           fromResponse:(MSIDAADTokenResponse *)response
+          configuration:(MSIDConfiguration *)configuration
+{
+    if (![self checkResponseClass:response context:nil error:nil])
+    {
+        return NO;
+    }
+    
+    BOOL result = [super fillAppMetadata:metadata fromResponse:response configuration:configuration];
+    
+    if (!result)
+    {
+        return NO;
+    }
+    
+    metadata.familyId = response.familyId;
     return YES;
 }
 
