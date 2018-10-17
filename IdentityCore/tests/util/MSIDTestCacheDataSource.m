@@ -32,6 +32,7 @@
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDAccount.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -493,7 +494,24 @@
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error
 {
-    return YES;
+    if (!item
+        || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    NSData *serializedItem = [serializer serializeAppMetadataCacheItem:item];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_accountKeys
+                 cacheContent:_accountContents
+                      context:context
+                        error:error];
 }
 
 - (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
@@ -501,7 +519,24 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 {
-    return nil;
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSData *itemData = [self itemDataWithKey:key
+                              keysDictionary:_accountKeys
+                           contentDictionary:_accountContents
+                                     context:context
+                                       error:error];
+    
+    MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
+    return appMetadata;
 }
 
 #pragma mark - Test methods
