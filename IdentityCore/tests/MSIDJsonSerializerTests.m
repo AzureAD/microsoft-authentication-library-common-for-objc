@@ -192,9 +192,9 @@
 {
     MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
     
-    MSIDAppMetadataCacheItem *appMetdata = [serializer deserializeAppMetadataCacheItem:nil];
+    MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:nil];
     
-    XCTAssertNil(appMetdata);
+    XCTAssertNil(appMetadata);
 }
 
 - (void)testDeserializeAppMetadataCacheItem_whenDataInvalid_shouldReturnNil
@@ -202,9 +202,9 @@
     MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
-    MSIDAppMetadataCacheItem *token = [serializer deserializeAppMetadataCacheItem:data];
+    MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:data];
     
-    XCTAssertNil(token);
+    XCTAssertNil(appMetadata);
 }
 
 #pragma mark - Private

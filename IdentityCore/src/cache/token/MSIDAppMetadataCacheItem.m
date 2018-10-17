@@ -51,9 +51,9 @@
 - (BOOL)isEqualToItem:(MSIDAppMetadataCacheItem *)item
 {
     BOOL result = YES;
-    result &= (!self.clientId || !item.clientId) || [self.clientId isEqualToString:item.clientId];
-    result &= (!self.environment || !item.environment) || [self.environment isEqualToString:item.environment];
-    result &= (!self.familyId || !item.familyId) || [self.familyId isEqualToString:item.familyId];
+    result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
+    result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
+    result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
     return result;
 }
 

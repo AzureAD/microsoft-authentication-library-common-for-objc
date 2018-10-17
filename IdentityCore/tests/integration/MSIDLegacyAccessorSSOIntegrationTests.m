@@ -2443,7 +2443,11 @@
     
     XCTAssertTrue(result);
     XCTAssertNil(error);
-    MSIDAppMetadataCacheItem *appMetadata = [self getAppMetadata];
+    
+    MSIDAppMetadataCacheItem *appMetadata = [_otherAccessor getAppAppMetadataForConfiguration:configuration
+                                                                                      context:nil
+                                                                                        error:nil];
+    
     XCTAssertNotNil(appMetadata);
     XCTAssertEqualObjects(appMetadata.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(appMetadata.environment, configuration.authority.environment);
@@ -2539,13 +2543,6 @@
     }
 
     return results;
-}
-
-- (MSIDAppMetadataCacheItem *)getAppMetadata
-{
-    return [_otherAccessor getAppAppMetadataForConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
-                                                     context:nil
-                                                       error:nil];
 }
 
 @end

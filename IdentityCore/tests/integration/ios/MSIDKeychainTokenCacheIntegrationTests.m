@@ -31,6 +31,8 @@
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDLegacyTokenCacheKey.h"
+#import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAppMetadataCacheKey.h"
 
 @interface MSIDKeychainTokenCacheIntegrationTests : XCTestCase
 
@@ -515,6 +517,34 @@
     NSArray<MSIDCredentialCacheItem *> *items = [keychainTokenCache tokensWithKey:key2 serializer:serializer context:nil error:nil];
 
     XCTAssertEqual(items.count, 1);
+}
+
+- (void)testSaveAppMetadataWithKey_whenItemAlreadyExistInKeychain_shouldUpdateIt
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDAppMetadataCacheItem *appMetadata1 = [MSIDAppMetadataCacheItem new];
+    appMetadata1.clientId = @"clientId";
+    appMetadata1.environment = @"login.microsoftonline.com";
+    appMetadata1.familyId = @"1";
+    MSIDAppMetadataCacheItem *appMetadata2 = [MSIDAppMetadataCacheItem new];
+    appMetadata2.clientId = @"clientId";
+    appMetadata2.environment = @"login.microsoftonline.com";
+    appMetadata2.familyId = nil;
+    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:@"clientId"
+                                                                         environment:@"login.microsoftonline.com"
+                                                                            familyId:nil
+                                                                         generalType:MSIDAppMetadataType];
+    
+    [keychainTokenCache saveAppMetadata:appMetadata1 key:key serializer:serializer context:nil error:nil];
+    [keychainTokenCache saveAppMetadata:appMetadata2 key:key serializer:serializer context:nil error:nil];
+    
+    MSIDAppMetadataCacheItem *metadataResult = [keychainTokenCache appMetadataWithKey:key
+                                                                           serializer:serializer
+                                                                              context:nil error:nil];
+    
+    XCTAssertEqualObjects(metadataResult, appMetadata2);
 }
 
 @end

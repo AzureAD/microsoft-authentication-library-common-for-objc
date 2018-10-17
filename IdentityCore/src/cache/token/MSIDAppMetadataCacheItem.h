@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonnull) NSString *clientId;
 @property (nonnull) NSString *environment;
-@property (nonnull) NSString *familyId;
+@property (nullable) NSString *familyId;
 
 @end
 
