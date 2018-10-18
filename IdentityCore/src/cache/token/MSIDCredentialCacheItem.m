@@ -63,17 +63,17 @@
 - (BOOL)isEqualToItem:(MSIDCredentialCacheItem *)item
 {
     BOOL result = YES;
-    result &= (!self.clientId || !item.clientId) || [self.clientId isEqualToString:item.clientId];
+    result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= self.credentialType == item.credentialType;
-    result &= (!self.secret || !item.secret) || [self.secret isEqualToString:item.secret];
-    result &= (!self.target || !item.target) || [self.target isEqualToString:item.target];
-    result &= (!self.realm || !item.realm) || [self.realm isEqualToString:item.realm];
-    result &= (!self.environment || !item.environment) || [self.environment isEqualToString:item.environment];
-    result &= (!self.expiresOn || !item.expiresOn) || [self.expiresOn isEqual:item.expiresOn];
-    result &= (!self.cachedAt || !item.cachedAt) || [self.cachedAt isEqual:item.cachedAt];
-    result &= (!self.familyId || !item.familyId) || [self.familyId isEqualToString:item.familyId];
-    result &= (!self.homeAccountId || !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
-    result &= (!self.additionalInfo || !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
+    result &= (!self.secret && !item.secret) || [self.secret isEqualToString:item.secret];
+    result &= (!self.target && !item.target) || [self.target isEqualToString:item.target];
+    result &= (!self.realm && !item.realm) || [self.realm isEqualToString:item.realm];
+    result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
+    result &= (!self.expiresOn && !item.expiresOn) || [self.expiresOn isEqual:item.expiresOn];
+    result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqual:item.cachedAt];
+    result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
+    result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
+    result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
     return result;
 }
 
