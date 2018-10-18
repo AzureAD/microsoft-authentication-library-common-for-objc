@@ -215,4 +215,20 @@
     return self.refreshToken && [self.refreshToken isEqualToString:@"<tombstone>"];
 }
 
+@synthesize oauthTokenType = _oauthTokenType;
+- (NSString *)oauthTokenType
+{
+    @synchronized (self)
+    {
+        return [NSString msidIsStringNilOrBlank:_oauthTokenType] ? MSID_OAUTH2_BEARER : _oauthTokenType;
+    }
+}
+
+- (void)setOauthTokenType:(NSString *)oauthTokenType{
+    @synchronized (self)
+    {
+        _oauthTokenType = oauthTokenType;
+    }
+}
+
 @end

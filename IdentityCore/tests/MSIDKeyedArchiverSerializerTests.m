@@ -49,6 +49,9 @@
     cacheItem.clientId = @"some clientId";
     cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.oauthTokenType = @"access token type";
+    cacheItem.secret = cacheItem.refreshToken;
+    cacheItem.realm = cacheItem.authority.msidTenant;
+    cacheItem.environment = cacheItem.authority.msidHostWithPortIfNecessary;
     
     NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
     MSIDCredentialCacheItem *resultToken = [serializer deserializeCredentialCacheItem:data];

@@ -151,13 +151,17 @@
     _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
 
     // Additional Info
+    
     NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
     NSDate *extendedExpiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
-    
     NSMutableDictionary *additionalInfo = [NSMutableDictionary dictionary];
     additionalInfo[MSID_SPE_INFO_CACHE_KEY] = speInfo;
     additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = extendedExpiresOn;
-    _additionalInfo = additionalInfo;
+    
+    if ([additionalInfo count])
+    {
+        _additionalInfo = additionalInfo;
+    }
     
     return self;
 }
