@@ -28,5 +28,6 @@
 - (NSUUID *)correlationId;
 - (NSString *)logComponent;
 - (NSString *)telemetryRequestId;
+- (NSDictionary *)appRequestMetadata;
 
 @end

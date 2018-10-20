@@ -48,6 +48,7 @@
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
 @property (retain, nonatomic) NSString* logComponent;
+@property (retain, nonatomic) NSDictionary* appRequestMetadata;
 
 @end
 
