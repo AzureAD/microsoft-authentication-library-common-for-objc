@@ -504,38 +504,14 @@
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", clientId, aliases);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, clientId, aliases);
 
-    MSIDLegacyRefreshToken *resultToken = (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:account.legacyAccountId
-                                                                                            type:MSIDRefreshTokenType
-                                                                                       authority:configuration.authority
-                                                                                   lookupAliases:aliases
-                                                                                        clientId:clientId
-                                                                                        resource:nil
-                                                                                         context:context
-                                                                                           error:error];
-
-    // If no legacy user ID available, or no token found by legacy user ID, try to look by unique user ID
-    if (!resultToken
-        && ![NSString msidIsStringNilOrBlank:account.homeAccountId])
-    {
-        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding refresh token with new user ID, clientId %@, authority %@", clientId, aliases);
-        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding refresh token with new user ID %@, clientId %@, authority %@", account.homeAccountId, clientId, aliases);
-
-        resultToken = (MSIDLegacyRefreshToken *) [self getTokenByHomeAccountId:account.homeAccountId
-                                                                     tokenType:MSIDRefreshTokenType
-                                                                     authority:configuration.authority
-                                                                 lookupAliases:aliases
-                                                                      clientId:clientId
-                                                                      resource:nil
-                                                                       context:context
-                                                                         error:error];
-
-        if (resultToken && error)
-        {
-            *error = nil;
-        }
-    }
-
-    return resultToken;
+    return (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:account.legacyAccountId
+                                                             type:MSIDRefreshTokenType
+                                                        authority:configuration.authority
+                                                    lookupAliases:aliases
+                                                         clientId:clientId
+                                                         resource:nil
+                                                          context:context
+                                                            error:error];
 }
 
 - (BOOL)saveAccessTokenWithConfiguration:(MSIDConfiguration *)configuration
@@ -779,61 +755,6 @@
     {
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
     }
-    return nil;
-}
-
-- (MSIDBaseToken *)getTokenByHomeAccountId:(NSString *)homeAccountId
-                                 tokenType:(MSIDCredentialType)tokenType
-                                 authority:(MSIDAuthority *)authority
-                             lookupAliases:(NSArray<NSURL *> *)aliases
-                                  clientId:(NSString *)clientId
-                                  resource:(NSString *)resource
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
-{
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
-
-    for (NSURL *alias in aliases)
-    {
-        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@", alias, clientId, resource);
-        MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@, unique userId %@", alias, clientId, resource, homeAccountId);
-
-        MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
-        query.authority = alias;
-        query.clientId = clientId;
-        query.resource = resource;
-
-        NSError *cacheError = nil;
-        NSArray *tokens = [_dataSource tokensWithKey:query serializer:_serializer context:context error:&cacheError];
-        
-        if (cacheError)
-        {
-            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-            if (error) *error = cacheError;
-            return nil;
-        }
-        
-        BOOL (^filterBlock)(MSIDCredentialCacheItem *cacheItem) = ^BOOL(MSIDCredentialCacheItem *cacheItem) {
-            return [cacheItem.homeAccountId isEqualToString:homeAccountId];
-        };
-        
-        NSArray *matchedTokens = [MSIDTokenFilteringHelper filterTokenCacheItems:tokens
-                                                                       tokenType:tokenType
-                                                                     returnFirst:YES
-                                                                        filterBy:filterBlock];
-        
-        if ([matchedTokens count])
-        {            
-            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found token");
-            MSIDBaseToken *token = matchedTokens[0];
-            token.storageAuthority = token.authority;
-            token.authority = authority;
-            [MSIDTelemetry stopCacheEvent:event withItem:token success:YES context:context];
-            return token;
-        }
-    }
-
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
     return nil;
 }
 

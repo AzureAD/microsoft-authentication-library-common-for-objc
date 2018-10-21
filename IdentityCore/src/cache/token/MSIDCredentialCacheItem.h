@@ -71,10 +71,6 @@
                      environment:(nullable NSString *)environment
               environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
 
-- (BOOL)matchesWithLegacyUserId:(nullable NSString *)legacyUserId
-                    environment:(nullable NSString *)environment
-             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
-
 - (BOOL)matchesWithRealm:(nullable NSString *)realm
                 clientId:(nullable NSString *)clientId
                 familyId:(nullable NSString *)familyId
