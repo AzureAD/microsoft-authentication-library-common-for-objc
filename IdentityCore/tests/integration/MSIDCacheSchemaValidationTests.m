@@ -91,7 +91,7 @@
     NSDictionary *expectedJSON = @{
                                    @"secret": @"<removed_at>",
                                    @"target": @"Calendars.Read openid profile Tasks.Read User.Read email",
-                                   @"ext_expires_on": extExpiresOn,
+                                   @"extended_expires_on": extExpiresOn,
                                    @"credential_type": @"AccessToken",
                                    @"environment": @"login.microsoftonline.com",
                                    @"realm": @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
