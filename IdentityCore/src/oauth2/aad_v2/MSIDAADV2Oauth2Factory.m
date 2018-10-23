@@ -140,10 +140,7 @@
     }
 
     accessToken.scopes = responseScopes;
-    
-    __auto_type authority = [self.authorityFactory authorityFromUrl:accessToken.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
-    
-    accessToken.authority = authority;
+    accessToken.authority = [self authorityFromURL:accessToken.authority.url tokenResponse:response error:nil];
 
     return YES;
 }
@@ -158,10 +155,8 @@
     {
         return NO;
     }
-    
-    __auto_type authority = [self.authorityFactory authorityFromUrl:token.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
 
-    token.authority = authority;
+    token.authority = [self authorityFromURL:token.authority.url tokenResponse:response error:nil];
 
     return YES;
 }
@@ -181,18 +176,19 @@
     {
         return NO;
     }
-    
-    __auto_type authority = [self.authorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
 
-    account.authority = authority;
-
-    // AAD v2 has to return preferred_username claim
-    if ([NSString msidIsStringNilOrBlank:response.idTokenObj.preferredUsername])
-    {
-        account.username = MSID_PREFERRED_USERNAME_MISSING;
-    }
-
+    account.authority = [self authorityFromURL:account.authority.url tokenResponse:response error:nil];
     return YES;
+}
+
+- (MSIDAuthority *)authorityFromURL:(NSURL *)url
+                      tokenResponse:(MSIDTokenResponse *)response
+                              error:(NSError **)error
+{
+    return [self.authorityFactory authorityFromUrl:url
+                                         rawTenant:response.idTokenObj.realm
+                                           context:nil
+                                             error:error];
 }
 
 #pragma mark - Webview

@@ -31,6 +31,8 @@
 #import "MSIDDefaultCredentialCacheKey.h"
 #import "MSIDDefaultAccountCacheKey.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDB2CTokenResponse.h"
+#import "MSIDB2COauth2Factory.h"
 
 /*
  Those tests validate full schema compliance to test cases defined in the schema spec
@@ -458,7 +460,7 @@
     NSString *jsonResponse = @"{\"access_token\":\"<removed_at>\",\"id_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mzg4MDQ4NjAsIm5iZiI6MTUzODgwMTI2MCwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2JhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOC92Mi4wLyIsInN1YiI6ImFkMDIwZjhlLWIxYmEtNDRiMi1iZDY5LWMyMmJlODY3MzdmNSIsImF1ZCI6IjBhN2Y1MmRkLTI2MGUtNDMyZi05NGRlLWI0NzgyOGMzZjM3MiIsImlhdCI6MTUzODgwMTI2MCwiYXV0aF90aW1lIjoxNTM4ODAxMjYwLCJpZHAiOiJsaXZlLmNvbSIsIm5hbWUiOiJNU0FMIFNESyBUZXN0Iiwib2lkIjoiYWQwMjBmOGUtYjFiYS00NGIyLWJkNjktYzIyYmU4NjczN2Y1IiwiZmFtaWx5X25hbWUiOiJTREsgVGVzdCIsImdpdmVuX25hbWUiOiJNU0FMIiwiZW1haWxzIjpbIm1zYWxzZGt0ZXN0QG91dGxvb2suY29tIl0sInRmcCI6IkIyQ18xX1NpZ25pbiIsImF0X2hhc2giOiJRNE8zSERDbGNhTGw3eTB1VS1iSkFnIn0.\",\"token_type\":\"Bearer\",\"not_before\":1538801260,\"expires_in\":3600,\"expires_on\":1538804860,\"resource\":\"14df2240-96cc-4f42-a133-ef0807492869\",\"client_info\":\"eyJ1aWQiOiJhZDAyMGY4ZS1iMWJhLTQ0YjItYmQ2OS1jMjJiZTg2NzM3ZjUtYjJjXzFfc2lnbmluIiwidXRpZCI6ImJhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOCJ9\",\"scope\":\"https://iosmsalb2c.onmicrosoft.com/webapitest/user.read\",\"refresh_token\":\"<removed_rt>\",\"refresh_token_expires_in\":1209600}";
 
     NSError *responseError = nil;
-    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONData:[jsonResponse dataUsingEncoding:NSUTF8StringEncoding] error:&responseError];
+    MSIDB2CTokenResponse *response = [[MSIDB2CTokenResponse alloc] initWithJSONData:[jsonResponse dataUsingEncoding:NSUTF8StringEncoding] error:&responseError];
 
     XCTAssertNotNil(response);
     XCTAssertNil(responseError);
@@ -481,7 +483,7 @@
 
 - (void)testSchemaComplianceForAccessToken_whenMSSTSResponse_withB2CAccount
 {
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
     MSIDTokenResponse *response = [self b2cTestTokenResponse];
     MSIDConfiguration *configuration = [self b2cTestConfiguration];
 
@@ -501,7 +503,7 @@
         @"target": @"https://iosmsalb2c.onmicrosoft.com/webapitest/user.read",
         @"credential_type": @"AccessToken",
         @"environment": @"login.microsoftonline.com",
-        @"realm": @"iosmsalb2c.onmicrosoft.com",
+        @"realm": @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
         @"expires_on": expiresOn,
         @"cached_at": cachedAt,
         @"client_id": @"0a7f52dd-260e-432f-94de-b47828c3f372",
@@ -520,13 +522,13 @@
     key.realm = credential.realm;
     key.target = credential.target;
 
-    NSString *expectedServiceKey = @"accesstoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com-https://iosmsalb2c.onmicrosoft.com/webapitest/user.read";
+    NSString *expectedServiceKey = @"accesstoken-0a7f52dd-260e-432f-94de-b47828c3f372-ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-https://iosmsalb2c.onmicrosoft.com/webapitest/user.read";
     XCTAssertEqualObjects(key.service, expectedServiceKey);
 
     NSString *expectedAccountKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.microsoftonline.com";
     XCTAssertEqualObjects(key.account, expectedAccountKey);
 
-    NSString *expectedGenericKey = @"accesstoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com";
+    NSString *expectedGenericKey = @"accesstoken-0a7f52dd-260e-432f-94de-b47828c3f372-ba6c0d94-a8da-45b2-83ae-33871f9c2dd8";
     XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
 
     XCTAssertEqualObjects(key.type, @2001);
@@ -534,7 +536,7 @@
 
 - (void)testSchemaComplianceForIDToken_whenMSSTSResponse_withB2CAccount
 {
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
     MSIDTokenResponse *response = [self b2cTestTokenResponse];
     MSIDConfiguration *configuration = [self b2cTestConfiguration];
 
@@ -547,7 +549,7 @@
         @"credential_type": @"IdToken",
         @"environment": @"login.microsoftonline.com",
         @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
-        @"realm": @"iosmsalb2c.onmicrosoft.com",
+        @"realm": @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
         @"client_id": @"0a7f52dd-260e-432f-94de-b47828c3f372"
     };
 
@@ -563,13 +565,13 @@
     key.realm = credential.realm;
     key.target = credential.target;
 
-    NSString *expectedServiceKey = @"idtoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com-";
+    NSString *expectedServiceKey = @"idtoken-0a7f52dd-260e-432f-94de-b47828c3f372-ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-";
     XCTAssertEqualObjects(key.service, expectedServiceKey);
 
     NSString *expectedAccountKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.microsoftonline.com";
     XCTAssertEqualObjects(key.account, expectedAccountKey);
 
-    NSString *expectedGenericKey = @"idtoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com";
+    NSString *expectedGenericKey = @"idtoken-0a7f52dd-260e-432f-94de-b47828c3f372-ba6c0d94-a8da-45b2-83ae-33871f9c2dd8";
     XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
 
     XCTAssertEqualObjects(key.type, @2003);
@@ -577,7 +579,7 @@
 
 - (void)testSchemaComplianceForRefreshToken_whenMSSTSResponse_withB2CAccount
 {
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
     MSIDTokenResponse *response = [self b2cTestTokenResponse];
     MSIDConfiguration *configuration = [self b2cTestConfiguration];
 
@@ -619,7 +621,7 @@
 
 - (void)testSchemaComplianceForAccount_whenMSSTSResponse_withB2CAccount
 {
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
     MSIDTokenResponse *response = [self b2cTestTokenResponse];
     MSIDConfiguration *configuration = [self b2cTestConfiguration];
 
@@ -636,7 +638,7 @@
                                    @"given_name": @"MSAL",
                                    @"environment": @"login.microsoftonline.com",
                                    @"name": @"MSAL SDK Test",
-                                   @"realm": @"iosmsalb2c.onmicrosoft.com",
+                                   @"realm": @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
                                    @"client_info": @"eyJ1aWQiOiJhZDAyMGY4ZS1iMWJhLTQ0YjItYmQ2OS1jMjJiZTg2NzM3ZjUtYjJjXzFfc2lnbmluIiwidXRpZCI6ImJhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOCJ9"
                                    };
 
@@ -651,7 +653,7 @@
 
     key.username = account.username;
 
-    NSString *expectedServiceKey = @"iosmsalb2c.onmicrosoft.com";
+    NSString *expectedServiceKey = @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8";
     XCTAssertEqualObjects(key.service, expectedServiceKey);
 
     NSString *expectedAccountKey = @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.microsoftonline.com";
@@ -670,7 +672,7 @@
     NSString *jsonResponse = @"{\"access_token\":\"<removed_at>\",\"id_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mzg4MDQ4NjAsIm5iZiI6MTUzODgwMTI2MCwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2JhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOC92Mi4wLyIsInN1YiI6ImFkMDIwZjhlLWIxYmEtNDRiMi1iZDY5LWMyMmJlODY3MzdmNSIsImF1ZCI6IjBhN2Y1MmRkLTI2MGUtNDMyZi05NGRlLWI0NzgyOGMzZjM3MiIsImlhdCI6MTUzODgwMTI2MCwiYXV0aF90aW1lIjoxNTM4ODAxMjYwLCJpZHAiOiJsaXZlLmNvbSIsIm5hbWUiOiJNU0FMIFNESyBUZXN0Iiwib2lkIjoiYWQwMjBmOGUtYjFiYS00NGIyLWJkNjktYzIyYmU4NjczN2Y1IiwiZmFtaWx5X25hbWUiOiJTREsgVGVzdCIsImdpdmVuX25hbWUiOiJNU0FMIiwiZW1haWxzIjpbIm1zYWxzZGt0ZXN0QG91dGxvb2suY29tIl0sInRmcCI6IkIyQ18xX1NpZ25pbiIsImF0X2hhc2giOiJRNE8zSERDbGNhTGw3eTB1VS1iSkFnIiwidGlkIjoiYmE2YzBkOTQtYThkYS00NWIyLTgzYWUtMzM4NzFmOWMyZGQ4IiwicHJlZmVycmVkX3VzZXJuYW1lIjoibXNhbHNka3Rlc3RAb3V0bG9vay5jb20ifQ.\",\"token_type\":\"Bearer\",\"not_before\":1538801260,\"expires_in\":3600,\"expires_on\":1538804860,\"resource\":\"14df2240-96cc-4f42-a133-ef0807492869\",\"client_info\":\"eyJ1aWQiOiJhZDAyMGY4ZS1iMWJhLTQ0YjItYmQ2OS1jMjJiZTg2NzM3ZjUtYjJjXzFfc2lnbmluIiwidXRpZCI6ImJhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOCJ9\",\"scope\":\"https://iosmsalb2c.onmicrosoft.com/webapitest/user.read\",\"refresh_token\":\"<removed_rt>\",\"refresh_token_expires_in\":1209600}";
 
     NSError *responseError = nil;
-    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONData:[jsonResponse dataUsingEncoding:NSUTF8StringEncoding] error:&responseError];
+    MSIDB2CTokenResponse *response = [[MSIDB2CTokenResponse alloc] initWithJSONData:[jsonResponse dataUsingEncoding:NSUTF8StringEncoding] error:&responseError];
 
     XCTAssertNotNil(response);
     XCTAssertNil(responseError);
@@ -680,7 +682,7 @@
 
 - (void)testSchemaComplianceForAccessToken_whenMSSTSResponse_withB2CAccountAndTenantId
 {
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
     MSIDTokenResponse *response = [self b2cTestTokenResponseWithTenantId];
     MSIDConfiguration *configuration = [self b2cTestConfiguration];
 
@@ -733,7 +735,7 @@
 
 - (void)testSchemaComplianceForIDToken_whenMSSTSResponse_withB2CAccountAndTenantId
 {
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
     MSIDTokenResponse *response = [self b2cTestTokenResponseWithTenantId];
     MSIDConfiguration *configuration = [self b2cTestConfiguration];
 
@@ -776,7 +778,7 @@
 
 - (void)testSchemaComplianceForRefreshToken_whenMSSTSResponse_withB2CAccountAndTenantId
 {
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
     MSIDTokenResponse *response = [self b2cTestTokenResponseWithTenantId];
     MSIDConfiguration *configuration = [self b2cTestConfiguration];
 
@@ -818,7 +820,7 @@
 
 - (void)testSchemaComplianceForAccount_whenMSSTSResponse_withB2CAccountAndTenantId
 {
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
     MSIDTokenResponse *response = [self b2cTestTokenResponseWithTenantId];
     MSIDConfiguration *configuration = [self b2cTestConfiguration];
 
