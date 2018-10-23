@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDCache <KeyType, ObjectType> : NSObject <NSCopying>
 
+- (instancetype)initWithDictionary:(nullable NSDictionary *)dictionary;
+
 - (nullable ObjectType)objectForKey:(KeyType)key;
 
 - (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
@@ -34,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeObjectForKey:(KeyType)key;
 
 - (void)removeAllObjects;
+
+- (NSDictionary *)toDictionary;
 
 - (NSUInteger)count;
 

@@ -26,6 +26,33 @@
 #import "MSIDCredentialItemSerializer.h"
 #import "MSIDAppMetadataItemSerializer.h"
 
-@interface MSIDJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer>
+@protocol MSIDJsonSerializable;
+
+@protocol MSIDJsonSerializing <NSObject>
+
+// JSON Data.
+- (NSData *)toJsonData:(id<MSIDJsonSerializable>)serializable
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError *__autoreleasing *)error;
+
+- (id<MSIDJsonSerializable>)fromJsonData:(NSData *)data
+                                  ofType:(Class)klass
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError *__autoreleasing *)error;
+
+// JSON String.
+- (NSString *)toJsonString:(id<MSIDJsonSerializable>)serializable
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError *__autoreleasing *)error;
+
+- (id<MSIDJsonSerializable>)fromJsonString:(NSString *)jsonString
+                                    ofType:(Class)klass
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError *__autoreleasing *)error;
+
+@end
+
+// TODO: Remove MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer protocols and use MSIDJsonSerializing instead. Also move out this class from cache folder.
+@interface MSIDJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer, MSIDJsonSerializing>
 
 @end

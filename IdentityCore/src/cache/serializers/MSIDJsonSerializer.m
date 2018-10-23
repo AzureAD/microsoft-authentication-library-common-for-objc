@@ -29,40 +29,75 @@
 
 @implementation MSIDJsonSerializer
 
-- (NSData *)serialize:(NSDictionary *)jsonDictionary
+#pragma mark - MSIDJsonSerializing
+
+- (NSData *)toJsonData:(id<MSIDJsonSerializable>)serializable
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError **)error;
 {
+    __auto_type jsonDictionary = [serializable jsonDictionary];
     if (!jsonDictionary)
     {
         return nil;
     }
     
-    NSError *error;
+    NSError *internalError;
     NSData *data = [NSJSONSerialization dataWithJSONObject:jsonDictionary
                                                    options:0
-                                                     error:&error];
-    if (error)
+                                                     error:&internalError];
+    if (internalError)
     {
-        MSID_LOG_ERROR(nil, @"Failed to serialize token.");
-        MSID_LOG_ERROR_PII(nil, @"Failed to serialize token, error: %@", error);
+        MSID_LOG_ERROR(context, @"Failed to serialize to json data.");
+        MSID_LOG_ERROR_PII(context, @"Failed to serialize to json data, error: %@", internalError);
+        
+        if (error) *error = internalError;
         return nil;
     }
-
+    
     return data;
 }
 
-- (NSDictionary *)deserialize:(NSData *)data
+- (id<MSIDJsonSerializable>)fromJsonData:(NSData *)data
+                                  ofType:(Class)klass
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error
 {
-    NSError *error = nil;
-    NSDictionary *json = [self deserializeJSON:data error:&error];
+    NSParameterAssert([klass conformsToProtocol:@protocol(MSIDJsonSerializable)]);
+    if (![klass conformsToProtocol:@protocol(MSIDJsonSerializable)]) return nil;
     
-    if (error)
+    NSError *internalError;
+    NSDictionary *jsonDictionary = [self deserializeJSON:data error:&internalError];
+    
+    if (internalError)
     {
-        MSID_LOG_ERROR(nil, @"Failed to deserialize json object.");
-        MSID_LOG_ERROR_PII(nil, @"Failed to deserialize json object, error: %@", error);
+        MSID_LOG_ERROR(context, @"Failed to deserialize json object.");
+        MSID_LOG_ERROR_PII(context, @"Failed to deserialize json object, error: %@", internalError);
+        
+        if (error) *error = internalError;
         return nil;
     }
     
-    return json;
+    return [[klass alloc] initWithJSONDictionary:jsonDictionary error:error];
+}
+
+- (NSString *)toJsonString:(id<MSIDJsonSerializable>)serializable
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    NSData *jsonData = [self toJsonData:serializable context:context error:error];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
+- (id<MSIDJsonSerializable>)fromJsonString:(NSString *)jsonString
+                                    ofType:(Class)klass
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
+{
+    NSParameterAssert([klass conformsToProtocol:@protocol(MSIDJsonSerializable)]);
+    if (![klass conformsToProtocol:@protocol(MSIDJsonSerializable)]) return nil;
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    return [self fromJsonData:jsonData ofType:klass context:context error:error];
 }
 
 #pragma mark - Private
@@ -73,7 +108,7 @@
     {
         if (error)
         {
-            NSString *errorDescription = [NSString stringWithFormat:@"Attempt to initialize JSON object (%@) with nil data", NSStringFromClass(self.class)];
+            NSString *errorDescription = [NSString stringWithFormat:@"Attempt to initialize JSON object with nil data in (%@)", NSStringFromClass(self.class)];
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil);
         }
         
@@ -91,16 +126,13 @@
 
 - (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item
 {
-    return [self serialize:item.jsonDictionary];
+    return [self toJsonData:item context:nil error:nil];
 }
 
 - (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data
 {
-    NSDictionary *jsonDictionary = [self deserialize:data];
-
     NSError *error = nil;
-
-    MSIDCredentialCacheItem *item = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDCredentialCacheItem *item = (MSIDCredentialCacheItem *)[self fromJsonData:data ofType:MSIDCredentialCacheItem.class context:nil error:&error];
 
     if (!item)
     {
@@ -115,16 +147,13 @@
 
 - (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item
 {
-    return [self serialize:item.jsonDictionary];
+    return [self toJsonData:item context:nil error:nil];
 }
 
 - (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data
 {
-    NSDictionary *jsonDictionary = [self deserialize:data];
-
     NSError *error = nil;
-
-    MSIDAccountCacheItem *item = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDAccountCacheItem *item = (MSIDAccountCacheItem *)[self fromJsonData:data ofType:MSIDAccountCacheItem.class context:nil error:&error];
 
     if (!item)
     {
@@ -139,16 +168,13 @@
 
 - (NSData *)serializeAppMetadataCacheItem:(MSIDAccountCacheItem *)item
 {
-    return [self serialize:item.jsonDictionary];
+    return [self toJsonData:item context:nil error:nil];
 }
 
 - (MSIDAppMetadataCacheItem *)deserializeAppMetadataCacheItem:(NSData *)data
 {
-    NSDictionary *jsonDictionary = [self deserialize:data];
-    
     NSError *error = nil;
-    
-    MSIDAppMetadataCacheItem *item = [[MSIDAppMetadataCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDAppMetadataCacheItem *item = (MSIDAppMetadataCacheItem *)[self fromJsonData:data ofType:MSIDAppMetadataCacheItem.class context:nil error:&error];
     
     if (!item)
     {
