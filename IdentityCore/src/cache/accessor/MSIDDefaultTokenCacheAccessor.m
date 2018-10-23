@@ -935,9 +935,9 @@
     return result;
 }
 
-- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+- (BOOL)updateAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_APP_METADATA_WRITE
                                                                     context:context];

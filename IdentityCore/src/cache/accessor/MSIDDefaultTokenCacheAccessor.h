@@ -77,7 +77,7 @@
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error;
 
-- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error;
+- (BOOL)updateAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error;
 @end

@@ -471,8 +471,7 @@
 {
     assert(appMetadata);
     
-    MSID_LOG_VERBOSE(context, @"(Default cache) Removing app metadata with clientId %@", appMetadata.clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing app metadata with clientId %@, environment %@", appMetadata.clientId, appMetadata.environment);
+    MSID_LOG_VERBOSE(context, @"(Default cache) Removing app metadata with clientId %@, environment %@", appMetadata.clientId, appMetadata.environment);
     
     MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:appMetadata.clientId
                                                                          environment:appMetadata.environment
