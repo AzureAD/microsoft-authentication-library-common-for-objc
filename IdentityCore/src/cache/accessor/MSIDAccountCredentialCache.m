@@ -465,4 +465,20 @@
     return [_dataSource appMetadataWithKey:key serializer:_serializer context:context error:error];
 }
 
+- (BOOL)removeAppMetadata:(nonnull MSIDAppMetadataCacheItem *)appMetadata
+                  context:(nullable id<MSIDRequestContext>)context
+                    error:(NSError * _Nullable * _Nullable)error
+{
+    assert(appMetadata);
+    
+    MSID_LOG_VERBOSE(context, @"(Default cache) Removing app metadata with clientId %@", appMetadata.clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Removing app metadata with clientId %@, environment %@", appMetadata.clientId, appMetadata.environment);
+    
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:appMetadata.clientId
+                                                                         environment:appMetadata.environment
+                                                                            familyId:appMetadata.familyId
+                                                                         generalType:MSIDAppMetadataType];
+    
+    return [_dataSource removeItemsWithKey:key context:context error:error];
+}
 @end

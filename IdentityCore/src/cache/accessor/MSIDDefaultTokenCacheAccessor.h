@@ -68,4 +68,16 @@
                                                         context:(id<MSIDRequestContext>)context
                                                           error:(NSError **)error;
 
+- (BOOL)saveAppMetadataWithConfiguration:(MSIDConfiguration *)configuration
+                                response:(MSIDTokenResponse *)response
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error;
+
+- (BOOL)removeAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error;
+
+- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error;
 @end

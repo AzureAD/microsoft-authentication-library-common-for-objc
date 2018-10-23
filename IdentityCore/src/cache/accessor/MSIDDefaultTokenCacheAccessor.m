@@ -890,11 +890,11 @@
                                    error:(NSError **)error
 {
     MSIDAppMetadataCacheItem *metadata = [_factory appMetadataFromResponse:response configuration:configuration];
-    metadata.environment = [[configuration.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
-    
     if (metadata)
     {
-        MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_APP_METADATA_WRITE context:context];
+        metadata.environment = [[configuration.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
+        MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_APP_METADATA_WRITE
+                                                                        context:context];
         
         BOOL result = [_accountCredentialCache saveAppMetadata:metadata context:context error:error];
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
@@ -902,7 +902,7 @@
         return result;
     }
    
-    return YES;
+    return NO;
 }
 
 - (MSIDAppMetadataCacheItem *)getAppAppMetadataForConfiguration:(MSIDConfiguration *)configuration
@@ -916,6 +916,34 @@
                                                                                  generalType:MSIDAppMetadataType];
     
     return [_accountCredentialCache getAppMetadata:metadataKey context:context error:error];
+}
+
+- (BOOL)removeAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error
+{
+    if (!appMetadata)
+    {
+        [self fillInternalErrorWithMessage:@"App metadata not provided, cannot remove" context:context error:error];
+        return NO;
+    }
+    
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_APP_METADATA_DELETE
+                                                                    context:context];
+    BOOL result = [_accountCredentialCache removeAppMetadata:appMetadata context:context error:error];
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+    return result;
+}
+
+- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
+{
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_APP_METADATA_WRITE
+                                                                    context:context];
+    BOOL result = [_accountCredentialCache saveAppMetadata:appMetadata context:context error:error];
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+    return result;
 }
 
 @end
