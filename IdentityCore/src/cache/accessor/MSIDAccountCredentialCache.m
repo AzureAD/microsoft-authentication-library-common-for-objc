@@ -467,7 +467,10 @@
         return [_dataSource appMetadataWithKey:query serializer:_serializer context:context error:error];
     }
     
-    MSIDAppMetadataCacheItem *appMetadata = [_dataSource appMetadataWithKey:query serializer:_serializer context:context error:error];
+    MSIDAppMetadataCacheItem *appMetadata = [_dataSource appMetadataWithKey:query
+                                                                 serializer:_serializer
+                                                                    context:context
+                                                                      error:error];
     
     if (appMetadata && [appMetadata matchesWithClientId:query.clientId
                                             environment:query.environment
