@@ -33,6 +33,7 @@
 #import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDAppMetaDataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
+#import "MSIDAppMetadataCacheQuery.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -453,16 +454,29 @@
                                   error:error];
 }
 
-- (nullable MSIDAppMetadataCacheItem *)getAppMetadata:(nonnull MSIDAppMetadataCacheKey *)key
-                                              context:(nullable id<MSIDRequestContext>)context
-                                                error:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDAppMetadataCacheItem *)getAppMetadataWithQuery:(nonnull MSIDAppMetadataCacheQuery *)query
+                                                       context:(nullable id<MSIDRequestContext>)context
+                                                         error:(NSError * _Nullable * _Nullable)error
 {
-    assert(key);
+    assert(query);
     
-    MSID_LOG_VERBOSE(context, @"(Default cache) Get app metadata for key %@", key.logDescription);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get app metadata for key %@", key.piiLogDescription);
+    MSID_LOG_VERBOSE(context, @"(Default cache) Get app metadata for query %@", query.logDescription);
     
-    return [_dataSource appMetadataWithKey:key serializer:_serializer context:context error:error];
+    if (query.exactMatch)
+    {
+        return [_dataSource appMetadataWithKey:query serializer:_serializer context:context error:error];
+    }
+    
+    MSIDAppMetadataCacheItem *appMetadata = [_dataSource appMetadataWithKey:query serializer:_serializer context:context error:error];
+    
+    if (appMetadata && [appMetadata matchesWithClientId:query.clientId
+                                            environment:query.environment
+                                     environmentAliases:query.environmentAliases])
+    {
+        return appMetadata;
+    }
+    
+    return nil;
 }
 
 - (BOOL)removeAppMetadata:(nonnull MSIDAppMetadataCacheItem *)appMetadata

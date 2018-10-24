@@ -35,7 +35,7 @@
 #import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDAppMetadataCacheItem.h"
-#import "MSIDAppMetadataCacheKey.h"
+#import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
 
 @interface MSIDAccountCredentialsCacheTests : XCTestCase
@@ -2072,9 +2072,10 @@
     
     NSError *error = nil;
     
-    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:@"client" environment:@"login.microsoftonline.com" familyId:nil generalType:MSIDAppMetadataType];
-    
-    MSIDAppMetadataCacheItem *item = [self.cache getAppMetadata:key context:nil error:&error];
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.clientId = @"client";
+    cacheQuery.environment = @"login.microsoftonline.com";
+    MSIDAppMetadataCacheItem *item = [self.cache getAppMetadataWithQuery:cacheQuery context:nil error:&error];
     XCTAssertNotNil(item);
     XCTAssertNotNil(item.familyId);
     XCTAssertNil(error);
@@ -2082,7 +2083,7 @@
     MSIDAppMetadataCacheItem *itemWithoutFamilyId = [self createAppMetadataCacheItem:nil];
     [self saveAppMetadata:itemWithoutFamilyId];
     
-    item = [self.cache getAppMetadata:key context:nil error:&error];
+    item = [self.cache getAppMetadataWithQuery:cacheQuery context:nil error:&error];
     XCTAssertNotNil(item);
     XCTAssertNil(item.familyId);
     XCTAssertNil(error);

@@ -42,7 +42,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAppMetadataCacheItem.h"
-#import "MSIDAppMetadataCacheKey.h"
+#import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
@@ -909,13 +909,11 @@
                                                         context:(id<MSIDRequestContext>)context
                                                           error:(NSError *__autoreleasing *)error
 {
-    NSString *environment = [[configuration.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
-    MSIDAppMetadataCacheKey *metadataKey = [[MSIDAppMetadataCacheKey alloc] initWithClientId:configuration.clientId
-                                                                                 environment:environment
-                                                                                    familyId:nil
-                                                                                 generalType:MSIDAppMetadataType];
-    
-    return [_accountCredentialCache getAppMetadata:metadataKey context:context error:error];
+    MSIDAppMetadataCacheQuery *metadataQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    metadataQuery.clientId = configuration.clientId;
+    metadataQuery.generalType = MSIDAppMetadataType;
+    metadataQuery.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
+    return [_accountCredentialCache getAppMetadataWithQuery:metadataQuery context:context error:error];
 }
 
 - (BOOL)removeAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
