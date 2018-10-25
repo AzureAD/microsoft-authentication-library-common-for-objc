@@ -1685,7 +1685,7 @@
 
 #pragma mark - removeCredential
 
-- (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveRefreshToken_shouldRemoveRefreshTokenAndIDTokens
+- (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveRefreshToken_shouldRemoveRefreshTokenOnly
 {
     [self saveItem:[self createTestIDTokenCacheItem]];
     [self saveItem:[self createTestRefreshTokenCacheItem]];
@@ -1699,7 +1699,7 @@
     NSArray *allCredentials = [self.cache getAllItemsWithContext:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allCredentials);
-    XCTAssertTrue([allCredentials count] == 1);
+    XCTAssertTrue([allCredentials count] == 2);
     XCTAssertTrue([allCredentials containsObject:[self createTestAccessTokenCacheItem]]);
 }
 
