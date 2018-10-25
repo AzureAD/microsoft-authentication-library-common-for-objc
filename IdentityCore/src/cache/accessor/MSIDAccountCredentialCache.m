@@ -318,6 +318,7 @@
                                                                                             clientId:credential.clientId
                                                                                       credentialType:credential.credentialType];
 
+    key.familyId = credential.familyId;
     key.realm = credential.realm;
     key.target = credential.target;
 
@@ -326,14 +327,6 @@
     if (result && credential.credentialType == MSIDRefreshTokenType)
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
-
-        MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-        query.homeAccountId = credential.homeAccountId;
-        query.environment = credential.environment;
-        query.clientId = credential.clientId;
-        query.credentialType = MSIDIDTokenType;
-
-        return [self removeCredetialsWithQuery:query context:context error:error];
     }
 
     return result;
