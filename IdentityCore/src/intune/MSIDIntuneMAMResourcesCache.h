@@ -43,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
                              error:(NSError *__autoreleasing *)error;
 
+- (NSDictionary *)resourcesJsonDictionary:(NSError *__autoreleasing *)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

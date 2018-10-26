@@ -27,6 +27,7 @@
 #import "MSIDAppMetadataItemSerializer.h"
 
 @protocol MSIDJsonSerializable;
+@protocol MSIDRequestContext;
 
 @protocol MSIDJsonSerializing <NSObject>
 

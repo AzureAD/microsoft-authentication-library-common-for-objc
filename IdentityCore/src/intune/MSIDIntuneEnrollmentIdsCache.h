@@ -48,8 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
  Tries to find an enrollmentID for a homeAccountId first,
  then checks userId, then returns any enrollmentID available.
  */
-- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
-                                    userId:(NSString *)userId
+- (NSString *)enrollmentIdForHomeAccountId:(nullable NSString *)homeAccountId
+                                    userId:(nullable NSString *)userId
                                      error:(NSError *__autoreleasing *)error;
 
 /*!
@@ -59,6 +59,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary
                                  error:(NSError *__autoreleasing *)error;
+
+- (NSDictionary *)enrollmentIdsJsonDictionary:(NSError *__autoreleasing *)error;
 
 @end
 

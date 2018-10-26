@@ -175,6 +175,14 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     [self.dataSource setJsonDictionary:jsonDictionary forKey:MSID_INTUNE_ENROLLMENT_ID];
 }
 
+- (NSDictionary *)enrollmentIdsJsonDictionary:(NSError **)error
+{
+    __auto_type jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID];
+    if (![self isValid:jsonDictionary error:error]) return nil;
+    
+    return jsonDictionary;
+}
+
 #pragma mark - Private
 
 - (BOOL)isValid:(NSDictionary *)json error:(NSError **)error
