@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,18 +17,49 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import "MSIDAADOauth2Factory.h"
+#import "MSIDB2CIdTokenClaims.h"
+#import "MSIDHelpers.h"
 
-@interface MSIDAADV2Oauth2Factory : MSIDAADOauth2Factory
+@implementation MSIDB2CIdTokenClaims
 
-- (MSIDAuthority *)authorityFromURL:(NSURL *)url
-                      tokenResponse:(MSIDTokenResponse *)response
-                              error:(NSError **)error;
+MSID_JSON_ACCESSOR(@"tfp", tfp)
+
+- (void)initDerivedProperties
+{
+    [super initDerivedProperties];
+
+    // Set userId
+    NSString *userId = self.preferredUsername;
+
+    if ([NSString msidIsStringNilOrBlank:userId])
+    {
+        userId = self.subject;
+        _userIdDisplayable = NO;
+    }
+    else
+    {
+        _userIdDisplayable = YES;
+    }
+
+    _userId = [MSIDHelpers normalizeUserId:userId];
+}
+
+- (NSString *)alternativeAccountId
+{
+    return nil;
+}
+
+- (NSString *)realm
+{
+    return self.tenantId;
+}
 
 @end

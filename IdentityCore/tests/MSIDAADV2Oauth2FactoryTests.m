@@ -50,11 +50,11 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 
-@interface MSIDAADV2Oauth2StartegyTests : XCTestCase
+@interface MSIDAADV2Oauth2FactoryTests : XCTestCase
 
 @end
 
-@implementation MSIDAADV2Oauth2StartegyTests
+@implementation MSIDAADV2Oauth2FactoryTests
 
 #pragma mark - Token response
 
