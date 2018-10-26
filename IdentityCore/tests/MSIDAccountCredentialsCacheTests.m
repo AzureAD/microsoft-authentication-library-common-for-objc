@@ -92,7 +92,7 @@
     XCTAssertTrue(query.exactMatch);
 
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 0);
@@ -122,7 +122,7 @@
 
     XCTAssertTrue(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -142,7 +142,7 @@
     XCTAssertTrue(query.exactMatch);
 
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 0);
 }
@@ -167,7 +167,7 @@
 
     XCTAssertTrue(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -187,7 +187,7 @@
     XCTAssertTrue(query.exactMatch);
 
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 0);
 }
@@ -214,7 +214,7 @@
 
     XCTAssertTrue(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -238,7 +238,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -262,7 +262,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -286,7 +286,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -310,7 +310,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -334,7 +334,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -358,7 +358,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -382,7 +382,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -406,7 +406,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -430,112 +430,11 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
     XCTAssertEqualObjects(results[0], idToken);
-}
-
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andAccessTokenQuery_matchByLegacyUserId_shouldNotReturnItems
-{
-    MSIDCredentialCacheItem *accessToken = [self createTestAccessTokenCacheItem];
-    [self saveItem:accessToken];
-
-    // Now query
-    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.credentialType = MSIDAccessTokenType;
-
-    XCTAssertFalse(query.exactMatch);
-    NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:@"user@upn.com" context:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(results);
-    XCTAssertEqual([results count], 0);
-}
-
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andRefreshTokenQuery_matchByLegacyUserId_shouldNotReturnItems
-{
-    MSIDCredentialCacheItem *refreshToken = [self createTestRefreshTokenCacheItem];
-    [self saveItem:refreshToken];
-
-    // Now query
-    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.credentialType = MSIDRefreshTokenType;
-
-    XCTAssertFalse(query.exactMatch);
-    NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:@"user@upn.com" context:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(results);
-    XCTAssertEqual([results count], 0);
-}
-
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andIDTokenQuery_matchByLegacyUserId_shouldReturnItems
-{
-    MSIDCredentialCacheItem *idToken = [self createTestIDTokenCacheItem];
-    [self saveItem:idToken];
-
-    MSIDCredentialCacheItem *idToken2 = [self createTestIDTokenCacheItemWithUPN:@"user2@upn.com"];
-    idToken2.clientId = @"client2";
-    [self saveItem:idToken2];
-
-    // Now query
-    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.credentialType = MSIDIDTokenType;
-
-    XCTAssertFalse(query.exactMatch);
-    NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:@"user@upn.com" context:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(results);
-    XCTAssertEqual([results count], 1);
-    XCTAssertEqualObjects(results[0], idToken);
-}
-
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andIDTokenQuery_matchByLegacyUserIdAndEnvironment_shouldReturnItems
-{
-    MSIDCredentialCacheItem *idToken = [self createTestIDTokenCacheItem];
-    [self saveItem:idToken];
-
-    MSIDCredentialCacheItem *idToken2 = [self createTestIDTokenCacheItemWithUPN:@"user@upn.com"];
-    idToken2.environment = @"login.windows.net";
-    [self saveItem:idToken2];
-
-    // Now query
-    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.credentialType = MSIDIDTokenType;
-    query.environment = @"login.microsoftonline.com";
-
-    XCTAssertFalse(query.exactMatch);
-    NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:@"user@upn.com" context:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(results);
-    XCTAssertEqual([results count], 1);
-    XCTAssertEqualObjects(results[0], idToken);
-}
-
-- (void)testGetCredentialsWithQuery_whenNotExactMatch_andIDTokenQuery_matchByLegacyUserIdAndEnvironment_shouldNotReturnItems
-{
-    MSIDCredentialCacheItem *idToken = [self createTestIDTokenCacheItem];
-    [self saveItem:idToken];
-
-    MSIDCredentialCacheItem *idToken2 = [self createTestIDTokenCacheItemWithUPN:@"user@upn.com"];
-    idToken2.environment = @"login.windows.net";
-    [self saveItem:idToken2];
-
-    // Now query
-    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.credentialType = MSIDIDTokenType;
-    query.environment = @"login.windows.us";
-
-    XCTAssertFalse(query.exactMatch);
-    NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:@"user@upn.com" context:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(results);
-    XCTAssertEqual([results count], 0);
 }
 
 - (void)testGetCredentialsWithQuery_whenNotExactMatch_andAccessTokenQuery_matchByRealm_shouldReturnItems
@@ -555,7 +454,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -574,7 +473,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 0);
@@ -597,7 +496,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -616,7 +515,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 0);
@@ -638,7 +537,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -657,7 +556,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 0);
@@ -680,7 +579,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -704,7 +603,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -728,7 +627,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -752,7 +651,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -771,7 +670,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 0);
@@ -789,7 +688,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 0);
@@ -811,7 +710,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -835,7 +734,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -860,7 +759,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
@@ -887,7 +786,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -913,7 +812,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -940,7 +839,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -968,7 +867,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -994,7 +893,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -1021,7 +920,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -1049,7 +948,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -1076,7 +975,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -1101,7 +1000,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -1129,7 +1028,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -1155,7 +1054,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -1182,7 +1081,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);
@@ -1210,7 +1109,7 @@
 
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
-    NSArray *results = [self.cache getCredentialsWithQuery:query legacyUserId:nil context:nil error:&error];
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 2);

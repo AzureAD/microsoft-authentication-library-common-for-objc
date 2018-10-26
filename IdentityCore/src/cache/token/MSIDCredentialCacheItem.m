@@ -248,29 +248,6 @@
     return [self matchByEnvironment:environment environmentAliases:environmentAliases];
 }
 
-- (BOOL)matchesWithLegacyUserId:(nullable NSString *)legacyUserId
-                    environment:(nullable NSString *)environment
-             environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
-{
-    if (legacyUserId)
-    {
-        if (!self.secret
-            || self.credentialType != MSIDIDTokenType)
-        {
-            return NO;
-        }
-
-        MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:self.secret error:nil];
-
-        if (![idTokenClaims matchesLegacyUserId:legacyUserId])
-        {
-            return NO;
-        }
-    }
-
-    return [self matchByEnvironment:environment environmentAliases:environmentAliases];
-}
-
 - (BOOL)matchByEnvironment:(nullable NSString *)environment
         environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
