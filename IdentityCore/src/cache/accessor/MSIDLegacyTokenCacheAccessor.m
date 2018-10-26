@@ -181,11 +181,11 @@
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get refresh token with authority %@, clientId %@, familyID %@", configuration.authority, configuration.clientId, familyId);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Get refresh token with authority %@, clientId %@, familyID %@, account %@", configuration.authority, configuration.clientId, familyId, account.homeAccountId);
 
-    MSIDRefreshToken *refreshToken = [self getRefreshTokenForAccountImpl:account
-                                                                familyId:familyId
-                                                           configuration:configuration
-                                                                 context:context
-                                                                   error:error];
+    MSIDRefreshToken *refreshToken = [self getLegacyRefreshTokenForAccountImpl:account
+                                                                      familyId:familyId
+                                                                 configuration:configuration
+                                                                       context:context
+                                                                         error:error];
 
     if (!refreshToken)
     {
@@ -290,11 +290,11 @@
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@", configuration.clientId, familyId, configuration.authority);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@, legacy user ID %@, home account ID %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.legacyAccountId, accountIdentifier.homeAccountId);
 
-    MSIDLegacyRefreshToken *refreshToken = [self getRefreshTokenForAccountImpl:accountIdentifier
-                                                                      familyId:familyId
-                                                                 configuration:configuration
-                                                                       context:context
-                                                                         error:error];
+    MSIDLegacyRefreshToken *refreshToken = [self getLegacyRefreshTokenForAccountImpl:accountIdentifier
+                                                                            familyId:familyId
+                                                                       configuration:configuration
+                                                                             context:context
+                                                                               error:error];
 
     if (refreshToken)
     {
@@ -490,11 +490,11 @@
 
 #pragma mark - Internal
 
-- (MSIDLegacyRefreshToken *)getRefreshTokenForAccountImpl:(MSIDAccountIdentifier *)account
-                                                 familyId:(NSString *)familyId
-                                            configuration:(MSIDConfiguration *)configuration
-                                                  context:(id<MSIDRequestContext>)context
-                                                    error:(NSError **)error
+- (MSIDLegacyRefreshToken *)getLegacyRefreshTokenForAccountImpl:(MSIDAccountIdentifier *)account
+                                                       familyId:(NSString *)familyId
+                                                  configuration:(MSIDConfiguration *)configuration
+                                                        context:(id<MSIDRequestContext>)context
+                                                          error:(NSError **)error
 {
     
     
