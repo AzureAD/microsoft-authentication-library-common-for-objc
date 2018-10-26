@@ -21,19 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
-extern NSString * _Nonnull const MSID_VERSION_KEY;
-extern NSString * _Nonnull const MSID_CPU_KEY;//E.g. ARM64
-extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
-extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
-extern NSString * _Nonnull const MSID_APP_NAME_KEY;
-extern NSString * _Nonnull const MSID_APP_VER_KEY;
+#import <Foundation/Foundation.h>
 
-extern NSString * _Nonnull const MSIDTrustedAuthority;
-extern NSString * _Nonnull const MSIDTrustedAuthorityUS;
-extern NSString * _Nonnull const MSIDTrustedAuthorityChina;
-extern NSString * _Nonnull const MSIDTrustedAuthorityChina2;
-extern NSString * _Nonnull const MSIDTrustedAuthorityGermany;
-extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
-extern NSString * _Nonnull const MSIDTrustedAuthorityUSGovernment;
-extern NSString * _Nonnull const MSIDTrustedAuthorityCloudGovApi;
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDClientCapabilitiesUtil : NSObject
+
+/*
+ Takes a list of capabilities and returns the JSON claims.
+ The result JSON is not URL encoded and caller needs to encode it if necessary
+ */
++ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities;
+
+/*
+ Takes a list of capabilities and returns the JSON claims, combining them with any claims passed by developer.
+ The result JSON is not URL encoded and caller needs to encode it if necessary
+ */
+
++ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
+                                  developerClaims:(NSDictionary *)developerClaims;
+
+@end
+
+NS_ASSUME_NONNULL_END
