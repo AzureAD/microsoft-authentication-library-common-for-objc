@@ -1,38 +1,64 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-//  MSIDIntuneEnrollmentIdsCache.h
-//  IdentityCore
+// This code is licensed under the MIT License.
 //
-//  Created by Sergey Demchenko on 10/24/18.
-//  Copyright © 2018 Microsoft. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDIntuneCacheDataSource.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDIntuneEnrollmentIdsCache : NSObject <MSIDJsonSerializable>
+@interface MSIDIntuneEnrollmentIdsCache : NSObject
 
 @property (class, strong) MSIDIntuneEnrollmentIdsCache *sharedCache;
 
-- (NSString *)enrollmentIdForUserId:(NSString *)userId;
+- (instancetype)initWithDataSource:(id<MSIDIntuneCacheDataSource>)dataSource;
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
+
+- (NSString *)enrollmentIdForUserId:(NSString *)userId
+                              error:(NSError *__autoreleasing *)error;
 
 - (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId
-                                 tenantId:(NSString *)tenantId;
+                                 tenantId:(NSString *)tenantId
+                                    error:(NSError *__autoreleasing *)error;
 
-- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId;
+- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+                                     error:(NSError *__autoreleasing *)error;
 
 /*!
  Tries to find an enrollmentID for a homeAccountId first,
  then checks userId, then returns any enrollmentID available.
  */
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
-                                    userId:(NSString *)userId;
+                                    userId:(NSString *)userId
+                                     error:(NSError *__autoreleasing *)error;
 
 /*!
  Returns the first available enrollmentID if one is available.
  */
-- (NSString *)enrollmentIdIfAvailable;
+- (NSString *)enrollmentIdIfAvailable:(NSError *__autoreleasing *)error;
+
+- (void)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary
+                                 error:(NSError *__autoreleasing *)error;
 
 @end
 

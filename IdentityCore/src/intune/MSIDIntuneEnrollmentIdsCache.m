@@ -1,13 +1,28 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-//  MSIDIntuneEnrollmentIdsCache.m
-//  IdentityCore
+// This code is licensed under the MIT License.
 //
-//  Created by Sergey Demchenko on 10/24/18.
-//  Copyright © 2018 Microsoft. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "MSIDIntuneEnrollmentIdsCache.h"
-#import "MSIDCache.h"
+#import "MSIDIntuneInMemmoryCacheDataSource.h"
 
 NSString *const MSID_INTUNE_ENROLLMENT_ID_ARRAY = @"enrollment_ids";
 NSString *const MSID_INTUNE_USER_ID = @"user_id";
@@ -16,22 +31,26 @@ NSString *const MSID_INTUNE_TID = @"tid";
 NSString *const MSID_INTUNE_OID = @"oid";
 NSString *const MSID_INTUNE_HOME_ACCOUNT_ID = @"home_account_id";
 
+#define MSID_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
+#define MSID_INTUNE_ENROLLMENT_ID_VERSION @"1"
+#define MSID_INTUNE_ENROLLMENT_ID_KEY (MSID_INTUNE_ENROLLMENT_ID MSID_INTUNE_ENROLLMENT_ID_VERSION)
+
 static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 @interface MSIDIntuneEnrollmentIdsCache()
 
-@property (nonatomic) MSIDCache *cache;
+@property (nonatomic) id<MSIDIntuneCacheDataSource> dataSource;
 
 @end
 
 @implementation MSIDIntuneEnrollmentIdsCache
 
-- (instancetype)init
+- (instancetype)initWithDataSource:(id<MSIDIntuneCacheDataSource>)dataSource
 {
     self = [super init];
     if (self)
     {
-        _cache = [MSIDCache new];
+        _dataSource = dataSource;
     }
     return self;
 }
@@ -52,7 +71,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     {
         if (!s_sharedCache)
         {
-            s_sharedCache = [MSIDIntuneEnrollmentIdsCache new];
+            s_sharedCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:[MSIDIntuneInMemmoryCacheDataSource new]];
         }
         
         return s_sharedCache;
@@ -60,9 +79,12 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (NSString *)enrollmentIdForUserId:(NSString *)userId
+                              error:(NSError **)error
 {
-    NSArray *enrollIds = [self.cache objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
-
+    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID];
+    if (![self isValid:jsonDictionary error:error]) return nil;
+    
+    NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
     for (NSDictionary *enrollIdDic in enrollIds)
     {
         if ([enrollIdDic[MSID_INTUNE_USER_ID] isEqualToString:userId])
@@ -74,10 +96,14 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     return nil;
 }
 
-- (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId
+- (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId
+                                 tenantId:(NSString *)tenantId
+                                    error:(NSError **)error
 {
-    NSArray *enrollIds = [self.cache objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
+    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID];
+    if (![self isValid:jsonDictionary error:error]) return nil;
     
+    NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
     for (NSDictionary *enrollIdDic in enrollIds)
     {
         if ([enrollIdDic[MSID_INTUNE_OID] isEqualToString:userObjectId] &&
@@ -91,9 +117,12 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+                                     error:(NSError **)error
 {
-    NSArray *enrollIds = [self.cache objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
+    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID];
+    if (![self isValid:jsonDictionary error:error]) return nil;
     
+    NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
     for (NSDictionary *enrollIdDic in enrollIds)
     {
         if ([enrollIdDic[MSID_INTUNE_HOME_ACCOUNT_ID] isEqualToString:homeAccountId])
@@ -107,66 +136,50 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                                     userId:(NSString *)userId
+                                     error:(NSError **)error
 {
     if (homeAccountId)
     {
         // If homeAccountID is provided, always require an exact match
-        return [self enrollmentIdForUserId:homeAccountId];
+        return [self enrollmentIdForUserId:homeAccountId error:error];
     }
     else
     {
         // If legacy userID is provided and we didn't find an exact match, do a fallback to any enrollment ID to support no userID or single userID scenarios
-        NSString *enrollmentID = userId ? [self enrollmentIdForUserId:userId] : nil;
+        NSString *enrollmentID = userId ? [self enrollmentIdForUserId:userId error:error] : nil;
         if (enrollmentID)
         {
             return enrollmentID;
         }
         
-        enrollmentID = [self enrollmentIdIfAvailable];
+        enrollmentID = [self enrollmentIdIfAvailable:error];
         return enrollmentID;
     }
 }
 
-- (NSString *)enrollmentIdIfAvailable
+- (NSString *)enrollmentIdIfAvailable:(NSError **)error
 {
-    NSArray *enrollIds = [self.cache objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
+    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID];
+    if (![self isValid:jsonDictionary error:error]) return nil;
+    
+    NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
     
     return enrollIds.firstObject;
 }
 
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (void)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary
+                                 error:(NSError **)error
 {
-    self = [super init];
-    if (self)
-    {
-        NSError *validationError;
-        if (![self isValid:json error:&validationError])
-        {
-            MSID_LOG_ERROR(nil, @"%@", validationError);
-            // TODO: should we log json object?
-            // MSID_LOG_ERROR_PII(nil, @"%@ - JSON: %@", validationError, json);
-            
-            if (error) *error = validationError;
-            return nil;
-        }
-        
-        _cache = [[MSIDCache alloc] initWithDictionary:json];
-    }
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    return [self.cache toDictionary];
+    if (![self isValid:jsonDictionary error:error]) return;
+    
+    [self.dataSource setJsonDictionary:jsonDictionary forKey:MSID_INTUNE_ENROLLMENT_ID];
 }
 
 #pragma mark - Private
 
 - (BOOL)isValid:(NSDictionary *)json error:(NSError **)error
 {
-    NSString *errorDescription = @"Intune Resource JSON structure is incorrect.";
+    NSString *errorDescription = @"Intune Enrollment ID JSON structure is incorrect.";
     __auto_type validationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil);
     
     if (!json) return YES;
@@ -185,7 +198,6 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
         return NO;
     }
     
-    // TODO: Should we check only for specific keys and ignore keys that we don't use?
     for (NSDictionary *enrollIdDic in enrollIds)
     {
         if (![enrollIdDic isKindOfClass:NSDictionary.class])
@@ -194,18 +206,10 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
             return NO;
         }
         
-        for (id key in [enrollIdDic allKeys])
+        NSString *enrollId = enrollIdDic[MSID_INTUNE_ENROLL_ID];
+        if (enrollId)
         {
-            if (![key isKindOfClass:NSString.class])
-            {
-                if (error) *error = validationError;
-                return NO;
-            }
-        }
-        
-        for (id value in [enrollIdDic allValues])
-        {
-            if (![value isKindOfClass:NSString.class])
+            if (![enrollId isKindOfClass:NSString.class])
             {
                 if (error) *error = validationError;
                 return NO;

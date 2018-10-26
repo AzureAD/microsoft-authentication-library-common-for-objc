@@ -21,28 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonSerializable.h"
-#import "MSIDIntuneCacheDataSource.h"
+#import "NSDictionary+MSIDJsonSerializable.h"
 
-@class MSIDAuthority;
+@implementation NSDictionary (MSIDJsonSerializable)
 
-NS_ASSUME_NONNULL_BEGIN
+#pragma mark - MSIDJsonSerializable
 
-@interface MSIDIntuneMAMResourcesCache : NSObject
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                                 error:(NSError **)error
+{
+    return [self initWithDictionary:json];
+}
 
-@property (class, strong) MSIDIntuneMAMResourcesCache *sharedCache;
-
-- (instancetype)initWithDataSource:(id<MSIDIntuneCacheDataSource>)dataSource;
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
-
-/*! Returns the Intune MAM resource for the associated authority*/
-- (NSString *)resourceForAuthority:(MSIDAuthority *)authority
-                             error:(NSError *__autoreleasing *)error;
-
-- (void)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
-                             error:(NSError *__autoreleasing *)error;
+- (NSDictionary *)jsonDictionary
+{
+    return self;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

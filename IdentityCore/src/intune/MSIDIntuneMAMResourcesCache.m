@@ -1,30 +1,50 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-//  MSIDIntuenEnrollmentCache.m
-//  IdentityCore iOS
+// This code is licensed under the MIT License.
 //
-//  Created by Sergey Demchenko on 10/23/18.
-//  Copyright © 2018 Microsoft. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDAuthority.h"
+#import "MSIDIntuneInMemmoryCacheDataSource.h"
+
+#define MSID_INTUNE_RESOURCE_ID @"intune_mam_resource_V"
+#define MSID_INTUNE_RESOURCE_ID_VERSION @"1"
+#define MSID_INTUNE_RESOURCE_ID_KEY (MSID_INTUNE_RESOURCE_ID MSID_INTUNE_RESOURCE_ID_VERSION)
 
 static MSIDIntuneMAMResourcesCache *s_sharedCache;
 
 @interface MSIDIntuneMAMResourcesCache()
 
-@property (nonatomic) MSIDCache *cache;
+@property (nonatomic) id<MSIDIntuneCacheDataSource> dataSource;
 
 @end
 
 @implementation MSIDIntuneMAMResourcesCache
 
-- (instancetype)init
+- (instancetype)initWithDataSource:(id<MSIDIntuneCacheDataSource>)dataSource
 {
     self = [super init];
     if (self)
     {
-        _cache = [MSIDCache new];
+        _dataSource = dataSource;
     }
     return self;
 }
@@ -45,7 +65,7 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
     {
         if (!s_sharedCache)
         {
-            s_sharedCache = [MSIDIntuneMAMResourcesCache new];
+            s_sharedCache = [[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:[MSIDIntuneInMemmoryCacheDataSource new]];
         }
         
         return s_sharedCache;
@@ -53,12 +73,15 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
 }
 
 - (NSString *)resourceForAuthority:(MSIDAuthority *)authority
+                             error:(NSError **)error
 {
-    __auto_type aliases = [authority defaultCacheEnvironmentAliases];
+    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_RESOURCE_ID_KEY];
+    if (![self isValid:jsonDictionary error:error]) return nil;
     
+    __auto_type aliases = [authority defaultCacheEnvironmentAliases];
     for (NSString *environment in aliases)
     {
-         NSString *resource = [self.cache objectForKey:environment];
+         NSString *resource = [jsonDictionary objectForKey:environment];
         
         if (resource) return resource;
     }
@@ -66,32 +89,12 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
     return nil;
 }
 
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (void)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
+                             error:(NSError **)error
 {
-    self = [super init];
-    if (self)
-    {
-        NSError *validationError;
-        if (![self isValid:json error:&validationError])
-        {
-            MSID_LOG_ERROR(nil, @"%@", validationError);
-            // TODO: should we log json object?
-            // MSID_LOG_ERROR_PII(nil, @"%@ - JSON: %@", validationError, json);
-            
-            if (error) *error = validationError;
-            return nil;
-        }
-        
-        _cache = [[MSIDCache alloc] initWithDictionary:json];
-    }
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    return [self.cache toDictionary];
+    if (![self isValid:jsonDictionary error:error]) return;
+    
+    [self.dataSource setJsonDictionary:jsonDictionary forKey:MSID_INTUNE_RESOURCE_ID_KEY];
 }
 
 #pragma mark - Private

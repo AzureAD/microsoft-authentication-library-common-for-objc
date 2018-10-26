@@ -21,28 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonSerializable.h"
-#import "MSIDIntuneCacheDataSource.h"
+#import "MSIDIntuneInMemmoryCacheDataSource.h"
+#import "MSIDCache.h"
 
-@class MSIDAuthority;
+@interface MSIDIntuneInMemmoryCacheDataSource ()
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDIntuneMAMResourcesCache : NSObject
-
-@property (class, strong) MSIDIntuneMAMResourcesCache *sharedCache;
-
-- (instancetype)initWithDataSource:(id<MSIDIntuneCacheDataSource>)dataSource;
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
-
-/*! Returns the Intune MAM resource for the associated authority*/
-- (NSString *)resourceForAuthority:(MSIDAuthority *)authority
-                             error:(NSError *__autoreleasing *)error;
-
-- (void)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
-                             error:(NSError *__autoreleasing *)error;
+@property (nonatomic, readonly) MSIDCache *cache;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDIntuneInMemmoryCacheDataSource
+
+- (instancetype)initWithCache:(MSIDCache *)cache
+{
+    self = [super init];
+    if (self)
+    {
+        _cache = cache ? cache : [MSIDCache new];
+    }
+    
+    return self;
+}
+
+- (instancetype)init
+{
+    return [self initWithCache:nil];
+}
+
+#pragma mark - MSIDIntuneCacheDataSource
+
+- (NSDictionary *)jsonDictionaryForKey:(NSString *)key;
+{
+    return [self.cache objectForKey:key];
+}
+
+- (void)setJsonDictionary:(NSDictionary *)dictionary forKey:(NSString *)key
+{
+    [self.cache setObject:dictionary forKey:key];
+}
+
+@end
