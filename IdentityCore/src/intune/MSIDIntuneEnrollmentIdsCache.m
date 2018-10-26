@@ -81,7 +81,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 - (NSString *)enrollmentIdForUserId:(NSString *)userId
                               error:(NSError **)error
 {
-    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID];
+    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLL_ID];
     if (![self isValid:jsonDictionary error:error]) return nil;
     
     NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
@@ -100,7 +100,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
                                  tenantId:(NSString *)tenantId
                                     error:(NSError **)error
 {
-    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID];
+    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLL_ID];
     if (![self isValid:jsonDictionary error:error]) return nil;
     
     NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
@@ -119,7 +119,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                                      error:(NSError **)error
 {
-    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID];
+    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLL_ID];
     if (![self isValid:jsonDictionary error:error]) return nil;
     
     NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
@@ -159,7 +159,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 - (NSString *)enrollmentIdIfAvailable:(NSError **)error
 {
-    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID];
+    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLL_ID];
     if (![self isValid:jsonDictionary error:error]) return nil;
     
     NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
@@ -172,12 +172,12 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 {
     if (![self isValid:jsonDictionary error:error]) return;
     
-    [self.dataSource setJsonDictionary:jsonDictionary forKey:MSID_INTUNE_ENROLLMENT_ID];
+    [self.dataSource setJsonDictionary:jsonDictionary forKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
 }
 
 - (NSDictionary *)enrollmentIdsJsonDictionary:(NSError **)error
 {
-    __auto_type jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID];
+    __auto_type jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
     if (![self isValid:jsonDictionary error:error]) return nil;
     
     return jsonDictionary;
