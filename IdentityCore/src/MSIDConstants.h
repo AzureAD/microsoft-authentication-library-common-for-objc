@@ -35,3 +35,4 @@ extern NSString * _Nonnull const MSIDTrustedAuthorityGermany;
 extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUSGovernment;
 extern NSString * _Nonnull const MSIDTrustedAuthorityCloudGovApi;
+extern NSString * _Nonnull const MSIDServerErrorClientMismatch;

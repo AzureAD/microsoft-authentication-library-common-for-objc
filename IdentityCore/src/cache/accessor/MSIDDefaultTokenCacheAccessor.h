@@ -80,4 +80,8 @@
 - (BOOL)updateAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error;
+
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntries:(MSIDConfiguration *)configuration
+                                                    context:(id<MSIDRequestContext>)context
+                                                      error:(NSError *__autoreleasing *)error;
 @end

@@ -944,4 +944,13 @@
     return result;
 }
 
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntries:(MSIDConfiguration *)configuration
+                                                    context:(id<MSIDRequestContext>)context
+                                                      error:(NSError *__autoreleasing *)error
+{
+    MSIDAppMetadataCacheQuery *metadataQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    metadataQuery.generalType = MSIDAppMetadataType;
+    return [_accountCredentialCache getAppMetadadataEntries:metadataQuery context:context error:error];
+}
+
 @end

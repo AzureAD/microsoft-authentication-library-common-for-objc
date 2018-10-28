@@ -276,6 +276,14 @@ return NO; \
     return nil;
 }
 
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
+                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error
+{
+    return nil;
+}
+
 #pragma mark - Removal
 
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key

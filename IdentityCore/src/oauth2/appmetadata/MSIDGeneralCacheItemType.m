@@ -33,7 +33,7 @@
             return MSID_APP_METADATA_CACHE_TYPE;
             
         default:
-            return nil;
+            return MSID_GENERAL_CACHE_ITEM_TYPE;
     }
 }
 
@@ -45,11 +45,12 @@ static NSDictionary *sGeneralTypes = nil;
     
     dispatch_once(&sGeneralTypesOnce, ^{
         
-        sGeneralTypes = @{[MSID_APP_METADATA_CACHE_TYPE lowercaseString]: @(MSIDAppMetadataType)};
+        sGeneralTypes = @{[MSID_APP_METADATA_CACHE_TYPE lowercaseString]: @(MSIDAppMetadataType),
+                          [MSID_GENERAL_CACHE_ITEM_TYPE lowercaseString]: @(MSIDGeneralTypeOther)};
     });
     
     NSNumber *generalType = sGeneralTypes[type.lowercaseString];
-    return generalType != nil ? [generalType integerValue] : -1;
+    return generalType != nil ? [generalType integerValue] : MSIDGeneralTypeOther;
 }
 
 @end

@@ -657,7 +657,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 - (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
                                       serializer:(id<MSIDAppMetadataItemSerializer>)serializer
                                          context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error;
+                                           error:(NSError **)error
 {
     NSArray *items = [self itemsWithKey:key context:context error:error];
     
@@ -671,6 +671,42 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     NSData *itemData = [attributes objectForKey:(id)kSecValueData];
     MSIDAppMetadataCacheItem *appMetadataItem = [serializer deserializeAppMetadataCacheItem:itemData];
     return appMetadataItem;
+}
+
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
+                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error
+{
+    
+    NSArray *items = [self itemsWithKey:key context:context error:error];
+    
+    if (!items)
+    {
+        return nil;
+    }
+    
+    NSMutableArray *appMetadataitems = [[NSMutableArray<MSIDAppMetadataCacheItem *> alloc] initWithCapacity:items.count];
+    
+    for (NSDictionary *attrs in items)
+    {
+        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
+        MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
+        
+        if (appMetadata)
+        {
+            [appMetadataitems addObject:appMetadata];
+        }
+        else
+        {
+            MSID_LOG_ERROR(context, @"Failed to deserialize app metadata item.");
+        }
+    }
+    
+    MSID_LOG_INFO(context, @"Found %lu items.", (unsigned long)appMetadataitems.count);
+    MSID_LOG_INFO(context, @"Items info %@", appMetadataitems);
+    
+    return appMetadataitems;
 }
 
 @end

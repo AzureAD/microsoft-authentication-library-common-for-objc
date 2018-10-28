@@ -25,6 +25,27 @@
 
 @implementation MSIDAppMetadataCacheQuery
 
+
+- (NSNumber *)type
+{
+    if (self.generalType != MSIDGeneralTypeOther)
+    {
+        return [super type];
+    }
+    
+    return nil;
+}
+
+- (NSString *)service
+{
+    if (self.clientId && self.generalType)
+    {
+        return [super service];
+    }
+    
+    return nil;
+}
+
 - (BOOL)exactMatch
 {
     return self.clientId && self.environment;
