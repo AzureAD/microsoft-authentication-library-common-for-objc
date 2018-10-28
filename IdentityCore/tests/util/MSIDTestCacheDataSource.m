@@ -539,6 +539,42 @@
     return appMetadata;
 }
 
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
+                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error;
+{
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSMutableArray *resultItems = [NSMutableArray array];
+    
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:_accountKeys
+                                contentDictionary:_accountContents
+                                          context:context
+                                            error:error];
+    
+    for (NSData *itemData in items)
+    {
+        MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
+        
+        if (appMetadata)
+        {
+            [resultItems addObject:appMetadata];
+        }
+    }
+    
+    return resultItems;
+}
+
 #pragma mark - Test methods
 
 - (void)reset
