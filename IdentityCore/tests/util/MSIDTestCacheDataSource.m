@@ -24,13 +24,12 @@
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDCacheKey.h"
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDJsonSerializer.h"
+#import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDJsonSerializer.h"
 #import "MSIDAccount.h"
 #import "MSIDAppMetadataCacheItem.h"
 
@@ -570,19 +569,19 @@
 - (NSArray *)allDefaultAccessTokens
 {
     return [self allTokensWithType:MSIDAccessTokenType
-                        serializer:[[MSIDJsonSerializer alloc] init]];
+                        serializer:[[MSIDCacheItemJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultRefreshTokens
 {
     return [self allTokensWithType:MSIDRefreshTokenType
-                        serializer:[[MSIDJsonSerializer alloc] init]];
+                        serializer:[[MSIDCacheItemJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultIDTokens
 {
     return [self allTokensWithType:MSIDIDTokenType
-                        serializer:[[MSIDJsonSerializer alloc] init]];
+                        serializer:[[MSIDCacheItemJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allTokensWithType:(MSIDCredentialType)type
@@ -615,7 +614,7 @@
 {
     NSMutableArray *results = [NSMutableArray array];
     
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     @synchronized (self) {
         

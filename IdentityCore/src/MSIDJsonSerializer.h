@@ -22,9 +22,6 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAccountItemSerializer.h"
-#import "MSIDCredentialItemSerializer.h"
-#import "MSIDAppMetadataItemSerializer.h"
 
 @protocol MSIDJsonSerializable;
 @protocol MSIDRequestContext;
@@ -53,7 +50,6 @@
 
 @end
 
-// TODO: Remove MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer protocols and use MSIDJsonSerializing instead. Also move out this class from cache folder.
-@interface MSIDJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer, MSIDJsonSerializing>
+@interface MSIDJsonSerializer : NSObject <MSIDJsonSerializing>
 
 @end
