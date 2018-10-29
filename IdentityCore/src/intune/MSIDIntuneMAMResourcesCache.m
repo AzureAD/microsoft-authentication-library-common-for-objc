@@ -76,6 +76,12 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
                              error:(NSError **)error
 {
     NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_RESOURCE_ID_KEY];
+    if (!jsonDictionary)
+    {
+        MSID_LOG_VERBOSE(nil, @"No Intune Resource JSON found.");
+        return nil;
+    }
+    
     if (![self isValid:jsonDictionary error:error]) return nil;
     
     __auto_type aliases = [authority defaultCacheEnvironmentAliases];

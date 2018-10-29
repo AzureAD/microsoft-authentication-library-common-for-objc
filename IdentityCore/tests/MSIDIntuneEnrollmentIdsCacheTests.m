@@ -21,31 +21,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonSerializable.h"
-#import "MSIDIntuneCacheDataSource.h"
+#import <XCTest/XCTest.h>
+#import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDCache.h"
 #import "MSIDIntuneInMemmoryCacheDataSource.h"
 
-@class MSIDAuthority;
+@interface MSIDIntuneEnrollmentIdsCacheTests : XCTestCase
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDIntuneMAMResourcesCache : NSObject
-
-@property (class, strong) MSIDIntuneMAMResourcesCache *sharedCache;
-
-- (instancetype)initWithDataSource:(id<MSIDIntuneCacheDataSource>)dataSource;
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
-
-/*! Returns the Intune MAM resource for the associated authority*/
-- (nullable NSString *)resourceForAuthority:(MSIDAuthority *)authority
-                                      error:(NSError *__autoreleasing *)error;
-
-- (void)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
-                             error:(NSError *__autoreleasing *)error;
-
-- (nullable NSDictionary *)resourcesJsonDictionary:(NSError *__autoreleasing *)error;
+@property (nonatomic) MSIDIntuneEnrollmentIdsCache *cache;
+@property (nonatomic) MSIDCache *inMemoryStorage;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDIntuneEnrollmentIdsCacheTests
+
+- (void)setUp
+{
+    self.inMemoryStorage = [MSIDCache new];
+    __auto_type dictionary = @{
+                               @"login.microsoftonline.com": @"https://www.microsoft.com/intune",
+                               @"login.microsoftonline.de": @"https://www.microsoft.com/intune-de",
+                               @"login.windows.net": @"https://www.microsoft.com/windowsIntune"
+                               };
+    [self.inMemoryStorage setObject:dictionary forKey:@"intune_mam_resource_V1"];
+    
+    __auto_type dataSource = [[MSIDIntuneInMemmoryCacheDataSource alloc] initWithCache:self.inMemoryStorage];
+    self.cache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:dataSource];
+}
+
+- (void)tearDown
+{
+}
+
+#pragma mark - Tests
+
+//- (void)testEnrollmentIdForUserId
+//{
+//    NSError *error;
+//    [self.cache enrollmentIdForUserId:@"" error:&error];
+//}
+
+@end
