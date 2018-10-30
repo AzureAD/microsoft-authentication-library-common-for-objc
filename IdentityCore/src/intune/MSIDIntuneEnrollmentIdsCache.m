@@ -79,10 +79,11 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (NSString *)enrollmentIdForUserId:(NSString *)userId
+                            context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
     NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
-    if (![self isValid:jsonDictionary error:error]) return nil;
+    if (![self isValid:jsonDictionary context:context error:error]) return nil;
     
     NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
     for (NSDictionary *enrollIdDic in enrollIds)
@@ -98,12 +99,13 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 - (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId
                                  tenantId:(NSString *)tenantId
+                                  context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
 {
     if (!userObjectId || !tenantId) return nil;
     
     NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
-    if (![self isValid:jsonDictionary error:error]) return nil;
+    if (![self isValid:jsonDictionary context:context error:error]) return nil;
     
     NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
     for (NSDictionary *enrollIdDic in enrollIds)
@@ -119,10 +121,11 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+                                   context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error
 {
     NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
-    if (![self isValid:jsonDictionary error:error]) return nil;
+    if (![self isValid:jsonDictionary context:context error:error]) return nil;
     
     NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
     for (NSDictionary *enrollIdDic in enrollIds)
@@ -138,31 +141,33 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                                     userId:(NSString *)userId
+                                   context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error
 {
     if (homeAccountId)
     {
         // If homeAccountID is provided, always require an exact match
-        return [self enrollmentIdForUserId:homeAccountId error:error];
+        return [self enrollmentIdForUserId:homeAccountId context:context error:error];
     }
     else
     {
         // If legacy userID is provided and we didn't find an exact match, do a fallback to any enrollment ID to support no userID or single userID scenarios
-        NSString *enrollmentID = userId ? [self enrollmentIdForUserId:userId error:error] : nil;
+        NSString *enrollmentID = userId ? [self enrollmentIdForUserId:userId context:context error:error] : nil;
         if (enrollmentID)
         {
             return enrollmentID;
         }
         
-        enrollmentID = [self enrollmentIdIfAvailable:error];
+        enrollmentID = [self enrollmentIdIfAvailableWithContext:context error:error];
         return enrollmentID;
     }
 }
 
-- (NSString *)enrollmentIdIfAvailable:(NSError **)error
+- (NSString *)enrollmentIdIfAvailableWithContext:(id<MSIDRequestContext>)context
+                                           error:(NSError **)error
 {
     NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
-    if (![self isValid:jsonDictionary error:error]) return nil;
+    if (![self isValid:jsonDictionary context:context error:error]) return nil;
     
     NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
     NSDictionary *enrollIdDic = enrollIds.firstObject;
@@ -171,33 +176,39 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (void)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary
+                               context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
-    if (![self isValid:jsonDictionary error:error]) return;
+    if (![self isValid:jsonDictionary context:context error:error]) return;
     
     [self.dataSource setJsonDictionary:jsonDictionary forKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
 }
 
-- (NSDictionary *)enrollmentIdsJsonDictionary:(NSError **)error
+- (NSDictionary *)enrollmentIdsJsonDictionaryWithContext:(id<MSIDRequestContext>)context
+                                                   error:(NSError **)error
 {
     __auto_type jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
-    if (![self isValid:jsonDictionary error:error]) return nil;
+    if (![self isValid:jsonDictionary context:context error:error]) return nil;
     
     return jsonDictionary;
 }
 
 #pragma mark - Private
 
-- (BOOL)isValid:(NSDictionary *)json error:(NSError **)error
+- (BOOL)isValid:(NSDictionary *)json
+        context:(id<MSIDRequestContext>)context
+          error:(NSError **)error
 {
     NSString *errorDescription = @"Intune Enrollment ID JSON structure is incorrect.";
-    __auto_type validationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil);
+    __auto_type validationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, context.correlationId, nil);
     
     if (!json) return YES;
     
     if (![json isKindOfClass:NSDictionary.class])
     {
         if (error) *error = validationError;
+        MSID_LOG_ERROR(context, @"Intune Enrollment ID JSON structure is incorrect (json not a dictionary).");
+        
         return NO;
     }
     
@@ -206,6 +217,8 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     if (![enrollIds isKindOfClass:NSArray.class])
     {
         if (error) *error = validationError;
+        MSID_LOG_ERROR(context, @"Intune Enrollment ID JSON structure is incorrect (enrollIds not an array).");
+        
         return NO;
     }
     
@@ -214,6 +227,8 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
         if (![enrollIdDic isKindOfClass:NSDictionary.class])
         {
             if (error) *error = validationError;
+            MSID_LOG_ERROR(context, @"Intune Enrollment ID JSON structure is incorrect (enrollIdDic not an array).");
+            
             return NO;
         }
         
@@ -223,6 +238,8 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
             if (![enrollId isKindOfClass:NSString.class])
             {
                 if (error) *error = validationError;
+                MSID_LOG_ERROR(context, @"Intune Enrollment ID JSON structure is incorrect (enrollId not a string).");
+                
                 return NO;
             }
         }

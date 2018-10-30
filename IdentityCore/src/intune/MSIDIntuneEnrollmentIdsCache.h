@@ -24,6 +24,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDIntuneCacheDataSource.h"
 
+@protocol MSIDRequestContext;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDIntuneEnrollmentIdsCache : NSObject
@@ -35,13 +37,16 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype _Nullable)new NS_UNAVAILABLE;
 
 - (NSString *)enrollmentIdForUserId:(NSString *)userId
+                            context:(nullable id<MSIDRequestContext>)context
                               error:(NSError *__autoreleasing *)error;
 
 - (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId
                                  tenantId:(NSString *)tenantId
+                                  context:(nullable id<MSIDRequestContext>)context
                                     error:(NSError *__autoreleasing *)error;
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+                                   context:(nullable id<MSIDRequestContext>)context
                                      error:(NSError *__autoreleasing *)error;
 
 /*!
@@ -50,17 +55,21 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSString *)enrollmentIdForHomeAccountId:(nullable NSString *)homeAccountId
                                     userId:(nullable NSString *)userId
+                                   context:(nullable id<MSIDRequestContext>)context
                                      error:(NSError *__autoreleasing *)error;
 
 /*!
  Returns the first available enrollmentID if one is available.
  */
-- (NSString *)enrollmentIdIfAvailable:(NSError *__autoreleasing *)error;
+- (NSString *)enrollmentIdIfAvailableWithContext:(nullable id<MSIDRequestContext>)context
+                                           error:(NSError *__autoreleasing *)error;
 
 - (void)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary
+                               context:(nullable id<MSIDRequestContext>)context
                                  error:(NSError *__autoreleasing *)error;
 
-- (NSDictionary *)enrollmentIdsJsonDictionary:(NSError *__autoreleasing *)error;
+- (NSDictionary *)enrollmentIdsJsonDictionaryWithContext:(nullable id<MSIDRequestContext>)context
+                                                   error:(NSError *__autoreleasing *)error;
 
 @end
 

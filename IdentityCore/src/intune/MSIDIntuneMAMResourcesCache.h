@@ -26,6 +26,7 @@
 #import "MSIDIntuneInMemmoryCacheDataSource.h"
 
 @class MSIDAuthority;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,12 +40,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*! Returns the Intune MAM resource for the associated authority*/
 - (nullable NSString *)resourceForAuthority:(MSIDAuthority *)authority
+                                    context:(nullable id<MSIDRequestContext>)context
                                       error:(NSError *__autoreleasing *)error;
 
 - (void)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
+                           context:(nullable id<MSIDRequestContext>)context
                              error:(NSError *__autoreleasing *)error;
 
-- (nullable NSDictionary *)resourcesJsonDictionary:(NSError *__autoreleasing *)error;
+- (nullable NSDictionary *)resourcesJsonDictionaryWithContext:(nullable id<MSIDRequestContext>)context
+                                                        error:(NSError *__autoreleasing *)error;
 
 @end
 

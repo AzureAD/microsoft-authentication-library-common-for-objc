@@ -66,7 +66,7 @@
     [self.inMemoryStorage removeAllObjects];
     
     NSError *error;
-    __auto_type resource = [self.cache resourceForAuthority:self.authority error:&error];
+    __auto_type resource = [self.cache resourceForAuthority:self.authority context:nil error:&error];
     
     XCTAssertNil(resource);
     XCTAssertNil(error);
@@ -78,7 +78,7 @@
     [self.inMemoryStorage removeAllObjects];
     
     NSError *error;
-    __auto_type resource = [self.cache resourceForAuthority:authority error:&error];
+    __auto_type resource = [self.cache resourceForAuthority:authority context:nil error:&error];
     
     XCTAssertNil(resource);
     XCTAssertNil(error);
@@ -91,7 +91,7 @@
     authority.environmentAliases = @[@"example.com"];
     
     NSError *error;
-    __auto_type resource = [self.cache resourceForAuthority:authority error:&error];
+    __auto_type resource = [self.cache resourceForAuthority:authority context:nil error:&error];
     
     XCTAssertNil(resource);
     XCTAssertNil(error);
@@ -100,7 +100,7 @@
 - (void)testResourceForAuthority_whenResourceInCache_shoudlReturnResource
 {
     NSError *error;
-    __auto_type resource = [self.cache resourceForAuthority:self.authority error:&error];
+    __auto_type resource = [self.cache resourceForAuthority:self.authority context:nil error:&error];
     
     XCTAssertEqualObjects(resource, @"https://www.microsoft.com/intune");
     XCTAssertNil(error);
@@ -113,7 +113,7 @@
     authority.environmentAliases = @[@"login.microsoftonline.com"];
     
     NSError *error;
-    __auto_type resource = [self.cache resourceForAuthority:authority error:&error];
+    __auto_type resource = [self.cache resourceForAuthority:authority context:nil error:&error];
     
     XCTAssertEqualObjects(resource, @"https://www.microsoft.com/intune");
     XCTAssertNil(error);
@@ -127,7 +127,7 @@
     __auto_type jsonDicionary = @{@"key": @"value"};
     
     NSError *error;
-    [self.cache setResourcesJsonDictionary:jsonDicionary error:&error];
+    [self.cache setResourcesJsonDictionary:jsonDicionary context:nil error:&error];
     
     NSDictionary *jsonDicionaryResult = [self.inMemoryStorage objectForKey:@"intune_mam_resource_V1"];
     XCTAssertEqualObjects(jsonDicionary, jsonDicionaryResult);
@@ -140,7 +140,7 @@
     [self.inMemoryStorage removeAllObjects];
     
     NSError *error;
-    [self.cache setResourcesJsonDictionary:jsonDicionary error:&error];
+    [self.cache setResourcesJsonDictionary:jsonDicionary context:nil error:&error];
     
     NSDictionary *jsonDicionaryResult = [self.inMemoryStorage objectForKey:@"intune_mam_resource_V1"];
     XCTAssertNil(jsonDicionaryResult);
@@ -155,7 +155,7 @@
     [self.inMemoryStorage setObject:jsonDicionary forKey:@"intune_mam_resource_V1"];
     
     NSError *error;
-    NSDictionary *jsonDicionaryResult = [self.cache resourcesJsonDictionary:&error];
+    NSDictionary *jsonDicionaryResult = [self.cache resourcesJsonDictionaryWithContext:nil error:&error];
     XCTAssertEqualObjects(jsonDicionary, jsonDicionaryResult);
     XCTAssertNil(error);
 }
@@ -166,7 +166,7 @@
     [self.inMemoryStorage setObject:jsonDicionary forKey:@"intune_mam_resource_V1"];
     
     NSError *error;
-    NSDictionary *jsonDicionaryResult = [self.cache resourcesJsonDictionary:&error];
+    NSDictionary *jsonDicionaryResult = [self.cache resourcesJsonDictionaryWithContext:nil error:&error];
     XCTAssertNil(jsonDicionaryResult);
     XCTAssertNotNil(error);
 }
@@ -178,7 +178,7 @@
     [self.inMemoryStorage setObject:@"not a json dictionary" forKey:@"intune_mam_resource_V1"];
     
     NSError *error;
-    __auto_type resource = [self.cache resourceForAuthority:self.authority error:&error];
+    __auto_type resource = [self.cache resourceForAuthority:self.authority context:nil error:&error];
     
     XCTAssertNil(resource);
     XCTAssertNotNil(error);
@@ -189,7 +189,7 @@
     [self.inMemoryStorage setObject:@{@1: @"some string"} forKey:@"intune_mam_resource_V1"];
     
     NSError *error;
-    __auto_type resource = [self.cache resourceForAuthority:self.authority error:&error];
+    __auto_type resource = [self.cache resourceForAuthority:self.authority context:nil error:&error];
     
     XCTAssertNil(resource);
     XCTAssertNotNil(error);
@@ -200,7 +200,7 @@
     [self.inMemoryStorage setObject:@{@"some string": @1} forKey:@"intune_mam_resource_V1"];
     
     NSError *error;
-    __auto_type resource = [self.cache resourceForAuthority:self.authority error:&error];
+    __auto_type resource = [self.cache resourceForAuthority:self.authority context:nil error:&error];
     
     XCTAssertNil(resource);
     XCTAssertNotNil(error);
