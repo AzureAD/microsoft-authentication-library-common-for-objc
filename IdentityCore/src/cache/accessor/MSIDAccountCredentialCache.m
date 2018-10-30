@@ -63,7 +63,6 @@
 
 // Reading credentials
 - (nullable NSArray<MSIDCredentialCacheItem *> *)getCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
-                                                            legacyUserId:(nullable NSString *)legacyUserId
                                                                  context:(nullable id<MSIDRequestContext>)context
                                                                    error:(NSError * _Nullable * _Nullable)error
 {
@@ -94,14 +93,6 @@
         {
             if (shouldMatchAccount
                 && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
-                                           environment:cacheQuery.environment
-                                    environmentAliases:cacheQuery.environmentAliases])
-            {
-                continue;
-            }
-
-            if (legacyUserId
-                && ![cacheItem matchesWithLegacyUserId:legacyUserId
                                            environment:cacheQuery.environment
                                     environmentAliases:cacheQuery.environmentAliases])
             {
@@ -296,7 +287,7 @@
         return [_dataSource removeItemsWithKey:cacheQuery context:context error:error];
     }
 
-    NSArray<MSIDCredentialCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery legacyUserId:nil context:context error:error];
+    NSArray<MSIDCredentialCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery context:context error:error];
 
     return [self removeAllCredentials:matchedCredentials
                               context:context
