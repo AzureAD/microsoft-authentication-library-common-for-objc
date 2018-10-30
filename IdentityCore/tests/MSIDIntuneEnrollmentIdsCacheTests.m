@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDCache.h"
-#import "MSIDIntuneInMemmoryCacheDataSource.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
 
 @interface MSIDIntuneEnrollmentIdsCacheTests : XCTestCase
 
@@ -58,7 +58,7 @@
                                };
     [self.inMemoryStorage setObject:dictionary forKey:@"intune_app_protection_enrollment_id_V1"];
     
-    __auto_type dataSource = [[MSIDIntuneInMemmoryCacheDataSource alloc] initWithCache:self.inMemoryStorage];
+    __auto_type dataSource = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:self.inMemoryStorage];
     self.cache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:dataSource];
 }
 

@@ -23,7 +23,7 @@
 
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDAuthority.h"
-#import "MSIDIntuneInMemmoryCacheDataSource.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
 
 #define MSID_INTUNE_RESOURCE_ID @"intune_mam_resource_V"
 #define MSID_INTUNE_RESOURCE_ID_VERSION @"1"
@@ -65,7 +65,7 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
     {
         if (!s_sharedCache)
         {
-            s_sharedCache = [[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:[MSIDIntuneInMemmoryCacheDataSource new]];
+            s_sharedCache = [[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:[MSIDIntuneInMemoryCacheDataSource new]];
         }
         
         return s_sharedCache;

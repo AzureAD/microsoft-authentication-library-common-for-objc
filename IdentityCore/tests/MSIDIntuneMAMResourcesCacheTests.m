@@ -23,7 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDIntuneMAMResourcesCache.h"
-#import "MSIDIntuneInMemmoryCacheDataSource.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAuthorityMock.h"
 
@@ -47,7 +47,7 @@
                                };
     [self.inMemoryStorage setObject:dictionary forKey:@"intune_mam_resource_V1"];
     
-    __auto_type dataSource = [[MSIDIntuneInMemmoryCacheDataSource alloc] initWithCache:self.inMemoryStorage];
+    __auto_type dataSource = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:self.inMemoryStorage];
     self.cache = [[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:dataSource];
     
     __auto_type authorityUrl = [@"https://login.microsoftonline.com/common" msidUrl];

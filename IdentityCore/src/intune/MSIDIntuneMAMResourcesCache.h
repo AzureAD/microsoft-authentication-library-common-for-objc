@@ -23,7 +23,7 @@
 
 #import "MSIDJsonSerializable.h"
 #import "MSIDIntuneCacheDataSource.h"
-#import "MSIDIntuneInMemmoryCacheDataSource.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
 
 @class MSIDAuthority;
 @protocol MSIDRequestContext;

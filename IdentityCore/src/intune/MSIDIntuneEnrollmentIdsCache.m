@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDIntuneEnrollmentIdsCache.h"
-#import "MSIDIntuneInMemmoryCacheDataSource.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
 
 NSString *const MSID_INTUNE_ENROLLMENT_ID_ARRAY = @"enrollment_ids";
 NSString *const MSID_INTUNE_USER_ID = @"user_id";
@@ -71,7 +71,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     {
         if (!s_sharedCache)
         {
-            s_sharedCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:[MSIDIntuneInMemmoryCacheDataSource new]];
+            s_sharedCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:[MSIDIntuneInMemoryCacheDataSource new]];
         }
         
         return s_sharedCache;
