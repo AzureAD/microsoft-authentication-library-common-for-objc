@@ -153,8 +153,8 @@
     [coder encodeObject:userInformation forKey:@"userInformation"];
 
     // Backward compatibility with ADAL.
-    NSString *tokenType = [NSString msidIsStringNilOrBlank:self.oauthTokenType] ? MSID_OAUTH2_BEARER : self.oauthTokenType;
-    [coder encodeObject:tokenType forKey:@"accessTokenType"];
+    self.oauthTokenType = [NSString msidIsStringNilOrBlank:self.oauthTokenType] ? MSID_OAUTH2_BEARER : self.oauthTokenType;
+    [coder encodeObject:self.oauthTokenType forKey:@"accessTokenType"];
     [coder encodeObject:self.clientId forKey:@"clientId"];
     [coder encodeObject:self.target forKey:@"resource"];
     [coder encodeObject:self.expiresOn forKey:@"expiresOn"];
@@ -213,22 +213,6 @@
 - (BOOL)isTombstone
 {
     return self.refreshToken && [self.refreshToken isEqualToString:@"<tombstone>"];
-}
-
-@synthesize oauthTokenType = _oauthTokenType;
-- (NSString *)oauthTokenType
-{
-    @synchronized (self)
-    {
-        return [NSString msidIsStringNilOrBlank:_oauthTokenType] ? MSID_OAUTH2_BEARER : _oauthTokenType;
-    }
-}
-
-- (void)setOauthTokenType:(NSString *)oauthTokenType{
-    @synchronized (self)
-    {
-        _oauthTokenType = oauthTokenType;
-    }
 }
 
 @end
