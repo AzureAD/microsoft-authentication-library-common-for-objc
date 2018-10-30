@@ -452,26 +452,29 @@
                                                          error:(NSError * _Nullable * _Nullable)error
 {
     assert(query);
-    
+
     MSID_LOG_VERBOSE(context, @"(Default cache) Get app metadata for query %@", query.logDescription);
-    
+
     if (query.exactMatch)
     {
         return [_dataSource appMetadataWithKey:query serializer:_serializer context:context error:error];
     }
-    
-    MSIDAppMetadataCacheItem *appMetadata = [_dataSource appMetadataWithKey:query
-                                                                 serializer:_serializer
-                                                                    context:context
-                                                                      error:error];
-    
-    if (appMetadata && [appMetadata matchesWithClientId:query.clientId
-                                            environment:query.environment
-                                     environmentAliases:query.environmentAliases])
+
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [_dataSource appMetadataEntriesWithKey:query
+                                                                                          serializer:_serializer
+                                                                                             context:context
+                                                                                               error:error];
+
+    for (MSIDAppMetadataCacheItem *appMetadata in appMetadataEntries)
     {
-        return appMetadata;
+        if ([appMetadata matchesWithClientId:query.clientId
+                                 environment:query.environment
+                          environmentAliases:query.environmentAliases])
+        {
+            return appMetadata;
+        }
     }
-    
+
     return nil;
 }
 

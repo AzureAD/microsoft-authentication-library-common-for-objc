@@ -659,18 +659,23 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    NSArray *items = [self itemsWithKey:key context:context error:error];
+    MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
+    NSArray<MSIDAppMetadataCacheItem *> *items = [self appMetadataEntriesWithKey:key
+                                                                      serializer:serializer
+                                                                         context:context
+                                                                           error:error];
     
-    if (!items || items.count == 0)
+    if (items.count > 1)
     {
-        MSID_LOG_VERBOSE(context, @"App metadata not found in keychain");
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one metadata entry for same clientId and environment.", nil, nil, nil, context.correlationId, nil);
+        }
+        
         return nil;
     }
     
-    NSDictionary *attributes = items[0];
-    NSData *itemData = [attributes objectForKey:(id)kSecValueData];
-    MSIDAppMetadataCacheItem *appMetadataItem = [serializer deserializeAppMetadataCacheItem:itemData];
-    return appMetadataItem;
+    return items.firstObject;
 }
 
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key

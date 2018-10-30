@@ -2129,6 +2129,26 @@
     XCTAssertTrue([appMetadataEntries count] == 2);
 }
 
+- (void)testGetAppMetadataWithSameClientIdAndMultipleEnvironment_shouldReturnCorrectAppMetadata
+{
+    MSIDAppMetadataCacheItem *cacheItem1 = [self createAppMetadataCacheItem:nil];
+    cacheItem1.clientId = @"clientId1";
+    cacheItem1.environment = @"environment1";
+    [self saveAppMetadata:cacheItem1];
+    
+    MSIDAppMetadataCacheItem *cacheItem2 = [self createAppMetadataCacheItem:nil];
+    cacheItem2.clientId = @"clientId1";
+    cacheItem2.environment = @"environment2";
+    [self saveAppMetadata:cacheItem2];
+    NSError *error = nil;
+    
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.clientId = @"clientId1";
+    cacheQuery.environmentAliases = [NSArray arrayWithObjects:@"environment2",nil];
+    MSIDAppMetadataCacheItem *item = [self.cache getAppMetadataWithQuery:cacheQuery context:nil error:&error];
+    XCTAssertEqualObjects(cacheItem2, item);
+}
+
 #endif
 
 #pragma mark - Helpers
