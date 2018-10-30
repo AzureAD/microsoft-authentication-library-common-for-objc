@@ -185,8 +185,8 @@
                     error:(NSError * _Nullable * _Nullable)error;
 
 
-- (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadadataEntries:(nonnull MSIDAppMetadataCacheQuery *)query
-                                                                  context:(nullable id<MSIDRequestContext>)context
-                                                                    error:(NSError * _Nullable * _Nullable)error;
+- (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(nonnull MSIDAppMetadataCacheQuery *)query
+                                                                context:(nullable id<MSIDRequestContext>)context
+                                                                  error:(NSError * _Nullable * _Nullable)error;
 
 @end

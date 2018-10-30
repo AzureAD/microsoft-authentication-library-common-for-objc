@@ -81,7 +81,7 @@
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error;
 
-- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntries:(MSIDConfiguration *)configuration
-                                                    context:(id<MSIDRequestContext>)context
-                                                      error:(NSError *__autoreleasing *)error;
+- (NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(MSIDConfiguration *)configuration
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError *__autoreleasing *)error;
 @end

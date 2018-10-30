@@ -38,7 +38,7 @@
 
 - (NSString *)service
 {
-    if (self.clientId && self.generalType)
+    if (self.clientId && (self.generalType != MSIDGeneralTypeOther))
     {
         return [super service];
     }

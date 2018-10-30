@@ -2089,6 +2089,46 @@
     XCTAssertNil(error);
 }
 
+- (void)testsGetAppMetadataEntriesWhenMultipleClientIds_shouldReturnAllEntries
+{
+    MSIDAppMetadataCacheItem *itemWithFamilyId = [self createAppMetadataCacheItem:@"1"];
+    itemWithFamilyId.clientId = @"client1";
+    [self saveAppMetadata:itemWithFamilyId];
+    NSError *error = nil;
+    MSIDAppMetadataCacheItem *itemWithoutFamilyId = [self createAppMetadataCacheItem:nil];
+    itemWithoutFamilyId.clientId = @"client2";
+    [self saveAppMetadata:itemWithoutFamilyId];
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.generalType = MSIDAppMetadataType;
+    
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [self.cache getAppMetadataEntries:cacheQuery
+                                                                                       context:nil
+                                                                                         error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(appMetadataEntries);
+    XCTAssertTrue([appMetadataEntries count] == 2);
+}
+
+- (void)testsGetAppMetadataEntriesWhenMultipleEnvironments_shouldReturnAllEntries
+{
+    MSIDAppMetadataCacheItem *itemWithFamilyId = [self createAppMetadataCacheItem:@"1"];
+    itemWithFamilyId.environment = @"environment1";
+    [self saveAppMetadata:itemWithFamilyId];
+    NSError *error = nil;
+    MSIDAppMetadataCacheItem *itemWithoutFamilyId = [self createAppMetadataCacheItem:nil];
+    itemWithoutFamilyId.environment = @"environment2";
+    [self saveAppMetadata:itemWithoutFamilyId];
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.generalType = MSIDAppMetadataType;
+    
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [self.cache getAppMetadataEntries:cacheQuery
+                                                                                        context:nil
+                                                                                          error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(appMetadataEntries);
+    XCTAssertTrue([appMetadataEntries count] == 2);
+}
+
 #endif
 
 #pragma mark - Helpers
