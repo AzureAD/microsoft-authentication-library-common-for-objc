@@ -27,7 +27,7 @@
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDCacheKey.h"
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDJsonSerializer.h"
+#import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDLegacyTokenCacheKey.h"
@@ -108,7 +108,7 @@
     token.secret = @"some token";
     token.credentialType = MSIDAccessTokenType;
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:nil];
     XCTAssertTrue(result);
@@ -126,7 +126,7 @@
     token.secret = @"oauth type";
     
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:nil service:@"test_service" generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     NSError *error;
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:&error];
@@ -143,7 +143,7 @@
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:nil generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     NSError *error;
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:&error];
@@ -162,7 +162,7 @@
     token2.secret = @"some token";
     token2.credentialType = MSIDAccessTokenType;
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:nil];
     [keychainTokenCache saveToken:token2 key:key serializer:serializer context:nil error:nil];
@@ -174,7 +174,7 @@
 - (void)testItemsWithKey_whenKeyIsQuery_shouldReturnProperItems
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     // Item 1.
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.secret = @"secret1";
@@ -216,7 +216,7 @@
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     token.secret = @"some token";
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:nil];
     
     NSArray<MSIDCredentialCacheItem *> *items = [keychainTokenCache tokensWithKey:[MSIDCacheKey new] serializer:serializer context:nil error:nil];
@@ -237,7 +237,7 @@
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     token.secret = @"some token";
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:nil];
     
     NSArray<MSIDCredentialCacheItem *> *items = [keychainTokenCache tokensWithKey:[MSIDCacheKey new] serializer:serializer context:nil error:nil];
@@ -255,7 +255,7 @@
 - (void)testRemoveItemWithKey_whenKeyIsNil_shouldReturnError
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     // Item 1.
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.secret = @"secret1";
@@ -319,7 +319,7 @@
 - (void)testItemsWithKey_whenFindsTombstoneItems_shouldSkipThem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     // Item 1.
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.secret = @"<tombstone>";
@@ -347,7 +347,7 @@
 - (void)testItemsWithKey_whenFindsTombstoneItems_shouldDeleteThemFromKeychain
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.secret = @"<tombstone>";
     token1.credentialType = MSIDRefreshTokenType;
@@ -373,7 +373,7 @@
 - (void)testTokensWithKey_whenQueryingByGeneric_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -401,7 +401,7 @@
 - (void)testTokensWithKey_whenQueryingByType_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -429,7 +429,7 @@
 - (void)testTokensWithKey_whenQueryingByAccount_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -456,7 +456,7 @@
 - (void)testTokensWithKey_whenQueryingByService_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -483,7 +483,7 @@
 - (void)testTokensWithKey_whenLegacyCacheKey_differentCaseUserIDs_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
 
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -503,7 +503,7 @@
 - (void)testTokensWithKey_whenLegacyCacheKey_differentCaseClientIDsAndResource_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
 
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -530,7 +530,7 @@
     appMetadata2.clientId = @"clientId";
     appMetadata2.environment = @"login.microsoftonline.com";
     appMetadata2.familyId = nil;
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:@"clientId"
                                                                          environment:@"login.microsoftonline.com"

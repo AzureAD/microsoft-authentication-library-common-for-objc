@@ -58,8 +58,21 @@
         CFDictionaryRef result = nil;
         
         OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+
+        if (status == errSecInteractionNotAllowed)
+        {
+            OSStatus deleteStatus = SecItemDelete((__bridge CFDictionaryRef)query);
+            MSID_LOG_WARN(nil, @"Deleted existing teamID");
+
+            if (deleteStatus != errSecSuccess)
+            {
+                MSID_LOG_ERROR(nil, @"Failed to delete teamID, result %d", deleteStatus);
+                return;
+            }
+        }
         
-        if (status == errSecItemNotFound)
+        if (status == errSecItemNotFound
+            || status == errSecInteractionNotAllowed)
         {
             NSMutableDictionary* addQuery = [query mutableCopy];
             [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];

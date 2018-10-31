@@ -43,7 +43,6 @@
  Gets all credentials matching the parameters specified in the query
  */
 - (nullable NSArray<MSIDCredentialCacheItem *> *)getCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
-                                                            legacyUserId:(nullable NSString *)legacyUserId
                                                                  context:(nullable id<MSIDRequestContext>)context
                                                                    error:(NSError * _Nullable * _Nullable)error;
 

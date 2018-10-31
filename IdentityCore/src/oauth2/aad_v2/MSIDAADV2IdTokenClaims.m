@@ -65,12 +65,6 @@ MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
     _userIdDisplayable = YES;
 }
 
-- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId
-{
-    return [super matchesLegacyUserId:legacyUserId]
-        || [self.objectId isEqualToString:legacyUserId];
-}
-
 - (NSString *)alternativeAccountId
 {
     return _json[ID_TOKEN_ALT_SEC_ID];

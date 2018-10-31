@@ -43,6 +43,8 @@
         headers[@"Accept"] = @"application/json";
         headers[@"client-request-id"] = [MSIDTestRequireValueSentinel sentinel];
         headers[@"return-client-request-id"] = @"true";
+        headers[@"x-app-name"] = @"UnitTestHost";
+        headers[@"x-app-ver"] = @"1.0";
         
 #if TARGET_OS_IPHONE
         headers[@"x-ms-PkeyAuth"] = @"1.0";

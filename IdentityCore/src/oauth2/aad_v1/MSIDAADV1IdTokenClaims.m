@@ -92,12 +92,6 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
     _userId = [MSIDHelpers normalizeUserId:_userId];
 }
 
-- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId
-{
-    return [super matchesLegacyUserId:legacyUserId]
-    || [self.userId isEqualToString:legacyUserId];
-}
-
 - (NSString *)alternativeAccountId
 {
     return _json[ID_TOKEN_ALT_SEC_ID];
