@@ -245,7 +245,7 @@
     XCTAssertEqualObjects(defaultRefreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(defaultRefreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultRefreshToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, nil);
 
     NSArray *defaultIDTokens = [self getAllIDTokens];
     XCTAssertEqual([defaultIDTokens count], 0);
@@ -576,7 +576,7 @@
     XCTAssertEqualObjects(defaultRefreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(defaultRefreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultRefreshToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, nil);
 
     NSArray *defaultIDTokens = [self getAllIDTokens];
     XCTAssertEqual([defaultIDTokens count], 0);
@@ -669,7 +669,7 @@
     XCTAssertEqualObjects(defaultRefreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(defaultRefreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultRefreshToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, nil);
 
     NSArray *defaultIDTokens = [self getAllIDTokens];
     XCTAssertEqual([defaultIDTokens count], 0);

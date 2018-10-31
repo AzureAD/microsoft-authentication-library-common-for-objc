@@ -53,17 +53,17 @@
 {
     BOOL result = YES;
     result &= self.accountType == item.accountType;
-    result &= (!self.homeAccountId || !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
-    result &= (!self.localAccountId || !item.localAccountId) || [self.localAccountId isEqualToString:item.localAccountId];
-    result &= (!self.username || !item.username) || [self.username isEqualToString:item.username];
-    result &= (!self.givenName || !item.givenName) || [self.givenName isEqualToString:item.givenName];
-    result &= (!self.middleName || !item.middleName) || [self.middleName isEqualToString:item.middleName];
-    result &= (!self.familyName || !item.familyName) || [self.familyName isEqualToString:item.familyName];
-    result &= (!self.name || !item.name) || [self.name isEqualToString:item.name];
-    result &= (!self.realm || !item.realm) || [self.realm isEqualToString:item.realm];
-    result &= (!self.clientInfo || !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
-    result &= (!self.environment || !item.environment) || [self.environment isEqualToString:item.environment];
-    result &= (!self.alternativeAccountId || !item.alternativeAccountId) || [self.alternativeAccountId isEqualToString:item.alternativeAccountId];
+    result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
+    result &= (!self.localAccountId && !item.localAccountId) || [self.localAccountId isEqualToString:item.localAccountId];
+    result &= (!self.username && !item.username) || [self.username isEqualToString:item.username];
+    result &= (!self.givenName && !item.givenName) || [self.givenName isEqualToString:item.givenName];
+    result &= (!self.middleName && !item.middleName) || [self.middleName isEqualToString:item.middleName];
+    result &= (!self.familyName && !item.familyName) || [self.familyName isEqualToString:item.familyName];
+    result &= (!self.name && !item.name) || [self.name isEqualToString:item.name];
+    result &= (!self.realm && !item.realm) || [self.realm isEqualToString:item.realm];
+    result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
+    result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
+    result &= (!self.alternativeAccountId && !item.alternativeAccountId) || [self.alternativeAccountId isEqualToString:item.alternativeAccountId];
     return result;
 }
 

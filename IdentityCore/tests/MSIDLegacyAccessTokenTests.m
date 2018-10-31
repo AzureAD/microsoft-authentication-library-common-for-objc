@@ -199,6 +199,7 @@
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"common";
     cacheItem.additionalInfo = @{@"test": @"test2"};
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
@@ -210,7 +211,6 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.target = @"target";
-    cacheItem.familyId = @"1";
     
     MSIDLegacyAccessToken *token = [[MSIDLegacyAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
@@ -251,7 +251,6 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.target = @"target";
-    cacheItem.familyId = @"1";
 
     MSIDLegacyAccessToken *token = [[MSIDLegacyAccessToken alloc] initWithLegacyTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);

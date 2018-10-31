@@ -240,6 +240,7 @@
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.credentialType = MSIDLegacySingleResourceTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"common";
     cacheItem.additionalInfo = @{@"test": @"test2"};
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";

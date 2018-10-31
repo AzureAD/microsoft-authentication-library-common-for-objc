@@ -59,11 +59,11 @@
 - (BOOL)isEqualToItem:(MSIDLegacyTokenCacheItem *)item
 {
     BOOL result = [super isEqualToItem:item];
-    result &= (!self.accessToken || !item.accessToken) || [self.accessToken isEqualToString:item.accessToken];
-    result &= (!self.refreshToken || !item.refreshToken) || [self.refreshToken isEqualToString:item.refreshToken];
-    result &= (!self.idToken || !item.idToken) || [self.idToken isEqualToString:item.idToken];
-    result &= (!self.authority || !item.authority) || [self.authority isEqual:item.authority];
-    result &= (!self.oauthTokenType || !item.oauthTokenType) || [self.oauthTokenType isEqualToString:item.oauthTokenType];
+    result &= (!self.accessToken && !item.accessToken) || [self.accessToken isEqualToString:item.accessToken];
+    result &= (!self.refreshToken && !item.refreshToken) || [self.refreshToken isEqualToString:item.refreshToken];
+    result &= (!self.idToken && !item.idToken) || [self.idToken isEqualToString:item.idToken];
+    result &= (!self.authority && !item.authority) || [self.authority isEqual:item.authority];
+    result &= (!self.oauthTokenType && !item.oauthTokenType) || [self.oauthTokenType isEqualToString:item.oauthTokenType];
     return result;
 }
 
@@ -153,8 +153,8 @@
     [coder encodeObject:userInformation forKey:@"userInformation"];
 
     // Backward compatibility with ADAL.
-    NSString *tokenType = [NSString msidIsStringNilOrBlank:self.oauthTokenType] ? MSID_OAUTH2_BEARER : self.oauthTokenType;
-    [coder encodeObject:tokenType forKey:@"accessTokenType"];
+    self.oauthTokenType = [NSString msidIsStringNilOrBlank:self.oauthTokenType] ? MSID_OAUTH2_BEARER : self.oauthTokenType;
+    [coder encodeObject:self.oauthTokenType forKey:@"accessTokenType"];
     [coder encodeObject:self.clientId forKey:@"clientId"];
     [coder encodeObject:self.target forKey:@"resource"];
     [coder encodeObject:self.expiresOn forKey:@"expiresOn"];
