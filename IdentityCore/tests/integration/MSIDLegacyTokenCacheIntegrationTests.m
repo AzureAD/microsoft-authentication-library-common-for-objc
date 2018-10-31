@@ -792,7 +792,7 @@
                                                                             error:&error];
     
     XCTAssertNotNil(returnedToken);
-    XCTAssertEqualObjects(returnedToken.refreshToken, @"refresh_token");
+    XCTAssertEqualObjects(returnedToken.refreshToken, @"rt 2");
 }
 
 #pragma mark - Remove

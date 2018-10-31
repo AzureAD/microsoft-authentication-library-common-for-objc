@@ -78,6 +78,11 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
     [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+
+    if ([request.context.appRequestMetadata count])
+    {
+        [headers addEntriesFromDictionary:request.context.appRequestMetadata];
+    }
     
     if (request.context.correlationId)
     {

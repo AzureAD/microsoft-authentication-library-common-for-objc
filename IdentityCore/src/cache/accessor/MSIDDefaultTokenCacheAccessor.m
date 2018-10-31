@@ -733,7 +733,7 @@
 
     NSError *cacheError = nil;
 
-    NSArray<MSIDCredentialCacheItem *> *cacheItems = [_accountCredentialCache getCredentialsWithQuery:cacheQuery legacyUserId:nil context:context error:error];
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = [_accountCredentialCache getCredentialsWithQuery:cacheQuery context:context error:error];
 
     if (cacheError)
     {
@@ -781,41 +781,31 @@
 
     NSArray<NSString *> *aliases = [authority defaultCacheEnvironmentAliases];
 
-    NSString *clientIdForQueries = clientId;
+    MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
+    accountsQuery.username = legacyUserId;
+    accountsQuery.environmentAliases = aliases;
+    accountsQuery.accountType = MSIDAccountTypeMSSTS;
 
-    if (familyId)
+    NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:accountsQuery
+                                                                                               context:context
+                                                                                                 error:error];
+
+    if ([accountCacheItems count])
     {
-        // If family ID is provided, we don't need to lookup by a specific client ID
-        clientIdForQueries = nil;
-    }
+        MSIDAccountCacheItem *accountCacheItem = accountCacheItems[0];
+        NSString *homeAccountId = accountCacheItem.homeAccountId;
 
-    MSIDDefaultCredentialCacheQuery *idTokensQuery = [MSIDDefaultCredentialCacheQuery new];
-    idTokensQuery.environmentAliases = aliases;
-    idTokensQuery.clientId = clientIdForQueries;
-    idTokensQuery.credentialType = MSIDIDTokenType;
-
-    NSArray<MSIDCredentialCacheItem *> *matchedIdTokens = [_accountCredentialCache getCredentialsWithQuery:idTokensQuery
-                                                                                              legacyUserId:legacyUserId
-                                                                                                   context:context
-                                                                                                     error:error];
-
-    if ([matchedIdTokens count])
-    {
-        MSIDCredentialCacheItem *matchedIdToken = matchedIdTokens[0];
-        NSString *homeAccountId = matchedIdToken.homeAccountId;
-
-        MSID_LOG_VERBOSE(context, @"(Default accessor] Found Match with environment %@, realm %@, client %@", matchedIdToken.environment, matchedIdToken.realm, matchedIdToken.clientId);
-        MSID_LOG_VERBOSE_PII(context, @"(Default accessor] Found Match with environment %@, realm %@, client %@, home account ID %@", matchedIdToken.environment, matchedIdToken.realm, matchedIdToken.clientId, matchedIdToken.homeAccountId);
+        MSID_LOG_VERBOSE(context, @"(Default accessor] Found Match with environment %@, realm %@", accountCacheItem.environment, accountCacheItem.realm);
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor] Found Match with environment %@, realm %@, home account ID %@", accountCacheItem.environment, accountCacheItem.realm, accountCacheItem.homeAccountId);
 
         MSIDDefaultCredentialCacheQuery *rtQuery = [MSIDDefaultCredentialCacheQuery new];
         rtQuery.homeAccountId = homeAccountId;
         rtQuery.environmentAliases = aliases;
-        rtQuery.clientId = clientIdForQueries;
+        rtQuery.clientId = familyId ? nil : clientId;
         rtQuery.familyId = familyId;
         rtQuery.credentialType = MSIDRefreshTokenType;
 
         NSArray<MSIDCredentialCacheItem *> *rtCacheItems = [_accountCredentialCache getCredentialsWithQuery:rtQuery
-                                                                                               legacyUserId:nil
                                                                                                     context:context
                                                                                                       error:error];
 

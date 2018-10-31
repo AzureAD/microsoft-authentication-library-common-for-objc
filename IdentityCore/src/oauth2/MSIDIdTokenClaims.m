@@ -156,13 +156,6 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     _userIdDisplayable = NO;
 }
 
-- (BOOL)matchesLegacyUserId:(NSString *)legacyUserId
-{
-    return [self.preferredUsername isEqualToString:legacyUserId]
-                    || [self.email isEqualToString:legacyUserId]
-                    || [self.subject isEqualToString:legacyUserId];
-}
-
 - (NSString *)username
 {
     return self.preferredUsername ? self.preferredUsername : self.userId;
