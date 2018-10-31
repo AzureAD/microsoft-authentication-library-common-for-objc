@@ -32,18 +32,24 @@
 
 @implementation MSIDCache
 
-- (instancetype)init
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary
 {
     self = [super init];
-
+    
     if (self)
     {
         NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidcache-%@", [NSUUID UUID].UUIDString];
         _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
-        _container = [NSMutableDictionary new];
+        
+        _container = dictionary ? [dictionary mutableCopy] : [NSMutableDictionary new];
     }
     
     return self;
+}
+
+- (instancetype)init
+{
+    return [self initWithDictionary:nil];
 }
 
 - (id)objectForKey:(id)key
@@ -75,6 +81,16 @@
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         [self.container removeAllObjects];
     });
+}
+
+- (NSDictionary *)toDictionary
+{
+    __block NSDictionary *dictionary;
+    dispatch_sync(self.synchronizationQueue, ^{
+        dictionary = [self.container copy];
+    });
+    
+    return dictionary;
 }
 
 - (NSUInteger)count

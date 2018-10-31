@@ -309,6 +309,70 @@
     NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
     XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://");
 }
+
+#pragma mark - msidURLWithQueryParameters
+
+- (void)testMsidURLWithQueryParameters_whenNilParameters_shouldReturnURL
+{
+    NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652"];
+
+    NSURL *resultURL = [inputURL msidURLWithQueryParameters:nil];
+
+    XCTAssertEqualObjects(resultURL, inputURL);
+}
+
+- (void)testMsidURLWithQueryParameters_whenEmptyParameters_shouldReturnURL
+{
+    NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652"];
+
+    NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{}];
+
+    XCTAssertEqualObjects(resultURL, inputURL);
+}
+
+- (void)testMsidURLWithQueryParameters_whenEmptyQuery_NonEmptyParameters_shouldReturnURL
+{
+    NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652"];
+
+    NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"key1":@"value1", @"key2": @"value2"}];
+
+    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?key1=value1&key2=value2"];
+
+    XCTAssertEqualObjects(resultURL, expectedResultURL);
+}
+
+- (void)testMsidURLWithQueryParameters_whenNonEmptyQuery_NonEmptyParameters_shouldReturnCombinedURL
+{
+    NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2"];
+
+    NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"key1":@"value1", @"key2": @"value2"}];
+
+    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&key1=value1&key2=value2"];
+
+    XCTAssertEqualObjects(resultURL, expectedResultURL);
+}
+
+- (void)testMsidURLWithQueryParameters_whenEmptyQuery_ExistingParameters_shouldReturnOriginalQuery
+{
+    NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?key1=value_original"];
+
+    NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"key1":@"value1", @"key2": @"value2"}];
+
+    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?key1=value_original&key2=value2"];
+
+    XCTAssertEqualObjects(resultURL, expectedResultURL);
+}
+
+- (void)testMsidURLWithQueryParameters_whenNonEmptyQuery_NonEmptyParametersWithSpecialCharacters_shouldReturnCombinedURL
+{
+    NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2"];
+
+    NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"spec ial,":@"value1", @"key2": @"value2"}];
+
+    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&spec+ial%2C=value1&key2=value2"];
+
+    XCTAssertEqualObjects(resultURL, expectedResultURL);
+}
     
 
 @end

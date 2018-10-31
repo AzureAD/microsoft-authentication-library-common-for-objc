@@ -1238,66 +1238,7 @@
     XCTAssertNil(error);
 }
 
-- (void)testGetRefreshToken_whenNoLegacyUserId_onlyHomeAccountId_andTokenInPrimaryCache_shouldReturnToken
-{
-    [self saveResponseWithUPN:@"upn@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.net/common"
-             responseResource:@"graph"
-                inputResource:@"graph"
-                          uid:@"uid2"
-                         utid:@"utid2"
-                  accessToken:@"access token"
-                 refreshToken:@"refresh token"
-             additionalFields:nil
-                     accessor:_nonSSOAccessor];
-
-    [self saveResponseWithUPN:@"upn2@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.net/common"
-             responseResource:@"graph"
-                inputResource:@"graph"
-                          uid:@"uid2"
-                         utid:@"utid2"
-                  accessToken:@"access token"
-                 refreshToken:@"refresh token"
-             additionalFields:nil
-                     accessor:_nonSSOAccessor];
-
-    [self saveResponseWithUPN:@"upn@test.com"
-                     clientId:@"test_client_id"
-                    authority:@"https://login.windows.net/common"
-             responseResource:@"graph"
-                inputResource:@"graph"
-                          uid:nil
-                         utid:nil
-                  accessToken:@"access token 2"
-                 refreshToken:@"refresh token 2"
-             additionalFields:nil
-                     accessor:_nonSSOAccessor];
-
-    // Get token
-    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.windows.net/common"
-                                                                                clientId:@"test_client_id"
-                                                                             redirectUri:nil
-                                                                                  target:@"graph"];
-
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:@"uid2.utid2"];
-    NSError *error = nil;
-    MSIDRefreshToken *refreshToken = [_legacyAccessor getRefreshTokenWithAccount:account
-                                                                        familyId:nil
-                                                                   configuration:configuration
-                                                                         context:nil
-                                                                           error:&error];
-
-    XCTAssertNotNil(refreshToken);
-    XCTAssertNil(error);
-    XCTAssertEqualObjects(refreshToken.refreshToken, @"refresh token");
-    XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid2.utid2");
-    XCTAssertEqualObjects(refreshToken.accountIdentifier.legacyAccountId, @"upn2@test.com");
-}
-
-- (void)testGetRefreshToken_whenNoLegacyUserId_onlyHomeAccountId_andTokenInPrimaryCacheWithoutUniqueUser_shouldReturnSingleTokne
+- (void)testGetRefreshToken_whenNoLegacyUserId_onlyHomeAccountId_andTokenInPrimaryCacheWithoutUniqueUser_shouldReturnSingleToken
 {
     [self saveResponseWithUPN:@"upn@test.com"
                      clientId:@"test_client_id"

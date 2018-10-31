@@ -181,10 +181,10 @@
                               @"given_name" : givenName,
                               @"family_name" : familyName,
                               @"name" : name,
-                              @"preferred_username" : username,
+                              @"preferred_username" : username ? username : @"",
                               @"sub" : subject,
                               @"ver": version,
-                              @"tid": tid
+                              @"tid": tid ? tid : @""
                               } msidBase64UrlJson];
     return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
 }
