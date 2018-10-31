@@ -21,26 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAuthorityMock.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDAuthorityMock
 
-@interface MSIDCache <KeyType, ObjectType> : NSObject <NSCopying>
-
-- (instancetype)initWithDictionary:(nullable NSDictionary *)dictionary;
-
-- (nullable ObjectType)objectForKey:(KeyType)key;
-
-- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
-
-- (void)removeObjectForKey:(KeyType)key;
-
-- (void)removeAllObjects;
-
-- (NSDictionary *)toDictionary;
-
-- (NSUInteger)count;
+- (NSArray<NSString *> *)defaultCacheEnvironmentAliases
+{
+    self.defaultCacheEnvironmentAliasesInvokedCount++;
+    return self.environmentAliases;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

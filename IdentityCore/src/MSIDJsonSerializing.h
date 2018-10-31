@@ -23,24 +23,29 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@protocol MSIDJsonSerializable;
+@protocol MSIDRequestContext;
 
-@interface MSIDCache <KeyType, ObjectType> : NSObject <NSCopying>
+@protocol MSIDJsonSerializing <NSObject>
 
-- (instancetype)initWithDictionary:(nullable NSDictionary *)dictionary;
+// JSON Data.
+- (NSData *)toJsonData:(id<MSIDJsonSerializable>)serializable
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError *__autoreleasing *)error;
 
-- (nullable ObjectType)objectForKey:(KeyType)key;
+- (id<MSIDJsonSerializable>)fromJsonData:(NSData *)data
+                                  ofType:(Class)klass
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError *__autoreleasing *)error;
 
-- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
+// JSON String.
+- (NSString *)toJsonString:(id<MSIDJsonSerializable>)serializable
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError *__autoreleasing *)error;
 
-- (void)removeObjectForKey:(KeyType)key;
-
-- (void)removeAllObjects;
-
-- (NSDictionary *)toDictionary;
-
-- (NSUInteger)count;
+- (id<MSIDJsonSerializable>)fromJsonString:(NSString *)jsonString
+                                    ofType:(Class)klass
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError *__autoreleasing *)error;
 
 @end
-
-NS_ASSUME_NONNULL_END

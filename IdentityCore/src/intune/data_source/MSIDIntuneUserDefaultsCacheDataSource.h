@@ -22,24 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDIntuneCacheDataSource.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDCache <KeyType, ObjectType> : NSObject <NSCopying>
+@interface MSIDIntuneUserDefaultsCacheDataSource : NSObject <MSIDIntuneCacheDataSource>
 
-- (instancetype)initWithDictionary:(nullable NSDictionary *)dictionary;
-
-- (nullable ObjectType)objectForKey:(KeyType)key;
-
-- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
-
-- (void)removeObjectForKey:(KeyType)key;
-
-- (void)removeAllObjects;
-
-- (NSDictionary *)toDictionary;
-
-- (NSUInteger)count;
+- (instancetype)initWithUserDefaults:(nullable NSUserDefaults *)userDefaults;
 
 @end
 

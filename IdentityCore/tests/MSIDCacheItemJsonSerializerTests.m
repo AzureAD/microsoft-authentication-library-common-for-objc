@@ -22,24 +22,24 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDJsonSerializer.h"
+#import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
 
-@interface MSIDJsonSerializerTests : XCTestCase
+@interface MSIDCacheItemJsonSerializerTests : XCTestCase
 
 @end
 
-@implementation MSIDJsonSerializerTests
+@implementation MSIDCacheItemJsonSerializerTests
 
 #pragma mark - Token cache item
 
 - (void)test_whenSerializeCredentialCacheItem_shouldReturnSameTokenOnDeserialize
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] init];
     cacheItem.secret = @"refresh token value";
@@ -59,7 +59,7 @@
 
 - (void)testSerializeCredentialCacheItem_whenTokenNil_shouldReturnNil
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     NSData *data = [serializer serializeCredentialCacheItem:nil];
     
@@ -68,7 +68,7 @@
 
 - (void)testSerializeCredentialCacheItem_whenTokenWithDefaultProperties_shouldReturnNotNilData
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     NSData *data = [serializer serializeCredentialCacheItem:[MSIDCredentialCacheItem new]];
     
@@ -77,7 +77,7 @@
 
 - (void)testDeserializeCredentialCacheItem_whenDataNilNil_shouldReturnNil
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:nil];
     
@@ -86,7 +86,7 @@
 
 - (void)testDeserializeCredentialCacheItem_whenDataInvalid_shouldReturnNil
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
     MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:data];
@@ -98,7 +98,7 @@
 
 - (void)test_whenSerializeAccountCacheItem_shouldReturnSameAccountOnDeserialize
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
@@ -117,7 +117,7 @@
 
 - (void)testSerializeAccountCacheItem_whenAccountNil_shouldReturnNil
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     NSData *data = [serializer serializeAccountCacheItem:nil];
     
@@ -126,7 +126,7 @@
 
 - (void)testSerializeAccountCacheItem_whenAccountWithDefaultProperties_shouldReturnNotNilData
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     NSData *data = [serializer serializeAccountCacheItem:[MSIDAccountCacheItem new]];
     
@@ -135,7 +135,7 @@
 
 - (void)testDeserializeAccountCacheItem_whenDataNilNil_shouldReturnNil
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     MSIDAccountCacheItem *account = [serializer deserializeAccountCacheItem:nil];
     
@@ -144,7 +144,7 @@
 
 - (void)testDeserializeAccountCacheItem_whenDataInvalid_shouldReturnNil
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
     MSIDAccountCacheItem *token = [serializer deserializeAccountCacheItem:data];
@@ -156,7 +156,7 @@
 
 - (void)test_whenSerializeAppMetadataCacheItem_shouldReturnSameAppMetadataOnDeserialize
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     MSIDAppMetadataCacheItem *cacheItem = [[MSIDAppMetadataCacheItem alloc] init];
     cacheItem.clientId = @"clientId";
@@ -172,7 +172,7 @@
 
 - (void)testSerializeAppMetadataCacheItem_whenAppMetadataNil_shouldReturnNil
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     NSData *data = [serializer serializeAccountCacheItem:nil];
     
@@ -181,7 +181,7 @@
 
 - (void)testSerializeAppMetadataCacheItem_whenAppMetadataWithDefaultProperties_shouldReturnNotNilData
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     NSData *data = [serializer serializeAppMetadataCacheItem:[MSIDAppMetadataCacheItem new]];
     
@@ -190,7 +190,7 @@
 
 - (void)testDeserializeAppMetadataCacheItem_whenDataNilNil_shouldReturnNil
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:nil];
     
@@ -199,7 +199,7 @@
 
 - (void)testDeserializeAppMetadataCacheItem_whenDataInvalid_shouldReturnNil
 {
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
     MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:data];

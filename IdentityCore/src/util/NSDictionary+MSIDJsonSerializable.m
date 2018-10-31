@@ -21,26 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "NSDictionary+MSIDJsonSerializable.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation NSDictionary (MSIDJsonSerializable)
 
-@interface MSIDCache <KeyType, ObjectType> : NSObject <NSCopying>
+#pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithDictionary:(nullable NSDictionary *)dictionary;
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                                 error:(NSError **)error
+{
+    return [self initWithDictionary:json];
+}
 
-- (nullable ObjectType)objectForKey:(KeyType)key;
-
-- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
-
-- (void)removeObjectForKey:(KeyType)key;
-
-- (void)removeAllObjects;
-
-- (NSDictionary *)toDictionary;
-
-- (NSUInteger)count;
+- (NSDictionary *)jsonDictionary
+{
+    return self;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

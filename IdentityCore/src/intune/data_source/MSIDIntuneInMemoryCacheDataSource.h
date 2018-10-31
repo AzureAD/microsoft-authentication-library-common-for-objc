@@ -22,10 +22,16 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAccountItemSerializer.h"
-#import "MSIDCredentialItemSerializer.h"
-#import "MSIDAppMetadataItemSerializer.h"
+#import "MSIDIntuneCacheDataSource.h"
 
-@interface MSIDJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer>
+@class MSIDCache;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDIntuneInMemoryCacheDataSource : NSObject <MSIDIntuneCacheDataSource>
+
+- (instancetype)initWithCache:(nullable MSIDCache *)cache;
 
 @end
+
+NS_ASSUME_NONNULL_END

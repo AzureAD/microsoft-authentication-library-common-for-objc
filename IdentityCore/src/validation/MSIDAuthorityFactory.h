@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDAuthority;
+@protocol MSIDRequestContext;
 
 @interface MSIDAuthorityFactory : NSObject
 

@@ -25,7 +25,7 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDDefaultCredentialCacheKey.h"
-#import "MSIDJsonSerializer.h"
+#import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDTokenCacheDataSource.h"
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDCacheKey.h"
@@ -37,7 +37,7 @@
 @interface MSIDAccountCredentialCache()
 {
     id<MSIDTokenCacheDataSource> _dataSource;
-    MSIDJsonSerializer *_serializer;
+    MSIDCacheItemJsonSerializer *_serializer;
 }
 
 @end
@@ -53,7 +53,7 @@
     if (self)
     {
         _dataSource = dataSource;
-        _serializer = [[MSIDJsonSerializer alloc] init];
+        _serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     }
 
     return self;
