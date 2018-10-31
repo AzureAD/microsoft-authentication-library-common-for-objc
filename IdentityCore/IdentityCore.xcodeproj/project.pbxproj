@@ -37,6 +37,7 @@
 		2308476D207D6D500024CE7C /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2308476A207D6D500024CE7C /* NSData+MSIDExtensions.m */; };
 		230847A72082C5830024CE7C /* MSIDHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 230847A52082C5830024CE7C /* MSIDHttpRequest.m */; };
 		230847A82082C5830024CE7C /* MSIDHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 230847A52082C5830024CE7C /* MSIDHttpRequest.m */; };
+		2309391B2189301600EAC95D /* MSIDJsonSerializing.h in Headers */ = {isa = PBXBuildFile; fileRef = 2309391A2189301600EAC95D /* MSIDJsonSerializing.h */; };
 		23185366206D8B080024DCA4 /* MSIDTestConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFF1FF306110015FC1D /* MSIDTestConfiguration.m */; };
 		23185367206D8B090024DCA4 /* MSIDTestConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFF1FF306110015FC1D /* MSIDTestConfiguration.m */; };
 		23185368206D8B1D0024DCA4 /* MSIDTestTokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECEFB1FF304250015FC1D /* MSIDTestTokenResponse.m */; };
@@ -838,6 +839,7 @@
 		2308476A207D6D500024CE7C /* NSData+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MSIDExtensions.m"; sourceTree = "<group>"; };
 		230847A42082C5830024CE7C /* MSIDHttpRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDHttpRequest.h; sourceTree = "<group>"; };
 		230847A52082C5830024CE7C /* MSIDHttpRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHttpRequest.m; sourceTree = "<group>"; };
+		2309391A2189301600EAC95D /* MSIDJsonSerializing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJsonSerializing.h; sourceTree = "<group>"; };
 		231CE99D1FE86EA300E95D3E /* MSIDTestsHostApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MSIDTestsHostApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		231CE9A01FE86EA300E95D3E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		231CE9A21FE86EA300E95D3E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -2432,6 +2434,7 @@
 		D6DA89721FBA6A4E004C56C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2309391A2189301600EAC95D /* MSIDJsonSerializing.h */,
 				23B3A44F2187AFD2009070B2 /* MSIDJsonSerializer.h */,
 				23B3A4502187AFD3009070B2 /* MSIDJsonSerializer.m */,
 				239DF9A920DED6E9002D428B /* MSIDConstants.h */,
@@ -2722,6 +2725,7 @@
 				96F94A3320817C1A0034676C /* MSIDNTLMHandler.h in Headers */,
 				B297E1E620A12BDE00F370EC /* MSIDDefaultAccountCacheKey.h in Headers */,
 				B251CC3B2041058D005E0179 /* MSIDRefreshToken.h in Headers */,
+				2309391B2189301600EAC95D /* MSIDJsonSerializing.h in Headers */,
 				23B39AB7209BC705000AA905 /* MSIDOpenIdProviderMetadata.h in Headers */,
 				238A04932089A3C800989EE0 /* MSIDHttpRequestTelemetry.h in Headers */,
 				23B39A8120993302000AA905 /* MSIDAadAuthorityResolver.h in Headers */,

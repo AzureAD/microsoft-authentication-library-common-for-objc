@@ -22,8 +22,30 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonSerializing.h"
 
-@interface MSIDJsonSerializer : NSObject <MSIDJsonSerializing>
+@protocol MSIDJsonSerializable;
+@protocol MSIDRequestContext;
+
+@protocol MSIDJsonSerializing <NSObject>
+
+// JSON Data.
+- (NSData *)toJsonData:(id<MSIDJsonSerializable>)serializable
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError *__autoreleasing *)error;
+
+- (id<MSIDJsonSerializable>)fromJsonData:(NSData *)data
+                                  ofType:(Class)klass
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError *__autoreleasing *)error;
+
+// JSON String.
+- (NSString *)toJsonString:(id<MSIDJsonSerializable>)serializable
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError *__autoreleasing *)error;
+
+- (id<MSIDJsonSerializable>)fromJsonString:(NSString *)jsonString
+                                    ofType:(Class)klass
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError *__autoreleasing *)error;
 
 @end
