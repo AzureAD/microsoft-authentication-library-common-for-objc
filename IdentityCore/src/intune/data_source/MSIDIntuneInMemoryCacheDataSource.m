@@ -21,26 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDIntuneInMemoryCacheDataSource.h"
+#import "MSIDCache.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDIntuneInMemoryCacheDataSource ()
 
-@interface MSIDCache <KeyType, ObjectType> : NSObject <NSCopying>
-
-- (instancetype)initWithDictionary:(nullable NSDictionary *)dictionary;
-
-- (nullable ObjectType)objectForKey:(KeyType)key;
-
-- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
-
-- (void)removeObjectForKey:(KeyType)key;
-
-- (void)removeAllObjects;
-
-- (NSDictionary *)toDictionary;
-
-- (NSUInteger)count;
+@property (nonatomic, readonly) MSIDCache *cache;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDIntuneInMemoryCacheDataSource
+
+- (instancetype)initWithCache:(MSIDCache *)cache
+{
+    self = [super init];
+    if (self)
+    {
+        _cache = cache ? cache : [MSIDCache new];
+    }
+    
+    return self;
+}
+
+- (instancetype)init
+{
+    return [self initWithCache:nil];
+}
+
+#pragma mark - MSIDIntuneCacheDataSource
+
+- (NSDictionary *)jsonDictionaryForKey:(NSString *)key;
+{
+    return [self.cache objectForKey:key];
+}
+
+- (void)setJsonDictionary:(NSDictionary *)dictionary forKey:(NSString *)key
+{
+    [self.cache setObject:dictionary forKey:key];
+}
+
+@end

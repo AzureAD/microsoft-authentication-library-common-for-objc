@@ -25,21 +25,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDCache <KeyType, ObjectType> : NSObject <NSCopying>
+@protocol MSIDIntuneCacheDataSource <NSObject>
 
-- (instancetype)initWithDictionary:(nullable NSDictionary *)dictionary;
+- (nullable NSDictionary *)jsonDictionaryForKey:(NSString *)key;
 
-- (nullable ObjectType)objectForKey:(KeyType)key;
-
-- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
-
-- (void)removeObjectForKey:(KeyType)key;
-
-- (void)removeAllObjects;
-
-- (NSDictionary *)toDictionary;
-
-- (NSUInteger)count;
+- (void)setJsonDictionary:(NSDictionary *)dictionary forKey:(NSString *)key;
 
 @end
 

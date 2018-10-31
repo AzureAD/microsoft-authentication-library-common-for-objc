@@ -21,25 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
+#import "MSIDIntuneCacheDataSource.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
+
+@class MSIDAuthority;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDCache <KeyType, ObjectType> : NSObject <NSCopying>
+@interface MSIDIntuneMAMResourcesCache : NSObject
 
-- (instancetype)initWithDictionary:(nullable NSDictionary *)dictionary;
+@property (class, strong) MSIDIntuneMAMResourcesCache *sharedCache;
 
-- (nullable ObjectType)objectForKey:(KeyType)key;
+- (instancetype)initWithDataSource:(id<MSIDIntuneCacheDataSource>)dataSource;
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
 
-- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
+/*! Returns the Intune MAM resource for the associated authority*/
+- (nullable NSString *)resourceForAuthority:(MSIDAuthority *)authority
+                                    context:(nullable id<MSIDRequestContext>)context
+                                      error:(NSError *__autoreleasing *)error;
 
-- (void)removeObjectForKey:(KeyType)key;
+- (void)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
+                           context:(nullable id<MSIDRequestContext>)context
+                             error:(NSError *__autoreleasing *)error;
 
-- (void)removeAllObjects;
-
-- (NSDictionary *)toDictionary;
-
-- (NSUInteger)count;
+- (nullable NSDictionary *)resourcesJsonDictionaryWithContext:(nullable id<MSIDRequestContext>)context
+                                                        error:(NSError *__autoreleasing *)error;
 
 @end
 
