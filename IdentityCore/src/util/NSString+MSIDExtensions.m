@@ -274,4 +274,16 @@ typedef unsigned char byte;
     return [NSOrderedSet msidOrderedSetFromString:self];
 }
 
+- (NSDictionary *)msidJson
+{
+    NSData *jsonData = [self dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if (!jsonData) return nil;
+    
+    NSError *jsonError = nil;
+    NSDictionary *decodedDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonError];
+    
+    return decodedDictionary;
+}
+
 @end
