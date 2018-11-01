@@ -71,6 +71,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)enrollmentIdsJsonDictionaryWithContext:(nullable id<MSIDRequestContext>)context
                                                    error:(NSError *__autoreleasing *)error;
 
+/*!
+ Clears the cache, removing all stored enrollment ids from data source.
+ */
+- (void)clear;
+
 @end
 
 NS_ASSUME_NONNULL_END

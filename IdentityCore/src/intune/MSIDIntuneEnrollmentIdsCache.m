@@ -193,6 +193,11 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     return jsonDictionary;
 }
 
+- (void)clear
+{
+    [self.dataSource removeObjectForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
+}
+
 #pragma mark - Private
 
 - (BOOL)isValid:(NSDictionary *)json

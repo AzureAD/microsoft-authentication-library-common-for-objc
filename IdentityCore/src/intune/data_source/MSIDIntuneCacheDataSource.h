@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setJsonDictionary:(NSDictionary *)dictionary forKey:(NSString *)key;
 
+- (void)removeObjectForKey:(NSString *)key;
+
 @end
 
 NS_ASSUME_NONNULL_END
