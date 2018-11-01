@@ -51,10 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  Tries to find an enrollmentID for a homeAccountId first,
- then checks userId, then returns any enrollmentID available.
+ then checks legacyUserId, then returns any enrollmentId available.
  */
 - (NSString *)enrollmentIdForHomeAccountId:(nullable NSString *)homeAccountId
-                                    userId:(nullable NSString *)userId
+                                    legacyUserId:(nullable NSString *)legacyUserId
                                    context:(nullable id<MSIDRequestContext>)context
                                      error:(NSError *__autoreleasing *)error;
 

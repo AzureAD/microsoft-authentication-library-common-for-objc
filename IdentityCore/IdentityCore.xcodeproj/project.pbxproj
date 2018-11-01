@@ -61,7 +61,6 @@
 		232173EE2182B195009852C6 /* MSIDIntuneInMemoryCacheDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 232173E82182B195009852C6 /* MSIDIntuneInMemoryCacheDataSource.m */; };
 		232173EF2182B195009852C6 /* MSIDIntuneInMemoryCacheDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 232173E82182B195009852C6 /* MSIDIntuneInMemoryCacheDataSource.m */; };
 		232173F02182B195009852C6 /* MSIDIntuneCacheDataSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 232173E92182B195009852C6 /* MSIDIntuneCacheDataSource.h */; };
-		2321741521839379009852C6 /* MSIDCacheItemSerializing.h in Headers */ = {isa = PBXBuildFile; fileRef = 2321741421839379009852C6 /* MSIDCacheItemSerializing.h */; };
 		232C657621376755002A41FE /* MSIDDRSDiscoveryResponseSerializerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 232C657521376755002A41FE /* MSIDDRSDiscoveryResponseSerializerTests.m */; };
 		232C657721376755002A41FE /* MSIDDRSDiscoveryResponseSerializerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 232C657521376755002A41FE /* MSIDDRSDiscoveryResponseSerializerTests.m */; };
 		232C657A2137684E002A41FE /* MSIDDRSDiscoveryResponseSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 232C65782137684E002A41FE /* MSIDDRSDiscoveryResponseSerializer.h */; };
@@ -882,7 +881,6 @@
 		232173E72182B195009852C6 /* MSIDIntuneUserDefaultsCacheDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneUserDefaultsCacheDataSource.m; sourceTree = "<group>"; };
 		232173E82182B195009852C6 /* MSIDIntuneInMemoryCacheDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneInMemoryCacheDataSource.m; sourceTree = "<group>"; };
 		232173E92182B195009852C6 /* MSIDIntuneCacheDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDIntuneCacheDataSource.h; sourceTree = "<group>"; };
-		2321741421839379009852C6 /* MSIDCacheItemSerializing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCacheItemSerializing.h; sourceTree = "<group>"; };
 		232C657521376755002A41FE /* MSIDDRSDiscoveryResponseSerializerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDRSDiscoveryResponseSerializerTests.m; sourceTree = "<group>"; };
 		232C65782137684E002A41FE /* MSIDDRSDiscoveryResponseSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDDRSDiscoveryResponseSerializer.h; sourceTree = "<group>"; };
 		232C65792137684E002A41FE /* MSIDDRSDiscoveryResponseSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDRSDiscoveryResponseSerializer.m; sourceTree = "<group>"; };
@@ -1929,7 +1927,6 @@
 				9641B5271FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.h */,
 				9641B5281FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m */,
 				1E3590BA216D346E003D43BE /* MSIDAppMetadataItemSerializer.h */,
-				2321741421839379009852C6 /* MSIDCacheItemSerializing.h */,
 				23B3A44A21868766009070B2 /* MSIDCacheItemJsonSerializer.h */,
 				23B3A44B21868766009070B2 /* MSIDCacheItemJsonSerializer.m */,
 			);
@@ -2755,7 +2752,6 @@
 				B2CDB5791FE33A46003A4B5C /* MSIDAccount.h in Headers */,
 				239DF9CA20E05873002D428B /* MSIDConstants.h in Headers */,
 				238E19DD2086FE28004DF483 /* MSIDAADAuthorizationCodeRequest.h in Headers */,
-				2321741521839379009852C6 /* MSIDCacheItemSerializing.h in Headers */,
 				B251CC49204105A7005E0179 /* MSIDIdToken.h in Headers */,
 				23B39A8620993572000AA905 /* MSIDAADAuthorityMetadataRequest.h in Headers */,
 				B29A36BF20B1289D00427B63 /* MSIDAccountIdentifier.h in Headers */,
