@@ -277,9 +277,8 @@ typedef unsigned char byte;
 
 - (NSDictionary *)msidJson
 {
-    NSError *jsonError = nil;
     __auto_type jsonSerializer = [MSIDJsonSerializer new];
-    __auto_type jsonDictionary = (NSDictionary *)[jsonSerializer fromJsonString:self ofType:NSDictionary.self context:nil error:&jsonError];
+    __auto_type jsonDictionary = (NSDictionary *)[jsonSerializer fromJsonString:self ofType:NSDictionary.self context:nil error:nil];
     
     return jsonDictionary;
 }
