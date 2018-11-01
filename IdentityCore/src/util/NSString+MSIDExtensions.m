@@ -26,6 +26,7 @@
 #import "NSString+MSIDExtensions.h"
 #import "NSData+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDJsonSerializer.h"
 
 typedef unsigned char byte;
 
@@ -276,14 +277,11 @@ typedef unsigned char byte;
 
 - (NSDictionary *)msidJson
 {
-    NSData *jsonData = [self dataUsingEncoding:NSUTF8StringEncoding];
-    
-    if (!jsonData) return nil;
-    
     NSError *jsonError = nil;
-    NSDictionary *decodedDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonError];
+    __auto_type jsonSerializer = [MSIDJsonSerializer new];
+    __auto_type jsonDictionary = (NSDictionary *)[jsonSerializer fromJsonString:self ofType:NSDictionary.self context:nil error:&jsonError];
     
-    return decodedDictionary;
+    return jsonDictionary;
 }
 
 @end

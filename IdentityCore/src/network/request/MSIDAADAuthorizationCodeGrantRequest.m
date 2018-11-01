@@ -43,7 +43,7 @@
         
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
-        parameters[MSID_OAUTH2_CLAIMS] = claims ? claims : nil;
+        parameters[MSID_OAUTH2_CLAIMS] = claims;
         _parameters = parameters;
     }
     
