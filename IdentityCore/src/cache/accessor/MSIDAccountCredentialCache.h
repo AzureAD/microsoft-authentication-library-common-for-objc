@@ -170,13 +170,6 @@
                   error:(NSError * _Nullable * _Nullable)error;
 
 /*
- Gets app metadata for a particular query
- */
-- (nullable MSIDAppMetadataCacheItem *)getAppMetadataWithQuery:(nonnull MSIDAppMetadataCacheQuery *)query
-                                                       context:(nullable id<MSIDRequestContext>)context
-                                                         error:(NSError * _Nullable * _Nullable)error;
-
-/*
  Remove app metadata
  */
 - (BOOL)removeAppMetadata:(nonnull MSIDAppMetadataCacheItem *)appMetadata
@@ -184,8 +177,9 @@
                     error:(NSError * _Nullable * _Nullable)error;
 
 
-- (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(nonnull MSIDAppMetadataCacheQuery *)query
-                                                                context:(nullable id<MSIDRequestContext>)context
-                                                                  error:(NSError * _Nullable * _Nullable)error;
+//Get app metadata entries for a query
+- (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntriesWithQuery:(nonnull MSIDAppMetadataCacheQuery *)query
+                                                                         context:(nullable id<MSIDRequestContext>)context
+                                                                           error:(NSError * _Nullable * _Nullable)error;
 
 @end

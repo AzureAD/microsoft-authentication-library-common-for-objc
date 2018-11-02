@@ -896,15 +896,15 @@
     return result;
 }
 
-- (MSIDAppMetadataCacheItem *)getAppAppMetadataForConfiguration:(MSIDConfiguration *)configuration
-                                                        context:(id<MSIDRequestContext>)context
-                                                          error:(NSError *__autoreleasing *)error
+- (NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(MSIDConfiguration *)configuration
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError *__autoreleasing *)error
 {
     MSIDAppMetadataCacheQuery *metadataQuery = [[MSIDAppMetadataCacheQuery alloc] init];
     metadataQuery.clientId = configuration.clientId;
     metadataQuery.generalType = MSIDAppMetadataType;
     metadataQuery.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
-    return [_accountCredentialCache getAppMetadataWithQuery:metadataQuery context:context error:error];
+    return [_accountCredentialCache getAppMetadataEntriesWithQuery:metadataQuery context:context error:error];
 }
 
 - (BOOL)updateAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
@@ -916,15 +916,6 @@
     BOOL result = [_accountCredentialCache saveAppMetadata:appMetadata context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
-}
-
-- (NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(MSIDConfiguration *)configuration
-                                                       context:(id<MSIDRequestContext>)context
-                                                         error:(NSError *__autoreleasing *)error
-{
-    MSIDAppMetadataCacheQuery *metadataQuery = [[MSIDAppMetadataCacheQuery alloc] init];
-    metadataQuery.generalType = MSIDAppMetadataType;
-    return [_accountCredentialCache getAppMetadataEntries:metadataQuery context:context error:error];
 }
 
 @end

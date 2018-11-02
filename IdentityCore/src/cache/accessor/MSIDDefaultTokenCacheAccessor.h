@@ -64,9 +64,9 @@
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error;
 
-- (MSIDAppMetadataCacheItem *)getAppAppMetadataForConfiguration:(MSIDConfiguration *)configuration
-                                                        context:(id<MSIDRequestContext>)context
-                                                          error:(NSError **)error;
+- (NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(MSIDConfiguration *)configuration
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError **)error;
 
 - (BOOL)saveAppMetadataWithConfiguration:(MSIDConfiguration *)configuration
                                 response:(MSIDTokenResponse *)response
@@ -77,7 +77,4 @@
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error;
 
-- (NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(MSIDConfiguration *)configuration
-                                                       context:(id<MSIDRequestContext>)context
-                                                         error:(NSError *__autoreleasing *)error;
 @end

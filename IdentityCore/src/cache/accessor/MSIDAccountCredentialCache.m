@@ -438,24 +438,6 @@
                                   error:error];
 }
 
-- (nullable MSIDAppMetadataCacheItem *)getAppMetadataWithQuery:(nonnull MSIDAppMetadataCacheQuery *)query
-                                                       context:(nullable id<MSIDRequestContext>)context
-                                                         error:(NSError * _Nullable * _Nullable)error
-{
-    assert(query);
-
-    MSID_LOG_VERBOSE(context, @"(Default cache) Get app metadata for query %@", query.logDescription);
-
-    NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [self getAppMetadataEntries:query context:context error:error];
-    
-    if ([appMetadataEntries count] == 1)
-    {
-        return appMetadataEntries[0];
-    }
-    
-    return nil;
-}
-
 - (BOOL)removeAppMetadata:(nonnull MSIDAppMetadataCacheItem *)appMetadata
                   context:(nullable id<MSIDRequestContext>)context
                     error:(NSError * _Nullable * _Nullable)error
@@ -472,9 +454,9 @@
     return [_dataSource removeItemsWithKey:key context:context error:error];
 }
 
-- (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(nonnull MSIDAppMetadataCacheQuery *)cacheQuery
-                                                                context:(nullable id<MSIDRequestContext>)context
-                                                                  error:(NSError * _Nullable * _Nullable)error
+- (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntriesWithQuery:(nonnull MSIDAppMetadataCacheQuery *)cacheQuery
+                                                                         context:(nullable id<MSIDRequestContext>)context
+                                                                           error:(NSError * _Nullable * _Nullable)error
 {
     assert(cacheQuery);
     
