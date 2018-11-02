@@ -170,7 +170,7 @@
     XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(refreshToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertEqualObjects(refreshToken.additionalServerInfo, nil);
 
     NSArray *idTokens = [self getAllIDTokens];
     XCTAssertEqual([idTokens count], 1);
@@ -181,7 +181,7 @@
     XCTAssertEqualObjects(defaultIDToken.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
     XCTAssertEqualObjects(defaultIDToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultIDToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(defaultIDToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertEqualObjects(defaultIDToken.additionalServerInfo, nil);
 
     NSArray *allTokens = [_nonSSOAccessor allTokensWithContext:nil error:nil];
     XCTAssertEqual([allTokens count], 3);
@@ -254,7 +254,7 @@
     XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(refreshToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertEqualObjects(refreshToken.additionalServerInfo, nil);
 
     NSArray *idTokens = [self getAllIDTokens];
     XCTAssertEqual([idTokens count], 1);
@@ -265,7 +265,7 @@
     XCTAssertEqualObjects(defaultIDToken.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
     XCTAssertEqualObjects(defaultIDToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultIDToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(defaultIDToken.additionalServerInfo, [NSDictionary dictionary]);
+    XCTAssertEqualObjects(defaultIDToken.additionalServerInfo, nil);
 
     NSArray *allTokens = [_nonSSOAccessor allTokensWithContext:nil error:nil];
     XCTAssertEqual([allTokens count], 3);

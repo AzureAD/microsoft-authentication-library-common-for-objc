@@ -208,4 +208,30 @@
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
 }
 
+- (void)testEqualityForCredentialCacheItems_WhenEitherOfTheComparedPropertiesInTheObject_IsNil
+{
+    MSIDCredentialCacheItem *cacheItem1 = [MSIDCredentialCacheItem new];
+    cacheItem1.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem1.credentialType = MSIDIDTokenType;
+    cacheItem1.secret = DEFAULT_TEST_ID_TOKEN;
+    cacheItem1.target = DEFAULT_TEST_RESOURCE;
+    cacheItem1.realm = @"contoso.com";
+    cacheItem1.environment = @"login.microsoftonline.com";
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    NSDate *extExpiresOn = [NSDate date];
+    cacheItem1.expiresOn = expiresOn;
+    cacheItem1.cachedAt = cachedAt;
+    cacheItem1.homeAccountId = @"uid.utid";
+    cacheItem1.familyId = DEFAULT_TEST_FAMILY_ID;
+    NSDictionary *additionalInfo = @{@"ext_expires_on": extExpiresOn,
+                                     @"spe_info": @"2"};
+    cacheItem1.additionalInfo = additionalInfo;
+    
+    MSIDCredentialCacheItem *cacheItem2 = [MSIDCredentialCacheItem new];
+    cacheItem2.credentialType = MSIDIDTokenType;
+    cacheItem2.secret = DEFAULT_TEST_ID_TOKEN;
+    cacheItem2.clientId = DEFAULT_TEST_CLIENT_ID;
+    XCTAssertNotEqualObjects(cacheItem1, cacheItem2);
+}
 @end
