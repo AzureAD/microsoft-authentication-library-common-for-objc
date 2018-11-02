@@ -74,32 +74,6 @@ static BOOL s_certAuthInProgress = NO;
 
 @implementation MSIDClientTLSHandler
 
-+ (void)setCustomActivities:(NSArray<UIActivity *> *)activities
-{
-    s_activities = activities;
-}
-
-+ (void)setEndURL:(NSURL *)url
-{
-    if (s_safariController)
-    {
-        s_endURL = url;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [s_safariController dismissViewControllerAnimated:YES completion:nil];
-        });
-        dispatch_semaphore_signal(s_sem);
-    }
-    return;
-}
-
-+ (void)authFailed
-{
-    if (s_sem)
-    {
-        dispatch_semaphore_signal(s_sem);
-    }
-}
-
 + (void)load
 {
     [MSIDChallengeHandler registerHandler:self authMethod:NSURLAuthenticationMethodClientCertificate];
@@ -130,6 +104,7 @@ static BOOL s_certAuthInProgress = NO;
     return [self handleCertAuthChallenge:challenge webview:webview context:context completionHandler:completionHandler];
 }
 
+#pragma mark - WPJ
 + (BOOL)isWPJChallenge:(NSArray *)distinguishedNames
 {
     
@@ -180,7 +155,34 @@ static BOOL s_certAuthInProgress = NO;
 }
 
 
+#pragma mark - CBA
+
 #if TARGET_OS_IPHONE
++ (void)setCustomActivities:(NSArray<UIActivity *> *)activities
+{
+    s_activities = activities;
+}
+
++ (void)setEndURL:(NSURL *)url
+{
+    if (s_safariController)
+    {
+        s_endURL = url;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [s_safariController dismissViewControllerAnimated:YES completion:nil];
+        });
+        dispatch_semaphore_signal(s_sem);
+    }
+    return;
+}
+
++ (void)authFailed
+{
+    if (s_sem)
+    {
+        dispatch_semaphore_signal(s_sem);
+    }
+}
 
 + (BOOL)handleCertAuthChallenge:(NSURLAuthenticationChallenge *)challenge
                         webview:(WKWebView *)webview
