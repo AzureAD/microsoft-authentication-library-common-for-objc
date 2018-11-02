@@ -513,31 +513,6 @@
                         error:error];
 }
 
-- (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
-                                      serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error;
-{
-    if (!serializer)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
-        }
-        
-        return nil;
-    }
-    
-    NSData *itemData = [self itemDataWithKey:key
-                              keysDictionary:_accountKeys
-                           contentDictionary:_accountContents
-                                     context:context
-                                       error:error];
-    
-    MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
-    return appMetadata;
-}
-
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
                                                         serializer:(id<MSIDAppMetadataItemSerializer>)serializer
                                                            context:(id<MSIDRequestContext>)context

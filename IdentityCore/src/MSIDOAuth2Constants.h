@@ -122,3 +122,5 @@ extern NSString *const MSID_APP_METADATA_CACHE_TYPE;
 
 extern NSString *const MSID_OPENID_CONFIGURATION_SUFFIX;
 extern NSString *const MSID_PREFERRED_USERNAME_MISSING;
+
+extern NSString *const MSIDServerErrorClientMismatch;

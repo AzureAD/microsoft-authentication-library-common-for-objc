@@ -654,30 +654,6 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                     error:error];
 }
 
-- (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
-                                      serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
-{
-    MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
-    NSArray<MSIDAppMetadataCacheItem *> *items = [self appMetadataEntriesWithKey:key
-                                                                      serializer:serializer
-                                                                         context:context
-                                                                           error:error];
-    
-    if (items.count > 1)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one metadata entry for same clientId and environment.", nil, nil, nil, context.correlationId, nil);
-        }
-        
-        return nil;
-    }
-    
-    return items.firstObject;
-}
-
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
                                                         serializer:(id<MSIDAppMetadataItemSerializer>)serializer
                                                            context:(id<MSIDRequestContext>)context

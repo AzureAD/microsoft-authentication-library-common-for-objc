@@ -124,3 +124,5 @@ NSString *const MSID_APP_METADATA_CACHE_TYPE             = @"appmetadata";
 
 NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-configuration";
 NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the token response";
+
+NSString *const MSIDServerErrorClientMismatch            = @"client_mismatch";

@@ -39,4 +39,3 @@ NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
 NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
-NSString *const MSIDServerErrorClientMismatch    = @"client_mismatch";

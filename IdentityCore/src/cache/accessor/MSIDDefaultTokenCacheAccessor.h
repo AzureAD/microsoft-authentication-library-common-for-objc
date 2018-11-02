@@ -73,10 +73,6 @@
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 
-- (BOOL)removeAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error;
-
 - (BOOL)updateAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error;

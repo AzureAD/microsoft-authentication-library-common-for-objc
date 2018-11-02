@@ -33,6 +33,7 @@
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
+#import "MSIDAppMetadataCacheQuery.h"
 
 @interface MSIDKeychainTokenCacheIntegrationTests : XCTestCase
 
@@ -540,11 +541,46 @@
     [keychainTokenCache saveAppMetadata:appMetadata1 key:key serializer:serializer context:nil error:nil];
     [keychainTokenCache saveAppMetadata:appMetadata2 key:key serializer:serializer context:nil error:nil];
     
-    MSIDAppMetadataCacheItem *metadataResult = [keychainTokenCache appMetadataWithKey:key
-                                                                           serializer:serializer
-                                                                              context:nil error:nil];
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataItems = [keychainTokenCache appMetadataEntriesWithKey:key serializer:serializer context:nil error:nil];
+    XCTAssertTrue([appMetadataItems count] == 1);
+    XCTAssertEqualObjects(appMetadataItems[0], appMetadata2);
+}
+
+- (void)testAppMetadataEntriesWithKey_ShouldReturnCorrentEntries
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDAppMetadataCacheItem *appMetadata = [MSIDAppMetadataCacheItem new];
+    appMetadata.clientId = @"clientId1";
+    appMetadata.environment = @"environment1";
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
-    XCTAssertEqualObjects(metadataResult, appMetadata2);
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:@"clientId1"
+                                                                         environment:@"environment1"
+                                                                            familyId:nil
+                                                                         generalType:MSIDAppMetadataType];
+    
+    [keychainTokenCache saveAppMetadata:appMetadata key:key serializer:serializer context:nil error:nil];
+    appMetadata.environment = @"environment2";
+    key.environment = @"environment2";
+    [keychainTokenCache saveAppMetadata:appMetadata key:key serializer:serializer context:nil error:nil];
+    
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.clientId = @"clientId1";
+    
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataItems = [keychainTokenCache appMetadataEntriesWithKey:cacheQuery
+                                                                                               serializer:serializer
+                                                                                                  context:nil
+                                                                                                    error:nil];
+    XCTAssertTrue([appMetadataItems count] == 2);
+    
+    cacheQuery.environment = @"environment1";
+    appMetadataItems = [keychainTokenCache appMetadataEntriesWithKey:cacheQuery
+                                                          serializer:serializer
+                                                             context:nil
+                                                               error:nil];
+    XCTAssertTrue([appMetadataItems count] == 1);
+    XCTAssertEqualObjects(appMetadataItems[0].clientId, @"clientId1");
+    XCTAssertEqualObjects(appMetadataItems[0].environment, @"environment1");
 }
 
 @end

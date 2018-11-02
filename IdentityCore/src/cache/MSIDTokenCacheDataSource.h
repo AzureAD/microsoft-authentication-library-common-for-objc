@@ -93,11 +93,6 @@
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error;
 
-- (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
-                                      serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error;
-
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
                                                         serializer:(id<MSIDAppMetadataItemSerializer>)serializer
                                                            context:(id<MSIDRequestContext>)context

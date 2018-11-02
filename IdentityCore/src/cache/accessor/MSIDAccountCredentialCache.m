@@ -446,26 +446,13 @@
 
     MSID_LOG_VERBOSE(context, @"(Default cache) Get app metadata for query %@", query.logDescription);
 
-    if (query.exactMatch)
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [self getAppMetadataEntries:query context:context error:error];
+    
+    if ([appMetadataEntries count] == 1)
     {
-        return [_dataSource appMetadataWithKey:query serializer:_serializer context:context error:error];
+        return appMetadataEntries[0];
     }
-
-    NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [_dataSource appMetadataEntriesWithKey:query
-                                                                                          serializer:_serializer
-                                                                                             context:context
-                                                                                               error:error];
-
-    for (MSIDAppMetadataCacheItem *appMetadata in appMetadataEntries)
-    {
-        if ([appMetadata matchesWithClientId:query.clientId
-                                 environment:query.environment
-                          environmentAliases:query.environmentAliases])
-        {
-            return appMetadata;
-        }
-    }
-
+    
     return nil;
 }
 
@@ -485,13 +472,39 @@
     return [_dataSource removeItemsWithKey:key context:context error:error];
 }
 
-- (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(nonnull MSIDAppMetadataCacheQuery *)query
+- (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(nonnull MSIDAppMetadataCacheQuery *)cacheQuery
                                                                 context:(nullable id<MSIDRequestContext>)context
                                                                   error:(NSError * _Nullable * _Nullable)error
 {
-    MSID_LOG_VERBOSE(context, @"(Default cache) Get all app metadata entries with type %@", [MSIDGeneralCacheItemTypeHelpers generalTypeAsString:query.generalType]);
+    assert(cacheQuery);
     
-    return [_dataSource appMetadataEntriesWithKey:query serializer:_serializer context:context error:error];
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get app metadata entries with clientId %@, environment %@", cacheQuery.clientId, cacheQuery.environment);
+    
+    NSArray<MSIDAppMetadataCacheItem *> *cacheItems = [_dataSource appMetadataEntriesWithKey:cacheQuery serializer:_serializer context:context error:error];
+    
+    if (!cacheQuery.exactMatch)
+    {
+        NSMutableArray<MSIDAppMetadataCacheItem *> *filteredResults = [NSMutableArray array];
+        
+        BOOL shouldMatchMetadata = !cacheQuery.clientId || !cacheQuery.environment;
+        
+        for (MSIDAppMetadataCacheItem *cacheItem in cacheItems)
+        {
+            if (shouldMatchMetadata
+                && ![cacheItem matchesWithClientId:cacheQuery.clientId
+                                       environment:cacheQuery.environment
+                                environmentAliases:cacheQuery.environmentAliases])
+            {
+                continue;
+            }
+            
+            [filteredResults addObject:cacheItem];
+        }
+        
+        return filteredResults;
+    }
+    
+    return cacheItems;
 }
 
 @end
