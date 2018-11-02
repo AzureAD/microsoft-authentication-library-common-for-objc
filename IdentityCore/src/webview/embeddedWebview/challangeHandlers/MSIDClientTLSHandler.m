@@ -42,6 +42,8 @@ static NSObject<SFSafariViewControllerDelegate> *s_safariDelegate = nil;
 static SFSafariViewController *s_safariController = nil;
 static BOOL s_certAuthInProgress = NO;
 static ChallengeCompletionHandler s_challengeCompletionHandler = nil;
+static NSString *s_redirectPrefix = nil;
+static NSString *s_redirectScheme = nil;
 
 @interface MSIDCertAuthDelegate: NSObject<SFSafariViewControllerDelegate>
 @end
@@ -157,6 +159,14 @@ static ChallengeCompletionHandler s_challengeCompletionHandler = nil;
 #pragma mark - CBA
 
 #if TARGET_OS_IPHONE
+
++ (void)setRedirectUriPrefix:(NSString *)prefix
+                   forScheme:(NSString *)scheme
+{
+    s_redirectScheme = scheme;
+    s_redirectPrefix = prefix;
+}
+
 + (void)setCustomActivities:(NSArray<UIActivity *> *)activities
 {
     s_activities = activities;
@@ -198,8 +208,7 @@ static ChallengeCompletionHandler s_challengeCompletionHandler = nil;
               completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
-    NSURL *requestURL = [currentSession.webviewController startURL];
-    
+   
     if (!currentSession)
     {
         MSID_LOG_ERROR(context, @"There is no current session open to continue with the cert auth challenge.");
@@ -208,6 +217,30 @@ static ChallengeCompletionHandler s_challengeCompletionHandler = nil;
     
     MSID_LOG_INFO(context, @"Received CertAuthChallenge");
     MSID_LOG_INFO_PII(context, @"Received CertAuthChallengehost from : %@", challenge.protectionSpace.host);
+    
+    NSURL *requestURL = [currentSession.webviewController startURL];
+    
+    if (s_redirectScheme)
+    {
+        NSURLComponents *requestURLComponents = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
+        NSArray<NSURLQueryItem *> *queryItems = [requestURLComponents queryItems];
+        NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
+        
+        for (NSURLQueryItem *item in queryItems)
+        {
+            if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI]
+                && ![item.value.lowercaseString hasPrefix:s_redirectScheme.lowercaseString])
+            {
+                newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value];
+            }
+            else
+            {
+                newQueryItems[item.name] = item.value;
+            }
+        }
+        requestURLComponents.percentEncodedQuery = [newQueryItems msidWWWFormURLEncode];
+        requestURL = requestURLComponents.URL;
+    }
     
     s_safariController = nil;
     s_challengeCompletionHandler = completionHandler;

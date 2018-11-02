@@ -27,6 +27,9 @@
 @interface MSIDClientTLSHandler : NSObject <MSIDChallengeHandling>
 
 #if TARGET_OS_IPHONE
++ (void)setRedirectUriPrefix:(NSString *)prefix
+                   forScheme:(NSString *)scheme;
+
 // These are for cert auth challenge for iOS
 + (void)setCustomActivities:(NSArray<UIActivity *> *)activities;
 + (BOOL)completeCertAuthChallenge:(NSURL *)endUrl;
