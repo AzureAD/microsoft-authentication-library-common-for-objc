@@ -29,8 +29,7 @@
 #if TARGET_OS_IPHONE
 // These are for cert auth challenge for iOS
 + (void)setCustomActivities:(NSArray<UIActivity *> *)activities;
-+ (void)setEndURL:(NSURL *)url;
-+ (void)authFailed;
++ (BOOL)completeCertAuthChallenge:(NSURL *)endUrl;
 #endif
 
 @end

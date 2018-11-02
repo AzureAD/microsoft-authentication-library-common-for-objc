@@ -39,10 +39,9 @@
 
 static NSArray<UIActivity *> *s_activities = nil;
 static NSObject<SFSafariViewControllerDelegate> *s_safariDelegate = nil;
-static NSURL *s_endURL = nil;
 static SFSafariViewController *s_safariController = nil;
-static dispatch_semaphore_t s_sem = nil;
 static BOOL s_certAuthInProgress = NO;
+static ChallengeCompletionHandler s_challengeCompletionHandler = nil;
 
 @interface MSIDCertAuthDelegate: NSObject<SFSafariViewControllerDelegate>
 @end
@@ -51,7 +50,7 @@ static BOOL s_certAuthInProgress = NO;
 /*! @abstract Delegate callback called when the user taps the Done button. Upon this call, the view controller is dismissed modally. */
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller
 {
-    [MSIDClientTLSHandler authFailed];
+    [MSIDClientTLSHandler completeCertAuthChallenge:nil];
 }
 
 /*! @abstract Invoked when the initial URL load is complete.
@@ -163,26 +162,35 @@ static BOOL s_certAuthInProgress = NO;
     s_activities = activities;
 }
 
-+ (void)setEndURL:(NSURL *)url
++ (BOOL)completeCertAuthChallenge:(NSURL *)endUrl
 {
-    if (s_safariController)
+    if (s_certAuthInProgress && s_safariController)
     {
-        s_endURL = url;
+        s_certAuthInProgress = NO;
+        
+        MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
+        MSIDOAuth2EmbeddedWebviewController *embeddedViewController = (MSIDOAuth2EmbeddedWebviewController  *)currentSession.webviewController;
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [s_safariController dismissViewControllerAnimated:YES completion:nil];
+            
+            if (endUrl)
+            {
+                [embeddedViewController endWebAuthWithURL:endUrl error:nil];
+            }
+            else
+            {
+                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"no end url is provided to end the cert auth handling", nil, nil, nil, nil, nil);
+                [embeddedViewController endWebAuthWithURL:nil error:error];
+            }
         });
-        dispatch_semaphore_signal(s_sem);
+        
+        return YES;
     }
-    return;
+    
+    return NO;
 }
 
-+ (void)authFailed
-{
-    if (s_sem)
-    {
-        dispatch_semaphore_signal(s_sem);
-    }
-}
 
 + (BOOL)handleCertAuthChallenge:(NSURLAuthenticationChallenge *)challenge
                         webview:(WKWebView *)webview
@@ -195,7 +203,6 @@ static BOOL s_certAuthInProgress = NO;
     if (!currentSession)
     {
         MSID_LOG_ERROR(context, @"There is no current session open to continue with the cert auth challenge.");
-        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
         return NO;
     }
     
@@ -203,8 +210,7 @@ static BOOL s_certAuthInProgress = NO;
     MSID_LOG_INFO_PII(context, @"Received CertAuthChallengehost from : %@", challenge.protectionSpace.host);
     
     s_safariController = nil;
-    s_endURL = nil;
-    s_sem = dispatch_semaphore_create(0);
+    s_challengeCompletionHandler = completionHandler;
     s_certAuthInProgress = YES;
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -217,29 +223,8 @@ static BOOL s_certAuthInProgress = NO;
         [currentViewController presentViewController:s_safariController animated:YES completion:nil];
     });
     
-    // Now wait around to either get hit from launch services, or for the view to be torn down.
-    dispatch_semaphore_wait(s_sem, DISPATCH_TIME_FOREVER);
-    s_certAuthInProgress = NO;
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [s_safariController dismissViewControllerAnimated:YES completion:nil];
-    });
-    
     // Cancel the Cert Auth Challenge happened in UIWebview, as we have already handled it in SFSafariViewController
     completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, NULL);
-    
-    MSIDOAuth2EmbeddedWebviewController *embeddedViewController = (MSIDOAuth2EmbeddedWebviewController  *)currentSession.webviewController;
-    
-    if (s_endURL)
-    {
-        [embeddedViewController endWebAuthWithURL:s_endURL error:nil];
-        s_endURL = nil;
-    }
-    else
-    {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"no end url is provided to end the cert auth handling", nil, nil, nil, context.correlationId, nil);
-        [embeddedViewController endWebAuthWithURL:nil error:error];
-    }
     
     return YES;
 }
