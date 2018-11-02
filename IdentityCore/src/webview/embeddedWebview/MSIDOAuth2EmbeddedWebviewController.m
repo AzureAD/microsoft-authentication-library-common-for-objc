@@ -160,7 +160,7 @@
     return result;
 }
 
-- (BOOL)endWebAuthWithURL:(NSURL *)endURL
+- (void)endWebAuthWithURL:(NSURL *)endURL
                     error:(NSError *)error
 {
     self.complete = YES;
@@ -180,7 +180,7 @@
         [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
     });
     
-    return YES;
+    return;
 }
 
 - (void)dispatchCompletionBlock:(NSURL *)url error:(NSError *)error

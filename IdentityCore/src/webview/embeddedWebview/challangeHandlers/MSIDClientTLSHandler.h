@@ -23,6 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDTLSHandler : NSObject <MSIDChallengeHandling>
+@interface MSIDClientTLSHandler : NSObject <MSIDChallengeHandling>
+
+#if TARGET_OS_IPHONE
+// These are for cert auth challenge for iOS
++ (void)setCustomActivities:(NSArray<UIActivity *> *)activities;
++ (void)setEndURL:(NSURL *)url;
++ (void)authFailed;
+#endif
 
 @end

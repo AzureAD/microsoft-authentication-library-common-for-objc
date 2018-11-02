@@ -30,11 +30,82 @@
 #import "MSIDCertificateChooser.h"
 #endif
 
-@implementation MSIDTLSHandler
+#if TARGET_OS_IPHONE
+#import "MSIDWebviewAuthorization.h"
+#import <SafariServices/SafariServices.h>
+#import "MSIDWebviewInteracting.h"
+#import "UIApplication+MSIDExtensions.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
+
+static NSArray<UIActivity *> *s_activities = nil;
+static NSObject<SFSafariViewControllerDelegate> *s_safariDelegate = nil;
+static NSURL *s_endURL = nil;
+static SFSafariViewController *s_safariController = nil;
+static dispatch_semaphore_t s_sem = nil;
+static BOOL s_certAuthInProgress = NO;
+
+@interface MSIDCertAuthDelegate: NSObject<SFSafariViewControllerDelegate>
+@end
+
+@implementation MSIDCertAuthDelegate
+/*! @abstract Delegate callback called when the user taps the Done button. Upon this call, the view controller is dismissed modally. */
+- (void)safariViewControllerDidFinish:(SFSafariViewController *)controller
+{
+    [MSIDClientTLSHandler authFailed];
+}
+
+/*! @abstract Invoked when the initial URL load is complete.
+ @param didLoadSuccessfully YES if loading completed successfully, NO if loading failed.
+ @discussion This method is invoked when SFSafariViewController completes the loading of the URL that you pass
+ to its initializer. It is not invoked for any subsequent page loads in the same SFSafariViewController instance.
+ */
+- (void)safariViewController:(SFSafariViewController *)controller didCompleteInitialLoad:(BOOL)didLoadSuccessfully
+{
+    
+}
+
+- (NSArray<UIActivity*>*)safariViewController:(SFSafariViewController *)controller activityItemsForURL:(NSURL *)URL title:(NSString *)title
+{
+    return s_activities;
+}
+@end
+#endif
+
+
+@implementation MSIDClientTLSHandler
+
++ (void)setCustomActivities:(NSArray<UIActivity *> *)activities
+{
+    s_activities = activities;
+}
+
++ (void)setEndURL:(NSURL *)url
+{
+    if (s_safariController)
+    {
+        s_endURL = url;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [s_safariController dismissViewControllerAnimated:YES completion:nil];
+        });
+        dispatch_semaphore_signal(s_sem);
+    }
+    return;
+}
+
++ (void)authFailed
+{
+    if (s_sem)
+    {
+        dispatch_semaphore_signal(s_sem);
+    }
+}
 
 + (void)load
 {
     [MSIDChallengeHandler registerHandler:self authMethod:NSURLAuthenticationMethodClientCertificate];
+#if TARGET_OS_IPHONE
+    s_safariDelegate = [MSIDCertAuthDelegate new];
+#endif
 }
 
 + (void)resetHandler { }
@@ -55,11 +126,8 @@
     {
         return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
     }
-#if TARGET_OS_IPHONE
-    return NO;
-#else
+    
     return [self handleCertAuthChallenge:challenge webview:webview context:context completionHandler:completionHandler];
-#endif
 }
 
 + (BOOL)isWPJChallenge:(NSArray *)distinguishedNames
@@ -110,6 +178,71 @@
     
     return YES;
 }
+
+
+#if TARGET_OS_IPHONE
+
++ (BOOL)handleCertAuthChallenge:(NSURLAuthenticationChallenge *)challenge
+                        webview:(WKWebView *)webview
+                        context:(id<MSIDRequestContext>)context
+              completionHandler:(ChallengeCompletionHandler)completionHandler
+{
+    MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
+    NSURL *requestURL = [currentSession.webviewController startURL];
+    
+    if (!currentSession)
+    {
+        MSID_LOG_ERROR(context, @"There is no current session open to continue with the cert auth challenge.");
+        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+        return NO;
+    }
+    
+    MSID_LOG_INFO(context, @"Received CertAuthChallenge");
+    MSID_LOG_INFO_PII(context, @"Received CertAuthChallengehost from : %@", challenge.protectionSpace.host);
+    
+    s_safariController = nil;
+    s_endURL = nil;
+    s_sem = dispatch_semaphore_create(0);
+    s_certAuthInProgress = YES;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // This will launch a Safari view within the current Application, removing the app flip. Our control of this
+        // view is extremely limited. Safari is still running in a separate sandbox almost completely isolated from us.
+        s_safariController = [[SFSafariViewController alloc] initWithURL:requestURL];
+        s_safariController.delegate = s_safariDelegate;
+        
+        UIViewController *currentViewController = [UIApplication msidCurrentViewController];
+        [currentViewController presentViewController:s_safariController animated:YES completion:nil];
+    });
+    
+    // Now wait around to either get hit from launch services, or for the view to be torn down.
+    dispatch_semaphore_wait(s_sem, DISPATCH_TIME_FOREVER);
+    s_certAuthInProgress = NO;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [s_safariController dismissViewControllerAnimated:YES completion:nil];
+    });
+    
+    // Cancel the Cert Auth Challenge happened in UIWebview, as we have already handled it in SFSafariViewController
+    completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, NULL);
+    
+    MSIDOAuth2EmbeddedWebviewController *embeddedViewController = (MSIDOAuth2EmbeddedWebviewController  *)currentSession.webviewController;
+    
+    if (s_endURL)
+    {
+        [embeddedViewController endWebAuthWithURL:s_endURL error:nil];
+        s_endURL = nil;
+    }
+    else
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"no end url is provided to end the cert auth handling", nil, nil, nil, context.correlationId, nil);
+        [embeddedViewController endWebAuthWithURL:nil error:error];
+    }
+    
+    return YES;
+}
+#endif
+
 
 #if !TARGET_OS_IPHONE
 
