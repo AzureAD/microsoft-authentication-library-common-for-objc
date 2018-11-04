@@ -30,6 +30,7 @@
                         clientId:(NSString *)clientId
                            scope:(NSString *)scope
                     refreshToken:(NSString *)refreshToken
+                          claims:(NSString *)claims
                          context:(nullable id<MSIDRequestContext>)context
 {
     self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken context:context];
@@ -40,6 +41,7 @@
         
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
+        parameters[MSID_OAUTH2_CLAIMS] = claims;
         _parameters = parameters;
     }
     

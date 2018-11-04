@@ -26,6 +26,7 @@
 #import "NSString+MSIDExtensions.h"
 #import "NSData+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDJsonSerializer.h"
 
 typedef unsigned char byte;
 
@@ -272,6 +273,14 @@ typedef unsigned char byte;
 - (NSOrderedSet<NSString *> *)msidScopeSet
 {
     return [NSOrderedSet msidOrderedSetFromString:self];
+}
+
+- (NSDictionary *)msidJson
+{
+    __auto_type jsonSerializer = [MSIDJsonSerializer new];
+    __auto_type jsonDictionary = (NSDictionary *)[jsonSerializer fromJsonString:self ofType:NSDictionary.self context:nil error:nil];
+    
+    return jsonDictionary;
 }
 
 @end

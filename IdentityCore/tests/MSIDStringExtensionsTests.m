@@ -266,4 +266,24 @@
     XCTAssertEqualObjects(result, @"key");
 }
 
+- (void)testmsidJson_whenNotJson_shouldReturnNil
+{
+    NSString *jsonString = @"{\"-not\":a json&*";
+    XCTAssertNil(jsonString.msidJson);
+}
+
+- (void)testmsidJson_whenEmpty_shouldReturnNil
+{
+    NSString *jsonString = @"";
+    XCTAssertNil(jsonString.msidJson);
+}
+
+- (void)testmsidJson_whenProperJson_shouldReturnDictionary
+{
+    NSString *jsonString = @"{\"json_key\":\"value\"}";
+    NSDictionary *json = jsonString.msidJson;
+    XCTAssertNotNil(json);
+    XCTAssertEqualObjects(json[@"json_key"], @"value");
+}
+
 @end

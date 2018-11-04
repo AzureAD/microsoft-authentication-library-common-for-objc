@@ -87,4 +87,8 @@
 /*! Convenience method to convert string to scope set */
 - (NSOrderedSet<NSString *> *)msidScopeSet;
 
+/*! Convenience method to convert json string to a dictionary.
+ Returns nil if it is not a json string. */
+- (NSDictionary *)msidJson;
+
 @end
