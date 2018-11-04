@@ -21,22 +21,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// TODO: define result
-typedef void (^MSIDRequestCompletionBlock)(id _Nullable result, NSError * _Nullable error);
+#import "MSIDAutoRequestController.h"
+#import "MSIDSilentTokenRequest.h"
+#import "MSIDInteractiveTokenRequest.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAccountIdentifier.h"
 
-extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
-extern NSString * _Nonnull const MSID_VERSION_KEY;
-extern NSString * _Nonnull const MSID_CPU_KEY;//E.g. ARM64
-extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
-extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
-extern NSString * _Nonnull const MSID_APP_NAME_KEY;
-extern NSString * _Nonnull const MSID_APP_VER_KEY;
+@interface MSIDAutoRequestController()
 
-extern NSString * _Nonnull const MSIDTrustedAuthority;
-extern NSString * _Nonnull const MSIDTrustedAuthorityUS;
-extern NSString * _Nonnull const MSIDTrustedAuthorityChina;
-extern NSString * _Nonnull const MSIDTrustedAuthorityChina2;
-extern NSString * _Nonnull const MSIDTrustedAuthorityGermany;
-extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
-extern NSString * _Nonnull const MSIDTrustedAuthorityUSGovernment;
-extern NSString * _Nonnull const MSIDTrustedAuthorityCloudGovApi;
+@end
+
+@implementation MSIDAutoRequestController
+
+#pragma mark - MSIDInteractiveRequestControlling
+
+- (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
+{
+    MSIDSilentTokenRequest *request = [[MSIDSilentTokenRequest alloc] initWithRequestParameters:self.requestParameters];
+
+    [request acquireTokenWithCompletionHandler:^(id  _Nullable result, NSError * _Nullable error) {
+
+        if (result)
+        {
+            completionBlock(result, error);
+            return;
+        }
+
+        // TODO: check if there's any unrecoverable errors that we know of
+
+        // If we didn't get the result, retry with interaction
+        MSIDInteractiveTokenRequest *interactiveRequest = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:self.interactiveRequestParamaters];
+        [interactiveRequest acquireTokenWithCompletionHandler:completionBlock];
+    }];
+}
+
+@end

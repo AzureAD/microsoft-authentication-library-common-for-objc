@@ -21,22 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// TODO: define result
-typedef void (^MSIDRequestCompletionBlock)(id _Nullable result, NSError * _Nullable error);
+#import "MSIDRequestParameters.h"
 
-extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
-extern NSString * _Nonnull const MSID_VERSION_KEY;
-extern NSString * _Nonnull const MSID_CPU_KEY;//E.g. ARM64
-extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
-extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
-extern NSString * _Nonnull const MSID_APP_NAME_KEY;
-extern NSString * _Nonnull const MSID_APP_VER_KEY;
+typedef NS_ENUM(NSInteger, MSIDInteractiveRequestType)
+{
+    MSIDInteractiveRequestBrokeredType = 0,
+    MSIDInteractiveRequestLocalType
+};
 
-extern NSString * _Nonnull const MSIDTrustedAuthority;
-extern NSString * _Nonnull const MSIDTrustedAuthorityUS;
-extern NSString * _Nonnull const MSIDTrustedAuthorityChina;
-extern NSString * _Nonnull const MSIDTrustedAuthorityChina2;
-extern NSString * _Nonnull const MSIDTrustedAuthorityGermany;
-extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
-extern NSString * _Nonnull const MSIDTrustedAuthorityUSGovernment;
-extern NSString * _Nonnull const MSIDTrustedAuthorityCloudGovApi;
+typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
+{
+    MSIDUIBehaviorPromptAlwaysType = 0,
+    MSIDUIBehaviorPromptAutoType
+};
+
+@class WKWebView;
+
+@interface MSIDInteractiveRequestParameters : MSIDRequestParameters
+
+@property (nonatomic) MSIDInteractiveRequestType requestType;
+@property (nonatomic) MSIDUIBehaviorType uiBehaviorType;
+@property (nonatomic) NSString *loginHint;
+@property (nonatomic) BOOL useEmbeddedWebView;
+@property (nonatomic) BOOL useSafariViewController;
+@property (nonatomic) WKWebView *customWebview;
+
+// prompt type
+// broker enabled
+// login hint
+// extra query parameters
+// claims
+// slice params
+
+@end
