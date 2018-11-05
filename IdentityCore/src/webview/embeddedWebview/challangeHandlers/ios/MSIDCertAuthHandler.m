@@ -68,7 +68,6 @@ static NSString *s_redirectScheme = nil;
 
 + (void)load
 {
-    [super.class load];
     s_safariDelegate = [MSIDCertAuthDelegate new];
 }
 
