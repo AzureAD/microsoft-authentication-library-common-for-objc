@@ -2130,6 +2130,10 @@
 				B210F4541FDDFA7B005A8F76 /* MSIDBrokerResponse.m */,
 				B2CDB57A1FE33E99003A4B5C /* MSIDIdTokenClaims.h */,
 				B2CDB57B1FE33E9A003A4B5C /* MSIDIdTokenClaims.m */,
+				B28D909E218FBBA200E230D6 /* MSIDTokenResponseValidator.h */,
+				B28D909F218FBBA200E230D6 /* MSIDTokenResponseValidator.m */,
+				B28D90AD218FDB6F00E230D6 /* MSIDTokenRequestFactory.h */,
+				B28D90AE218FDB6F00E230D6 /* MSIDTokenRequestFactory.m */,
 				B28BDA77217E95D9003E5670 /* b2c */,
 				B2B1D575204369CA00DD81F0 /* account */,
 				B251CC232041050E005E0179 /* token */,
@@ -2143,6 +2147,10 @@
 		B210F4341FDDEA0D005A8F76 /* aad_v1 */ = {
 			isa = PBXGroup;
 			children = (
+				B28D90A3218FD1E800E230D6 /* MSIDAADV1TokenResponseValidator.h */,
+				B28D90A4218FD1E800E230D6 /* MSIDAADV1TokenResponseValidator.m */,
+				B28D90B2218FDBE600E230D6 /* MSIDAADV1TokenRequestFactory.h */,
+				B28D90B3218FDBE600E230D6 /* MSIDAADV1TokenRequestFactory.m */,
 				B210F4351FDDEA23005A8F76 /* MSIDAADV1TokenResponse.h */,
 				B210F4361FDDEA23005A8F76 /* MSIDAADV1TokenResponse.m */,
 				B2CDB5831FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.h */,
@@ -2343,6 +2351,10 @@
 		B29CB6D11FEC9B4D00F880ED /* aad_v2 */ = {
 			isa = PBXGroup;
 			children = (
+				B28D90A8218FD1F800E230D6 /* MSIDAADV2TokenResponseValidator.h */,
+				B28D90A9218FD1F800E230D6 /* MSIDAADV2TokenResponseValidator.m */,
+				B28D90B7218FDBF500E230D6 /* MSIDAADV2TokenRequestFactory.h */,
+				B28D90B8218FDBF500E230D6 /* MSIDAADV2TokenRequestFactory.m */,
 				B2EF14391FF2F21E005DC1C0 /* MSIDAADV2TokenResponse.h */,
 				B2EF14381FF2F21D005DC1C0 /* MSIDAADV2TokenResponse.m */,
 				B23ECEED1FF2F6270015FC1D /* MSIDAADV2IdTokenClaims.h */,
@@ -2386,18 +2398,6 @@
 				B2AF1D32218BCEEB0080C1A0 /* MSIDSilentTokenRequest.m */,
 				B28D9092218FA38300E230D6 /* MSIDEndpointDiscoveryRequest.h */,
 				B28D9093218FA38300E230D6 /* MSIDEndpointDiscoveryRequest.m */,
-				B28D909E218FBBA200E230D6 /* MSIDTokenResponseValidator.h */,
-				B28D909F218FBBA200E230D6 /* MSIDTokenResponseValidator.m */,
-				B28D90A3218FD1E800E230D6 /* MSIDAADV1TokenResponseValidator.h */,
-				B28D90A4218FD1E800E230D6 /* MSIDAADV1TokenResponseValidator.m */,
-				B28D90A8218FD1F800E230D6 /* MSIDAADV2TokenResponseValidator.h */,
-				B28D90A9218FD1F800E230D6 /* MSIDAADV2TokenResponseValidator.m */,
-				B28D90AD218FDB6F00E230D6 /* MSIDTokenRequestFactory.h */,
-				B28D90AE218FDB6F00E230D6 /* MSIDTokenRequestFactory.m */,
-				B28D90B2218FDBE600E230D6 /* MSIDAADV1TokenRequestFactory.h */,
-				B28D90B3218FDBE600E230D6 /* MSIDAADV1TokenRequestFactory.m */,
-				B28D90B7218FDBF500E230D6 /* MSIDAADV2TokenRequestFactory.h */,
-				B28D90B8218FDBF500E230D6 /* MSIDAADV2TokenRequestFactory.m */,
 			);
 			path = requests;
 			sourceTree = "<group>";
