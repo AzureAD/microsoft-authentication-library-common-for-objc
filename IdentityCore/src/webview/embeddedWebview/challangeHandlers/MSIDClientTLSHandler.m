@@ -26,61 +26,13 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDRegistrationInformation.h"
 #import "MSIDWorkPlaceJoinConstants.h"
-#if TARGET_OS_OSX
-#import "MSIDCertificateChooser.h"
-#endif
-
-#if TARGET_OS_IPHONE
-#import "MSIDWebviewAuthorization.h"
-#import <SafariServices/SafariServices.h>
-#import "MSIDWebviewInteracting.h"
-#import "UIApplication+MSIDExtensions.h"
-#import "MSIDOAuth2EmbeddedWebviewController.h"
-
-static NSArray<UIActivity *> *s_activities = nil;
-static NSObject<SFSafariViewControllerDelegate> *s_safariDelegate = nil;
-static SFSafariViewController *s_safariController = nil;
-static BOOL s_certAuthInProgress = NO;
-static ChallengeCompletionHandler s_challengeCompletionHandler = nil;
-static NSString *s_redirectPrefix = nil;
-static NSString *s_redirectScheme = nil;
-
-@interface MSIDCertAuthDelegate: NSObject<SFSafariViewControllerDelegate>
-@end
-
-@implementation MSIDCertAuthDelegate
-/*! @abstract Delegate callback called when the user taps the Done button. Upon this call, the view controller is dismissed modally. */
-- (void)safariViewControllerDidFinish:(SFSafariViewController *)controller
-{
-    [MSIDClientTLSHandler completeCertAuthChallenge:nil];
-}
-
-/*! @abstract Invoked when the initial URL load is complete.
- @param didLoadSuccessfully YES if loading completed successfully, NO if loading failed.
- @discussion This method is invoked when SFSafariViewController completes the loading of the URL that you pass
- to its initializer. It is not invoked for any subsequent page loads in the same SFSafariViewController instance.
- */
-- (void)safariViewController:(SFSafariViewController *)controller didCompleteInitialLoad:(BOOL)didLoadSuccessfully
-{
-    
-}
-
-- (NSArray<UIActivity*>*)safariViewController:(SFSafariViewController *)controller activityItemsForURL:(NSURL *)URL title:(NSString *)title
-{
-    return s_activities;
-}
-@end
-#endif
-
+#import "MSIDCertAuthHandler.h"
 
 @implementation MSIDClientTLSHandler
 
 + (void)load
 {
     [MSIDChallengeHandler registerHandler:self authMethod:NSURLAuthenticationMethodClientCertificate];
-#if TARGET_OS_IPHONE
-    s_safariDelegate = [MSIDCertAuthDelegate new];
-#endif
 }
 
 + (void)resetHandler { }
@@ -102,7 +54,11 @@ static NSString *s_redirectScheme = nil;
         return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
     }
     
-    return [self handleCertAuthChallenge:challenge webview:webview context:context completionHandler:completionHandler];
+    // If it is not WPJ challenge, it has to be CBA.
+    return [MSIDCertAuthHandler handleChallenge:challenge
+                                        webview:webview
+                                        context:context
+                              completionHandler:completionHandler];
 }
 
 #pragma mark - WPJ
@@ -155,219 +111,5 @@ static NSString *s_redirectScheme = nil;
     return YES;
 }
 
-
-#pragma mark - CBA
-
-#if TARGET_OS_IPHONE
-
-+ (void)setRedirectUriPrefix:(NSString *)prefix
-                   forScheme:(NSString *)scheme
-{
-    s_redirectScheme = scheme;
-    s_redirectPrefix = prefix;
-}
-
-+ (void)setCustomActivities:(NSArray<UIActivity *> *)activities
-{
-    s_activities = activities;
-}
-
-+ (BOOL)completeCertAuthChallenge:(NSURL *)endUrl
-{
-    if (s_certAuthInProgress && s_safariController)
-    {
-        s_certAuthInProgress = NO;
-        
-        MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
-        MSIDOAuth2EmbeddedWebviewController *embeddedViewController = (MSIDOAuth2EmbeddedWebviewController  *)currentSession.webviewController;
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [s_safariController dismissViewControllerAnimated:YES completion:nil];
-            
-            if (endUrl)
-            {
-                [embeddedViewController endWebAuthWithURL:endUrl error:nil];
-            }
-            else
-            {
-                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"no end url is provided to end the cert auth handling", nil, nil, nil, nil, nil);
-                [embeddedViewController endWebAuthWithURL:nil error:error];
-            }
-        });
-        
-        return YES;
-    }
-    
-    return NO;
-}
-
-
-+ (BOOL)handleCertAuthChallenge:(NSURLAuthenticationChallenge *)challenge
-                        webview:(WKWebView *)webview
-                        context:(id<MSIDRequestContext>)context
-              completionHandler:(ChallengeCompletionHandler)completionHandler
-{
-    MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
-   
-    if (!currentSession)
-    {
-        MSID_LOG_ERROR(context, @"There is no current session open to continue with the cert auth challenge.");
-        return NO;
-    }
-    
-    MSID_LOG_INFO(context, @"Received CertAuthChallenge");
-    MSID_LOG_INFO_PII(context, @"Received CertAuthChallengehost from : %@", challenge.protectionSpace.host);
-    
-    NSURL *requestURL = [currentSession.webviewController startURL];
-    
-    if (s_redirectScheme)
-    {
-        NSURLComponents *requestURLComponents = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
-        NSArray<NSURLQueryItem *> *queryItems = [requestURLComponents queryItems];
-        NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
-        
-        for (NSURLQueryItem *item in queryItems)
-        {
-            if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI]
-                && ![item.value.lowercaseString hasPrefix:s_redirectScheme.lowercaseString])
-            {
-                newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value];
-            }
-            else
-            {
-                newQueryItems[item.name] = item.value;
-            }
-        }
-        requestURLComponents.percentEncodedQuery = [newQueryItems msidWWWFormURLEncode];
-        requestURL = requestURLComponents.URL;
-    }
-    
-    s_safariController = nil;
-    s_challengeCompletionHandler = completionHandler;
-    s_certAuthInProgress = YES;
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // This will launch a Safari view within the current Application, removing the app flip. Our control of this
-        // view is extremely limited. Safari is still running in a separate sandbox almost completely isolated from us.
-        s_safariController = [[SFSafariViewController alloc] initWithURL:requestURL];
-        s_safariController.delegate = s_safariDelegate;
-        
-        UIViewController *currentViewController = [UIApplication msidCurrentViewController];
-        [currentViewController presentViewController:s_safariController animated:YES completion:nil];
-    });
-    
-    // Cancel the Cert Auth Challenge happened in UIWebview, as we have already handled it in SFSafariViewController
-    completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, NULL);
-    
-    return YES;
-}
-#endif
-
-
-#if !TARGET_OS_IPHONE
-
-+ (BOOL)handleCertAuthChallenge:(NSURLAuthenticationChallenge *)challenge
-                        webview:(WKWebView *)webview
-                        context:(id<MSIDRequestContext>)context
-              completionHandler:(ChallengeCompletionHandler)completionHandler
-{
-    NSString *host = challenge.protectionSpace.host;
-    NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
-    
-    // Check if a preferred identity is set for this host
-    SecIdentityRef identity = SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
-    
-    if (!identity)
-    {
-        // If there was no identity matched for the exact host, try to match by URL
-        // URL matching is more flexible, as it's doing a wildcard matching for different subdomains
-        // However, we need to do both, because if there's an entry by hostname, matching by URL won't find it
-        identity = SecIdentityCopyPreferred((CFStringRef)webview.URL.absoluteString, NULL, (CFArrayRef)distinguishedNames);
-    }
-    
-    if (identity != NULL)
-    {
-        MSID_LOG_INFO(context, @"Using preferred identity");
-        [self respondCertAuthChallengeWithIdentity:identity context:context completionHandler:completionHandler];
-    }
-    else
-    {
-        // If not prompt the user to select an identity
-        [self promptUserForIdentity:distinguishedNames
-                               host:host
-                            webview:webview
-                      correlationId:context.correlationId
-                  completionHandler:^(SecIdentityRef identity)
-         {
-             if (identity == NULL)
-             {
-                 MSID_LOG_INFO(context, @"No identity returned from cert chooser");
-                 
-                 // If no identity comes back then we can't handle the request
-                 completionHandler(NSURLSessionAuthChallengeRejectProtectionSpace, nil);
-                 return;
-             }
-             
-             // Adding a retain count to match the retain count from SecIdentityCopyPreferred
-             CFRetain(identity);
-             MSID_LOG_INFO(context, @"Using user selected certificate");
-             [self respondCertAuthChallengeWithIdentity:identity context:context completionHandler:completionHandler];
-         }];
-    }
-    
-    return YES;
-}
-
-+ (void)respondCertAuthChallengeWithIdentity:(nonnull SecIdentityRef)identity
-                                     context:(id<MSIDRequestContext>)context
-                           completionHandler:(ChallengeCompletionHandler)completionHandler
-{
-    MSID_LOG_INFO(context, @"Responding to cert auth challenge with certicate");
-    /*
-     The `certificates` parameter accepts an array of /intermediate/ certificates leading from the leaf to the root.  It must not include the leaf certificate because the system gets that from the digital identity.  It should not include a root certificate because, when the server does trust evaluation on the leaf, it already has a copy of the relevant root. Therefore, we are sending "nil" to the certificates array.
-     */
-    NSURLCredential *credential = [[NSURLCredential alloc] initWithIdentity:identity certificates:nil persistence:NSURLCredentialPersistenceNone];
-    completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
-    CFRelease(identity);
-}
-
-
-+ (void)promptUserForIdentity:(NSArray *)issuers
-                         host:(NSString *)host
-                      webview:(WKWebView *)webview
-                correlationId:(NSUUID *)correlationId
-            completionHandler:(void (^)(SecIdentityRef identity))completionHandler
-{
-    NSMutableDictionary *query =
-    [@{
-       (id)kSecClass : (id)kSecClassIdentity,
-       (id)kSecMatchLimit : (id)kSecMatchLimitAll,
-       } mutableCopy];
-    
-    if (issuers.count > 0)
-    {
-        [query setObject:issuers forKey:(id)kSecMatchIssuers];
-    }
-    
-    CFTypeRef result = NULL;
-    
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &result);
-    if (status == errSecItemNotFound)
-    {
-        MSID_LOG_INFO_CORR(correlationId, @"No certificate found matching challenge");
-        completionHandler(nil);
-        return;
-    }
-    else if (status != errSecSuccess)
-    {
-        MSID_LOG_ERROR_CORR(correlationId, @"Failed to find identity matching issuers with %d error.", status);
-        completionHandler(nil);
-        return;
-    }
-    
-    [MSIDCertificateChooserHelper showCertSelectionSheet:(__bridge NSArray *)result host:host webview:webview correlationId:correlationId completionHandler:completionHandler];
-}
-
-#endif
 
 @end
