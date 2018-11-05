@@ -37,6 +37,7 @@
 #import "MSIDPkce.h"
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenRequestFactory.h"
+#import "MSIDTokenResult.h"
 
 @interface MSIDInteractiveTokenRequest()
 
@@ -185,7 +186,18 @@
             return;
         }
 
-        // TODO: create result
+        MSIDAccessToken *accessToken = [self.requestParameters.oauthFactory accessTokenFromResponse:tokenResponse configuration:self.requestParameters.msidConfiguration];
+
+        MSIDIdToken *idToken = [self.requestParameters.oauthFactory idTokenFromResponse:tokenResponse configuration:self.requestParameters.msidConfiguration];
+
+        MSIDAuthority *authority = self.requestParameters.cloudAuthority ?: self.requestParameters.authority;
+
+        MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                                       idToken:idToken
+                                                                     authority:authority
+                                                                 correlationId:self.requestParameters.correlationId];
+
+        completionBlock(result, nil);
     }];
 }
 
