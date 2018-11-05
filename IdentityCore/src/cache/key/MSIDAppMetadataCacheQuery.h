@@ -21,11 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAppMetadataCacheKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDCacheItemSerializing <NSObject>
+@interface MSIDAppMetadataCacheQuery : MSIDAppMetadataCacheKey
+
+@property (nonatomic, readonly) BOOL exactMatch;
+@property (nonatomic, nullable) NSArray<NSString *> *environmentAliases;
 
 @end
 

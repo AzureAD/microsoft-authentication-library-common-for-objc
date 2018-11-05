@@ -35,7 +35,7 @@
 #import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDAppMetadataCacheItem.h"
-#import "MSIDAppMetadataCacheKey.h"
+#import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
 
 @interface MSIDAccountCredentialsCacheTests : XCTestCase
@@ -1584,7 +1584,7 @@
 
 #pragma mark - removeCredential
 
-- (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveRefreshToken_shouldRemoveRefreshTokenAndIDTokens
+- (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveRefreshToken_shouldRemoveRefreshTokenOnly
 {
     [self saveItem:[self createTestIDTokenCacheItem]];
     [self saveItem:[self createTestRefreshTokenCacheItem]];
@@ -1598,7 +1598,7 @@
     NSArray *allCredentials = [self.cache getAllItemsWithContext:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allCredentials);
-    XCTAssertTrue([allCredentials count] == 1);
+    XCTAssertTrue([allCredentials count] == 2);
     XCTAssertTrue([allCredentials containsObject:[self createTestAccessTokenCacheItem]]);
 }
 
@@ -1962,7 +1962,7 @@
     XCTAssertNotNil(wipeInfo[@"wipeTime"]);
 }
 
-#pragma mark - getAppMetadataWithQuery
+#pragma mark - getAppMetadataEntriesWithQuery
 
 - (void)testGetAppMetadataWithUpdatedFamilyId_shouldReturnAppMetadata
 {
@@ -1970,21 +1970,120 @@
     [self saveAppMetadata:itemWithFamilyId];
     
     NSError *error = nil;
-    
-    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:@"client" environment:@"login.microsoftonline.com" familyId:nil generalType:MSIDAppMetadataType];
-    
-    MSIDAppMetadataCacheItem *item = [self.cache getAppMetadata:key context:nil error:&error];
-    XCTAssertNotNil(item);
-    XCTAssertNotNil(item.familyId);
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.clientId = @"client";
+    cacheQuery.environment = @"login.microsoftonline.com";
+    NSArray<MSIDAppMetadataCacheItem *> *metadataEntries = [self.cache getAppMetadataEntriesWithQuery:cacheQuery
+                                                                                              context:nil
+                                                                                                error:&error];
+    XCTAssertEqual([metadataEntries count], 1);
+    XCTAssertNotNil(metadataEntries[0].familyId);
     XCTAssertNil(error);
-    
     MSIDAppMetadataCacheItem *itemWithoutFamilyId = [self createAppMetadataCacheItem:nil];
     [self saveAppMetadata:itemWithoutFamilyId];
     
-    item = [self.cache getAppMetadata:key context:nil error:&error];
-    XCTAssertNotNil(item);
-    XCTAssertNil(item.familyId);
+    metadataEntries = [self.cache getAppMetadataEntriesWithQuery:cacheQuery
+                                                         context:nil
+                                                           error:&error];
+    
+    XCTAssertEqual([metadataEntries count], 1);
+    XCTAssertNil(metadataEntries[0].familyId);
     XCTAssertNil(error);
+}
+
+- (void)testsGetAppMetadataEntriesWhenMultipleClientIds_shouldReturnAllEntries
+{
+    MSIDAppMetadataCacheItem *itemWithFamilyId = [self createAppMetadataCacheItem:@"1"];
+    itemWithFamilyId.clientId = @"client1";
+    [self saveAppMetadata:itemWithFamilyId];
+    NSError *error = nil;
+    MSIDAppMetadataCacheItem *itemWithoutFamilyId = [self createAppMetadataCacheItem:nil];
+    itemWithoutFamilyId.clientId = @"client2";
+    [self saveAppMetadata:itemWithoutFamilyId];
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.generalType = MSIDAppMetadataType;
+    
+    NSArray<MSIDAppMetadataCacheItem *> *metadataEntries = [self.cache getAppMetadataEntriesWithQuery:cacheQuery
+                                                                                              context:nil
+                                                                                                error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue([metadataEntries count] == 2);
+}
+
+- (void)testsGetAppMetadataEntriesWhenMultipleEnvironments_shouldReturnAllEntries
+{
+    MSIDAppMetadataCacheItem *itemWithFamilyId = [self createAppMetadataCacheItem:@"1"];
+    itemWithFamilyId.environment = @"environment1";
+    [self saveAppMetadata:itemWithFamilyId];
+    NSError *error = nil;
+    MSIDAppMetadataCacheItem *itemWithoutFamilyId = [self createAppMetadataCacheItem:nil];
+    itemWithoutFamilyId.environment = @"environment2";
+    [self saveAppMetadata:itemWithoutFamilyId];
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.generalType = MSIDAppMetadataType;
+    
+    NSArray<MSIDAppMetadataCacheItem *> *metadataEntries = [self.cache getAppMetadataEntriesWithQuery:cacheQuery
+                                                                                              context:nil
+                                                                                                error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue([metadataEntries count] == 2);
+}
+
+- (void)testGetAppMetadataWithSameClientIdAndMultipleEnvironment_shouldReturnCorrectAppMetadata
+{
+    MSIDAppMetadataCacheItem *cacheItem1 = [self createAppMetadataCacheItem:nil];
+    cacheItem1.clientId = @"clientId1";
+    cacheItem1.environment = @"environment1";
+    [self saveAppMetadata:cacheItem1];
+    
+    MSIDAppMetadataCacheItem *cacheItem2 = [self createAppMetadataCacheItem:nil];
+    cacheItem2.clientId = @"clientId1";
+    cacheItem2.environment = @"environment2";
+    [self saveAppMetadata:cacheItem2];
+    NSError *error = nil;
+    
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.clientId = @"clientId1";
+    cacheQuery.environmentAliases = [NSArray arrayWithObjects:@"environment2",nil];
+    NSArray<MSIDAppMetadataCacheItem *> *metadataEntries = [self.cache getAppMetadataEntriesWithQuery:cacheQuery
+                                                                                              context:nil
+                                                                                                error:&error];
+    XCTAssertTrue([metadataEntries count] == 1);
+    XCTAssertEqualObjects(cacheItem2, metadataEntries[0]);
+}
+
+#pragma mark - removeAppMetadata
+
+- (void)testRemoveAppMetadata_whenMultipleAppMetadataEntries_shouldRemoveCorrectAppMetadataEntry
+{
+    MSIDAppMetadataCacheItem *item1 = [self createAppMetadataCacheItem:nil];
+    [self saveAppMetadata:item1];
+    
+    MSIDAppMetadataCacheItem *item2 = [self createAppMetadataCacheItem:nil];
+    item2.environment = @"environment2";
+    [self saveAppMetadata:item2];
+    
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.clientId = @"client";
+    NSError *error = nil;
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [self.cache getAppMetadataEntriesWithQuery:cacheQuery
+                                                                                                 context:nil
+                                                                                                   error:&error];
+    
+    XCTAssertTrue([appMetadataEntries count] == 2);
+    BOOL removeResult = [self.cache removeAppMetadata:item2 context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(removeResult);
+    
+    appMetadataEntries = [self.cache getAppMetadataEntriesWithQuery:cacheQuery
+                                                                                                 context:nil
+                                                                                                   error:&error];
+    
+    XCTAssertTrue([appMetadataEntries count] == 1);
+    XCTAssertNil(error);
+    XCTAssertNotNil(appMetadataEntries);
+    XCTAssertTrue([appMetadataEntries count] == 1);
+    XCTAssertEqualObjects(appMetadataEntries[0], item1);
 }
 
 #endif

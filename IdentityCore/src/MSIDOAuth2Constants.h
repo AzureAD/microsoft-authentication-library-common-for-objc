@@ -117,7 +117,10 @@ extern NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_ID_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_GENERAL_CACHE_ITEM_TYPE;
 extern NSString *const MSID_APP_METADATA_CACHE_TYPE;
 
 extern NSString *const MSID_OPENID_CONFIGURATION_SUFFIX;
 extern NSString *const MSID_PREFERRED_USERNAME_MISSING;
+
+extern NSString *const MSIDServerErrorClientMismatch;

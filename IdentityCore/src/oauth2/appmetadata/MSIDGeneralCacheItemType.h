@@ -25,7 +25,8 @@
 
 typedef NS_ENUM(NSInteger, MSIDGeneralCacheItemType)
 {
-    MSIDAppMetadataType = 0
+    MSIDGeneralTypeOther = 0,
+    MSIDAppMetadataType = 1
 };
 
 @interface MSIDGeneralCacheItemTypeHelpers : NSObject
