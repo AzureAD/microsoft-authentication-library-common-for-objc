@@ -31,13 +31,21 @@
 @interface MSIDBaseRequestController()
 
 @property (nonatomic, readwrite) MSIDRequestParameters *requestParameters;
+@property (nonatomic, readwrite) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic, readwrite) MSIDTokenRequestFactory *tokenRequestFactory;
+@property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, readwrite) id<MSIDCacheAccessor> tokenCache;
 
 @end
 
 @implementation MSIDBaseRequestController
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                             error:(NSError **)error
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                             error:(NSError *_Nullable *_Nullable)error
 {
     self = [super init];
 
@@ -49,7 +57,7 @@
 
         if (![self.requestParameters validateParametersWithError:&parametersError])
         {
-            MSID_LOG_ERROR(self.requestParameters, @"Request parameters error %ld, %@", parametersError.code, parametersError.domain);
+            MSID_LOG_ERROR(self.requestParameters, @"Request parameters error %ld, %@", (long)parametersError.code, parametersError.domain);
             MSID_LOG_ERROR_PII(self.requestParameters, @"Request parameters error %@", parametersError);
 
             if (error)
@@ -59,6 +67,11 @@
 
             return nil;
         }
+
+        self.oauthFactory = oauthFactory;
+        self.tokenRequestFactory = tokenRequestFactory;
+        self.tokenResponseValidator = tokenResponseValidator;
+        self.tokenCache = tokenCache;
     }
 
     return self;

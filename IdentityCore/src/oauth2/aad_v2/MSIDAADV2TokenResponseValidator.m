@@ -29,10 +29,16 @@
 @implementation MSIDAADV2TokenResponseValidator
 
 - (MSIDTokenResponse *)validateTokenResponse:(id)response
+                                oauthFactory:(MSIDOauth2Factory *)factory
+                                  tokenCache:(id<MSIDCacheAccessor>)tokenCache
                            requestParameters:(MSIDRequestParameters *)parameters
                                        error:(NSError **)error
 {
-    MSIDTokenResponse *tokenResponse = [super validateTokenResponse:response requestParameters:parameters error:error];
+    MSIDTokenResponse *tokenResponse = [super validateTokenResponse:response
+                                                       oauthFactory:factory
+                                                         tokenCache:tokenCache
+                                                  requestParameters:parameters
+                                                              error:error];
 
     if (!tokenResponse)
     {

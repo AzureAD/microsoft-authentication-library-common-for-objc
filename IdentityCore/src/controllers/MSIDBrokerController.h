@@ -29,6 +29,11 @@
 
 @interface MSIDBrokerController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
 
-- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters error:(NSError **)error;
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                 oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                                          tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                                       tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                                   tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                                        error:(NSError *_Nullable *_Nullable)error;
 
 @end

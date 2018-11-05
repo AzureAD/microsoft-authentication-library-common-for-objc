@@ -27,4 +27,12 @@
 
 @interface MSIDSilentController : MSIDBaseRequestController <MSIDRequestControlling>
 
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                             error:(NSError *_Nullable *_Nullable)error;
+
 @end

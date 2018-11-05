@@ -42,6 +42,10 @@
 @interface MSIDInteractiveTokenRequest()
 
 @property (nonatomic) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic) MSIDTokenRequestFactory *tokenRequestFactory;
+@property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic) MSIDWebviewConfiguration *webViewConfiguration;
 
 @end
@@ -49,14 +53,21 @@
 @implementation MSIDInteractiveTokenRequest
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
 {
     self = [super init];
 
     if (self)
     {
         self.requestParameters = parameters;
-        // TODO: this looks a bit weird? Pass factories around instead?
-        self.webViewConfiguration = [parameters.tokenRequestFactory webViewConfigurationWithRequestParameters:parameters];
+        self.oauthFactory = oauthFactory;
+        self.tokenRequestFactory = tokenRequestFactory;
+        self.tokenResponseValidator = tokenResponseValidator;
+        self.tokenCache = tokenCache;
+        self.webViewConfiguration = [self.tokenRequestFactory webViewConfigurationWithRequestParameters:parameters];
     }
 
     return self;
@@ -141,7 +152,7 @@
     if (self.requestParameters.useEmbeddedWebView)
     {
         [MSIDWebviewAuthorization startEmbeddedWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                              oauth2Factory:self.requestParameters.oauthFactory
+                                                              oauth2Factory:self.oauthFactory
                                                                     webview:self.requestParameters.customWebview
                                                                     context:self.requestParameters
                                                           completionHandler:webAuthCompletion];
@@ -149,7 +160,7 @@
     else
     {
         [MSIDWebviewAuthorization startSystemWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                            oauth2Factory:self.requestParameters.oauthFactory
+                                                            oauth2Factory:self.oauthFactory
                                                  useAuthenticationSession:!self.requestParameters.useSafariViewController
                                                 allowSafariViewController:self.requestParameters.useSafariViewController
                                                                   context:self.requestParameters
@@ -162,9 +173,9 @@
 - (void)acquireTokenWithCode:(NSString *)authCode
                   completion:(MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.requestParameters.tokenRequestFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
-                                                                                                                                    codeVerifier:self.webViewConfiguration.pkce.codeVerifier
-                                                                                                                                        authCode:authCode];
+    MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.tokenRequestFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
+                                                                                                                  codeVerifier:self.webViewConfiguration.pkce.codeVerifier
+                                                                                                                      authCode:authCode];
 
     [tokenRequest sendWithBlock:^(id response, NSError *error) {
 
@@ -176,9 +187,11 @@
 
         NSError *validationError = nil;
 
-        MSIDTokenResponse *tokenResponse = [self.requestParameters.responseValidator validateTokenResponse:response
-                                                                                         requestParameters:self.requestParameters
-                                                                                                     error:&validationError];
+        MSIDTokenResponse *tokenResponse = [self.tokenResponseValidator validateTokenResponse:response
+                                                                                 oauthFactory:self.oauthFactory
+                                                                                   tokenCache:self.tokenCache
+                                                                            requestParameters:self.requestParameters
+                                                                                        error:&validationError];
 
         if (!tokenResponse)
         {
@@ -186,9 +199,9 @@
             return;
         }
 
-        MSIDAccessToken *accessToken = [self.requestParameters.oauthFactory accessTokenFromResponse:tokenResponse configuration:self.requestParameters.msidConfiguration];
+        MSIDAccessToken *accessToken = [self.oauthFactory accessTokenFromResponse:tokenResponse configuration:self.requestParameters.msidConfiguration];
 
-        MSIDIdToken *idToken = [self.requestParameters.oauthFactory idTokenFromResponse:tokenResponse configuration:self.requestParameters.msidConfiguration];
+        MSIDIdToken *idToken = [self.oauthFactory idTokenFromResponse:tokenResponse configuration:self.requestParameters.msidConfiguration];
 
         MSIDAuthority *authority = self.requestParameters.cloudAuthority ?: self.requestParameters.authority;
 

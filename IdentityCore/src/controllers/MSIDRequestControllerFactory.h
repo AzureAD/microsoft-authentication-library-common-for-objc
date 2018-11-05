@@ -24,15 +24,29 @@
 #import <Foundation/Foundation.h>
 #import "MSIDRequestControlling.h"
 #import "MSIDInteractiveRequestControlling.h"
+#import "MSIDCacheAccessor.h"
 
 @class MSIDInteractiveRequestParameters;
 @class MSIDRequestParameters;
+@class MSIDOauth2Factory;
+@class MSIDTokenRequestFactory;
+@class MSIDTokenResponseValidator;
 
 @interface MSIDRequestControllerFactory : NSObject
 
 + (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
+                                                        forceRefresh:(BOOL)forceRefresh
+                                                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                                                 tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                                              tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                                          tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                                                                error:(NSError *_Nullable *_Nullable)error;
+
 + (nullable id<MSIDInteractiveRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                                                                 tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                                                              tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                                                          tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                                                                                error:(NSError *_Nullable *_Nullable)error;
 
 @end

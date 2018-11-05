@@ -31,8 +31,18 @@ typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error)
 @interface MSIDBaseRequestController : NSObject
 
 @property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
+@property (nonatomic, readonly, nullable) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic, readonly, nullable) MSIDTokenRequestFactory *tokenRequestFactory;
+@property (nonatomic, readonly, nullable) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, readonly, nullable) id<MSIDCacheAccessor> tokenCache;
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters error:(NSError *_Nullable *_Nullable)error;
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                             error:(NSError *_Nullable *_Nullable)error;
+
 - (void)resolveEndpointsWithUpn:(nullable NSString *)upn completion:(nonnull MSIDAuthorityCompletion)completion;
 - (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
 - (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;

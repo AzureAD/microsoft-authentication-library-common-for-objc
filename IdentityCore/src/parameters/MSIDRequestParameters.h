@@ -56,10 +56,6 @@
 @property (nonatomic) NSArray *clientCapabilities;
 
 #pragma mark Factory
-@property (nonatomic) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic) MSIDTokenRequestFactory *tokenRequestFactory;
-@property (nonatomic) id<MSIDCacheAccessor> tokenCache;
-@property (nonatomic) MSIDTokenResponseValidator *responseValidator;
 @property (nonatomic) MSIDConfiguration *msidConfiguration; // TODO: this one is not necessary
 
 - (NSURL *)tokenEndpoint;

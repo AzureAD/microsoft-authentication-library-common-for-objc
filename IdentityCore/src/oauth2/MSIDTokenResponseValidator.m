@@ -28,6 +28,8 @@
 @implementation MSIDTokenResponseValidator
 
 - (MSIDTokenResponse *)validateTokenResponse:(id)response
+                                oauthFactory:(MSIDOauth2Factory *)factory
+                                  tokenCache:(id<MSIDCacheAccessor>)tokenCache
                            requestParameters:(MSIDRequestParameters *)parameters
                                        error:(NSError **)error
 {
@@ -44,9 +46,9 @@
     }
 
     NSDictionary *jsonDictionary = (NSDictionary *)response;
-    MSIDTokenResponse *tokenResponse = [parameters.oauthFactory tokenResponseFromJSON:jsonDictionary
-                                                                              context:parameters
-                                                                                error:error];
+    MSIDTokenResponse *tokenResponse = [factory tokenResponseFromJSON:jsonDictionary
+                                                              context:parameters
+                                                                error:error];
     if (!tokenResponse)
     {
         MSID_LOG_ERROR(parameters, @"Failed to create token response");
@@ -55,28 +57,28 @@
 
     NSError *verificationError = nil;
 
-    if (![parameters.oauthFactory verifyResponse:tokenResponse context:parameters error:&verificationError])
+    if (![factory verifyResponse:tokenResponse context:parameters error:&verificationError])
     {
         if (error)
         {
             *error = verificationError;
         }
 
-        MSID_LOG_WARN(parameters, @"Unsuccessful token response, error %ld, %@", verificationError.code, verificationError.domain);
+        MSID_LOG_WARN(parameters, @"Unsuccessful token response, error %ld, %@", (long)verificationError.code, verificationError.domain);
         MSID_LOG_WARN_PII(parameters, @"Unsuccessful token response, error %@", verificationError);
 
         return nil;
     }
 
     NSError *savingError = nil;
-    BOOL isSaved = [parameters.tokenCache saveTokensWithConfiguration:parameters.msidConfiguration
-                                                             response:tokenResponse
-                                                              context:parameters
-                                                                error:&savingError];
+    BOOL isSaved = [tokenCache saveTokensWithConfiguration:parameters.msidConfiguration
+                                                  response:tokenResponse
+                                                   context:parameters
+                                                     error:&savingError];
 
     if (!isSaved)
     {
-        MSID_LOG_ERROR(parameters, @"Failed to save tokens in cache. Error %ld, %@", savingError.code, savingError.domain);
+        MSID_LOG_ERROR(parameters, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
         MSID_LOG_ERROR_PII(parameters, @"Failed to save tokens in cache. Error %@", savingError);
     }
 

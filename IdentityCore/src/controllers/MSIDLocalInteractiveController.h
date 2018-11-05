@@ -29,8 +29,13 @@
 
 @interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
 
-@property (nonatomic, readonly) MSIDInteractiveRequestParameters *interactiveRequestParamaters;
+@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveRequestParamaters;
 
-- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters error:(NSError **)error;
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                 oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                                          tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                                       tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                                   tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                                        error:(NSError *_Nullable *_Nullable)error;
 
 @end

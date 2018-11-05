@@ -27,18 +27,33 @@
 @interface MSIDSilentTokenRequest()
 
 @property (nonatomic) MSIDRequestParameters *requestParameters;
+@property (nonatomic) BOOL forceRefresh;
+@property (nonatomic) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic) MSIDTokenRequestFactory *tokenRequestFactory;
+@property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic) id<MSIDCacheAccessor> tokenCache;
 
 @end
 
 @implementation MSIDSilentTokenRequest
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
 {
     self = [super init];
 
     if (self)
     {
         self.requestParameters = parameters;
+        self.forceRefresh = forceRefresh;
+        self.oauthFactory = oauthFactory;
+        self.tokenRequestFactory = tokenRequestFactory;
+        self.tokenResponseValidator = tokenResponseValidator;
+        self.tokenCache = tokenCache;
     }
 
     return self;

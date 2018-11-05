@@ -28,7 +28,38 @@
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 
+@interface MSIDSilentController()
+
+@property (nonatomic) BOOL forceRefresh;
+
+@end
+
 @implementation MSIDSilentController
+
+#pragma mark - Init
+
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                             error:(NSError *_Nullable *_Nullable)error
+{
+    self = [super initWithRequestParameters:parameters
+                               oauthFactory:oauthFactory
+                        tokenRequestFactory:tokenRequestFactory
+                     tokenResponseValidator:tokenResponseValidator
+                                 tokenCache:tokenCache
+                                      error:error];
+
+    if (self)
+    {
+        self.forceRefresh = forceRefresh;
+    }
+
+    return self;
+}
 
 #pragma mark - MSIDRequestControlling
 
@@ -50,7 +81,13 @@
 
 - (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDSilentTokenRequest *silentRequest = [[MSIDSilentTokenRequest alloc] initWithRequestParameters:self.requestParameters];
+    MSIDSilentTokenRequest *silentRequest = [[MSIDSilentTokenRequest alloc] initWithRequestParameters:self.requestParameters
+                                                                                         forceRefresh:self.forceRefresh
+                                                                                         oauthFactory:self.oauthFactory
+                                                                                  tokenRequestFactory:self.tokenRequestFactory
+                                                                               tokenResponseValidator:self.tokenResponseValidator
+                                                                                           tokenCache:self.tokenCache];
+
     [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
         [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
         completionBlock(result, error);

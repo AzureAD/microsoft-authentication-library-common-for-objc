@@ -40,9 +40,19 @@
 
 #pragma mark - Init
 
-- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters error:(NSError **)error
+- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                                 tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                              tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                          tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                               error:(NSError **)error
 {
-    self = [super initWithRequestParameters:parameters error:error];
+    self = [super initWithRequestParameters:parameters
+                               oauthFactory:oauthFactory
+                        tokenRequestFactory:tokenRequestFactory
+                     tokenResponseValidator:tokenResponseValidator
+                                 tokenCache:tokenCache
+                                      error:error];
 
     if (self)
     {
@@ -78,7 +88,11 @@
 
 - (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDInteractiveTokenRequest *interactiveRequest = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:self.interactiveRequestParamaters];
+    MSIDInteractiveTokenRequest *interactiveRequest = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:self.interactiveRequestParamaters
+                                                                                                        oauthFactory:self.oauthFactory
+                                                                                                 tokenRequestFactory:self.tokenRequestFactory
+                                                                                              tokenResponseValidator:self.tokenResponseValidator
+                                                                                                          tokenCache:self.tokenCache];
 
     [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 

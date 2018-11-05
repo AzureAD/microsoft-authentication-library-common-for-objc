@@ -22,13 +22,17 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDCacheAccessor.h"
 
 @class MSIDTokenResponse;
 @class MSIDRequestParameters;
+@class MSIDOauth2Factory;
 
 @interface MSIDTokenResponseValidator : NSObject
 
 - (MSIDTokenResponse *)validateTokenResponse:(id)response
+                                oauthFactory:(MSIDOauth2Factory *)factory
+                                  tokenCache:(id<MSIDCacheAccessor>)tokenCache
                            requestParameters:(MSIDRequestParameters *)parameters
                                        error:(NSError **)error;
 
