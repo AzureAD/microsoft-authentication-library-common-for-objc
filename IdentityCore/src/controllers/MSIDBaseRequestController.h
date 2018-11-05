@@ -22,16 +22,19 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDRequestControlling.h"
 #import "MSIDRequestParameters.h"
+
+@class MSIDTelemetryAPIEvent;
 
 typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error);
 
-@interface MSIDBaseRequestController : NSObject <MSIDRequestControlling>
+@interface MSIDBaseRequestController : NSObject
 
 @property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters;
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters error:(NSError *_Nullable *_Nullable)error;
 - (void)resolveEndpointsWithUpn:(nullable NSString *)upn completion:(nonnull MSIDAuthorityCompletion)completion;
+- (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
+- (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
 
 @end

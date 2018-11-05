@@ -31,6 +31,6 @@
 
 @property (nonatomic, readonly) MSIDInteractiveRequestParameters *interactiveRequestParamaters;
 
-- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
+- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters error:(NSError **)error;
 
 @end

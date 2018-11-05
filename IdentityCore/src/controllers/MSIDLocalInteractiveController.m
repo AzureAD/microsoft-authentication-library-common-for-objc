@@ -25,6 +25,10 @@
 #import "MSIDInteractiveTokenRequest.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryAPIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
+
 
 @interface MSIDLocalInteractiveController()
 
@@ -36,9 +40,9 @@
 
 #pragma mark - Init
 
-- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters error:(NSError **)error
 {
-    self = [super initWithRequestParameters:parameters];
+    self = [super initWithRequestParameters:parameters error:error];
 
     if (self)
     {
@@ -52,6 +56,8 @@
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
+    [[MSIDTelemetry sharedInstance] startEvent:self.interactiveRequestParamaters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
+
     NSString *accountIdentifier = self.interactiveRequestParamaters.accountIdentifier.legacyAccountId;
 
     NSString *upn = accountIdentifier ? accountIdentifier : self.interactiveRequestParamaters.loginHint;
@@ -61,6 +67,7 @@
 
                             if (!resolved)
                             {
+                                [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
                                 completionBlock(nil, error);
                                 return;
                             }
@@ -73,12 +80,31 @@
 {
     MSIDInteractiveTokenRequest *interactiveRequest = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:self.interactiveRequestParamaters];
 
-    [interactiveRequest acquireToken:completionBlock];
+    [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
+        completionBlock(result, error);
+    }];
 }
 
 - (BOOL)completeAcquireToken:(nonnull NSURL *)resultURL
 {
     return NO;
+}
+
+- (MSIDTelemetryAPIEvent *)telemetryAPIEvent
+{
+    MSIDTelemetryAPIEvent *event = [super telemetryAPIEvent];
+
+    if (self.interactiveRequestParamaters.loginHint)
+    {
+        [event setLoginHint:self.interactiveRequestParamaters.loginHint];
+    }
+
+    [event setWebviewType:self.interactiveRequestParamaters.telemetryWebviewType];
+    [event setPromptType:self.interactiveRequestParamaters.promptType];
+
+    return event;
 }
 
 @end

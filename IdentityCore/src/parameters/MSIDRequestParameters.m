@@ -131,4 +131,12 @@
     return [requestScopes msidToString];
 }
 
+#pragma mark - Validate
+
+- (BOOL)validateParametersWithError:(NSError **)error
+{
+    // TODO: validate
+    return NO;
+}
+
 @end

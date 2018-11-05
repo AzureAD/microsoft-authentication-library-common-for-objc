@@ -33,6 +33,7 @@
 - (void)setErrorDescription:(NSString *)errorDescription;
 - (void)setErrorDomain:(NSString *)errorDomain;
 
+
 - (void)setAuthorityValidationStatus:(NSString *)status;
 - (void)setAuthority:(NSString *)authority;
 - (void)setAuthorityType:(NSString *)authorityType;
@@ -43,5 +44,9 @@
 - (void)setApiId:(NSString *)apiId;
 
 - (void)setWebviewType:(NSString *)webviewType;
+
+- (void)setLoginHint:(NSString *)loginHint;
+- (void)setErrorCode:(NSUInteger)errorCode;
+- (void)setPromptType:(NSString *)promptType;
 
 @end

@@ -34,9 +34,9 @@
 
 #pragma mark - Init
 
-- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters error:(NSError **)error
 {
-    self = [super initWithRequestParameters:parameters];
+    self = [super initWithRequestParameters:parameters error:error];
 
     if (self)
     {

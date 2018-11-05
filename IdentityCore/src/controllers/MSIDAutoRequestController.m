@@ -43,13 +43,18 @@
 
         if (result)
         {
+            [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
             completionBlock(result, error);
             return;
         }
 
         // If we didn't get the successful result, retry with interaction
         MSIDInteractiveTokenRequest *interactiveRequest = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:self.interactiveRequestParamaters];
-        [interactiveRequest acquireToken:completionBlock];
+        [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+            [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
+            completionBlock(result, error);
+        }];
     }];
 }
 

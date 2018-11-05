@@ -97,4 +97,20 @@
     [self setProperty:MSID_TELEMETRY_KEY_WEBVIEW_TYPE value:webviewType];
 }
 
+- (void)setLoginHint:(NSString *)loginHint
+{
+    [self setProperty:MSID_TELEMETRY_KEY_LOGIN_HINT value:loginHint];
+}
+
+- (void)setErrorCode:(NSUInteger)errorCode
+{
+    self.errorInEvent = YES;
+    [self setProperty:MSID_TELEMETRY_KEY_API_ERROR_CODE value:[NSString stringWithFormat:@"%ld", errorCode]];
+}
+
+- (void)setPromptType:(NSString *)promptType
+{
+    [self setProperty:MSID_TELEMETRY_KEY_PROMPT_BEHAVIOR value:promptType];
+}
+
 @end

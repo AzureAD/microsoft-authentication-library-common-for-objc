@@ -29,6 +29,6 @@
 
 @interface MSIDBrokerController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
 
-- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
+- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters error:(NSError **)error;
 
 @end

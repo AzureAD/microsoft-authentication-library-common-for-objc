@@ -25,6 +25,8 @@
 #import "MSIDAuthority.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryAPIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @interface MSIDBaseRequestController()
 
@@ -34,13 +36,29 @@
 
 @implementation MSIDBaseRequestController
 
-- (instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                             error:(NSError **)error
 {
     self = [super init];
 
     if (self)
     {
         self.requestParameters = parameters;
+
+        NSError *parametersError = nil;
+
+        if (![self.requestParameters validateParametersWithError:&parametersError])
+        {
+            MSID_LOG_ERROR(self.requestParameters, @"Request parameters error %ld, %@", parametersError.code, parametersError.domain);
+            MSID_LOG_ERROR_PII(self.requestParameters, @"Request parameters error %@", parametersError);
+
+            if (error)
+            {
+                *error = parametersError;
+            }
+
+            return nil;
+        }
     }
 
     return self;
@@ -66,25 +84,25 @@
      }];
 }
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
-{
-    NSAssert(NO, @"This method needs to be implemented in subclasses");
-    // TODO: start telemetry event?
-}
-
 #pragma mark - Telemetry
 
 - (MSIDTelemetryAPIEvent *)telemetryAPIEvent
 {
-    // TODO
-    return nil;
+    MSIDTelemetryAPIEvent *event = [[MSIDTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_API_EVENT context:self.requestParameters];
+
+    [event setApiId:self.requestParameters.telemetryApiId];
+    [event setCorrelationId:self.requestParameters.correlationId];
+    [event setAuthorityType:[self.requestParameters.authority telemetryAuthorityType]];
+    [event setAuthority:self.requestParameters.authority.url.absoluteString];
+    [event setClientId:self.requestParameters.clientId];
+    return event;
 }
 
 - (void)stopTelemetryEvent:(MSIDTelemetryAPIEvent *)event error:(NSError *)error
 {
     if (error)
     {
-        //[event setErrorCode:error.code]; // TODO
+        [event setErrorCode:error.code];
         [event setErrorDomain:error.domain];
     }
 

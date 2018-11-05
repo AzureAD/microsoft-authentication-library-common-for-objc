@@ -24,6 +24,9 @@
 #import "MSIDSilentController.h"
 #import "MSIDSilentTokenRequest.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryAPIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @implementation MSIDSilentController
 
@@ -36,6 +39,7 @@
 
                             if (!resolved)
                             {
+                                [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
                                 completionBlock(nil, error);
                                 return;
                             }
@@ -47,7 +51,10 @@
 - (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     MSIDSilentTokenRequest *silentRequest = [[MSIDSilentTokenRequest alloc] initWithRequestParameters:self.requestParameters];
-    [silentRequest acquireTokenWithCompletionHandler:completionBlock];
+    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
+        completionBlock(result, error);
+    }];
 }
 
 @end

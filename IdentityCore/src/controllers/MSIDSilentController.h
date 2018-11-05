@@ -23,7 +23,8 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDBaseRequestController.h"
+#import "MSIDRequestControlling.h"
 
-@interface MSIDSilentController : MSIDBaseRequestController
+@interface MSIDSilentController : MSIDBaseRequestController <MSIDRequestControlling>
 
 @end

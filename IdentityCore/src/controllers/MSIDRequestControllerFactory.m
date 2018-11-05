@@ -31,8 +31,9 @@
 @implementation MSIDRequestControllerFactory
 
 + (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
+                                                               error:(NSError *_Nullable *_Nullable)error
 {
-    return [[MSIDSilentController alloc] initWithRequestParameters:parameters];
+    return [[MSIDSilentController alloc] initWithRequestParameters:parameters error:error];
 }
 
 + (nullable id<MSIDInteractiveRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
@@ -55,16 +56,16 @@
             return nil;
         }
 
-        return [[MSIDBrokerController alloc] initWithRequestParameters:parameters];
+        return [[MSIDBrokerController alloc] initWithRequestParameters:parameters error:error];
     }
 
     // Else check for prompt auto and return interactive otherwise
     if (parameters.uiBehaviorType == MSIDUIBehaviorPromptAutoType)
     {
-        return [[MSIDAutoRequestController alloc] initWithRequestParameters:parameters];
+        return [[MSIDAutoRequestController alloc] initWithRequestParameters:parameters error:error];
     }
 
-    return [[MSIDLocalInteractiveController alloc] initWithRequestParameters:parameters];
+    return [[MSIDLocalInteractiveController alloc] initWithRequestParameters:parameters error:error];
 }
 
 + (BOOL)brokerAllowedForParameters:(MSIDInteractiveRequestParameters *)parameters

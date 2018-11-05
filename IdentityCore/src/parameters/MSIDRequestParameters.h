@@ -49,6 +49,7 @@
 @property (nonatomic) NSString *logComponent;
 @property (nonatomic) NSString *telemetryRequestId;
 @property (nonatomic) NSDictionary *appRequestMetadata;
+@property (nonatomic) NSString *telemetryApiId;
 
 #pragma mark Conditional access
 @property (nonatomic) NSDictionary *claims;
@@ -67,5 +68,7 @@
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
 - (BOOL)setClaimsFromJSON:(NSString *)claims error:(NSError **)error;
 - (NSString *)allTokenRequestScopes;
+
+- (BOOL)validateParametersWithError:(NSError **)error;
 
 @end

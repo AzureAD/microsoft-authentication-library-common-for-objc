@@ -48,6 +48,7 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 @property (nonatomic) NSString *extraScopesToConsent;
 @property (nonatomic) NSString *promptType;
 @property (nonatomic) NSDictionary *extraQueryParameters;
+@property (nonatomic) NSString *telemetryWebviewType;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 
