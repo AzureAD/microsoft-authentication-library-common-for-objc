@@ -468,22 +468,25 @@
     {
         NSMutableArray<MSIDAppMetadataCacheItem *> *filteredResults = [NSMutableArray array];
         
-        BOOL shouldMatchMetadata = !cacheQuery.clientId || !cacheQuery.environment;
+        BOOL shouldMatchMetadata = cacheQuery.clientId || cacheQuery.environment || [cacheQuery.environmentAliases count];
         
-        for (MSIDAppMetadataCacheItem *cacheItem in cacheItems)
+        if (shouldMatchMetadata)
         {
-            if (shouldMatchMetadata
-                && ![cacheItem matchesWithClientId:cacheQuery.clientId
-                                       environment:cacheQuery.environment
-                                environmentAliases:cacheQuery.environmentAliases])
+            for (MSIDAppMetadataCacheItem *cacheItem in cacheItems)
             {
-                continue;
+                if (shouldMatchMetadata
+                    && ![cacheItem matchesWithClientId:cacheQuery.clientId
+                                           environment:cacheQuery.environment
+                                    environmentAliases:cacheQuery.environmentAliases])
+                {
+                    continue;
+                }
+                
+                [filteredResults addObject:cacheItem];
             }
             
-            [filteredResults addObject:cacheItem];
+            return filteredResults;
         }
-        
-        return filteredResults;
     }
     
     return cacheItems;

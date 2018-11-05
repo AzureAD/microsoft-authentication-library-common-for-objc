@@ -28,7 +28,7 @@
 
 - (NSNumber *)type
 {
-    if (self.generalType != MSIDGeneralTypeOther)
+    if (self.generalType == MSIDAppMetadataType)
     {
         return [super type];
     }
@@ -38,7 +38,7 @@
 
 - (NSString *)service
 {
-    if (self.clientId && (self.generalType != MSIDGeneralTypeOther))
+    if (self.clientId && (self.generalType == MSIDAppMetadataType))
     {
         return [super service];
     }
