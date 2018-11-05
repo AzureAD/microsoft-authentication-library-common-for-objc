@@ -513,10 +513,10 @@
                         error:error];
 }
 
-- (MSIDAppMetadataCacheItem *)appMetadataWithKey:(MSIDCacheKey *)key
-                                      serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error;
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
+                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error;
 {
     if (!serializer)
     {
@@ -528,14 +528,25 @@
         return nil;
     }
     
-    NSData *itemData = [self itemDataWithKey:key
-                              keysDictionary:_accountKeys
-                           contentDictionary:_accountContents
-                                     context:context
-                                       error:error];
+    NSMutableArray *resultItems = [NSMutableArray array];
     
-    MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
-    return appMetadata;
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:_accountKeys
+                                contentDictionary:_accountContents
+                                          context:context
+                                            error:error];
+    
+    for (NSData *itemData in items)
+    {
+        MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
+        
+        if (appMetadata)
+        {
+            [resultItems addObject:appMetadata];
+        }
+    }
+    
+    return resultItems;
 }
 
 #pragma mark - Test methods

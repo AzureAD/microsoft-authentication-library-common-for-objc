@@ -117,6 +117,34 @@
     return dictionary;
 }
 
+- (BOOL)matchesWithClientId:(nullable NSString *)clientId
+                environment:(nullable NSString *)environment
+         environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
+{
+    if (clientId && ![self.clientId isEqualToString:clientId])
+    {
+        return NO;
+    }
+    
+    return [self matchByEnvironment:environment environmentAliases:environmentAliases];
+}
+
+- (BOOL)matchByEnvironment:(nullable NSString *)environment
+        environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
+{
+    if (environment && ![self.environment isEqualToString:environment])
+    {
+        return NO;
+    }
+    
+    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    {
+        return NO;
+    }
+    
+    return YES;
+}
+
 #pragma mark - Description
 
 - (NSString *)description

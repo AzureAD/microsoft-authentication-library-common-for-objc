@@ -38,7 +38,7 @@
     
     XCTAssertEqualObjects(appMetadataKey.account, @"login.microsoftonline.com");
     XCTAssertEqualObjects(appMetadataKey.service, @"appmetadata-client");
-    XCTAssertEqualObjects(appMetadataKey.type, @3000);
+    XCTAssertEqualObjects(appMetadataKey.type, @3001);
     NSData *genericData = [@"1" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(appMetadataKey.generic, genericData);
 }
@@ -52,7 +52,7 @@
     
     XCTAssertEqualObjects(appMetadataKey.account, @"login.microsoftonline.com");
     XCTAssertEqualObjects(appMetadataKey.service, @"appmetadata-client");
-    XCTAssertEqualObjects(appMetadataKey.type, @3000);
+    XCTAssertEqualObjects(appMetadataKey.type, @3001);
     XCTAssertNil(appMetadataKey.generic);
 }
 
