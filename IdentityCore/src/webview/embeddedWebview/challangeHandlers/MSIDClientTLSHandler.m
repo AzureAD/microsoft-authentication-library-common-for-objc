@@ -23,10 +23,8 @@
 
 #import "MSIDChallengeHandler.h"
 #import "MSIDClientTLSHandler.h"
-#import "MSIDWorkPlaceJoinUtil.h"
-#import "MSIDRegistrationInformation.h"
-#import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDCertAuthHandler.h"
+#import "MSIDWPJChallengeHandler.h"
 
 @implementation MSIDClientTLSHandler
 
@@ -48,10 +46,12 @@
     MSID_LOG_INFO_PII(context, @"Attempting to handle client TLS challenge. host: %@", host);
     
     // See if this is a challenge for the WPJ cert.
-    NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
-    if ([self isWPJChallenge:distinguishedNames])
+    if ([MSIDWPJChallengeHandler handleChallenge:challenge
+                                         webview:webview
+                                         context:context
+                               completionHandler:completionHandler])
     {
-        return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
+        return YES;
     }
     
     // If it is not WPJ challenge, it has to be CBA.
@@ -60,56 +60,5 @@
                                         context:context
                               completionHandler:completionHandler];
 }
-
-#pragma mark - WPJ
-+ (BOOL)isWPJChallenge:(NSArray *)distinguishedNames
-{
-    
-    for (NSData *distinguishedName in distinguishedNames)
-    {
-        NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding] lowercaseString];
-        if ([distinguishedNameString containsString:[kMSIDProtectionSpaceDistinguishedName lowercaseString]])
-        {
-            return YES;
-        }
-    }
-    
-    return NO;
-}
-
-+ (BOOL)handleWPJChallenge:(NSURLAuthenticationChallenge *)challenge
-                   context:(id<MSIDRequestContext>)context
-         completionHandler:(ChallengeCompletionHandler)completionHandler
-{
-    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context error:nil];
-    if (!info || ![info isWorkPlaceJoined])
-    {
-        MSID_LOG_INFO(context, @"Device is not workplace joined");
-        MSID_LOG_INFO_PII(context, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);
-        
-        // In other cert auth cases we send Cancel to ensure that we continue to get
-        // auth challenges, however when we do that with WPJ we don't get the subsequent
-        // enroll dialog *after* the failed clientTLS challenge.
-        //
-        // Using DefaultHandling will result in the OS not handing back client TLS
-        // challenges for another ~60 seconds, behavior that looks broken in the
-        // user CBA case, but here is masked by the user having to enroll their
-        // device.
-        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
-        return YES;
-    }
-    
-    MSID_LOG_INFO(context, @"Responding to WPJ cert challenge");
-    MSID_LOG_INFO_PII(context, @"Responding to WPJ cert challenge. host: %@", challenge.protectionSpace.host);
-    
-    NSURLCredential *creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
-                                                        certificates:@[(__bridge id)info.certificate]
-                                                         persistence:NSURLCredentialPersistenceNone];
-    
-    completionHandler(NSURLSessionAuthChallengeUseCredential, creds);
-    
-    return YES;
-}
-
 
 @end
