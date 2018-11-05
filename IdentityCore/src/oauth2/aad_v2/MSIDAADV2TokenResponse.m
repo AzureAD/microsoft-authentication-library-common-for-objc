@@ -28,9 +28,16 @@
 
 @implementation MSIDAADV2TokenResponse
 
-- (MSIDAADV2IdTokenClaims *)idTokenObj
+@dynamic idTokenObj;
+
+- (MSIDIdTokenClaims *)idTokenObj
 {
-    return [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+    if (!_idTokenObj)
+    {
+        _idTokenObj = [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+    }
+    
+    return _idTokenObj;
 }
 
 - (MSIDAccountType)accountType

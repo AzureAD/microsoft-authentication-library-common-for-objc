@@ -26,6 +26,8 @@
 
 @implementation MSIDAADV1TokenResponse
 
+@dynamic idTokenObj;
+
 MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 
 - (BOOL)isMultiResource
@@ -37,7 +39,12 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 
 - (MSIDIdTokenClaims *)idTokenObj
 {
-    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+    if (!_idTokenObj)
+    {
+        _idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+    }
+    
+    return _idTokenObj;
 }
 
 - (NSString *)target

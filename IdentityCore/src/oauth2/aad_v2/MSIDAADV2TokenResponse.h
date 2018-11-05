@@ -24,5 +24,5 @@
 #import "MSIDAADTokenResponse.h"
 
 @interface MSIDAADV2TokenResponse : MSIDAADTokenResponse
-
+@property (readwrite) MSIDIdTokenClaims *idTokenObj;
 @end
