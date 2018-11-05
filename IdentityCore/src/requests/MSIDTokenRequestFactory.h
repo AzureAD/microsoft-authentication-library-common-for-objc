@@ -21,32 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentTokenRequest.h"
-#import "MSIDRequestParameters.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDSilentTokenRequest()
+@class MSIDRefreshTokenGrantRequest;
+@class MSIDAuthorizationCodeGrantRequest;
+@class MSIDRequestParameters;
+@class MSIDWebviewConfiguration;
+@class MSIDInteractiveRequestParameters;
 
-@property (nonatomic) MSIDRequestParameters *requestParameters;
+@interface MSIDTokenRequestFactory : NSObject
 
-@end
+- (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                              refreshToken:(NSString *)refreshToken;
 
-@implementation MSIDSilentTokenRequest
+- (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                         codeVerifier:(NSString *)pkceCodeVerifier
+                                                                             authCode:(NSString *)authCode;
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-{
-    self = [super init];
-
-    if (self)
-    {
-        self.requestParameters = parameters;
-    }
-
-    return self;
-}
-
-- (void)acquireTokenWithCompletionHandler:(nonnull MSIDRequestCompletionBlock)completionBlock
-{
-    
-}
+- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
 
 @end

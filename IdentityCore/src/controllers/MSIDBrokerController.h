@@ -23,11 +23,12 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDInteractiveRequestControlling.h"
+#import "MSIDBaseRequestController.h"
 
 @class MSIDInteractiveRequestParameters;
 
-@interface MSIDBrokerController : NSObject <MSIDInteractiveRequestControlling>
+@interface MSIDBrokerController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
 
-- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
+- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
 
 @end

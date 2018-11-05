@@ -35,6 +35,8 @@
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDPkce.h"
+#import "MSIDTokenResponseValidator.h"
+#import "MSIDTokenRequestFactory.h"
 
 @interface MSIDInteractiveTokenRequest()
 
@@ -52,7 +54,8 @@
     if (self)
     {
         self.requestParameters = parameters;
-        [self initWebViewConfiguration];
+        // TODO: this looks a bit weird? Pass factories around instead?
+        self.webViewConfiguration = [parameters.tokenRequestFactory webViewConfigurationWithRequestParameters:parameters];
     }
 
     return self;
@@ -92,8 +95,8 @@
                 // handle instance aware flow (cloud host)
                 if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
                 {
-                    //MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
-                    //[_parameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName]; // TODO
+                    MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
+                    [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];
                 }
 
                 [self acquireTokenWithCode:oauthResponse.authorizationCode completion:completionBlock];
@@ -121,18 +124,14 @@
             }
             else
             {
-                //NSError *error = CREATE_MSAL_LOG_ERROR(nil, MSALErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension");
-                //[self stopTelemetryEvent:[self getTelemetryAPIEvent] error:error];
-                NSError *error = nil; // TODO
+                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, self.requestParameters.correlationId, nil);
                 completionBlock(nil, error);
                 return;
             }
 #else
             [[NSWorkspace sharedWorkspace] openURL:browserURL];
 #endif
-            //NSError *error = CREATE_MSAL_LOG_ERROR(nil, MSALErrorSessionCanceled, @"Authorization session was cancelled programatically.");
-            //[self stopTelemetryEvent:[self getTelemetryAPIEvent] error:error];
-            NSError *error = nil; // TODO
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.requestParameters.correlationId, nil);
             completionBlock(nil, error);
             return;
         }
@@ -159,122 +158,35 @@
 
 #pragma mark - Helpers
 
-- (void)acquireTokenWithCode:(NSString *)authCode completion:(MSIDRequestCompletionBlock)completionBlock
+- (void)acquireTokenWithCode:(NSString *)authCode
+                  completion:(MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:nil // TODO
-                                                                                                               clientId:self.requestParameters.clientId
-                                                                                                                  scope:nil // TODO
-                                                                                                            redirectUri:self.requestParameters.redirectUri
-                                                                                                                   code:authCode
-                                                                                                           codeVerifier:<#(nullable NSString *)#> context:<#(nullable id<MSIDRequestContext>)#>]
+    MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.requestParameters.tokenRequestFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
+                                                                                                                                    codeVerifier:self.webViewConfiguration.pkce.codeVerifier
+                                                                                                                                        authCode:authCode];
 
-    MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:nil // TODO
-                                                                                                               clientId:self.requestParameters.clientId
-                                                                                                                  scope:nil // TODO
-                                                                                                            redirectUri:self.requestParameters.redirectUri
-                                                                                                                   code:authCode
-                                                                                                                 claims:nil // TODO
-                                                                                                           codeVerifier:self.webViewConfiguration.pkce.codeVerifier
-                                                                                                                context:self.requestParameters];
+    [tokenRequest sendWithBlock:^(id response, NSError *error) {
 
-    MSIDTokenRequest *authRequest = [self tokenRequest];
-
-    [authRequest sendWithBlock:^(id response, NSError *error) {
         if (error)
         {
-            if (!completionBlock)
-            {
-                return;
-            }
-
             completionBlock(nil, error);
             return;
         }
 
-        if (response && ![response isKindOfClass:[NSDictionary class]])
-        {
-            NSError *localError = CREATE_MSAL_LOG_ERROR(_parameters, MSALErrorInternal, @"response is not of the expected type: NSDictionary.");
-            completionBlock(nil, localError);
-            return;
-        }
+        NSError *validationError = nil;
 
-        NSDictionary *jsonDictionary = (NSDictionary *)response;
-        NSError *localError = nil;
-        MSIDAADV2TokenResponse *tokenResponse = (MSIDAADV2TokenResponse *)[self.oauth2Factory tokenResponseFromJSON:jsonDictionary context:nil error:&localError];
+        MSIDTokenResponse *tokenResponse = [self.requestParameters.responseValidator validateTokenResponse:response
+                                                                                         requestParameters:self.requestParameters
+                                                                                                     error:&validationError];
 
         if (!tokenResponse)
         {
-            completionBlock(nil, localError);
+            completionBlock(nil, validationError);
             return;
         }
 
-        NSError *verificationError = nil;
-        if (![self verifyTokenResponse:tokenResponse error:&verificationError])
-        {
-            completionBlock(nil, verificationError);
-            return;
-        }
-
-        NSError *savingError = nil;
-        BOOL isSaved = [self.tokenCache saveTokensWithConfiguration:_parameters.msidConfiguration
-                                                           response:tokenResponse
-                                                            context:_parameters
-                                                              error:&savingError];
-
-        if (!isSaved)
-        {
-            completionBlock(nil, savingError);
-            return;
-        }
-
-        NSError *scopesError = nil;
-        if (![self verifyScopesWithResponse:tokenResponse error:&scopesError])
-        {
-            completionBlock(nil, scopesError);
-            return;
-        }
-
-        NSError *resultError = nil;
-
-        MSALResult *result = [self resultFromTokenResponse:tokenResponse error:&resultError];
-        completionBlock(result, resultError);
+        // TODO: create result
     }];
-
-
-}
-
-- (void)initWebViewConfiguration
-{
-    self.webViewConfiguration = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:self.requestParameters.authority.metadata.authorizationEndpoint
-                                                                                    redirectUri:self.requestParameters.redirectUri
-                                                                                       clientId:self.requestParameters.clientId
-                                                                                       resource:nil // TODO
-                                                                                         scopes:nil // TODO
-                                                                                  correlationId:self.requestParameters.correlationId
-                                                                                     enablePkce:YES]; // TODO
-
-    /*
-     MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:self.requestParameters.authority.metadata.authorizationEndpoint
-     redirectUri:self.requestParameters.redirectUri
-     clientId:self.requestParameters.clientId
-     resource:nil
-     scopes:[self requestScopes:_extraScopesToConsent]
-     correlationId:self.requestParameters.correlationId
-     enablePkce:YES];
-     config.promptBehavior = MSALParameterStringForBehavior(_uiBehavior);
-     config.loginHint = _parameters.account ? _parameters.account.username : _parameters.loginHint;
-     config.uid = _parameters.account.homeAccountId.objectId;
-     config.utid = _parameters.account.homeAccountId.tenantId;
-     config.extraQueryParameters = _parameters.extraQueryParameters;
-     config.sliceParameters = _parameters.sliceParameters;
-     NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_parameters.clientCapabilities
-     developerClaims:_parameters.decodedClaims];
-     if (![NSString msidIsStringNilOrBlank:claims])
-     {
-     config.claims = claims;
-     }
-
-     */
 }
 
 @end

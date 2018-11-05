@@ -45,12 +45,10 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 @property (nonatomic) BOOL useEmbeddedWebView;
 @property (nonatomic) BOOL useSafariViewController;
 @property (nonatomic) WKWebView *customWebview;
+@property (nonatomic) NSString *extraScopesToConsent;
+@property (nonatomic) NSString *promptType;
+@property (nonatomic) NSDictionary *extraQueryParameters;
 
-// prompt type
-// broker enabled
-// login hint
-// extra query parameters
-// claims
-// slice params
+- (NSOrderedSet *)allAuthorizeRequestScopes;
 
 @end

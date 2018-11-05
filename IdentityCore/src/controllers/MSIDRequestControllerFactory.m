@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDRequestControllerFactory.h"
-#import "MSIDSilentRequestParameters.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAutoRequestController.h"
 #import "MSIDLocalInteractiveController.h"
@@ -31,19 +30,28 @@
 
 @implementation MSIDRequestControllerFactory
 
-+ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDSilentRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
 {
     return [[MSIDSilentController alloc] initWithRequestParameters:parameters];
 }
 
-+ (nullable id<MSIDInteractiveRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters error:(NSError *_Nullable *_Nullable)error
++ (nullable id<MSIDInteractiveRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                                               error:(NSError *_Nullable *_Nullable)error
 {
     if (parameters.requestType == MSIDInteractiveRequestBrokeredType
         && [self brokerAllowedForParameters:parameters])
     {
-        if (![self validateBrokerConfiguration:parameters error:error])
+        NSError *validationError = nil;
+        if (![self validateBrokerConfiguration:parameters error:&validationError])
         {
-            // TODO: log error
+            MSID_LOG_ERROR(parameters, @"Failed to validate broker setup with error %ld, %@", validationError.code, validationError.domain);
+            MSID_LOG_ERROR_PII(parameters, @"Failed to validate broker setup with error %@", validationError);
+
+            if (error)
+            {
+                *error = validationError;
+            }
+
             return nil;
         }
 
@@ -66,9 +74,10 @@
     return NO;
 }
 
-+ (BOOL)validateBrokerConfiguration:(MSIDInteractiveRequestParameters *)parameters error:(NSError **)error
++ (BOOL)validateBrokerConfiguration:(MSIDInteractiveRequestParameters *)parameters
+                              error:(NSError **)error
 {
-    // TODO: implement me
+    // TODO: check broker redirect uri etc
     return NO;
 }
 

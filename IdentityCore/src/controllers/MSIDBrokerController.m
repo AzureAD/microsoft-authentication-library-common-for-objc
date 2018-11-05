@@ -22,10 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerController.h"
+#import "MSIDInteractiveRequestParameters.h"
 
 @interface MSIDBrokerController()
 
-@property (nonatomic) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic) MSIDInteractiveRequestParameters *interactiveParameters;
 
 @end
 
@@ -33,13 +34,13 @@
 
 #pragma mark - Init
 
-- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters
 {
-    self = [super init];
+    self = [super initWithRequestParameters:parameters];
 
     if (self)
     {
-        self.requestParameters = parameters;
+        self.interactiveParameters = parameters;
     }
 
     return self;

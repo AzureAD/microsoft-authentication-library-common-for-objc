@@ -21,32 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentTokenRequest.h"
-#import "MSIDRequestParameters.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDSilentTokenRequest()
+@class MSIDTokenResponse;
+@class MSIDRequestParameters;
 
-@property (nonatomic) MSIDRequestParameters *requestParameters;
+@interface MSIDTokenResponseValidator : NSObject
 
-@end
-
-@implementation MSIDSilentTokenRequest
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-{
-    self = [super init];
-
-    if (self)
-    {
-        self.requestParameters = parameters;
-    }
-
-    return self;
-}
-
-- (void)acquireTokenWithCompletionHandler:(nonnull MSIDRequestCompletionBlock)completionBlock
-{
-    
-}
+- (MSIDTokenResponse *)validateTokenResponse:(id)response
+                           requestParameters:(MSIDRequestParameters *)parameters
+                                       error:(NSError **)error;
 
 @end

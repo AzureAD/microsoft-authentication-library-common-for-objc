@@ -21,14 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRequestParameters.h"
+#import "MSIDTokenResponseValidator.h"
 
-// TODO: is this one necessary?
-@interface MSIDSilentRequestParameters : MSIDRequestParameters
-
-// extended lifetime enabled
-// extra query parameters
-// claims
-// slice params
+@interface MSIDAADV1TokenResponseValidator : MSIDTokenResponseValidator
 
 @end

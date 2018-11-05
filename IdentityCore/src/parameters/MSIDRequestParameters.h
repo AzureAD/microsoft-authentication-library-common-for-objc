@@ -23,27 +23,49 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDRequestContext.h"
+#import "MSIDCacheAccessor.h"
 
 @class MSIDAuthority;
 @class MSIDAccountIdentifier;
 @class MSIDOauth2Factory;
+@class MSIDTokenResponseValidator;
+@class MSIDConfiguration;
+@class MSIDTokenRequestFactory;
 
 @interface MSIDRequestParameters : NSObject <MSIDRequestContext>
 
-@property MSIDAuthority *authority;
-@property NSString *redirectUri;
-@property NSString *clientId;
-@property NSString *target;
-@property MSIDAccountIdentifier *accountIdentifier;
-@property BOOL validateAuthority;
+@property (nonatomic) MSIDAuthority *authority;
+@property (nonatomic) MSIDAuthority *cloudAuthority;
+@property (nonatomic) NSString *redirectUri;
+@property (nonatomic) NSString *clientId;
+@property (nonatomic) NSString *target;
+@property (nonatomic) NSString *oidcScope;
+@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) BOOL validateAuthority;
+@property (nonatomic) NSDictionary *sliceParameters;
 
 #pragma mark MSIDRequestContext properties
-@property NSUUID *correlationId;
-@property NSString *logComponent;
-@property NSString *telemetryRequestId;
-@property NSDictionary *appRequestMetadata;
+@property (nonatomic) NSUUID *correlationId;
+@property (nonatomic) NSString *logComponent;
+@property (nonatomic) NSString *telemetryRequestId;
+@property (nonatomic) NSDictionary *appRequestMetadata;
+
+#pragma mark Conditional access
+@property (nonatomic) NSDictionary *claims;
+@property (nonatomic) NSArray *clientCapabilities;
 
 #pragma mark Factory
-@property MSIDOauth2Factory *oauthFactory;
+@property (nonatomic) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic) MSIDTokenRequestFactory *tokenRequestFactory;
+@property (nonatomic) id<MSIDCacheAccessor> tokenCache;
+@property (nonatomic) MSIDTokenResponseValidator *responseValidator;
+@property (nonatomic) MSIDConfiguration *msidConfiguration; // TODO: this one is not necessary
+
+- (NSURL *)tokenEndpoint;
+
+#pragma mark Methods
+- (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
+- (BOOL)setClaimsFromJSON:(NSString *)claims error:(NSError **)error;
+- (NSString *)allTokenRequestScopes;
 
 @end

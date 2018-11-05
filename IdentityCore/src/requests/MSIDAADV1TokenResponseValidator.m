@@ -21,32 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentTokenRequest.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDAADV1TokenResponseValidator.h"
 
-@interface MSIDSilentTokenRequest()
-
-@property (nonatomic) MSIDRequestParameters *requestParameters;
-
-@end
-
-@implementation MSIDSilentTokenRequest
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-{
-    self = [super init];
-
-    if (self)
-    {
-        self.requestParameters = parameters;
-    }
-
-    return self;
-}
-
-- (void)acquireTokenWithCompletionHandler:(nonnull MSIDRequestCompletionBlock)completionBlock
-{
-    
-}
+@implementation MSIDAADV1TokenResponseValidator
 
 @end

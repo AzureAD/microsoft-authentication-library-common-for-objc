@@ -136,6 +136,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
 
     // Embedded webview has failed to find a view controller to display web contents
     MSIDErrorNoMainViewController = - 51631,
+
+    // Attempted to open link while running inside extension
+    MSIDErrorAttemptToOpenURLFromExtension = -51632
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

@@ -38,7 +38,7 @@ static NSString *kValuesClaim = @"values";
     }
 
     NSDictionary *claims = @{kAccessTokenClaims:@{kCapabilitiesClaims: @{kValuesClaim : capabilities}}};
-    return [self jsonFromCapabilities:claims];
+    return [self jsonFromClaims:claims];
 }
 
 + (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
@@ -46,7 +46,7 @@ static NSString *kValuesClaim = @"values";
 {
     if (![capabilities count])
     {
-        return [self jsonFromCapabilities:developerClaims];
+        return [self jsonFromClaims:developerClaims];
     }
 
     NSMutableDictionary *claims = [NSMutableDictionary new];
@@ -70,18 +70,18 @@ static NSString *kValuesClaim = @"values";
         claims[kAccessTokenClaims] = additionalClaims;
     }
 
-    return [self jsonFromCapabilities:claims];
+    return [self jsonFromClaims:claims];
 }
 
-+ (NSString *)jsonFromCapabilities:(NSDictionary *)capabilities
++ (NSString *)jsonFromClaims:(NSDictionary *)claims
 {
-    if (!capabilities)
+    if (!claims)
     {
         return nil;
     }
 
     NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:capabilities options:0 error:&error];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:claims options:0 error:&error];
 
     if (!jsonData)
     {

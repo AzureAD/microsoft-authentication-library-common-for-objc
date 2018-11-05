@@ -47,11 +47,9 @@
             return;
         }
 
-        // TODO: check if there's any unrecoverable errors that we know of
-
-        // If we didn't get the result, retry with interaction
+        // If we didn't get the successful result, retry with interaction
         MSIDInteractiveTokenRequest *interactiveRequest = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:self.interactiveRequestParamaters];
-        [interactiveRequest acquireTokenWithCompletionHandler:completionBlock];
+        [interactiveRequest acquireToken:completionBlock];
     }];
 }
 

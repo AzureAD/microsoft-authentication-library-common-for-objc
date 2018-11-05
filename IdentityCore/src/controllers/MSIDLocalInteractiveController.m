@@ -73,7 +73,7 @@
 {
     MSIDInteractiveTokenRequest *interactiveRequest = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:self.interactiveRequestParamaters];
 
-    [interactiveRequest acquireTokenWithCompletionHandler:completionBlock];
+    [interactiveRequest acquireToken:completionBlock];
 }
 
 - (BOOL)completeAcquireToken:(nonnull NSURL *)resultURL

@@ -22,7 +22,20 @@
 // THE SOFTWARE.
 
 #import "MSIDInteractiveRequestParameters.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDInteractiveRequestParameters
+
+- (NSOrderedSet *)allAuthorizeRequestScopes
+{
+    NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.allTokenRequestScopes] mutableCopy];
+    NSOrderedSet *extraScopes = [NSOrderedSet msidOrderedSetFromString:self.extraScopesToConsent];
+
+    if (extraScopes)
+    {
+        [requestScopes unionOrderedSet:extraScopes];
+    }
+    return requestScopes;
+}
 
 @end

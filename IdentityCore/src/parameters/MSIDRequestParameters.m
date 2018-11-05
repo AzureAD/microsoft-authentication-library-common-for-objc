@@ -22,7 +22,113 @@
 // THE SOFTWARE.
 
 #import "MSIDRequestParameters.h"
+#import "MSIDVersion.h"
+#import "MSIDConstants.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority.h"
+#import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDOpenIdProviderMetadata.h"
 
 @implementation MSIDRequestParameters
+
+#pragma mark - Init
+
+- (instancetype)init
+{
+    self = [super init];
+
+    if (self)
+    {
+        [self initDefaultAppMetadata];
+    }
+
+    return self;
+}
+
+- (void)initDefaultAppMetadata
+{
+    NSDictionary *metadata = [[NSBundle mainBundle] infoDictionary];
+
+    NSString *appName = metadata[@"CFBundleDisplayName"];
+
+    if (!appName)
+    {
+        appName = metadata[@"CFBundleName"];
+    }
+
+    NSString *appVer = metadata[@"CFBundleShortVersionString"];
+
+    self.appRequestMetadata = @{MSID_VERSION_KEY: [MSIDVersion sdkVersion],
+                                MSID_APP_NAME_KEY: appName ? appName : @"",
+                                MSID_APP_VER_KEY: appVer ? appVer : @""};
+}
+
+#pragma mark - Helpers
+
+- (NSURL *)tokenEndpoint
+{
+    NSURLComponents *tokenEndpoint = [NSURLComponents componentsWithURL:self.authority.metadata.tokenEndpoint resolvingAgainstBaseURL:NO];
+
+    if (self.cloudAuthority)
+    {
+        tokenEndpoint.host = self.cloudAuthority.environment;
+    }
+
+    NSMutableDictionary *endpointQPs = [[NSDictionary msidDictionaryFromWWWFormURLEncodedString:tokenEndpoint.percentEncodedQuery] mutableCopy];
+
+    if (!endpointQPs)
+    {
+        endpointQPs = [NSMutableDictionary dictionary];
+    }
+
+    if (self.sliceParameters)
+    {
+        [endpointQPs addEntriesFromDictionary:self.sliceParameters];
+    }
+
+    tokenEndpoint.query = [endpointQPs msidWWWFormURLEncode];
+    return tokenEndpoint.URL;
+}
+
+- (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName
+{
+    if ([NSString msidIsStringNilOrBlank:cloudHostName]) return;
+
+    NSURL *cloudAuthority = [self.authority.url msidAuthorityWithCloudInstanceHostname:cloudHostName];
+    _cloudAuthority = [[MSIDAuthorityFactory new] authorityFromUrl:cloudAuthority context:self error:nil];
+}
+
+- (BOOL)setClaimsFromJSON:(NSString *)claims error:(NSError **)error
+{
+    NSString *trimmedClaims = claims.msidTrimmedString;
+
+    if ([NSString msidIsStringNilOrBlank:trimmedClaims]) return YES;
+
+    NSDictionary *decodedDictionary = trimmedClaims.msidJson;
+    if (!decodedDictionary)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Claims is not proper JSON. Please make sure it is correct JSON claims parameter.", nil, nil, nil, self.correlationId, nil);
+        }
+        return NO;
+    }
+
+    self.claims = decodedDictionary;
+    return YES;
+}
+
+- (NSString *)allTokenRequestScopes
+{
+    NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.target] mutableCopy];
+    NSOrderedSet *oidcScopes = [NSOrderedSet msidOrderedSetFromString:self.oidcScope];
+
+    if (oidcScopes)
+    {
+        [requestScopes unionOrderedSet:oidcScopes];
+    }
+    [requestScopes removeObject:self.clientId];
+    return [requestScopes msidToString];
+}
 
 @end

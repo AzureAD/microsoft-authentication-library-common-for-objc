@@ -23,7 +23,6 @@
 
 #import "MSIDSilentController.h"
 #import "MSIDSilentTokenRequest.h"
-#import "MSIDSilentRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 
 @implementation MSIDSilentController

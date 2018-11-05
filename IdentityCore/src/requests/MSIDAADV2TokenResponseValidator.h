@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentRequestParameters.h"
+#import "MSIDTokenResponseValidator.h"
 
-@implementation MSIDSilentRequestParameters
+@interface MSIDAADV2TokenResponseValidator : MSIDTokenResponseValidator
 
 @end

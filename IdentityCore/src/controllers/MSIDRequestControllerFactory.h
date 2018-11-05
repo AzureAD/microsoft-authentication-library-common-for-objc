@@ -26,11 +26,12 @@
 #import "MSIDInteractiveRequestControlling.h"
 
 @class MSIDInteractiveRequestParameters;
-@class MSIDSilentRequestParameters;;
+@class MSIDRequestParameters;
 
 @interface MSIDRequestControllerFactory : NSObject
 
-+ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDSilentRequestParameters *)parameters;
-+ (nullable id<MSIDInteractiveRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters error:(NSError *_Nullable *_Nullable)error;
++ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters;
++ (nullable id<MSIDInteractiveRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                                               error:(NSError *_Nullable *_Nullable)error;
 
 @end
