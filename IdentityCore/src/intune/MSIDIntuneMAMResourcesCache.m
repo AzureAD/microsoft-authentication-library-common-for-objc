@@ -114,6 +114,11 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
     return jsonDictionary;
 }
 
+- (void)clear
+{
+    [self.dataSource removeObjectForKey:MSID_INTUNE_RESOURCE_ID_KEY];
+}
+
 #pragma mark - Private
 
 - (BOOL)isValid:(NSDictionary *)json
