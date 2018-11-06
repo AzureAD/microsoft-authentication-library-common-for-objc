@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDJsonObject.h"
+#import "MSIDError.h"
 
 @implementation MSIDJsonObject
 
@@ -102,7 +103,7 @@
                                              error:error];
 }
 
-- (BOOL)isEqualToJsonObject:(MSIDJsonObject *)jsonObject;
+- (BOOL)isEqualToJsonObject:(MSIDJsonObject *)jsonObject
 {
     if (!jsonObject)
     {

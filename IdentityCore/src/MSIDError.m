@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDErrorConverter.h"
+#import "MSIDError.h"
 
 NSString *MSIDErrorDescriptionKey = @"MSIDErrorDescriptionKey";
 NSString *MSIDOAuthErrorKey = @"MSIDOAuthErrorKey";

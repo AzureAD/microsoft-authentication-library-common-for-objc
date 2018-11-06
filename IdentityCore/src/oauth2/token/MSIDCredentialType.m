@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "MSIDCredentialType.h"
+#import "MSIDOAuth2Constants.h"
+#import "NSString+MSIDExtensions.h"
 
 @implementation MSIDCredentialTypeHelpers
 

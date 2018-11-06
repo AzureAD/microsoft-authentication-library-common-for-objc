@@ -25,8 +25,11 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDClientInfo.h"
+#import <Foundation/Foundation.h>
+#import "IdentityCore_Internal.h"
 #import "MSIDOAuth2Constants.h"
+#import "MSIDJsonObject.h"
+#import "MSIDClientInfo.h"
 
 @implementation MSIDClientInfo
 

@@ -165,7 +165,7 @@ typedef unsigned char byte;
     NSUInteger dataLength = data.length;
     NSMutableString *result = [NSMutableString stringWithCapacity:dataLength*2];
     
-    for (int i = 0; i < dataLength; i++)
+    for (unsigned int i = 0; i < dataLength; i++)
     {
         [result appendFormat:@"%02x", charBytes[i]];
     }
