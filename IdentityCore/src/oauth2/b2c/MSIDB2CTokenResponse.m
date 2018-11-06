@@ -31,15 +31,9 @@
 
 @implementation MSIDB2CTokenResponse
 
-- (id)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
+- (void)initIdToken
 {
-    self = [super initWithJSONDictionary:json error:error];
-    if (self)
-    {
-        self.idTokenObj = [[MSIDB2CIdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
-    }
-    
-    return self;
+    self.idTokenObj = [[MSIDB2CIdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
 }
 
 @end
