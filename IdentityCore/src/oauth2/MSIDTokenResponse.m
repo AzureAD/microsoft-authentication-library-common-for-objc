@@ -37,7 +37,7 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ERROR_DESCRIPTION, errorDescription)
 // Default properties for a successful response
 MSID_JSON_ACCESSOR(MSID_OAUTH2_ACCESS_TOKEN, accessToken)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_TOKEN_TYPE, tokenType)
-MSID_JSON_ACCESSOR(MSID_OAUTH2_REFRESH_TOKEN, refreshToken)
+MSID_JSON_RW(MSID_OAUTH2_REFRESH_TOKEN, refreshToken, setRefreshToken)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_SCOPE, scope)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_STATE, state)
 MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
@@ -46,12 +46,26 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                  error:(NSError **)error
 {
-    self = [super initWithJSONDictionary:json error:error];
+    self = [self initWithJSONDictionary:json error:error];
     if (self)
     {
-        self.idTokenObj = [[MSIDIdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+        if (token && [NSString msidIsStringNilOrBlank:self.refreshToken])
+        {
+            self.refreshToken = token.refreshToken;
+        }
     }
     
+    return self;
+}
+
+- (id)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
+{
+    if (!(self = [super initWithJSONDictionary:json error:error]))
+    {
+        return nil;
+    }
+    
+    self.idTokenObj = [[MSIDIdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
     return self;
 }
 
