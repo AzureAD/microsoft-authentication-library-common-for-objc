@@ -21,36 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDGeneralCacheItemType.h"
+#import "MSIDAppMetadataCacheQuery.h"
 
-@implementation MSIDGeneralCacheItemTypeHelpers
+@implementation MSIDAppMetadataCacheQuery
 
-+ (NSString *)generalTypeAsString:(MSIDGeneralCacheItemType)type
+
+- (NSNumber *)type
 {
-    switch (type)
+    if (self.generalType == MSIDAppMetadataType)
     {
-        case MSIDAppMetadataType:
-            return MSID_APP_METADATA_CACHE_TYPE;
-            
-        default:
-            return MSID_GENERAL_CACHE_ITEM_TYPE;
+        return [super type];
     }
+    
+    return nil;
 }
 
-static NSDictionary *sGeneralTypes = nil;
-
-+ (MSIDGeneralCacheItemType)generalTypeFromString:(NSString *)type
+- (NSString *)service
 {
-    static dispatch_once_t sGeneralTypesOnce;
+    if (self.clientId && (self.generalType == MSIDAppMetadataType))
+    {
+        return [super service];
+    }
     
-    dispatch_once(&sGeneralTypesOnce, ^{
-        
-        sGeneralTypes = @{[MSID_APP_METADATA_CACHE_TYPE lowercaseString]: @(MSIDAppMetadataType),
-                          [MSID_GENERAL_CACHE_ITEM_TYPE lowercaseString]: @(MSIDGeneralTypeOther)};
-    });
-    
-    NSNumber *generalType = sGeneralTypes[type.lowercaseString];
-    return generalType != nil ? [generalType integerValue] : MSIDGeneralTypeOther;
+    return nil;
+}
+
+- (BOOL)exactMatch
+{
+    return self.clientId && self.environment;
 }
 
 @end

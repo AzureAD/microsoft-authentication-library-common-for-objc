@@ -619,7 +619,7 @@
     XCTAssertEqual([allATs count], 1);
 
     NSArray *allIDs = [self getAllIDTokens];
-    XCTAssertEqual([allIDs count], 0);
+    XCTAssertEqual([allIDs count], 1);
 }
 
 #pragma mark - Helpers

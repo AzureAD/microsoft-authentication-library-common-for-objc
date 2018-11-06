@@ -60,4 +60,9 @@
     [self.cache setObject:dictionary forKey:key];
 }
 
+- (void)removeObjectForKey:(NSString *)key;
+{
+    [self.cache removeObjectForKey:key];
+}
+
 @end

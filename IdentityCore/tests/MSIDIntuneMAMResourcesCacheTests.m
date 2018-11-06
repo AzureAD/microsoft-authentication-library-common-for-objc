@@ -171,6 +171,20 @@
     XCTAssertNotNil(error);
 }
 
+#pragma mark - clear
+
+- (void)testClear_whenCacheIsNotEmpty_shouldDeleteOnlyIntuneKeys
+{
+    [self.inMemoryStorage setObject:@{@"key2": @"value2"} forKey:@"intune_mam_resource_V1"];
+    __auto_type jsonDicionary = @{@"key": @"value"};
+    [self.inMemoryStorage setObject:jsonDicionary forKey:@"custom_key"];
+    
+    [self.cache clear];
+    
+    XCTAssertEqual(self.inMemoryStorage.count, 1);
+    XCTAssertEqualObjects(jsonDicionary, [self.inMemoryStorage objectForKey:@"custom_key"]);
+}
+
 #pragma mark - Invalid data source
 
 - (void)testResourceForAuthority_whenCacheContainsNotJsonObject_shoudlReturnNilAndError

@@ -22,7 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDChallengeHandling.h"
 
-@interface MSIDTLSHandler : NSObject <MSIDChallengeHandling>
+@interface MSIDClientTLSHandler : NSObject <MSIDChallengeHandling>
 
 @end

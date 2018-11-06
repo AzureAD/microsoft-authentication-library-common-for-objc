@@ -243,7 +243,7 @@
     NSString *userId = @"mike@contoso.com";
     
     NSError *error;
-    __auto_type enrollmentId = [self.cache enrollmentIdForHomeAccountId:homeAccountId userId:userId context:nil error:&error];
+    __auto_type enrollmentId = [self.cache enrollmentIdForHomeAccountId:homeAccountId legacyUserId:userId context:nil error:&error];
     
     XCTAssertEqualObjects(@"adf79e3f-mike-454d-9f0f-2299e76dbfd5", enrollmentId);
     XCTAssertNil(error);
@@ -255,7 +255,7 @@
     NSString *userId = @"qwe@contoso.com";
     
     NSError *error;
-    __auto_type enrollmentId = [self.cache enrollmentIdForHomeAccountId:homeAccountId userId:userId context:nil error:&error];
+    __auto_type enrollmentId = [self.cache enrollmentIdForHomeAccountId:homeAccountId legacyUserId:userId context:nil error:&error];
     
     XCTAssertEqualObjects(@"64d0557f-dave-4193-b630-8491ffd3b180", enrollmentId);
     XCTAssertNil(error);
@@ -268,7 +268,7 @@
     [self corruptCache];
     
     NSError *error;
-    __auto_type enrollmentId = [self.cache enrollmentIdForHomeAccountId:homeAccountId userId:userId context:nil error:&error];
+    __auto_type enrollmentId = [self.cache enrollmentIdForHomeAccountId:homeAccountId legacyUserId:userId context:nil error:&error];
     
     XCTAssertNil(enrollmentId);
     XCTAssertNotNil(error);
@@ -350,6 +350,20 @@
     
     XCTAssertNil(enrollmentId);
     XCTAssertNotNil(error);
+}
+
+#pragma mark - clear
+
+- (void)testClear_whenCacheIsNotEmpty_shouldDeleteOnlyIntuneKeys
+{
+    [self.inMemoryStorage setObject:@{@"key2": @"value2"} forKey:@"intune_app_protection_enrollment_id_V1"];
+    __auto_type jsonDicionary = @{@"key": @"value"};
+    [self.inMemoryStorage setObject:jsonDicionary forKey:@"custom_key"];
+    
+    [self.cache clear];
+    
+    XCTAssertEqual(self.inMemoryStorage.count, 1);
+    XCTAssertEqualObjects(jsonDicionary, [self.inMemoryStorage objectForKey:@"custom_key"]);
 }
 
 #pragma mark - Private

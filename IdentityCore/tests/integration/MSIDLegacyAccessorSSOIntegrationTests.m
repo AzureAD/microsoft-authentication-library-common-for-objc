@@ -2385,14 +2385,14 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
     
-    MSIDAppMetadataCacheItem *appMetadata = [_otherAccessor getAppAppMetadataForConfiguration:configuration
-                                                                                      context:nil
-                                                                                        error:nil];
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [_otherAccessor getAppMetadataEntries:configuration
+                                                                                            context:nil
+                                                                                              error:nil];
     
-    XCTAssertNotNil(appMetadata);
-    XCTAssertEqualObjects(appMetadata.clientId, DEFAULT_TEST_CLIENT_ID);
-    XCTAssertEqualObjects(appMetadata.environment, configuration.authority.environment);
-    XCTAssertEqualObjects(appMetadata.familyId, @"familyId");
+    XCTAssertEqual([appMetadataEntries count], 1);
+    XCTAssertEqualObjects(appMetadataEntries[0].clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(appMetadataEntries[0].environment, configuration.authority.environment);
+    XCTAssertEqualObjects(appMetadataEntries[0].familyId, @"familyId");
 }
 
 #pragma mark - Helpers

@@ -21,36 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDGeneralCacheItemType.h"
+#ifndef MSIDCertAuthHandler_iOS_h
+#define MSIDCertAuthHandler_iOS_h
 
-@implementation MSIDGeneralCacheItemTypeHelpers
+#import "MSIDCertAuthHandler.h"
 
-+ (NSString *)generalTypeAsString:(MSIDGeneralCacheItemType)type
-{
-    switch (type)
-    {
-        case MSIDAppMetadataType:
-            return MSID_APP_METADATA_CACHE_TYPE;
-            
-        default:
-            return MSID_GENERAL_CACHE_ITEM_TYPE;
-    }
-}
+@interface MSIDCertAuthHandler (iOS)
 
-static NSDictionary *sGeneralTypes = nil;
++ (void)setRedirectUriPrefix:(NSString *)prefix
+                   forScheme:(NSString *)scheme;
 
-+ (MSIDGeneralCacheItemType)generalTypeFromString:(NSString *)type
-{
-    static dispatch_once_t sGeneralTypesOnce;
-    
-    dispatch_once(&sGeneralTypesOnce, ^{
-        
-        sGeneralTypes = @{[MSID_APP_METADATA_CACHE_TYPE lowercaseString]: @(MSIDAppMetadataType),
-                          [MSID_GENERAL_CACHE_ITEM_TYPE lowercaseString]: @(MSIDGeneralTypeOther)};
-    });
-    
-    NSNumber *generalType = sGeneralTypes[type.lowercaseString];
-    return generalType != nil ? [generalType integerValue] : MSIDGeneralTypeOther;
-}
+// These are for cert auth challenge for iOS
++ (void)setCustomActivities:(NSArray<UIActivity *> *)activities;
++ (BOOL)completeCertAuthChallenge:(NSURL *)endUrl;
 
 @end
+#endif /* MSIDCertAuthHandler_mac_h */

@@ -140,7 +140,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
-                                    userId:(NSString *)userId
+                                    legacyUserId:(NSString *)legacyUserId
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error
 {
@@ -152,7 +152,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     else
     {
         // If legacy userID is provided and we didn't find an exact match, do a fallback to any enrollment ID to support no userID or single userID scenarios
-        NSString *enrollmentID = userId ? [self enrollmentIdForUserId:userId context:context error:error] : nil;
+        NSString *enrollmentID = legacyUserId ? [self enrollmentIdForUserId:legacyUserId context:context error:error] : nil;
         if (enrollmentID)
         {
             return enrollmentID;
@@ -191,6 +191,11 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     if (![self isValid:jsonDictionary context:context error:error]) return nil;
     
     return jsonDictionary;
+}
+
+- (void)clear
+{
+    [self.dataSource removeObjectForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
 }
 
 #pragma mark - Private

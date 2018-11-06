@@ -21,36 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDGeneralCacheItemType.h"
+#import <Foundation/Foundation.h>
+#import "MSIDChallengeHandling.h"
 
-@implementation MSIDGeneralCacheItemTypeHelpers
+NS_ASSUME_NONNULL_BEGIN
 
-+ (NSString *)generalTypeAsString:(MSIDGeneralCacheItemType)type
-{
-    switch (type)
-    {
-        case MSIDAppMetadataType:
-            return MSID_APP_METADATA_CACHE_TYPE;
-            
-        default:
-            return MSID_GENERAL_CACHE_ITEM_TYPE;
-    }
-}
-
-static NSDictionary *sGeneralTypes = nil;
-
-+ (MSIDGeneralCacheItemType)generalTypeFromString:(NSString *)type
-{
-    static dispatch_once_t sGeneralTypesOnce;
-    
-    dispatch_once(&sGeneralTypesOnce, ^{
-        
-        sGeneralTypes = @{[MSID_APP_METADATA_CACHE_TYPE lowercaseString]: @(MSIDAppMetadataType),
-                          [MSID_GENERAL_CACHE_ITEM_TYPE lowercaseString]: @(MSIDGeneralTypeOther)};
-    });
-    
-    NSNumber *generalType = sGeneralTypes[type.lowercaseString];
-    return generalType != nil ? [generalType integerValue] : MSIDGeneralTypeOther;
-}
+@interface MSIDWPJChallengeHandler : NSObject<MSIDChallengeHandling>
 
 @end
+
+NS_ASSUME_NONNULL_END

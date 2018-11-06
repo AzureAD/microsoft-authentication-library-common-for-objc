@@ -33,6 +33,7 @@
 #import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDAppMetaDataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
+#import "MSIDAppMetadataCacheQuery.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -308,6 +309,7 @@
                                                                                             clientId:credential.clientId
                                                                                       credentialType:credential.credentialType];
 
+    key.familyId = credential.familyId;
     key.realm = credential.realm;
     key.target = credential.target;
 
@@ -316,14 +318,6 @@
     if (result && credential.credentialType == MSIDRefreshTokenType)
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
-
-        MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-        query.homeAccountId = credential.homeAccountId;
-        query.environment = credential.environment;
-        query.clientId = credential.clientId;
-        query.credentialType = MSIDIDTokenType;
-
-        return [self removeCredetialsWithQuery:query context:context error:error];
     }
 
     return result;
@@ -444,16 +438,58 @@
                                   error:error];
 }
 
-- (nullable MSIDAppMetadataCacheItem *)getAppMetadata:(nonnull MSIDAppMetadataCacheKey *)key
-                                              context:(nullable id<MSIDRequestContext>)context
-                                                error:(NSError * _Nullable * _Nullable)error
+- (BOOL)removeAppMetadata:(nonnull MSIDAppMetadataCacheItem *)appMetadata
+                  context:(nullable id<MSIDRequestContext>)context
+                    error:(NSError * _Nullable * _Nullable)error
 {
-    assert(key);
+    assert(appMetadata);
     
-    MSID_LOG_VERBOSE(context, @"(Default cache) Get app metadata for key %@", key.logDescription);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get app metadata for key %@", key.piiLogDescription);
+    MSID_LOG_VERBOSE(context, @"(Default cache) Removing app metadata with clientId %@, environment %@", appMetadata.clientId, appMetadata.environment);
     
-    return [_dataSource appMetadataWithKey:key serializer:_serializer context:context error:error];
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:appMetadata.clientId
+                                                                         environment:appMetadata.environment
+                                                                            familyId:appMetadata.familyId
+                                                                         generalType:MSIDAppMetadataType];
+    
+    return [_dataSource removeItemsWithKey:key context:context error:error];
+}
+
+- (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntriesWithQuery:(nonnull MSIDAppMetadataCacheQuery *)cacheQuery
+                                                                         context:(nullable id<MSIDRequestContext>)context
+                                                                           error:(NSError * _Nullable * _Nullable)error
+{
+    assert(cacheQuery);
+    
+    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get app metadata entries with clientId %@, environment %@", cacheQuery.clientId, cacheQuery.environment);
+    
+    NSArray<MSIDAppMetadataCacheItem *> *cacheItems = [_dataSource appMetadataEntriesWithKey:cacheQuery serializer:_serializer context:context error:error];
+    
+    if (!cacheQuery.exactMatch)
+    {
+        NSMutableArray<MSIDAppMetadataCacheItem *> *filteredResults = [NSMutableArray array];
+        
+        BOOL shouldMatchMetadata = cacheQuery.clientId || cacheQuery.environment || [cacheQuery.environmentAliases count];
+        
+        if (shouldMatchMetadata)
+        {
+            for (MSIDAppMetadataCacheItem *cacheItem in cacheItems)
+            {
+                if (shouldMatchMetadata
+                    && ![cacheItem matchesWithClientId:cacheQuery.clientId
+                                           environment:cacheQuery.environment
+                                    environmentAliases:cacheQuery.environmentAliases])
+                {
+                    continue;
+                }
+                
+                [filteredResults addObject:cacheItem];
+            }
+            
+            return filteredResults;
+        }
+    }
+    
+    return cacheItems;
 }
 
 @end

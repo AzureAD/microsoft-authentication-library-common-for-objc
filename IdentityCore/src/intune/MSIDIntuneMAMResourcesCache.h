@@ -50,6 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSDictionary *)resourcesJsonDictionaryWithContext:(nullable id<MSIDRequestContext>)context
                                                         error:(NSError *__autoreleasing *)error;
 
+/*!
+ Clears the cache, removing all stored resources from data source.
+ */
+- (void)clear;
+
 @end
 
 NS_ASSUME_NONNULL_END

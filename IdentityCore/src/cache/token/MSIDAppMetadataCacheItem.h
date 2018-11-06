@@ -33,6 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonnull) NSString *environment;
 @property (nullable) NSString *familyId;
 
+- (BOOL)matchesWithClientId:(nullable NSString *)clientId
+                environment:(nullable NSString *)environment
+         environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
+
 @end
 
 NS_ASSUME_NONNULL_END
