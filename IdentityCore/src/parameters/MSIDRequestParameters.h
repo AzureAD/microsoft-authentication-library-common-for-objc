@@ -57,8 +57,8 @@
 @property (nonatomic) NSDictionary *claims;
 @property (nonatomic) NSArray *clientCapabilities;
 
-#pragma mark Factory
-@property (nonatomic) MSIDConfiguration *msidConfiguration; // TODO: this one is not necessary
+#pragma mark Configuration
+@property (nonatomic) MSIDConfiguration *msidConfiguration; // TODO: this one is not necessary, MSIDConfiguration should be replaced with MSIDRequestParams
 
 - (NSURL *)tokenEndpoint;
 

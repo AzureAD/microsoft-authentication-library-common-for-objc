@@ -38,7 +38,7 @@
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
                                                                              authCode:(NSString *)authCode
 {
-    //NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims]; // TODO: pass claims
+    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
@@ -46,6 +46,7 @@
                                                                                                             scope:allScopes
                                                                                                       redirectUri:parameters.redirectUri
                                                                                                              code:authCode
+                                                                                                           claims:claims
                                                                                                      codeVerifier:pkceCodeVerifier
                                                                                                           context:parameters];
     return tokenRequest;

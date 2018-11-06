@@ -34,7 +34,6 @@
 @interface MSIDDefaultTokenCacheProvider()
 
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
-// TODO: I don't like saving app metadata here! Query app metadata before updating it again so that nobody else updates it...
 @property (nonatomic) MSIDAppMetadataCacheItem *appMetadata;
 
 @end
@@ -116,27 +115,10 @@
 - (nullable MSIDRefreshToken *)familyRefreshTokenWithParameters:(MSIDRequestParameters *)requestParameters
                                                           error:(NSError * _Nullable * _Nullable)error
 {
-    NSError *cacheError = nil;
-    NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [self.defaultAccessor getAppMetadataEntries:requestParameters.msidConfiguration
-                                                                                                  context:requestParameters
-                                                                                                    error:&cacheError];
-
-    if (cacheError)
-    {
-        if (error)
-        {
-            *error = cacheError;
-        }
-
-        MSID_LOG_ERROR(requestParameters, @"Failed reading app metadata with error %ld, %@", (long)cacheError.code, cacheError.domain);
-        MSID_LOG_ERROR_PII(requestParameters, @"Failed reading app metadata with error %@", cacheError);
-        return nil;
-    }
+    self.appMetadata = [self appMetadataWithParameters:requestParameters error:error];
 
     //On first network try, app metadata will be nil but on every subsequent attempt, it should reflect if clientId is part of family
-    NSString *familyId = appMetadataEntries.firstObject ? appMetadataEntries.firstObject.familyId : @"1";
-
-    self.appMetadata = appMetadataEntries.firstObject;
+    NSString *familyId = self.appMetadata ? self.appMetadata.familyId : @"1";
 
     if (![NSString msidIsStringNilOrBlank:familyId])
     {
@@ -164,16 +146,20 @@
                                         newFamilyId:(NSString *)newFamilyId
                                         updateError:(NSError **)updateError
 {
-    // TODO: query app metadata instead
     if (!self.appMetadata)
     {
-        if (updateError)
-        {
-            *updateError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Cannot update app metadata, because it's missing", nil, nil, nil, requestParameters.correlationId, nil);
-        }
+        self.appMetadata = [self appMetadataWithParameters:requestParameters error:updateError];
 
-        MSID_LOG_ERROR(requestParameters, @"Cannot update app metadata");
-        return NO;
+        if (!self.appMetadata)
+        {
+            if (updateError)
+            {
+                *updateError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Cannot update app metadata, because it's missing", nil, nil, nil, requestParameters.correlationId, nil);
+            }
+
+            MSID_LOG_ERROR(requestParameters, @"Cannot update app metadata");
+            return NO;
+        }
     }
 
     self.appMetadata.familyId = newFamilyId;
@@ -183,6 +169,31 @@
 - (id<MSIDCacheAccessor>)cacheAccessor
 {
     return self.defaultAccessor;
+}
+
+#pragma mark - Helpers
+
+- (MSIDAppMetadataCacheItem *)appMetadataWithParameters:(MSIDRequestParameters *)requestParameters
+                                                  error:(NSError * _Nullable * _Nullable)error
+{
+    NSError *cacheError = nil;
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [self.defaultAccessor getAppMetadataEntries:requestParameters.msidConfiguration
+                                                                                                  context:requestParameters
+                                                                                                    error:&cacheError];
+
+    if (cacheError)
+    {
+        if (error)
+        {
+            *error = cacheError;
+        }
+
+        MSID_LOG_ERROR(requestParameters, @"Failed reading app metadata with error %ld, %@", (long)cacheError.code, cacheError.domain);
+        MSID_LOG_ERROR_PII(requestParameters, @"Failed reading app metadata with error %@", cacheError);
+        return nil;
+    }
+
+    return appMetadataEntries.firstObject;
 }
 
 @end

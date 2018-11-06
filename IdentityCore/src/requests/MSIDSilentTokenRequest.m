@@ -242,14 +242,13 @@
  */
 - (BOOL)isErrorRecoverableByUserInteraction:(NSError *)msidError
 {
-    // TODO: ADAL says it's recoverable if protocol code != nil
-    if (msidError.code == MSIDErrorServerInvalidGrant
-        || msidError.code == MSIDErrorServerInvalidRequest)
-    {
-        return YES;
-    }
-
-    return NO;
+    /*
+        The default behavior of SDK should be to always show UI
+        as long as server returns us valid response with an existing Oauth2 error.
+        If it's an unrecoverable error, server will show error message to user in the web UI.
+        If client wants to not show UI in particular cases, they can examine error contents and do custom handling based on Oauth2 error code and/or sub error.
+     */
+    return ![NSString msidIsStringNilOrBlank:msidError.userInfo[MSIDOAuthErrorKey]];
 }
 
 - (void)refreshAccessToken:(MSIDRefreshToken *)refreshToken completionBlock:(MSIDRequestCompletionBlock)completionBlock

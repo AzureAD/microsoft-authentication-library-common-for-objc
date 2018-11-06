@@ -35,7 +35,14 @@
                     codeVerifier:(NSString *)codeVerifier
                          context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope redirectUri:redirectUri code:code codeVerifier:codeVerifier context:context];
+    self = [super initWithEndpoint:endpoint
+                          clientId:clientId
+                             scope:scope
+                       redirectUri:redirectUri
+                              code:code
+                            claims:claims
+                      codeVerifier:codeVerifier
+                           context:context];
     if (self)
     {
         __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
@@ -43,7 +50,6 @@
         
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
-        parameters[MSID_OAUTH2_CLAIMS] = claims;
         _parameters = parameters;
     }
     

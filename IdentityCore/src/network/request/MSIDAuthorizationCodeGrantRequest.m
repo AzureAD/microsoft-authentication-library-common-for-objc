@@ -30,6 +30,7 @@
                            scope:(NSString *)scope
                      redirectUri:(NSString *)redirectUri
                             code:(NSString *)code
+                          claims:(NSString *)claims
                     codeVerifier:(NSString *)codeVerifier
                          context:(nullable id<MSIDRequestContext>)context
 {
@@ -44,6 +45,7 @@
         parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_AUTHORIZATION_CODE;
         parameters[MSID_OAUTH2_CODE] = code;
         parameters[MSID_OAUTH2_CODE_VERIFIER] = codeVerifier;
+        parameters[MSID_OAUTH2_CLAIMS] = claims;
         _parameters = parameters;
     }
     

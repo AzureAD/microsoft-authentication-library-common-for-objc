@@ -733,6 +733,8 @@
 		B2C707DA219113CD00D917B8 /* MSIDLegacyTokenCacheProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C707D8219113CD00D917B8 /* MSIDLegacyTokenCacheProvider.m */; };
 		B2C707DB219113CD00D917B8 /* MSIDLegacyTokenCacheProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C707D8219113CD00D917B8 /* MSIDLegacyTokenCacheProvider.m */; };
 		B2C707E22191145A00D917B8 /* MSIDTokenCacheProviding.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C707E12191145A00D917B8 /* MSIDTokenCacheProviding.h */; };
+		B2C707ED21924C7400D917B8 /* MSIDTokenRequestFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B28D90AE218FDB6F00E230D6 /* MSIDTokenRequestFactory.m */; };
+		B2C707EE21924C8300D917B8 /* MSIDTokenResponseValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = B28D909F218FBBA200E230D6 /* MSIDTokenResponseValidator.m */; };
 		B2C7B3B3213C681F009FFCC1 /* MSIDErrorConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C7B3B1213C681F009FFCC1 /* MSIDErrorConverter.h */; };
 		B2C7B3B4213C681F009FFCC1 /* MSIDErrorConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7B3B2213C681F009FFCC1 /* MSIDErrorConverter.m */; };
 		B2C7B3B5213C681F009FFCC1 /* MSIDErrorConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7B3B2213C681F009FFCC1 /* MSIDErrorConverter.m */; };
@@ -3852,6 +3854,7 @@
 				B2AF1D2F218BCEDE0080C1A0 /* MSIDInteractiveTokenRequest.m in Sources */,
 				96A2D5A8209D102900F80E3A /* MSIDWebviewConfiguration.m in Sources */,
 				B23ECEF01FF2F6270015FC1D /* MSIDAADV2IdTokenClaims.m in Sources */,
+				B2C707ED21924C7400D917B8 /* MSIDTokenRequestFactory.m in Sources */,
 				60B3855E20A96E0600D546D0 /* MSIDWebviewUIController.m in Sources */,
 				238E19E22086FE28004DF483 /* MSIDAADAuthorizationCodeRequest.m in Sources */,
 				B2964BE2205103920000BC95 /* MSIDTokenFilteringHelper.m in Sources */,
@@ -3983,6 +3986,7 @@
 				B214C39F1FE854FE0070C4F2 /* MSIDLegacyTokenCacheAccessor.m in Sources */,
 				D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 				B2B1D579204369D600DD81F0 /* MSIDAccountType.m in Sources */,
+				B2C707EE21924C8300D917B8 /* MSIDTokenResponseValidator.m in Sources */,
 				23D744792097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m in Sources */,
 				B2AF1D34218BCEEB0080C1A0 /* MSIDSilentTokenRequest.m in Sources */,
 				B203197C217BF11B006488D0 /* MSIDClientCapabilitiesUtil.m in Sources */,
