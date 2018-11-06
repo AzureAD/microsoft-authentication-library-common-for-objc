@@ -22,18 +22,21 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDInteractiveRequestControlling.h"
-#import "MSIDBaseRequestController.h"
+#import "MSIDCacheAccessor.h"
 
-@class MSIDInteractiveRequestParameters;
+@class MSIDAccessToken;
+@class MSIDRequestParameters;
 
-@interface MSIDBrokerController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
+NS_ASSUME_NONNULL_BEGIN
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                 oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                                          tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
-                                       tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                                   tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
-                                                        error:(NSError *_Nullable *_Nullable)error;
+@protocol MSIDTokenCacheProviding <NSObject>
+
+@property (nonatomic, readonly) id<MSIDCacheAccessor> cacheAccessor;
+
+- (nullable MSIDAccessToken *)accessTokenWithParameters:(MSIDRequestParameters *)requestParameters
+                                       expirationBuffer:(NSUInteger)expirationBuffer
+                                                  error:(NSError * _Nullable * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

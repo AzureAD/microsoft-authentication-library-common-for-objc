@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
-#import "MSIDCacheAccessor.h"
+#import "MSIDTokenCacheProviding.h"
 
 @class MSIDInteractiveRequestParameters;
 @class MSIDOauth2Factory;
@@ -36,7 +36,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                                tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache;
+                                        tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache;
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
 

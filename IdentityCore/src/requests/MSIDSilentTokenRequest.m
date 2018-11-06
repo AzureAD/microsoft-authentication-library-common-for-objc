@@ -23,6 +23,7 @@
 
 #import "MSIDSilentTokenRequest.h"
 #import "MSIDRequestParameters.h"
+#import "MSIDAccessToken.h"
 
 @interface MSIDSilentTokenRequest()
 
@@ -31,7 +32,7 @@
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDTokenRequestFactory *tokenRequestFactory;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
-@property (nonatomic) id<MSIDCacheAccessor> tokenCache;
+@property (nonatomic) id<MSIDTokenCacheProviding> tokenCache;
 
 @end
 
@@ -42,7 +43,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                                tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                        tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
 {
     self = [super init];
 
@@ -61,7 +62,9 @@
 
 - (void)acquireTokenWithCompletionHandler:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    
+    // TODO!
+    // CHECK_ERROR_COMPLETION(_parameters.account, _parameters, MSALErrorAccountRequired, @"user parameter cannot be nil");
+
 }
 
 @end

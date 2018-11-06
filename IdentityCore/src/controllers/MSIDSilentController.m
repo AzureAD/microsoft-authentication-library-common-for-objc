@@ -43,7 +43,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                                tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                        tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
                                              error:(NSError *_Nullable *_Nullable)error
 {
     self = [super initWithRequestParameters:parameters

@@ -21,19 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDInteractiveRequestControlling.h"
-#import "MSIDBaseRequestController.h"
+#import "MSIDLegacyTokenCacheProvider.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 
-@class MSIDInteractiveRequestParameters;
+@interface MSIDLegacyTokenCacheProvider()
 
-@interface MSIDBrokerController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *legacyAccessor;
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                 oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                                          tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
-                                       tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                                   tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
-                                                        error:(NSError *_Nullable *_Nullable)error;
+@end
+
+@implementation MSIDLegacyTokenCacheProvider
+
+#pragma mark - Init
+
+- (nullable instancetype)initWithLegacyAccessor:(MSIDLegacyTokenCacheAccessor *)legacyAccessor
+{
+    self = [super init];
+
+    if (self)
+    {
+        self.legacyAccessor = legacyAccessor;
+    }
+
+    return self;
+}
+
+#pragma mark - MSIDSilentTokenRequestHandling
+
+- (nullable MSIDAccessToken *)accessTokenWithParameters:(MSIDRequestParameters *)requestParameters
+                                       expirationBuffer:(NSUInteger)expirationBuffer
+                                                  error:(NSError * _Nullable * _Nullable)error
+{
+    return nil;
+}
+
+- (id<MSIDCacheAccessor>)cacheAccessor
+{
+    return self.legacyAccessor;
+}
 
 @end

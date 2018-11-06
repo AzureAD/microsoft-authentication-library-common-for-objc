@@ -34,7 +34,7 @@
 @property (nonatomic, readwrite) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic, readwrite) MSIDTokenRequestFactory *tokenRequestFactory;
 @property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
-@property (nonatomic, readwrite) id<MSIDCacheAccessor> tokenCache;
+@property (nonatomic, readwrite) id<MSIDTokenCacheProviding> tokenCache;
 
 @end
 
@@ -44,7 +44,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                                tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                        tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
                                              error:(NSError *_Nullable *_Nullable)error
 {
     self = [super init];
