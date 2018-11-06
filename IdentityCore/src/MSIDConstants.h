@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
+
 extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
 extern NSString * _Nonnull const MSID_VERSION_KEY;
 extern NSString * _Nonnull const MSID_CPU_KEY;//E.g. ARM64
