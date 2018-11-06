@@ -66,7 +66,7 @@
 
             if (deleteStatus != errSecSuccess)
             {
-                MSID_LOG_ERROR(nil, @"Failed to delete teamID, result %d", deleteStatus);
+                MSID_LOG_ERROR(nil, @"Failed to delete teamID, result %d", (int)deleteStatus);
                 return;
             }
         }
