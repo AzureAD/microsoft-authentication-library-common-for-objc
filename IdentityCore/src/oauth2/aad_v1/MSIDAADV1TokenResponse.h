@@ -28,6 +28,5 @@
 
 // Default properties for an AAD successful response
 @property (readonly) NSString *resource;
-@property (readwrite) MSIDIdTokenClaims *idTokenObj;
 
 @end

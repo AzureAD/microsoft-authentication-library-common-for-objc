@@ -26,6 +26,7 @@
 #import "MSIDRefreshableToken.h"
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDTokenResponse+Internal.h"
 
 @implementation MSIDTokenResponse
 
@@ -45,7 +46,13 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                  error:(NSError **)error
 {
-    return [super initWithJSONDictionary:json error:error];
+    self = [super initWithJSONDictionary:json error:error];
+    if (self)
+    {
+        self.idTokenObj = [[MSIDIdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+    }
+    
+    return self;
 }
 
 - (NSInteger)expiresIn
@@ -82,16 +89,6 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
 - (BOOL)isMultiResource
 {
     return YES;
-}
-
-- (MSIDIdTokenClaims *)idTokenObj
-{
-    if (!_idTokenObj)
-    {
-        _idTokenObj = [[MSIDIdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
-    }
-    
-    return _idTokenObj;
 }
 
 - (NSString *)target

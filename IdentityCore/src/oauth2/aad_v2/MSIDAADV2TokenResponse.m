@@ -25,19 +25,19 @@
 #import "MSIDAADV2IdTokenClaims.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDAuthority.h"
+#import "MSIDTokenResponse+Internal.h"
 
 @implementation MSIDAADV2TokenResponse
 
-@dynamic idTokenObj;
-
-- (MSIDIdTokenClaims *)idTokenObj
+- (id)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
 {
-    if (!_idTokenObj)
+    self = [super initWithJSONDictionary:json error:error];
+    if (self)
     {
-        _idTokenObj = [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+        self.idTokenObj = [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
     }
     
-    return _idTokenObj;
+    return self;
 }
 
 - (MSIDAccountType)accountType

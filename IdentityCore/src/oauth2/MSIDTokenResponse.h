@@ -31,10 +31,6 @@
 @class MSIDBaseToken;
 
 @interface MSIDTokenResponse : MSIDJsonObject
-{
-    @protected
-    MSIDIdTokenClaims *_idTokenObj;
-}
 
 // Default properties for an openid error response
 @property (readonly) NSString *error;
