@@ -65,6 +65,49 @@
     // TODO!
     // CHECK_ERROR_COMPLETION(_parameters.account, _parameters, MSALErrorAccountRequired, @"user parameter cannot be nil");
 
+    if (!self.forceRefresh && ![self.requestParameters.claims count])
+    {
+        NSError *accessTokenError = nil;
+        MSIDTokenResult *accessTokenResult = [self.tokenCache accessTokenResultWithParameters:self.requestParameters
+                                                                                        error:&accessTokenError];
+
+        if (accessTokenError)
+        {
+            completionBlock(nil, accessTokenError);
+            return;
+        }
+
+        if (accessTokenResult)
+        {
+            completionBlock(accessTokenResult, nil);
+            return;
+        }
+    }
+
+
+    /*
+        NSError *msidError = nil;
+        NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [self.tokenCache getAppMetadataEntries:_parameters.msidConfiguration
+                                                                                                 context:_parameters
+                                                                                                   error:&msidError];
+
+        if (msidError)
+        {
+            completionBlock(nil, msidError);
+            return;
+        }
+
+        //On first network try, app metadata will be nil but on every subsequent attempt, it should reflect if clientId is part of family
+        NSString *familyId = appMetadataEntries.firstObject ? appMetadataEntries.firstObject.familyId : @"1";
+        if (![NSString msidIsStringNilOrBlank:familyId])
+        {
+            [self tryFRT:familyId appMetadata:appMetadataEntries.firstObject completionBlock:completionBlock];
+        }
+        else
+        {
+            [self tryMRRT:completionBlock];
+        }*/
+    }
 }
 
 @end

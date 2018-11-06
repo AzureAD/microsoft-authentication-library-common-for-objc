@@ -97,6 +97,7 @@
     [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
+        // // TODO: set user in telemetry
         completionBlock(result, error);
     }];
 }

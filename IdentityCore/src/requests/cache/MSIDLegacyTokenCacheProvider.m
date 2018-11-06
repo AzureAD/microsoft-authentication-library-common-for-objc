@@ -48,9 +48,14 @@
 
 #pragma mark - MSIDSilentTokenRequestHandling
 
-- (nullable MSIDAccessToken *)accessTokenWithParameters:(MSIDRequestParameters *)requestParameters
-                                       expirationBuffer:(NSUInteger)expirationBuffer
-                                                  error:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDTokenResult *)accessTokenResultWithParameters:(MSIDRequestParameters *)requestParameters
+                                                        error:(NSError * _Nullable * _Nullable)error
+{
+    return nil;
+}
+
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithParameters:(MSIDRequestParameters *)requestParameters
+                                                          error:(NSError * _Nullable * _Nullable)error
 {
     return nil;
 }

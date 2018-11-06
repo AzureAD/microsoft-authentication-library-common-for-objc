@@ -43,6 +43,7 @@
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic) BOOL validateAuthority;
 @property (nonatomic) NSDictionary *sliceParameters;
+@property (nonatomic) NSUInteger tokenExpirationBuffer;
 
 #pragma mark MSIDRequestContext properties
 @property (nonatomic) NSUUID *correlationId;

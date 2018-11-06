@@ -26,6 +26,8 @@
 
 @class MSIDAccessToken;
 @class MSIDRequestParameters;
+@class MSIDTokenResult;
+@class MSIDRefreshToken;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,9 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) id<MSIDCacheAccessor> cacheAccessor;
 
-- (nullable MSIDAccessToken *)accessTokenWithParameters:(MSIDRequestParameters *)requestParameters
-                                       expirationBuffer:(NSUInteger)expirationBuffer
-                                                  error:(NSError * _Nullable * _Nullable)error;
+- (nullable MSIDTokenResult *)accessTokenResultWithParameters:(MSIDRequestParameters *)requestParameters
+                                                        error:(NSError * _Nullable * _Nullable)error;
+
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithParameters:(MSIDRequestParameters *)requestParameters
+                                                          error:(NSError * _Nullable * _Nullable)error;
 
 @end
 
