@@ -48,8 +48,15 @@
 
 #pragma mark - MSIDSilentTokenRequestHandling
 
-- (nullable MSIDTokenResult *)accessTokenResultWithParameters:(MSIDRequestParameters *)requestParameters
-                                                        error:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDAccessToken *)accessTokenWithParameters:(MSIDRequestParameters *)requestParameters
+                                                  error:(NSError **)error
+{
+    return nil;
+}
+
+- (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
+                                  requestParameters:(MSIDRequestParameters *)requestParameters
+                                              error:(NSError * _Nullable * _Nullable)error
 {
     return nil;
 }
@@ -58,6 +65,19 @@
                                                           error:(NSError * _Nullable * _Nullable)error
 {
     return nil;
+}
+
+- (nullable MSIDRefreshToken *)multiResourceTokenWithParameters:(MSIDRequestParameters *)requestParameters
+                                                          error:(NSError * _Nullable * _Nullable)error
+{
+    return nil;
+}
+
+- (BOOL)updateClientFamilyStateWithRequestPrameters:(MSIDRequestParameters *)requestParameters
+                                        newFamilyId:(NSString *)newFamilyId
+                                        updateError:(NSError **)updateError
+{
+    return YES;
 }
 
 - (id<MSIDCacheAccessor>)cacheAccessor

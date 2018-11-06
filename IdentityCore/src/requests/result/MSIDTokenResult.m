@@ -28,19 +28,21 @@
 
 @implementation MSIDTokenResult
 
-- (instancetype)initWithAccessToken:(MSIDAccessToken *)accessToken
-                            idToken:(MSIDIdToken *)idToken
-                          authority:(MSIDAuthority *)authority
-                      correlationId:(NSUUID *)correlationId
+- (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
+                                     idToken:(nonnull NSString *)rawIdToken
+                                   authority:(nonnull MSIDAuthority *)authority
+                               correlationId:(nonnull NSUUID *)correlationId
+                               tokenResponse:(nullable MSIDTokenResponse *)tokenResponse
 {
     self = [super init];
 
     if (self)
     {
         self.accessToken = accessToken;
-        self.idToken = idToken;
+        self.rawIdToken = rawIdToken;
         self.authority = authority;
         self.correlationId = correlationId;
+        self.tokenResponse = tokenResponse;
     }
 
     return self;

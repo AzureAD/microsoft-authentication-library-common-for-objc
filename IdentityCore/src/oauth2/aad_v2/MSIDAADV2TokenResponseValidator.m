@@ -25,22 +25,23 @@
 #import "NSString+MSIDExtensions.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDTokenResult.h"
 
 @implementation MSIDAADV2TokenResponseValidator
 
-- (MSIDTokenResponse *)validateTokenResponse:(id)response
-                                oauthFactory:(MSIDOauth2Factory *)factory
-                                  tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                           requestParameters:(MSIDRequestParameters *)parameters
-                                       error:(NSError **)error
+- (MSIDTokenResult *)validateTokenResponse:(id)response
+                              oauthFactory:(MSIDOauth2Factory *)factory
+                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                         requestParameters:(MSIDRequestParameters *)parameters
+                                     error:(NSError **)error
 {
-    MSIDTokenResponse *tokenResponse = [super validateTokenResponse:response
-                                                       oauthFactory:factory
-                                                         tokenCache:tokenCache
-                                                  requestParameters:parameters
-                                                              error:error];
+    MSIDTokenResult *tokenResult = [super validateTokenResponse:response
+                                                   oauthFactory:factory
+                                                     tokenCache:tokenCache
+                                              requestParameters:parameters
+                                                          error:error];
 
-    if (!tokenResponse)
+    if (!tokenResult)
     {
         return nil;
     }
@@ -50,7 +51,7 @@
      we'd like to throw an error and specify which scopes were granted and which ones not
      */
 
-    NSOrderedSet *grantedScopes = [tokenResponse.scope msidScopeSet];
+    NSOrderedSet *grantedScopes = [tokenResult.tokenResponse.scope msidScopeSet];
 
     if (![parameters.msidConfiguration.scopes isSubsetOfOrderedSet:grantedScopes])
     {
@@ -74,7 +75,7 @@
 
     // TODO: decide to return interaction required error
 
-    return tokenResponse;
+    return tokenResult;
 }
 
 @end

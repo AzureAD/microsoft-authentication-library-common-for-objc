@@ -27,13 +27,14 @@
 @class MSIDTokenResponse;
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
+@class MSIDTokenResult;
 
 @interface MSIDTokenResponseValidator : NSObject
 
-- (MSIDTokenResponse *)validateTokenResponse:(id)response
-                                oauthFactory:(MSIDOauth2Factory *)factory
-                                  tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                           requestParameters:(MSIDRequestParameters *)parameters
-                                       error:(NSError **)error;
+- (MSIDTokenResult *)validateTokenResponse:(id)response
+                              oauthFactory:(MSIDOauth2Factory *)factory
+                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                         requestParameters:(MSIDRequestParameters *)parameters
+                                     error:(NSError **)error;
 
 @end

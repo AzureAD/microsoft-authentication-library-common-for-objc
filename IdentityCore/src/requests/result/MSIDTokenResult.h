@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDIdToken;
 @class MSIDAccount;
 @class MSIDAuthority;
+@class MSIDTokenResponse;
 
 @interface MSIDTokenResult : NSObject
 
@@ -36,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDAccessToken *accessToken;
 
 /*! ID token */
-@property (nonatomic) MSIDIdToken *idToken;
+@property (nonatomic) NSString *rawIdToken;
 
 /*!
  Some access tokens have extended lifetime when server is in an unavailable state.
@@ -54,10 +55,14 @@ NS_ASSUME_NONNULL_BEGIN
 /*! The correlation ID of the request(s) that get this result. */
 @property (nonatomic) NSUUID *correlationId;
 
-- (instancetype)initWithAccessToken:(MSIDAccessToken *)accessToken
-                            idToken:(MSIDIdToken *)idToken
-                          authority:(MSIDAuthority *)authority
-                      correlationId:(NSUUID *)correlationId;
+/* Token response from server */
+@property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
+
+- (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
+                                     idToken:(nonnull NSString *)rawIdToken
+                                   authority:(nonnull MSIDAuthority *)authority
+                               correlationId:(nonnull NSUUID *)correlationId
+                               tokenResponse:(nullable MSIDTokenResponse *)tokenResponse;
 
 @end
 

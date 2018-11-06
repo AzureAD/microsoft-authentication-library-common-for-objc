@@ -187,30 +187,19 @@
 
         NSError *validationError = nil;
 
-        MSIDTokenResponse *tokenResponse = [self.tokenResponseValidator validateTokenResponse:response
-                                                                                 oauthFactory:self.oauthFactory
-                                                                                   tokenCache:self.tokenCache.cacheAccessor
-                                                                            requestParameters:self.requestParameters
-                                                                                        error:&validationError];
+        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateTokenResponse:response
+                                                                             oauthFactory:self.oauthFactory
+                                                                               tokenCache:self.tokenCache.cacheAccessor
+                                                                        requestParameters:self.requestParameters
+                                                                                    error:&validationError];
 
-        if (!tokenResponse)
+        if (!tokenResult)
         {
             completionBlock(nil, validationError);
             return;
         }
 
-        MSIDAccessToken *accessToken = [self.oauthFactory accessTokenFromResponse:tokenResponse configuration:self.requestParameters.msidConfiguration];
-
-        MSIDIdToken *idToken = [self.oauthFactory idTokenFromResponse:tokenResponse configuration:self.requestParameters.msidConfiguration];
-
-        MSIDAuthority *authority = self.requestParameters.cloudAuthority ?: self.requestParameters.authority;
-
-        MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
-                                                                       idToken:idToken
-                                                                     authority:authority
-                                                                 correlationId:self.requestParameters.correlationId];
-
-        completionBlock(result, nil);
+        completionBlock(tokenResult, nil);
     }];
 }
 

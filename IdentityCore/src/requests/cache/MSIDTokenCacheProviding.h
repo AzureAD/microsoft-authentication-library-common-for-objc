@@ -35,11 +35,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) id<MSIDCacheAccessor> cacheAccessor;
 
-- (nullable MSIDTokenResult *)accessTokenResultWithParameters:(MSIDRequestParameters *)requestParameters
-                                                        error:(NSError * _Nullable * _Nullable)error;
+- (nullable MSIDAccessToken *)accessTokenWithParameters:(MSIDRequestParameters *)requestParameters
+                                                  error:(NSError **)error;
+
+- (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
+                                  requestParameters:(MSIDRequestParameters *)requestParameters
+                                              error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable MSIDRefreshToken *)familyRefreshTokenWithParameters:(MSIDRequestParameters *)requestParameters
                                                           error:(NSError * _Nullable * _Nullable)error;
+
+- (nullable MSIDRefreshToken *)multiResourceTokenWithParameters:(MSIDRequestParameters *)requestParameters
+                                                          error:(NSError * _Nullable * _Nullable)error;
+
+- (BOOL)updateClientFamilyStateWithRequestPrameters:(MSIDRequestParameters *)requestParameters
+                                        newFamilyId:(nullable NSString *)newFamilyId
+                                        updateError:(NSError **)updateError;
 
 @end
 

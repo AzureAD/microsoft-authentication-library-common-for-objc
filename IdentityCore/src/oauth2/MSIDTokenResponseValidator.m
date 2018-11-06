@@ -24,14 +24,16 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDOauth2Factory.h"
+#import "MSIDTokenResult.h"
+#import "MSIDTokenResponse.h"
 
 @implementation MSIDTokenResponseValidator
 
-- (MSIDTokenResponse *)validateTokenResponse:(id)response
-                                oauthFactory:(MSIDOauth2Factory *)factory
-                                  tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                           requestParameters:(MSIDRequestParameters *)parameters
-                                       error:(NSError **)error
+- (MSIDTokenResult *)validateTokenResponse:(id)response
+                              oauthFactory:(MSIDOauth2Factory *)factory
+                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                         requestParameters:(MSIDRequestParameters *)parameters
+                                     error:(NSError **)error
 {
     if (response && ![response isKindOfClass:[NSDictionary class]])
     {
@@ -82,7 +84,17 @@
         MSID_LOG_ERROR_PII(parameters, @"Failed to save tokens in cache. Error %@", savingError);
     }
 
-    return tokenResponse;
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse configuration:parameters.msidConfiguration];
+
+    MSIDAuthority *authority = parameters.cloudAuthority ?: parameters.authority;
+
+    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                                   idToken:tokenResponse.idToken
+                                                                 authority:authority
+                                                             correlationId:parameters.correlationId
+                                                             tokenResponse:tokenResponse];
+
+    return result;
 }
 
 @end

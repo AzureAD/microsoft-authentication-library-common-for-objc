@@ -44,6 +44,7 @@
 @property (nonatomic) BOOL validateAuthority;
 @property (nonatomic) NSDictionary *sliceParameters;
 @property (nonatomic) NSUInteger tokenExpirationBuffer;
+@property (nonatomic) BOOL extendedLifetimeEnabled;
 
 #pragma mark MSIDRequestContext properties
 @property (nonatomic) NSUUID *correlationId;

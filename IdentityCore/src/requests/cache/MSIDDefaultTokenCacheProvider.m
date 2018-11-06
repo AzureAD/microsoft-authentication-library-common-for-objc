@@ -28,11 +28,13 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
+#import "MSIDAppMetadataCacheItem.h"
+#import "MSIDIdToken.h"
 
 @interface MSIDDefaultTokenCacheProvider()
 
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
-@property (nonatomic) MSIDAccessToken *extendedLifeAccessToken;
+@property (nonatomic) MSIDAppMetadataCacheItem *appMetadata;
 
 @end
 
@@ -54,8 +56,8 @@
 
 #pragma mark - MSIDSilentTokenRequestHandling
 
-- (nullable MSIDTokenResult *)accessTokenResultWithParameters:(MSIDRequestParameters *)requestParameters
-                                                        error:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDAccessToken *)accessTokenWithParameters:(MSIDRequestParameters *)requestParameters
+                                                  error:(NSError **)error
 {
     NSError *cacheError = nil;
 
@@ -76,36 +78,38 @@
         return nil;
     }
 
-    if (accessToken && ![accessToken isExpiredWithExpiryBuffer:requestParameters.tokenExpirationBuffer])
+    return accessToken;
+}
+
+- (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
+                                  requestParameters:(MSIDRequestParameters *)requestParameters
+                                              error:(NSError * _Nullable * _Nullable)error
+{
+    if (!accessToken)
     {
-        NSError *idTokenError = nil;
-
-        MSIDIdToken *idToken = [self.defaultAccessor getIDTokenForAccount:requestParameters.accountIdentifier
-                                                            configuration:requestParameters.msidConfiguration
-                                                                  context:requestParameters
-                                                                    error:&idTokenError];
-
-        if (!idToken)
-        {
-            MSID_LOG_WARN(requestParameters, @"Couldn't find an id token for clientId %@, authority %@", requestParameters.clientId, requestParameters.authority.url);
-            MSID_LOG_WARN_PII(requestParameters, @"Couldn't find an id token for clientId %@, authority %@, account %@", requestParameters.clientId, requestParameters.authority.url, requestParameters.accountIdentifier.homeAccountId);
-        }
-
-        MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
-                                                                       idToken:idToken
-                                                                     authority:accessToken.authority
-                                                                 correlationId:requestParameters.correlationId];
-
-        return result;
+        return nil;
     }
 
-    // If the access token is good in terms of extended lifetime then store it for later use
-    if (accessToken && accessToken.isExtendedLifetimeValid)
+    NSError *idTokenError = nil;
+
+    MSIDIdToken *idToken = [self.defaultAccessor getIDTokenForAccount:requestParameters.accountIdentifier
+                                                        configuration:requestParameters.msidConfiguration
+                                                              context:requestParameters
+                                                                error:&idTokenError];
+
+    if (!idToken)
     {
-        self.extendedLifeAccessToken = accessToken;
+        MSID_LOG_WARN(requestParameters, @"Couldn't find an id token for clientId %@, authority %@", requestParameters.clientId, requestParameters.authority.url);
+        MSID_LOG_WARN_PII(requestParameters, @"Couldn't find an id token for clientId %@, authority %@, account %@", requestParameters.clientId, requestParameters.authority.url, requestParameters.accountIdentifier.homeAccountId);
     }
 
-    return nil;
+    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                                   idToken:idToken.rawIdToken
+                                                                 authority:accessToken.authority
+                                                             correlationId:requestParameters.correlationId
+                                                             tokenResponse:nil];
+
+    return result;
 }
 
 - (nullable MSIDRefreshToken *)familyRefreshTokenWithParameters:(MSIDRequestParameters *)requestParameters
@@ -123,19 +127,55 @@
             *error = cacheError;
         }
 
-        MSID_LOG_ERROR(requestParameters, <#_fmt, ...#>)
+        MSID_LOG_ERROR(requestParameters, @"Failed reading app metadata with error %ld, %@", (long)cacheError.code, cacheError.domain);
+        MSID_LOG_ERROR_PII(requestParameters, @"Failed reading app metadata with error %@", cacheError);
+        return nil;
     }
 
     //On first network try, app metadata will be nil but on every subsequent attempt, it should reflect if clientId is part of family
     NSString *familyId = appMetadataEntries.firstObject ? appMetadataEntries.firstObject.familyId : @"1";
+
+    self.appMetadata = appMetadataEntries.firstObject;
+
     if (![NSString msidIsStringNilOrBlank:familyId])
     {
-        [self tryFRT:familyId appMetadata:appMetadataEntries.firstObject completionBlock:completionBlock];
+        return [self.defaultAccessor getRefreshTokenWithAccount:requestParameters.accountIdentifier
+                                                       familyId:familyId
+                                                  configuration:requestParameters.msidConfiguration
+                                                        context:requestParameters
+                                                          error:error];
     }
-    else
+
+    return nil;
+}
+
+- (nullable MSIDRefreshToken *)multiResourceTokenWithParameters:(MSIDRequestParameters *)requestParameters
+                                                          error:(NSError * _Nullable * _Nullable)error
+{
+    return [self.defaultAccessor getRefreshTokenWithAccount:requestParameters.accountIdentifier
+                                                   familyId:nil
+                                              configuration:requestParameters.msidConfiguration
+                                                    context:requestParameters
+                                                      error:error];
+}
+
+- (BOOL)updateClientFamilyStateWithRequestPrameters:(MSIDRequestParameters *)requestParameters
+                                        newFamilyId:(NSString *)newFamilyId
+                                        updateError:(NSError **)updateError
+{
+    if (!self.appMetadata)
     {
-        [self tryMRRT:completionBlock];
+        if (updateError)
+        {
+            *updateError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Cannot update app metadata, because it's missing", nil, nil, nil, requestParameters.correlationId, nil);
+        }
+
+        MSID_LOG_ERROR(requestParameters, @"Cannot update app metadata");
+        return NO;
     }
+
+    self.appMetadata.familyId = newFamilyId;
+    return [self.defaultAccessor updateAppMetadata:self.appMetadata context:requestParameters error:updateError];
 }
 
 - (id<MSIDCacheAccessor>)cacheAccessor
