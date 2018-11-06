@@ -21,13 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV2TokenResponseValidator.h"
+#import "MSIDDefaultTokenResponseValidator.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDTokenResult.h"
 
-@implementation MSIDAADV2TokenResponseValidator
+@implementation MSIDDefaultTokenResponseValidator
 
 - (MSIDTokenResult *)validateTokenResponse:(id)response
                               oauthFactory:(MSIDOauth2Factory *)factory

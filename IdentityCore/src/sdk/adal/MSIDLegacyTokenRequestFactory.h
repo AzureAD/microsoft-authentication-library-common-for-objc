@@ -23,6 +23,6 @@
 
 #import "MSIDTokenRequestFactory.h"
 
-@interface MSIDAADV2TokenRequestFactory : MSIDTokenRequestFactory
+@interface MSIDLegacyTokenRequestFactory : MSIDTokenRequestFactory
 
 @end

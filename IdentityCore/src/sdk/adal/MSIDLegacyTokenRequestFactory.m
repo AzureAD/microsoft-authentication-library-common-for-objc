@@ -21,8 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenResponseValidator.h"
+#import "MSIDLegacyTokenRequestFactory.h"
+#import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDAADV1AuthorizationCodeRequest.h"
+#import "MSIDRequestParameters.h"
 
-@interface MSIDAADV2TokenResponseValidator : MSIDTokenResponseValidator
+@implementation MSIDLegacyTokenRequestFactory
+
+- (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                         codeVerifier:(NSString *)pkceCodeVerifier
+                                                                             authCode:(NSString *)authCode
+{
+    return nil; // TODO: implement me
+}
+
+- (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                              refreshToken:(NSString *)refreshToken
+{
+    return nil; // TODO: implement me
+}
+
+- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    return nil; // TODO: implement me
+}
 
 @end

@@ -164,6 +164,7 @@
                                         newFamilyId:(NSString *)newFamilyId
                                         updateError:(NSError **)updateError
 {
+    // TODO: query app metadata instead
     if (!self.appMetadata)
     {
         if (updateError)

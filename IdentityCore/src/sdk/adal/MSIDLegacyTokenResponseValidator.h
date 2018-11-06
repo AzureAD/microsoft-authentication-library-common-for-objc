@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenRequestFactory.h"
+#import "MSIDTokenResponseValidator.h"
 
-@interface MSIDAADV1TokenRequestFactory : MSIDTokenRequestFactory
+@interface MSIDLegacyTokenResponseValidator : MSIDTokenResponseValidator
 
 @end

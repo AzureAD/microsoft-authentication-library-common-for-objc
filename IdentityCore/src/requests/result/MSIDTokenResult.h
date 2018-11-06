@@ -31,13 +31,18 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDAuthority;
 @class MSIDTokenResponse;
 
+// TODO: create results specific to adal and msal? e.g. V1Result, V2Result
 @interface MSIDTokenResult : NSObject
 
 /*! The Access Token requested. */
 @property (nonatomic) MSIDAccessToken *accessToken;
 
 /*! ID token */
-@property (nonatomic) NSString *rawIdToken;
+@property (nonatomic) NSString *rawIdToken; // TODO: replace with claims?
+
+// TODO: add a refresh token?
+
+// TODO: add account?
 
 /*!
  Some access tokens have extended lifetime when server is in an unavailable state.

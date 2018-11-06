@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV2TokenRequestFactory.h"
+#import "MSIDDefaultTokenRequestFactory.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDClientCapabilitiesUtil.h"
@@ -30,7 +30,7 @@
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDInteractiveRequestParameters.h"
 
-@implementation MSIDAADV2TokenRequestFactory
+@implementation MSIDDefaultTokenRequestFactory
 
 - (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
