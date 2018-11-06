@@ -21,9 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDChallengeHandling.h"
+#ifndef MSIDCertAuthHandler_iOS_h
+#define MSIDCertAuthHandler_iOS_h
 
-@interface MSIDClientTLSHandler : NSObject <MSIDChallengeHandling>
+#import "MSIDCertAuthHandler.h"
+
+@interface MSIDCertAuthHandler (iOS)
+
++ (void)setRedirectUriPrefix:(NSString *)prefix
+                   forScheme:(NSString *)scheme;
+
+// These are for cert auth challenge for iOS
++ (void)setCustomActivities:(NSArray<UIActivity *> *)activities;
++ (BOOL)completeCertAuthChallenge:(NSURL *)endUrl;
 
 @end
+#endif /* MSIDCertAuthHandler_mac_h */
