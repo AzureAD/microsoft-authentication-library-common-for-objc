@@ -29,15 +29,9 @@
 
 @implementation MSIDAADV2TokenResponse
 
-- (id)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
+- (void)initIdToken
 {
-    self = [super initWithJSONDictionary:json error:error];
-    if (self)
-    {
-        self.idTokenObj = [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
-    }
-    
-    return self;
+    self.idTokenObj = [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
 }
 
 - (MSIDAccountType)accountType

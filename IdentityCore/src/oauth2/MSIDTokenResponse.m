@@ -65,8 +65,13 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
         return nil;
     }
     
-    self.idTokenObj = [[MSIDIdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+    [self initIdToken];
     return self;
+}
+
+- (void)initIdToken
+{
+    self.idTokenObj = [[MSIDIdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
 }
 
 - (NSInteger)expiresIn
