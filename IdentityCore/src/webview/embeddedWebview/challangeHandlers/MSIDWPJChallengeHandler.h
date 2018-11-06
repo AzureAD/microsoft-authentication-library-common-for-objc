@@ -24,6 +24,10 @@
 #import <Foundation/Foundation.h>
 #import "MSIDChallengeHandling.h"
 
-@interface MSIDClientTLSHandler : NSObject <MSIDChallengeHandling>
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDWPJChallengeHandler : NSObject<MSIDChallengeHandling>
 
 @end
+
+NS_ASSUME_NONNULL_END

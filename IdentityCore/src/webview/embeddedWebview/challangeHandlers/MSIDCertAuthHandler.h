@@ -21,9 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef MSIDCertAuthHandler_h
+#define MSIDCertAuthHandler_h
+
 #import <Foundation/Foundation.h>
 #import "MSIDChallengeHandling.h"
 
-@interface MSIDClientTLSHandler : NSObject <MSIDChallengeHandling>
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDCertAuthHandler : NSObject<MSIDChallengeHandling>
 
 @end
+
+NS_ASSUME_NONNULL_END
+
+#endif /* MSIDCertAuthHandler_h */
