@@ -34,6 +34,7 @@
 @interface MSIDDefaultTokenCacheProvider()
 
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
+// TODO: I don't like saving app metadata here! Query app metadata before updating it again so that nobody else updates it...
 @property (nonatomic) MSIDAppMetadataCacheItem *appMetadata;
 
 @end

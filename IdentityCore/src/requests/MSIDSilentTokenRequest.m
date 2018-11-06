@@ -125,6 +125,7 @@
         return;
     }
 
+    // TODO: what's about single resource refresh tokens in ADAL?
     if (familyRefreshToken)
     {
         [self tryFRT:familyRefreshToken completionBlock:completionBlock];
