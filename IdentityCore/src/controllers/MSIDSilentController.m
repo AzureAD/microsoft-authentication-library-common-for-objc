@@ -27,6 +27,8 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDTokenResult.h"
+#import "MSIDAccount.h"
 
 @interface MSIDSilentController()
 
@@ -79,8 +81,9 @@
                                                                                            forceRefresh:self.forceRefresh];
 
     [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
-        // TODO: set user in telemetry
+        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+        [telemetryEvent setUserId:result.account.username];
+        [self stopTelemetryEvent:telemetryEvent error:error];
         completionBlock(result, error);
     }];
 }

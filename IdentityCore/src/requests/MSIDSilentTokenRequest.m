@@ -148,7 +148,6 @@
              completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
                  if (error)
                  {
-                     // TODO: should be check for invalid_grant here only?
                      if ([self isErrorRecoverableByUserInteraction:error])
                      {
                          //Udpate app metadata  by resetting familyId if server returns client_mismatch

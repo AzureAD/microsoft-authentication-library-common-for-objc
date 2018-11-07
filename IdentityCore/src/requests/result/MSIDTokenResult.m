@@ -30,6 +30,7 @@
 
 - (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
                                      idToken:(nonnull NSString *)rawIdToken
+                                     account:(nonnull MSIDAccount *)account
                                    authority:(nonnull MSIDAuthority *)authority
                                correlationId:(nonnull NSUUID *)correlationId
                                tokenResponse:(nullable MSIDTokenResponse *)tokenResponse
@@ -43,6 +44,7 @@
         self.authority = authority;
         self.correlationId = correlationId;
         self.tokenResponse = tokenResponse;
+        self.account = account;
     }
 
     return self;

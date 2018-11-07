@@ -88,8 +88,11 @@
 
     MSIDAuthority *authority = parameters.cloudAuthority ?: parameters.authority;
 
+    MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:parameters.msidConfiguration];
+
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
                                                                    idToken:tokenResponse.idToken
+                                                                   account:account
                                                                  authority:authority
                                                              correlationId:parameters.correlationId
                                                              tokenResponse:tokenResponse];

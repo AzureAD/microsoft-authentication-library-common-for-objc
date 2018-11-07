@@ -96,21 +96,32 @@
         return nil;
     }
 
-    NSError *idTokenError = nil;
+    NSError *cacheError = nil;
 
     MSIDIdToken *idToken = [self.defaultAccessor getIDTokenForAccount:self.requestParameters.accountIdentifier
                                                         configuration:self.requestParameters.msidConfiguration
                                                               context:self.requestParameters
-                                                                error:&idTokenError];
+                                                                error:&cacheError];
 
     if (!idToken)
     {
         MSID_LOG_WARN(self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
-        MSID_LOG_WARN_PII(self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@, account %@", self.requestParameters.clientId, self.requestParameters.authority.url, self.requestParameters.accountIdentifier.homeAccountId);
+    }
+
+    MSIDAccount *account = [self.defaultAccessor accountForIdentifier:self.requestParameters.accountIdentifier
+                                                             familyId:nil
+                                                        configuration:self.requestParameters.msidConfiguration
+                                                              context:self.requestParameters
+                                                                error:&cacheError];
+
+    if (!account)
+    {
+        MSID_LOG_WARN(self.requestParameters, @"Couldn't find an account for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
     }
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
                                                                    idToken:idToken.rawIdToken
+                                                                   account:account
                                                                  authority:accessToken.authority
                                                              correlationId:self.requestParameters.correlationId
                                                              tokenResponse:nil];

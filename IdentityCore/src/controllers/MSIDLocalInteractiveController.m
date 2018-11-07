@@ -28,7 +28,8 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
-
+#import "MSIDTokenResult.h"
+#import "MSIDAccount.h"
 
 @interface MSIDLocalInteractiveController()
 
@@ -86,8 +87,9 @@
 
     [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
-        [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
-        // // TODO: set user in telemetry
+        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+        [telemetryEvent setUserId:result.account.username];
+        [self stopTelemetryEvent:telemetryEvent error:error];
         completionBlock(result, error);
     }];
 }
