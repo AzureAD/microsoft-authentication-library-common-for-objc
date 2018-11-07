@@ -21,16 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenCacheProviding.h"
+#import "MSIDSilentTokenRequest.h"
 
 @class MSIDDefaultTokenCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDDefaultTokenCacheProvider : NSObject <MSIDTokenCacheProviding>
+@interface MSIDDefaultSilentTokenRequest : MSIDSilentTokenRequest
 
-- (nullable instancetype)initWithDefaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor;
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache;
 
 @end
 

@@ -32,26 +32,17 @@
 
 + (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
                                                         forceRefresh:(BOOL)forceRefresh
-                                                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                                                 tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
-                                              tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                                          tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
+                                                tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError *_Nullable *_Nullable)error
 {
     return [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                       forceRefresh:forceRefresh
-                                                      oauthFactory:oauthFactory
-                                               tokenRequestFactory:tokenRequestFactory
-                                            tokenResponseValidator:tokenResponseValidator
-                                                        tokenCache:tokenCache
+                                              tokenRequestProvider:tokenRequestProvider
                                                              error:error];
 }
 
 + (nullable id<MSIDInteractiveRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                                                                 tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
-                                                              tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                                                          tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
+                                                                tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                                error:(NSError *_Nullable *_Nullable)error
 {
     if (parameters.requestType == MSIDInteractiveRequestBrokeredType
@@ -71,31 +62,22 @@
             return nil;
         }
 
-        return [[MSIDBrokerController alloc] initWithRequestParameters:parameters
-                                                          oauthFactory:oauthFactory
-                                                   tokenRequestFactory:tokenRequestFactory
-                                                tokenResponseValidator:tokenResponseValidator
-                                                            tokenCache:tokenCache
-                                                                 error:error];
+        return [[MSIDBrokerController alloc] initWithInteractiveRequestParameters:parameters
+                                                             tokenRequestProvider:tokenRequestProvider
+                                                                            error:error];
     }
 
     // Else check for prompt auto and return interactive otherwise
     if (parameters.uiBehaviorType == MSIDUIBehaviorPromptAutoType)
     {
-        return [[MSIDAutoRequestController alloc] initWithRequestParameters:parameters
-                                                               oauthFactory:oauthFactory
-                                                        tokenRequestFactory:tokenRequestFactory
-                                                     tokenResponseValidator:tokenResponseValidator
-                                                                 tokenCache:tokenCache
-                                                                      error:error];
+        return [[MSIDAutoRequestController alloc] initWithInteractiveRequestParameters:parameters
+                                                                  tokenRequestProvider:tokenRequestProvider
+                                                                                 error:error];
     }
 
-    return [[MSIDLocalInteractiveController alloc] initWithRequestParameters:parameters
-                                                                oauthFactory:oauthFactory
-                                                         tokenRequestFactory:tokenRequestFactory
-                                                      tokenResponseValidator:tokenResponseValidator
-                                                                  tokenCache:tokenCache
-                                                                       error:error];
+    return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                   tokenRequestProvider:tokenRequestProvider
+                                                                                  error:error];
 }
 
 + (BOOL)brokerAllowedForParameters:(MSIDInteractiveRequestParameters *)parameters

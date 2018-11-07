@@ -33,13 +33,12 @@
 
 @interface MSIDSilentTokenRequest()
 
-@property (nonatomic) MSIDRequestParameters *requestParameters;
+@property (nonatomic, readwrite) MSIDRequestParameters *requestParameters;
 @property (nonatomic) BOOL forceRefresh;
-@property (nonatomic) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic) MSIDTokenRequestFactory *tokenRequestFactory;
-@property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
-@property (nonatomic) id<MSIDTokenCacheProviding> tokenCache;
-@property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
+@property (nonatomic, readwrite) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic, readwrite) MSIDTokenRequestFactory *tokenRequestFactory;
+@property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, readwrite) MSIDAccessToken *extendedLifetimeAccessToken;
 
 @end
 
@@ -50,7 +49,6 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                                tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
 {
     self = [super init];
 
@@ -61,7 +59,6 @@
         self.oauthFactory = oauthFactory;
         self.tokenRequestFactory = tokenRequestFactory;
         self.tokenResponseValidator = tokenResponseValidator;
-        self.tokenCache = tokenCache;
     }
 
     return self;
@@ -82,7 +79,7 @@
     {
         NSError *accessTokenError = nil;
 
-        MSIDAccessToken *accessToken = [self.tokenCache accessTokenWithParameters:self.requestParameters error:&accessTokenError];
+        MSIDAccessToken *accessToken = [self accessTokenWithError:&accessTokenError];
 
         if (accessTokenError)
         {
@@ -93,9 +90,8 @@
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer])
         {
             NSError *resultError = nil;
-            MSIDTokenResult *tokenResult = [self.tokenCache resultWithAccessToken:accessToken
-                                                                requestParameters:self.requestParameters
-                                                                            error:&resultError];
+            MSIDTokenResult *tokenResult = [self resultWithAccessToken:accessToken
+                                                                 error:&resultError];
 
             if (resultError)
             {
@@ -115,7 +111,7 @@
 
     NSError *frtCacheError = nil;
 
-    MSIDRefreshToken *familyRefreshToken = [self.tokenCache familyRefreshTokenWithParameters:self.requestParameters error:&frtCacheError];
+    MSIDRefreshToken *familyRefreshToken = [self familyRefreshTokenWithError:&frtCacheError];
 
     if (frtCacheError)
     {
@@ -125,25 +121,24 @@
         return;
     }
 
-    // TODO: what's about single resource refresh tokens in ADAL?
     if (familyRefreshToken)
     {
         [self tryFRT:familyRefreshToken completionBlock:completionBlock];
     }
     else
     {
-        NSError *mrrtCacheError = nil;
-        MSIDRefreshToken *mrrtToken = [self.tokenCache multiResourceTokenWithParameters:self.requestParameters error:&mrrtCacheError];
+        NSError *appRTCacheError = nil;
+        id<MSIDRefreshableToken> appRefreshToken = [self appRefreshTokenWithError:&appRTCacheError];
 
-        if (mrrtCacheError)
+        if (appRTCacheError)
         {
-            MSID_LOG_ERROR(self.requestParameters, @"Failed to read multi resource refresh token with error %ld, %@", (long)mrrtCacheError.code, mrrtCacheError.domain);
-            MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to read multi resource refresh token with error %@", mrrtCacheError);
-            completionBlock(nil, mrrtCacheError);
+            MSID_LOG_ERROR(self.requestParameters, @"Failed to read app spefici refresh token with error %ld, %@", (long)appRTCacheError.code, appRTCacheError.domain);
+            MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to read app specific refresh token with error %@", appRTCacheError);
+            completionBlock(nil, appRTCacheError);
             return;
         }
 
-        [self tryMRRT:mrrtToken completionBlock:completionBlock];
+        [self tryAppRefreshToken:appRefreshToken completionBlock:completionBlock];
     }
 }
 
@@ -156,6 +151,7 @@
              completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
                  if (error)
                  {
+                     // TODO: should be check for invalid_grant here only?
                      if ([self isErrorRecoverableByUserInteraction:error])
                      {
                          //Udpate app metadata  by resetting familyId if server returns client_mismatch
@@ -170,7 +166,7 @@
                              MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to update familyID cache status with error %@", error);
                          }
 
-                         MSIDRefreshToken *multiResourceToken = [self.tokenCache multiResourceTokenWithParameters:self.requestParameters error:&msidError];
+                         id<MSIDRefreshableToken> appRefreshToken = [self appRefreshTokenWithError:&msidError];
 
                          if (msidError)
                          {
@@ -180,9 +176,9 @@
                              return;
                          }
 
-                         if (multiResourceToken && ![[familyRefreshToken refreshToken] isEqualToString:[multiResourceToken refreshToken]])
+                         if (appRefreshToken && ![[familyRefreshToken refreshToken] isEqualToString:[appRefreshToken refreshToken]])
                          {
-                             [self tryMRRT:multiResourceToken completionBlock:completionBlock];
+                             [self tryAppRefreshToken:appRefreshToken completionBlock:completionBlock];
                              return;
                          }
 
@@ -201,7 +197,7 @@
              }];
 }
 
-- (void)tryMRRT:(MSIDRefreshToken *)multiResourceRefreshToken completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (void)tryAppRefreshToken:(id<MSIDRefreshableToken>)multiResourceRefreshToken completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     if (!multiResourceRefreshToken)
     {
@@ -236,10 +232,6 @@
 
 #pragma mark - Helpers
 
-/*
- Particular Oauth errors might be recoverable by interactive login.
- For those errors we'll return MSIDErrorInteractionRequired error.
- */
 - (BOOL)isErrorRecoverableByUserInteraction:(NSError *)msidError
 {
     /*
@@ -251,7 +243,7 @@
     return ![NSString msidIsStringNilOrBlank:msidError.userInfo[MSIDOAuthErrorKey]];
 }
 
-- (void)refreshAccessToken:(MSIDRefreshToken *)refreshToken completionBlock:(MSIDRequestCompletionBlock)completionBlock
+- (void)refreshAccessToken:(id<MSIDRefreshableToken>)refreshToken completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
     if (!refreshToken)
     {
@@ -277,7 +269,7 @@
                                                     }];
 }
 
-- (void)acquireTokenWithRefreshTokenImpl:(MSIDRefreshToken *)refreshToken
+- (void)acquireTokenWithRefreshTokenImpl:(id<MSIDRefreshableToken>)refreshToken
                          completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.tokenRequestFactory refreshTokenRequestWithRequestParameters:self.requestParameters
@@ -290,9 +282,7 @@
             if ([self isServerUnavailable:error] && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
             {
                 NSError *cacheError = nil;
-                MSIDTokenResult *tokenResult = [self.tokenCache resultWithAccessToken:self.extendedLifetimeAccessToken
-                                                                    requestParameters:self.requestParameters
-                                                                                error:&cacheError];
+                MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken error:&cacheError];
 
                 completionBlock(tokenResult, cacheError);
                 return;
@@ -306,7 +296,7 @@
 
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateTokenResponse:response
                                                                              oauthFactory:self.oauthFactory
-                                                                               tokenCache:self.tokenCache.cacheAccessor
+                                                                               tokenCache:self.tokenCache
                                                                         requestParameters:self.requestParameters
                                                                                     error:&validationError];
 
@@ -331,17 +321,44 @@
     return error.code == MSIDErrorServerUnhandledResponse && responseCode >= 500 && responseCode <= 599;
 }
 
-- (void)updateFamilyIdCacheWithServerError:(NSError *)serverError
+#pragma mark - Abstract
+
+- (nullable MSIDAccessToken *)accessTokenWithError:(NSError **)error
+{
+    NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
+    return nil;
+}
+
+- (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
+                                              error:(NSError * _Nullable * _Nullable)error
+{
+    NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
+    return nil;
+}
+
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+{
+    NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
+    return nil;
+}
+
+- (nullable id<MSIDRefreshableToken>)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+{
+    NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
+    return nil;
+}
+
+- (BOOL)updateFamilyIdCacheWithServerError:(NSError *)serverError
                                 cacheError:(NSError **)cacheError
 {
-    //When FRT is used by client which is not part of family, the server returns "client_mismatch" as sub-error
-    NSString *subError = serverError.userInfo[MSIDOAuthSubErrorKey];
-    if (subError && [subError isEqualToString:MSIDServerErrorClientMismatch])
-    {
-        [self.tokenCache updateClientFamilyStateWithRequestPrameters:self.requestParameters
-                                                         newFamilyId:nil
-                                                         updateError:cacheError];
-    }
+    NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
+    return NO;
+}
+
+- (id<MSIDCacheAccessor>)tokenCache
+{
+    NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
+    return nil;
 }
 
 @end

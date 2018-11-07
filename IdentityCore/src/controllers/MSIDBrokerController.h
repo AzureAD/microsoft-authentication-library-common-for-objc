@@ -24,16 +24,14 @@
 #import <Foundation/Foundation.h>
 #import "MSIDInteractiveRequestControlling.h"
 #import "MSIDBaseRequestController.h"
+#import "MSIDTokenRequestProviding.h"
 
 @class MSIDInteractiveRequestParameters;
 
 @interface MSIDBrokerController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                 oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                                          tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
-                                       tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                                   tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
+                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                         error:(NSError *_Nullable *_Nullable)error;
 
 @end

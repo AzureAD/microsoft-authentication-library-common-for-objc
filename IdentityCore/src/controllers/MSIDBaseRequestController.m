@@ -31,20 +31,14 @@
 @interface MSIDBaseRequestController()
 
 @property (nonatomic, readwrite) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readwrite) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readwrite) MSIDTokenRequestFactory *tokenRequestFactory;
-@property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
-@property (nonatomic, readwrite) id<MSIDTokenCacheProviding> tokenCache;
+@property (nonatomic, readwrite) id<MSIDTokenRequestProviding> tokenRequestProvider;
 
 @end
 
 @implementation MSIDBaseRequestController
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
+                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                              error:(NSError *_Nullable *_Nullable)error
 {
     self = [super init];
@@ -68,10 +62,7 @@
             return nil;
         }
 
-        self.oauthFactory = oauthFactory;
-        self.tokenRequestFactory = tokenRequestFactory;
-        self.tokenResponseValidator = tokenResponseValidator;
-        self.tokenCache = tokenCache;
+        self.tokenRequestProvider = tokenRequestProvider;
     }
 
     return self;

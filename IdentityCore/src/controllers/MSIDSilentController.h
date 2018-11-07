@@ -29,10 +29,7 @@
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
+                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                              error:(NSError *_Nullable *_Nullable)error;
 
 @end

@@ -45,7 +45,7 @@
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDTokenRequestFactory *tokenRequestFactory;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
-@property (nonatomic) id<MSIDTokenCacheProviding> tokenCache;
+@property (nonatomic) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic) MSIDWebviewConfiguration *webViewConfiguration;
 
 @end
@@ -56,7 +56,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                                tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
+                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
 {
     self = [super init];
 
@@ -64,7 +64,7 @@
     {
         self.requestParameters = parameters;
         self.oauthFactory = oauthFactory;
-        self.tokenRequestFactory = tokenRequestFactory;
+        self.tokenRequestFactory = tokenRequestFactory; // TODO: move token request factory methods into oauth2 factory?
         self.tokenResponseValidator = tokenResponseValidator;
         self.tokenCache = tokenCache;
         self.webViewConfiguration = [self.tokenRequestFactory webViewConfigurationWithRequestParameters:parameters];
@@ -189,7 +189,7 @@
 
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateTokenResponse:response
                                                                              oauthFactory:self.oauthFactory
-                                                                               tokenCache:self.tokenCache.cacheAccessor
+                                                                               tokenCache:self.tokenCache
                                                                         requestParameters:self.requestParameters
                                                                                     error:&validationError];
 

@@ -37,12 +37,8 @@
 
 - (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDSilentTokenRequest *request = [[MSIDSilentTokenRequest alloc] initWithRequestParameters:self.requestParameters
-                                                                                   forceRefresh:NO
-                                                                                   oauthFactory:self.oauthFactory
-                                                                            tokenRequestFactory:self.tokenRequestFactory
-                                                                         tokenResponseValidator:self.tokenResponseValidator
-                                                                                     tokenCache:self.tokenCache];
+    MSIDSilentTokenRequest *request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
+                                                                                     forceRefresh:NO];
 
     [request acquireTokenWithCompletionHandler:^(id  _Nullable result, NSError * _Nullable error) {
 
@@ -54,12 +50,8 @@
         }
 
         // If we didn't get the successful result, retry with interaction
-        MSIDInteractiveTokenRequest *interactiveRequest = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:self.interactiveRequestParamaters
-                                                                                                            oauthFactory:self.oauthFactory
-                                                                                                     tokenRequestFactory:self.tokenRequestFactory
-                                                                                                  tokenResponseValidator:self.tokenResponseValidator
-                                                                                                              tokenCache:self.tokenCache];
-        
+        MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
+
         [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
             [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];

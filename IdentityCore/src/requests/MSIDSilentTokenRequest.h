@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
-#import "MSIDTokenCacheProviding.h"
+#import "MSIDCacheAccessor.h"
 
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
@@ -32,12 +32,13 @@
 
 @interface MSIDSilentTokenRequest : NSObject
 
+@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
+
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                                tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache;
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
 
 - (void)acquireTokenWithCompletionHandler:(nonnull MSIDRequestCompletionBlock)completionBlock;
 

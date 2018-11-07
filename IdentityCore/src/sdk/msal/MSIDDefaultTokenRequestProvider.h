@@ -21,15 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenCacheProviding.h"
+#import <Foundation/Foundation.h>
+#import "MSIDTokenRequestProviding.h"
 
-@class MSIDLegacyTokenCacheAccessor;
+@class MSIDDefaultTokenCacheAccessor;
+@class MSIDTokenRequestFactory;
+@class MSIDOauth2Factory;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLegacyTokenCacheProvider : NSObject <MSIDTokenCacheProviding>
+@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
 
-- (nullable instancetype)initWithLegacyAccessor:(MSIDLegacyTokenCacheAccessor *)legacyAccessor;
+- (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
+                 tokenRequestFactory:(MSIDTokenRequestFactory *)tokenRequestFactory
+                     defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor;
 
 @end
 

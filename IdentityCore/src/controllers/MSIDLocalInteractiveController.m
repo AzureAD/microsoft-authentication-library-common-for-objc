@@ -40,18 +40,12 @@
 
 #pragma mark - Init
 
-- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                                 tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
-                              tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                          tokenCache:(nonnull id<MSIDTokenCacheProviding>)tokenCache
-                                               error:(NSError **)error
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                        error:(NSError *_Nullable *_Nullable)error
 {
     self = [super initWithRequestParameters:parameters
-                               oauthFactory:oauthFactory
-                        tokenRequestFactory:tokenRequestFactory
-                     tokenResponseValidator:tokenResponseValidator
-                                 tokenCache:tokenCache
+                       tokenRequestProvider:tokenRequestProvider
                                       error:error];
 
     if (self)
@@ -88,11 +82,7 @@
 
 - (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDInteractiveTokenRequest *interactiveRequest = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:self.interactiveRequestParamaters
-                                                                                                        oauthFactory:self.oauthFactory
-                                                                                                 tokenRequestFactory:self.tokenRequestFactory
-                                                                                              tokenResponseValidator:self.tokenResponseValidator
-                                                                                                          tokenCache:self.tokenCache];
+    MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
 
     [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
