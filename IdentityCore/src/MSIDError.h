@@ -40,6 +40,23 @@ extern NSString *MSIDOAuthErrorDomain;
 extern NSString *MSIDKeychainErrorDomain;
 extern NSString *MSIDHttpErrorCodeDomain;
 
+/*!
+ List of scopes that were requested from MSAL, but not granted in the response.
+
+ This can happen in multiple cases:
+
+ * Requested scope is not supported
+ * Requested scope is not Recognized (According to OIDC, any scope values used that are not understood by an implementation SHOULD be ignored.)
+ * Requested scope is not supported for a particular account (Organizational scopes when it is a consumer account)
+
+ */
+extern NSString *MSIDDeclinedScopesKey;
+
+/*!
+ List of granted scopes in case some scopes weren't granted (see MSALDeclinedScopesKey for more info)
+ */
+extern NSString *MSIDGrantedScopesKey;
+
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
     /*!
@@ -90,6 +107,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorServerInvalidScope         = -51434,
     MSIDErrorServerUnauthorizedClient   = -51435,
     MSIDErrorServerUnhandledResponse    = -51436,
+    MSIDErrorServerDeclinedScopes       = -51437,
     
     // State verification has failed
     MSIDErrorServerInvalidState         = -51441,
@@ -138,7 +156,10 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorNoMainViewController = - 51631,
 
     // Attempted to open link while running inside extension
-    MSIDErrorAttemptToOpenURLFromExtension = -51632
+    MSIDErrorAttemptToOpenURLFromExtension = -51632,
+
+    // Different account returned
+    MSIDErrorMismatchedAccount  =   -51731
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

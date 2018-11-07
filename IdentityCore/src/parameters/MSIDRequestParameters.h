@@ -57,7 +57,7 @@
 @property (nonatomic) NSArray *clientCapabilities;
 
 #pragma mark Configuration
-@property (nonatomic) MSIDConfiguration *msidConfiguration; // TODO: this one is not necessary, MSIDConfiguration should be replaced with MSIDRequestParams
+@property (nonatomic) MSIDConfiguration *msidConfiguration; // TODO: this one is not necessary, MSIDConfiguration should be replaced with MSIDRequestParams or vice versa
 
 - (NSURL *)tokenEndpoint;
 

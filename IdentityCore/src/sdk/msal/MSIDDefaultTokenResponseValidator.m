@@ -26,6 +26,9 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDTokenResult.h"
+#import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDAccessToken.h"
 
 @implementation MSIDDefaultTokenResponseValidator
 
@@ -57,23 +60,30 @@
     {
         if (error)
         {
-            // TODO
-            /*
             NSMutableDictionary *additionalUserInfo = [NSMutableDictionary new];
-            additionalUserInfo[MSALGrantedScopesKey] = [grantedScopes array];
+            additionalUserInfo[MSIDGrantedScopesKey] = [grantedScopes array];
 
-            NSMutableOrderedSet *declinedScopeSet = [configuration.scopes mutableCopy];
+            NSMutableOrderedSet *declinedScopeSet = [[NSOrderedSet msidOrderedSetFromString:parameters.target] mutableCopy];
             [declinedScopeSet minusOrderedSet:grantedScopes];
 
-            additionalUserInfo[MSALDeclinedScopesKey] = [declinedScopeSet array];
+            additionalUserInfo[MSIDDeclinedScopesKey] = [declinedScopeSet array];
 
-            *error = MSIDCreateError(MSIDErrorDomain, MSALErrorServerDeclinedScopes, @"Server returned less scopes than requested", nil, nil, nil, nil, additionalUserInfo);*/
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerDeclinedScopes, @"Server returned less scopes than requested", nil, nil, nil, nil, additionalUserInfo);
         }
 
         return nil;
     }
 
-    // TODO: decide to return interaction required error
+    if (parameters.accountIdentifier.homeAccountId != nil
+        && ![parameters.accountIdentifier.homeAccountId isEqualToString:tokenResult.accessToken.accountIdentifier.homeAccountId])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, parameters.correlationId, nil);
+        }
+
+        return nil;
+    }
 
     return tokenResult;
 }
