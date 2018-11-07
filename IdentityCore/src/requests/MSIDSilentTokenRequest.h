@@ -27,7 +27,6 @@
 
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
-@class MSIDTokenRequestFactory;
 @class MSIDTokenResponseValidator;
 
 @interface MSIDSilentTokenRequest : NSObject
@@ -37,7 +36,6 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
 
 - (void)acquireTokenWithCompletionHandler:(nonnull MSIDRequestCompletionBlock)completionBlock;

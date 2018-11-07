@@ -25,7 +25,6 @@
 #import "MSIDTokenRequestProviding.h"
 
 @class MSIDDefaultTokenCacheAccessor;
-@class MSIDTokenRequestFactory;
 @class MSIDOauth2Factory;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,7 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
 
 - (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                 tokenRequestFactory:(MSIDTokenRequestFactory *)tokenRequestFactory
                      defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor;
 
 @end

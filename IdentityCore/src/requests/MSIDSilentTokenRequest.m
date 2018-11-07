@@ -24,19 +24,18 @@
 #import "MSIDSilentTokenRequest.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAccessToken.h"
-#import "MSIDTokenRequestFactory.h"
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDRefreshTokenGrantRequest.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAuthority.h"
+#import "MSIDOauth2Factory.h"
 
 @interface MSIDSilentTokenRequest()
 
 @property (nonatomic, readwrite) MSIDRequestParameters *requestParameters;
 @property (nonatomic) BOOL forceRefresh;
 @property (nonatomic, readwrite) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readwrite) MSIDTokenRequestFactory *tokenRequestFactory;
 @property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, readwrite) MSIDAccessToken *extendedLifetimeAccessToken;
 
@@ -47,7 +46,6 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
 {
     self = [super init];
@@ -57,7 +55,6 @@
         self.requestParameters = parameters;
         self.forceRefresh = forceRefresh;
         self.oauthFactory = oauthFactory;
-        self.tokenRequestFactory = tokenRequestFactory;
         self.tokenResponseValidator = tokenResponseValidator;
     }
 
@@ -272,8 +269,8 @@
 - (void)acquireTokenWithRefreshTokenImpl:(id<MSIDRefreshableToken>)refreshToken
                          completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDRefreshTokenGrantRequest *tokenRequest = [self.tokenRequestFactory refreshTokenRequestWithRequestParameters:self.requestParameters
-                                                                                                       refreshToken:refreshToken.refreshToken];
+    MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
+                                                                                                refreshToken:refreshToken.refreshToken];
 
     [tokenRequest sendWithBlock:^(id response, NSError *error) {
 

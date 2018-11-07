@@ -27,14 +27,12 @@
 
 @class MSIDInteractiveRequestParameters;
 @class MSIDOauth2Factory;
-@class MSIDTokenRequestFactory;
 @class MSIDTokenResponseValidator;
 
 @interface MSIDInteractiveTokenRequest : NSObject
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache;
 

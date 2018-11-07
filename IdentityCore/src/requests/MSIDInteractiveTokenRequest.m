@@ -36,14 +36,12 @@
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDPkce.h"
 #import "MSIDTokenResponseValidator.h"
-#import "MSIDTokenRequestFactory.h"
 #import "MSIDTokenResult.h"
 
 @interface MSIDInteractiveTokenRequest()
 
 @property (nonatomic) MSIDInteractiveRequestParameters *requestParameters;
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic) MSIDTokenRequestFactory *tokenRequestFactory;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic) MSIDWebviewConfiguration *webViewConfiguration;
@@ -54,7 +52,6 @@
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
 {
@@ -64,10 +61,9 @@
     {
         self.requestParameters = parameters;
         self.oauthFactory = oauthFactory;
-        self.tokenRequestFactory = tokenRequestFactory; // TODO: move token request factory methods into oauth2 factory?
         self.tokenResponseValidator = tokenResponseValidator;
         self.tokenCache = tokenCache;
-        self.webViewConfiguration = [self.tokenRequestFactory webViewConfigurationWithRequestParameters:parameters];
+        self.webViewConfiguration = [self.oauthFactory webViewConfigurationWithRequestParameters:parameters];
     }
 
     return self;
@@ -173,9 +169,9 @@
 - (void)acquireTokenWithCode:(NSString *)authCode
                   completion:(MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.tokenRequestFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
-                                                                                                                  codeVerifier:self.webViewConfiguration.pkce.codeVerifier
-                                                                                                                      authCode:authCode];
+    MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.oauthFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
+                                                                                                           codeVerifier:self.webViewConfiguration.pkce.codeVerifier
+                                                                                                               authCode:authCode];
 
     [tokenRequest sendWithBlock:^(id response, NSError *error) {
 

@@ -30,7 +30,6 @@
 @interface MSIDDefaultTokenRequestProvider()
 
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic) MSIDTokenRequestFactory *tokenRequestFactory;
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *tokenCache;
 
 @end
@@ -38,7 +37,6 @@
 @implementation MSIDDefaultTokenRequestProvider
 
 - (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                 tokenRequestFactory:(MSIDTokenRequestFactory *)tokenRequestFactory
                      defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
 {
     self = [super init];
@@ -46,7 +44,6 @@
     if (self)
     {
         self.oauthFactory = oauthFactory;
-        self.tokenRequestFactory = tokenRequestFactory;
         self.tokenCache = defaultAccessor;
     }
 
@@ -57,7 +54,6 @@
 {
     return [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters
                                                              oauthFactory:self.oauthFactory
-                                                      tokenRequestFactory:self.tokenRequestFactory
                                                    tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                tokenCache:self.tokenCache];
 }
@@ -68,7 +64,6 @@
     return [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
                                                                forceRefresh:forceRefresh
                                                                oauthFactory:self.oauthFactory
-                                                        tokenRequestFactory:self.tokenRequestFactory
                                                      tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                  tokenCache:self.tokenCache];
 }

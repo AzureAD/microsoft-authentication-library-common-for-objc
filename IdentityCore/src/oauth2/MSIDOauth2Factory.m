@@ -37,6 +37,13 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDAuthorizationCodeGrantRequest.h"
+#import "MSIDRefreshTokenGrantRequest.h"
+#import "MSIDWebviewConfiguration.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDOpenIdProviderMetadata.h"
 
 @implementation MSIDOauth2Factory
 
@@ -371,7 +378,6 @@
 }
 
 #pragma mark - Webview
-#pragma mark - Webview
 - (MSIDWebviewFactory *)webviewFactory
 {
     if (!_webviewFactory)
@@ -379,6 +385,63 @@
         _webviewFactory = [MSIDWebviewFactory new];
     }
     return _webviewFactory;
+}
+
+#pragma mark - Network requests
+
+- (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                         codeVerifier:(NSString *)pkceCodeVerifier
+                                                                             authCode:(NSString *)authCode
+{
+    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
+    NSString *allScopes = [parameters allTokenRequestScopes];
+
+    MSIDAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                         clientId:parameters.clientId
+                                                                                                            scope:allScopes
+                                                                                                      redirectUri:parameters.redirectUri
+                                                                                                             code:authCode
+                                                                                                           claims:claims
+                                                                                                     codeVerifier:pkceCodeVerifier
+                                                                                                          context:parameters];
+    return tokenRequest;
+}
+
+- (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                              refreshToken:(NSString *)refreshToken
+{
+    NSString *allScopes = [parameters allTokenRequestScopes];
+
+    MSIDRefreshTokenGrantRequest *tokenRequest = [[MSIDRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                               clientId:parameters.clientId
+                                                                                                  scope:allScopes
+                                                                                           refreshToken:refreshToken
+                                                                                                context:parameters];
+    return tokenRequest;
+}
+
+- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    MSIDWebviewConfiguration *configuration = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:parameters.authority.metadata.authorizationEndpoint
+                                                                                                  redirectUri:parameters.redirectUri
+                                                                                                     clientId:parameters.clientId resource:nil
+                                                                                                       scopes:parameters.allAuthorizeRequestScopes
+                                                                                                correlationId:parameters.correlationId
+                                                                                                   enablePkce:YES];
+
+    configuration.promptBehavior = parameters.promptType;
+    configuration.loginHint = parameters.accountIdentifier.legacyAccountId ?: parameters.loginHint;
+    configuration.extraQueryParameters = parameters.extraQueryParameters;
+    configuration.sliceParameters = parameters.sliceParameters;
+
+    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
+
+    if (![NSString msidIsStringNilOrBlank:claims])
+    {
+        configuration.claims = claims;
+    }
+
+    return configuration;
 }
 
 @end

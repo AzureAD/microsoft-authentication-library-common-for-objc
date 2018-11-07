@@ -46,14 +46,12 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                               tokenRequestFactory:(nonnull MSIDTokenRequestFactory *)tokenRequestFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
 {
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
                                oauthFactory:oauthFactory
-                        tokenRequestFactory:tokenRequestFactory
                      tokenResponseValidator:tokenResponseValidator];
 
     if (self)

@@ -30,7 +30,6 @@
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
 @class MSIDConfiguration;
-@class MSIDTokenRequestFactory;
 
 @interface MSIDRequestParameters : NSObject <MSIDRequestContext>
 
