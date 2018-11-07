@@ -31,7 +31,9 @@
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
+#endif
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDPkce.h"
@@ -153,6 +155,7 @@
                                                                     context:self.requestParameters
                                                           completionHandler:webAuthCompletion];
     }
+#if TARGET_OS_IPHONE
     else
     {
         [MSIDWebviewAuthorization startSystemWebviewAuthWithConfiguration:self.webViewConfiguration
@@ -162,6 +165,7 @@
                                                                   context:self.requestParameters
                                                         completionHandler:webAuthCompletion];
     }
+#endif
 }
 
 #pragma mark - Helpers
