@@ -30,6 +30,7 @@ NSString *const MSID_OS_VER_KEY                 = @"x-client-OS";
 NSString *const MSID_DEVICE_MODEL_KEY           = @"x-client-DM";
 NSString *const MSID_APP_NAME_KEY               = @"x-app-name";
 NSString *const MSID_APP_VER_KEY                = @"x-app-ver";
+NSString *const MSID_BROKER_SCHEME              = @"msauth";
 
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
 NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";

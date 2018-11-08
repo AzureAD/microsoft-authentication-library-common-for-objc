@@ -27,6 +27,8 @@
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDBrokerController.h"
 #import "MSIDSilentController.h"
+#import "MSIDAppExtensionUtil.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDRequestControllerFactory
 
@@ -45,23 +47,8 @@
                                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                                error:(NSError *_Nullable *_Nullable)error
 {
-    if (parameters.requestType == MSIDInteractiveRequestBrokeredType
-        && [self brokerAllowedForParameters:parameters])
+    if ([self canUseBrokerOnDeviceWithParameters:parameters])
     {
-        NSError *validationError = nil;
-        if (![self validateBrokerConfiguration:parameters error:&validationError])
-        {
-            MSID_LOG_ERROR(parameters, @"Failed to validate broker setup with error %ld, %@", (long)validationError.code, validationError.domain);
-            MSID_LOG_ERROR_PII(parameters, @"Failed to validate broker setup with error %@", validationError);
-
-            if (error)
-            {
-                *error = validationError;
-            }
-
-            return nil;
-        }
-
         return [[MSIDBrokerController alloc] initWithInteractiveRequestParameters:parameters
                                                              tokenRequestProvider:tokenRequestProvider
                                                                             error:error];
@@ -75,23 +62,76 @@
                                                                                  error:error];
     }
 
+    if ([MSIDAppExtensionUtil isExecutingInAppExtension]
+        // TODO: is auth session also supported in app extension???
+        && !(parameters.useEmbeddedWebView && parameters.customWebview))
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUINotSupportedInExtension, @"Interaction is not supported in an app extension.", nil, nil, nil, parameters.correlationId, nil);
+        }
+
+        return nil;
+    }
+
     return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                   error:error];
 }
 
-+ (BOOL)brokerAllowedForParameters:(MSIDInteractiveRequestParameters *)parameters
++ (BOOL)canUseBrokerOnDeviceWithParameters:(MSIDInteractiveRequestParameters *)parameters
 {
-    // TODO: implement me
-    // Check that correct version of broker has been installed and broker is allowed
+#if TARGET_OS_IPHONE
+
+    if (parameters.requestType != MSIDInteractiveRequestBrokeredType)
+    {
+        return NO;
+    }
+
+    if ([MSIDAppExtensionUtil isExecutingInAppExtension])
+    {
+        return NO;
+    }
+
+    if (!parameters.authority.supportsBrokeredAuthentication)
+    {
+        return NO;
+    }
+
+    // TODO: why this is important?
+    if (!parameters.validateAuthority)
+    {
+        return NO;
+    }
+
+    return [self isBrokerInstalled:parameters];
+#else
     return NO;
+#endif
 }
 
-+ (BOOL)validateBrokerConfiguration:(MSIDInteractiveRequestParameters *)parameters
-                              error:(NSError **)error
++ (BOOL)isBrokerInstalled:(MSIDInteractiveRequestParameters *)parameters
 {
-    // TODO: check broker redirect uri etc
-    return NO;
+    if (![NSThread isMainThread])
+    {
+        __block BOOL result = NO;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            result = [self isBrokerInstalled:parameters];
+        });
+
+        return result;
+    }
+
+    if (![MSIDAppExtensionUtil isExecutingInAppExtension])
+    {
+        // Verify broker app url can be opened
+        return [[MSIDAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", parameters.supportedBrokerProtocolScheme]]];
+    }
+    else
+    {
+        // Cannot perform app switching from application extension hosts
+        return NO;
+    }
 }
 
 @end

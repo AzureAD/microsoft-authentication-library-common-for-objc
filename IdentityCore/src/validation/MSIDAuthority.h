@@ -75,6 +75,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (BOOL)isKnown;
 
+- (BOOL)supportsBrokeredAuthentication;
+
 /* It is used in telemetry */
 - (nonnull NSString *)telemetryAuthorityType;
 

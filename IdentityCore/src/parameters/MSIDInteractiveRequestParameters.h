@@ -49,6 +49,7 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 @property (nonatomic) NSString *promptType;
 @property (nonatomic) NSDictionary *extraQueryParameters;
 @property (nonatomic) NSString *telemetryWebviewType;
+@property (nonatomic) NSString *supportedBrokerProtocolScheme;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 

@@ -158,6 +158,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Attempted to open link while running inside extension
     MSIDErrorAttemptToOpenURLFromExtension = -51632,
 
+    // Tried to open local UI in app extension
+    MSIDErrorUINotSupportedInExtension  = -51633,
+
     // Different account returned
     MSIDErrorMismatchedAccount  =   -51731
 };
