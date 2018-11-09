@@ -23,6 +23,7 @@
 
 #import "MSIDCommonCredential.h"
 #import "NSDate+MSIDExtensions.h"
+#import "MSIDTestIdentifiers.h"
 #import <XCTest/XCTest.h>
 
 @interface MSIDCommonCredentialTests : XCTestCase
@@ -45,61 +46,210 @@
     [super tearDown];
 }
 
-#pragma mark - MSIDCommonCredential tests
+#pragma mark - JSON serialization
 
-- (void)testcredentialTypeAsString_whenAccessTokenType_shouldReturnAccessTokenString {
-    NSString *result = [MSIDCredentialTypeHelpers credentialTypeAsString:MSIDAccessTokenType];
-    XCTAssertEqualObjects(result, @"AccessToken");
+- (void)testJSONDictionary_whenAccessToken_andAllFieldsSet_shouldReturnJSONDictionary {
+    MSIDCommonCredential *cacheItem = [MSIDCommonCredential new];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem.realm = @"contoso.com";
+    cacheItem.secret = DEFAULT_TEST_ACCESS_TOKEN;
+    cacheItem.homeAccountId = @"uid.utid";
+    cacheItem.target = DEFAULT_TEST_RESOURCE;
+
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    NSDate *extExpiresOn = [NSDate date];
+    cacheItem.cachedAt = cachedAt;
+    cacheItem.expiresOn = expiresOn;
+    cacheItem.extendedExpiresOn = extExpiresOn;
+
+    NSDictionary *additionalFields = @{@"spe_info": @"spe2"};
+    cacheItem.additionalFields = additionalFields;
+
+    NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
+    NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
+
+    NSDictionary *expectedDictionary = @{
+        @"credential_type": @"AccessToken",
+        @"client_id": DEFAULT_TEST_CLIENT_ID,
+        @"target": DEFAULT_TEST_RESOURCE,
+        @"cached_at": cachedAtString,
+        @"expires_on": expiresOnString,
+        @"secret": DEFAULT_TEST_ACCESS_TOKEN,
+        @"realm": @"contoso.com",
+        @"environment": DEFAULT_TEST_ENVIRONMENT,
+        @"extended_expires_on": extExpiresOnString,
+        @"spe_info": @"spe2",
+        @"home_account_id": @"uid.utid"
+    };
+
+    XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
 }
 
-- (void)testcredentialTypeAsString_whenRefreshTokenType_shouldReturnRefreshTokenString {
-    NSString *result = [MSIDCredentialTypeHelpers credentialTypeAsString:MSIDRefreshTokenType];
-    XCTAssertEqualObjects(result, @"RefreshToken");
+- (void)testJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnJSONDictionary {
+    MSIDCommonCredential *cacheItem = [MSIDCommonCredential new];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.credentialType = MSIDRefreshTokenType;
+    cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem.secret = DEFAULT_TEST_REFRESH_TOKEN;
+    cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
+    cacheItem.homeAccountId = @"uid.utid";
+
+    NSDictionary *expectedDictionary = @{
+        @"credential_type": @"RefreshToken",
+        @"client_id": DEFAULT_TEST_CLIENT_ID,
+        @"secret": DEFAULT_TEST_REFRESH_TOKEN,
+        @"environment": DEFAULT_TEST_ENVIRONMENT,
+        @"family_id": DEFAULT_TEST_FAMILY_ID,
+        @"home_account_id": @"uid.utid"
+    };
+
+    XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
 }
 
-- (void)testcredentialTypeAsString_whenIDTokenType_shouldReturnIDTokenString {
-    NSString *result = [MSIDCredentialTypeHelpers credentialTypeAsString:MSIDIDTokenType];
-    XCTAssertEqualObjects(result, @"IdToken");
+- (void)testJSONDictionary_whenIDToken_andAllFieldsSet_shouldReturnJSONDictionary {
+    MSIDCommonCredential *cacheItem = [MSIDCommonCredential new];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
+    cacheItem.credentialType = MSIDIDTokenType;
+    cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem.secret = DEFAULT_TEST_ID_TOKEN;
+    cacheItem.homeAccountId = @"uid.utid";
+
+    NSDictionary *expectedDictionary = @{
+        @"credential_type": @"IdToken",
+        @"client_id": DEFAULT_TEST_CLIENT_ID,
+        @"secret": DEFAULT_TEST_ID_TOKEN,
+        @"environment": DEFAULT_TEST_ENVIRONMENT,
+        @"realm": @"contoso.com",
+        @"home_account_id": @"uid.utid"
+    };
+
+    XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
 }
 
-- (void)testcredentialTypeAsString_whenLegacyTokenType_shouldReturnLegacyTokenString {
-    NSString *result = [MSIDCredentialTypeHelpers credentialTypeAsString:MSIDLegacySingleResourceTokenType];
-    XCTAssertEqualObjects(result, @"LegacySingleResourceToken");
+#pragma mark - JSON deserialization
+
+- (void)testInitWithJSONDictionary_whenAccessToken_andAllFieldsSet_shouldReturnAccessTokenCacheItem {
+    NSDate *expiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
+    NSDate *cachedAt = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
+    NSDate *extExpiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
+
+    NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
+    NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
+
+    NSDictionary *jsonDictionary = @{
+        @"credential_type": @"AccessToken",
+        @"client_id": DEFAULT_TEST_CLIENT_ID,
+        @"target": DEFAULT_TEST_RESOURCE,
+        @"cached_at": cachedAtString,
+        @"expires_on": expiresOnString,
+        @"secret": DEFAULT_TEST_ACCESS_TOKEN,
+        @"realm": @"contoso.com",
+        @"environment": DEFAULT_TEST_ENVIRONMENT,
+        @"extended_expires_on": extExpiresOnString,
+        @"spe_info": @"spe2",
+        @"home_account_id": @"uid.utid"
+    };
+
+    NSError *error = nil;
+    MSIDCommonCredential *cacheItem = [[MSIDCommonCredential alloc] initWithJSONDictionary:jsonDictionary error:&error];
+
+    XCTAssertNotNil(cacheItem);
+    XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
+    XCTAssertEqual(cacheItem.credentialType, MSIDAccessTokenType);
+    XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(cacheItem.target, DEFAULT_TEST_RESOURCE);
+    XCTAssertEqualObjects(cacheItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(cacheItem.extendedExpiresOn, extExpiresOn);
+    XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
+    XCTAssertEqualObjects(cacheItem.cachedAt, cachedAt);
+    XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ACCESS_TOKEN);
+    NSDictionary *additionalFields = @{@"spe_info": @"spe2"};
+    XCTAssertEqualObjects(cacheItem.additionalFields, additionalFields);
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
 }
 
-- (void)testcredentialTypeAsString_whenOtherTokenType_shouldReturnOtherTokenString {
-    NSString *result = [MSIDCredentialTypeHelpers credentialTypeAsString:MSIDCredentialTypeOther];
-    XCTAssertEqualObjects(result, @"token");
+- (void)testInitWithJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnRefreshTokenCacheItem {
+    NSDictionary *jsonDictionary = @{
+        @"credential_type": @"RefreshToken",
+        @"client_id": DEFAULT_TEST_CLIENT_ID,
+        @"secret": DEFAULT_TEST_REFRESH_TOKEN,
+        @"environment": DEFAULT_TEST_ENVIRONMENT,
+        @"family_id": DEFAULT_TEST_FAMILY_ID,
+        @"home_account_id": @"uid.utid"
+    };
+
+    NSError *error = nil;
+    MSIDCommonCredential *cacheItem = [[MSIDCommonCredential alloc] initWithJSONDictionary:jsonDictionary error:&error];
+
+    XCTAssertNotNil(cacheItem);
+    XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
+    XCTAssertNil(cacheItem.realm);
+    XCTAssertEqual(cacheItem.credentialType, MSIDRefreshTokenType);
+    XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(cacheItem.familyId, DEFAULT_TEST_FAMILY_ID);
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
 }
 
-- (void)testTokenTypeFromString_whenAccessTokenString_shouldReturnAccessTokenType {
-    MSIDCredentialType result = [MSIDCredentialTypeHelpers credentialTypeFromString:@"AccessToken"];
-    XCTAssertEqual(result, MSIDAccessTokenType);
-}
+- (void)testInitWithJSONDictionary_whenIDToken_andAllFieldsSet_shouldReturnIDTokenCacheItem {
+    NSDictionary *jsonDictionary = @{
+        @"credential_type": @"IdToken",
+        @"client_id": DEFAULT_TEST_CLIENT_ID,
+        @"secret": DEFAULT_TEST_ID_TOKEN,
+        @"environment": DEFAULT_TEST_ENVIRONMENT,
+        @"realm": @"contoso.com",
+        @"home_account_id": @"uid.utid"
+    };
 
-- (void)testTokenTypeFromString_whenRefreshTokenString_shouldReturnRefreshTokenType {
-    MSIDCredentialType result = [MSIDCredentialTypeHelpers credentialTypeFromString:@"RefreshToken"];
-    XCTAssertEqual(result, MSIDRefreshTokenType);
-}
+    NSError *error = nil;
+    MSIDCommonCredential *cacheItem = [[MSIDCommonCredential alloc] initWithJSONDictionary:jsonDictionary error:&error];
 
-- (void)testTokenTypeFromString_whenIDTokenString_shouldReturnIDTokenType {
-    MSIDCredentialType result = [MSIDCredentialTypeHelpers credentialTypeFromString:@"IdToken"];
-    XCTAssertEqual(result, MSIDIDTokenType);
-}
-
-- (void)testTokenTypeFromString_whenLegacyTokenString_shouldReturnLegacyTokenType {
-    MSIDCredentialType result = [MSIDCredentialTypeHelpers credentialTypeFromString:@"LegacySingleResourceToken"];
-    XCTAssertEqual(result, MSIDLegacySingleResourceTokenType);
-}
-
-- (void)testTokenTypeFromString_whenOtherTokenString_shouldReturnOtherTokenType {
-    MSIDCredentialType result = [MSIDCredentialTypeHelpers credentialTypeFromString:@"token"];
-    XCTAssertEqual(result, MSIDCredentialTypeOther);
+    XCTAssertNotNil(cacheItem);
+    XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
+    XCTAssertEqual(cacheItem.credentialType, MSIDIDTokenType);
+    XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ID_TOKEN);
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
 }
 
 #pragma mark - IsEqualToItem handling
 
+- (void)testEqualityForCredentialCacheItems_WhenEitherOfTheComparedPropertiesInTheObject_IsNil {
+    MSIDCommonCredential *cacheItem1 = [MSIDCommonCredential new];
+    cacheItem1.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem1.credentialType = MSIDIDTokenType;
+    cacheItem1.secret = DEFAULT_TEST_ID_TOKEN;
+    cacheItem1.target = DEFAULT_TEST_RESOURCE;
+    cacheItem1.realm = @"contoso.com";
+    cacheItem1.environment = @"login.microsoftonline.com";
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    NSDate *extExpiresOn = [NSDate date];
+    cacheItem1.expiresOn = expiresOn;
+    cacheItem1.cachedAt = cachedAt;
+    cacheItem1.extendedExpiresOn = extExpiresOn;
+    cacheItem1.homeAccountId = @"uid.utid";
+    cacheItem1.familyId = DEFAULT_TEST_FAMILY_ID;
+    NSDictionary *additionalFields = @{@"spe_info": @"spe2"};
+    cacheItem1.additionalFields = additionalFields;
+
+    MSIDCommonCredential *cacheItem2 = [MSIDCommonCredential new];
+    cacheItem2.credentialType = MSIDIDTokenType;
+    cacheItem2.secret = DEFAULT_TEST_ID_TOKEN;
+    cacheItem2.clientId = DEFAULT_TEST_CLIENT_ID;
+    XCTAssertNotEqualObjects(cacheItem1, cacheItem2);
+}
+
 - (void)testCredentialIsEqualToItemBehavior {
+    NSError *error = nil;
+
     NSDictionary *credentialDict1 = @{
         @"credential_type": @"AccessToken",
         @"client_id": @"clientid1",
@@ -110,8 +260,11 @@
         @"cached_at": @"0",
         @"expires_on": @"1000",
         @"extended_expires_on": @"2000",
-        @"home_account_id": @"home account id1"
+        @"home_account_id": @"home account id1",
+        @"family_id": @"family1",
+        @"spe_info": @"spe1"
     };
+
     NSDictionary *credentialDict2 = @{
         @"credential_type": @"AccessToken",
         @"client_id": @"clientid2",
@@ -122,16 +275,13 @@
         @"cached_at": @"11",
         @"expires_on": @"1111",
         @"extended_expires_on": @"2222",
-        @"home_account_id": @"home account id2"
+        @"home_account_id": @"home account id2",
+        @"family_id": @"family2",
+        @"spe_info": @"spe2"
     };
-    NSError *error = nil;
-    MSIDCommonCredential *item1 = [[MSIDCommonCredential alloc] initWithJSONDictionary:credentialDict1 error:&error];
-    XCTAssertNotNil(item1);
-    XCTAssertNil(error);
 
+    MSIDCommonCredential *item1 = [[MSIDCommonCredential alloc] initWithJSONDictionary:credentialDict1 error:&error];
     MSIDCommonCredential *item2 = [[MSIDCommonCredential alloc] initWithJSONDictionary:credentialDict2 error:&error];
-    XCTAssertNotNil(item2);
-    XCTAssertNil(error);
     XCTAssertFalse([item1 isEqualToItem:item2]);
 
     MSIDCommonCredential *item1copy = [[MSIDCommonCredential alloc] initWithJSONDictionary:credentialDict1

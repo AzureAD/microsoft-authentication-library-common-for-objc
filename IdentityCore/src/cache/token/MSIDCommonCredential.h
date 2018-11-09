@@ -67,12 +67,15 @@
 - (nullable instancetype)initWithType:(MSIDCredentialType)credentialType
                         homeAccountId:(nonnull NSString *)homeAccountId
                           environment:(nonnull NSString *)environment
+                                realm:(nullable NSString *)realm
                              clientId:(nullable NSString *)clientId
+                               target:(nullable NSString *)target
+                             cachedAt:(nullable NSDate *)cachedAt
+                            expiresOn:(nullable NSDate *)expiresOn
+                    extendedExpiresOn:(nullable NSDate *)extendedExpiresOn
                                secret:(nullable NSString *)secret
                              familyId:(nullable NSString *)familyId
-                               target:(nullable NSString *)target
                            clientInfo:(nullable MSIDClientInfo *)clientInfo
-                                realm:(nullable NSString *)realm
                      additionalFields:(nullable NSDictionary *)additionalFields;
 
 - (BOOL)isEqualToItem:(nullable MSIDCommonCredential *)item;

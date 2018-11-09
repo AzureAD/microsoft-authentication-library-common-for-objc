@@ -49,24 +49,31 @@
 - (nullable instancetype)initWithType:(MSIDCredentialType)credentialType
                         homeAccountId:(nonnull NSString *)homeAccountId
                           environment:(nonnull NSString *)environment
+                                realm:(nullable NSString *)realm
                              clientId:(nullable NSString *)clientId
+                               target:(nullable NSString *)target
+                             cachedAt:(nullable NSDate *)cachedAt
+                            expiresOn:(nullable NSDate *)expiresOn
+                    extendedExpiresOn:(nullable NSDate *)extendedExpiresOn
                                secret:(nullable NSString *)secret
                              familyId:(nullable NSString *)familyId
-                               target:(nullable NSString *)target
                            clientInfo:(nullable MSIDClientInfo *)clientInfo
-                                realm:(nullable NSString *)realm
                      additionalFields:(nullable NSDictionary *)additionalFields {
     MSID_TRACE;
-    self.credentialType = credentialType;
-    self.homeAccountId = homeAccountId;
-    self.environment = environment;
-    self.clientId = clientId;
-    self.secret = secret;
-    self.familyId = familyId;
-    self.target = target;
-    self.clientInfo = clientInfo;
-    self.realm = realm;
-    self.additionalFields = additionalFields;
+
+    _credentialType = credentialType;
+    _homeAccountId = homeAccountId;
+    _environment = environment;
+    _realm = realm;
+    _clientId = clientId;
+    _target = target;
+    _cachedAt = cachedAt;
+    _expiresOn = expiresOn;
+    _extendedExpiresOn = extendedExpiresOn;
+    _secret = secret;
+    _familyId = familyId;
+    _clientInfo = clientInfo;
+    _additionalFields = additionalFields;
 
     return self;
 }
@@ -84,19 +91,19 @@
 }
 
 - (BOOL)isEqualToItem:(MSIDCommonCredential *)item {
-    BOOL result = (self.credentialType == item.credentialType)
-        && (self.clientId == item.clientId || [self.clientId isEqualToString:item.clientId])
-        && (self.secret == item.secret || [self.secret isEqualToString:item.secret])
-        && (self.target == item.target || [self.target isEqualToString:item.target])
-        && (self.realm == item.realm || [self.realm isEqualToString:item.realm])
-        && (self.environment == item.environment || [self.environment isEqualToString:item.environment])
-        && (self.expiresOn == item.expiresOn || [self.expiresOn isEqual:item.expiresOn])
-        && (self.cachedAt == item.cachedAt || [self.cachedAt isEqual:item.cachedAt])
-        && (self.familyId == item.familyId || [self.familyId isEqualToString:item.familyId])
-        && (self.homeAccountId == item.homeAccountId || [self.homeAccountId isEqualToString:item.homeAccountId])
-        && (self.clientInfo == item.clientInfo ||
-            [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo])
-        && (self.additionalFields == item.additionalFields || [self.additionalFields isEqual:item.additionalFields]);
+    BOOL result = (_credentialType == item.credentialType)
+        && (_clientId == item.clientId || [_clientId isEqualToString:item.clientId])
+        && (_secret == item.secret || [_secret isEqualToString:item.secret])
+        && (_target == item.target || [_target isEqualToString:item.target])
+        && (_realm == item.realm || [_realm isEqualToString:item.realm])
+        && (_environment == item.environment || [_environment isEqualToString:item.environment])
+        && (_expiresOn == item.expiresOn || [_expiresOn isEqual:item.expiresOn])
+        && (_extendedExpiresOn == item.extendedExpiresOn || [_extendedExpiresOn isEqual:item.extendedExpiresOn])
+        && (_cachedAt == item.cachedAt || [_cachedAt isEqual:item.cachedAt])
+        && (_familyId == item.familyId || [_familyId isEqualToString:item.familyId])
+        && (_homeAccountId == item.homeAccountId || [_homeAccountId isEqualToString:item.homeAccountId])
+        && (_clientInfo == item.clientInfo || [_clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo])
+        && (_additionalFields == item.additionalFields || [_additionalFields isEqual:item.additionalFields]);
     return result;
 }
 
@@ -104,18 +111,19 @@
 
 - (NSUInteger)hash {
     NSUInteger hash = [super hash];
-    hash = hash * 31 + self.clientId.hash;
-    hash = hash * 31 + self.credentialType;
-    hash = hash * 31 + self.secret.hash;
-    hash = hash * 31 + self.target.hash;
-    hash = hash * 31 + self.realm.hash;
-    hash = hash * 31 + self.environment.hash;
-    hash = hash * 31 + self.expiresOn.hash;
-    hash = hash * 31 + self.cachedAt.hash;
-    hash = hash * 31 + self.familyId.hash;
-    hash = hash * 31 + self.homeAccountId.hash;
-    hash = hash * 31 + self.clientInfo.hash;
-    hash = hash * 31 + self.additionalFields.hash;
+    hash = hash * 31 + _clientId.hash;
+    hash = hash * 31 + _credentialType;
+    hash = hash * 31 + _secret.hash;
+    hash = hash * 31 + _target.hash;
+    hash = hash * 31 + _realm.hash;
+    hash = hash * 31 + _environment.hash;
+    hash = hash * 31 + _expiresOn.hash;
+    hash = hash * 31 + _extendedExpiresOn.hash;
+    hash = hash * 31 + _cachedAt.hash;
+    hash = hash * 31 + _familyId.hash;
+    hash = hash * 31 + _homeAccountId.hash;
+    hash = hash * 31 + _clientInfo.hash;
+    hash = hash * 31 + _additionalFields.hash;
     return hash;
 }
 
@@ -123,24 +131,25 @@
 
 - (nonnull instancetype)copyWithZone:(NSZone *)zone {
     MSIDCommonCredential *item = [[self class] allocWithZone:zone];
-    item.clientId = [self.clientId copyWithZone:zone];
-    item.credentialType = self.credentialType;
-    item.secret = [self.secret copyWithZone:zone];
-    item.target = [self.target copyWithZone:zone];
-    item.realm = [self.realm copyWithZone:zone];
-    item.environment = [self.environment copyWithZone:zone];
-    item.expiresOn = [self.expiresOn copyWithZone:zone];
-    item.cachedAt = [self.cachedAt copyWithZone:zone];
-    item.familyId = [self.familyId copyWithZone:zone];
-    item.homeAccountId = [self.homeAccountId copyWithZone:zone];
-    item.clientInfo = [self.clientInfo copyWithZone:zone];
-    item.additionalFields = [self.additionalFields copyWithZone:zone];
+    item.clientId = [_clientId copyWithZone:zone];
+    item.credentialType = _credentialType;
+    item.secret = [_secret copyWithZone:zone];
+    item.target = [_target copyWithZone:zone];
+    item.realm = [_realm copyWithZone:zone];
+    item.environment = [_environment copyWithZone:zone];
+    item.expiresOn = [_expiresOn copyWithZone:zone];
+    item.extendedExpiresOn = [_extendedExpiresOn copyWithZone:zone];
+    item.cachedAt = [_cachedAt copyWithZone:zone];
+    item.familyId = [_familyId copyWithZone:zone];
+    item.homeAccountId = [_homeAccountId copyWithZone:zone];
+    item.clientInfo = [_clientInfo copyWithZone:zone];
+    item.additionalFields = [_additionalFields copyWithZone:zone];
     return item;
 }
 
 #pragma mark - JSON
 
-- (nullable instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error {
+- (nullable instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error {
     MSID_TRACE;
     if (!(self = [super init])) {
         return nil;
@@ -182,7 +191,6 @@
         _additionalFields = additionalFields;
     }
 
-#pragma unused(error)
     return self;
 }
 
@@ -199,7 +207,7 @@
     }
 
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = _clientId;
-    dictionary[MSID_CREDENTIAL_TYPE_CACHE_KEY] = [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType];
+    dictionary[MSID_CREDENTIAL_TYPE_CACHE_KEY] = [MSIDCredentialTypeHelpers credentialTypeAsString:_credentialType];
     dictionary[MSID_TOKEN_CACHE_KEY] = _secret;
     dictionary[MSID_TARGET_CACHE_KEY] = _target;
     dictionary[MSID_REALM_CACHE_KEY] = _realm;
