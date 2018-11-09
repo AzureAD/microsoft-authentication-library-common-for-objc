@@ -61,11 +61,11 @@
 
     if (self)
     {
-        self.requestParameters = parameters;
-        self.oauthFactory = oauthFactory;
-        self.tokenResponseValidator = tokenResponseValidator;
-        self.tokenCache = tokenCache;
-        self.webViewConfiguration = [self.oauthFactory webViewConfigurationWithRequestParameters:parameters];
+        _requestParameters = parameters;
+        _oauthFactory = oauthFactory;
+        _tokenResponseValidator = tokenResponseValidator;
+        _tokenCache = tokenCache;
+        _webViewConfiguration = [self.oauthFactory webViewConfigurationWithRequestParameters:parameters];
     }
 
     return self;

@@ -52,10 +52,10 @@
 
     if (self)
     {
-        self.requestParameters = parameters;
-        self.forceRefresh = forceRefresh;
-        self.oauthFactory = oauthFactory;
-        self.tokenResponseValidator = tokenResponseValidator;
+        _requestParameters = parameters;
+        _forceRefresh = forceRefresh;
+        _oauthFactory = oauthFactory;
+        _tokenResponseValidator = tokenResponseValidator;
     }
 
     return self;

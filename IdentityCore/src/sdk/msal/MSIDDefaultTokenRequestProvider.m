@@ -26,6 +26,7 @@
 #import "MSIDDefaultTokenResponseValidator.h"
 #import "MSIDDefaultSilentTokenRequest.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDDefaultBrokerTokenRequest.h"
 
 @interface MSIDDefaultTokenRequestProvider()
 
@@ -43,8 +44,8 @@
 
     if (self)
     {
-        self.oauthFactory = oauthFactory;
-        self.tokenCache = defaultAccessor;
+        _oauthFactory = oauthFactory;
+        _tokenCache = defaultAccessor;
     }
 
     return self;
@@ -63,6 +64,14 @@
 {
     return [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
                                                                forceRefresh:forceRefresh
+                                                               oauthFactory:self.oauthFactory
+                                                     tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                 tokenCache:self.tokenCache];
+}
+
+- (MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    return [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters
                                                                oauthFactory:self.oauthFactory
                                                      tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                  tokenCache:self.tokenCache];

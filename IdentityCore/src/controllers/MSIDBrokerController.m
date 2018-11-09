@@ -42,7 +42,7 @@
 
     if (self)
     {
-        self.interactiveParameters = parameters;
+        _interactiveParameters = parameters;
     }
 
     return self;

@@ -51,7 +51,7 @@
 
     if (self)
     {
-        self.interactiveRequestParamaters = parameters;
+        _interactiveRequestParamaters = parameters;
     }
 
     return self;

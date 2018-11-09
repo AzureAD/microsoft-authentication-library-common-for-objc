@@ -51,7 +51,7 @@
 
     if (self)
     {
-        self.forceRefresh = forceRefresh;
+        _forceRefresh = forceRefresh;
     }
 
     return self;

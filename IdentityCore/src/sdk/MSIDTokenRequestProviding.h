@@ -27,11 +27,13 @@
 @class MSIDSilentTokenRequest;
 @class MSIDInteractiveRequestParameters;
 @class MSIDRequestParameters;
+@class MSIDBrokerTokenRequest;
 
 @protocol MSIDTokenRequestProviding <NSObject>
 
 - (nullable MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters;
 - (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
                                                          forceRefresh:(BOOL)forceRefresh;
+- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters;
 
 @end

@@ -21,33 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenResult.h"
-#import "MSIDAccessToken.h"
-#import "MSIDIdToken.h"
-#import "MSIDAuthority.h"
+#import "MSIDBrokerTokenRequest.h"
 
-@implementation MSIDTokenResult
+@class MSIDDefaultTokenCacheAccessor;
 
-- (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
-                                     idToken:(nonnull NSString *)rawIdToken
-                                     account:(nonnull MSIDAccount *)account
-                                   authority:(nonnull MSIDAuthority *)authority
-                               correlationId:(nonnull NSUUID *)correlationId
-                               tokenResponse:(nullable MSIDTokenResponse *)tokenResponse
-{
-    self = [super init];
+NS_ASSUME_NONNULL_BEGIN
 
-    if (self)
-    {
-        _accessToken = accessToken;
-        _rawIdToken = rawIdToken;
-        _authority = authority;
-        _correlationId = correlationId;
-        _tokenResponse = tokenResponse;
-        _account = account;
-    }
+@interface MSIDDefaultBrokerTokenRequest : MSIDBrokerTokenRequest
 
-    return self;
-}
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache;
 
 @end
+
+NS_ASSUME_NONNULL_END

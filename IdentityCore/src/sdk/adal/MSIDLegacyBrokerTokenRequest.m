@@ -21,33 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenResult.h"
-#import "MSIDAccessToken.h"
-#import "MSIDIdToken.h"
-#import "MSIDAuthority.h"
+#import "MSIDLegacyBrokerTokenRequest.h"
 
-@implementation MSIDTokenResult
-
-- (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
-                                     idToken:(nonnull NSString *)rawIdToken
-                                     account:(nonnull MSIDAccount *)account
-                                   authority:(nonnull MSIDAuthority *)authority
-                               correlationId:(nonnull NSUUID *)correlationId
-                               tokenResponse:(nullable MSIDTokenResponse *)tokenResponse
-{
-    self = [super init];
-
-    if (self)
-    {
-        _accessToken = accessToken;
-        _rawIdToken = rawIdToken;
-        _authority = authority;
-        _correlationId = correlationId;
-        _tokenResponse = tokenResponse;
-        _account = account;
-    }
-
-    return self;
-}
+@implementation MSIDLegacyBrokerTokenRequest
 
 @end

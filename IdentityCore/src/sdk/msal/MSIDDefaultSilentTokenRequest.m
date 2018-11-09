@@ -56,7 +56,7 @@
 
     if (self)
     {
-        self.defaultAccessor = tokenCache;
+        _defaultAccessor = tokenCache;
     }
 
     return self;

@@ -45,11 +45,11 @@
 
     if (self)
     {
-        self.requestParameters = parameters;
+        _requestParameters = parameters;
 
         NSError *parametersError = nil;
 
-        if (![self.requestParameters validateParametersWithError:&parametersError])
+        if (![_requestParameters validateParametersWithError:&parametersError])
         {
             MSID_LOG_ERROR(self.requestParameters, @"Request parameters error %ld, %@", (long)parametersError.code, parametersError.domain);
             MSID_LOG_ERROR_PII(self.requestParameters, @"Request parameters error %@", parametersError);
@@ -62,7 +62,7 @@
             return nil;
         }
 
-        self.tokenRequestProvider = tokenRequestProvider;
+        _tokenRequestProvider = tokenRequestProvider;
     }
 
     return self;
