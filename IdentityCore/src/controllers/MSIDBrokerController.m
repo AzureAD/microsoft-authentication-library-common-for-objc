@@ -52,7 +52,9 @@
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
+    // Enable notifications
 
+    // Start request
 }
 
 - (BOOL)completeAcquireToken:(nonnull NSURL *)resultURL

@@ -45,8 +45,24 @@
 
     _legacyAccountId = legacyAccountId;
     _homeAccountId = homeAccountId;
+    _legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
     return self;
+}
+
++ (NSString *)legacyAccountIdentifierAsString:(MSIDLegacyAccountIdentifierType)type
+{
+    switch (type) {
+        case MSIDLegacyIdentifierTypeOptionalDisplayableId:
+            return @"OptionalDisplayableId";
+        case MSIDLegacyIdentifierTypeRequiredDisplayableId:
+            return @"RequiredDisplayableId";
+        case MSIDLegacyIdentifierTypeUniqueNonDisplayableId:
+            return @"UniqueId";
+
+        default:
+            return @"";
+    }
 }
 
 #pragma mark - Copy
@@ -56,6 +72,7 @@
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier allocWithZone:zone] init];
     account.legacyAccountId = [_legacyAccountId copyWithZone:zone];
     account.homeAccountId = [_homeAccountId copyWithZone:zone];
+    account.legacyAccountIdentifierType = _legacyAccountIdentifierType;
     return account;
 }
 
@@ -81,6 +98,7 @@
     NSUInteger hash = 0;
     hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.legacyAccountId.hash;
+    hash = hash * 31 + self.legacyAccountIdentifierType;
     return hash;
 }
 
@@ -94,6 +112,7 @@
     BOOL result = YES;
     result &= (!self.homeAccountId && !account.homeAccountId) || [self.homeAccountId isEqualToString:account.homeAccountId];
     result &= (!self.legacyAccountId && !account.legacyAccountId) || [self.legacyAccountId isEqualToString:account.legacyAccountId];
+    result &= self.legacyAccountIdentifierType == account.legacyAccountIdentifierType;
     return result;
 }
 

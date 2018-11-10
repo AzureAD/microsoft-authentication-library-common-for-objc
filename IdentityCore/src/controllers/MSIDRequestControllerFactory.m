@@ -63,15 +63,21 @@
     }
 
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]
-        // TODO: is auth session also supported in app extension???
         && !(parameters.useEmbeddedWebView && parameters.customWebview))
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUINotSupportedInExtension, @"Interaction is not supported in an app extension.", nil, nil, nil, parameters.correlationId, nil);
-        }
+        // If developer provides us an custom webview, we should be able to use it for authentication in app extension
+        BOOL hasSupportedEmbeddedWebView = parameters.useEmbeddedWebView && parameters.customWebview;
+        BOOL hasSupportedSystemWebView = parameters.useSafariViewController && parameters.parentViewController;
 
-        return nil;
+        if (!hasSupportedEmbeddedWebView && !hasSupportedSystemWebView)
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUINotSupportedInExtension, @"Interaction is not supported in an app extension.", nil, nil, nil, parameters.correlationId, nil);
+            }
+
+            return nil;
+        }
     }
 
     return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
@@ -112,6 +118,10 @@
 
 + (BOOL)isBrokerInstalled:(MSIDInteractiveRequestParameters *)parameters
 {
+#if AD_BROKER
+    return YES;
+#else
+
     if (![NSThread isMainThread])
     {
         __block BOOL result = NO;
@@ -132,6 +142,7 @@
         // Cannot perform app switching from application extension hosts
         return NO;
     }
+#endif
 }
 
 @end

@@ -32,7 +32,8 @@ typedef NS_ENUM(NSInteger, MSIDInteractiveRequestType)
 typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 {
     MSIDUIBehaviorPromptAlwaysType = 0,
-    MSIDUIBehaviorPromptAutoType
+    MSIDUIBehaviorPromptAutoType,
+    MSIDUIBehaviorForceType
 };
 
 @class WKWebView;
@@ -45,6 +46,9 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 @property (nonatomic) BOOL useEmbeddedWebView;
 @property (nonatomic) BOOL useSafariViewController;
 @property (nonatomic) WKWebView *customWebview;
+#if TARGET_OS_IPHONE
+@property (nonatomic) UIViewController *parentViewController;
+#endif
 @property (nonatomic) NSString *extraScopesToConsent;
 @property (nonatomic) NSString *promptType;
 @property (nonatomic) NSDictionary *extraQueryParameters;

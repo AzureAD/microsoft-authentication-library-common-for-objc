@@ -22,23 +22,20 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
-
-@class MSIDInteractiveRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerTokenRequest : NSObject
+@class MSIDInteractiveRequestParameters;
+
+@interface MSIDBrokerPayload : NSObject
 
 @property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic, readonly, nullable) NSDictionary *resumeDictionary;
+@property (nonatomic, readonly, nullable) NSURL *brokerRequestURL;
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                                brokerKey:(NSString *)brokerKey
+                                    error:(NSError **)error;
 
 @end
 

@@ -59,6 +59,10 @@
 #pragma mark Configuration
 @property (nonatomic) MSIDConfiguration *msidConfiguration; // TODO: this one is not necessary, MSIDConfiguration should be replaced with MSIDRequestParams or vice versa
 
+#pragma mark - Cache
+// TODO: should this be moved somewhere else?
+@property (nonatomic) NSString *keychainAccessGroup;
+
 - (NSURL *)tokenEndpoint;
 
 #pragma mark Methods

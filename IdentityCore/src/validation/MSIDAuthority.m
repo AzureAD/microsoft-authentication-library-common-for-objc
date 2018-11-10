@@ -157,7 +157,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 - (BOOL)supportsBrokeredAuthentication
 {
-    return YES;
+    return NO;
 }
 
 - (nonnull NSString *)telemetryAuthorityType

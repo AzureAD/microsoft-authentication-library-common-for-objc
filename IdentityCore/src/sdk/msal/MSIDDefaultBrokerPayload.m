@@ -21,25 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+#import "MSIDDefaultBrokerPayload.h"
 
-@class MSIDInteractiveRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+@implementation MSIDDefaultBrokerPayload
 
-NS_ASSUME_NONNULL_BEGIN
+// TODO: implement me!
+- (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
+{
+    return nil;
+}
 
-@interface MSIDBrokerTokenRequest : NSObject
-
-@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *requestParameters;
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (NSDictionary *)protocolResumeDictionaryContents
+{
+    return nil;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
