@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDInteractiveRequestControlling <MSIDRequestControlling>
 
-- (BOOL)completeAcquireToken:(NSURL *)resultURL;
+- (BOOL)completeAcquireToken:(NSURL *)resultURL error:(NSError **)error;
 
 @end
 

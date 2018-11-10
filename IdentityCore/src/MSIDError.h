@@ -162,7 +162,10 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorUINotSupportedInExtension  = -51633,
 
     // Different account returned
-    MSIDErrorMismatchedAccount  =   -51731
+    MSIDErrorMismatchedAccount  =   -51731,
+
+    // Broker response was not received
+    MSIDErrorBrokerResponseNotReceived  =   -51831
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

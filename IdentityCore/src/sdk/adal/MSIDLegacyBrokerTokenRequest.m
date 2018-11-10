@@ -22,7 +22,20 @@
 // THE SOFTWARE.
 
 #import "MSIDLegacyBrokerTokenRequest.h"
+#import "MSIDLegacyBrokerPayload.h"
 
 @implementation MSIDLegacyBrokerTokenRequest
+
+#pragma mark - Abstract impl
+
+- (MSIDBrokerPayload *)brokerPayloadWithKey:(NSString *)brokerKey error:(NSError **)error
+{
+    return [[MSIDLegacyBrokerPayload alloc] initWithRequestParameters:self.requestParameters brokerKey:brokerKey error:error];
+}
+
+- (NSString *)brokerResumeDictionaryKey
+{
+    return @"adal-broker-resume-dictionary";
+}
 
 @end

@@ -24,12 +24,11 @@
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDBrokerPayload.h"
 #import "MSIDInteractiveRequestParameters.h"
-#import "MSIDTelemetry+Internal.h"
-#import "MSIDTelemetryEventStrings.h"
+#import "MSIDAppExtensionUtil.h"
+#import "MSIDNotifications.h"
 
 @interface MSIDBrokerTokenRequest()
 
-@property (nonatomic, readwrite) MSIDRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic, readwrite) MSIDInteractiveRequestParameters *requestParameters;
 @property (nonatomic, readwrite) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
@@ -58,57 +57,81 @@
 
 #pragma mark - Acquire token
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (BOOL)launchBrokerWithError:(NSError **)error
 {
-    NSError *payloadError = nil;
-    MSIDBrokerPayload *brokerPayload = [self brokerPayloadWithError:&payloadError];
+    NSError *brokerError = nil;
+
+    NSString *brokerKey = [self brokerKeyWithError:&brokerError];
+
+    if (!brokerKey)
+    {
+        MSID_LOG_ERROR(self.requestParameters, @"Failed to retrieve broker key with error %ld, %@", (long)brokerError.code, brokerError.domain);
+        MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to retrieve broker key with error %@", brokerError);
+
+        if (error)
+        {
+            *error = brokerError;
+        }
+
+        return NO;
+    }
+
+    MSIDBrokerPayload *brokerPayload = [self brokerPayloadWithKey:brokerKey error:&brokerError];
 
     if (!brokerPayload)
     {
         MSID_LOG_ERROR(self.requestParameters, @"Couldn't create broker payload");
-        completionBlock(nil, payloadError);
-        return;
+
+        if (error)
+        {
+            *error = brokerError;
+        }
+
+        return NO;
     }
+
+    NSDictionary *brokerResumeDictionary = brokerPayload.resumeDictionary;
+    [[NSUserDefaults standardUserDefaults] setObject:brokerResumeDictionary forKey:[self brokerResumeDictionaryKey]];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 
     NSURL *brokerLaunchURL = brokerPayload.brokerRequestURL;
 
-    // TODO: telemetry should be in controller?
-    [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_LAUNCH_BROKER];
+    if ([NSThread isMainThread])
+    {
+        [MSIDNotifications notifyWebAuthWillSwitchToBroker];
+        [MSIDAppExtensionUtil sharedApplicationOpenURL:brokerLaunchURL];
+    }
+    else
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [MSIDNotifications notifyWebAuthWillSwitchToBroker];
+            [MSIDAppExtensionUtil sharedApplicationOpenURL:brokerLaunchURL];
+        });
+    }
 
-    [self invokeBrokerWithURL:brokerLaunchURL completionBlock:completionBlock];
-
-    // Save request to pasteboard
-    // Save completion handler
-    // Compose URL
-    // Open URL
+    return YES;
 }
 
-#pragma mark - Helpers
-
-- (void)invokeBrokerWithURL:(NSURL *)brokerURL
-            completionBlock:(MSIDRequestCompletionBlock)completionBlock
+- (MSIDTokenResult *)completeBrokerRequestWithResponse:(NSURL *)brokerResponseURL
+                                                 error:(NSError **)error
 {
-    self.requestCompletionBlock = completionBlock;
-
-    
+    return nil;
 }
-
-/*
-+ (void)invokeBroker:(NSURL *)brokerURL
-   completionHandler:(ADAuthenticationCallback)completion
-{
-    [[ADBrokerNotificationManager sharedInstance] enableNotifications:completion];
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthWillSwitchToBrokerApp object:nil];
-
-        [ADAppExtensionUtil sharedApplicationOpenURL:brokerURL];
-    });
-}*/
 
 #pragma mark - Abstract
 
-- (MSIDBrokerPayload *)brokerPayloadWithError:(NSError **)error
+- (NSString *)brokerKeyWithError:(NSError **)error
+{
+    return nil;
+}
+
+- (MSIDBrokerPayload *)brokerPayloadWithKey:(NSString *)brokerKey error:(NSError **)error
+{
+    NSAssert(NO, @"Abstract method. implement in subclasses!");
+    return nil;
+}
+
+- (NSString *)brokerResumeDictionaryKey
 {
     NSAssert(NO, @"Abstract method. implement in subclasses!");
     return nil;

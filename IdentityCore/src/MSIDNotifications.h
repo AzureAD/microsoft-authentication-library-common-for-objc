@@ -42,19 +42,19 @@
     The URL of the end URL, if available, will be in the @"url" key in the userInfo dictionary */
 @property (class) NSString *webAuthDidCompleteNotificationName;
 
-/* Todo: added at broker */
-//#pragma mark - Broker notifications
-///*! Fired before MSID invokes the broker app */
-//@property (class) NSString *webAuthWillSwitchToBrokerAppNotificationName;
-//
-///*! Fired when the application receives a response from the broker. Look at the @"response"
-// key in the userInfo dictionary for the broker response */
-//@property (class) NSString *webAuthDidReceiveResponseFromBrokerNotificationName;
+#pragma mark - Broker notifications
+/*! Fired before MSID invokes the broker app */
+@property (class) NSString *webAuthWillSwitchToBrokerAppNotificationName;
+
+/*! Fired when the application receives a response from the broker. Look at the @"response"
+    key in the userInfo dictionary for the broker response */
+@property (class) NSString *webAuthDidReceiveResponseFromBrokerNotificationName;
 
 #pragma mark - Notification callers
 + (void)notifyWebAuthDidStartLoad:(NSURL *)url;
 + (void)notifyWebAuthDidFinishLoad:(NSURL *)url;
 + (void)notifyWebAuthDidFailWithError:(NSError *)error;
 + (void)notifyWebAuthDidCompleteWithURL:(NSURL *)url;
++ (void)notifyWebAuthWillSwitchToBroker;
 
 @end

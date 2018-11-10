@@ -38,7 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (BOOL)launchBrokerWithError:(NSError **)error;
+- (MSIDTokenResult *)completeBrokerRequestWithResponse:(NSURL *)brokerResponseURL error:(NSError **)error;
 
 @end
 

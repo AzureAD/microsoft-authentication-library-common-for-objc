@@ -56,21 +56,19 @@ static NSString *s_webAuthDidReceiveResponseFromBrokerNotificationName;
 }
 + (NSString *)webAuthDidFinishLoadNotificationName { return s_webAuthDidFinishLoadNotificationName; }
 
-// Todo: Add at broker
-//
-//+ (void)setWebAuthWillSwitchToBrokerAppNotificationName:(NSString *)webAuthWillSwitchToBrokerAppNotificationName
-//{
-//    s_webAuthWillSwitchToBrokerAppNotificationName = webAuthWillSwitchToBrokerAppNotificationName;
-//}
-//
-//+ (NSString *)webAuthWillSwitchToBrokerAppNotificationName { return s_webAuthWillSwitchToBrokerAppNotificationName; }
-//
-//+ (void)setWebAuthDidReceiveResponseFromBrokerNotificationName:(NSString *)webAuthDidReceiveResponseFromBrokerNotificationName
-//{
-//    s_webAuthDidReceieveResponseFromBrokerNotificationName = webAuthDidReceiveResponseFromBrokerNotificationName;
-//}
-//
-//+ (NSString *)webAuthDidReceiveResponseFromBrokerNotificationName { return s_webAuthDidReceieveResponseFromBrokerNotificationName; }
++ (void)setWebAuthWillSwitchToBrokerAppNotificationName:(NSString *)webAuthWillSwitchToBrokerAppNotificationName
+{
+    s_webAuthWillSwitchToBrokerAppNotificationName = webAuthWillSwitchToBrokerAppNotificationName;
+}
+
++ (NSString *)webAuthWillSwitchToBrokerAppNotificationName { return s_webAuthWillSwitchToBrokerAppNotificationName; }
+
++ (void)setWebAuthDidReceiveResponseFromBrokerNotificationName:(NSString *)webAuthDidReceiveResponseFromBrokerNotificationName
+{
+    s_webAuthDidReceiveResponseFromBrokerNotificationName = webAuthDidReceiveResponseFromBrokerNotificationName;
+}
+
++ (NSString *)webAuthDidReceiveResponseFromBrokerNotificationName { return s_webAuthDidReceiveResponseFromBrokerNotificationName; }
 
 #pragma mark - Notifications
 + (void)notifyWebAuthDidStartLoad:(NSURL *)url
@@ -112,6 +110,15 @@ static NSString *s_webAuthDidReceiveResponseFromBrokerNotificationName;
                                                           userInfo:url ? @{ @"url" : url } : nil];
     }
     
+}
+
++ (void)notifyWebAuthWillSwitchToBroker
+{
+    if (s_webAuthWillSwitchToBrokerAppNotificationName)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:s_webAuthWillSwitchToBrokerAppNotificationName
+                                                            object:nil];
+    }
 }
 
 @end

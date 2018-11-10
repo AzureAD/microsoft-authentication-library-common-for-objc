@@ -94,7 +94,7 @@
     }];
 }
 
-- (BOOL)completeAcquireToken:(nonnull NSURL *)resultURL
+- (BOOL)completeAcquireToken:(NSURL *)resultURL error:(NSError **)error
 {
     return NO;
 }
