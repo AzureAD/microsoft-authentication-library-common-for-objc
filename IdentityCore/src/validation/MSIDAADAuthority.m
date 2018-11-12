@@ -27,6 +27,7 @@
 #import "MSIDAADTenant.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDAADAuthority()
 

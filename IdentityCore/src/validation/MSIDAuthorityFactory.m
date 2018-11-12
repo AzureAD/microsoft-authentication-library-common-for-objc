@@ -25,6 +25,7 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "MSIDB2CAuthority.h"
+#import "MSIDAuthority+Internal.h"
 
 @implementation MSIDAuthorityFactory
 

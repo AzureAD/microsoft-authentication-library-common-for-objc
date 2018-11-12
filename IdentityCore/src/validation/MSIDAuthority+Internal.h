@@ -27,6 +27,8 @@
 
 #import "MSIDAuthority.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface MSIDAuthority()
 
 @property (atomic) MSIDOpenIdProviderMetadata *metadata;
@@ -34,4 +36,9 @@
 
 - (id<MSIDAuthorityResolving>)resolver;
 
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(nullable id<MSIDRequestContext>)context
+                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
+NS_ASSUME_NONNULL_END
 @end
