@@ -127,7 +127,7 @@
         tenantId = response.clientInfo.utid;
     }
 
-    return [self.authorityFactory authorityFromUrl:url rawTenant:tenantId context:nil error:nil];
+    return [MSIDAuthorityFactory authorityFromUrl:url rawTenant:tenantId context:nil error:nil];
 }
 
 @end

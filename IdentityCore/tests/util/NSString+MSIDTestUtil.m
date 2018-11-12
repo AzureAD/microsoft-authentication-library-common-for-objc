@@ -27,9 +27,8 @@
 
 - (MSIDAuthority *)authority
 {
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
     __auto_type authorityUrl = [[NSURL alloc] initWithString:self];
-    __auto_type authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
     
     return authority;
 }
