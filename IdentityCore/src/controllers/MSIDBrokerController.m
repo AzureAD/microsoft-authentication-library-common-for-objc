@@ -57,8 +57,6 @@
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    s_currentController = self;
-
     if (self.currentRequest)
     {
         self.currentRequest = nil;
