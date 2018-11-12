@@ -695,7 +695,6 @@
 		B2AF1D38218BCF140080C1A0 /* MSIDRequestControllerFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = B2AF1D36218BCF140080C1A0 /* MSIDRequestControllerFactory.h */; };
 		B2AF1D39218BCF140080C1A0 /* MSIDRequestControllerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF1D37218BCF140080C1A0 /* MSIDRequestControllerFactory.m */; };
 		B2AF1D3A218BCF140080C1A0 /* MSIDRequestControllerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF1D37218BCF140080C1A0 /* MSIDRequestControllerFactory.m */; };
-		B2AF1D3C218BCFB60080C1A0 /* MSIDInteractiveRequestControlling.h in Headers */ = {isa = PBXBuildFile; fileRef = B2AF1D3B218BCFB60080C1A0 /* MSIDInteractiveRequestControlling.h */; };
 		B2AF1D40218BD10A0080C1A0 /* MSIDRequestParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = B2AF1D3E218BD10A0080C1A0 /* MSIDRequestParameters.h */; };
 		B2AF1D41218BD10A0080C1A0 /* MSIDRequestParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF1D3F218BD10A0080C1A0 /* MSIDRequestParameters.m */; };
 		B2AF1D42218BD10A0080C1A0 /* MSIDRequestParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF1D3F218BD10A0080C1A0 /* MSIDRequestParameters.m */; };
@@ -1460,7 +1459,6 @@
 		B2AF1D32218BCEEB0080C1A0 /* MSIDSilentTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSilentTokenRequest.m; sourceTree = "<group>"; };
 		B2AF1D36218BCF140080C1A0 /* MSIDRequestControllerFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRequestControllerFactory.h; sourceTree = "<group>"; };
 		B2AF1D37218BCF140080C1A0 /* MSIDRequestControllerFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDRequestControllerFactory.m; sourceTree = "<group>"; };
-		B2AF1D3B218BCFB60080C1A0 /* MSIDInteractiveRequestControlling.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDInteractiveRequestControlling.h; sourceTree = "<group>"; };
 		B2AF1D3E218BD10A0080C1A0 /* MSIDRequestParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRequestParameters.h; sourceTree = "<group>"; };
 		B2AF1D3F218BD10A0080C1A0 /* MSIDRequestParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDRequestParameters.m; sourceTree = "<group>"; };
 		B2AF1D48218BD12D0080C1A0 /* MSIDInteractiveRequestParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDInteractiveRequestParameters.h; sourceTree = "<group>"; };
@@ -2466,7 +2464,6 @@
 		B2AF1D11218BCC4D0080C1A0 /* controllers */ = {
 			isa = PBXGroup;
 			children = (
-				B2AF1D3B218BCFB60080C1A0 /* MSIDInteractiveRequestControlling.h */,
 				B2AF1D12218BCC7A0080C1A0 /* MSIDRequestControlling.h */,
 				B28D9098218FA97400E230D6 /* MSIDBaseRequestController.h */,
 				B28D9099218FA97400E230D6 /* MSIDBaseRequestController.m */,
@@ -2972,7 +2969,6 @@
 				B28BDA7A217E961F003E5670 /* MSIDB2COauth2Factory.h in Headers */,
 				23B39A8B209A53B7000AA905 /* MSIDDRSDiscoveryRequest.h in Headers */,
 				9641B5241FCF3EEF00AFA0EC /* MSIDMacTokenCache.h in Headers */,
-				B2AF1D3C218BCFB60080C1A0 /* MSIDInteractiveRequestControlling.h in Headers */,
 				B2CDB5761FE2F4E2003A4B5C /* NSOrderedSet+MSIDExtensions.h in Headers */,
 				B251CC1B2040F6B5005E0179 /* MSIDLegacyTokenCacheKey.h in Headers */,
 				238695F2209D375C00E56ADF /* MSIDAuthorityCacheRecord.h in Headers */,

@@ -43,9 +43,9 @@
                                                              error:error];
 }
 
-+ (nullable id<MSIDInteractiveRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                                tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                                               error:(NSError *_Nullable *_Nullable)error
++ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                     tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                                    error:(NSError *_Nullable *_Nullable)error
 {
     if ([self canUseBrokerOnDeviceWithParameters:parameters])
     {

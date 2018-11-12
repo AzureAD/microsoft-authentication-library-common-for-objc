@@ -29,7 +29,7 @@
 
 #pragma mark - Abstract impl
 
-// Thos parameters will be different depending on the broker protocol version
+// Those parameters will be different depending on the broker protocol version
 - (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
 {
     NSString *skipCacheValue = @"NO";

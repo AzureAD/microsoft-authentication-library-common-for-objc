@@ -22,14 +22,14 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDInteractiveRequestControlling.h"
 #import "MSIDBaseRequestController.h"
 #import "MSIDTokenRequestProviding.h"
+#import "MSIDRequestControlling.h"
 
 @class MSIDInteractiveRequestParameters;
 @class MSIDBrokerResponseHandler;
 
-@interface MSIDBrokerController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
+@interface MSIDBrokerController : MSIDBaseRequestController <MSIDRequestControlling>
 
 @property (class, strong, readonly, nullable) MSIDBrokerController *currentBrokerController;
 

@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDInteractiveRequestControlling.h"
 #import "MSIDBaseRequestController.h"
 #import "MSIDTokenRequestProviding.h"
+#import "MSIDRequestControlling.h"
 
 @class MSIDInteractiveRequestParameters;
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
+@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
 
 @property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveRequestParamaters;
 

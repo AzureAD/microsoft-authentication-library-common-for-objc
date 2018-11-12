@@ -94,11 +94,6 @@
     }];
 }
 
-- (BOOL)completeAcquireToken:(NSURL *)resultURL error:(NSError **)error
-{
-    return NO;
-}
-
 - (MSIDTelemetryAPIEvent *)telemetryAPIEvent
 {
     MSIDTelemetryAPIEvent *event = [super telemetryAPIEvent];
