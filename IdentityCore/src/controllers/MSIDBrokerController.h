@@ -31,12 +31,13 @@
 
 @interface MSIDBrokerController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
 
+@property (class, strong, readonly, nullable) MSIDBrokerController *currentBrokerController;
+
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                         error:(NSError *_Nullable *_Nullable)error;
 
-+ (BOOL)completeAcquireToken:(NSURL *)resultURL
-       brokerResponseHandler:(MSIDBrokerResponseHandler *)responseHandler
-                       error:(NSError **)error;
++ (BOOL)completeAcquireToken:(nullable NSURL *)resultURL
+       brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler;
 
 @end

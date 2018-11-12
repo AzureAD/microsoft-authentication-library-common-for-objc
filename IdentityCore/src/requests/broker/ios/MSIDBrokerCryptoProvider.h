@@ -25,10 +25,10 @@
 
 @interface MSIDBrokerCryptoProvider : NSObject
 
-- (instancetype)initWithEncryptionKey:(NSData *)encryptionKey;
+- (nullable instancetype)initWithEncryptionKey:(nonnull NSData *)encryptionKey;
 
 - (nullable NSDictionary *)decryptBrokerResponse:(nonnull NSDictionary *)response
                                    correlationId:(nullable NSUUID *)correlationId
-                                           error:(NSError _Nullable * _Nullable*)error;
+                                           error:(NSError *_Nullable *_Nullable)error;
 
 @end

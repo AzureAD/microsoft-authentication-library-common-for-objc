@@ -57,4 +57,9 @@ MSID_FORM_ACCESSOR(@"user_id", userId);
     return _urlForm[@"code"];
 }
 
+- (NSString *)target
+{
+    return _urlForm[@"resource"];
+}
+
 @end

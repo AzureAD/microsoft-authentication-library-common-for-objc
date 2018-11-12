@@ -22,22 +22,49 @@
 // THE SOFTWARE.
 
 #import "MSIDLegacyBrokerTokenRequest.h"
-#import "MSIDLegacyBrokerPayload.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDLegacyBrokerTokenRequest
 
 #pragma mark - Abstract impl
 
-- (MSIDBrokerPayload *)brokerPayloadWithKey:(NSString *)brokerKey error:(NSError **)error
+// Thos parameters will be different depending on the broker protocol version
+- (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
 {
-    return [[MSIDLegacyBrokerPayload alloc] initWithRequestParameters:self.requestParameters brokerKey:brokerKey error:error];
+    NSString *skipCacheValue = @"NO";
+
+    if ([self.requestParameters.claims count])
+    {
+        skipCacheValue = @"YES";
+    }
+
+    NSString *usernameType = [MSIDAccountIdentifier legacyAccountIdentifierAsString:self.requestParameters.accountIdentifier.legacyAccountIdentifierType];
+
+    NSString *username = self.requestParameters.accountIdentifier.legacyAccountId;
+
+    if (!username)
+    {
+        username = self.requestParameters.loginHint;
+        usernameType = [MSIDAccountIdentifier legacyAccountIdentifierAsString:MSIDLegacyIdentifierTypeOptionalDisplayableId];
+    }
+
+    NSDictionary *contents =
+    @{
+      @"skip_cache": skipCacheValue,
+      @"resource": self.requestParameters.target ?: @"",
+      @"force": self.requestParameters.uiBehaviorType == MSIDUIBehaviorForceType ? @"YES" : @"NO",
+      @"username": username ?: @"",
+      @"username_type": usernameType,
+      @"max_protocol_ver": @"2"
+    };
+
+    return contents;
 }
 
-- (NSString *)brokerResumeDictionaryKey
+- (NSDictionary *)protocolResumeDictionaryContents
 {
-    return @"adal-broker-resume-dictionary";
+    return @{@"resource": self.requestParameters.target ?: @""};
 }
-
-// TODO: replay token request
 
 @end

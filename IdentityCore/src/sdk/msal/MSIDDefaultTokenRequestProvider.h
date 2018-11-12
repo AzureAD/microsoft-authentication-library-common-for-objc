@@ -34,11 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
                      defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor;
 
-// TODO!
-#if TARGET_OS_IPHONE
-- (instancetype)initFromResumeStateWithOauthFactory:(MSIDOauth2Factory *)oauthFactory;
-#endif
-
 @end
 
 NS_ASSUME_NONNULL_END

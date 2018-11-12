@@ -35,6 +35,7 @@
 @property (readonly) NSString *correlationId;
 @property (readonly) NSString *errorCode;
 @property (readonly) NSString *errorDomain;
+@property (readonly) NSString *target;
 
 // Derived properties
 @property (readonly) MSIDTokenResponse *tokenResponse;

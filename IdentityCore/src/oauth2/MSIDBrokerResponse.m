@@ -36,4 +36,9 @@ MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
 MSID_FORM_ACCESSOR(@"error_code", errorCode);
 MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
 
+- (NSString *)target
+{
+    return _urlForm[@"scope"];
+}
+
 @end

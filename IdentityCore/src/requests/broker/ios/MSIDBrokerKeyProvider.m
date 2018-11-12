@@ -77,7 +77,7 @@ enum {
     NSDictionary *symmetricKeyQuery =
     @{
       (id)kSecClass : (id)kSecClassKey,
-      (id)kSecAttrApplicationTag : symmetricTag,
+      (id)kSecAttrApplicationTag : symmetricTag, // TODO: write new items with a new tag to avoid conflicts
       // TODO: replace this with kSecAttrKeyTypeAES?
       (id)kSecAttrKeyType : @(CSSM_ALGID_AES),
       (id)kSecReturnData : @(YES),

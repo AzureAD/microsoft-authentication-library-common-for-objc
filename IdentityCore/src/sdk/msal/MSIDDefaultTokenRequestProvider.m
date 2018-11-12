@@ -69,12 +69,13 @@
                                                                  tokenCache:self.tokenCache];
 }
 
-- (MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                            brokerKey:(nonnull NSString *)brokerKey
+                                                                error:(NSError **)error
 {
     return [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters
-                                                               oauthFactory:self.oauthFactory
-                                                     tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
-                                                                 tokenCache:self.tokenCache];
+                                                                  brokerKey:brokerKey
+                                                                      error:error];
 }
 
 @end

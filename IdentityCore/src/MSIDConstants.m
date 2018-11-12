@@ -33,7 +33,7 @@ NSString *const MSID_APP_VER_KEY                = @"x-app-ver";
 NSString *const MSID_BROKER_SCHEME              = @"msauth";
 // TODO: should this be different for MSAL?
 NSString *const MSID_BROKER_RESUME_DICTIONARY_KEY   =   @"adal-broker-resume-dictionary";
-NSString *const MSID_BROKER_SYMMETRIC_KEY_TAG   = "com.microsoft.adBrokerKey";
+NSString *const MSID_BROKER_SYMMETRIC_KEY_TAG   = @"com.microsoft.adBrokerKey";
 
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
 NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";

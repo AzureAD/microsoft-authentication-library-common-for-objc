@@ -23,27 +23,17 @@
 
 #import "MSIDDefaultBrokerTokenRequest.h"
 
-@interface MSIDDefaultBrokerTokenRequest()
-
-@property (nonatomic) MSIDDefaultTokenCacheAccessor *tokenCache;
-
-@end
-
 @implementation MSIDDefaultBrokerTokenRequest
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
+// TODO: implement me!
+- (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
 {
-    self = [super initWithRequestParameters:parameters oauthFactory:oauthFactory tokenResponseValidator:tokenResponseValidator];
+    return nil;
+}
 
-    if (self)
-    {
-        _tokenCache = tokenCache;
-    }
-
-    return self;
+- (NSDictionary *)protocolResumeDictionaryContents
+{
+    return nil;
 }
 
 @end

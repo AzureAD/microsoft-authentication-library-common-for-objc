@@ -23,16 +23,9 @@
 
 #import "MSIDBrokerTokenRequest.h"
 
-@class MSIDDefaultTokenCacheAccessor;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDDefaultBrokerTokenRequest : MSIDBrokerTokenRequest
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache;
 
 @end
 

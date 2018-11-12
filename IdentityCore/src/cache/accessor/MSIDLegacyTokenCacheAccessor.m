@@ -116,7 +116,7 @@
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:nil
                                                                            clientId:response.clientId
-                                                                             target:response.resource];
+                                                                             target:response.target];
 
     if (saveSSOStateOnly)
     {

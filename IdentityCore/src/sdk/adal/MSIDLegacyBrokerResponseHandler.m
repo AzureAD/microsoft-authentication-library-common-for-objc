@@ -124,7 +124,7 @@
 
     userInfo[MSIDOAuthSubErrorKey] = errorResponse.subError;
 
-    // TODO: it's quite fragile that older broker returns this error as integer, what if integer gets changes?
+    // TODO: it's quite fragile that older broker returns this error as integer, what if integer gets changed?
     if (errorCode == 213)
     {
         userInfo[MSIDUserDisplayableIdkey] = errorResponse.userId;
