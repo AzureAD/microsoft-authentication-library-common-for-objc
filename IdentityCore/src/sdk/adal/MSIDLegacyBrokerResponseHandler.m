@@ -114,21 +114,16 @@
         userInfo[@"x-broker-app-ver"] = errorResponse.brokerAppVer;
     }
 
-    NSString *stsErrorCode = errorResponse.errorCode;
+    NSString *errorCodeString = errorResponse.errorCode;
     NSInteger errorCode = MSIDErrorBrokerUnknown;
 
-    if (stsErrorCode && ![stsErrorCode isEqualToString:@"0"])
+    if (errorCodeString && ![errorCodeString isEqualToString:@"0"])
     {
-        errorCode = [stsErrorCode integerValue];
+        errorCode = [errorCodeString integerValue];
     }
 
     userInfo[MSIDOAuthSubErrorKey] = errorResponse.subError;
-
-    // TODO: it's quite fragile that older broker returns this error as integer, what if integer gets changed?
-    if (errorCode == 213)
-    {
-        userInfo[MSIDUserDisplayableIdkey] = errorResponse.userId;
-    }
+    userInfo[MSIDUserDisplayableIdkey] = errorResponse.userId;
 
     NSString *oauthErrorCode = errorResponse.oauthErrorCode;
     NSString *errorDomain = errorResponse.errorDomain ?: MSIDErrorDomain;
