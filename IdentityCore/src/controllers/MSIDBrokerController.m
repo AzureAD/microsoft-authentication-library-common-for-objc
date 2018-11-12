@@ -35,8 +35,6 @@
 
 @end
 
-static MSIDBrokerController *s_currentController;
-
 @implementation MSIDBrokerController
 
 #pragma mark - Init
@@ -97,29 +95,16 @@ static MSIDBrokerController *s_currentController;
        brokerResponseHandler:(MSIDBrokerResponseHandler *)responseHandler
                        error:(NSError **)error
 {
-    // TODO: save completion handler instead
-    if (s_currentController)
-    {
-        return [s_currentController completeAcquireToken:resultURL error:error];
-    }
-
-    // else provider creates request from resume state
-    // call handle response on new request
-    // don't call completion
-
-    // 1. check that it's broker response
-    // 2. If current Controller -> call on current controller
-    // 3. Else if resume state -> create request with resume state + handle response
-    // 4. Else return NO
+    // TODO: implement me
     return NO;
 }
 
 - (BOOL)completeAcquireToken:(NSURL *)resultURL error:(NSError **)error
 {
-    // TODO: replace me with static completionBlock checking
+    // TODO: replace me with completionBlock checking
     if (self.currentRequest)
     {
-        BOOL result = [self.currentRequest completeBrokerRequestWithResponse:resultURL error:error];
+        //BOOL result = [self.currentRequest completeBrokerRequestWithResponse:resultURL error:error];
 
         // TODO: stop broker telemetry event
 
@@ -127,7 +112,7 @@ static MSIDBrokerController *s_currentController;
         self.currentRequest = nil;
         [self stopTrackingAppState];
 
-        return result;
+        return NO;
     }
 
     return NO;
