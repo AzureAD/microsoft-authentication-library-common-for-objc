@@ -22,18 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerResponse.h"
-#import "MSIDAADV1TokenResponse.h"
 
-@implementation MSIDBrokerResponse
+@class MSIDTokenResponse;
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
+@interface MSIDBrokerResponse ()
 
-MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
-MSID_FORM_ACCESSOR(@"vt", validAuthority);
-
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
-MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
+@property (readwrite) MSIDTokenResponse *tokenResponse;
 
 @end

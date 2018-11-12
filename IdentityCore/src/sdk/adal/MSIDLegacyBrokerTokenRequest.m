@@ -38,4 +38,6 @@
     return @"adal-broker-resume-dictionary";
 }
 
+// TODO: replay token request
+
 @end

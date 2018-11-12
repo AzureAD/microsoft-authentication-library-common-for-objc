@@ -21,19 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerResponse.h"
-#import "MSIDAADV1TokenResponse.h"
+@interface NSData (AES)
 
-@implementation MSIDBrokerResponse
-
-MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
-
-MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
-MSID_FORM_ACCESSOR(@"vt", validAuthority);
-
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
-MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
+- (NSData *)msidAES128DecryptedDataWithKey:(const void *)key
+                                   keySize:(size_t)keySize;
 
 @end

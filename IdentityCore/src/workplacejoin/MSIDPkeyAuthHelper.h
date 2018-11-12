@@ -31,6 +31,7 @@
                                         context:(nullable id<MSIDRequestContext>)context
                                           error:(NSError * _Nullable * _Nullable)error;
 
+// TODO: is this one necessary?
 + (nonnull NSString *)computeThumbprint:(nonnull NSData *)data
                                  isSha2:(BOOL)isSha2;
 

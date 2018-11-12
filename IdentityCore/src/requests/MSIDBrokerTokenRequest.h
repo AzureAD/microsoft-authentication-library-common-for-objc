@@ -39,7 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
 
 - (BOOL)launchBrokerWithError:(NSError **)error;
-- (MSIDTokenResult *)completeBrokerRequestWithResponse:(NSURL *)brokerResponseURL error:(NSError **)error;
 
 @end
 

@@ -169,4 +169,23 @@
     return [[NSString alloc] initWithData:serializedData encoding:NSUTF8StringEncoding];
 }
 
+// TODO: verify this is still necessary as it was done in ADAL
+- (NSDictionary *)msidDictionaryWithoutNulls
+{
+    NSMutableDictionary *cleanedDictionary = [NSMutableDictionary new];
+
+    for (NSString *key in self.allKeys)
+    {
+        NSString *val = [self valueForKey:key];
+
+        if ([val isKindOfClass:[NSString class]]
+            && ![val isEqualToString:@"(null)"])
+        {
+            cleanedDictionary[key] = val;
+        }
+    }
+
+    return cleanedDictionary;
+}
+
 @end

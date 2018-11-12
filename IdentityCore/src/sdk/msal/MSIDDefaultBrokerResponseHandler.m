@@ -21,19 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerResponse.h"
-#import "MSIDAADV1TokenResponse.h"
+#import "MSIDDefaultBrokerResponseHandler.h"
 
-@implementation MSIDBrokerResponse
+@implementation MSIDDefaultBrokerResponseHandler
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
-
-MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
-MSID_FORM_ACCESSOR(@"vt", validAuthority);
-
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
-MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
+- (MSIDTokenResult *)processAndSaveBrokerResultWithQueryParams:(NSDictionary *)encryptedParams
+                                                         error:(NSError **)error
+{
+    return nil;
+}
 
 @end

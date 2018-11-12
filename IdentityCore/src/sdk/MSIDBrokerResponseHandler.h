@@ -21,19 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerResponse.h"
-#import "MSIDAADV1TokenResponse.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDBrokerResponse
+NS_ASSUME_NONNULL_BEGIN
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
+@class MSIDOauth2Factory;
+@class MSIDBrokerResponse;
+@class MSIDTokenResult;
 
-MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
-MSID_FORM_ACCESSOR(@"vt", validAuthority);
+@interface MSIDBrokerResponseHandler : NSObject
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
-MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
+@property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
+
+- (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)factory;
+- (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url error:(NSError **)error;
+
+// TODO: move to internal?
+- (NSDictionary *)responseDictionaryFromEncryptedQueryParams:(NSDictionary *)encryptedParams
+                                               correlationId:(NSUUID *)correlationID
+                                                       error:(NSError **)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

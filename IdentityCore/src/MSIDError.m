@@ -31,6 +31,7 @@ NSString *MSIDHTTPHeadersKey = @"MSIDHTTPHeadersKey";
 NSString *MSIDHTTPResponseCodeKey = @"MSIDHTTPResponseCodeKey";
 NSString *MSIDDeclinedScopesKey = @"MSIDDeclinedScopesKey";
 NSString *MSIDGrantedScopesKey = @"MSIDGrantedScopesKey";
+NSString *MSIDUserDisplayableIdkey = @"MSIDUserDisplayableIdkey";
 
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
@@ -121,5 +122,17 @@ NSDictionary* MSIDErrorDomainsAndCodes()
               MSIDHttpErrorCodeDomain : @[
                       @(MSIDErrorServerUnhandledResponse)
                       ]
+
+              // TODO: add new codes here
               };
+}
+
+void MSIDFillAndLogError(NSError **error, MSIDErrorCode errorCode, NSString *errorDescription, NSUUID *correlationID)
+{
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, errorCode, errorDescription, nil, nil, nil, correlationID, nil);
+    }
+
+    MSID_LOG_ERROR_CORR(correlationID, @"Encountered error with code %ld, description %@", (long)errorCode, errorDescription);
 }

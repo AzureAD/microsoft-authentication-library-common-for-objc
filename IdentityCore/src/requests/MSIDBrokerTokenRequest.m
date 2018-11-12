@@ -26,12 +26,15 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDNotifications.h"
+#import "MSIDBrokerKeyProvider.h"
+#import "MSIDKeychainTokenCache.h"
 
 @interface MSIDBrokerTokenRequest()
 
 @property (nonatomic, readwrite) MSIDInteractiveRequestParameters *requestParameters;
 @property (nonatomic, readwrite) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
 
 @end
 
@@ -50,6 +53,10 @@
         _requestParameters = parameters;
         _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
+
+        // TODO: verify current behavior of this keychain access group and migration scenarios
+        NSString *accessGroup = parameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
+        _brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
     }
 
     return self;
@@ -61,7 +68,7 @@
 {
     NSError *brokerError = nil;
 
-    NSString *brokerKey = [self brokerKeyWithError:&brokerError];
+    NSData *brokerKey = [self.brokerKeyProvider brokerKeyWithError:&brokerError];
 
     if (!brokerKey)
     {
@@ -76,7 +83,16 @@
         return NO;
     }
 
-    MSIDBrokerPayload *brokerPayload = [self brokerPayloadWithKey:brokerKey error:&brokerError];
+    NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidWWWFormURLEncode];
+
+    if (!base64UrlKey)
+    {
+        MSID_LOG_ERROR(self.requestParameters, @"Unable to base64 encode broker key");
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Unable to base64 encode broker key", self.requestParameters.correlationId);
+        return NO;
+    }
+
+    MSIDBrokerPayload *brokerPayload = [self brokerPayloadWithKey:base64UrlKey error:&brokerError];
 
     if (!brokerPayload)
     {
@@ -112,18 +128,7 @@
     return YES;
 }
 
-- (MSIDTokenResult *)completeBrokerRequestWithResponse:(NSURL *)brokerResponseURL
-                                                 error:(NSError **)error
-{
-    return nil;
-}
-
 #pragma mark - Abstract
-
-- (NSString *)brokerKeyWithError:(NSError **)error
-{
-    return nil;
-}
 
 - (MSIDBrokerPayload *)brokerPayloadWithKey:(NSString *)brokerKey error:(NSError **)error
 {

@@ -21,19 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerResponse.h"
-#import "MSIDAADV1TokenResponse.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDBrokerResponse
+@interface MSIDBrokerCryptoProvider : NSObject
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
+- (instancetype)initWithEncryptionKey:(NSData *)encryptionKey;
 
-MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
-MSID_FORM_ACCESSOR(@"vt", validAuthority);
-
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
-MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
+- (nullable NSDictionary *)decryptBrokerResponse:(nonnull NSDictionary *)response
+                                   correlationId:(nullable NSUUID *)correlationId
+                                           error:(NSError _Nullable * _Nullable*)error;
 
 @end

@@ -21,19 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerResponse.h"
+#import "MSIDAADV1BrokerResponse.h"
 #import "MSIDAADV1TokenResponse.h"
+#import "MSIDBrokerResponse+Internal.h"
 
-@implementation MSIDBrokerResponse
+@implementation MSIDAADV1BrokerResponse
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
+MSID_FORM_ACCESSOR(@"resource", resource);
+MSID_FORM_ACCESSOR(@"http_headers", httpHeaders);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_ERROR_DESCRIPTION, errorDescription);
+MSID_FORM_ACCESSOR(MSID_OAUTH2_SUB_ERROR, subError);
+MSID_FORM_ACCESSOR(@"user_id", userId);
 
-MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
-MSID_FORM_ACCESSOR(@"vt", validAuthority);
+- (instancetype)initWithDictionary:(NSDictionary *)form
+                             error:(NSError **)error
+{
+    self = [super initWithDictionary:form error:error];
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
-MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
+    if (self)
+    {
+        self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:form
+                                                                              error:error];
+    }
+
+    return self;
+}
+
+- (NSString *)oauthErrorCode
+{
+    if (_urlForm[@"protocol_code"])
+    {
+        return _urlForm[@"protocol_code"];
+    }
+
+    return _urlForm[@"code"];
+}
 
 @end

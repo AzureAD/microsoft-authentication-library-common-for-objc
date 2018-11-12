@@ -27,11 +27,16 @@
 #import "MSIDTokenRequestProviding.h"
 
 @class MSIDInteractiveRequestParameters;
+@class MSIDBrokerResponseHandler;
 
 @interface MSIDBrokerController : MSIDBaseRequestController <MSIDInteractiveRequestControlling>
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                         error:(NSError *_Nullable *_Nullable)error;
+
++ (BOOL)completeAcquireToken:(NSURL *)resultURL
+       brokerResponseHandler:(MSIDBrokerResponseHandler *)responseHandler
+                       error:(NSError **)error;
 
 @end

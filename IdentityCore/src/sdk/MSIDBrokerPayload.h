@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class MSIDInteractiveRequestParameters;
 
+// TODO: combine me with broker request
 @interface MSIDBrokerPayload : NSObject
 
 @property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *requestParameters;

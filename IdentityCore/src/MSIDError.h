@@ -27,6 +27,7 @@ extern NSString *MSIDOAuthSubErrorKey;
 extern NSString *MSIDCorrelationIdKey;
 extern NSString *MSIDHTTPHeadersKey;
 extern NSString *MSIDHTTPResponseCodeKey;
+extern NSString *MSIDUserDisplayableIdkey;
 
 /*!
  ADAL and MSID use different error domains and error codes.
@@ -164,8 +165,44 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Different account returned
     MSIDErrorMismatchedAccount  =   -51731,
 
+    /*!
+     =========================================================
+     Broker flow errors    (518xx and 519xx) - MSIDErrorDomain
+     =========================================================
+     */
+
     // Broker response was not received
-    MSIDErrorBrokerResponseNotReceived  =   -51831
+    MSIDErrorBrokerResponseNotReceived  =   -51831,
+
+    // Resume state was not found in data store, app might have deleted it
+    MSIDErrorBrokerNoResumeStateFound   =   -51832,
+
+    // Resume state found in datastore but has some fields missing
+    MSIDErrorBrokerBadResumeStateFound  =   -51833,
+
+    // Resume state found in datastore but it doesn't match the response being handled
+    MSIDErrorBrokerMismatchedResumeState  =   -51834,
+
+    // Has missing in the broker response
+    MSIDErrorBrokerResponseHashMissing  =   -51931,
+
+    // Valid broker response not present
+    MSIDErrorBrokerCorruptedResponse    =   -51932,
+
+    // Failed to decrypt broker response
+    MSIDErrorBrokerResponseDecryptionFailed     =   -51933,
+
+    // Broker hash mismatched in result after decryption
+    MSIDErrorBrokerResponseHashMismatch     =   -51934,
+
+    // Failed to create broker encryption key
+    MSIDErrorBrokerKeyFailedToCreate     =   -51935,
+
+    // Couldn't read broker key
+    MSIDErrorBrokerKeyNotFound     =   -51936,
+
+    // Unknown broker error returned
+    MSIDErrorBrokerUnknown  =   -51937,
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);
@@ -173,3 +210,5 @@ extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *erro
 extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode);
 
 extern NSDictionary<NSString *, NSArray *> *MSIDErrorDomainsAndCodes(void);
+
+extern void MSIDFillAndLogError(NSError **error, MSIDErrorCode errorCode, NSString *errorDescription, NSUUID *correlationID);
