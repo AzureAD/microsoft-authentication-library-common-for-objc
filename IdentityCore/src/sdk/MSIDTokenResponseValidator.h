@@ -31,10 +31,23 @@
 
 @interface MSIDTokenResponseValidator : NSObject
 
-- (MSIDTokenResult *)validateTokenResponse:(id)response
+- (MSIDTokenResult *)validateAndSaveTokenResponse:(id)response
+                                     oauthFactory:(MSIDOauth2Factory *)factory
+                                       tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                                requestParameters:(MSIDRequestParameters *)parameters
+                                            error:(NSError **)error;
+
+- (MSIDTokenResult *)validateAndSaveBrokerResponse:(MSIDBrokerResponse *)brokerResponse
+                                      oauthFactory:(MSIDOauth2Factory *)factory
+                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                                     correlationID:(NSUUID *)correlationID
+                                             error:(NSError **)error;
+
+- (MSIDTokenResult *)validateTokenResponse:(MSIDTokenResponse *)tokenResponse
                               oauthFactory:(MSIDOauth2Factory *)factory
-                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                         requestParameters:(MSIDRequestParameters *)parameters
+                             configuration:(MSIDConfiguration *)configuration
+                            requestAccount:(MSIDAccountIdentifier *)accountIdentifier
+                             correlationID:(NSUUID *)correlationID
                                      error:(NSError **)error;
 
 @end

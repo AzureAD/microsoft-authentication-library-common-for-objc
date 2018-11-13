@@ -28,11 +28,16 @@
 #import "MSIDBrokerResponse.h"
 #import "MSIDBrokerCryptoProvider.h"
 #import "MSIDBrokerKeyProvider.h"
+#import "MSIDCacheAccessor.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDTokenResponseValidator.h"
 
 @interface MSIDBrokerResponseHandler()
 
 @property (nonatomic, readwrite) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
+@property (nonatomic, readwrite) MSIDBrokerCryptoProvider *brokerCryptoProvider;
+@property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, readwrite) id<MSIDCacheAccessor> tokenCache;
 
 @end
 
@@ -41,12 +46,14 @@
 #pragma mark - Init
 
 - (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)factory
+              tokenResponseValidator:(MSIDTokenResponseValidator *)responseValidator
 {
     self = [super init];
 
     if (self)
     {
         _oauthFactory = factory;
+        _tokenResponseValidator = responseValidator;
     }
 
     return self;
@@ -57,17 +64,64 @@
 - (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response error:(NSError **)error
 {
 #if TARGET_OS_IPHONE
-    if (![self verifyResponseWithResumeDictionary:response error:error])
+
+    // Verify resume dictionary
+    NSDictionary *resumeState = [self verifyResumeStateDicrionary:response error:error];
+
+    if (!resumeState)
     {
         return nil;
     }
+
+    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeState objectForKey:@"correlation_id"]];
+    NSString *keychainGroup = resumeState[@"keychain_group"];
+
+    // Initialize broker key and cache datasource
+    MSIDBrokerKeyProvider *brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:keychainGroup];
+
+    NSError *brokerKeyError = nil;
+    NSData *brokerKey = [brokerKeyProvider brokerKeyWithError:&brokerKeyError];
+
+    if (!brokerKey)
+    {
+        NSString *descr = [NSString stringWithFormat:@"Couldn't find broker key with error %@", brokerKeyError];
+        MSIDFillAndLogError(error, MSIDErrorBrokerKeyNotFound, descr, correlationId);
+        return nil;
+    }
+
+    self.brokerCryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:brokerKey];
 
     // NSURLComponents resolves some URLs which can't get resolved by NSURL
     NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
     NSString *qpString = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary *queryParamsMap =  [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qpString];
-    return [self processAndSaveBrokerResultWithQueryParams:queryParamsMap error:error];
+
+    NSError *cacheError = nil;
+    self.tokenCache = [self cacheAccessorWithKeychainGroup:keychainGroup error:&cacheError];
+
+    if (!self.tokenCache)
+    {
+        if (error) *error = cacheError;
+        return nil;
+    }
+
+    NSError *brokerError = nil;
+    MSIDBrokerResponse *brokerResponse = [self brokerResponseFromEncryptedQueryParams:queryParamsMap
+                                                                        correlationId:correlationId
+                                                                                error:&brokerError];
+
+    if (!brokerResponse)
+    {
+        if (error) *error = brokerError;
+        return nil;
+    }
+
+    return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
+                                                         oauthFactory:self.oauthFactory
+                                                           tokenCache:self.tokenCache
+                                                        correlationID:correlationId
+                                                                error:error];
 #else
     MSIDFillAndLogError(error, MSIDErrorInternal, @"Broker response handling is not supported on macOS", nil);
     return nil;
@@ -76,12 +130,12 @@
 
 #pragma mark - Helpers
 
-- (BOOL)verifyResponseWithResumeDictionary:(NSURL *)response error:(NSError **)error
+- (NSDictionary *)verifyResumeStateDicrionary:(NSURL *)response error:(NSError **)error
 {
     if (!response)
     {
         MSIDFillAndLogError(error, MSIDErrorInternal, @"Provided broker response is nil", nil);
-        return NO;
+        return nil;
     }
 
     NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
@@ -89,7 +143,7 @@
     if (!resumeDictionary)
     {
         MSIDFillAndLogError(error, MSIDErrorBrokerNoResumeStateFound, @"No broker resume state found in NSUserDefaults", nil);
-        return NO;
+        return nil;
     }
 
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
@@ -98,7 +152,7 @@
     if (!redirectUri)
     {
         MSIDFillAndLogError(error, MSIDErrorBrokerBadResumeStateFound, @"Resume state is missing the redirect uri!", correlationId);
-        return NO;
+        return nil;
     }
 
     NSString *keychainGroup = resumeDictionary[@"keychain_group"];
@@ -106,52 +160,34 @@
     if (!keychainGroup)
     {
         MSIDFillAndLogError(error, MSIDErrorBrokerBadResumeStateFound, @"Resume state is missing the keychain group!", correlationId);
-        return NO;
+        return nil;
     }
 
     // Check to make sure this response is coming from the redirect URI we're expecting.
     if (![[[response absoluteString] lowercaseString] hasPrefix:[redirectUri lowercaseString]])
     {
         MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"URL not coming from the expected redirect URI!", correlationId);
-        return NO;
+        return nil;
     }
 
-    // Initialize broker key
-    self.brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:keychainGroup];
-
-    return YES;
+    return resumeDictionary;
 }
 
 #pragma mark - Abstract
 
-- (MSIDTokenResult *)processAndSaveBrokerResultWithQueryParams:(NSDictionary *)encryptedParams
+- (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
+                                                 correlationId:(NSUUID *)correlationID
                                                          error:(NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;
 }
 
-- (NSDictionary *)responseDictionaryFromEncryptedQueryParams:(NSDictionary *)encryptedParams
-                                               correlationId:(NSUUID *)correlationID
-                                                       error:(NSError **)error
+- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(NSString *)keychainGroup
+                                                  error:(NSError **)error
 {
-    NSError *brokerKeyError = nil;
-    NSData *brokerKey = [self.brokerKeyProvider brokerKeyWithError:&brokerKeyError];
-
-    if (!brokerKey)
-    {
-        NSString *descr = [NSString stringWithFormat:@"Couldn't find broker key with error %@", brokerKeyError];
-        MSIDFillAndLogError(error, MSIDErrorBrokerKeyNotFound, descr, correlationID);
-        return nil;
-    }
-
-    MSIDBrokerCryptoProvider *cryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:brokerKey];
-
-    NSDictionary *decryptedResponse = [cryptoProvider decryptBrokerResponse:encryptedParams
-                                                              correlationId:correlationID
-                                                                      error:error];
-
-    return decryptedResponse;
+    NSAssert(NO, @"Abstract method, implemented in subclasses");
+    return nil;
 }
 
 @end

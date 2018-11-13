@@ -28,6 +28,7 @@
 #import "MSIDAuthority.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDConfiguration.h"
 
 @implementation MSIDRequestParameters
 
@@ -129,6 +130,18 @@
     }
     [requestScopes removeObject:self.clientId];
     return [requestScopes msidToString];
+}
+
+- (MSIDConfiguration *)msidConfiguration
+{
+    MSIDAuthority *authority = self.cloudAuthority ? self.cloudAuthority : self.authority;
+
+    MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                 redirectUri:self.redirectUri
+                                                                    clientId:self.clientId
+                                                                      target:self.target];
+
+    return config;
 }
 
 #pragma mark - Validate

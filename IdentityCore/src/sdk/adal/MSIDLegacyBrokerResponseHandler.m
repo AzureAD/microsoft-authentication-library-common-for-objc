@@ -25,79 +25,101 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDBrokerResponse.h"
 #import "MSIDAADV1BrokerResponse.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDBrokerCryptoProvider.h"
+#import "MSIDTokenResponseValidator.h"
+#import "MSIDTokenResult.h"
+#import "MSIDAccount.h"
 
 @implementation MSIDLegacyBrokerResponseHandler
 
-- (MSIDTokenResult *)processAndSaveBrokerResultWithQueryParams:(NSDictionary *)encryptedParams
-                                                         error:(NSError **)error
+- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(NSString *)keychainGroup
+                                                  error:(NSError **)error
 {
-    return nil;
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
+    MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:self.oauthFactory];
+    MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:self.oauthFactory];
+
+    return cache;
 }
 
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
                                                  correlationId:(NSUUID *)correlationID
                                                          error:(NSError **)error
 {
-    if (encryptedParams[MSID_OAUTH2_ERROR_DESCRIPTION])
+    // Successful case
+    if ([NSString msidIsStringNilOrBlank:encryptedParams[@"error_domain"]])
     {
-        // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
-        if (encryptedParams[@"intune_mam_token_hash"] && encryptedParams[@"intune_mam_token"])
+        NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:encryptedParams
+                                                                             correlationId:correlationID
+                                                                                     error:error];
+
+        if (!decryptedResponse)
         {
-            NSDictionary *intuneResponseDictionary = @{@"response": encryptedParams[@"intune_mam_token"],
-                                                       @"hash": encryptedParams[@"intune_mam_token_hash"],
-                                                       // TODO: default was 1 in ADAL
-                                                       @"msg_protocol_ver": encryptedParams[@"msg_protocol_ver"] ?: @2};
+            return nil;
+        }
 
-            NSDictionary *decryptedResponse = [super responseDictionaryFromEncryptedQueryParams:intuneResponseDictionary
-                                                                                  correlationId:correlationID
-                                                                                          error:error];
+        return [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedResponse error:error];
+    }
 
-            if (!decryptedResponse)
-            {
-                return nil;
-            }
+    NSString *userDisplayableId = nil;
 
-            MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedResponse error:error];
+    // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
+    if (encryptedParams[@"intune_mam_token_hash"] && encryptedParams[@"intune_mam_token"])
+    {
+        NSDictionary *intuneResponseDictionary = @{@"response": encryptedParams[@"intune_mam_token"],
+                                                   @"hash": encryptedParams[@"intune_mam_token_hash"],
+                                                   @"msg_protocol_ver": encryptedParams[@"msg_protocol_ver"] ?: @2};
 
+        NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:intuneResponseDictionary
+                                                                             correlationId:correlationID
+                                                                                     error:error];
 
-            // TODO: we should save it here and return error! Check ADAL code!
+        if (!decryptedResponse)
+        {
+            return nil;
+        }
 
-            return brokerResponse;
+        NSError *intuneError = nil;
+        MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedResponse error:&intuneError];
+        MSIDTokenResult *intuneResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
+                                                                                      oauthFactory:self.oauthFactory
+                                                                                        tokenCache:self.tokenCache
+                                                                                     correlationID:correlationID
+                                                                                             error:&intuneError];
+
+        if (!intuneResult)
+        {
+            MSID_LOG_CORR_WARN(correlationID, @"Unable to save intune token with error %ld, %@", (long)intuneError.code, intuneError.domain);
+            MSID_LOG_WARN_CORR_PII(correlationID, @"Unable to save intune token with error %@", intuneError);
         }
         else
         {
-            // V1 protocol doesn't return encrypted response in the case of failure
-            MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:encryptedParams error:error];
-
-            if (!brokerResponse)
-            {
-                return nil;
-            }
-
-            NSError *brokerError = [self resultFromBrokerErrorResponse:brokerResponse];
-
-            if (error)
-            {
-                *error = brokerError;
-            }
-
-            return nil;
+            userDisplayableId = intuneResult.account.username;
         }
     }
 
-    NSDictionary *decryptedResponse = [super responseDictionaryFromEncryptedQueryParams:encryptedParams
-                                                                          correlationId:correlationID
-                                                                                  error:error];
+    // V1 protocol doesn't return encrypted response in the case of a failure
+    MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:encryptedParams error:error];
 
-    if (!decryptedResponse)
+    if (!brokerResponse)
     {
         return nil;
     }
 
-    return [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedResponse error:error];
+    NSError *brokerError = [self resultFromBrokerErrorResponse:brokerResponse userDisplayableId:userDisplayableId];
+
+    if (error)
+    {
+        *error = brokerError;
+    }
+
+    return nil;
 }
 
-- (NSError *)resultFromBrokerErrorResponse:(MSIDAADV1BrokerResponse *)errorResponse
+- (NSError *)resultFromBrokerErrorResponse:(MSIDAADV1BrokerResponse *)errorResponse userDisplayableId:(NSString *)userId
 {
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:errorResponse.correlationId];
     NSString *errorDescription = errorResponse.errorDescription;
@@ -123,7 +145,7 @@
     }
 
     userInfo[MSIDOAuthSubErrorKey] = errorResponse.subError;
-    userInfo[MSIDUserDisplayableIdkey] = errorResponse.userId;
+    userInfo[MSIDUserDisplayableIdkey] = errorResponse.userId ? errorResponse.userId : userId;
 
     NSString *oauthErrorCode = errorResponse.oauthErrorCode;
     NSString *errorDomain = errorResponse.errorDomain ?: MSIDErrorDomain;

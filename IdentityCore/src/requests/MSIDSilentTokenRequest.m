@@ -290,11 +290,11 @@
 
         NSError *validationError = nil;
 
-        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateTokenResponse:response
-                                                                             oauthFactory:self.oauthFactory
-                                                                               tokenCache:self.tokenCache
-                                                                        requestParameters:self.requestParameters
-                                                                                    error:&validationError];
+        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:response
+                                                                                    oauthFactory:self.oauthFactory
+                                                                                      tokenCache:self.tokenCache
+                                                                               requestParameters:self.requestParameters
+                                                                                           error:&validationError];
 
         if (!tokenResult)
         {

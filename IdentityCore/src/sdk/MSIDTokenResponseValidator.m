@@ -26,14 +26,111 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDTokenResult.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDBrokerResponse.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDTokenResponseValidator
 
-- (MSIDTokenResult *)validateTokenResponse:(id)response
+- (MSIDTokenResult *)validateTokenResponse:(MSIDTokenResponse *)tokenResponse
                               oauthFactory:(MSIDOauth2Factory *)factory
-                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                         requestParameters:(MSIDRequestParameters *)parameters
+                             configuration:(MSIDConfiguration *)configuration
+                            requestAccount:(MSIDAccountIdentifier *)accountIdentifier
+                             correlationID:(NSUUID *)correlationID
                                      error:(NSError **)error
+{
+    if (!tokenResponse)
+    {
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Token response is nil", correlationID);
+        return nil;
+    }
+
+    NSError *verificationError = nil;
+
+    if (![factory verifyResponse:tokenResponse context:nil error:&verificationError])
+    {
+        if (error)
+        {
+            *error = verificationError;
+        }
+
+        MSID_LOG_WARN(nil, @"Unsuccessful token response, error %ld, %@", (long)verificationError.code, verificationError.domain);
+        MSID_LOG_WARN_CORR_PII(correlationID, @"Unsuccessful token response, error %@", verificationError);
+
+        return nil;
+    }
+
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse configuration:configuration];
+
+    MSIDAuthority *authority = configuration.authority;
+
+    MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
+
+    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                                   idToken:tokenResponse.idToken
+                                                                   account:account
+                                                                 authority:authority
+                                                             correlationId:correlationID
+                                                             tokenResponse:tokenResponse];
+
+    return result;
+}
+
+- (MSIDTokenResult *)validateAndSaveBrokerResponse:(MSIDBrokerResponse *)brokerResponse
+                                      oauthFactory:(MSIDOauth2Factory *)factory
+                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                                     correlationID:(NSUUID *)correlationID
+                                             error:(NSError **)error
+{
+    if (!brokerResponse)
+    {
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Broker response is nil", correlationID);
+        return nil;
+    }
+
+    __auto_type authority = [[MSIDAuthorityFactory new] authorityFromUrl:[NSURL URLWithString:brokerResponse.authority]
+                                                                 context:nil
+                                                                   error:error];
+
+    if (!authority) return nil;
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:nil
+                                                                           clientId:brokerResponse.clientId
+                                                                             target:brokerResponse.target];
+
+    MSIDTokenResult *tokenResult = [self validateTokenResponse:brokerResponse.tokenResponse
+                                                  oauthFactory:factory
+                                                 configuration:configuration
+                                                requestAccount:nil
+                                                 correlationID:correlationID
+                                                         error:error];
+
+    if (!tokenResult)
+    {
+        return nil;
+    }
+
+    NSError *savingError = nil;
+    BOOL isSaved = [tokenCache saveTokensWithBrokerResponse:brokerResponse
+                                           saveSSOStateOnly:!brokerResponse.validAuthority
+                                                    context:nil
+                                                      error:error];
+
+    if (!isSaved)
+    {
+        MSID_LOG_ERROR_CORR(correlationID, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
+        MSID_LOG_ERROR_CORR_PII(correlationID, @"Failed to save tokens in cache. Error %@", savingError);
+    }
+
+    return tokenResult;
+}
+
+
+- (MSIDTokenResult *)validateAndSaveTokenResponse:(id)response
+                                     oauthFactory:(MSIDOauth2Factory *)factory
+                                       tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                                requestParameters:(MSIDRequestParameters *)parameters
+                                            error:(NSError **)error
 {
     if (response && ![response isKindOfClass:[NSDictionary class]])
     {
@@ -57,18 +154,15 @@
         return nil;
     }
 
-    NSError *verificationError = nil;
+    MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
+                                                  oauthFactory:factory
+                                                 configuration:parameters.msidConfiguration
+                                                requestAccount:parameters.accountIdentifier
+                                                 correlationID:parameters.correlationId
+                                                         error:error];
 
-    if (![factory verifyResponse:tokenResponse context:parameters error:&verificationError])
+    if (!tokenResult)
     {
-        if (error)
-        {
-            *error = verificationError;
-        }
-
-        MSID_LOG_WARN(parameters, @"Unsuccessful token response, error %ld, %@", (long)verificationError.code, verificationError.domain);
-        MSID_LOG_WARN_PII(parameters, @"Unsuccessful token response, error %@", verificationError);
-
         return nil;
     }
 
@@ -84,20 +178,7 @@
         MSID_LOG_ERROR_PII(parameters, @"Failed to save tokens in cache. Error %@", savingError);
     }
 
-    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse configuration:parameters.msidConfiguration];
-
-    MSIDAuthority *authority = parameters.cloudAuthority ?: parameters.authority;
-
-    MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:parameters.msidConfiguration];
-
-    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
-                                                                   idToken:tokenResponse.idToken
-                                                                   account:account
-                                                                 authority:authority
-                                                             correlationId:parameters.correlationId
-                                                             tokenResponse:tokenResponse];
-
-    return result;
+    return tokenResult;
 }
 
 @end

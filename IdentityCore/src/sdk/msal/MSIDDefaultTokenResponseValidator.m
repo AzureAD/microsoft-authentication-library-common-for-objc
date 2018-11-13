@@ -32,16 +32,18 @@
 
 @implementation MSIDDefaultTokenResponseValidator
 
-- (MSIDTokenResult *)validateTokenResponse:(id)response
+- (MSIDTokenResult *)validateTokenResponse:(MSIDTokenResponse *)tokenResponse
                               oauthFactory:(MSIDOauth2Factory *)factory
-                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                         requestParameters:(MSIDRequestParameters *)parameters
+                             configuration:(MSIDConfiguration *)configuration
+                            requestAccount:(MSIDAccountIdentifier *)accountIdentifier
+                             correlationID:(NSUUID *)correlationID
                                      error:(NSError **)error
 {
-    MSIDTokenResult *tokenResult = [super validateTokenResponse:response
+    MSIDTokenResult *tokenResult = [super validateTokenResponse:tokenResponse
                                                    oauthFactory:factory
-                                                     tokenCache:tokenCache
-                                              requestParameters:parameters
+                                                  configuration:configuration
+                                                 requestAccount:accountIdentifier
+                                                  correlationID:correlationID
                                                           error:error];
 
     if (!tokenResult)
@@ -56,14 +58,14 @@
 
     NSOrderedSet *grantedScopes = [tokenResult.tokenResponse.scope msidScopeSet];
 
-    if (![parameters.msidConfiguration.scopes isSubsetOfOrderedSet:grantedScopes])
+    if (![configuration.scopes isSubsetOfOrderedSet:grantedScopes])
     {
         if (error)
         {
             NSMutableDictionary *additionalUserInfo = [NSMutableDictionary new];
             additionalUserInfo[MSIDGrantedScopesKey] = [grantedScopes array];
 
-            NSMutableOrderedSet *declinedScopeSet = [[NSOrderedSet msidOrderedSetFromString:parameters.target] mutableCopy];
+            NSMutableOrderedSet *declinedScopeSet = [[NSOrderedSet msidOrderedSetFromString:configuration.target] mutableCopy];
             [declinedScopeSet minusOrderedSet:grantedScopes];
 
             additionalUserInfo[MSIDDeclinedScopesKey] = [declinedScopeSet array];
@@ -74,12 +76,12 @@
         return nil;
     }
 
-    if (parameters.accountIdentifier.homeAccountId != nil
-        && ![parameters.accountIdentifier.homeAccountId isEqualToString:tokenResult.accessToken.accountIdentifier.homeAccountId])
+    if (accountIdentifier.homeAccountId != nil
+        && ![accountIdentifier.homeAccountId isEqualToString:tokenResult.accessToken.accountIdentifier.homeAccountId])
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, parameters.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, nil);
         }
 
         return nil;

@@ -25,4 +25,15 @@
 
 @implementation MSIDLegacyTokenResponseValidator
 
+- (MSIDTokenResult *)validateTokenResponse:(MSIDTokenResponse *)tokenResponse
+                              oauthFactory:(MSIDOauth2Factory *)factory
+                             configuration:(MSIDConfiguration *)configuration
+                            requestAccount:(MSIDAccountIdentifier *)accountIdentifier
+                             correlationID:(NSUUID *)correlationID
+                                     error:(NSError **)error
+{
+    // TODO!
+    return nil;
+}
+
 @end

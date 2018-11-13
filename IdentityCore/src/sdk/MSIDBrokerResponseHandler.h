@@ -22,24 +22,27 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDCacheAccessor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class MSIDOauth2Factory;
 @class MSIDBrokerResponse;
 @class MSIDTokenResult;
+@class MSIDTokenResponseValidator;
+@class MSIDBrokerCryptoProvider;
 
 @interface MSIDBrokerResponseHandler : NSObject
 
 @property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic, readonly) MSIDBrokerCryptoProvider *brokerCryptoProvider;
+@property (nonatomic, readonly) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, readonly) id<MSIDCacheAccessor> tokenCache;
 
-- (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)factory;
-- (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url error:(NSError **)error;
+- (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)factory
+              tokenResponseValidator:(MSIDTokenResponseValidator *)responseValidator;
 
-// TODO: move to internal?
-- (NSDictionary *)responseDictionaryFromEncryptedQueryParams:(NSDictionary *)encryptedParams
-                                               correlationId:(NSUUID *)correlationID
-                                                       error:(NSError **)error;
+- (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url error:(NSError * _Nullable * _Nullable)error;
 
 @end
 
