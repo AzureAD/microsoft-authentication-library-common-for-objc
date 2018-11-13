@@ -102,7 +102,7 @@
                                              error:error];
 }
 
-- (BOOL)isEqualToJsonObject:(MSIDJsonObject *)jsonObject;
+- (BOOL)isEqualToJsonObject:(MSIDJsonObject *)jsonObject
 {
     if (!jsonObject)
     {

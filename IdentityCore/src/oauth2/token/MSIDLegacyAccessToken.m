@@ -95,8 +95,7 @@
 
     if (self)
     {
-        __auto_type authorityFactory = [MSIDAuthorityFactory new];
-        __auto_type authority = [authorityFactory authorityFromUrl:tokenCacheItem.authority context:nil error:nil];
+        __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:tokenCacheItem.authority context:nil error:nil];
         
         _accessToken = tokenCacheItem.accessToken;
         _idToken = tokenCacheItem.idToken;

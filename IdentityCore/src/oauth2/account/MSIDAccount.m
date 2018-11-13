@@ -138,8 +138,7 @@
         NSString *tenant = cacheItem.realm;
         
         __auto_type authorityUrl = [NSURL msidURLWithEnvironment:environment tenant:tenant];
-        __auto_type authorityFactory = [MSIDAuthorityFactory new];
-        _authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+        _authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
     }
     
     return self;
