@@ -30,6 +30,10 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#if TARGET_OS_IPHONE
+#import "MSIDBrokerController.h"
+#endif
+#import "MSIDWebMSAuthResponse.h"
 
 @interface MSIDLocalInteractiveController()
 
@@ -77,21 +81,56 @@
                                 return;
                             }
 
-                            [self acquireTokenImpl:completionBlock];
+                            [self executeRequests:completionBlock];
                         }];
 }
 
-- (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (void)executeRequests:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
 
-    [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+
+        if (installBrokerResponse)
+        {
+            [self promptBrokerInstallWithResponse:installBrokerResponse completionBlock:completionBlock];
+            return;
+        }
 
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserId:result.account.username];
         [self stopTelemetryEvent:telemetryEvent error:error];
         completionBlock(result, error);
     }];
+}
+
+- (void)promptBrokerInstallWithResponse:(MSIDWebMSAuthResponse *)response completionBlock:(MSIDRequestCompletionBlock)completion
+{
+#if TARGET_OS_IPHONE
+    if ([NSString msidIsStringNilOrBlank:response.appInstallLink])
+    {
+        NSError *appInstallError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"App install link is missing. Incorrect URL returned from server", nil, nil, nil, self.requestParameters.correlationId, nil);
+        completion(nil, appInstallError);
+        return;
+    }
+
+    NSError *brokerError = nil;
+    MSIDBrokerController *brokerController = [[MSIDBrokerController alloc] initWithInteractiveRequestParameters:self.interactiveRequestParamaters
+                                                                                           tokenRequestProvider:self.tokenRequestProvider
+                                                                                              brokerInstallLink:[NSURL URLWithString:response.appInstallLink]
+                                                                                                          error:&brokerError];
+
+    if (!brokerController)
+    {
+        completion(nil, brokerError);
+        return;
+    }
+
+    [brokerController acquireToken:completion];
+#else
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Trying to install broker on macOS, where it's not currently supported", nil, nil, nil, self.requestParameters.correlationId, nil);
+    completion(nil, error);
+#endif
 }
 
 - (MSIDTelemetryAPIEvent *)telemetryAPIEvent

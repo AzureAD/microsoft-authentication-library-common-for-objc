@@ -71,14 +71,14 @@
     return self;
 }
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (void)acquireToken:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
     [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
                                                     completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
      {
          if (error)
          {
-             completionBlock(nil, error);
+             completionBlock(nil, error, nil);
              return;
          }
 
@@ -86,13 +86,13 @@
      }];
 }
 
-- (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (void)acquireTokenImpl:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
     void (^webAuthCompletion)(MSIDWebviewResponse *, NSError *) = ^void(MSIDWebviewResponse *response, NSError *error)
     {
         if (error)
         {
-            completionBlock(nil, error);
+            completionBlock(nil, error, nil);
             return;
         }
 
@@ -113,14 +113,13 @@
                 return;
             }
 
-            completionBlock(nil, oauthResponse.oauthError);
+            completionBlock(nil, oauthResponse.oauthError, nil);
             return;
         }
         else if ([response isKindOfClass:MSIDWebMSAuthResponse.class])
         {
-            // Todo: Install broker prompt
+            completionBlock(nil, nil, (MSIDWebMSAuthResponse *)response);
         }
-
         else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {
             NSURL *browserURL = ((MSIDWebOpenBrowserResponse *)response).browserURL;
@@ -135,14 +134,14 @@
             else
             {
                 NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, self.requestParameters.correlationId, nil);
-                completionBlock(nil, error);
+                completionBlock(nil, error, nil);
                 return;
             }
 #else
             [[NSWorkspace sharedWorkspace] openURL:browserURL];
 #endif
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.requestParameters.correlationId, nil);
-            completionBlock(nil, error);
+            completionBlock(nil, error, nil);
             return;
         }
     };
@@ -171,7 +170,7 @@
 #pragma mark - Helpers
 
 - (void)acquireTokenWithCode:(NSString *)authCode
-                  completion:(MSIDRequestCompletionBlock)completionBlock
+                  completion:(MSIDInteractiveRequestCompletionBlock)completionBlock
 {
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.oauthFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
                                                                                                            codeVerifier:self.webViewConfiguration.pkce.codeVerifier
@@ -181,7 +180,7 @@
 
         if (error)
         {
-            completionBlock(nil, error);
+            completionBlock(nil, error, nil);
             return;
         }
 
@@ -195,11 +194,11 @@
 
         if (!tokenResult)
         {
-            completionBlock(nil, validationError);
+            completionBlock(nil, validationError, nil);
             return;
         }
 
-        completionBlock(tokenResult, nil);
+        completionBlock(tokenResult, nil, nil);
     }];
 }
 

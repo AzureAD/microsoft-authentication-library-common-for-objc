@@ -36,9 +36,7 @@
 
 @implementation MSIDAutoRequestController
 
-#pragma mark - MSIDInteractiveRequestControlling
-
-- (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (void)executeRequests:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     MSIDSilentTokenRequest *request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
                                                                                      forceRefresh:NO];
@@ -53,15 +51,7 @@
         }
 
         // If we didn't get the successful result, retry with interaction
-        MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
-
-        [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-
-            MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
-            [telemetryEvent setUserId:result.account.username];
-            [self stopTelemetryEvent:telemetryEvent error:error];
-            completionBlock(result, error);
-        }];
+        [super executeRequests:completionBlock];
     }];
 }
 

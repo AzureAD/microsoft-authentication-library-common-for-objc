@@ -27,6 +27,7 @@
 #import "MSIDRequestControlling.h"
 
 @class MSIDInteractiveRequestParameters;
+@class MSIDWebMSAuthResponse;
 
 @interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
 
@@ -35,5 +36,10 @@
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                         error:(NSError *_Nullable *_Nullable)error;
+
+- (void)executeRequests:(nonnull MSIDRequestCompletionBlock)completionBlock;
+
+- (void)promptBrokerInstallWithResponse:(nullable MSIDWebMSAuthResponse *)response
+                        completionBlock:(nonnull MSIDRequestCompletionBlock)completion;
 
 @end

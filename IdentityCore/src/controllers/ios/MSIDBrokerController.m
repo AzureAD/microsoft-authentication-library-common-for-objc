@@ -37,6 +37,7 @@
 
 @property (nonatomic) MSIDInteractiveRequestParameters *interactiveParameters;
 @property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
+@property (nonatomic, readonly) NSURL *brokerInstallLink;
 @property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
 
 @end
@@ -62,6 +63,21 @@ static MSIDBrokerController *s_currentExecutingController;
     }
 
     return self;
+}
+
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                            brokerInstallLink:(nonnull NSURL *)brokerInstallLink
+                                                        error:(NSError *_Nullable *_Nullable)error
+{
+    self = [self initWithInteractiveRequestParameters:parameters tokenRequestProvider:tokenRequestProvider error:error];
+
+    if (self)
+    {
+        _brokerInstallLink = brokerInstallLink;
+    }
+
+    return nil;
 }
 
 #pragma mark - MSIDInteractiveRequestControlling
@@ -125,20 +141,36 @@ static MSIDBrokerController *s_currentExecutingController;
     [self.class startTrackingAppState];
     [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_LAUNCH_BROKER];
 
-    NSURL *brokerLaunchURL = brokerRequest.brokerRequestURL;
+    NSURL *brokerRequestURL = brokerRequest.brokerRequestURL;
+
+    NSURL *launchURL = _brokerInstallLink ? _brokerInstallLink : brokerRequestURL;
+
+    if (_brokerInstallLink)
+    {
+        [self saveToPasteBoard:brokerRequestURL];
+    }
 
     if ([NSThread isMainThread])
     {
         [MSIDNotifications notifyWebAuthWillSwitchToBroker];
-        [MSIDAppExtensionUtil sharedApplicationOpenURL:brokerLaunchURL];
+        [MSIDAppExtensionUtil sharedApplicationOpenURL:launchURL];
     }
     else
     {
         dispatch_async(dispatch_get_main_queue(), ^{
             [MSIDNotifications notifyWebAuthWillSwitchToBroker];
-            [MSIDAppExtensionUtil sharedApplicationOpenURL:brokerLaunchURL];
+            [MSIDAppExtensionUtil sharedApplicationOpenURL:launchURL];
         });
     }
+}
+
+- (void)saveToPasteBoard:(NSURL *)url
+{
+    UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
+                                                            create:YES];
+    appPasteBoard.persistent = YES;
+    url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication", [[NSBundle mainBundle] bundleIdentifier]]];
+    [appPasteBoard setURL:url];
 }
 
 + (BOOL)completeAcquireToken:(NSURL *)resultURL

@@ -37,6 +37,11 @@
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                         error:(NSError *_Nullable *_Nullable)error;
 
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                            brokerInstallLink:(nonnull NSURL *)brokerInstallLink
+                                                        error:(NSError *_Nullable *_Nullable)error;
+
 + (BOOL)completeAcquireToken:(nullable NSURL *)resultURL
        brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler;
 

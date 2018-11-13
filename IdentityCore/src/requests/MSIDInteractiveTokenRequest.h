@@ -28,6 +28,9 @@
 @class MSIDInteractiveRequestParameters;
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
+@class MSIDWebMSAuthResponse;
+
+typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse);
 
 @interface MSIDInteractiveTokenRequest : NSObject
 
@@ -36,6 +39,6 @@
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache;
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (void)acquireToken:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock;
 
 @end
