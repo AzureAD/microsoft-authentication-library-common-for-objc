@@ -104,7 +104,7 @@
 
         MSID_LOG_ERROR(self.requestParameters, @"Unable to create broker request URL");
         MSID_LOG_ERROR(self.requestParameters, @"Unable to create broker request URL with contents %@", contents);
-        return nil;
+        return NO;
     }
 
     _brokerRequestURL = brokerRequestURL;

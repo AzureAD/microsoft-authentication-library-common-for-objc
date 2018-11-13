@@ -29,12 +29,9 @@
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDNotifications.h"
-#import "MSIDAppExtensionUtil.h"
 #import "MSIDBrokerResponseHandler.h"
-
-#if TARGET_OS_IPHONE
+#import "MSIDAppExtensionUtil.h"
 #import "MSIDKeychainTokenCache.h"
-#endif
 
 @interface MSIDBrokerController()
 

@@ -25,9 +25,11 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAutoRequestController.h"
 #import "MSIDLocalInteractiveController.h"
-#import "MSIDBrokerController.h"
 #import "MSIDSilentController.h"
+#if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDBrokerController.h"
+#endif
 #import "MSIDAuthority.h"
 
 @implementation MSIDRequestControllerFactory
@@ -43,23 +45,33 @@
                                                              error:error];
 }
 
-+ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                     tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                                    error:(NSError *_Nullable *_Nullable)error
++ (nullable id<MSIDRequestControlling>)localInteractiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                                         error:(NSError *_Nullable *_Nullable)error
 {
-    if ([self canUseBrokerOnDeviceWithParameters:parameters])
-    {
-        return [[MSIDBrokerController alloc] initWithInteractiveRequestParameters:parameters
-                                                             tokenRequestProvider:tokenRequestProvider
-                                                                            error:error];
-    }
-
     // Else check for prompt auto and return interactive otherwise
     if (parameters.uiBehaviorType == MSIDUIBehaviorPromptAutoType)
     {
         return [[MSIDAutoRequestController alloc] initWithInteractiveRequestParameters:parameters
                                                                   tokenRequestProvider:tokenRequestProvider
                                                                                  error:error];
+    }
+
+    return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                   tokenRequestProvider:tokenRequestProvider
+                                                                                  error:error];
+}
+
++ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                     tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                                    error:(NSError *_Nullable *_Nullable)error
+{
+#if TARGET_OS_IPHONE
+    if ([self canUseBrokerOnDeviceWithParameters:parameters])
+    {
+        return [[MSIDBrokerController alloc] initWithInteractiveRequestParameters:parameters
+                                                             tokenRequestProvider:tokenRequestProvider
+                                                                            error:error];
     }
 
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]
@@ -80,9 +92,11 @@
         }
     }
 
-    return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                   tokenRequestProvider:tokenRequestProvider
-                                                                                  error:error];
+#endif
+
+    return [self localInteractiveControllerForParameters:parameters
+                                    tokenRequestProvider:tokenRequestProvider
+                                                   error:error];
 }
 
 + (BOOL)canUseBrokerOnDeviceWithParameters:(MSIDInteractiveRequestParameters *)parameters
@@ -104,7 +118,6 @@
         return NO;
     }
 
-    // TODO: why this is important?
     if (!parameters.validateAuthority)
     {
         return NO;
@@ -120,7 +133,7 @@
 {
 #if AD_BROKER
     return YES;
-#else
+#elif TARGET_OS_IPHONE
 
     if (![NSThread isMainThread])
     {
@@ -142,6 +155,8 @@
         // Cannot perform app switching from application extension hosts
         return NO;
     }
+#else
+    return NO;
 #endif
 }
 

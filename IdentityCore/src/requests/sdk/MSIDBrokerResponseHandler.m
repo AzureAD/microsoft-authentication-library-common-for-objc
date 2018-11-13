@@ -63,8 +63,6 @@
 
 - (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response error:(NSError **)error
 {
-#if TARGET_OS_IPHONE
-
     // Verify resume dictionary
     NSDictionary *resumeState = [self verifyResumeStateDicrionary:response error:error];
 
@@ -122,10 +120,6 @@
                                                            tokenCache:self.tokenCache
                                                         correlationID:correlationId
                                                                 error:error];
-#else
-    MSIDFillAndLogError(error, MSIDErrorInternal, @"Broker response handling is not supported on macOS", nil);
-    return nil;
-#endif
 }
 
 #pragma mark - Helpers

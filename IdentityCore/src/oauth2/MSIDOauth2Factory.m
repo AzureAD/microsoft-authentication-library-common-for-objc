@@ -433,7 +433,9 @@
     configuration.loginHint = parameters.accountIdentifier.legacyAccountId ?: parameters.loginHint;
     configuration.extraQueryParameters = parameters.extraQueryParameters;
     configuration.sliceParameters = parameters.sliceParameters;
+#if TARGET_OS_IPHONE
     configuration.parentController = parameters.parentViewController;
+#endif
 
     NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
 
