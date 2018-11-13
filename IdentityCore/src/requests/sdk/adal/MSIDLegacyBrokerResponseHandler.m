@@ -25,7 +25,6 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDBrokerResponse.h"
 #import "MSIDAADV1BrokerResponse.h"
-#import "MSIDKeychainTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDBrokerCryptoProvider.h"
@@ -33,16 +32,28 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 
+#if TARGET_OS_IPHONE
+#import "MSIDKeychainTokenCache.h"
+#endif
+
 @implementation MSIDLegacyBrokerResponseHandler
 
 - (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(NSString *)keychainGroup
                                                   error:(NSError **)error
 {
+#if TARGET_OS_IPHONE
     MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
     MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:self.oauthFactory];
     MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:self.oauthFactory];
-
     return cache;
+#else
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker responses not supported on macOS", nil, nil, nil, nil, nil);
+    }
+
+    return nil;
+#endif
 }
 
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams

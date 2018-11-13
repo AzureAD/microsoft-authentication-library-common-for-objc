@@ -23,6 +23,7 @@
 
 #import "MSIDBrokerResponse.h"
 #import "MSIDAADV1TokenResponse.h"
+#import "MSIDBrokerResponse+Internal.h"
 
 @implementation MSIDBrokerResponse
 
@@ -35,6 +36,23 @@ MSID_FORM_ACCESSOR(@"vt", validAuthority);
 MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
 MSID_FORM_ACCESSOR(@"error_code", errorCode);
 MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
+
+- (instancetype)initWithDictionary:(NSDictionary *)form error:(NSError *__autoreleasing *)error
+{
+    self = [super initWithDictionary:form error:error];
+
+    if (self)
+    {
+        [self initDerivedProperties];
+    }
+
+    return self;
+}
+
+- (void)initDerivedProperties
+{
+    self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:_urlForm error:nil];
+}
 
 - (NSString *)target
 {

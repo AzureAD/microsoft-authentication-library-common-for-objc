@@ -39,12 +39,15 @@ MSID_FORM_ACCESSOR(@"scope", scope);
     {
         NSString *errorUserinfoJSON = form[@"error_user_info"];
         _errorUserInfo = [NSDictionary msidDictionaryFromJsonData:[errorUserinfoJSON dataUsingEncoding:NSUTF8StringEncoding] error:nil];
-
-        self.tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:form
-                                                                              error:error];
     }
 
     return self;
+}
+
+- (void)initDerivedProperties
+{
+    self.tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:_urlForm
+                                                                          error:nil];
 }
 
 - (NSString *)oauthErrorCode

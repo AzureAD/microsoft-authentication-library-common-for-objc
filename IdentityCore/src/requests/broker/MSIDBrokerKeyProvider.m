@@ -37,11 +37,15 @@
 
 @implementation MSIDBrokerKeyProvider
 
+#if TARGET_OS_IPHONE
+
 enum {
     CSSM_ALGID_NONE =                   0x00000000L,
     CSSM_ALGID_VENDOR_DEFINED =         CSSM_ALGID_NONE + 0x80000000L,
     CSSM_ALGID_AES
 };
+
+#endif
 
 - (instancetype)initWithGroup:(NSString *)keychainGroup
 {

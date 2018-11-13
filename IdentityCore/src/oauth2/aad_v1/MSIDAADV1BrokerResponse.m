@@ -47,6 +47,12 @@ MSID_FORM_ACCESSOR(@"user_id", userId);
     return self;
 }
 
+- (void)initDerivedProperties
+{
+    self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:_urlForm
+                                                                          error:nil];
+}
+
 - (NSString *)oauthErrorCode
 {
     if (_urlForm[@"protocol_code"])
