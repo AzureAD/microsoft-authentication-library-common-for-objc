@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDLegacyTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
 
-- (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                      legacyAccessor:(MSIDLegacyTokenCacheAccessor *)legacyAccessor;
+- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
+                               legacyAccessor:(MSIDLegacyTokenCacheAccessor *)legacyAccessor;
 
 @end
 

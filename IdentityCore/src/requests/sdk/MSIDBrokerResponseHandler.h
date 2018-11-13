@@ -34,13 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerResponseHandler : NSObject
 
-@property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readonly) MSIDBrokerCryptoProvider *brokerCryptoProvider;
-@property (nonatomic, readonly) MSIDTokenResponseValidator *tokenResponseValidator;
-@property (nonatomic, readonly) id<MSIDCacheAccessor> tokenCache;
+@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic, readonly, nullable) MSIDBrokerCryptoProvider *brokerCryptoProvider;
+@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, readonly, nullable) id<MSIDCacheAccessor> tokenCache;
 
-- (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)factory
-              tokenResponseValidator:(MSIDTokenResponseValidator *)responseValidator;
+- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)factory
+                       tokenResponseValidator:(MSIDTokenResponseValidator *)responseValidator;
 
 - (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url error:(NSError * _Nullable * _Nullable)error;
 

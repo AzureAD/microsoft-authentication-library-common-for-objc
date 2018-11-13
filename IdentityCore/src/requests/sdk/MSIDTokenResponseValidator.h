@@ -31,23 +31,23 @@
 
 @interface MSIDTokenResponseValidator : NSObject
 
-- (MSIDTokenResult *)validateAndSaveTokenResponse:(id)response
-                                     oauthFactory:(MSIDOauth2Factory *)factory
-                                       tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                                requestParameters:(MSIDRequestParameters *)parameters
-                                            error:(NSError **)error;
+- (nullable MSIDTokenResult *)validateAndSaveTokenResponse:(nonnull id)response
+                                              oauthFactory:(nonnull MSIDOauth2Factory *)factory
+                                                tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                         requestParameters:(nonnull MSIDRequestParameters *)parameters
+                                                     error:(NSError * _Nullable * _Nullable)error;
 
-- (MSIDTokenResult *)validateAndSaveBrokerResponse:(MSIDBrokerResponse *)brokerResponse
-                                      oauthFactory:(MSIDOauth2Factory *)factory
-                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                                     correlationID:(NSUUID *)correlationID
-                                             error:(NSError **)error;
+- (nullable MSIDTokenResult *)validateAndSaveBrokerResponse:(nonnull MSIDBrokerResponse *)brokerResponse
+                                               oauthFactory:(nonnull MSIDOauth2Factory *)factory
+                                                 tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                              correlationID:(nullable NSUUID *)correlationID
+                                                      error:(NSError * _Nullable * _Nullable)error;
 
-- (MSIDTokenResult *)validateTokenResponse:(MSIDTokenResponse *)tokenResponse
-                              oauthFactory:(MSIDOauth2Factory *)factory
-                             configuration:(MSIDConfiguration *)configuration
-                            requestAccount:(MSIDAccountIdentifier *)accountIdentifier
-                             correlationID:(NSUUID *)correlationID
-                                     error:(NSError **)error;
+- (nullable MSIDTokenResult *)validateTokenResponse:(nonnull MSIDTokenResponse *)tokenResponse
+                                       oauthFactory:(nonnull MSIDOauth2Factory *)factory
+                                      configuration:(nonnull MSIDConfiguration *)configuration
+                                     requestAccount:(nullable MSIDAccountIdentifier *)accountIdentifier
+                                      correlationID:(nonnull NSUUID *)correlationID
+                                              error:(NSError * _Nullable * _Nullable)error;
 
 @end
