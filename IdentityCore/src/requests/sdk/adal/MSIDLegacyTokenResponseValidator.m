@@ -32,7 +32,7 @@
                              correlationID:(NSUUID *)correlationID
                                      error:(NSError **)error
 {
-    // TODO!
+    // TODO: ADAL pieces
     return nil;
 }
 

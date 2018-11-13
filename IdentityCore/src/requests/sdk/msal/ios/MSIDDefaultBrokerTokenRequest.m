@@ -25,14 +25,16 @@
 
 @implementation MSIDDefaultBrokerTokenRequest
 
-// TODO: implement me!
+// Those parameters will be different depending on the broker protocol version
 - (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
 {
+    // TODO: MSAL pieces
     return nil;
 }
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
+    // TODO: MSAL pieces
     return nil;
 }
 

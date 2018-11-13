@@ -21,26 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDDefaultBrokerResponseHandler.h"
+#import "MSIDSilentTokenRequest.h"
 
-@implementation MSIDDefaultBrokerResponseHandler
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - Abstract impl
+@class MSIDLegacyTokenCacheAccessor;
 
-- (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
-                                                 correlationId:(NSUUID *)correlationID
-                                                         error:(NSError **)error
-{
-    // TODO: MSAL pieces
-    return nil;
-}
+@interface MSIDLegacySilentTokenRequest : MSIDSilentTokenRequest
 
-- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(NSString *)keychainGroup
-                                                  error:(NSError **)error
-{
-    // TODO: MSAL pieces
-    return nil;
-}
-
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull MSIDLegacyTokenCacheAccessor *)tokenCache;
 
 @end
+
+NS_ASSUME_NONNULL_END

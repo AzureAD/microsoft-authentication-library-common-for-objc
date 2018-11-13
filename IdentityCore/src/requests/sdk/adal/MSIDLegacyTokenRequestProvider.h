@@ -21,26 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDDefaultBrokerResponseHandler.h"
+#import <Foundation/Foundation.h>
+#import "MSIDTokenRequestProviding.h"
 
-@implementation MSIDDefaultBrokerResponseHandler
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - Abstract impl
+@class MSIDOauth2Factory;
+@class MSIDLegacyTokenCacheAccessor;
 
-- (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
-                                                 correlationId:(NSUUID *)correlationID
-                                                         error:(NSError **)error
-{
-    // TODO: MSAL pieces
-    return nil;
-}
+@interface MSIDLegacyTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
 
-- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(NSString *)keychainGroup
-                                                  error:(NSError **)error
-{
-    // TODO: MSAL pieces
-    return nil;
-}
-
+- (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
+                      legacyAccessor:(MSIDLegacyTokenCacheAccessor *)legacyAccessor;
 
 @end
+
+NS_ASSUME_NONNULL_END
