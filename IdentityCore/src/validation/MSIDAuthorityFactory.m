@@ -25,17 +25,18 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "MSIDB2CAuthority.h"
+#import "MSIDAuthority+Internal.h"
 
 @implementation MSIDAuthorityFactory
 
-- (MSIDAuthority *)authorityFromUrl:(NSURL *)url
++ (MSIDAuthority *)authorityFromUrl:(NSURL *)url
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
     return [self authorityFromUrl:url rawTenant:nil context:context error:error];
 }
 
-- (MSIDAuthority *)authorityFromUrl:(NSURL *)url
++ (MSIDAuthority *)authorityFromUrl:(NSURL *)url
                           rawTenant:(NSString *)rawTenant
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error

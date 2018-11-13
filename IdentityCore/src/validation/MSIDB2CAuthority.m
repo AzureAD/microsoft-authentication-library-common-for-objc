@@ -24,6 +24,7 @@
 #import "MSIDB2CAuthority.h"
 #import "MSIDB2CAuthorityResolver.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDAuthority+Internal.h"
 
 @implementation MSIDB2CAuthority
 

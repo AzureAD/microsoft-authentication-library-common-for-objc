@@ -26,6 +26,7 @@
 #import "MSIDIntuneInMemoryCacheDataSource.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAuthorityMock.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDIntuneMAMResourcesCacheTests : XCTestCase
 

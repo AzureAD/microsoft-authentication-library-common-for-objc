@@ -52,8 +52,6 @@
     NSArray *_otherAccessors;
 }
 
-@property (nonatomic) MSIDAuthorityFactory *authorityFactory;
-
 @end
 
 @implementation MSIDLegacyTokenCacheAccessor
@@ -72,7 +70,6 @@
         _serializer = [[MSIDKeyedArchiverSerializer alloc] init];
         _otherAccessors = otherAccessors;
         _factory = factory;
-        _authorityFactory = [MSIDAuthorityFactory new];
     }
 
     return self;
@@ -108,8 +105,8 @@
 {
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
 
-    __auto_type authority = [self.authorityFactory authorityFromUrl:[NSURL URLWithString:response.authority]
-                                                            context:context error:error];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:response.authority]
+                                                           context:context error:error];
     
     if (!authority) return NO;
     
@@ -273,7 +270,7 @@
         account.accountIdentifier = refreshToken.accountIdentifier;
         account.username = refreshToken.accountIdentifier.legacyAccountId;
         NSURL *rtAuthority = [refreshToken.authority.url msidURLForPreferredHost:authority.environment context:context error:error];
-        account.authority = [self.authorityFactory authorityFromUrl:rtAuthority rawTenant:refreshToken.realm context:context error:nil];
+        account.authority = [MSIDAuthorityFactory authorityFromUrl:rtAuthority rawTenant:refreshToken.realm context:context error:nil];
         account.accountType = MSIDAccountTypeMSSTS;
         [resultAccounts addObject:account];
     }
@@ -301,7 +298,7 @@
         MSIDAccount *account = [MSIDAccount new];
         account.accountIdentifier = refreshToken.accountIdentifier;
         // TODO: Should we create account if authority is nil?
-        __auto_type authority = [_authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:context error:nil];
+        __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:context error:nil];
         account.authority = authority;
         account.accountType = MSIDAccountTypeMSSTS;
         return account;
