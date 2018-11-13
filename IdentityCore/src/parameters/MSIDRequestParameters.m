@@ -134,6 +134,7 @@
 
 - (MSIDConfiguration *)msidConfiguration
 {
+    // TODO: don't create config every time
     MSIDAuthority *authority = self.cloudAuthority ? self.cloudAuthority : self.authority;
 
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
