@@ -32,6 +32,7 @@
 
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
                                   clientId:(nonnull NSString *)clientId
+                             homeAccountId:(nullable NSString *)homeAccountId
                                      scope:(nullable NSString *)scope
                               refreshToken:(nonnull NSString *)refreshToken
                                     claims:(nullable NSString *)claims

@@ -32,6 +32,7 @@
 
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
                                    clientId:(nonnull NSString *)clientId
+                              homeAccountId:(nullable NSString *)homeAccountId
                                       scope:(nullable NSString *)scope
                                 redirectUri:(nonnull NSString *)redirectUri
                                        code:(nonnull NSString *)code

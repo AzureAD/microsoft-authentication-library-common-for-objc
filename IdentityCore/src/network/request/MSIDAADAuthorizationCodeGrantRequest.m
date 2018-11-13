@@ -23,11 +23,14 @@
 
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
+#import "MSIDADFSAuthority.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @implementation MSIDAADAuthorizationCodeGrantRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                         clientId:(NSString *)clientId
+                   homeAccountId:(NSString *)homeAccountId
                            scope:(NSString *)scope
                      redirectUri:(NSString *)redirectUri
                             code:(NSString *)code
@@ -44,6 +47,17 @@
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
         parameters[MSID_OAUTH2_CLAIMS] = claims;
+        
+        if (homeAccountId != nil
+            && ![MSIDADFSAuthority isAuthorityFormatValid:_urlRequest.URL context:nil error:nil])
+        {
+            NSString* enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:homeAccountId context:nil error:nil];
+            if (enrollmentId != nil)
+            {
+                parameters[MSID_ENROLLMENT_ID] = enrollmentId;
+            }
+        }
+        
         _parameters = parameters;
     }
     
