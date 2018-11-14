@@ -45,10 +45,7 @@
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
         parameters[MSID_OAUTH2_CLAIMS] = claims;
-        if (enrollmentId != nil)
-        {
-            parameters[MSID_ENROLLMENT_ID] = enrollmentId;
-        }
+        parameters[MSID_ENROLLMENT_ID] = enrollmentId;
         
         _parameters = parameters;
     }
