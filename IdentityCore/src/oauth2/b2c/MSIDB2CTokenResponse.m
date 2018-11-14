@@ -31,9 +31,12 @@
 
 @implementation MSIDB2CTokenResponse
 
-- (void)initIdToken
+- (void)initIdToken:(NSError *__autoreleasing *)error
 {
-    self.idTokenObj = [[MSIDB2CIdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+    if (![NSString msidIsStringNilOrBlank:self.idToken])
+    {
+        self.idTokenObj = [[MSIDB2CIdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
+    }
 }
 
 @end

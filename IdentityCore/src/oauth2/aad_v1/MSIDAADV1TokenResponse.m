@@ -29,9 +29,12 @@
 
 MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 
-- (void)initIdToken
+- (void)initIdToken:(NSError *__autoreleasing *)error
 {
-    self.idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+    if (![NSString msidIsStringNilOrBlank:self.idToken])
+    {
+        self.idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
+    }
 }
 
 - (BOOL)isMultiResource
