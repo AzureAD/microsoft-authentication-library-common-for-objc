@@ -43,7 +43,6 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 MSID_JSON_RW(MSID_OAUTH2_CLIENT_INFO, rawClientInfo, setRawClientInfo)
 MSID_JSON_ACCESSOR(MSID_FAMILY_ID, familyId)
-MSID_JSON_RW(MSID_OAUTH2_REFRESH_TOKEN, refreshToken, setRefreshToken)
 MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_SUB_ERROR, suberror)
 
@@ -55,11 +54,6 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_SUB_ERROR, suberror)
     
     if (self)
     {
-        if (token && [NSString msidIsStringNilOrBlank:self.refreshToken])
-        {
-            self.refreshToken = token.refreshToken;
-        }
-        
         [self initDerivedProperties];
     }
     

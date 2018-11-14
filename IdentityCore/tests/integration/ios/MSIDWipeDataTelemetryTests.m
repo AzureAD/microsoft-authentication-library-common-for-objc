@@ -42,6 +42,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDTestRequestContext : NSObject <MSIDRequestContext>
 

@@ -26,7 +26,17 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDB2CTokenResponse.h"
+#import "MSIDB2CIdTokenClaims.h"
+#import "MSIDTokenResponse+Internal.h"
 
 @implementation MSIDB2CTokenResponse
+
+- (void)initIdToken:(NSError *__autoreleasing *)error
+{
+    if (![NSString msidIsStringNilOrBlank:self.idToken])
+    {
+        self.idTokenObj = [[MSIDB2CIdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
+    }
+}
 
 @end

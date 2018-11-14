@@ -21,26 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAuthorityFactory.h"
+#import "MSIDTokenResponse.h"
+@class MSIDIdTokenClaims;
 
-@implementation NSString (MSIDTestUtil)
+#ifndef MSIDTokenResponse_Internal_h
+#define MSIDTokenResponse_Internal_h
 
-- (MSIDAuthority *)authority
-{
-    __auto_type authorityUrl = [[NSURL alloc] initWithString:self];
-    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
-    
-    return authority;
-}
+@interface MSIDTokenResponse ()
 
-- (NSURL *)msidUrl
-{
-    return [[NSURL alloc] initWithString:self];
-}
-
-- (NSData *)msidData
-{
-    return [self dataUsingEncoding:NSUTF8StringEncoding];
-}
+@property MSIDIdTokenClaims *idTokenObj;
 
 @end
+
+#endif /* MSIDTokenResponse_Internal_h */

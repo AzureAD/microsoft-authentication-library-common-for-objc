@@ -26,6 +26,7 @@
 #import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDAadAuthorityCache ()
 
