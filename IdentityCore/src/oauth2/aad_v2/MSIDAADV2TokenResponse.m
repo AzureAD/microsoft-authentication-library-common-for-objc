@@ -25,12 +25,16 @@
 #import "MSIDAADV2IdTokenClaims.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDAuthority.h"
+#import "MSIDTokenResponse+Internal.h"
 
 @implementation MSIDAADV2TokenResponse
 
-- (MSIDAADV2IdTokenClaims *)idTokenObj
+- (void)initIdToken:(NSError *__autoreleasing *)error
 {
-    return [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
+    if (![NSString msidIsStringNilOrBlank:self.idToken])
+    {
+        self.idTokenObj = [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
+    }
 }
 
 - (MSIDAccountType)accountType

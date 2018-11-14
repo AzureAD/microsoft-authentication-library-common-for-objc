@@ -24,5 +24,4 @@
 #import "MSIDAADTokenResponse.h"
 
 @interface MSIDAADV2TokenResponse : MSIDAADTokenResponse
-
 @end

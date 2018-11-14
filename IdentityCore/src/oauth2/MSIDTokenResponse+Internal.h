@@ -21,37 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV1TokenResponse.h"
-#import "MSIDAADV1IdTokenClaims.h"
-#import "MSIDTokenResponse+Internal.h"
+#import "MSIDTokenResponse.h"
+@class MSIDIdTokenClaims;
 
-@implementation MSIDAADV1TokenResponse
+#ifndef MSIDTokenResponse_Internal_h
+#define MSIDTokenResponse_Internal_h
 
-MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
+@interface MSIDTokenResponse ()
 
-- (void)initIdToken:(NSError *__autoreleasing *)error
-{
-    if (![NSString msidIsStringNilOrBlank:self.idToken])
-    {
-        self.idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
-    }
-}
-
-- (BOOL)isMultiResource
-{
-    // TODO: this was brought over from ADAL, find and add a link to documentation describing this behavior
-    return ![NSString msidIsStringNilOrBlank:self.resource]
-            && ![NSString msidIsStringNilOrBlank:self.refreshToken];
-}
-
-- (NSString *)target
-{
-    return self.resource;
-}
-
-- (MSIDAccountType)accountType
-{
-    return MSIDAccountTypeAADV1;
-}
+@property MSIDIdTokenClaims *idTokenObj;
 
 @end
+
+#endif /* MSIDTokenResponse_Internal_h */
