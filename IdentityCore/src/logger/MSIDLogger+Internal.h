@@ -25,15 +25,16 @@
 //
 //------------------------------------------------------------------------------
 
+#ifndef MSIDLogger_Internal_h
+#define MSIDLogger_Internal_h
+
 #import "MSIDLogger.h"
 #import "MSIDRequestContext.h"
 
 // Convenience macro for obscuring PII in log macros that don't allow PII.
 #define _PII_NULLIFY(_OBJ) _OBJ ? @"(not-nil)" : @"(nil)"
 
-#if !defined(MSID_LOG)
 #define MSID_LOG(_LVL, _CORRELATION, _CTX, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logLevel:_LVL context:_CTX correlationId:_CORRELATION isPII:_PII format:_FMT, ##__VA_ARGS__]
-#endif /* MSID_LOG */
 
 /*
  Macros that take context should be prefered as context provides both log component and correlationId.
@@ -42,89 +43,55 @@
  Therefore, _CORR macros are also provided for backward compatibility, but they should be used only when context is not otherwise available.
  */
 
-#if !defined(MSID_LOG_ERROR)
 #define MSID_LOG_ERROR(_ctx, _fmt, ...) \
 MSID_LOG(MSIDLogLevelError, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_ERROR */
 
-#if !defined(MSID_LOG_ERROR_CORR)
 #define MSID_LOG_ERROR_CORR(_correlationId, _fmt, ...) \
 MSID_LOG(MSIDLogLevelError, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_ERROR_CORR */
 
-#if !defined(MSID_LOG_ERROR_PII)
 #define MSID_LOG_ERROR_PII(_ctx, _fmt, ...) \
 MSID_LOG(MSIDLogLevelError, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_ERROR_PII */
 
-#if !defined(MSID_LOG_ERROR_CORR_PII)
 #define MSID_LOG_ERROR_CORR_PII(_correlationId, _fmt, ...) \
 MSID_LOG(MSIDLogLevelError, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_ERROR_CORR_PII */
 
-#if !defined(MSID_LOG_WARN)
 #define MSID_LOG_WARN(_ctx, _fmt, ...) \
 MSID_LOG(MSIDLogLevelWarning, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_WARN */
 
-#if !defined(MSID_LOG_CORR_WARN)
 #define MSID_LOG_CORR_WARN(_correlationId, _fmt, ...) \
 MSID_LOG(MSIDLogLevelWarning, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_CORR_WARN */
 
-#if !defined(MSID_LOG_WARN_PII)
 #define MSID_LOG_WARN_PII(_ctx, _fmt, ...) \
 MSID_LOG(MSIDLogLevelWarning, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_WARN_PII */
 
-#if !defined(MSID_LOG_WARN_CORR_PII)
 #define MSID_LOG_WARN_CORR_PII(_correlationId, _fmt, ...) \
 MSID_LOG(MSIDLogLevelWarning, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_WARN_CORR_PII */
 
-#if !defined(MSID_LOG_INFO)
 #define MSID_LOG_INFO(_ctx, _fmt, ...) \
 MSID_LOG(MSIDLogLevelInfo, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_INFO */
 
-#if !defined(MSID_LOG_INFO_CORR)
 #define MSID_LOG_INFO_CORR(_correlationId, _fmt, ...) \
 MSID_LOG(MSIDLogLevelInfo, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_INFO_CORR */
 
-#if !defined(MSID_LOG_INFO_PII)
 #define MSID_LOG_INFO_PII(_ctx, _fmt, ...) \
 MSID_LOG(MSIDLogLevelInfo, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_INFO_PII */
 
-#if !defined(MSID_LOG_INFO_CORR_PII)
 #define MSID_LOG_INFO_CORR_PII(_correlationId, _fmt, ...) \
 MSID_LOG(MSIDLogLevelInfo, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_INFO_CORR_PII */
 
-#if !defined(MSID_LOG_VERBOSE)
 #define MSID_LOG_VERBOSE(_ctx, _fmt, ...) \
 MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_VERBOSE */
 
-#if !defined(MSID_LOG_VERBOSE_CORR)
 #define MSID_LOG_VERBOSE_CORR(_correlationId, _fmt, ...) \
 MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_VERBOSE_CORR */
 
-#if !defined(MSID_LOG_VERBOSE_PII)
 #define MSID_LOG_VERBOSE_PII(_ctx, _fmt, ...) \
 MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_VERBOSE_PII */
 
-#if !defined(MSID_LOG_VERBOSE_CORR_PII)
 #define MSID_LOG_VERBOSE_CORR_PII(_correlationId, _fmt, ...) \
 MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
-#endif /* MSID_LOG_VERBOSE_CORR_PII */
 
-#ifndef MSID_TRACE
 #define MSID_TRACE /**/
-#endif
 
 @interface MSIDLogger (Internal)
 
@@ -150,3 +117,5 @@ MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
          context:(id<MSIDRequestContext>)context;
 
 @end
+
+#endif /* MSIDLogger_Internal_h */
