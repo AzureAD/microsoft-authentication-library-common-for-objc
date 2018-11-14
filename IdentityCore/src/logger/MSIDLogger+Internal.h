@@ -91,7 +91,7 @@ MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
 #define MSID_LOG_VERBOSE_CORR_PII(_correlationId, _fmt, ...) \
 MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
 
-#define MSID_TRACE /**/
+#define MSID_TRACE // Unused
 
 @interface MSIDLogger (Internal)
 

@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDCredentialCacheItem.h"
-#import "MSIDCredentialCacheItemUtil.h"
 #import "MSIDUserInformation.h"
 #import "MSIDCredentialType.h"
 #import "NSDate+MSIDExtensions.h"
@@ -197,7 +196,33 @@
 
 - (MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType
 {
-    return [MSIDCredentialCacheItemUtil tokenWithType:credentialType credential:self];
+#if !defined(MSID_CREDENTIAL_TOKEN_WITH_TYPE_DISABLED)
+    switch (credentialType)
+    {
+        case MSIDAccessTokenType:
+        {
+            return [[MSIDAccessToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDRefreshTokenType:
+        {
+            return [[MSIDRefreshToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDLegacySingleResourceTokenType:
+        {
+            return [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDIDTokenType:
+        {
+            return [[MSIDIdToken alloc] initWithTokenCacheItem:self];
+        }
+        default:
+            return [[MSIDBaseToken alloc] initWithTokenCacheItem:self];
+    }
+#else
+#pragma unused(credentialType)
+#endif // MSID_CREDENTIAL_TOKEN_WITH_TYPE_DISABLED
+
+    return nil;
 }
 
 - (BOOL)matchesTarget:(NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions
