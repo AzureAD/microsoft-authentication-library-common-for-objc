@@ -674,9 +674,6 @@
 		B2A3C2812145D04E0082525C /* MSIDAuthorityCacheRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 238695F1209D375C00E56ADF /* MSIDAuthorityCacheRecord.m */; };
 		B2A3C2822145D2760082525C /* MSIDCredentialCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B251CC54204109A4005E0179 /* MSIDCredentialCacheItem.m */; };
 		B2AF1D13218BCC7A0080C1A0 /* MSIDRequestControlling.h in Headers */ = {isa = PBXBuildFile; fileRef = B2AF1D12218BCC7A0080C1A0 /* MSIDRequestControlling.h */; };
-		B2AF1D17218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.h in Headers */ = {isa = PBXBuildFile; fileRef = B2AF1D15218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.h */; };
-		B2AF1D18218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF1D16218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.m */; };
-		B2AF1D19218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF1D16218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.m */; };
 		B2AF1D1C218BCD7C0080C1A0 /* MSIDLocalInteractiveController.h in Headers */ = {isa = PBXBuildFile; fileRef = B2AF1D1A218BCD7C0080C1A0 /* MSIDLocalInteractiveController.h */; };
 		B2AF1D1D218BCD7C0080C1A0 /* MSIDLocalInteractiveController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF1D1B218BCD7C0080C1A0 /* MSIDLocalInteractiveController.m */; };
 		B2AF1D1E218BCD7C0080C1A0 /* MSIDLocalInteractiveController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF1D1B218BCD7C0080C1A0 /* MSIDLocalInteractiveController.m */; };
@@ -1450,8 +1447,6 @@
 		B29CB6D01FEC993D00F880ED /* MSIDLegacyTokenCacheAccessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLegacyTokenCacheAccessor.h; sourceTree = "<group>"; };
 		B29F7804213DFA5600D61FC8 /* MSIDErrorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDErrorTests.m; sourceTree = "<group>"; };
 		B2AF1D12218BCC7A0080C1A0 /* MSIDRequestControlling.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRequestControlling.h; sourceTree = "<group>"; };
-		B2AF1D15218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAutoLocalInteractiveController.h; sourceTree = "<group>"; };
-		B2AF1D16218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAutoLocalInteractiveController.m; sourceTree = "<group>"; };
 		B2AF1D1A218BCD7C0080C1A0 /* MSIDLocalInteractiveController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLocalInteractiveController.h; sourceTree = "<group>"; };
 		B2AF1D1B218BCD7C0080C1A0 /* MSIDLocalInteractiveController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLocalInteractiveController.m; sourceTree = "<group>"; };
 		B2AF1D1F218BCD870080C1A0 /* MSIDSilentController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSilentController.h; sourceTree = "<group>"; };
@@ -2477,8 +2472,6 @@
 				B2AF1D12218BCC7A0080C1A0 /* MSIDRequestControlling.h */,
 				B28D9098218FA97400E230D6 /* MSIDBaseRequestController.h */,
 				B28D9099218FA97400E230D6 /* MSIDBaseRequestController.m */,
-				B2AF1D15218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.h */,
-				B2AF1D16218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.m */,
 				B2AF1D1A218BCD7C0080C1A0 /* MSIDLocalInteractiveController.h */,
 				B2AF1D1B218BCD7C0080C1A0 /* MSIDLocalInteractiveController.m */,
 				B2AF1D1F218BCD870080C1A0 /* MSIDSilentController.h */,
@@ -2992,7 +2985,6 @@
 				9641B5291FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.h in Headers */,
 				B2908C071FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.h in Headers */,
 				23B39AC6209BF9F2000AA905 /* MSIDOpenIdConfigurationInfoRequest.h in Headers */,
-				B2AF1D17218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.h in Headers */,
 				235480C920DDF81000246F72 /* MSIDB2CAuthority.h in Headers */,
 				238EF030208FD0200035ABE6 /* MSIDAADRequestConfigurator.h in Headers */,
 				23AE9DA3213A159C00B285F3 /* MSIDOpenIdConfigurationInfoResponseSerializer.h in Headers */,
@@ -3754,7 +3746,6 @@
 				B2C7B3BC213C69C8009FFCC1 /* MSIDDefaultErrorConverter.m in Sources */,
 				B20657CA1FC926B200412B7D /* MSIDTelemetryHttpEvent.m in Sources */,
 				B20657C31FC9262700412B7D /* NSString+MSIDTelemetryExtensions.m in Sources */,
-				B2AF1D19218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.m in Sources */,
 				2306D2B420AD05A700F875A3 /* MSIDURLSessionDelegate.m in Sources */,
 				600D19B320964CE70004CD43 /* MSIDPkeyAuthHelper.m in Sources */,
 				1E3C0ED7217FE2BF0022D61D /* MSIDAppMetadataCacheQuery.m in Sources */,
@@ -4121,7 +4112,6 @@
 				6057EE9020B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m in Sources */,
 				960196FC208E579600D962D3 /* MSIDSafariViewController.m in Sources */,
 				B297E1E720A12BDE00F370EC /* MSIDDefaultAccountCacheKey.m in Sources */,
-				B2AF1D18218BCD550080C1A0 /* MSIDAutoLocalInteractiveController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

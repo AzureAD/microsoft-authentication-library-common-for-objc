@@ -23,7 +23,6 @@
 
 #import "MSIDRequestControllerFactory.h"
 #import "MSIDInteractiveRequestParameters.h"
-#import "MSIDAutoLocalInteractiveController.h"
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDSilentController.h"
 #if TARGET_OS_IPHONE
