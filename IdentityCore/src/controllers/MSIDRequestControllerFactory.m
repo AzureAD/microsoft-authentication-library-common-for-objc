@@ -23,12 +23,12 @@
 
 #import "MSIDRequestControllerFactory.h"
 #import "MSIDInteractiveRequestParameters.h"
-#import "MSIDAutoRequestController.h"
+#import "MSIDAutoLocalInteractiveController.h"
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDSilentController.h"
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
-#import "MSIDBrokerController.h"
+#import "MSIDBrokerInteractiveController.h"
 #endif
 #import "MSIDAuthority.h"
 
@@ -45,33 +45,36 @@
                                                              error:error];
 }
 
-+ (nullable id<MSIDRequestControlling>)localInteractiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                                         error:(NSError *_Nullable *_Nullable)error
-{
-    // Else check for prompt auto and return interactive otherwise
-    if (parameters.uiBehaviorType == MSIDUIBehaviorPromptAutoType)
-    {
-        return [[MSIDAutoRequestController alloc] initWithInteractiveRequestParameters:parameters
-                                                                  tokenRequestProvider:tokenRequestProvider
-                                                                                 error:error];
-    }
-
-    return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                   tokenRequestProvider:tokenRequestProvider
-                                                                                  error:error];
-}
-
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                     error:(NSError *_Nullable *_Nullable)error
 {
+    id<MSIDRequestControlling> interactiveController = [self platformInteractiveController:parameters
+                                                                      tokenRequestProvider:tokenRequestProvider
+                                                                                     error:error];
+
+    if (parameters.uiBehaviorType != MSIDUIBehaviorPromptAutoType)
+    {
+        return interactiveController;
+    }
+
+    return [[MSIDSilentController alloc] initWithRequestParameters:parameters
+                                                      forceRefresh:NO
+                                              tokenRequestProvider:tokenRequestProvider
+                                     fallbackInteractiveController:interactiveController
+                                                             error:error];
+}
+
++ (nullable id<MSIDRequestControlling>)platformInteractiveController:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                               error:(NSError *_Nullable *_Nullable)error
+{
 #if TARGET_OS_IPHONE
     if ([self canUseBrokerOnDeviceWithParameters:parameters])
     {
-        return [[MSIDBrokerController alloc] initWithInteractiveRequestParameters:parameters
-                                                             tokenRequestProvider:tokenRequestProvider
-                                                                            error:error];
+        return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                        tokenRequestProvider:tokenRequestProvider
+                                                                                       error:error];
     }
 
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]
@@ -94,10 +97,11 @@
 
 #endif
 
-    return [self localInteractiveControllerForParameters:parameters
-                                    tokenRequestProvider:tokenRequestProvider
-                                                   error:error];
+    return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                   tokenRequestProvider:tokenRequestProvider
+                                                                                  error:error];
 }
+
 
 + (BOOL)canUseBrokerOnDeviceWithParameters:(MSIDInteractiveRequestParameters *)parameters
 {

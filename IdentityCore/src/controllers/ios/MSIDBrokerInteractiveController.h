@@ -29,9 +29,10 @@
 @class MSIDInteractiveRequestParameters;
 @class MSIDBrokerResponseHandler;
 
-@interface MSIDBrokerController : MSIDBaseRequestController <MSIDRequestControlling>
+@interface MSIDBrokerInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
 
-@property (class, strong, readonly, nullable) MSIDBrokerController *currentBrokerController;
+@property (class, strong, readonly, nullable) MSIDBrokerInteractiveController *currentBrokerController;
+@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveParameters;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider

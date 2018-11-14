@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerController.h"
+#import "MSIDBrokerInteractiveController.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDTelemetry+Internal.h"
@@ -33,18 +33,18 @@
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDKeychainTokenCache.h"
 
-@interface MSIDBrokerController()
+@interface MSIDBrokerInteractiveController()
 
-@property (nonatomic) MSIDInteractiveRequestParameters *interactiveParameters;
+@property (nonatomic, readwrite) MSIDInteractiveRequestParameters *interactiveParameters;
 @property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
 @property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
 
 @end
 
-static MSIDBrokerController *s_currentExecutingController;
+static MSIDBrokerInteractiveController *s_currentExecutingController;
 
-@implementation MSIDBrokerController
+@implementation MSIDBrokerInteractiveController
 
 #pragma mark - Init
 
@@ -181,7 +181,7 @@ static MSIDBrokerController *s_currentExecutingController;
 
     if ([self.class currentBrokerController])
     {
-        MSIDBrokerController *currentBrokerController = [self.class currentBrokerController];
+        MSIDBrokerInteractiveController *currentBrokerController = [self.class currentBrokerController];
         return [currentBrokerController completeAcquireTokenWithResult:result error:resultError];
     }
 
@@ -236,7 +236,7 @@ static MSIDBrokerController *s_currentExecutingController;
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerResponseNotReceived, @"application did not receive response from broker.", nil, nil, nil, nil, nil);
 
-        MSIDBrokerController *brokerController = [self.class currentBrokerController];
+        MSIDBrokerInteractiveController *brokerController = [self.class currentBrokerController];
         [brokerController completeAcquireTokenWithResult:nil error:error];
     }
 }
@@ -276,14 +276,14 @@ static MSIDBrokerController *s_currentExecutingController;
 
 #pragma mark - Current controller
 
-+ (void)setCurrentBrokerController:(MSIDBrokerController *)currentBrokerController
++ (void)setCurrentBrokerController:(MSIDBrokerInteractiveController *)currentBrokerController
 {
     @synchronized ([self class]) {
         s_currentExecutingController = currentBrokerController;
     }
 }
 
-+ (MSIDBrokerController *)currentBrokerController
++ (MSIDBrokerInteractiveController *)currentBrokerController
 {
     @synchronized ([self class]) {
         return s_currentExecutingController;

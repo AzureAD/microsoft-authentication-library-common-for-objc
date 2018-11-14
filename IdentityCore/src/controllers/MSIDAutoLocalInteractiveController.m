@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutoRequestController.h"
+#import "MSIDAutoLocalInteractiveController.h"
 #import "MSIDSilentTokenRequest.h"
 #import "MSIDInteractiveTokenRequest.h"
 #import "MSIDInteractiveRequestParameters.h"
@@ -30,11 +30,11 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 
-@interface MSIDAutoRequestController()
+@interface MSIDAutoLocalInteractiveController()
 
 @end
 
-@implementation MSIDAutoRequestController
+@implementation MSIDAutoLocalInteractiveController
 
 - (void)executeRequests:(nonnull MSIDRequestCompletionBlock)completionBlock
 {

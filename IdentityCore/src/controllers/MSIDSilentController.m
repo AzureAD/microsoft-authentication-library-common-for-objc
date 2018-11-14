@@ -33,6 +33,7 @@
 @interface MSIDSilentController()
 
 @property (nonatomic) BOOL forceRefresh;
+@property (nonatomic) id<MSIDRequestControlling> interactiveController;
 
 @end
 
@@ -52,6 +53,22 @@
     if (self)
     {
         _forceRefresh = forceRefresh;
+    }
+
+    return self;
+}
+
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                     fallbackInteractiveController:(nullable id<MSIDRequestControlling>)fallbackController
+                                             error:(NSError *_Nullable *_Nullable)error
+{
+    self = [self initWithRequestParameters:parameters forceRefresh:forceRefresh tokenRequestProvider:tokenRequestProvider error:error];
+
+    if (self)
+    {
+        _interactiveController = fallbackController;
     }
 
     return self;
@@ -81,10 +98,17 @@
                                                                                            forceRefresh:self.forceRefresh];
 
     [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
-        [telemetryEvent setUserId:result.account.username];
-        [self stopTelemetryEvent:telemetryEvent error:error];
-        completionBlock(result, error);
+
+        if (result || !self.interactiveController)
+        {
+            MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+            [telemetryEvent setUserId:result.account.username];
+            [self stopTelemetryEvent:telemetryEvent error:error];
+            completionBlock(result, error);
+            return;
+        }
+
+        [self.interactiveController acquireToken:completionBlock];
     }];
 }
 

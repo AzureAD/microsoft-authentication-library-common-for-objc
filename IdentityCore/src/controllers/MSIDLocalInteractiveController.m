@@ -31,7 +31,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #if TARGET_OS_IPHONE
-#import "MSIDBrokerController.h"
+#import "MSIDBrokerInteractiveController.h"
 #endif
 #import "MSIDWebMSAuthResponse.h"
 
@@ -115,10 +115,10 @@
     }
 
     NSError *brokerError = nil;
-    MSIDBrokerController *brokerController = [[MSIDBrokerController alloc] initWithInteractiveRequestParameters:self.interactiveRequestParamaters
-                                                                                           tokenRequestProvider:self.tokenRequestProvider
-                                                                                              brokerInstallLink:[NSURL URLWithString:response.appInstallLink]
-                                                                                                          error:&brokerError];
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:self.interactiveRequestParamaters
+                                                                                                                 tokenRequestProvider:self.tokenRequestProvider
+                                                                                                                    brokerInstallLink:[NSURL URLWithString:response.appInstallLink]
+                                                                                                                                error:&brokerError];
 
     if (!brokerController)
     {

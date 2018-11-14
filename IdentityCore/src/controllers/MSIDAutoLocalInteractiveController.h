@@ -24,6 +24,6 @@
 #import <Foundation/Foundation.h>
 #import "MSIDLocalInteractiveController.h"
 
-@interface MSIDAutoRequestController : MSIDLocalInteractiveController
+@interface MSIDAutoLocalInteractiveController : MSIDLocalInteractiveController
 
 @end
