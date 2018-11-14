@@ -23,14 +23,12 @@
 
 #import "MSIDAADRefreshTokenGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
-#import "MSIDADFSAuthority.h"
-#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @implementation MSIDAADRefreshTokenGrantRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                         clientId:(NSString *)clientId
-                   homeAccountId:(NSString *)homeAccountId
+                    enrollmentId:(NSString *)enrollmentId
                            scope:(NSString *)scope
                     refreshToken:(NSString *)refreshToken
                           claims:(NSString *)claims
@@ -45,15 +43,9 @@
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
         parameters[MSID_OAUTH2_CLAIMS] = claims;
-        
-        if (homeAccountId != nil
-            && ![MSIDADFSAuthority isAuthorityFormatValid:_urlRequest.URL context:nil error:nil])
+        if (enrollmentId != nil)
         {
-            NSString* enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:homeAccountId context:nil error:nil];
-            if (enrollmentId != nil)
-            {
-                parameters[MSID_ENROLLMENT_ID] = enrollmentId;
-            }
+            parameters[MSID_ENROLLMENT_ID] = enrollmentId;
         }
         
         _parameters = parameters;
