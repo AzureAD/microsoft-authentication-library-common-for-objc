@@ -35,4 +35,8 @@
                         correlationId:(nullable NSUUID *)correlationId
                              userInfo:(nullable NSDictionary *)userInfo;
 
+- (nonnull NSString *)oauthErrorKey;
+
+- (nonnull NSString *)subErrorKey;
+
 @end
