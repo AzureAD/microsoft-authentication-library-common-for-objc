@@ -40,6 +40,7 @@
 
     if (self)
     {
+        _tokenExpirationBuffer = 300;
         [self initDefaultAppMetadata];
     }
 

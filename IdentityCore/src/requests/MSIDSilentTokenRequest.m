@@ -30,6 +30,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDAuthority.h"
 #import "MSIDOauth2Factory.h"
+#import "MSIDTokenResult.h"
 
 @interface MSIDSilentTokenRequest()
 
@@ -67,7 +68,7 @@
     {
         MSID_LOG_ERROR(self.requestParameters, @"Account parameter cannot be nil");
 
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil);
         completionBlock(nil, error);
         return;
     }
@@ -279,6 +280,7 @@
             {
                 NSError *cacheError = nil;
                 MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken error:&cacheError];
+                tokenResult.extendedLifeTimeToken = YES;
 
                 completionBlock(tokenResult, cacheError);
                 return;
@@ -308,7 +310,7 @@
 
 - (BOOL)isServerUnavailable:(NSError *)error
 {
-    if (![error.domain isEqualToString:MSIDErrorDomain])
+    if (![error.domain isEqualToString:MSIDHttpErrorCodeDomain])
     {
         return NO;
     }

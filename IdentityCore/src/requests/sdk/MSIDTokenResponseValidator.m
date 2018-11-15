@@ -75,6 +75,17 @@
     return result;
 }
 
+- (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
+               oauthFactory:(MSIDOauth2Factory *)factory
+              configuration:(MSIDConfiguration *)configuration
+             requestAccount:(MSIDAccountIdentifier *)accountIdentifier
+              correlationID:(NSUUID *)correlationID
+                      error:(NSError **)error
+{
+    // Post saving validation
+    return YES;
+}
+
 - (MSIDTokenResult *)validateAndSaveBrokerResponse:(MSIDBrokerResponse *)brokerResponse
                                       oauthFactory:(MSIDOauth2Factory *)factory
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
@@ -120,6 +131,18 @@
     {
         MSID_LOG_ERROR_CORR(correlationID, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
         MSID_LOG_ERROR_CORR_PII(correlationID, @"Failed to save tokens in cache. Error %@", savingError);
+    }
+
+    BOOL resultValid = [self validateTokenResult:tokenResult
+                                    oauthFactory:factory
+                                   configuration:configuration
+                                  requestAccount:nil
+                                   correlationID:correlationID
+                                           error:error];
+
+    if (!resultValid)
+    {
+        return nil;
     }
 
     return tokenResult;
@@ -176,6 +199,18 @@
     {
         MSID_LOG_ERROR(parameters, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
         MSID_LOG_ERROR_PII(parameters, @"Failed to save tokens in cache. Error %@", savingError);
+    }
+
+    BOOL resultValid = [self validateTokenResult:tokenResult
+                                    oauthFactory:factory
+                                   configuration:parameters.msidConfiguration
+                                  requestAccount:parameters.accountIdentifier
+                                   correlationID:parameters.correlationId
+                                           error:error];
+
+    if (!resultValid)
+    {
+        return nil;
     }
 
     return tokenResult;

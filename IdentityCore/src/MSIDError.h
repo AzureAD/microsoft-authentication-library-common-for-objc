@@ -72,6 +72,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Parameter errors
     MSIDErrorInvalidInternalParameter   = -51111,
     MSIDErrorInvalidDeveloperParameter  = -51112,
+    MSIDErrorMissingAccountParameter    = -51113,
    
     // Unsupported functionality
     MSIDErrorUnsupportedFunctionality   = -51199,

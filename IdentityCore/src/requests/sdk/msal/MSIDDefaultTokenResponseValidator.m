@@ -32,25 +32,13 @@
 
 @implementation MSIDDefaultTokenResponseValidator
 
-- (MSIDTokenResult *)validateTokenResponse:(MSIDTokenResponse *)tokenResponse
-                              oauthFactory:(MSIDOauth2Factory *)factory
-                             configuration:(MSIDConfiguration *)configuration
-                            requestAccount:(MSIDAccountIdentifier *)accountIdentifier
-                             correlationID:(NSUUID *)correlationID
-                                     error:(NSError **)error
+- (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
+               oauthFactory:(MSIDOauth2Factory *)factory
+              configuration:(MSIDConfiguration *)configuration
+             requestAccount:(MSIDAccountIdentifier *)accountIdentifier
+              correlationID:(NSUUID *)correlationID
+                      error:(NSError **)error
 {
-    MSIDTokenResult *tokenResult = [super validateTokenResponse:tokenResponse
-                                                   oauthFactory:factory
-                                                  configuration:configuration
-                                                 requestAccount:accountIdentifier
-                                                  correlationID:correlationID
-                                                          error:error];
-
-    if (!tokenResult)
-    {
-        return nil;
-    }
-
     /*
      If server returns less scopes than developer requested,
      we'd like to throw an error and specify which scopes were granted and which ones not
@@ -73,7 +61,7 @@
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerDeclinedScopes, @"Server returned less scopes than requested", nil, nil, nil, nil, additionalUserInfo);
         }
 
-        return nil;
+        return NO;
     }
 
     if (accountIdentifier.homeAccountId != nil
@@ -84,10 +72,10 @@
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, nil);
         }
 
-        return nil;
+        return NO;
     }
 
-    return tokenResult;
+    return YES;
 }
 
 @end
