@@ -56,14 +56,14 @@
 
 - (MSIDDefaultTokenCacheAccessor *)tokenCache
 {
-    id<MSIDTokenCacheDataSource> dataSource = [MSIDKeychainTokenCache defaultKeychainCache];
+    id<MSIDTokenCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
     MSIDDefaultTokenCacheAccessor *tokenCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:[MSIDAADV2Oauth2Factory new]];
     return tokenCache;
 }
 
 - (MSIDAccountCredentialCache *)accountCredentialCache
 {
-    return [[MSIDAccountCredentialCache alloc] initWithDataSource:[MSIDKeychainTokenCache defaultKeychainCache]];
+    return [[MSIDAccountCredentialCache alloc] initWithDataSource:[[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"]];
 }
 
 - (MSIDRequestParameters *)silentRequestParameters
@@ -97,7 +97,8 @@
 - (void)setUp
 {
     [super setUp];
-    [[MSIDKeychainTokenCache defaultKeychainCache] clearWithContext:nil error:nil];
+    MSIDKeychainTokenCache *cache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
+    [cache clearWithContext:nil error:nil];
 }
 
 #pragma mark - Silent
