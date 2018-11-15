@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,34 +15,49 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
+#import "MSIDCredentialCacheItem.h"
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
+#import "MSIDCredentialType.h"
+#import "MSIDBaseToken.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDLegacySingleResourceToken.h"
+#import "MSIDIdToken.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
 
-// Utility macros for convience classes wrapped around dictionaries
-#define DICTIONARY_READ_PROPERTY_IMPL(DICT, KEY, GETTER) \
-- (NSString *)GETTER \
-{ \
-    if ([[DICT objectForKey:KEY] isKindOfClass:[NSString class]]) \
-    { \
-        return [DICT objectForKey:KEY]; \
-    } \
-    return nil; \
+@implementation MSIDCredentialCacheItem (MSIDBaseToken)
+
+- (MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType
+{
+    switch (credentialType)
+    {
+        case MSIDAccessTokenType:
+        {
+            return [[MSIDAccessToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDRefreshTokenType:
+        {
+            return [[MSIDRefreshToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDLegacySingleResourceTokenType:
+        {
+            return [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDIDTokenType:
+        {
+            return [[MSIDIdToken alloc] initWithTokenCacheItem:self];
+        }
+        default:
+            return [[MSIDBaseToken alloc] initWithTokenCacheItem:self];
+    }
+
+    return nil;
 }
 
-#define DICTIONARY_WRITE_PROPERTY_IMPL(DICT, KEY, SETTER) \
-- (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }
-
-#define STRING_CASE(_CASE) case _CASE: return @#_CASE
+@end
