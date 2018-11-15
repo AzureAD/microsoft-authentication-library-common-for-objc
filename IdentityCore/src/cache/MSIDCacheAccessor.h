@@ -27,7 +27,7 @@
 @class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @class MSIDTokenResponse;
-@class MSIDRefreshToken;
+@class MSIDRefreshToken;awreawerwer
 @class MSIDAccountIdentifier;
 @protocol MSIDRefreshableToken;
 @protocol MSIDTokenCacheDataSource;
