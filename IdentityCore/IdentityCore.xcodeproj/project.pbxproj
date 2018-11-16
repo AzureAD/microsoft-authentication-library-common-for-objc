@@ -487,6 +487,7 @@
 		B233F8BC219CE03F00DC90E3 /* MSIDTestURLResponse+Util.m in Sources */ = {isa = PBXBuildFile; fileRef = B233F8B1219CDF5B00DC90E3 /* MSIDTestURLResponse+Util.m */; };
 		B233F8BD219CE04000DC90E3 /* MSIDTestURLResponse+Util.m in Sources */ = {isa = PBXBuildFile; fileRef = B233F8B1219CDF5B00DC90E3 /* MSIDTestURLResponse+Util.m */; };
 		B233F8BE219CE04200DC90E3 /* MSIDTestURLResponse+Util.h in Headers */ = {isa = PBXBuildFile; fileRef = B233F8B0219CDF5B00DC90E3 /* MSIDTestURLResponse+Util.h */; };
+		B233F8C8219E409C00DC90E3 /* MSIDBrokerCryptoProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B233F8C7219E409C00DC90E3 /* MSIDBrokerCryptoProviderTests.m */; };
 		B239A43C209E8170000A3268 /* MSIDAccountCredentialCache.h in Headers */ = {isa = PBXBuildFile; fileRef = B239A43A209E8170000A3268 /* MSIDAccountCredentialCache.h */; };
 		B239A43D209E8170000A3268 /* MSIDAccountCredentialCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B239A43B209E8170000A3268 /* MSIDAccountCredentialCache.m */; };
 		B239A43E209E8170000A3268 /* MSIDAccountCredentialCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B239A43B209E8170000A3268 /* MSIDAccountCredentialCache.m */; };
@@ -1325,6 +1326,7 @@
 		B214C3A21FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultTokenCacheAccessor.m; sourceTree = "<group>"; };
 		B233F8B0219CDF5B00DC90E3 /* MSIDTestURLResponse+Util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDTestURLResponse+Util.h"; sourceTree = "<group>"; };
 		B233F8B1219CDF5B00DC90E3 /* MSIDTestURLResponse+Util.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDTestURLResponse+Util.m"; sourceTree = "<group>"; };
+		B233F8C7219E409C00DC90E3 /* MSIDBrokerCryptoProviderTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerCryptoProviderTests.m; sourceTree = "<group>"; };
 		B239A43A209E8170000A3268 /* MSIDAccountCredentialCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountCredentialCache.h; sourceTree = "<group>"; };
 		B239A43B209E8170000A3268 /* MSIDAccountCredentialCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountCredentialCache.m; sourceTree = "<group>"; };
 		B23ECEE81FF2F40C0015FC1D /* MSIDAADTokenResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADTokenResponse.m; sourceTree = "<group>"; };
@@ -1808,6 +1810,7 @@
 				B2C708DE219BC67E00D917B8 /* MSIDDefaultSilentTokenRequestTests.m */,
 				231CE9BF1FE8710A00E95D3E /* MSIDKeychainTokenCacheIntegrationTests.m */,
 				60BF06062052023900DE7C1C /* MSIDWipeDataTelemetryTests.m */,
+				B233F8C7219E409C00DC90E3 /* MSIDBrokerCryptoProviderTests.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -3531,6 +3534,7 @@
 				B2936F8220ABFFCB0050C585 /* MSIDAADV2Oauth2FactoryTests.m in Sources */,
 				238EF080208FFA4C0035ABE6 /* MSIDUrlRequestSerializerTests.m in Sources */,
 				B2C17AF01FC7A1BF0070A514 /* MSIDLoggerTests.m in Sources */,
+				B233F8C8219E409C00DC90E3 /* MSIDBrokerCryptoProviderTests.m in Sources */,
 				B2936F7620ABF4F80050C585 /* MSIDRefreshTokenTests.m in Sources */,
 				B2807FFE204CB25E00944D89 /* MSIDTokenResponseTests.m in Sources */,
 				B2936F7920ABF8310050C585 /* MSIDLegacyAccessTokenTests.m in Sources */,

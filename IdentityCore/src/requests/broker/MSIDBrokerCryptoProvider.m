@@ -67,15 +67,13 @@
 
     NSData *encryptedResponse = [NSData msidDataFromBase64UrlEncodedString:encryptedBase64Response];
 
-    if (!encryptedBase64Response)
+    if (!encryptedResponse)
     {
         MSIDFillAndLogError(error, MSIDErrorBrokerCorruptedResponse, @"Encrypted response missing from broker response", correlationId);
         return nil;
     }
 
-    NSData *decrypted = [self decryptBrokerResponseImpl:encryptedResponse
-                                              brokerKey:self.encryptionKey
-                                  brokerProtocolVersion:protocolVersion];
+    NSData *decrypted = [self decryptData:encryptedResponse protocolVersion:protocolVersion];
 
     if (!decrypted)
     {
@@ -105,9 +103,8 @@
     return [decryptedResponse msidDictionaryWithoutNulls];
 }
 
-- (NSData *)decryptBrokerResponseImpl:(NSData *)response
-                            brokerKey:(NSData *)brokerKey
-                brokerProtocolVersion:(NSInteger)version
+- (nullable NSData *)decryptData:(NSData *)response
+                 protocolVersion:(NSUInteger)version
 {
     const void *keyBytes = nil;
     size_t keySize = 0;
@@ -117,12 +114,12 @@
 
     if (version > 1)
     {
-        keyBytes = [brokerKey bytes];
-        keySize = [brokerKey length];
+        keyBytes = [self.encryptionKey bytes];
+        keySize = [self.encryptionKey length];
     }
     else
     {
-        NSString *key = [[NSString alloc] initWithData:brokerKey encoding:NSASCIIStringEncoding];
+        NSString *key = [[NSString alloc] initWithData:self.encryptionKey encoding:NSASCIIStringEncoding];
         bzero(keyPtr, sizeof(keyPtr)); // fill with zeroes (for padding)
         // fetch key data
         [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
