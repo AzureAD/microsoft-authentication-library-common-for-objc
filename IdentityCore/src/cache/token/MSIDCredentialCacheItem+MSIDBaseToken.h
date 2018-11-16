@@ -23,6 +23,7 @@
 
 #import "MSIDCredentialType.h"
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 
 @class MSIDBaseToken;
 

@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 #import "MSIDUserInformation.h"
 #import "MSIDCredentialType.h"
 #import "NSDate+MSIDExtensions.h"

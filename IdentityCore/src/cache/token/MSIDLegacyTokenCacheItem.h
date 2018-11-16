@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 
 @class MSIDIdTokenClaims;
 
