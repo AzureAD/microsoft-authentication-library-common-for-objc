@@ -25,9 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef MSIDLogger_Internal_h
-#define MSIDLogger_Internal_h
-
 #import "MSIDLogger.h"
 #import "MSIDRequestContext.h"
 
@@ -118,4 +115,3 @@ MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
 
 @end
 
-#endif /* MSIDLogger_Internal_h */

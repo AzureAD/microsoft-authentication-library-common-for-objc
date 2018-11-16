@@ -21,9 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef MSIDLogger_h
-#define MSIDLogger_h
-
 #import <Foundation/Foundation.h>
 
 /*! Levels of logging. Defines the priority of the logged message */
@@ -76,5 +73,3 @@ typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL cont
 - (void)setCallback:(MSIDLogCallback)callback;
 
 @end
-
-#endif /* MSIDLogger_h */
