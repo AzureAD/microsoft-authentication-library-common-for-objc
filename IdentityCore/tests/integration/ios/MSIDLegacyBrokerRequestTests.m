@@ -29,24 +29,48 @@
 
 @implementation MSIDLegacyBrokerRequestTests
 
-- (void)setUp {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+#pragma mark - Error cases
+
+- (void)testInitBrokerRequest_whenAuthorityMissing_shouldReturnNOAndFillError
+{
+
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+- (void)testInitBrokerRequest_whenBrokerKeyMissing_shouldReturnNOAndFillError
+{
+
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+- (void)testInitBrokerRequest_whenTargetMissing_shouldReturnNOAndFillError
+{
+
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
+- (void)testInitBrokerRequest_whenCorrelationIdMissing_shouldReturnNOAndFillError
+{
+
+}
+
+- (void)testInitBrokerRequest_whenClientIdMissing_shouldReturnNOAndFillError
+{
+
+}
+
+#pragma mark - Payload
+
+- (void)testInitBrokerRequest_whenValidParameters_shouldReturnLegacyPayload
+{
+
+}
+
+- (void)testInitBrokerRequest_whenParametersWithCapabilities_shouldReturnLegacyPayload
+{
+
+}
+
+- (void)testInitBrokerRequest_whenParametersWithIntuneItems_shouldReturnLegacyPayload
+{
+
 }
 
 @end

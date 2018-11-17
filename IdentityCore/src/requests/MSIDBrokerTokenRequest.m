@@ -57,6 +57,7 @@
     if (self)
     {
         _requestParameters = parameters;
+        _brokerKey = brokerKey;
 
         if (![self initPayloadContentsWithError:error])
         {
@@ -126,8 +127,8 @@
 {
     if (![self checkParameter:self.requestParameters.authority parameterName:@"authority" error:error]) return nil;
     if (![self checkParameter:self.requestParameters.target parameterName:@"target" error:error]) return nil;
-    if (![self checkParameter:self.requestParameters.correlationId parameterName:@"correlationId" error:error]) return nil;
     if (![self checkParameter:self.requestParameters.clientId parameterName:@"clientId" error:error]) return nil;
+    if (![self checkParameter:self.requestParameters.redirectUri parameterName:@"redirectUri" error:error]) return nil;
     if (![self checkParameter:self.brokerKey parameterName:@"brokerKey" error:error]) return nil;
 
     MSID_LOG_INFO(self.requestParameters, @"Invoking broker for authentication");
@@ -143,6 +144,7 @@
     NSString *claimsString = [self claimsParameter];
     NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
+    NSString *extraQueryParameters = [self.requestParameters.extraQueryParameters count] ? [self.requestParameters.extraQueryParameters msidWWWFormURLEncode] : @"";
 
     NSDictionary *queryDictionary =
     @{
@@ -154,7 +156,7 @@
       @"broker_key": self.brokerKey,
 #endif
       @"client_version": [MSIDVersion sdkVersion],
-      @"extra_qp": self.requestParameters.extraQueryParameters ?: @{},
+      @"extra_qp": extraQueryParameters,
       @"claims": claimsString ?: @"",
       @"intune_enrollment_ids": enrollmentIds ?: @"",
       @"intune_mam_resource": mamResources ?: @"",
@@ -218,7 +220,7 @@
         return nil;
     }
 
-    return claimsString;
+    return [claimsString msidWWWFormURLEncode];
 }
 
 - (NSString *)intuneEnrollmentIdsParameterWithError:(NSError **)error
@@ -264,14 +266,12 @@
 // Thos parameters will be different depending on the broker protocol version
 - (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
 {
-    NSAssert(NO, @"Abstract method. Should be implemented in its subclasses");
-    return nil;
+    return @{};
 }
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
-    NSAssert(NO, @"Abstract method. Should be implemented in its subclasses");
-    return nil;
+    return @{};
 }
 
 @end
