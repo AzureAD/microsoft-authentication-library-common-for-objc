@@ -22,6 +22,12 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDLegacyBrokerTokenRequest.h"
+#import "MSIDVersion.h"
+#import "NSURL+MSIDTestUtil.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDLegacyBrokerRequestTests : XCTestCase
 
@@ -29,48 +35,212 @@
 
 @implementation MSIDLegacyBrokerRequestTests
 
-#pragma mark - Error cases
-
-- (void)testInitBrokerRequest_whenAuthorityMissing_shouldReturnNOAndFillError
+- (void)testInitBrokerRequest_whenClaimsPassed_shouldSetSkipCacheToYES
 {
+    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    parameters.claims = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
 
+    NSError *error = nil;
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"extra_qp": @"",
+                                      @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%2C%22essential%22%3Atrue%7D%7D%7D",
+                                      @"intune_enrollment_ids": @"",
+                                      @"intune_mam_resource": @"",
+                                      @"client_capabilities": @"",
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"skip_cache": @"YES",
+                                      @"resource": @"myresource",
+                                      @"username": @"",
+                                      @"username_type": @"",
+                                      @"max_protocol_ver": @"2",
+                                      @"force": @"NO"
+                                      };
+
+    NSURL *actualURL = request.brokerRequestURL;
+
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+
+    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id": @"my_client_id",
+                                               @"correlation_id": [parameters.correlationId UUIDString],
+                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                               @"keychain_group": @"com.microsoft.mygroup",
+                                               @"resource": @"myresource"
+                                               };
+
+    XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }
 
-- (void)testInitBrokerRequest_whenBrokerKeyMissing_shouldReturnNOAndFillError
+- (void)testInitBrokerRequest_whenUsernameAndTypePassed_shouldSendUsernameAndType
 {
+    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"username@upn.com" homeAccountId:nil];
+    parameters.accountIdentifier.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
+    NSError *error = nil;
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"extra_qp": @"",
+                                      @"claims": @"",
+                                      @"intune_enrollment_ids": @"",
+                                      @"intune_mam_resource": @"",
+                                      @"client_capabilities": @"",
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"skip_cache": @"NO",
+                                      @"resource": @"myresource",
+                                      @"username": @"username@upn.com",
+                                      @"username_type": @"RequiredDisplayableId",
+                                      @"max_protocol_ver": @"2",
+                                      @"force": @"NO"
+                                      };
+
+    NSURL *actualURL = request.brokerRequestURL;
+
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+
+    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id": @"my_client_id",
+                                               @"correlation_id": [parameters.correlationId UUIDString],
+                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                               @"keychain_group": @"com.microsoft.mygroup",
+                                               @"resource": @"myresource"
+                                               };
+
+    XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }
 
-- (void)testInitBrokerRequest_whenTargetMissing_shouldReturnNOAndFillError
+- (void)testInitBrokerRequest_whenLoginHintPassed_shouldSendLoginHintAndType
 {
+    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    parameters.loginHint = @"myloginhint";
 
+    NSError *error = nil;
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"extra_qp": @"",
+                                      @"claims": @"",
+                                      @"intune_enrollment_ids": @"",
+                                      @"intune_mam_resource": @"",
+                                      @"client_capabilities": @"",
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"skip_cache": @"NO",
+                                      @"resource": @"myresource",
+                                      @"username": @"myloginhint",
+                                      @"username_type": @"OptionalDisplayableId",
+                                      @"max_protocol_ver": @"2",
+                                      @"force": @"NO"
+                                      };
+
+    NSURL *actualURL = request.brokerRequestURL;
+
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+
+    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id": @"my_client_id",
+                                               @"correlation_id": [parameters.correlationId UUIDString],
+                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                               @"keychain_group": @"com.microsoft.mygroup",
+                                               @"resource": @"myresource"
+                                               };
+
+    XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }
 
-- (void)testInitBrokerRequest_whenCorrelationIdMissing_shouldReturnNOAndFillError
+- (void)testInitBrokerRequest_whenForcePromptPassed_shouldSendForceYES
 {
+    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    parameters.uiBehaviorType = MSIDUIBehaviorForceType;
 
+    NSError *error = nil;
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"extra_qp": @"",
+                                      @"claims": @"",
+                                      @"intune_enrollment_ids": @"",
+                                      @"intune_mam_resource": @"",
+                                      @"client_capabilities": @"",
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"skip_cache": @"NO",
+                                      @"resource": @"myresource",
+                                      @"username": @"",
+                                      @"username_type": @"",
+                                      @"max_protocol_ver": @"2",
+                                      @"force": @"YES"
+                                      };
+
+    NSURL *actualURL = request.brokerRequestURL;
+
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+
+    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id": @"my_client_id",
+                                               @"correlation_id": [parameters.correlationId UUIDString],
+                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                               @"keychain_group": @"com.microsoft.mygroup",
+                                               @"resource": @"myresource"
+                                               };
+
+    XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }
 
-- (void)testInitBrokerRequest_whenClientIdMissing_shouldReturnNOAndFillError
+#pragma mark - Helpers
+
+- (MSIDInteractiveRequestParameters *)defaultTestParameters
 {
-
-}
-
-#pragma mark - Payload
-
-- (void)testInitBrokerRequest_whenValidParameters_shouldReturnLegacyPayload
-{
-
-}
-
-- (void)testInitBrokerRequest_whenParametersWithCapabilities_shouldReturnLegacyPayload
-{
-
-}
-
-- (void)testInitBrokerRequest_whenParametersWithIntuneItems_shouldReturnLegacyPayload
-{
-
+    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    parameters.authority = [[MSIDAuthorityFactory new] authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
+    parameters.clientId = @"my_client_id";
+    parameters.target = @"myresource";
+    parameters.correlationId = [NSUUID new];
+    parameters.redirectUri = @"my-redirect://com.microsoft.test";
+    parameters.keychainAccessGroup = @"com.microsoft.mygroup";
+    parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
+    return parameters;
 }
 
 @end

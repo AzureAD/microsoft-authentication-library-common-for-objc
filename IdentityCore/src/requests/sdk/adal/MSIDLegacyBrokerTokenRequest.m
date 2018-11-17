@@ -39,11 +39,15 @@
         skipCacheValue = @"YES";
     }
 
-    NSString *usernameType = [MSIDAccountIdentifier legacyAccountIdentifierAsString:self.requestParameters.accountIdentifier.legacyAccountIdentifierType];
+    NSString *usernameType = @"";
+    NSString *username = @"";
 
-    NSString *username = self.requestParameters.accountIdentifier.legacyAccountId;
-
-    if (!username)
+    if (self.requestParameters.accountIdentifier.legacyAccountId)
+    {
+        username = self.requestParameters.accountIdentifier.legacyAccountId;
+        usernameType = [MSIDAccountIdentifier legacyAccountIdentifierAsString:self.requestParameters.accountIdentifier.legacyAccountIdentifierType];
+    }
+    else if (self.requestParameters.loginHint)
     {
         username = self.requestParameters.loginHint;
         usernameType = [MSIDAccountIdentifier legacyAccountIdentifierAsString:MSIDLegacyIdentifierTypeOptionalDisplayableId];
