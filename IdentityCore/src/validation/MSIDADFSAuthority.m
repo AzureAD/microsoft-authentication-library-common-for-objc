@@ -71,6 +71,11 @@
     return MSID_TELEMETRY_VALUE_AUTHORITY_ADFS;
 }
 
+- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+{
+    return nil;
+}
+
 #pragma mark - Protected
 
 - (id<MSIDAuthorityResolving>)resolver

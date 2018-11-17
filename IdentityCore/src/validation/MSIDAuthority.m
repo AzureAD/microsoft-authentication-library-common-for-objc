@@ -62,6 +62,7 @@
 #import "MSIDOpenIdConfigurationInfoRequest.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
 
@@ -147,6 +148,16 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 - (NSArray<NSString *> *)defaultCacheEnvironmentAliases
 {
     return @[self.environment];
+}
+
+- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+{
+    if (homeAccountId != nil)
+    {
+        return [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:homeAccountId context:nil error:nil];
+    }
+    
+    return nil;
 }
 
 - (BOOL)isKnown

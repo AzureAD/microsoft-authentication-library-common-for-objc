@@ -69,6 +69,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (nonnull NSArray<NSString *> *)defaultCacheEnvironmentAliases;
 
+- (nullable NSString *)enrollmentIdForHomeAccountId:(nullable NSString *)homeAccountId;
+
 - (BOOL)isKnown;
 
 /* It is used in telemetry */
