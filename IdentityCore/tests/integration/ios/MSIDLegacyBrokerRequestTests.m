@@ -21,25 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 
-#define kChosenCipherKeySize    kCCKeySizeAES256
-#define kSymmetricKeyTag        "com.microsoft.adBrokerKey"
+@interface MSIDLegacyBrokerRequestTests : XCTestCase
 
-#if TARGET_OS_IPHONE
+@end
 
-enum {
-    CSSM_ALGID_NONE =                   0x00000000L,
-    CSSM_ALGID_VENDOR_DEFINED =         CSSM_ALGID_NONE + 0x80000000L,
-    CSSM_ALGID_AES
-};
+@implementation MSIDLegacyBrokerRequestTests
 
-#endif
+- (void)setUp {
+    // Put setup code here. This method is called before the invocation of each test method in the class.
+}
 
-@interface MSIDBrokerKeyProvider : NSObject
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+}
 
-- (instancetype)initWithGroup:(NSString *)keychainGroup;
+- (void)testExample {
+    // This is an example of a functional test case.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+}
 
-- (NSData *)brokerKeyWithError:(NSError **)error;
+- (void)testPerformanceExample {
+    // This is an example of a performance test case.
+    [self measureBlock:^{
+        // Put the code you want to measure the time of here.
+    }];
+}
 
 @end
