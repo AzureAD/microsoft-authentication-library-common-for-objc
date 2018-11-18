@@ -122,6 +122,8 @@
 
             if (error)
             {
+                NSDictionary *userInfo = @{MSIDUserDisplayableIdkey : response.additionalUserId ?: @""};
+
                 *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                          errorCode,
                                          response.errorDescription,
@@ -129,7 +131,7 @@
                                          response.suberror,
                                          nil,
                                          context.correlationId,
-                                         nil);
+                                         userInfo);
             }
         }
 

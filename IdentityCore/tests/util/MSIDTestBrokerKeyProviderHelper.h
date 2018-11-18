@@ -21,47 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerResponse.h"
-#import "MSIDAADV1TokenResponse.h"
-#import "MSIDBrokerResponse+Internal.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDBrokerResponse
+NS_ASSUME_NONNULL_BEGIN
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
+@interface MSIDTestBrokerKeyProviderHelper : NSObject
 
-MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
-MSID_FORM_ACCESSOR(@"vt", validAuthority);
-
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
-MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
-
-- (instancetype)initWithDictionary:(NSDictionary *)form error:(NSError *__autoreleasing *)error
-{
-    self = [super initWithDictionary:form error:error];
-
-    if (self)
-    {
-        [self initDerivedProperties];
-    }
-
-    return self;
-}
-
-- (void)initDerivedProperties
-{
-    self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:_urlForm error:nil];
-}
-
-- (NSString *)target
-{
-    return _urlForm[@"scope"];
-}
-
-- (BOOL)accessTokenInvalidForResponse
-{
-    return NO;
-}
++ (void)addKey:(NSData *)keyData
+   accessGroup:(NSString *)accessGroup
+applicationTag:(NSString *)applicationTag;
 
 @end
+
+NS_ASSUME_NONNULL_END

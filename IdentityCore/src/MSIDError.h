@@ -28,6 +28,7 @@ extern NSString *MSIDCorrelationIdKey;
 extern NSString *MSIDHTTPHeadersKey;
 extern NSString *MSIDHTTPResponseCodeKey;
 extern NSString *MSIDUserDisplayableIdkey;
+extern NSString *MSIDBrokerVersionKey;
 
 /*!
  ADAL and MSID use different error domains and error codes.

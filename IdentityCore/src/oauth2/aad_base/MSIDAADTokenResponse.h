@@ -35,6 +35,7 @@
 @property (readonly) MSIDClientInfo *clientInfo;
 @property (readonly) NSString *familyId;
 @property (readonly) NSString *suberror;
+@property (readonly) NSString *additionalUserId;
 
 // Custom properties that ADAL/MSAL handles
 @property (readonly) NSString *speInfo;

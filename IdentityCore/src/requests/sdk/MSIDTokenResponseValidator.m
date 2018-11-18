@@ -113,7 +113,7 @@
                                                   oauthFactory:factory
                                                  configuration:configuration
                                                 requestAccount:nil
-                                                 correlationID:correlationID
+                                                 correlationID:[[NSUUID alloc] initWithUUIDString:brokerResponse.correlationId]
                                                          error:error];
 
     if (!tokenResult)
@@ -123,7 +123,7 @@
 
     NSError *savingError = nil;
     BOOL isSaved = [tokenCache saveTokensWithBrokerResponse:brokerResponse
-                                           saveSSOStateOnly:!brokerResponse.validAuthority
+                                           saveSSOStateOnly:brokerResponse.accessTokenInvalidForResponse
                                                     context:nil
                                                       error:error];
 
@@ -215,5 +215,6 @@
 
     return tokenResult;
 }
+
 
 @end

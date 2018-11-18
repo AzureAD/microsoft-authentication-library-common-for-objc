@@ -21,47 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerResponse.h"
-#import "MSIDAADV1TokenResponse.h"
-#import "MSIDBrokerResponse+Internal.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDBrokerResponse
+@interface MSIDTestBrokerResponseHelper : NSObject
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
++ (NSURL *)createLegacyBrokerResponse:(NSDictionary *)parameters
+                          redirectUri:(NSString *)redirectUri
+                        encryptionKey:(NSData *)encryptionKey;
 
-MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
-MSID_FORM_ACCESSOR(@"vt", validAuthority);
++ (NSURL *)createLegacyBrokerErrorResponse:(NSDictionary *)parameters
+                               redirectUri:(NSString *)redirectUri;
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
-MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
-
-- (instancetype)initWithDictionary:(NSDictionary *)form error:(NSError *__autoreleasing *)error
-{
-    self = [super initWithDictionary:form error:error];
-
-    if (self)
-    {
-        [self initDerivedProperties];
-    }
-
-    return self;
-}
-
-- (void)initDerivedProperties
-{
-    self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:_urlForm error:nil];
-}
-
-- (NSString *)target
-{
-    return _urlForm[@"scope"];
-}
-
-- (BOOL)accessTokenInvalidForResponse
-{
-    return NO;
-}
++ (NSDictionary *)createLegacyBrokerResponseDictionary:(NSDictionary *)parameters
+                                         encryptionKey:(NSData *)brokerKey;
 
 @end

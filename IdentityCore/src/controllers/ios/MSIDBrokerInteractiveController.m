@@ -259,6 +259,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 - (BOOL)completeAcquireTokenWithResult:(MSIDTokenResult *)tokenResult error:(NSError *)error
 {
     // TODO: stop telemetry event
+    // TODO: vt handling!
 
     [self.class setCurrentBrokerController:nil];
     [self.class stopTrackingAppState];

@@ -21,47 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerResponse.h"
-#import "MSIDAADV1TokenResponse.h"
-#import "MSIDBrokerResponse+Internal.h"
+#import "MSIDTestBrokerKeyProviderHelper.h"
+#import "MSIDKeychainUtil.h"
+#import "MSIDBrokerKeyProvider.h"
+#import <CommonCrypto/CommonCryptor.h>
 
-@implementation MSIDBrokerResponse
+@implementation MSIDTestBrokerKeyProviderHelper
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
-
-MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
-MSID_FORM_ACCESSOR(@"vt", validAuthority);
-
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
-MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
-
-- (instancetype)initWithDictionary:(NSDictionary *)form error:(NSError *__autoreleasing *)error
++ (void)addKey:(NSData *)keyData
+   accessGroup:(NSString *)accessGroup
+applicationTag:(NSString *)applicationTag
 {
-    self = [super initWithDictionary:form error:error];
+    NSData *symmetricTag = [applicationTag dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *keychainGroup = [MSIDKeychainUtil accessGroup:accessGroup];
 
-    if (self)
-    {
-        [self initDerivedProperties];
-    }
+    NSDictionary *symmetricKeyAttr =
+    @{
+      (id)kSecClass : (id)kSecClassKey,
+      (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric,
+      (id)kSecAttrApplicationTag : (id)symmetricTag,
+      (id)kSecAttrKeyType : @(CSSM_ALGID_AES),
+      (id)kSecAttrKeySizeInBits : @(kChosenCipherKeySize << 3),
+      (id)kSecAttrEffectiveKeySize : @(kChosenCipherKeySize << 3),
+      (id)kSecAttrCanEncrypt : @YES,
+      (id)kSecAttrCanDecrypt : @YES,
+      (id)kSecValueData : keyData,
+      (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+      (id)kSecAttrAccessGroup : keychainGroup
+      };
 
-    return self;
-}
-
-- (void)initDerivedProperties
-{
-    self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:_urlForm error:nil];
-}
-
-- (NSString *)target
-{
-    return _urlForm[@"scope"];
-}
-
-- (BOOL)accessTokenInvalidForResponse
-{
-    return NO;
+    SecItemAdd((__bridge CFDictionaryRef)symmetricKeyAttr, NULL);
 }
 
 @end

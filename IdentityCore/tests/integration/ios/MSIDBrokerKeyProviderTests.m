@@ -24,8 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDBrokerKeyProvider.h"
-#import <CommonCrypto/CommonCryptor.h>
-#import "MSIDKeychainUtil.h"
+#import "MSIDTestBrokerKeyProviderHelper.h"
 
 @interface MSIDBrokerKeyProviderTests : XCTestCase
 
@@ -62,9 +61,9 @@
     // Pre-add key to the keychain
     NSData *keyData = [@"my-random-key-data" dataUsingEncoding:NSUTF8StringEncoding];
 
-    [self addKey:keyData
-     accessGroup:[[NSBundle mainBundle] bundleIdentifier]
-  applicationTag:@"com.microsoft.adBrokerKey"];
+    [MSIDTestBrokerKeyProviderHelper addKey:keyData
+                                accessGroup:[[NSBundle mainBundle] bundleIdentifier]
+                             applicationTag:@"com.microsoft.adBrokerKey"];
 
     // Read key from broker key provider
     MSIDBrokerKeyProvider *keyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:nil];
@@ -82,11 +81,11 @@
 {
     // Add one key to the shared group
     NSData *firstKeyData = [@"my-random-key-data-1" dataUsingEncoding:NSUTF8StringEncoding];
-    [self addKey:firstKeyData accessGroup:@"com.microsoft.adalcache" applicationTag:@"com.microsoft.adBrokerKey"];
+    [MSIDTestBrokerKeyProviderHelper addKey:firstKeyData accessGroup:@"com.microsoft.adalcache" applicationTag:@"com.microsoft.adBrokerKey"];
 
     // Add second key to private groyp
     NSData *secondKeyData = [@"my-random-key-data-2" dataUsingEncoding:NSUTF8StringEncoding];
-    [self addKey:secondKeyData accessGroup:[[NSBundle mainBundle] bundleIdentifier] applicationTag:@"com.microsoft.adBrokerKey"];
+    [MSIDTestBrokerKeyProviderHelper addKey:secondKeyData accessGroup:[[NSBundle mainBundle] bundleIdentifier] applicationTag:@"com.microsoft.adBrokerKey"];
 
     // Try to read key
     MSIDBrokerKeyProvider *keyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:@"com.microsoft.adalcache"];
@@ -102,11 +101,11 @@
 {
     // Add one key to the shared group
     NSData *firstKeyData = [@"my-random-key-data-1" dataUsingEncoding:NSUTF8StringEncoding];
-    [self addKey:firstKeyData accessGroup:@"com.microsoft.adalcache" applicationTag:@"com.microsoft.adBrokerKeyUnknown"];
+    [MSIDTestBrokerKeyProviderHelper addKey:firstKeyData accessGroup:@"com.microsoft.adalcache" applicationTag:@"com.microsoft.adBrokerKeyUnknown"];
 
     // Add second key to private groyp
     NSData *secondKeyData = [@"my-random-key-data-2" dataUsingEncoding:NSUTF8StringEncoding];
-    [self addKey:secondKeyData accessGroup:[[NSBundle mainBundle] bundleIdentifier] applicationTag:@"com.microsoft.adBrokerKey"];
+    [MSIDTestBrokerKeyProviderHelper addKey:secondKeyData accessGroup:[[NSBundle mainBundle] bundleIdentifier] applicationTag:@"com.microsoft.adBrokerKey"];
 
     // Try to read key
     MSIDBrokerKeyProvider *keyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:@"com.microsoft.adalcache"];
@@ -122,15 +121,15 @@
 {
     // Add one key to the shared group
     NSData *firstKeyData = [@"my-random-key-data-1" dataUsingEncoding:NSUTF8StringEncoding];
-    [self addKey:firstKeyData accessGroup:@"com.microsoft.adalcache" applicationTag:@"com.microsoft.adBrokerKeyUnknown"];
+    [MSIDTestBrokerKeyProviderHelper addKey:firstKeyData accessGroup:@"com.microsoft.adalcache" applicationTag:@"com.microsoft.adBrokerKeyUnknown"];
 
     // Add second key to private group
     NSData *secondKeyData = [@"my-random-key-data-2" dataUsingEncoding:NSUTF8StringEncoding];
-    [self addKey:secondKeyData accessGroup:[[NSBundle mainBundle] bundleIdentifier] applicationTag:@"com.microsoft.adBrokerKey"];
+    [MSIDTestBrokerKeyProviderHelper addKey:secondKeyData accessGroup:[[NSBundle mainBundle] bundleIdentifier] applicationTag:@"com.microsoft.adBrokerKey"];
 
     // Add third key to intune mam group
     NSData *thirdKeyData = [@"my-random-key-data-3" dataUsingEncoding:NSUTF8StringEncoding];
-    [self addKey:thirdKeyData accessGroup:@"com.microsoft.intune.mam" applicationTag:@"com.microsoft.adBrokerKey"];
+    [MSIDTestBrokerKeyProviderHelper addKey:thirdKeyData accessGroup:@"com.microsoft.intune.mam" applicationTag:@"com.microsoft.adBrokerKey"];
 
     // Try to read key
     MSIDBrokerKeyProvider *keyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:@"com.microsoft.adalcache"];
@@ -140,34 +139,6 @@
     XCTAssertNotNil(brokerKey);
     XCTAssertNil(error);
     XCTAssertEqualObjects(brokerKey, secondKeyData);
-}
-
-#pragma mark - Helpers
-
-- (void)addKey:(NSData *)keyData
-   accessGroup:(NSString *)accessGroup
-applicationTag:(NSString *)applicationTag
-{
-    NSData *symmetricTag = [applicationTag dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *keychainGroup = [MSIDKeychainUtil accessGroup:accessGroup];
-
-    NSDictionary *symmetricKeyAttr =
-    @{
-      (id)kSecClass : (id)kSecClassKey,
-      (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric,
-      (id)kSecAttrApplicationTag : (id)symmetricTag,
-      (id)kSecAttrKeyType : @(CSSM_ALGID_AES),
-      (id)kSecAttrKeySizeInBits : @(kChosenCipherKeySize << 3),
-      (id)kSecAttrEffectiveKeySize : @(kChosenCipherKeySize << 3),
-      (id)kSecAttrCanEncrypt : @YES,
-      (id)kSecAttrCanDecrypt : @YES,
-      (id)kSecValueData : keyData,
-      (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-      (id)kSecAttrAccessGroup : keychainGroup
-      };
-
-    OSStatus result = SecItemAdd((__bridge CFDictionaryRef)symmetricKeyAttr, NULL);
-    XCTAssertEqual(result, errSecSuccess);
 }
 
 @end

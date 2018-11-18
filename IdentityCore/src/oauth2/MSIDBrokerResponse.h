@@ -39,5 +39,6 @@
 
 // Derived properties
 @property (readonly) MSIDTokenResponse *tokenResponse;
+@property (readonly) BOOL accessTokenInvalidForResponse;
 
 @end
