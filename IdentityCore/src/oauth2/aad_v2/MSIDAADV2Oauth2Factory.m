@@ -219,6 +219,7 @@
 
     MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                                clientId:parameters.clientId
+                                                                                                           enrollmentId:nil
                                                                                                                   scope:allScopes
                                                                                                             redirectUri:parameters.redirectUri
                                                                                                                    code:authCode

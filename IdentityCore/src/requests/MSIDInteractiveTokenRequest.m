@@ -96,6 +96,12 @@
             return;
         }
 
+        /*
+
+         TODO: this code has been moved from MSAL almost as is to avoid too many changes in this logic.
+         Some minor refactoring will be done separately: https://github.com/AzureAD/microsoft-authentication-library-common-for-objc/issues/297
+         */
+
         if ([response isKindOfClass:MSIDWebOAuth2Response.class])
         {
             MSIDWebOAuth2Response *oauthResponse = (MSIDWebOAuth2Response *)response;
