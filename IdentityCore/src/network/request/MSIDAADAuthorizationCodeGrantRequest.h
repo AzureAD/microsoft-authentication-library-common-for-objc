@@ -30,4 +30,14 @@
  */
 @interface MSIDAADAuthorizationCodeGrantRequest : MSIDAuthorizationCodeGrantRequest
 
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                   clientId:(nonnull NSString *)clientId
+                               enrollmentId:(nullable NSString *)enrollmentId
+                                      scope:(nullable NSString *)scope
+                                redirectUri:(nonnull NSString *)redirectUri
+                                       code:(nonnull NSString *)code
+                                     claims:(nullable NSString *)claims
+                               codeVerifier:(nullable NSString *)codeVerifier
+                                    context:(nullable id<MSIDRequestContext>)context;
+
 @end

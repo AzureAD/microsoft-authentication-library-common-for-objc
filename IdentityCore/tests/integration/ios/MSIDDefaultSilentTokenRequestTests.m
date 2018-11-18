@@ -69,7 +69,7 @@
 - (MSIDRequestParameters *)silentRequestParameters
 {
     MSIDRequestParameters *parameters = [MSIDRequestParameters new];
-    parameters.authority = [[MSIDAuthorityFactory new] authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
@@ -84,7 +84,7 @@
 - (MSIDRequestParameters *)silentB2CParameters
 {
     MSIDRequestParameters *parameters = [MSIDRequestParameters new];
-    parameters.authority = [[MSIDAuthorityFactory new] authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.com/signup"] context:nil error:nil];
+    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.com/signup"] context:nil error:nil];
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.com/signup/v2.0/.well-known/openid-configuration"];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
@@ -378,7 +378,7 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/contoso.com";
-    silentParameters.authority = [[MSIDAuthorityFactory new] authorityFromUrl:[NSURL URLWithString:authority] context:nil error:nil];
+    silentParameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:authority] context:nil error:nil];
     silentParameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/v2.0/.well-known/openid-configuration"];
 
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];

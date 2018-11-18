@@ -26,6 +26,16 @@
 #define kChosenCipherKeySize    kCCKeySizeAES256
 #define kSymmetricKeyTag        "com.microsoft.adBrokerKey"
 
+#if TARGET_OS_IPHONE
+
+enum {
+    CSSM_ALGID_NONE =                   0x00000000L,
+    CSSM_ALGID_VENDOR_DEFINED =         CSSM_ALGID_NONE + 0x80000000L,
+    CSSM_ALGID_AES
+};
+
+#endif
+
 @interface MSIDBrokerKeyProvider : NSObject
 
 - (instancetype)initWithGroup:(NSString *)keychainGroup;

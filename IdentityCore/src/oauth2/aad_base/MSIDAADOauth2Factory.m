@@ -46,16 +46,6 @@
 
 @implementation MSIDAADOauth2Factory
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _authorityFactory = [MSIDAuthorityFactory new];
-    }
-    return self;
-}
-
 #pragma mark - Helpers
 
 - (BOOL)checkResponseClass:(MSIDTokenResponse *)response

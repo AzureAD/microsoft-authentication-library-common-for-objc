@@ -27,6 +27,7 @@
 #import "MSIDAADTenant.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDAADAuthority()
 
@@ -83,7 +84,7 @@
 - (NSURL *)cacheUrlWithContext:(id<MSIDRequestContext>)context
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
-    __auto_type authority = (MSIDAADAuthority *)[self.authorityFactory authorityFromUrl:universalAuthorityURL context:context error:nil];
+    __auto_type authority = (MSIDAADAuthority *)[MSIDAuthorityFactory authorityFromUrl:universalAuthorityURL context:context error:nil];
     if (authority) NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheUrlForAuthority:authority context:context];
@@ -92,7 +93,7 @@
 - (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
-    __auto_type authority = (MSIDAADAuthority *)[self.authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
+    __auto_type authority = (MSIDAADAuthority *)[MSIDAuthorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
     if (authority) NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheAliasesForAuthority:authority];

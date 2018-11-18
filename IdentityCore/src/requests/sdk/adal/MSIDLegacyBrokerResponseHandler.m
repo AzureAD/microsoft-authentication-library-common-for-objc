@@ -61,7 +61,7 @@
                                                          error:(NSError **)error
 {
     // Successful case
-    if ([NSString msidIsStringNilOrBlank:encryptedParams[@"error_domain"]])
+    if ([NSString msidIsStringNilOrBlank:encryptedParams[@"error_code"]])
     {
         NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:encryptedParams
                                                                              correlationId:correlationID
@@ -157,6 +157,7 @@
 
     userInfo[MSIDOAuthSubErrorKey] = errorResponse.subError;
     userInfo[MSIDUserDisplayableIdkey] = errorResponse.userId ? errorResponse.userId : userId;
+    userInfo[MSIDBrokerVersionKey] = errorResponse.brokerAppVer;
 
     NSString *oauthErrorCode = errorResponse.oauthErrorCode;
     NSString *errorDomain = errorResponse.errorDomain ?: MSIDErrorDomain;

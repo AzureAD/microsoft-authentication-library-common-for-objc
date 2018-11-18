@@ -68,6 +68,7 @@ NSString *const MSID_OAUTH2_PROMPT_NONE         = @"none";
 NSString *const MSID_OAUTH2_EXPIRES_ON          = @"expires_on";
 NSString *const MSID_OAUTH2_EXT_EXPIRES_IN      = @"ext_expires_in";
 NSString *const MSID_FAMILY_ID                  = @"foci";
+NSString *const MSID_ENROLLMENT_ID              = @"microsoft_enrollment_id";
 
 NSString *const MSID_OAUTH2_CODE_CHALLENGE               = @"code_challenge";
 NSString *const MSID_OAUTH2_CODE_CHALLENGE_METHOD        = @"code_challenge_method";

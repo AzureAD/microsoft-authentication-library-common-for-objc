@@ -122,6 +122,8 @@
 
             if (error)
             {
+                NSDictionary *userInfo = @{MSIDUserDisplayableIdkey : response.additionalUserId ?: @""};
+
                 *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                          errorCode,
                                          response.errorDescription,
@@ -129,7 +131,7 @@
                                          response.suberror,
                                          nil,
                                          context.correlationId,
-                                         nil);
+                                         userInfo);
             }
         }
 
@@ -193,7 +195,7 @@
         return NO;
     }
     
-    __auto_type authority = [self.authorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
     
     account.authority = authority;
     return YES;
@@ -208,7 +210,7 @@
         return NO;
     }
     
-    __auto_type authority = [self.authorityFactory authorityFromUrl:token.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:token.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
 
     token.authority = authority;
     return YES;

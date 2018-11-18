@@ -24,6 +24,7 @@
 #import "MSIDADFSAuthority.h"
 #import "MSIDAdfsAuthorityResolver.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDAuthority+Internal.h"
 
 @implementation MSIDADFSAuthority
 

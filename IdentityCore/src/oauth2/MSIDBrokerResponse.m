@@ -59,4 +59,9 @@ MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
     return _urlForm[@"scope"];
 }
 
+- (BOOL)accessTokenInvalidForResponse
+{
+    return NO;
+}
+
 @end

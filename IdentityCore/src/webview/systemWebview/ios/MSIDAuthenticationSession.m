@@ -168,7 +168,15 @@
     [_telemetryEvent setIsCancelled:YES];
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
-    [_authSession cancel];
+    if (@available(iOS 12.0, *))
+    {
+        [_webAuthSession cancel];
+    }
+    else
+    {
+        [_authSession cancel];
+    }
+    
     
     NSError *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorSessionCanceledProgrammatically,

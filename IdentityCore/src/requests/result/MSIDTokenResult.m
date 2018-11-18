@@ -45,6 +45,7 @@
         _correlationId = correlationId;
         _tokenResponse = tokenResponse;
         _account = account;
+        _correlationId = correlationId;
     }
 
     return self;

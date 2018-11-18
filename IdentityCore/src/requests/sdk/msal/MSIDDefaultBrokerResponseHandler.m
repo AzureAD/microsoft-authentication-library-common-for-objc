@@ -27,6 +27,8 @@
 #import "MSIDBrokerCryptoProvider.h"
 #import "MSIDAADV2BrokerResponse.h"
 #import "MSIDDefaultTokenResponseValidator.h"
+#import "MSIDTokenResult.h"
+#import "MSIDAccount.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"

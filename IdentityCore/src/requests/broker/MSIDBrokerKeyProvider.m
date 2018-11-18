@@ -37,16 +37,6 @@
 
 @implementation MSIDBrokerKeyProvider
 
-#if TARGET_OS_IPHONE
-
-enum {
-    CSSM_ALGID_NONE =                   0x00000000L,
-    CSSM_ALGID_VENDOR_DEFINED =         CSSM_ALGID_NONE + 0x80000000L,
-    CSSM_ALGID_AES
-};
-
-#endif
-
 - (instancetype)initWithGroup:(NSString *)keychainGroup
 {
     self = [super init];
@@ -58,7 +48,11 @@ enum {
             keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
         }
 
-        if (!MSIDKeychainUtil.teamId) return nil;
+        if (!MSIDKeychainUtil.teamId)
+        {
+            MSID_LOG_ERROR(nil, @"Failed to read teamID from keychain");
+            return nil;
+        }
 
         // Add team prefix to keychain group if it is missed.
         if (![keychainGroup hasPrefix:MSIDKeychainUtil.teamId])
@@ -81,8 +75,7 @@ enum {
     NSDictionary *symmetricKeyQuery =
     @{
       (id)kSecClass : (id)kSecClassKey,
-      (id)kSecAttrApplicationTag : symmetricTag, // TODO: write new items with a new tag to avoid conflicts
-      // TODO: replace this with kSecAttrKeyTypeAES?
+      (id)kSecAttrApplicationTag : symmetricTag,
       (id)kSecAttrKeyType : @(CSSM_ALGID_AES),
       (id)kSecReturnData : @(YES),
       (id)kSecAttrAccessGroup : self.keychainAccessGroup
@@ -101,6 +94,20 @@ enum {
     // Try to read previous format without keychain access groups
     NSMutableDictionary *query = [symmetricKeyQuery mutableCopy];
     [query removeObjectForKey:(id)kSecAttrAccessGroup];
+
+    /*
+     SecItemCopyMatching will look for items in all access groups that app has access to.
+     This means there might be multiple items if app declares multiple access groups.
+     However, we specifically don't set kSecMatchLimit, so it will take the first match.
+     That will mimic previous ADAL behavior.
+
+     From Apple documentation:
+
+     By default, this function returns only the first match found. To obtain
+     more than one matching item at a time, specify kSecMatchLimit with a value
+     greater than 1. The result will be a CFArrayRef containing up to that
+     number of matching items; the items' types are described above.
+     */
 
     err = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&symmetricKey);
 

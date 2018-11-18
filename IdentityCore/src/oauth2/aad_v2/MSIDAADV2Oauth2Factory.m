@@ -191,7 +191,7 @@
                       tokenResponse:(MSIDTokenResponse *)response
                               error:(NSError **)error
 {
-    return [self.authorityFactory authorityFromUrl:url
+    return [MSIDAuthorityFactory authorityFromUrl:url
                                          rawTenant:response.idTokenObj.realm
                                            context:nil
                                              error:error];
@@ -219,6 +219,7 @@
 
     MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                                clientId:parameters.clientId
+                                                                                                           enrollmentId:nil
                                                                                                                   scope:allScopes
                                                                                                             redirectUri:parameters.redirectUri
                                                                                                                    code:authCode
@@ -238,6 +239,7 @@
 
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                      clientId:parameters.clientId
+                                                                                                 enrollmentId:nil // TODO: add enrollment ID
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
