@@ -31,13 +31,14 @@
 - (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
 {
     NSString *homeAccountId = self.requestParameters.accountIdentifier.homeAccountId;
+    NSString *username = self.requestParameters.accountIdentifier.legacyAccountId;
     
     NSDictionary *contents =
     @{
       @"scope": self.requestParameters.target ?: @"",
       @"home_account_id": homeAccountId ?: @"",
+      @"username": username ?: @"",
       @"login_hint": self.requestParameters.loginHint ?: @"",
-      @"username": self.requestParameters.username ?: @"",
       @"extra_consent_scopes": self.requestParameters.extraScopesToConsent ?: @"",
       @"prompt" : self.requestParameters.promptType ?: @"",
       @"msg_protocol_ver": @"3"
