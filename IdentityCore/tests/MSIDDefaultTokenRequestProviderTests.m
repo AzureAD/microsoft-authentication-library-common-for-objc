@@ -58,7 +58,7 @@
     MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new]];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [[MSIDAuthorityFactory new] authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
     parameters.redirectUri = @"x-msauth-testapp://auth";
     parameters.target = @"user.read";
     parameters.clientId = @"client_id";

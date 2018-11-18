@@ -43,6 +43,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDLegacyAccessorSSOIntegrationTests : XCTestCase
 {

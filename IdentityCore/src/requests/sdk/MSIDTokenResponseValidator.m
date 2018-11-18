@@ -98,9 +98,9 @@
         return nil;
     }
 
-    __auto_type authority = [[MSIDAuthorityFactory new] authorityFromUrl:[NSURL URLWithString:brokerResponse.authority]
-                                                                 context:nil
-                                                                   error:error];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:brokerResponse.authority]
+                                                           context:nil
+                                                             error:error];
 
     if (!authority) return nil;
 

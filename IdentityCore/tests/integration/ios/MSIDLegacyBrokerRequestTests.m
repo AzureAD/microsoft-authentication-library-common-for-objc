@@ -233,7 +233,7 @@
 - (MSIDInteractiveRequestParameters *)defaultTestParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [[MSIDAuthorityFactory new] authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
+    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
     parameters.clientId = @"my_client_id";
     parameters.target = @"myresource";
     parameters.correlationId = [NSUUID new];

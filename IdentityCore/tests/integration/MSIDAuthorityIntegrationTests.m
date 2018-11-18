@@ -35,6 +35,7 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDAuthorityIntegrationTests : XCTestCase
 

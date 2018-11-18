@@ -28,6 +28,7 @@
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                         clientId:(NSString *)clientId
+                    enrollmentId:(NSString *)enrollmentId
                            scope:(NSString *)scope
                      redirectUri:(NSString *)redirectUri
                             code:(NSString *)code
@@ -50,6 +51,9 @@
         
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
+        parameters[MSID_OAUTH2_CLAIMS] = claims;
+        parameters[MSID_ENROLLMENT_ID] = enrollmentId;
+        
         _parameters = parameters;
     }
     

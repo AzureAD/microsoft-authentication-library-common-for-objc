@@ -50,6 +50,7 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDDefaultAccessorSSOIntegrationTests : XCTestCase
 {

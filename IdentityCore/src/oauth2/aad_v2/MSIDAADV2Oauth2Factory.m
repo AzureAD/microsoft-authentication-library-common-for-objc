@@ -191,7 +191,7 @@
                       tokenResponse:(MSIDTokenResponse *)response
                               error:(NSError **)error
 {
-    return [self.authorityFactory authorityFromUrl:url
+    return [MSIDAuthorityFactory authorityFromUrl:url
                                          rawTenant:response.idTokenObj.realm
                                            context:nil
                                              error:error];
@@ -238,6 +238,7 @@
 
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                      clientId:parameters.clientId
+                                                                                                 enrollmentId:nil // TODO: add enrollment ID
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims

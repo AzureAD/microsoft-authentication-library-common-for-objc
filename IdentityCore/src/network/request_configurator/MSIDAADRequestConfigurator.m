@@ -60,8 +60,7 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     
     __auto_type requestUrl = request.urlRequest.URL;
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:request.urlRequest.URL context:request.context error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:request.urlRequest.URL context:request.context error:nil];
     // If url is authority, then we are trying to get network url of it. Otherwise we use provided url.
     __auto_type authorityUrl = [authority networkUrlWithContext:request.context];
     
