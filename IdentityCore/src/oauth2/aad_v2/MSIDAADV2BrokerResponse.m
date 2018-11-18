@@ -37,8 +37,8 @@ MSID_FORM_ACCESSOR(@"scope", scope);
 
     if (self)
     {
-        NSString *errorUserinfoJSON = form[@"error_user_info"];
-        _errorUserInfo = [NSDictionary msidDictionaryFromJsonData:[errorUserinfoJSON dataUsingEncoding:NSUTF8StringEncoding] error:nil];
+        NSString *errorMetadataJSON = form[@"error_metadata"];
+        _errorMetadata = [NSDictionary msidDictionaryFromJsonData:[errorMetadataJSON dataUsingEncoding:NSUTF8StringEncoding] error:nil];
     }
 
     return self;
@@ -52,22 +52,27 @@ MSID_FORM_ACCESSOR(@"scope", scope);
 
 - (NSString *)oauthErrorCode
 {
-    return self.errorUserInfo[@"oauth_error"];
+    return self.errorMetadata[@"oauth_error"];
 }
 
 - (NSString *)errorDescription
 {
-    return self.errorUserInfo[@"error_description"];
+    return self.errorMetadata[@"error_description"];
 }
 
 - (NSString *)subError
 {
-    return self.errorUserInfo[@"oauth_sub_error"];
+    return self.errorMetadata[@"oauth_sub_error"];
 }
 
 - (NSString *)httpHeaders
 {
-    return self.errorUserInfo[@"http_headers"];
+    return self.errorMetadata[@"http_headers"];
+}
+
+- (NSString *)userId
+{
+    return self.errorMetadata[@"user_id"];
 }
 
 @end

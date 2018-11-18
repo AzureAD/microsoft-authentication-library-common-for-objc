@@ -40,6 +40,7 @@
 @property (nonatomic) NSString *target;
 @property (nonatomic) NSString *oidcScope;
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) NSString *username;
 @property (nonatomic) BOOL validateAuthority;
 @property (nonatomic) NSDictionary *sliceParameters;
 @property (nonatomic) NSUInteger tokenExpirationBuffer;

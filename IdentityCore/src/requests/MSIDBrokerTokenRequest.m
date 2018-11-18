@@ -57,6 +57,7 @@
     if (self)
     {
         _requestParameters = parameters;
+        _brokerKey = brokerKey;
 
         if (![self initPayloadContentsWithError:error])
         {

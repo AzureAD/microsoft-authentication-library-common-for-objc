@@ -22,20 +22,33 @@
 // THE SOFTWARE.
 
 #import "MSIDDefaultBrokerTokenRequest.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDDefaultBrokerTokenRequest
 
 // Those parameters will be different depending on the broker protocol version
 - (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
 {
-    // TODO: MSAL pieces
-    return nil;
+    NSString *homeAccountId = self.requestParameters.accountIdentifier.homeAccountId;
+    
+    NSDictionary *contents =
+    @{
+      @"scope": self.requestParameters.target ?: @"",
+      @"home_account_id": homeAccountId ?: @"",
+      @"login_hint": self.requestParameters.loginHint ?: @"",
+      @"username": self.requestParameters.username ?: @"",
+      @"extra_consent_scopes": self.requestParameters.extraScopesToConsent ?: @"",
+      @"prompt" : self.requestParameters.promptType ?: @"",
+      @"msg_protocol_ver": @"3"
+      };
+    
+    return contents;
 }
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
-    // TODO: MSAL pieces
-    return nil;
+    return @{@"scope": self.requestParameters.target ?: @""};
 }
 
 @end
