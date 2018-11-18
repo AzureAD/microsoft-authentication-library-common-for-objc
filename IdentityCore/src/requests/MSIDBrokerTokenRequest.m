@@ -129,6 +129,7 @@
     if (![self checkParameter:self.requestParameters.target parameterName:@"target" error:error]) return nil;
     if (![self checkParameter:self.requestParameters.clientId parameterName:@"clientId" error:error]) return nil;
     if (![self checkParameter:self.requestParameters.redirectUri parameterName:@"redirectUri" error:error]) return nil;
+    if (![self checkParameter:self.requestParameters.correlationId parameterName:@"correlationId" error:error]) return nil;
     if (![self checkParameter:self.brokerKey parameterName:@"brokerKey" error:error]) return nil;
 
     MSID_LOG_INFO(self.requestParameters, @"Invoking broker for authentication");

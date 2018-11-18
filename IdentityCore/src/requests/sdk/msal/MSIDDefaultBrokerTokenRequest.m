@@ -29,13 +29,13 @@
 - (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
 {
     // TODO: MSAL pieces
-    return nil;
+    return @{};
 }
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
     // TODO: MSAL pieces
-    return nil;
+    return @{};
 }
 
 @end
