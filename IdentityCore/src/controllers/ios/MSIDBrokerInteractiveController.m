@@ -87,6 +87,12 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
+    if (!completionBlock)
+    {
+        MSID_LOG_ERROR(nil, @"Passed nil completionBlock");
+        return;
+    }
+
     if ([self.class currentBrokerController])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Broker authentication already in progress", nil, nil, nil, self.requestParameters.correlationId, nil);

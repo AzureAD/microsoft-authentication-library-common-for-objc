@@ -65,6 +65,12 @@
 
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
+    if (!completionBlock)
+    {
+        MSID_LOG_ERROR(nil, @"Passed nil completionBlock");
+        return;
+    }
+
     [[MSIDTelemetry sharedInstance] startEvent:self.interactiveRequestParamaters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
 
     MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
