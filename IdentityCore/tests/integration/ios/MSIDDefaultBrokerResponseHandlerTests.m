@@ -57,7 +57,7 @@
     [super setUp];
     [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:@"com.microsoft.adBrokerKey"];
     
-    id<MSIDTokenCacheDataSource> dataSource = [MSIDKeychainTokenCache defaultKeychainCache];
+    id<MSIDTokenCacheDataSource> dataSource =  [[MSIDKeychainTokenCache alloc] init];
     [dataSource clearWithContext:nil error:nil];
     MSIDOauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     MSIDLegacyTokenCacheAccessor *otherAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
