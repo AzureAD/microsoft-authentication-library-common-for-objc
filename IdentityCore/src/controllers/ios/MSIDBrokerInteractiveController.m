@@ -80,7 +80,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         _brokerInstallLink = brokerInstallLink;
     }
 
-    return nil;
+    return self;
 }
 
 #pragma mark - MSIDInteractiveRequestControlling
