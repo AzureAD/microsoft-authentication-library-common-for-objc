@@ -98,6 +98,25 @@
 
     NSURL *cloudAuthority = [self.authority.url msidAuthorityWithCloudInstanceHostname:cloudHostName];
     _cloudAuthority = [MSIDAuthorityFactory authorityFromUrl:cloudAuthority context:self error:nil];
+    [self updateMSIDConfiguration];
+}
+
+- (void)setAuthority:(MSIDAuthority *)authority
+{
+    _authority = authority;
+    [self updateMSIDConfiguration];
+}
+
+- (void)setClientId:(NSString *)clientId
+{
+    _clientId = clientId;
+    [self updateMSIDConfiguration];
+}
+
+- (void)setTarget:(NSString *)target
+{
+    _target = target;
+    [self updateMSIDConfiguration];
 }
 
 - (BOOL)setClaimsFromJSON:(NSString *)claims error:(NSError **)error
@@ -133,17 +152,25 @@
     return [requestScopes msidToString];
 }
 
-- (MSIDConfiguration *)msidConfiguration
+- (void)updateMSIDConfiguration
 {
-    // TODO: don't create config every time
     MSIDAuthority *authority = self.cloudAuthority ? self.cloudAuthority : self.authority;
 
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                  redirectUri:self.redirectUri
                                                                     clientId:self.clientId
                                                                       target:self.target];
+    _msidConfiguration = config;
+}
 
-    return config;
+- (MSIDConfiguration *)msidConfiguration
+{
+    if (!_msidConfiguration)
+    {
+        [self updateMSIDConfiguration];
+    }
+
+    return _msidConfiguration;
 }
 
 #pragma mark - Validate

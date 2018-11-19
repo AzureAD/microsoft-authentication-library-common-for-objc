@@ -239,7 +239,7 @@
 
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                      clientId:parameters.clientId
-                                                                                                 enrollmentId:nil // TODO: add enrollment ID
+                                                                                                 enrollmentId:nil // TODO: add enrollment ID handling
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
