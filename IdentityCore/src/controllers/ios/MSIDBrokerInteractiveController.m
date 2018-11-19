@@ -144,7 +144,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     NSDictionary *brokerResumeDictionary = brokerRequest.resumeDictionary;
     [[NSUserDefaults standardUserDefaults] setObject:brokerResumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
-    [[NSUserDefaults standardUserDefaults] synchronize];
 
     [self callBrokerWithRequest:brokerRequest];
 }
