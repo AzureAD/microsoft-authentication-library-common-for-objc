@@ -63,30 +63,10 @@
 
 #pragma mark - MSIDInteractiveRequestControlling
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
     [[MSIDTelemetry sharedInstance] startEvent:self.interactiveRequestParamaters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
 
-    NSString *accountIdentifier = self.interactiveRequestParamaters.accountIdentifier.legacyAccountId;
-
-    NSString *upn = accountIdentifier ? accountIdentifier : self.interactiveRequestParamaters.loginHint;
-
-    [super resolveEndpointsWithUpn:upn
-                        completion:^(BOOL resolved, NSError * _Nullable error) {
-
-                            if (!resolved)
-                            {
-                                [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
-                                completionBlock(nil, error);
-                                return;
-                            }
-
-                            [self executeRequests:completionBlock];
-                        }];
-}
-
-- (void)executeRequests:(nonnull MSIDRequestCompletionBlock)completionBlock
-{
     MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
 
     [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
@@ -98,7 +78,7 @@
         }
 
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
-        [telemetryEvent setUserId:result.account.username];
+        [telemetryEvent setUserInformation:result.account];
         [self stopTelemetryEvent:telemetryEvent error:error];
         completionBlock(result, error);
     }];
@@ -110,6 +90,7 @@
     if ([NSString msidIsStringNilOrBlank:response.appInstallLink])
     {
         NSError *appInstallError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"App install link is missing. Incorrect URL returned from server", nil, nil, nil, self.requestParameters.correlationId, nil);
+        [self stopTelemetryEvent:[self telemetryAPIEvent] error:appInstallError];
         completion(nil, appInstallError);
         return;
     }
@@ -122,6 +103,7 @@
 
     if (!brokerController)
     {
+        [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
         completion(nil, brokerError);
         return;
     }
@@ -129,6 +111,7 @@
     [brokerController acquireToken:completion];
 #else
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Trying to install broker on macOS, where it's not currently supported", nil, nil, nil, self.requestParameters.correlationId, nil);
+    [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
     completion(nil, error);
 #endif
 }

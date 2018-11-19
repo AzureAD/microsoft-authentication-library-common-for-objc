@@ -21,24 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDRequestParameters.h"
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDTestSilentTokenRequest.h"
+#import "MSIDTokenResult.h"
 
-@class MSIDTelemetryAPIEvent;
+@interface MSIDTestSilentTokenRequest()
 
-typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error);
+@property (nonatomic) MSIDTokenResult *testTokenResult;
+@property (nonatomic) NSError *testError;
 
-@interface MSIDBaseRequestController : NSObject
+@end
 
-@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) id<MSIDTokenRequestProviding> tokenRequestProvider;
+@implementation MSIDTestSilentTokenRequest
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error;
+#pragma mark - Init
 
-- (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
-- (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
+- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
+                           testError:(NSError *)error
+{
+    self = [super init];
+
+    if (self)
+    {
+        _testTokenResult = tokenResult;
+        _testError = error;
+    }
+
+    return self;
+}
+
+#pragma mark - MSIDSilentTokenRequest
+
+- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
+{
+    completionBlock(self.testTokenResult, self.testError);
+}
 
 @end

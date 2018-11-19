@@ -151,7 +151,7 @@
 - (BOOL)validateParametersWithError:(NSError **)error
 {
     // TODO: validate
-    return NO;
+    return YES;
 }
 
 @end

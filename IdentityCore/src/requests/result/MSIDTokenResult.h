@@ -61,6 +61,9 @@ NS_ASSUME_NONNULL_BEGIN
 /* Token response from server */
 @property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
 
+/* Broker app version used for brokered authentication */
+@property (nonatomic, nullable) NSString *brokerAppVersion;
+
 - (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
                                      idToken:(nonnull NSString *)rawIdToken
                                      account:(nonnull MSIDAccount *)account

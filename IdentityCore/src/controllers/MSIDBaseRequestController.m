@@ -27,6 +27,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDErrorConverter.h"
 
 @interface MSIDBaseRequestController()
 
@@ -68,26 +69,6 @@
     return self;
 }
 
-- (void)resolveEndpointsWithUpn:(NSString *)upn completion:(MSIDAuthorityCompletion)completion
-{
-    [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
-                                       userPrincipalName:upn
-                                                 context:self.requestParameters
-                                         completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
-     {
-         if (error)
-         {
-             MSIDTelemetryAPIEvent *event = [self telemetryAPIEvent];
-             [self stopTelemetryEvent:event error:error];
-
-             completion(NO, error);
-             return;
-         }
-
-         completion(YES, nil);
-     }];
-}
-
 #pragma mark - Telemetry
 
 - (MSIDTelemetryAPIEvent *)telemetryAPIEvent
@@ -96,9 +77,9 @@
 
     [event setApiId:self.requestParameters.telemetryApiId];
     [event setCorrelationId:self.requestParameters.correlationId];
-    [event setAuthorityType:[self.requestParameters.authority telemetryAuthorityType]];
-    [event setAuthority:self.requestParameters.authority.url.absoluteString];
     [event setClientId:self.requestParameters.clientId];
+    NSString *extExpiresSetting = self.requestParameters.extendedLifetimeEnabled ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO;
+    [event setExtendedExpiresOnSetting:extExpiresSetting];
     return event;
 }
 
@@ -108,6 +89,14 @@
     {
         [event setErrorCode:error.code];
         [event setErrorDomain:error.domain];
+        [event setOauthErrorCode:error.userInfo[MSIDErrorConverter.defaultErrorConverter.oauthErrorKey]];
+        [event setResultStatus:MSID_TELEMETRY_VALUE_FAILED];
+        [event setIsSuccessfulStatus:MSID_TELEMETRY_VALUE_NO];
+    }
+    else
+    {
+        [event setResultStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
+        [event setIsSuccessfulStatus:MSID_TELEMETRY_VALUE_YES];
     }
 
     [[MSIDTelemetry sharedInstance] stopEvent:self.requestParameters.telemetryRequestId event:event];

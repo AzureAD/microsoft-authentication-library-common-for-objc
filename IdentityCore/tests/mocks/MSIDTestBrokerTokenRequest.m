@@ -21,24 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDRequestParameters.h"
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDTestBrokerTokenRequest.h"
 
-@class MSIDTelemetryAPIEvent;
+@interface MSIDTestBrokerTokenRequest()
 
-typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error);
+@property (nonatomic) NSURL *testRequestURL;
+@property (nonatomic) NSDictionary *testResumeDictionary;
 
-@interface MSIDBaseRequestController : NSObject
+@end
 
-@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) id<MSIDTokenRequestProviding> tokenRequestProvider;
+@implementation MSIDTestBrokerTokenRequest
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error;
+- (instancetype)initWithURL:(NSURL *)url
+           resumeDictionary:(NSDictionary *)resumeDictionary
+{
+    self = [super init];
 
-- (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
-- (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
+    if (self)
+    {
+        _testRequestURL = url;
+        _testResumeDictionary = resumeDictionary;
+    }
+
+    return self;
+}
+
+- (NSURL *)brokerRequestURL
+{
+    return _testRequestURL;
+}
+
+- (NSDictionary *)resumeDictionary
+{
+    return _testResumeDictionary;
+}
 
 @end

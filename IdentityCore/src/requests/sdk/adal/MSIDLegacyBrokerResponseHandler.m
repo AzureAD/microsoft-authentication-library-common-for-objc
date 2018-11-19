@@ -142,11 +142,6 @@
 
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
 
-    if (errorResponse.brokerAppVer)
-    {
-        userInfo[@"x-broker-app-ver"] = errorResponse.brokerAppVer;
-    }
-
     NSString *errorCodeString = errorResponse.errorCode;
     NSInteger errorCode = MSIDErrorBrokerUnknown;
 

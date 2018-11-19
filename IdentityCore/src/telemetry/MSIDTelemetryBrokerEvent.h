@@ -22,23 +22,17 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDRequestParameters.h"
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDTelemetryBaseEvent.h"
 
-@class MSIDTelemetryAPIEvent;
+NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error);
+@interface MSIDTelemetryBrokerEvent : MSIDTelemetryBaseEvent
 
-@interface MSIDBaseRequestController : NSObject
-
-@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) id<MSIDTokenRequestProviding> tokenRequestProvider;
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error;
-
-- (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
-- (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
+- (void)setBrokerAppVersion:(NSString *)version;
+- (void)setBrokerProtocolVersion:(NSString *)version;
+- (void)setResultStatus:(NSString *)status;
+- (void)setBrokerApp:(NSString *)appName;
 
 @end
+
+NS_ASSUME_NONNULL_END

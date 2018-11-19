@@ -26,6 +26,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class MSIDTelemetryAPIEvent;
+
 @protocol MSIDRequestControlling <NSObject>
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;

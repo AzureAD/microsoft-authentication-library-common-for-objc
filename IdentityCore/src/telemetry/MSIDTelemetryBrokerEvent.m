@@ -21,24 +21,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDRequestParameters.h"
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDTelemetryBrokerEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 
-@class MSIDTelemetryAPIEvent;
+@implementation MSIDTelemetryBrokerEvent
 
-typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error);
+- (id)initWithName:(NSString *)eventName
+         requestId:(NSString *)requestId
+     correlationId:(NSUUID *)correlationId
+{
+    self = [super initWithName:eventName requestId:requestId correlationId:correlationId];
+    if (self)
+    {
+        //this is the only broker for iOS
+        [self setBrokerApp:@"Microsoft Authenticator"];
+    }
 
-@interface MSIDBaseRequestController : NSObject
+    return self;
+}
 
-@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) id<MSIDTokenRequestProviding> tokenRequestProvider;
+- (void)setBrokerAppVersion:(NSString *)version
+{
+    [self setProperty:MSID_TELEMETRY_KEY_BROKER_VERSION value:version];
+}
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error;
+- (void)setBrokerProtocolVersion:(NSString *)version
+{
+    [self setProperty:MSID_TELEMETRY_KEY_BROKER_PROTOCOL_VERSION value:version];
+}
 
-- (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
-- (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
+- (void)setResultStatus:(NSString *)status
+{
+    [self setProperty:MSID_TELEMETRY_KEY_RESULT_STATUS value:status];
+}
+
+- (void)setBrokerApp:(NSString *)appName
+{
+    [self setProperty:MSID_TELEMETRY_KEY_BROKER_APP value:appName];
+}
+
 
 @end

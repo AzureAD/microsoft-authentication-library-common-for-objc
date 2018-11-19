@@ -45,6 +45,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDError.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -70,7 +71,6 @@
 {
     MSIDRequestParameters *parameters = [MSIDRequestParameters new];
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
     parameters.oidcScope = @"openid profile offline_access";
@@ -85,7 +85,6 @@
 {
     MSIDRequestParameters *parameters = [MSIDRequestParameters new];
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.com/signup"] context:nil error:nil];
-    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.com/signup/v2.0/.well-known/openid-configuration"];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
     parameters.oidcScope = @"openid profile offline_access";
@@ -97,8 +96,15 @@
 - (void)setUp
 {
     [super setUp];
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
     MSIDKeychainTokenCache *cache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
     [cache clearWithContext:nil error:nil];
+}
+
+- (void)tearDown
+{
+    [super tearDown];
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
 }
 
 #pragma mark - Silent
@@ -111,7 +117,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -138,7 +144,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -170,6 +176,9 @@
     XCTAssertTrue(removeResult);
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -194,7 +203,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -220,6 +229,9 @@
     silentParameters.target = @"new.scope1 new.scope2";
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -244,7 +256,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -269,6 +281,9 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -293,7 +308,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -329,6 +344,9 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -353,7 +371,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -379,7 +397,9 @@
 
     NSString *authority = @"https://login.microsoftonline.com/contoso.com";
     silentParameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:authority] context:nil error:nil];
-    silentParameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/v2.0/.well-known/openid-configuration"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
@@ -405,7 +425,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -449,7 +469,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -475,6 +495,9 @@
                                                                                                          tokenCache:tokenCache];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -493,7 +516,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -537,7 +560,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -563,6 +586,9 @@
                                                                                                          tokenCache:tokenCache];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -584,7 +610,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -610,6 +636,9 @@
                                                                                                          tokenCache:tokenCache];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -631,7 +660,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -651,6 +680,9 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -688,7 +720,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -713,6 +745,9 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -746,7 +781,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -772,6 +807,9 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/tfp/contoso.com/signup";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -796,7 +834,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -824,6 +862,9 @@
     silentParameters.claims = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -848,7 +889,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -885,6 +926,9 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -912,7 +956,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -961,6 +1005,9 @@
     XCTAssertTrue(result);
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -985,7 +1032,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -1033,6 +1080,9 @@
     XCTAssertTrue(result);
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -1068,7 +1118,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -1116,6 +1166,9 @@
     XCTAssertTrue(result);
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -1151,7 +1204,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -1190,7 +1243,7 @@
 
     XCTestExpectation *secondExpecation = [self expectationWithDescription:@"silent request"];
 
-    [secondSilentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [secondSilentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -1238,6 +1291,9 @@
     XCTAssertTrue(result);
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -1260,7 +1316,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -1283,6 +1339,9 @@
     silentParameters.target = @"new.scope1 new.scope2";
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -1307,7 +1366,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -1330,7 +1389,7 @@
                                                                                                                tokenCache:tokenCache];
     XCTestExpectation *secondExpectation = [self expectationWithDescription:@"silent request"];
 
-    [secondSilentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [secondSilentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);

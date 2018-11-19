@@ -28,6 +28,7 @@
 + (NSDictionary *)msidDefaultRequestHeaders;
 
 + (MSIDTestURLResponse *)oidcResponseForAuthority:(NSString *)authority;
++ (MSIDTestURLResponse *)discoveryResponseForAuthority:(NSString *)authority;
 
 + (NSDictionary *)tokenResponseWithAT:(NSString *)responseAT
                            responseRT:(NSString *)responseRT

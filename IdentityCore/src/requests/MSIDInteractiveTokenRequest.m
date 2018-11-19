@@ -39,6 +39,7 @@
 #import "MSIDPkce.h"
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDInteractiveTokenRequest()
 
@@ -73,8 +74,12 @@
 
 - (void)acquireToken:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
-    [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                    completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+    NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId ?: self.requestParameters.loginHint;
+
+    [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
+                                       userPrincipalName:upn
+                                                 context:self.requestParameters
+                                         completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          if (error)
          {
@@ -82,7 +87,17 @@
              return;
          }
 
-         [self acquireTokenImpl:completionBlock];
+         [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
+                                                         completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+          {
+              if (error)
+              {
+                  completionBlock(nil, error, nil);
+                  return;
+              }
+
+              [self acquireTokenImpl:completionBlock];
+          }];
      }];
 }
 
@@ -98,8 +113,8 @@
 
         /*
 
-         TODO: this code has been moved from MSAL almost as is to avoid too many changes in this logic.
-         Some minor refactoring to this logic and to the tests will be done separately: https://github.com/AzureAD/microsoft-authentication-library-common-for-objc/issues/297
+         TODO: this code has been moved from MSAL almost as is to avoid any changes in the MSIDWebviewAuthorization logic.
+         Some minor refactoring to MSIDWebviewAuthorization response logic and to the interactive requests tests will be done separately: https://github.com/AzureAD/microsoft-authentication-library-common-for-objc/issues/297
          */
 
         if ([response isKindOfClass:MSIDWebOAuth2Response.class])

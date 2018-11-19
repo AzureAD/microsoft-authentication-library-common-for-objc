@@ -78,31 +78,18 @@
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    [super resolveEndpointsWithUpn:self.requestParameters.accountIdentifier.legacyAccountId
-                        completion:^(BOOL resolved, NSError * _Nullable error) {
+    [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
 
-                            if (!resolved)
-                            {
-                                [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
-                                completionBlock(nil, error);
-                                return;
-                            }
-
-                            [self acquireTokenImpl:completionBlock];
-    }];
-}
-
-- (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
-{
     MSIDSilentTokenRequest *silentRequest = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
                                                                                            forceRefresh:self.forceRefresh];
 
-    [silentRequest acquireTokenWithCompletionHandler:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         if (result || !self.interactiveController)
         {
             MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
-            [telemetryEvent setUserId:result.account.username];
+            [telemetryEvent setUserInformation:result.account];
+            [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
             [self stopTelemetryEvent:telemetryEvent error:error];
             completionBlock(result, error);
             return;

@@ -49,6 +49,45 @@
     return s_msidHeaders;
 }
 
++ (MSIDTestURLResponse *)discoveryResponseForAuthority:(NSString *)authority
+{
+    NSURL *authorityURL = [NSURL URLWithString:authority];
+
+    NSString *authorizationEndpoint = [NSString stringWithFormat:@"%@/oauth2/v2.0/authorize", authority];
+
+    NSString *requestUrl = [NSString stringWithFormat:@"https://%@/common/discovery/instance?api-version=1.1&authorization_endpoint=%@", authorityURL.msidHostWithPortIfNecessary, [authorizationEndpoint msidWWWFormURLEncode]];
+
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:requestUrl]
+                                                                  statusCode:200
+                                                                 HTTPVersion:@"1.1"
+                                                                headerFields:nil];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse request:[NSURL URLWithString:requestUrl]
+                                                                  reponse:httpResponse];
+    NSDictionary *headers = [self msidDefaultRequestHeaders];
+    discoveryResponse->_requestHeaders = [headers mutableCopy];
+
+    NSString *tenantDiscoveryEndpoint = [NSString stringWithFormat:@"%@/v2.0/.well-known/openid-configuration", authority];
+
+    __auto_type responseJson = @{
+                                 @"tenant_discovery_endpoint" : tenantDiscoveryEndpoint,
+                                 @"metadata" : @[
+                                         @{
+                                             @"preferred_network" : @"login.microsoftonline.com",
+                                             @"preferred_cache" : @"login.windows.net",
+                                             @"aliases" : @[@"login.microsoftonline.com", @"login.windows.net"]
+                                             },
+                                         @{
+                                             @"preferred_network": @"login.microsoftonline.de",
+                                             @"preferred_cache": @"login.microsoftonline.de",
+                                             @"aliases": @[@"login.microsoftonline.de"]
+                                             }
+                                         ]
+                                 };
+    [discoveryResponse setResponseJSON:responseJson];
+    return discoveryResponse;
+}
+
 + (MSIDTestURLResponse *)oidcResponseForAuthority:(NSString *)authority
 {
     NSDictionary *oidcReqHeaders = [self msidDefaultRequestHeaders];

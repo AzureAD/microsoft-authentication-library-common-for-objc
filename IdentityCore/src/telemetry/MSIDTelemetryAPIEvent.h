@@ -23,6 +23,9 @@
 
 #import "MSIDTelemetryBaseEvent.h"
 
+@class MSIDAccount;
+@class MSIDAuthority;
+
 @interface MSIDTelemetryAPIEvent : MSIDTelemetryBaseEvent
 
 - (void)setCorrelationId:(NSUUID *)correlationId;
@@ -30,16 +33,7 @@
 - (void)setUserId:(NSString *)userId;
 - (void)setClientId:(NSString *)clientId;
 - (void)setIsExtendedLifeTimeToken:(NSString *)isExtendedLifeToken;
-- (void)setErrorDescription:(NSString *)errorDescription;
 - (void)setErrorDomain:(NSString *)errorDomain;
-
-
-- (void)setAuthorityValidationStatus:(NSString *)status;
-- (void)setAuthority:(NSString *)authority;
-- (void)setAuthorityType:(NSString *)authorityType;
-
-- (void)setGrantType:(NSString *)grantType;
-- (void)setAPIStatus:(NSString *)status;
 
 - (void)setApiId:(NSString *)apiId;
 
@@ -48,5 +42,10 @@
 - (void)setLoginHint:(NSString *)loginHint;
 - (void)setErrorCode:(NSUInteger)errorCode;
 - (void)setPromptType:(NSString *)promptType;
+
+- (void)setIsSuccessfulStatus:(NSString *)successStatus;
+- (void)setResultStatus:(NSString *)resultStatus;
+- (void)setUserInformation:(MSIDAccount *)account;
+- (void)setOauthErrorCode:(NSString *)oauthErrorCode;
 
 @end

@@ -21,24 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDRequestParameters.h"
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDTestBrokerResponseHandler.h"
 
-@class MSIDTelemetryAPIEvent;
+@interface MSIDTestBrokerResponseHandler()
 
-typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error);
+@property (nonatomic) MSIDTokenResult *testTokenResult;
+@property (nonatomic) NSError *testError;
 
-@interface MSIDBaseRequestController : NSObject
+@end
 
-@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) id<MSIDTokenRequestProviding> tokenRequestProvider;
+@implementation MSIDTestBrokerResponseHandler
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error;
+- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
+                           testError:(NSError *)error
+{
+    self = [super init];
 
-- (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
-- (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
+    if (self)
+    {
+        _testTokenResult = tokenResult;
+        _testError = error;
+    }
+
+    return self;
+}
+
+- (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url error:(NSError * _Nullable * _Nullable)error
+{
+    if (self.testError && error)
+    {
+        *error = self.testError;
+    }
+
+    return self.testTokenResult;
+}
 
 @end
