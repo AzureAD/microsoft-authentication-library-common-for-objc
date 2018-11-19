@@ -263,7 +263,7 @@
 
     [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
 
-        XCTAssertEqualObjects(url.absoluteString, brokerURL);
+        XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://test.url.broker?test1=test2"]);
 
         UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ" create:NO];
         XCTAssertEqualObjects(appPasteBoard.URL, [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey&sourceApplication=com.microsoft.MSIDTestsHostApp"]);

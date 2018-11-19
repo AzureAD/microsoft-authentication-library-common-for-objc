@@ -111,15 +111,12 @@
     MSIDInteractiveRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_success";
 
-    NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2"];
-    MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
-
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
                                            @"test-resume-key2": @"test-resume-value2"};
 
     NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"];
 
-    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
     NSError *error = nil;
     MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
@@ -208,15 +205,12 @@
     MSIDInteractiveRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_failure";
 
-    NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2"];
-    MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
-
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
                                            @"test-resume-key2": @"test-resume-value2"};
 
     NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"];
 
-    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
     NSError *error = nil;
     MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
@@ -305,15 +299,12 @@
     MSIDInteractiveRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_success";
 
-    NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2"];
-    MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
-
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
                                            @"test-resume-key2": @"test-resume-value2"};
 
     NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"];
 
-    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
     NSError *error = nil;
     MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
@@ -390,24 +381,79 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-- (void)testAcquireToken_whenFailedToRetrieveBrokerKey_shouldReturnError
-{
-
-}
-
 - (void)testAcquireToken_whenFailedToCreateBrokerRequest_shouldReturnError
 {
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
 
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+
+    // Setup test request providers
+    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_broker_failure";
+
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, 1234567, @"Failed to create broker request", nil, nil, nil, nil, nil);
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil brokerRequestURL:nil resumeDictionary:nil];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
+
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, 1234567);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Failed to create broker request");
+
+        // Check Telemetry event
+        XCTAssertEqual([receivedEvents count], 1);
+        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertNotNil(telemetryEvent[@"start_time"]);
+        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_failure");
+        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
+        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
+        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"no");
+        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(telemetryEvent[@"status"], @"failed");
+        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
+        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
+        XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertEqualObjects(telemetryEvent[@"api_error_code"], @"1234567");
+        XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDErrorDomain);
+        XCTAssertNotNil(telemetryEvent[@"response_time"]);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
 - (void)testAcquireToken_whenBrokerResponseNotReceived_shouldReturnError
 {
-
+    // TODO: implement me
 }
 
 - (void)testAcquireToken_whenBrokerResponseReceivedAfterReturningToApp_shouldReturnErrorAndCallCompletionBlockOnce
 {
-
+    // TODO: implement me
 }
 
 @end

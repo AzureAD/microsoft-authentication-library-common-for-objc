@@ -95,6 +95,12 @@
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                                 error:(NSError *_Nullable *_Nullable)error
 {
+    if (self.testError)
+    {
+        *error = self.testError;
+        return nil;
+    }
+
     return [[MSIDTestBrokerTokenRequest alloc] initWithURL:self.testBrokerRequestURL resumeDictionary:self.testResumeDictionary];
 }
 
