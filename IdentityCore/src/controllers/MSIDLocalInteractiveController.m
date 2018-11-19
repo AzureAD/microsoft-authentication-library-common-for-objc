@@ -61,7 +61,7 @@
     return self;
 }
 
-#pragma mark - MSIDInteractiveRequestControlling
+#pragma mark - MSIDRequestControlling
 
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {

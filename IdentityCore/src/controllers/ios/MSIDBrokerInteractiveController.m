@@ -83,7 +83,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     return self;
 }
 
-#pragma mark - MSIDInteractiveRequestControlling
+#pragma mark - MSIDRequestControlling
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
