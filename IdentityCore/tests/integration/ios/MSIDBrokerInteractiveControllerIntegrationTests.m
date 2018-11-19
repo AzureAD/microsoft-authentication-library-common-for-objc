@@ -448,12 +448,199 @@
 
 - (void)testAcquireToken_whenBrokerResponseNotReceived_shouldReturnError
 {
-    // TODO: implement me
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+
+    // Setup test request providers
+    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_broker_response_not_received";
+
+    NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
+                                           @"test-resume-key2": @"test-resume-value2"};
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
+
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+
+        XCTAssertEqualObjects(url, brokerRequestURL);
+
+        NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+        XCTAssertEqualObjects(resumeDictionary, testResumeDictionary);
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    __block BOOL calledCompletion = NO;
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        // Make sure completion is not called multiple times
+        XCTAssertFalse(calledCompletion);
+        calledCompletion = YES;
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorBrokerResponseNotReceived);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+
+        // Check Telemetry event
+        XCTAssertEqual([receivedEvents count], 2);
+        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertNotNil(telemetryEvent[@"start_time"]);
+        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_response_not_received");
+        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
+        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
+        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"no");
+        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(telemetryEvent[@"status"], @"failed");
+        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
+        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
+        XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertEqualObjects(telemetryEvent[@"api_error_code"], @"-51831");
+        XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDErrorDomain);
+        XCTAssertNotNil(telemetryEvent[@"response_time"]);
+
+        NSDictionary *brokerEvent = [receivedEvents[1] propertyMap];
+        XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
+        XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
+        XCTAssertEqualObjects(brokerEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(brokerEvent[@"status"], @"failed");
+        XCTAssertNotNil(brokerEvent[@"start_time"]);
+        XCTAssertNotNil(brokerEvent[@"stop_time"]);
+
+        [expectation fulfill];
+    }];
+
+    // Post UIApplication lifecycle notifications to simulate user coming back to the app
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
 - (void)testAcquireToken_whenBrokerResponseReceivedAfterReturningToApp_shouldReturnErrorAndCallCompletionBlockOnce
 {
-    // TODO: implement me
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+
+    // Setup test request providers
+    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_broker_response_not_received";
+
+    NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
+                                           @"test-resume-key2": @"test-resume-value2"};
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
+
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+
+    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+
+        XCTAssertEqualObjects(url, brokerRequestURL);
+
+        NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+        XCTAssertEqualObjects(resumeDictionary, testResumeDictionary);
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    __block BOOL calledCompletion = NO;
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        // Make sure completion is not called multiple times
+        XCTAssertFalse(calledCompletion);
+        calledCompletion = YES;
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorBrokerResponseNotReceived);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+
+        // Check Telemetry event
+        XCTAssertEqual([receivedEvents count], 2);
+        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertNotNil(telemetryEvent[@"start_time"]);
+        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_response_not_received");
+        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
+        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
+        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"no");
+        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(telemetryEvent[@"status"], @"failed");
+        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
+        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
+        XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertEqualObjects(telemetryEvent[@"api_error_code"], @"-51831");
+        XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDErrorDomain);
+        XCTAssertNotNil(telemetryEvent[@"response_time"]);
+
+        NSDictionary *brokerEvent = [receivedEvents[1] propertyMap];
+        XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
+        XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
+        XCTAssertEqualObjects(brokerEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(brokerEvent[@"status"], @"failed");
+        XCTAssertNotNil(brokerEvent[@"start_time"]);
+        XCTAssertNotNil(brokerEvent[@"stop_time"]);
+
+        [expectation fulfill];
+    }];
+
+    // Post UIApplication lifecycle notifications to simulate user coming back to the app
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+
+    // Now call acquire token completion, to simulate response arriving after user coming back to the app
+    MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+
+    [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"] brokerResponseHandler:brokerResponseHandler];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
 @end

@@ -266,7 +266,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 - (BOOL)completeAcquireTokenWithResult:(MSIDTokenResult *)tokenResult error:(NSError *)error
 {
-    // TODO: vt handling!
+    // TODO: vt handling for older broker (not necessary for MSAL)!
 
     [self.class setCurrentBrokerController:nil];
     [self.class stopTrackingAppState];
