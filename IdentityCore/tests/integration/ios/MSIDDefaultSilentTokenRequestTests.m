@@ -46,6 +46,7 @@
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDError.h"
 #import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -103,8 +104,11 @@
 
 - (void)tearDown
 {
-    [super tearDown];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+    [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [super tearDown];
 }
 
 #pragma mark - Silent
@@ -135,6 +139,10 @@
 
     [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
                                                                                                        forceRefresh:NO
@@ -191,7 +199,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -244,7 +253,8 @@
                                                                                 responseScope:@"new.scope1 new.scope2"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -296,7 +306,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -359,7 +370,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -413,7 +425,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/contoso.com/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -460,6 +473,10 @@
 
     BOOL result = [tokenCache removeToken:refreshToken context:silentParameters error:nil];
     XCTAssertTrue(result);
+
+    NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
                                                                                                        forceRefresh:NO
@@ -510,7 +527,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -551,6 +569,10 @@
 
     BOOL result = [tokenCache removeToken:refreshToken context:silentParameters error:nil];
     XCTAssertTrue(result);
+
+    NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
                                                                                                        forceRefresh:YES
@@ -604,7 +626,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:differentClientInfo
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -654,7 +677,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:differentClientInfo
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -695,7 +719,8 @@
                                                                                      responseScope:@"user.read tasks.read"
                                                                                 responseClientInfo:nil
                                                                                                url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                      responseCode:500];
+                                                                                      responseCode:500
+                                                                                         expiresIn:nil];
 
     [MSIDTestURLSession addResponse:errorTokenResponse];
 
@@ -708,7 +733,8 @@
                                                                                        responseScope:@"user.read tasks.read"
                                                                                   responseClientInfo:nil
                                                                                                  url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                        responseCode:200];
+                                                                                        responseCode:200
+                                                                                           expiresIn:nil];
 
     [MSIDTestURLSession addResponse:successTokenResponse];
 
@@ -807,8 +833,6 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/tfp/contoso.com/signup";
-    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
-    [MSIDTestURLSession addResponse:discoveryResponse];
 
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
@@ -822,7 +846,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/tfp/contoso.com/signup/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -877,7 +902,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -942,7 +968,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:500];
+                                                                                 responseCode:500
+                                                                                    expiresIn:nil];
 
     // MSAL will retry twice
     [MSIDTestURLSession addResponse:tokenResponse];
@@ -1020,7 +1047,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -1106,7 +1134,8 @@
                                                                                     responseScope:@"user.read tasks.read"
                                                                                responseClientInfo:nil
                                                                                               url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                     responseCode:200];
+                                                                                     responseCode:200
+                                                                                        expiresIn:nil];
 
     [MSIDTestURLSession addResponse:mrrtTokenResponse];
 
@@ -1140,6 +1169,7 @@
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
 
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    silentParameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
 
     [self saveTokensInCache:tokenCache
               configuration:silentParameters.msidConfiguration
@@ -1165,11 +1195,11 @@
     BOOL result = [[self accountCredentialCache] saveCredential:refreshToken.tokenCacheItem context:nil error:nil];
     XCTAssertTrue(result);
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.windows.net/common";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
-    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:@"https://login.microsoftonline.com/common"];
     [MSIDTestURLSession addResponse:oidcResponse];
 
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse errorRefreshTokenGrantResponseWithRT:@"family refresh token"
@@ -1192,7 +1222,8 @@
                                                                                     responseScope:@"user.read tasks.read"
                                                                                responseClientInfo:nil
                                                                                               url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                     responseCode:200];
+                                                                                     responseCode:200
+                                                                                        expiresIn:@"1"];
 
     [MSIDTestURLSession addResponse:mrrtTokenResponse];
 
@@ -1218,7 +1249,7 @@
         [expectation fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    [self waitForExpectationsWithTimeout:100.0 handler:nil];
 
     // Next silent request shouldn't try to use FRT anymore
 
@@ -1237,7 +1268,8 @@
                                                                                     responseScope:@"user.read tasks.read"
                                                                                responseClientInfo:nil
                                                                                               url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                     responseCode:200];
+                                                                                     responseCode:200
+                                                                                     expiresIn:nil];
 
     [MSIDTestURLSession addResponse:secondResponse];
 
@@ -1354,7 +1386,8 @@
                                                                                 responseScope:@"new.scope"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 

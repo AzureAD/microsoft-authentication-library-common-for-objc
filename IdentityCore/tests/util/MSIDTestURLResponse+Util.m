@@ -159,6 +159,7 @@
                                       responseClientInfo:(NSString *)responseClientInfo
                                                      url:(NSString *)url
                                             responseCode:(NSUInteger)responseCode
+                                               expiresIn:(NSString *)expiresIn
 {
     NSMutableDictionary *reqHeaders = [[self msidDefaultRequestHeaders] mutableCopy];
     [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
@@ -168,7 +169,7 @@
                                                 responseID:responseID
                                              responseScope:responseScope
                                         responseClientInfo:responseClientInfo
-                                                 expiresIn:nil
+                                                 expiresIn:expiresIn
                                                       foci:nil
                                               extExpiresIn:nil];
 

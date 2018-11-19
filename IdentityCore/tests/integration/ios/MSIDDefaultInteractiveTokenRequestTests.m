@@ -45,6 +45,7 @@
 #import "MSIDApplicationTestUtil.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDDefaultInteractiveTokenRequestTests : XCTestCase
 
@@ -71,8 +72,11 @@
 
 - (void)tearDown
 {
-    [super tearDown];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+    [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [super tearDown];
 }
 
 #pragma mark - Tests
@@ -247,10 +251,6 @@
 
     MSIDTestURLResponse *wwOidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:wwAuthority];
     [MSIDTestURLSession addResponse:wwOidcResponse];
-
-    NSString *sovereignAuthority = @"https://contoso.onmicrosoft.cn/common";
-    MSIDTestURLResponse *sovereignOidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:sovereignAuthority];
-    [MSIDTestURLSession addResponse:sovereignOidcResponse];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 

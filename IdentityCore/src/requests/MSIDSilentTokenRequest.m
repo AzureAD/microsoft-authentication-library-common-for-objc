@@ -64,6 +64,15 @@
 
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
+    if (!self.requestParameters.accountIdentifier)
+    {
+        MSID_LOG_ERROR(self.requestParameters, @"Account parameter cannot be nil");
+
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil);
+        completionBlock(nil, error);
+        return;
+    }
+
     NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId;
 
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
@@ -83,15 +92,6 @@
 
 - (void)acquireTokenImpl:(MSIDRequestCompletionBlock)completionBlock
 {
-    if (!self.requestParameters.accountIdentifier)
-    {
-        MSID_LOG_ERROR(self.requestParameters, @"Account parameter cannot be nil");
-
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil);
-        completionBlock(nil, error);
-        return;
-    }
-
     if (!self.forceRefresh && ![self.requestParameters.claims count])
     {
         NSError *accessTokenError = nil;
