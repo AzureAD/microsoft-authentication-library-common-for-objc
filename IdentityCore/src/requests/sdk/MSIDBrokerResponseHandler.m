@@ -31,6 +31,8 @@
 #import "MSIDCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDTokenResponseValidator.h"
+#import "MSIDTelemetryBrokerEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @interface MSIDBrokerResponseHandler()
 

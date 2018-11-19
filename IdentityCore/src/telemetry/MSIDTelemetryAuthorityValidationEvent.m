@@ -21,24 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDRequestParameters.h"
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDTelemetryAuthorityValidationEvent.h"
+#import "MSIDAuthority.h"
+#import "MSIDTelemetryEventStrings.h"
 
-@class MSIDTelemetryAPIEvent;
+@implementation MSIDTelemetryAuthorityValidationEvent
 
-typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error);
+- (void)setAuthorityValidationStatus:(NSString *)status
+{
+    [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS value:status];
+}
 
-@interface MSIDBaseRequestController : NSObject
+- (void)setAuthority:(MSIDAuthority *)authority
+{
+    NSString *authorityType = [authority telemetryAuthorityType];
 
-@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) id<MSIDTokenRequestProviding> tokenRequestProvider;
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error;
-
-- (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
-- (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
+    [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY_TYPE value:authorityType];
+    [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY value:authority.url.absoluteString];
+}
 
 @end

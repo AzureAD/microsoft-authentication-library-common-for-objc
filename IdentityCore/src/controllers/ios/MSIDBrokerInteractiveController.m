@@ -32,6 +32,10 @@
 #import "MSIDBrokerResponseHandler.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDKeychainTokenCache.h"
+#import "MSIDTelemetryBrokerEvent.h"
+#import "MSIDTokenResult.h"
+#import "MSIDTelemetryAPIEvent.h"
+#import "MSIDAccount.h"
 
 @interface MSIDBrokerInteractiveController()
 
@@ -57,7 +61,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     if (self)
     {
         _interactiveParameters = parameters;
-        // TODO: verify current behavior of this keychain access group and migration scenarios
         NSString *accessGroup = parameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
         _brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
     }
@@ -91,6 +94,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         return;
     }
 
+    [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
+
     self.requestCompletionBlock = completionBlock;
 
     NSError *brokerError = nil;
@@ -102,6 +107,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         MSID_LOG_ERROR(self.requestParameters, @"Failed to retrieve broker key with error %ld, %@", (long)brokerError.code, brokerError.domain);
         MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to retrieve broker key with error %@", brokerError);
 
+        [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
         completionBlock(nil, brokerError);
         return;
     }
@@ -113,6 +119,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         MSID_LOG_ERROR(self.requestParameters, @"Unable to base64 encode broker key");
 
         NSError *brokerKeyError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to base64 encode broker key", nil, nil, nil, self.requestParameters.correlationId, nil);
+        [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerKeyError];
         completionBlock(nil, brokerKeyError);
         return;
     }
@@ -124,6 +131,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     if (!brokerRequest)
     {
         MSID_LOG_ERROR(self.requestParameters, @"Couldn't create broker request");
+        [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
         completionBlock(nil, brokerError);
         return;
     }
@@ -258,11 +266,29 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 - (BOOL)completeAcquireTokenWithResult:(MSIDTokenResult *)tokenResult error:(NSError *)error
 {
-    // TODO: stop telemetry event
     // TODO: vt handling!
 
     [self.class setCurrentBrokerController:nil];
     [self.class stopTrackingAppState];
+
+    MSIDTelemetryBrokerEvent *brokerEvent = [[MSIDTelemetryBrokerEvent alloc] initWithName:MSID_TELEMETRY_EVENT_LAUNCH_BROKER requestId:self.requestParameters.telemetryRequestId correlationId:self.requestParameters.correlationId];
+
+    if (error)
+    {
+        [brokerEvent setResultStatus:MSID_TELEMETRY_VALUE_FAILED];
+        [brokerEvent setBrokerAppVersion:error.userInfo[MSIDBrokerVersionKey]];
+        [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
+    }
+    else
+    {
+        [brokerEvent setResultStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
+        [brokerEvent setBrokerAppVersion:tokenResult.brokerAppVersion];
+        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+        [telemetryEvent setUserInformation:tokenResult.account];
+        [self stopTelemetryEvent:telemetryEvent error:nil];
+    }
+
+    [[MSIDTelemetry sharedInstance] stopEvent:self.requestParameters.telemetryRequestId event:brokerEvent];
 
     if (self.requestCompletionBlock)
     {
@@ -289,6 +315,22 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     @synchronized ([self class]) {
         return s_currentExecutingController;
     }
+}
+
+#pragma mark - Telemetry
+
+- (MSIDTelemetryAPIEvent *)telemetryAPIEvent
+{
+    MSIDTelemetryAPIEvent *event = [super telemetryAPIEvent];
+
+    if (self.interactiveParameters.loginHint)
+    {
+        [event setLoginHint:self.interactiveParameters.loginHint];
+    }
+
+    [event setPromptType:self.interactiveParameters.promptType];
+
+    return event;
 }
 
 @end

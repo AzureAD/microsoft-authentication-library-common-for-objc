@@ -44,6 +44,7 @@
 #import "MSIDWebMSAuthResponse.h"
 #import "MSIDApplicationTestUtil.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 @interface MSIDDefaultInteractiveTokenRequestTests : XCTestCase
 
@@ -58,6 +59,20 @@
     id<MSIDTokenCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
     MSIDDefaultTokenCacheAccessor *tokenCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:[MSIDAADV2Oauth2Factory new]];
     return tokenCache;
+}
+
+- (void)setUp
+{
+    [super setUp];
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    MSIDKeychainTokenCache *cache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
+    [cache clearWithContext:nil error:nil];
+}
+
+- (void)tearDown
+{
+    [super tearDown];
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
 }
 
 #pragma mark - Tests
@@ -129,6 +144,9 @@
     [MSIDTestURLSession addResponse:response];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -223,6 +241,10 @@
     [MSIDTestURLSession addResponse:response];
 
     NSString *wwAuthority = @"https://login.microsoftonline.com/common";
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:wwAuthority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *wwOidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:wwAuthority];
     [MSIDTestURLSession addResponse:wwOidcResponse];
 
@@ -321,6 +343,10 @@
     [MSIDTestURLSession addResponse:response];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -403,6 +429,9 @@
     [MSIDTestURLSession addResponse:response];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -461,6 +490,10 @@
      }];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -519,6 +552,9 @@
      }];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 
@@ -574,6 +610,9 @@
      }];
 
     NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
 

@@ -38,6 +38,6 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
 
-- (void)acquireTokenWithCompletionHandler:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
 
 @end

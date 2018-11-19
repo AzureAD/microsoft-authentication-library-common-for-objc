@@ -62,7 +62,26 @@
     return self;
 }
 
-- (void)acquireTokenWithCompletionHandler:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
+{
+    NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId;
+
+    [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
+                                       userPrincipalName:upn
+                                                 context:self.requestParameters
+                                         completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+     {
+         if (error)
+         {
+             completionBlock(nil, error);
+             return;
+         }
+
+         [self acquireTokenImpl:completionBlock];
+     }];
+}
+
+- (void)acquireTokenImpl:(MSIDRequestCompletionBlock)completionBlock
 {
     if (!self.requestParameters.accountIdentifier)
     {

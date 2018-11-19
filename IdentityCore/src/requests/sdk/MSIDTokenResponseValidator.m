@@ -145,6 +145,7 @@
         return nil;
     }
 
+    tokenResult.brokerAppVersion = brokerResponse.brokerAppVer;
     return tokenResult;
 }
 
