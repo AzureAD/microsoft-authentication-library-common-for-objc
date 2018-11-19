@@ -41,6 +41,7 @@
 #import "MSIDAADRefreshTokenGrantRequest.h"
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -239,7 +240,7 @@
 
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                      clientId:parameters.clientId
-                                                                                                 enrollmentId:nil // TODO: add enrollment ID handling
+                                                                                                 enrollmentId:nil // TODO: add enrollment ID handling, once it's available in common core
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
@@ -256,15 +257,8 @@
                                                                        developerClaims:parameters.claims];
 
     configuration.claims = claims;
-
-    /*
-
-     TODO: set uid+utid
-
-     config.uid = _parameters.account.homeAccountId.objectId;
-     config.utid = _parameters.account.homeAccountId.tenantId;
-
-     */
+    configuration.uid = parameters.accountIdentifier.uid;
+    configuration.utid = parameters.accountIdentifier.utid;
 
     return configuration;
 }

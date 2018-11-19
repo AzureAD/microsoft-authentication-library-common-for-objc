@@ -177,7 +177,30 @@
 
 - (BOOL)validateParametersWithError:(NSError **)error
 {
-    // TODO: validate
+    if (!self.authority)
+    {
+        MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing authority parameter", self.correlationId);
+        return NO;
+    }
+
+    if (!self.redirectUri)
+    {
+        MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing redirectUri parameter", self.correlationId);
+        return NO;
+    }
+
+    if (!self.clientId)
+    {
+        MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing clientId parameter", self.correlationId);
+        return NO;
+    }
+
+    if (!self.target)
+    {
+        MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing target parameter", self.correlationId);
+        return NO;
+    }
+
     return YES;
 }
 
