@@ -273,7 +273,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
     // TODO: vt handling for older broker (not necessary for MSAL, so can come later)
 
-    [self.class setCurrentBrokerController:nil];
     [self.class stopTrackingAppState];
 
     MSIDTelemetryBrokerEvent *brokerEvent = [[MSIDTelemetryBrokerEvent alloc] initWithName:MSID_TELEMETRY_EVENT_LAUNCH_BROKER requestId:self.requestParameters.telemetryRequestId correlationId:self.requestParameters.correlationId];
@@ -297,13 +296,23 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     if (self.requestCompletionBlock)
     {
-        MSIDRequestCompletionBlock requestCompletion = [self.requestCompletionBlock copy];
-        self.requestCompletionBlock = nil;
+        MSIDRequestCompletionBlock requestCompletion = [self copyAndClearCompletionBlock];
         requestCompletion(tokenResult, error);
+        [self.class setCurrentBrokerController:nil];
         return YES;
     }
 
+    [self.class setCurrentBrokerController:nil];
     return NO;
+}
+
+- (MSIDRequestCompletionBlock)copyAndClearCompletionBlock
+{
+    @synchronized (self) {
+        MSIDRequestCompletionBlock completionBlock = [self.requestCompletionBlock copy];
+        self.requestCompletionBlock = completionBlock;
+        return completionBlock;
+    }
 }
 
 #pragma mark - Current controller
