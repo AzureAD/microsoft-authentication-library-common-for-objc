@@ -36,7 +36,7 @@
 + (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
                                                         forceRefresh:(BOOL)forceRefresh
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError *_Nullable *_Nullable)error
+                                                               error:(NSError * _Nullable * _Nullable)error
 {
     return [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                       forceRefresh:forceRefresh
@@ -46,7 +46,7 @@
 
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                                    error:(NSError *_Nullable *_Nullable)error
+                                                                    error:(NSError * _Nullable * _Nullable)error
 {
     id<MSIDRequestControlling> interactiveController = [self platformInteractiveController:parameters
                                                                       tokenRequestProvider:tokenRequestProvider
@@ -66,7 +66,7 @@
 
 + (nullable id<MSIDRequestControlling>)platformInteractiveController:(nonnull MSIDInteractiveRequestParameters *)parameters
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError *_Nullable *_Nullable)error
+                                                               error:(NSError * _Nullable * _Nullable)error
 {
 #if TARGET_OS_IPHONE
     if ([self canUseBrokerOnDeviceWithParameters:parameters])

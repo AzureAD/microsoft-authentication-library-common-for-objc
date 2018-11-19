@@ -36,7 +36,7 @@ typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error)
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error;
+                                             error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
 - (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;

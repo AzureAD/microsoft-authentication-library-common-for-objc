@@ -29,7 +29,7 @@
 
 - (nullable NSDictionary *)decryptBrokerResponse:(nonnull NSDictionary *)response
                                    correlationId:(nullable NSUUID *)correlationId
-                                           error:(NSError *_Nullable *_Nullable)error;
+                                           error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable NSData *)decryptData:(nonnull NSData *)response
                  protocolVersion:(NSUInteger)version;

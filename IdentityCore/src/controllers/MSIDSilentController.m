@@ -44,7 +44,7 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error
+                                             error:(NSError * _Nullable * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
@@ -62,7 +62,7 @@
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                      fallbackInteractiveController:(nullable id<MSIDRequestControlling>)fallbackController
-                                             error:(NSError *_Nullable *_Nullable)error
+                                             error:(NSError * _Nullable * _Nullable)error
 {
     self = [self initWithRequestParameters:parameters forceRefresh:forceRefresh tokenRequestProvider:tokenRequestProvider error:error];
 

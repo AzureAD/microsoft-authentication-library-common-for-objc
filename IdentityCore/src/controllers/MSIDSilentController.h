@@ -30,12 +30,12 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error;
+                                             error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                      fallbackInteractiveController:(nullable id<MSIDRequestControlling>)fallbackController
-                                             error:(NSError *_Nullable *_Nullable)error;
+                                             error:(NSError * _Nullable * _Nullable)error;
 
 @end

@@ -40,7 +40,7 @@
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error
+                                             error:(NSError * _Nullable * _Nullable)error
 {
     self = [super init];
 
