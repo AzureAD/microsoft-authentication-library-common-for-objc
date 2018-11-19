@@ -89,7 +89,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
     if ([self.class currentBrokerController])
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker authentication already in progress", nil, nil, nil, self.requestParameters.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Broker authentication already in progress", nil, nil, nil, self.requestParameters.correlationId, nil);
         completionBlock(nil, error);
         return;
     }
@@ -193,7 +193,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         return [currentBrokerController completeAcquireTokenWithResult:result error:resultError];
     }
 
-    return YES;
+    return result != nil;
 }
 
 #pragma mark - Notifications
