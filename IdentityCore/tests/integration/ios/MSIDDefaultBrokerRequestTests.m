@@ -64,7 +64,7 @@
                                       @"extra_consent_scopes" : @"",
                                       @"scope" : @"myscope1 myscope2",
                                       @"prompt" : @"select_account",
-                                      @"msg_protocol_ver": @"3",
+                                      @"msg_protocol_ver" : @"3",
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -73,13 +73,13 @@
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
-    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
-                                               @"client_id": @"my_client_id",
-                                               @"correlation_id": [parameters.correlationId UUIDString],
-                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
-                                               @"keychain_group": @"com.microsoft.mygroup",
+    NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id" : @"my_client_id",
+                                               @"correlation_id" : [parameters.correlationId UUIDString],
+                                               @"redirect_uri" : @"my-redirect://com.microsoft.test",
+                                               @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
-                                               @"scope": @"myscope1 myscope2"
+                                               @"scope" : @"myscope1 myscope2"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -111,7 +111,7 @@
                                       @"extra_consent_scopes" : @"",
                                       @"scope" : @"myscope1 myscope2",
                                       @"prompt" : @"select_account",
-                                      @"msg_protocol_ver": @"3",
+                                      @"msg_protocol_ver" : @"3",
                                       @"login_hint" : @"",
                                       //if account set, both of the following should be set
                                       @"home_account_id" : @"myHomeAccountId",
@@ -125,13 +125,13 @@
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
-    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
-                                               @"client_id": @"my_client_id",
-                                               @"correlation_id": [parameters.correlationId UUIDString],
-                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
-                                               @"keychain_group": @"com.microsoft.mygroup",
+    NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id" : @"my_client_id",
+                                               @"correlation_id" : [parameters.correlationId UUIDString],
+                                               @"redirect_uri" : @"my-redirect://com.microsoft.test",
+                                               @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
-                                               @"scope": @"myscope1 myscope2"
+                                               @"scope" : @"myscope1 myscope2"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -163,7 +163,7 @@
                                       @"extra_consent_scopes" : @"",
                                       @"scope" : @"myscope1 myscope2",
                                       @"prompt" : @"select_account",
-                                      @"msg_protocol_ver": @"3",
+                                      @"msg_protocol_ver" : @"3",
                                       @"home_account_id" : @"",
                                       @"username" : @"",
                                       //login hint should be set
@@ -177,13 +177,13 @@
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
-    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
-                                               @"client_id": @"my_client_id",
-                                               @"correlation_id": [parameters.correlationId UUIDString],
-                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
-                                               @"keychain_group": @"com.microsoft.mygroup",
+    NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id" : @"my_client_id",
+                                               @"correlation_id" : [parameters.correlationId UUIDString],
+                                               @"redirect_uri" : @"my-redirect://com.microsoft.test",
+                                               @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
-                                               @"scope": @"myscope1 myscope2"
+                                               @"scope" : @"myscope1 myscope2"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -214,7 +214,7 @@
                                       @"claims" : @"",
                                       @"scope" : @"myscope1 myscope2",
                                       @"prompt" : @"select_account",
-                                      @"msg_protocol_ver": @"3",
+                                      @"msg_protocol_ver" : @"3",
                                       @"home_account_id" : @"",
                                       @"username" : @"",
                                       @"login_hint" : @"",
@@ -228,13 +228,13 @@
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
-    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
-                                               @"client_id": @"my_client_id",
-                                               @"correlation_id": [parameters.correlationId UUIDString],
-                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
-                                               @"keychain_group": @"com.microsoft.mygroup",
+    NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id" : @"my_client_id",
+                                               @"correlation_id" : [parameters.correlationId UUIDString],
+                                               @"redirect_uri" : @"my-redirect://com.microsoft.test",
+                                               @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
-                                               @"scope": @"myscope1 myscope2"
+                                               @"scope" : @"myscope1 myscope2"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);

@@ -23,6 +23,11 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
+#import "MSIDCacheAccessor.h"
+#import "MSIDCredentialType.h"
+#import "MSIDLegacyAccessToken.h"
+#import "MSIDLegacyRefreshToken.h"
+#import "MSIDIdToken.h"
 
 @implementation MSIDKeychainTokenCache (MSIDTestUtil)
 
@@ -32,6 +37,52 @@
     [self deleteAllKeysForSecClass:kSecClassCertificate];
     [self deleteAllKeysForSecClass:kSecClassKey];
     [self deleteAllKeysForSecClass:kSecClassIdentity];
+}
+
++ (NSArray *)getAllLegacyAccessTokens:(id<MSIDCacheAccessor>)cacheAccessor
+{
+    return [self getAllTokens:cacheAccessor type:MSIDAccessTokenType class:MSIDLegacyAccessToken.class];
+}
+
++ (NSArray *)getAllLegacyRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor
+{
+    return [self getAllTokens:cacheAccessor type:MSIDRefreshTokenType class:MSIDLegacyRefreshToken.class];
+}
+
++ (NSArray *)getAllDefaultAccessTokens:(id<MSIDCacheAccessor>)cacheAccessor
+{
+    return [self getAllTokens:cacheAccessor type:MSIDAccessTokenType class:MSIDAccessToken.class];
+}
+
++ (NSArray *)getAllDefaultRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor
+{
+    return [self getAllTokens:cacheAccessor type:MSIDRefreshTokenType class:MSIDRefreshToken.class];
+}
+
++ (NSArray *)getAllIdTokens:(id<MSIDCacheAccessor>)cacheAccessor
+{
+    return [self getAllTokens:cacheAccessor type:MSIDIDTokenType class:MSIDIdToken.class];
+}
+
++ (NSArray *)getAllTokens:(id<MSIDCacheAccessor>)cacheAccessor type:(MSIDCredentialType)type class:(Class)typeClass
+{
+    NSError *error = nil;
+    
+    NSArray *allTokens = [cacheAccessor allTokensWithContext:nil error:&error];
+    if (error) return nil;
+    
+    NSMutableArray *results = [NSMutableArray array];
+    
+    for (MSIDBaseToken *token in allTokens)
+    {
+        if (token.credentialType == type
+            && [token isKindOfClass:typeClass])
+        {
+            [results addObject:token];
+        }
+    }
+    
+    return results;
 }
 
 #pragma mark - Private

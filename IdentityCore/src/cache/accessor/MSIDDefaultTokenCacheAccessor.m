@@ -100,13 +100,30 @@
                              context:(id<MSIDRequestContext>)context
                                error:(NSError *__autoreleasing *)error
 {
-    // MSAL currently doesn't yet support broker
-    if (error)
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
+    
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:response.authority]
+                                                           context:context error:error];
+    
+    if (!authority) return NO;
+    
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:nil
+                                                                           clientId:response.clientId
+                                                                             target:response.target];
+    
+    if (saveSSOStateOnly)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"MSAL currently doesn't yet support broker", nil, nil, nil, nil, nil);
+        return [self saveSSOStateWithConfiguration:configuration
+                                          response:response.tokenResponse
+                                           context:context
+                                             error:error];
     }
-
-    return NO;
+    
+    return [self saveTokensWithConfiguration:configuration
+                                    response:response.tokenResponse
+                                     context:context
+                                       error:error];
 }
 
 - (BOOL)saveSSOStateWithConfiguration:(MSIDConfiguration *)configuration

@@ -377,39 +377,6 @@
     XCTAssertEqual([allAccounts count], 0);
 }
 
-
-- (void)testSaveTokensWithFactoryAndBrokerResponse_shouldFailWithUnsupportedError
-{
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"upn@test.com" subject:@"subject" givenName:@"Hello" familyName:@"World" name:@"Hello World" version:@"2.0" tid:@"tenantId.onmicrosoft.com"];
-
-    NSString *clientInfoString = [@{ @"uid" : @"uid", @"utid" : @"utid"} msidBase64UrlJson];
-
-    NSDictionary *responseDictionary = @{@"access_token": @"access token",
-                                         @"refresh_token": @"refresh token",
-                                         @"resource": @"graph resource",
-                                         @"token_type": @"Bearer",
-                                         @"expires_in": @"3600",
-                                         @"client_info": clientInfoString,
-                                         @"id_token": idToken,
-                                         @"client_id": @"test_client_id",
-                                         @"authority": @"https://login.microsoftonline.com/common"
-                                         };
-
-    NSError *error = nil;
-    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:responseDictionary error:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(brokerResponse);
-
-    BOOL result = [_defaultAccessor saveTokensWithBrokerResponse:brokerResponse
-                                                saveSSOStateOnly:NO
-                                                         context:nil
-                                                           error:&error];
-
-    XCTAssertFalse(result);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorUnsupportedFunctionality);
-}
-
 - (void)testSaveTokens_withNoHomeAccountIdForDefaultFormat_shouldReturnNoAndFillError
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"upn@test.com" subject:@"subject" givenName:@"Hello" familyName:@"World" name:@"Hello World" version:@"2.0" tid:@"tenantId.onmicrosoft.com"];

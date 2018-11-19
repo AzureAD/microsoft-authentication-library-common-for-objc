@@ -38,7 +38,10 @@ MSID_FORM_ACCESSOR(@"scope", scope);
     if (self)
     {
         NSString *errorMetadataJSON = form[@"error_metadata"];
-        _errorMetadata = [NSDictionary msidDictionaryFromJsonData:[errorMetadataJSON dataUsingEncoding:NSUTF8StringEncoding] error:nil];
+        if (errorMetadataJSON)
+        {
+            _errorMetadata = [NSDictionary msidDictionaryFromJsonData:[errorMetadataJSON dataUsingEncoding:NSUTF8StringEncoding] error:nil];
+        }
     }
 
     return self;

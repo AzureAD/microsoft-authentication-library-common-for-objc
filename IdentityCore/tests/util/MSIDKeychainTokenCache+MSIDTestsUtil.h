@@ -22,9 +22,19 @@
 // THE SOFTWARE.
 
 #import "MSIDKeychainTokenCache.h"
+#import "MSIDCredentialType.h"
+
+@protocol MSIDCacheAccessor;
 
 @interface MSIDKeychainTokenCache (MSIDTestUtil)
 
 + (void)reset;
 
++ (NSArray *)getAllLegacyAccessTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllLegacyRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllDefaultAccessTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllDefaultRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllIdTokens:(id<MSIDCacheAccessor>)cacheAccessor;
+
++ (NSArray *)getAllTokens:(id<MSIDCacheAccessor>)cacheAccessor type:(MSIDCredentialType)type class:(Class)typeClass;
 @end

@@ -53,7 +53,8 @@
                                 @"http_headers" : MSIDHTTPHeadersKey,
                                 @"http_response_code" : MSIDHTTPResponseCodeKey,
                                 @"declined_scopes" : MSIDDeclinedScopesKey,
-                                @"granted_scopes" : MSIDGrantedScopesKey
+                                @"granted_scopes" : MSIDGrantedScopesKey,
+                                @"x-broker-app-ver" : MSIDBrokerVersionKey,
                                 };
     }
     
@@ -80,14 +81,24 @@
     NSString *userDisplayableId = nil;
     if (decryptedResponse[@"additional_tokens"])
     {
+        MSIDTokenResult *tokenResult = nil;
         NSError *additionalTokensError = nil;
-        MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:decryptedResponse[@"additional_tokens"] error:&additionalTokensError];
         
-        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
-                                                                                     oauthFactory:self.oauthFactory
-                                                                                       tokenCache:self.tokenCache
-                                                                                    correlationID:correlationID
-                                                                                            error:&additionalTokensError];
+        NSDictionary *additionalTokensDict = [decryptedResponse[@"additional_tokens"] msidJson];
+        if (additionalTokensDict)
+        {
+            MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:additionalTokensDict error:&additionalTokensError];
+            
+            tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
+                                                                                         oauthFactory:self.oauthFactory
+                                                                                           tokenCache:self.tokenCache
+                                                                                        correlationID:correlationID
+                                                                                                error:&additionalTokensError];
+        }
+        else
+        {
+            additionalTokensError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerCorruptedResponse, @"Unable to parse additional tokens.", nil, nil, nil, nil, nil);
+        }
         
         if (!tokenResult)
         {
@@ -183,7 +194,7 @@
     
     if (errorResponse.brokerAppVer)
     {
-        userInfo[@"x-broker-app-ver"] = errorResponse.brokerAppVer;
+        userInfo[MSIDBrokerVersionKey] = errorResponse.brokerAppVer;
     }
 
     NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, subError, nil, correlationId, userInfo);
