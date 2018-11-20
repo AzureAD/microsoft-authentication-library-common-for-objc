@@ -58,7 +58,7 @@
 
             additionalUserInfo[MSIDDeclinedScopesKey] = [declinedScopeSet array];
 
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerDeclinedScopes, @"Server returned less scopes than requested", nil, nil, nil, nil, additionalUserInfo);
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerDeclinedScopes, @"Server returned less scopes than requested", nil, nil, nil, nil, additionalUserInfo);
         }
 
         return NO;

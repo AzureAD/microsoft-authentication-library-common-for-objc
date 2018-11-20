@@ -90,7 +90,11 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorInternal),
                       @(MSIDErrorInvalidInternalParameter),
                       @(MSIDErrorInvalidDeveloperParameter),
+                      @(MSIDErrorMissingAccountParameter),
                       @(MSIDErrorUnsupportedFunctionality),
+                      @(MSIDErrorInteractionRequired),
+                      @(MSIDErrorServerNonHttpsRedirect),
+                      @(MSIDErrorMismatchedAccount),
                       
                       // Cache Errors
                       @(MSIDErrorCacheMultipleUsers),
@@ -98,16 +102,33 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       
                       // Authority Validation Errors
                       @(MSIDErrorAuthorityValidation),
+                      @(MSIDErrorAuthorityValidationWebFinger),
                       
                       // Interactive flow errors
                       @(MSIDErrorUserCancel),
                       @(MSIDErrorSessionCanceledProgrammatically),
                       @(MSIDErrorInteractiveSessionStartFailure),
                       @(MSIDErrorInteractiveSessionAlreadyRunning),
-                      @(MSIDErrorNoMainViewController)
+                      @(MSIDErrorNoMainViewController),
+                      @(MSIDErrorServerInvalidResponse),
+                      @(MSIDErrorAttemptToOpenURLFromExtension),
+                      @(MSIDErrorUINotSupportedInExtension),
+
+                      // Broker errors
+                      @(MSIDErrorBrokerResponseNotReceived),
+                      @(MSIDErrorBrokerNoResumeStateFound),
+                      @(MSIDErrorBrokerBadResumeStateFound),
+                      @(MSIDErrorBrokerMismatchedResumeState),
+                      @(MSIDErrorBrokerResponseHashMissing),
+                      @(MSIDErrorBrokerCorruptedResponse),
+                      @(MSIDErrorBrokerResponseDecryptionFailed),
+                      @(MSIDErrorBrokerResponseHashMismatch),
+                      @(MSIDErrorBrokerKeyFailedToCreate),
+                      @(MSIDErrorBrokerKeyNotFound),
+                      @(MSIDErrorBrokerUnknown)
+
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
-                      @(MSIDErrorInteractionRequired),
                       @(MSIDErrorServerOauth),
                       @(MSIDErrorServerInvalidResponse),
                       @(MSIDErrorServerRefreshTokenRejected),
@@ -115,10 +136,11 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorServerInvalidClient),
                       @(MSIDErrorServerInvalidGrant),
                       @(MSIDErrorServerInvalidScope),
+                      @(MSIDErrorServerUnauthorizedClient),
+                      @(MSIDErrorServerDeclinedScopes),
                       @(MSIDErrorServerInvalidState),
-                      @(MSIDErrorServerNonHttpsRedirect),
                       @(MSIDErrorServerProtectionPoliciesRequired),
-                      @(MSIDErrorAuthorizationFailed)
+                      @(MSIDErrorAuthorizationFailed),
                       ],
               MSIDHttpErrorCodeDomain : @[
                       @(MSIDErrorServerUnhandledResponse)

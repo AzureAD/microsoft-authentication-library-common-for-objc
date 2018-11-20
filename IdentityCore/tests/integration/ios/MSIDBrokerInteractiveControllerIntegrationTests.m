@@ -518,7 +518,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
         XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
-        XCTAssertEqualObjects(telemetryEvent[@"api_error_code"], @"-51831");
+        XCTAssertEqualObjects(telemetryEvent[@"api_error_code"], @"-51800");
         XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDErrorDomain);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
@@ -615,7 +615,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
         XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
-        XCTAssertEqualObjects(telemetryEvent[@"api_error_code"], @"-51831");
+        XCTAssertEqualObjects(telemetryEvent[@"api_error_code"], @"-51800");
         XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDErrorDomain);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
