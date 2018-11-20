@@ -62,7 +62,7 @@
                                       @"login_hint" : @"",
                                       @"home_account_id" : @"",
                                       @"extra_consent_scopes" : @"",
-                                      @"scope" : @"myscope1 myscope2",
+                                      @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
                                       };
@@ -109,7 +109,7 @@
                                       @"client_app_version" : @"1.0",
                                       @"claims" : @"",
                                       @"extra_consent_scopes" : @"",
-                                      @"scope" : @"myscope1 myscope2",
+                                      @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
                                       @"login_hint" : @"",
@@ -161,7 +161,7 @@
                                       @"client_app_version" : @"1.0",
                                       @"claims" : @"",
                                       @"extra_consent_scopes" : @"",
-                                      @"scope" : @"myscope1 myscope2",
+                                      @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
                                       @"home_account_id" : @"",
@@ -212,7 +212,7 @@
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
                                       @"claims" : @"",
-                                      @"scope" : @"myscope1 myscope2",
+                                      @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
                                       @"home_account_id" : @"",
@@ -253,6 +253,7 @@
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
     parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
     parameters.promptType = @"select_account";
+    parameters.oidcScope = @"oidcscope1 oidcscope2";
     return parameters;
 }
 

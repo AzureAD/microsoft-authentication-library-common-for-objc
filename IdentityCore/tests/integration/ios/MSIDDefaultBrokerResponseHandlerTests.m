@@ -106,6 +106,7 @@
       @"client_id" : @"my_client_id",
       @"id_token" : idTokenString,
       @"client_info" : rawClientInfo,
+      @"home_account_id" : @"1.1234-5678-90abcdefg",
       @"access_token" : @"i-am-a-access-token",
       @"token_type" : @"Bearer",
       @"refresh_token" : @"i-am-a-refresh-token",
@@ -139,13 +140,9 @@
     XCTAssertTrue([extExpiresOn timeIntervalSinceDate:result.accessToken.extendedExpireTime] < 1);
     
     XCTAssertEqualObjects(result.rawIdToken, idTokenString);
-    //Question:
-    //Should authority of MSIDTokenResult also be @"https://login.microsoftonline.com/contoso.com-guid"?
     XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(result.correlationId.UUIDString, correlationId);
-    //Question:
-    //We never set the following property of MSIResult, do we want to set it or remove it
-    //XCTAssertEqual(result.extendedLifeTimeToken, YES);
+    XCTAssertEqual(result.extendedLifeTimeToken, NO);
     
     XCTAssertTrue([result.tokenResponse isKindOfClass:[MSIDAADV2TokenResponse class]]);
     MSIDAADV2TokenResponse *tokenResponse = (MSIDAADV2TokenResponse *)result.tokenResponse;
@@ -215,8 +212,6 @@
       @"error_description" : @"Error occured",
       @"oauth_error" : @"invalid_grant",
       @"oauth_sub_error" : @"consent_required",
-      @"declined_scopes" : @"decliendScope1 decliendScope2",
-      @"granted_scopes" : @"grantedScope1 grantedScope2",
       @"user_id" : @"user@contoso.com",
       };
     NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
@@ -249,8 +244,6 @@
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Error occured");
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"consent_required");
-    XCTAssertEqualObjects(error.userInfo[MSIDDeclinedScopesKey], @"decliendScope1 decliendScope2");
-    XCTAssertEqualObjects(error.userInfo[MSIDGrantedScopesKey], @"grantedScope1 grantedScope2");
     XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"user@contoso.com");
 }
 

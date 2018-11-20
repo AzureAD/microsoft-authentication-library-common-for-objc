@@ -52,8 +52,6 @@
                                 @"correlation_id" : MSIDCorrelationIdKey,
                                 @"http_headers" : MSIDHTTPHeadersKey,
                                 @"http_response_code" : MSIDHTTPResponseCodeKey,
-                                @"declined_scopes" : MSIDDeclinedScopesKey,
-                                @"granted_scopes" : MSIDGrantedScopesKey,
                                 @"x-broker-app-ver" : MSIDBrokerVersionKey,
                                 };
     }
@@ -89,11 +87,14 @@
         {
             MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:additionalTokensDict error:&additionalTokensError];
             
-            tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
-                                                                                         oauthFactory:self.oauthFactory
-                                                                                           tokenCache:self.tokenCache
-                                                                                        correlationID:correlationID
-                                                                                                error:&additionalTokensError];
+            if (!additionalTokensError)
+            {
+                tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
+                                                                            oauthFactory:self.oauthFactory
+                                                                              tokenCache:self.tokenCache
+                                                                           correlationID:correlationID
+                                                                                   error:&additionalTokensError];
+            }
         }
         else
         {
@@ -157,7 +158,7 @@
 - (NSError *)resultFromBrokerErrorResponse:(MSIDAADV2BrokerResponse *)errorResponse
                          userDisplayableId:(NSString *)userId
 {
-    NSString *errorDomain = errorResponse.errorDomain ?: MSIDErrorDomain;
+    NSString *errorDomain = errorResponse.errorDomain;
     
     NSString *errorCodeString = errorResponse.errorCode;
     NSInteger errorCode = MSIDErrorBrokerUnknown;
@@ -176,8 +177,9 @@
     NSString *subError = errorResponse.subError;
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:errorResponse.correlationId];
     
+    //Add string-type error metadata to userInfo
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    for (NSString * metadataKey in errorResponse.errorMetadata.allKeys)
+    for (NSString *metadataKey in errorResponse.errorMetadata.allKeys)
     {
         NSString *userInfokey = _userInfoKeyMapping[metadataKey];
         if (userInfokey)
@@ -188,14 +190,12 @@
 
     userInfo[MSIDUserDisplayableIdkey] = errorResponse.userId ? errorResponse.userId : userId;
 
+    //Special handling for non-string error metadata
     NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:errorResponse.httpHeaders];
     if (httpHeaders)
         userInfo[MSIDHTTPHeadersKey] = httpHeaders;
     
-    if (errorResponse.brokerAppVer)
-    {
-        userInfo[MSIDBrokerVersionKey] = errorResponse.brokerAppVer;
-    }
+    userInfo[MSIDBrokerVersionKey] = errorResponse.brokerAppVer;
 
     NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, subError, nil, correlationId, userInfo);
     

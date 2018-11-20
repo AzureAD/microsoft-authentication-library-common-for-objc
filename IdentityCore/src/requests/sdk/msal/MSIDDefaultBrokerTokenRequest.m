@@ -35,7 +35,7 @@
     
     NSDictionary *contents =
     @{
-      @"scope": self.requestParameters.target ?: @"",
+      @"scope": self.requestParameters.allTokenRequestScopes ?: @"",
       @"home_account_id": homeAccountId ?: @"",
       @"username": username ?: @"",
       @"login_hint": self.requestParameters.loginHint ?: @"",
