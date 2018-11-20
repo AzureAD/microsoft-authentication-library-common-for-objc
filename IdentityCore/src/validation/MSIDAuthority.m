@@ -151,6 +151,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                               legacyUserId:(NSString *)legacyUserId
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
 {
     return nil;
 }

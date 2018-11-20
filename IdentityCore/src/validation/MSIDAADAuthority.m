@@ -194,11 +194,13 @@
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                               legacyUserId:(NSString *)legacyUserId
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
 {
     return [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:homeAccountId
                                                                        legacyUserId:legacyUserId
-                                                                            context:nil
-                                                                              error:nil];
+                                                                            context:context
+                                                                              error:error];
 }
 
 - (nonnull NSString *)telemetryAuthorityType

@@ -147,18 +147,18 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     NSString *enrollmentId = nil;
     
     // If homeAccountID is provided, try to match by it first.
-    if (homeAccountId != nil)
+    if (homeAccountId)
     {
         enrollmentId = [self enrollmentIdForHomeAccountId:homeAccountId context:context error:error];
     }
-    if (enrollmentId != nil)
+    if (enrollmentId)
     {
         return enrollmentId;
     }
     
     // If legacy userID is provided, try to match by userID.
     enrollmentId = legacyUserId ? [self enrollmentIdForUserId:legacyUserId context:context error:error] : nil;
-    if (enrollmentId != nil)
+    if (enrollmentId)
     {
         return enrollmentId;
     }
