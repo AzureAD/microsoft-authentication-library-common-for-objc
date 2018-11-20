@@ -102,6 +102,11 @@
 
     [additionalInfo setValue:[NSString stringWithFormat: @"%ld", (long)httpResponse.statusCode]
                       forKey:MSIDHTTPResponseCodeKey];
+
+    if (httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599)
+    {
+        [additionalInfo setValue:@1 forKey:MSIDServerUnavailableStatusKey];
+    }
     
     NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, nil, nil, nil, context.correlationId, additionalInfo);
     

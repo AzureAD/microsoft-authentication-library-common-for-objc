@@ -59,6 +59,11 @@ extern NSString *MSIDDeclinedScopesKey;
  */
 extern NSString *MSIDGrantedScopesKey;
 
+/*!
+ This flag will be set if server is unavailable
+ */
+extern NSString *MSIDServerUnavailableStatusKey;
+
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
     /*!

@@ -295,7 +295,9 @@
 
         if (error)
         {
-            if ([self isServerUnavailable:error] && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
+            BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
+
+            if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
             {
                 NSError *cacheError = nil;
                 MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken error:&cacheError];
@@ -325,17 +327,6 @@
 
         completionBlock(tokenResult, nil);
     }];
-}
-
-- (BOOL)isServerUnavailable:(NSError *)error
-{
-    if (![error.domain isEqualToString:MSIDHttpErrorCodeDomain])
-    {
-        return NO;
-    }
-
-    NSInteger responseCode = [[error.userInfo objectForKey:MSIDHTTPResponseCodeKey] intValue];
-    return error.code == MSIDErrorServerUnhandledResponse && responseCode >= 500 && responseCode <= 599;
 }
 
 #pragma mark - Abstract
