@@ -140,27 +140,32 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
-                                    legacyUserId:(NSString *)legacyUserId
+                              legacyUserId:(NSString *)legacyUserId
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error
 {
-    if (homeAccountId)
+    NSString *enrollmentId = nil;
+    
+    // If homeAccountID is provided, try to match by it first.
+    if (homeAccountId != nil)
     {
-        // If homeAccountID is provided, always require an exact match
-        return [self enrollmentIdForUserId:homeAccountId context:context error:error];
+        enrollmentId = [self enrollmentIdForHomeAccountId:homeAccountId context:context error:error];
     }
-    else
+    if (enrollmentId != nil)
     {
-        // If legacy userID is provided and we didn't find an exact match, do a fallback to any enrollment ID to support no userID or single userID scenarios
-        NSString *enrollmentID = legacyUserId ? [self enrollmentIdForUserId:legacyUserId context:context error:error] : nil;
-        if (enrollmentID)
-        {
-            return enrollmentID;
-        }
-        
-        enrollmentID = [self enrollmentIdIfAvailableWithContext:context error:error];
-        return enrollmentID;
+        return enrollmentId;
     }
+    
+    // If legacy userID is provided, try to match by userID.
+    enrollmentId = legacyUserId ? [self enrollmentIdForUserId:legacyUserId context:context error:error] : nil;
+    if (enrollmentId != nil)
+    {
+        return enrollmentId;
+    }
+    
+    // If we haven't found an exact match yet, fallback to any enrollment ID to support no userID or single userID scenarios.
+    enrollmentId = [self enrollmentIdIfAvailableWithContext:context error:error];
+    return enrollmentId;
 }
 
 - (NSString *)enrollmentIdIfAvailableWithContext:(id<MSIDRequestContext>)context

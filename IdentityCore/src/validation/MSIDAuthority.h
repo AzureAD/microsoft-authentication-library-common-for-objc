@@ -69,7 +69,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (nonnull NSArray<NSString *> *)defaultCacheEnvironmentAliases;
 
-- (nullable NSString *)enrollmentIdForHomeAccountId:(nullable NSString *)homeAccountId;
+- (nullable NSString *)enrollmentIdForHomeAccountId:(nullable NSString *)homeAccountId
+                                       legacyUserId:(nullable NSString *)legacyUserId;
 
 - (BOOL)isKnown;
 
