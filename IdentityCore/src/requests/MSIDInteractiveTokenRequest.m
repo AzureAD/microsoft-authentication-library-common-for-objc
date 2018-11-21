@@ -198,9 +198,12 @@
             break;
     }
 
-    [self showSystemWebViewWithSession:useSession
-             allowSafariViewController:allowSafariViewController
-                            completion:completionHandler];
+    [MSIDWebviewAuthorization startSystemWebviewAuthWithConfiguration:self.webViewConfiguration
+                                                        oauth2Factory:self.oauthFactory
+                                             useAuthenticationSession:useSession
+                                            allowSafariViewController:allowSafariViewController
+                                                              context:self.requestParameters
+                                                    completionHandler:completionHandler];
 #else
     [self showEmbeddedWebviewWithCompletion:completionHandler];
 #endif
@@ -213,18 +216,6 @@
                                                                 webview:self.requestParameters.customWebview
                                                                 context:self.requestParameters
                                                       completionHandler:completionHandler];
-}
-
-- (void)showSystemWebViewWithSession:(BOOL)useAuthSession
-           allowSafariViewController:(BOOL)allowSafariViewController
-                          completion:(MSIDWebviewAuthCompletionHandler)completionHandler
-{
-    [MSIDWebviewAuthorization startSystemWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                        oauth2Factory:self.oauthFactory
-                                             useAuthenticationSession:useAuthSession
-                                            allowSafariViewController:allowSafariViewController
-                                                              context:self.requestParameters
-                                                    completionHandler:completionHandler];
 }
 
 #pragma mark - Helpers
