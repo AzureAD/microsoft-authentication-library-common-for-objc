@@ -31,10 +31,6 @@ NSString *const MSID_INTUNE_TID = @"tid";
 NSString *const MSID_INTUNE_OID = @"oid";
 NSString *const MSID_INTUNE_HOME_ACCOUNT_ID = @"home_account_id";
 
-#define MSID_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
-#define MSID_INTUNE_ENROLLMENT_ID_VERSION @"1"
-#define MSID_INTUNE_ENROLLMENT_ID_KEY (MSID_INTUNE_ENROLLMENT_ID MSID_INTUNE_ENROLLMENT_ID_VERSION)
-
 static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 @interface MSIDIntuneEnrollmentIdsCache()
@@ -150,22 +146,24 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     if (homeAccountId)
     {
         enrollmentId = [self enrollmentIdForHomeAccountId:homeAccountId context:context error:error];
-    }
-    if (enrollmentId)
-    {
-        return enrollmentId;
+        if (enrollmentId)
+        {
+            return enrollmentId;
+        }
     }
     
     // If legacy userID is provided, try to match by userID.
-    enrollmentId = legacyUserId ? [self enrollmentIdForUserId:legacyUserId context:context error:error] : nil;
-    if (enrollmentId)
+    if (legacyUserId)
     {
-        return enrollmentId;
+        enrollmentId = [self enrollmentIdForUserId:legacyUserId context:context error:error];
+        if (enrollmentId)
+        {
+            return enrollmentId;
+        }
     }
     
     // If we haven't found an exact match yet, fallback to any enrollment ID to support no userID or single userID scenarios.
-    enrollmentId = [self enrollmentIdIfAvailableWithContext:context error:error];
-    return enrollmentId;
+    return [self enrollmentIdIfAvailableWithContext:context error:error];
 }
 
 - (NSString *)enrollmentIdIfAvailableWithContext:(id<MSIDRequestContext>)context
