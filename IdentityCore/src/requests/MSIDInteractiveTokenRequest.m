@@ -67,7 +67,6 @@
         _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
         _tokenCache = tokenCache;
-        _webViewConfiguration = [self.oauthFactory.webviewFactory webViewConfigurationWithRequestParameters:parameters];
     }
 
     return self;
@@ -167,6 +166,8 @@
             return;
         }
     };
+
+    self.webViewConfiguration = [self.oauthFactory.webviewFactory webViewConfigurationWithRequestParameters:self.requestParameters];
 
     if (self.requestParameters.useEmbeddedWebView)
     {
