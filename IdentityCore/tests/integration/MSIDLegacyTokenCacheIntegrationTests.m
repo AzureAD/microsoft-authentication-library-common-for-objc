@@ -41,6 +41,7 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDTestCacheAccessorHelper.h"
 
 @interface MSIDLegacyTokenCacheTests : XCTestCase
 {
@@ -94,7 +95,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *accessTokensInCache = [self getAllLegacyAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([accessTokensInCache count], 1);
     XCTAssertEqualObjects([accessTokensInCache[0] accessToken], tokenResponse.accessToken);
 }
@@ -120,7 +121,7 @@
     XCTAssertFalse(result);
     XCTAssertEqual(error.code, MSIDErrorInternal);
     
-    NSArray *accessTokensInCache = [self getAllLegacyAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([accessTokensInCache count], 0);
 }
 
@@ -135,7 +136,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *accessTokensInCache = [self getAllLegacyAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([accessTokensInCache count], 1);
 }
 
@@ -150,7 +151,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *legacyTokensInCache = [self getAllLegacyTokens];
+    NSArray *legacyTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyTokens:_legacyAccessor];
     XCTAssertEqual([legacyTokensInCache count], 1);
     
     MSIDLegacySingleResourceToken *legacyToken = legacyTokensInCache[0];
@@ -181,7 +182,7 @@
     XCTAssertFalse(result);
     XCTAssertEqual(error.code, MSIDErrorInternal);
     
-    NSArray *accessTokensInCache = [self getAllLegacyTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyTokens:_legacyAccessor];
     XCTAssertEqual([accessTokensInCache count], 0);
 }
 
@@ -200,7 +201,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *refreshTokensInCache = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([refreshTokensInCache count], 1);
     XCTAssertEqualObjects(refreshTokensInCache[0], token);
 }
@@ -245,7 +246,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *refreshTokensInCache = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([refreshTokensInCache count], 1);
     // Check that the token got overriden
     XCTAssertEqualObjects(refreshTokensInCache[0], secondToken);
@@ -263,7 +264,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *refreshTokensInCache = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([refreshTokensInCache count], 1);
 }
 
@@ -382,7 +383,7 @@
     
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
     
-    NSArray *allAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *allAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([allAccessTokens count], 2);
 }
 
@@ -421,7 +422,7 @@
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority.url, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
-    NSArray *allAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *allAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([allAccessTokens count], 2);
 }
 
@@ -464,7 +465,7 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.clientId, DEFAULT_TEST_CLIENT_ID);
     
-    NSArray *allAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *allAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([allAccessTokens count], 2);
 }
 
@@ -511,7 +512,7 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     
-    NSArray *allAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *allAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([allAccessTokens count], 2);
 }
 
@@ -635,7 +636,7 @@
     XCTAssertNotNil(returnedToken);
     XCTAssertEqualObjects(firstToken, returnedToken);
     
-    NSArray *allRTs = [self getAllLegacyRefreshTokens];
+    NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([allRTs count], 2);
 }
 
@@ -853,7 +854,7 @@
     XCTAssertNotNil(error);
     XCTAssertFalse(result);
     
-    NSArray *allRTs = [self getAllLegacyRefreshTokens];
+    NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([allRTs count], 1);
     XCTAssertEqualObjects(allRTs[0], token);
 }
@@ -869,7 +870,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([refreshTokens count], 1);
     
     result = [_legacyAccessor validateAndRemoveRefreshToken:refreshTokens[0] context:nil error:&error];
@@ -877,46 +878,8 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *allRTs = [self getAllLegacyRefreshTokens];
+    NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([allRTs count], 0);
-}
-
-#pragma mark - Helpers
-
-- (NSArray *)getAllLegacyAccessTokens
-{
-    return [self getAllTokensWithType:MSIDAccessTokenType class:MSIDLegacyAccessToken.class];
-}
-
-- (NSArray *)getAllLegacyRefreshTokens
-{
-    return [self getAllTokensWithType:MSIDRefreshTokenType class:MSIDLegacyRefreshToken.class];
-}
-
-- (NSArray *)getAllLegacyTokens
-{
-    return [self getAllTokensWithType:MSIDLegacySingleResourceTokenType class:MSIDLegacySingleResourceToken.class];
-}
-
-- (NSArray *)getAllTokensWithType:(MSIDCredentialType)type class:(Class)typeClass
-{
-    NSError *error = nil;
-
-    NSArray *allTokens = [_legacyAccessor allTokensWithContext:nil error:&error];
-    XCTAssertNil(error);
-
-    NSMutableArray *results = [NSMutableArray array];
-
-    for (MSIDBaseToken *token in allTokens)
-    {
-        if (token.credentialType == type
-            && [token isKindOfClass:typeClass])
-        {
-            [results addObject:token];
-        }
-    }
-
-    return results;
 }
 
 @end

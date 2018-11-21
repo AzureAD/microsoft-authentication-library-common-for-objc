@@ -21,28 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
+#import "MSIDCredentialType.h"
 
-@implementation MSIDKeychainTokenCache (MSIDTestUtil)
+@protocol MSIDCacheAccessor;
 
-+ (void)reset
-{
-    [self deleteAllKeysForSecClass:kSecClassGenericPassword];
-    [self deleteAllKeysForSecClass:kSecClassCertificate];
-    [self deleteAllKeysForSecClass:kSecClassKey];
-    [self deleteAllKeysForSecClass:kSecClassIdentity];
-}
+@interface MSIDTestCacheAccessorHelper : NSObject
 
-#pragma mark - Private
++ (NSArray *)getAllLegacyAccessTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllLegacyRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllLegacyTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllDefaultAccessTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllDefaultRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllIdTokens:(id<MSIDCacheAccessor>)cacheAccessor;
 
-+ (void)deleteAllKeysForSecClass:(CFTypeRef)secClass
-{
-    NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-    [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
-    OSStatus result = SecItemDelete((__bridge CFDictionaryRef) dict);
-    
-    assert(result == noErr || result == errSecItemNotFound);
-}
++ (NSArray *)getAllTokens:(id<MSIDCacheAccessor>)cacheAccessor type:(MSIDCredentialType)type class:(Class)typeClass;
 
 @end

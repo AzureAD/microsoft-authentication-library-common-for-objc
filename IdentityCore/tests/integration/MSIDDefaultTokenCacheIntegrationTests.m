@@ -41,6 +41,7 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDTestCacheAccessorHelper.h"
 
 @interface MSIDDefaultTokenCacheIntegrationTests : XCTestCase
 {
@@ -109,7 +110,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertNil(error);
 
     XCTAssertEqual([accessTokens count], 1);
@@ -151,7 +152,7 @@
                                                       context:nil
                                                         error:nil];
 
-    NSArray *allTokens = [self getAllAccessTokens];
+    NSArray *allTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertEqual([allTokens count], 1);
 
     // save 2nd token with intersecting scope
@@ -167,7 +168,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *accessTokensInCache = [self getAllAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertEqual([accessTokensInCache count], 1);
     XCTAssertEqualObjects([accessTokensInCache[0] accessToken], tokenResponse2.accessToken);
 }
@@ -182,7 +183,7 @@
                                                       context:nil
                                                         error:nil];
 
-    NSArray *accessTokensInCache = [self getAllAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertEqual([accessTokensInCache count], 1);
 
     // save 2nd token with non-intersecting scope
@@ -199,7 +200,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    accessTokensInCache = [self getAllAccessTokens];
+    accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertEqual([accessTokensInCache count], 2);
 }
 
@@ -234,7 +235,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *accessTokensInCache = [self getAllAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertEqual([accessTokensInCache count], 2);
 }
 
@@ -270,7 +271,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *accessTokensInCache = [self getAllAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertEqual([accessTokensInCache count], 2);
 }
 
@@ -293,10 +294,10 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *accessTokensInCache = [self getAllAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertEqual([accessTokensInCache count], 1);
 
-    NSArray *idTokensInCache = [self getAllIDTokens];
+    NSArray *idTokensInCache = [MSIDTestCacheAccessorHelper getAllIdTokens:_cacheAccessor];
     XCTAssertEqual([idTokensInCache count], 0);
 }
 
@@ -319,10 +320,10 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *accessTokensInCache = [self getAllAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertEqual([accessTokensInCache count], 1);
 
-    NSArray *idTokensInCache = [self getAllIDTokens];
+    NSArray *idTokensInCache = [MSIDTestCacheAccessorHelper getAllIdTokens:_cacheAccessor];
     XCTAssertEqual([idTokensInCache count], 1);
 }
 
@@ -338,7 +339,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *refreshTokensInCache = [self getAllRefreshTokens];
+    NSArray *refreshTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_cacheAccessor];
     XCTAssertEqual([refreshTokensInCache count], 1);
 }
 
@@ -444,7 +445,7 @@
                                         context:nil
                                           error:nil];
 
-    NSArray *accessTokensInCache = [self getAllAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertEqual([accessTokensInCache count], 4);
 
     configuration = [MSIDTestConfiguration v2DefaultConfiguration];
@@ -598,7 +599,7 @@
                                           context:nil
                                             error:nil];
 
-    NSArray *allRefreshTokens = [self getAllRefreshTokens];
+    NSArray *allRefreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_cacheAccessor];
     XCTAssertEqual([allRefreshTokens count], 1);
 
     MSIDRefreshToken *firstRefreshToken = allRefreshTokens[0];
@@ -612,51 +613,14 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *allRTs = [self getAllRefreshTokens];
+    NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_cacheAccessor];
     XCTAssertEqual([allRTs count], 0);
 
-    NSArray *allATs = [self getAllAccessTokens];
+    NSArray *allATs = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
     XCTAssertEqual([allATs count], 1);
 
-    NSArray *allIDs = [self getAllIDTokens];
+    NSArray *allIDs = [MSIDTestCacheAccessorHelper getAllIdTokens:_cacheAccessor];
     XCTAssertEqual([allIDs count], 1);
-}
-
-#pragma mark - Helpers
-
-- (NSArray *)getAllAccessTokens
-{
-    return [self getAllTokensWithType:MSIDAccessTokenType];
-}
-
-- (NSArray *)getAllRefreshTokens
-{
-    return [self getAllTokensWithType:MSIDRefreshTokenType];
-}
-
-- (NSArray *)getAllIDTokens
-{
-    return [self getAllTokensWithType:MSIDIDTokenType];
-}
-
-- (NSArray *)getAllTokensWithType:(MSIDCredentialType)type
-{
-    NSError *error = nil;
-
-    NSArray *allTokens = [_cacheAccessor allTokensWithContext:nil error:&error];
-    XCTAssertNil(error);
-
-    NSMutableArray *results = [NSMutableArray array];
-
-    for (MSIDBaseToken *token in allTokens)
-    {
-        if (token.credentialType == type)
-        {
-            [results addObject:token];
-        }
-    }
-
-    return results;
 }
 
 @end

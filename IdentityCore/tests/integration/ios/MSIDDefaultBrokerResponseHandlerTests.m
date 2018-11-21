@@ -41,7 +41,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAADV2TokenResponse.h"
-#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
+#import "MSIDTestCacheAccessorHelper.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDIdToken.h"
 
@@ -160,7 +160,7 @@
     XCTAssertFalse(result.accessToken.isExpired);
     
     //Check access token in cache
-    NSArray *accessTokens = [MSIDKeychainTokenCache getAllDefaultAccessTokens:self.cacheAccessor];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:self.cacheAccessor];
     XCTAssertEqual([accessTokens count], 1);
     
     MSIDAccessToken *accessToken = accessTokens[0];
@@ -173,7 +173,7 @@
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     
     //Check refresh token in cache
-    NSArray *refreshTokens = [MSIDKeychainTokenCache getAllDefaultRefreshTokens:self.cacheAccessor];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 2);
     
     MSIDRefreshToken *refreshToken = refreshTokens[0];
@@ -183,7 +183,7 @@
     XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     
     //Check id token in cache
-    NSArray *idTokens = [MSIDKeychainTokenCache getAllIdTokens:self.cacheAccessor];
+    NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:self.cacheAccessor];
     XCTAssertEqual([idTokens count], 1);
     
     MSIDIdToken *idToken = idTokens[0];
@@ -443,7 +443,7 @@
     XCTAssertNil(error.userInfo[MSIDDeclinedScopesKey]);
     XCTAssertNil(error.userInfo[MSIDGrantedScopesKey]);
     
-    NSArray *accessTokens = [MSIDKeychainTokenCache getAllDefaultAccessTokens:self.cacheAccessor];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:self.cacheAccessor];
     XCTAssertEqual([accessTokens count], 1);
     
     MSIDAccessToken *accessToken = accessTokens[0];
@@ -455,7 +455,7 @@
     XCTAssertTrue([extExpiresOn timeIntervalSinceDate:accessToken.extendedExpireTime] < 1);
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     
-    NSArray *refreshTokens = [MSIDKeychainTokenCache getAllDefaultRefreshTokens:self.cacheAccessor];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 1);
     
     MSIDRefreshToken *refreshToken = refreshTokens[0];

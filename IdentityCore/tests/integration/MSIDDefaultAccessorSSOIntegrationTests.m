@@ -52,7 +52,7 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAADV2BrokerResponse.h"
-#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
+#import "MSIDTestCacheAccessorHelper.h"
 
 @interface MSIDDefaultAccessorSSOIntegrationTests : XCTestCase
 {
@@ -149,7 +149,7 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
     MSIDAccessToken *accessToken = accessTokens[0];
@@ -163,7 +163,7 @@
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertNotNil(accessToken.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
 
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
     MSIDRefreshToken *refreshToken = refreshTokens[0];
@@ -175,7 +175,7 @@
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(refreshToken.additionalServerInfo, nil);
 
-    NSArray *idTokens = [self getAllIDTokens];
+    NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([idTokens count], 1);
 
     MSIDIdToken *defaultIDToken = idTokens[0];
@@ -233,7 +233,7 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
     MSIDAccessToken *accessToken = accessTokens[0];
@@ -247,7 +247,7 @@
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertNotNil(accessToken.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
 
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
     MSIDRefreshToken *refreshToken = refreshTokens[0];
@@ -259,7 +259,7 @@
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(refreshToken.additionalServerInfo, nil);
 
-    NSArray *idTokens = [self getAllIDTokens];
+    NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([idTokens count], 1);
 
     MSIDIdToken *defaultIDToken = idTokens[0];
@@ -296,10 +296,10 @@
     XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
 
     // Now check legacy accessor
-    NSArray *legacyAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *legacyAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_otherAccessor];
     XCTAssertEqual([legacyAccessTokens count], 0);
 
-    NSArray *legacyRefreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *legacyRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([legacyRefreshTokens count], 0);
 }
 
@@ -324,16 +324,16 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *legacyAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *legacyAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_otherAccessor];
     XCTAssertEqual([legacyAccessTokens count], 0);
 
-    NSArray *legacyRefreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *legacyRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([legacyRefreshTokens count], 0);
 
-    NSArray *defaultAccessTokens = [self getAllAccessTokens];
+    NSArray *defaultAccessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([defaultAccessTokens count], 1);
 
-    NSArray *defaultRefreshTokens = [self getAllRefreshTokens];
+    NSArray *defaultRefreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([defaultRefreshTokens count], 2);
 
     MSIDRefreshToken *defaultRefreshToken1 = defaultRefreshTokens[0];
@@ -349,7 +349,7 @@
     XCTAssertEqualObjects(defaultRefreshToken1.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultRefreshToken2.clientId, @"test_client_id");
 
-    NSArray *defaultIDTokens = [self getAllIDTokens];
+    NSArray *defaultIDTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([defaultIDTokens count], 1);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
@@ -434,10 +434,10 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
     
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 0);
     
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 2);
     
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
@@ -463,10 +463,10 @@
     XCTAssertNil(account.alternativeAccountId);
     
     //We don't save SSO state in legacy accessor
-    NSArray *legacyAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *legacyAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_otherAccessor];
     XCTAssertEqual([legacyAccessTokens count], 0);
     
-    NSArray *legacyRefreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *legacyRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([legacyRefreshTokens count], 0);
 }
 
@@ -525,7 +525,7 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
     
-    NSArray *accessTokens = [MSIDKeychainTokenCache getAllDefaultAccessTokens:_defaultAccessor];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 1);
     
     MSIDAccessToken *accessToken = accessTokens[0];
@@ -537,14 +537,14 @@
     XCTAssertEqualWithAccuracy([accessToken.extendedExpireTime timeIntervalSinceDate:[NSDate date]], 36000, 5);
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     
-    NSArray *idTokens = [MSIDKeychainTokenCache getAllIdTokens:_defaultAccessor];
+    NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([idTokens count], 1);
     
     MSIDIdToken *idToken = idTokens[0];
     XCTAssertEqualObjects(idToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
     XCTAssertEqualObjects(idToken.rawIdToken, idTokenString);
     
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 2);
     
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
@@ -570,10 +570,10 @@
     XCTAssertNil(account.alternativeAccountId);
     
     //We don't save SSO state in legacy accessor
-    NSArray *legacyAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *legacyAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_otherAccessor];
     XCTAssertEqual([legacyAccessTokens count], 0);
     
-    NSArray *legacyRefreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *legacyRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([legacyRefreshTokens count], 0);
 }
 
@@ -599,22 +599,22 @@
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
 
-    NSArray *accessTokens = [self getAllLegacyAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_otherAccessor];
     XCTAssertEqual([accessTokens count], 0);
 
-    NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([refreshTokens count], 0);
 
-    NSArray *legacyTokens = [self getAllLegacyTokens];
+    NSArray *legacyTokens = [MSIDTestCacheAccessorHelper getAllLegacyTokens:_otherAccessor];
     XCTAssertEqual([legacyTokens count], 0);
 
-    NSArray *defaultAccessTokens = [self getAllAccessTokens];
+    NSArray *defaultAccessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([defaultAccessTokens count], 0);
 
-    NSArray *defaultRefreshTokens = [self getAllRefreshTokens];
+    NSArray *defaultRefreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([defaultRefreshTokens count], 0);
 
-    NSArray *defaultIDTokens = [self getAllIDTokens];
+    NSArray *defaultIDTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([defaultIDTokens count], 0);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
@@ -651,22 +651,22 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *accessTokens = [self getAllLegacyAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_otherAccessor];
     XCTAssertEqual([accessTokens count], 0);
 
-    NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([refreshTokens count], 0);
 
-    NSArray *legacyTokens = [self getAllLegacyTokens];
+    NSArray *legacyTokens = [MSIDTestCacheAccessorHelper getAllLegacyTokens:_otherAccessor];
     XCTAssertEqual([legacyTokens count], 0);
 
-    NSArray *defaultAccessTokens = [self getAllAccessTokens];
+    NSArray *defaultAccessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([defaultAccessTokens count], 1);
 
-    NSArray *defaultRefreshTokens = [self getAllRefreshTokens];
+    NSArray *defaultRefreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([defaultRefreshTokens count], 0);
 
-    NSArray *defaultIDTokens = [self getAllIDTokens];
+    NSArray *defaultIDTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([defaultIDTokens count], 1);
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
@@ -711,10 +711,10 @@
                      accessor:_nonSSOAccessor];
 
     // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 2);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 2);
 
     // Get token
@@ -768,13 +768,13 @@
                      accessor:_nonSSOAccessor];
 
     // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
-    NSArray *legacyRefreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *legacyRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([legacyRefreshTokens count], 1);
 
     // Get token
@@ -828,10 +828,10 @@
                      accessor:_nonSSOAccessor];
 
     // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 4);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 2);
 
     // Get token
@@ -886,13 +886,13 @@
                      accessor:_otherAccessor];
 
     // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 2);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
-    NSArray *legacyRefreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *legacyRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([legacyRefreshTokens count], 2);
 
     // Get token
@@ -947,13 +947,13 @@
                      accessor:_otherAccessor];
 
     // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 2);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
-    NSArray *legacyRefreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *legacyRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([legacyRefreshTokens count], 2);
 
     // Get token
@@ -1008,13 +1008,13 @@
                      accessor:_otherAccessor];
 
     // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
-    NSArray *legacyRefreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *legacyRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([legacyRefreshTokens count], 1);
 
     // Get token
@@ -1069,13 +1069,13 @@
                      accessor:_otherAccessor];
 
     // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
-    NSArray *legacyRefreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *legacyRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([legacyRefreshTokens count], 1);
 
     // Get token
@@ -1775,10 +1775,10 @@
                      accessor:_nonSSOAccessor];
 
     // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 2);
 
     // Get token
@@ -1824,7 +1824,7 @@
                      familyId:nil
                      accessor:_nonSSOAccessor];
 
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
     MSIDRefreshToken *refreshToken = refreshTokens[0];
@@ -1835,7 +1835,7 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *remaininRefreshTokens = [self getAllRefreshTokens];
+    NSArray *remaininRefreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([remaininRefreshTokens count], 1);
 }
 
@@ -1854,7 +1854,7 @@
                      familyId:nil
                      accessor:_nonSSOAccessor];
 
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
     MSIDRefreshToken *refreshToken = refreshTokens[0];
@@ -1864,7 +1864,7 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *remaininRefreshTokens = [self getAllRefreshTokens];
+    NSArray *remaininRefreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([remaininRefreshTokens count], 0);
 }
 
@@ -1883,7 +1883,7 @@
                      familyId:nil
                      accessor:_otherAccessor];
 
-    NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
     MSIDRefreshToken *refreshToken = refreshTokens[0];
@@ -1893,7 +1893,7 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *remaininRefreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *remaininRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([remaininRefreshTokens count], 1);
 }
 
@@ -1925,10 +1925,10 @@
                      familyId:nil
                      accessor:_nonSSOAccessor];
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 2);
 
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
     MSIDAccessToken *firstToken = accessTokens[0];
@@ -1939,11 +1939,11 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *remainingAccessTokens = [self getAllAccessTokens];
+    NSArray *remainingAccessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([remainingAccessTokens count], 1);
     XCTAssertEqualObjects(remainingAccessTokens[0], firstToken);
 
-    NSArray *remaininRefreshTokens = [self getAllRefreshTokens];
+    NSArray *remaininRefreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([remaininRefreshTokens count], 1);
 }
 
@@ -1975,13 +1975,13 @@
                      familyId:nil
                      accessor:_nonSSOAccessor];
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 2);
 
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 2);
 
-    NSArray *idTokens = [self getAllIDTokens];
+    NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([idTokens count], 2);
 
     MSIDIdToken *firstToken = idTokens[0];
@@ -1992,11 +1992,11 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *remainingIDTokens = [self getAllIDTokens];
+    NSArray *remainingIDTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([remainingIDTokens count], 1);
     XCTAssertEqualObjects(remainingIDTokens[0], firstToken);
 
-    NSArray *remaininRefreshTokens = [self getAllRefreshTokens];
+    NSArray *remaininRefreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([remaininRefreshTokens count], 2);
 }
 
@@ -2088,10 +2088,10 @@
                      accessor:_nonSSOAccessor];
 
     // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
     // Get token
@@ -2147,13 +2147,13 @@
                      accessor:_nonSSOAccessor];
 
     // Check cache state
-    NSArray *refreshTokens = [self getAllRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 2);
 
-    NSArray *accessTokens = [self getAllAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([accessTokens count], 2);
 
-    NSArray *idTokens = [self getAllIDTokens];
+    NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([idTokens count], 2);
 
     // Get token
@@ -2309,16 +2309,16 @@
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 2);
 
-    NSArray *allATs = [self getAllAccessTokens];
+    NSArray *allATs = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([allATs count], 3);
 
-    NSArray *allRTs = [self getAllRefreshTokens];
+    NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([allRTs count], 2);
 
-    NSArray *allIDs = [self getAllIDTokens];
+    NSArray *allIDs = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([allIDs count], 2);
 
-    NSArray *allLegacyRTs = [self getAllLegacyRefreshTokens];
+    NSArray *allLegacyRTs = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([allLegacyRTs count], 1);
 
     MSIDAccount *account = nil;
@@ -2344,19 +2344,19 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    allATs = [self getAllAccessTokens];
+    allATs = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([allATs count], 1);
 
     MSIDAccessToken *accessToken = allATs[0];
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid2.utid2");
 
-    allRTs = [self getAllRefreshTokens];
+    allRTs = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([allRTs count], 1);
 
     MSIDRefreshToken *refreshToken = allRTs[0];
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid2.utid2");
 
-    allIDs = [self getAllIDTokens];
+    allIDs = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([allIDs count], 1);
     MSIDIdToken *idToken = allIDs[0];
     XCTAssertEqualObjects(idToken.accountIdentifier.homeAccountId, @"uid2.utid2");
@@ -2371,7 +2371,7 @@
     MSIDAccount *remainingAccount = accounts[0];
     XCTAssertEqualObjects(remainingAccount.accountIdentifier.homeAccountId, @"uid2.utid2");
 
-    allLegacyRTs = [self getAllLegacyRefreshTokens];
+    allLegacyRTs = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
     XCTAssertEqual([allLegacyRTs count], 0);
 }
 
@@ -2424,13 +2424,13 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *allATs = [self getAllAccessTokens];
+    NSArray *allATs = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
     XCTAssertEqual([allATs count], 0);
 
-    NSArray *allRTs = [self getAllRefreshTokens];
+    NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([allRTs count], 0);
 
-    NSArray *allIDs = [self getAllIDTokens];
+    NSArray *allIDs = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([allIDs count], 0);
 
     NSArray *accounts = [_defaultAccessor allAccountsForAuthority:authority
@@ -2503,57 +2503,6 @@
 
     XCTAssertNil(error);
     XCTAssertTrue(result);
-}
-
-- (NSArray *)getAllLegacyAccessTokens
-{
-    return [self getAllTokensWithType:MSIDAccessTokenType class:MSIDLegacyAccessToken.class accessor:_otherAccessor];
-}
-
-- (NSArray *)getAllLegacyRefreshTokens
-{
-    return [self getAllTokensWithType:MSIDRefreshTokenType class:MSIDLegacyRefreshToken.class accessor:_otherAccessor];
-}
-
-- (NSArray *)getAllAccessTokens
-{
-    return [self getAllTokensWithType:MSIDAccessTokenType class:MSIDAccessToken.class accessor:_defaultAccessor];
-}
-
-- (NSArray *)getAllRefreshTokens
-{
-    return [self getAllTokensWithType:MSIDRefreshTokenType class:MSIDRefreshToken.class accessor:_defaultAccessor];
-}
-
-- (NSArray *)getAllIDTokens
-{
-    return [self getAllTokensWithType:MSIDIDTokenType class:MSIDIdToken.class accessor:_defaultAccessor];
-}
-
-- (NSArray *)getAllLegacyTokens
-{
-    return [self getAllTokensWithType:MSIDLegacySingleResourceTokenType class:MSIDLegacySingleResourceToken.class accessor:_otherAccessor];
-}
-
-- (NSArray *)getAllTokensWithType:(MSIDCredentialType)type class:(Class)typeClass accessor:(id<MSIDCacheAccessor>)accessor
-{
-    NSError *error = nil;
-
-    NSArray *allTokens = [accessor allTokensWithContext:nil error:&error];
-    XCTAssertNil(error);
-
-    NSMutableArray *results = [NSMutableArray array];
-
-    for (MSIDBaseToken *token in allTokens)
-    {
-        if (token.credentialType == type
-            && [token isKindOfClass:typeClass])
-        {
-            [results addObject:token];
-        }
-    }
-
-    return results;
 }
 
 @end
