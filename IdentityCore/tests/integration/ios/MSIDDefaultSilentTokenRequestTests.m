@@ -121,7 +121,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -152,7 +152,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -212,7 +212,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -266,7 +266,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -319,7 +319,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -383,7 +383,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -438,7 +438,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -486,7 +486,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -534,7 +534,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -582,7 +582,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -633,7 +633,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -684,7 +684,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -746,7 +746,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -807,7 +807,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -859,7 +859,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -915,7 +915,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -983,7 +983,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -1060,7 +1060,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -1147,7 +1147,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -1235,7 +1235,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -1275,7 +1275,7 @@
 
     XCTestExpectation *secondExpecation = [self expectationWithDescription:@"silent request"];
 
-    [secondSilentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [secondSilentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
@@ -1348,7 +1348,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -1399,7 +1399,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -1422,7 +1422,7 @@
                                                                                                                tokenCache:tokenCache];
     XCTestExpectation *secondExpectation = [self expectationWithDescription:@"silent request"];
 
-    [secondSilentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [secondSilentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);

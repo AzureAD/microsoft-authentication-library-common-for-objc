@@ -249,18 +249,4 @@
     return tokenRequest;
 }
 
-- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-{
-    MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
-
-    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
-                                                                       developerClaims:parameters.claims];
-
-    configuration.claims = claims;
-    configuration.uid = parameters.accountIdentifier.uid;
-    configuration.utid = parameters.accountIdentifier.utid;
-
-    return configuration;
-}
-
 @end

@@ -243,12 +243,4 @@
     return nil;
 }
 
-- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-{
-    MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
-
-    // TODO: implement me for ADAL
-    return configuration;
-}
-
 @end

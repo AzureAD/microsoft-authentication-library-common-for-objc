@@ -32,6 +32,11 @@
 #import "MSIDPkce.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAuthority.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDOpenIdProviderMetadata.h"
 
 @implementation MSIDWebviewFactory
 
@@ -166,6 +171,33 @@
 - (NSString *)generateStateValue
 {
     return [[NSUUID UUID] UUIDString];
+}
+
+- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    MSIDWebviewConfiguration *configuration = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:parameters.authority.metadata.authorizationEndpoint
+                                                                                                  redirectUri:parameters.redirectUri
+                                                                                                     clientId:parameters.clientId resource:nil
+                                                                                                       scopes:parameters.allAuthorizeRequestScopes
+                                                                                                correlationId:parameters.correlationId
+                                                                                                   enablePkce:YES];
+
+    configuration.promptBehavior = parameters.promptType;
+    configuration.loginHint = parameters.accountIdentifier.legacyAccountId ?: parameters.loginHint;
+    configuration.extraQueryParameters = parameters.extraQueryParameters;
+    configuration.sliceParameters = parameters.sliceParameters;
+#if TARGET_OS_IPHONE
+    configuration.parentController = parameters.parentViewController;
+#endif
+
+    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
+
+    if (![NSString msidIsStringNilOrBlank:claims])
+    {
+        configuration.claims = claims;
+    }
+
+    return configuration;
 }
 
 @end

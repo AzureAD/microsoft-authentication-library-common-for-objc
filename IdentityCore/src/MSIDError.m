@@ -158,5 +158,6 @@ void MSIDFillAndLogError(NSError **error, MSIDErrorCode errorCode, NSString *err
         *error = MSIDCreateError(MSIDErrorDomain, errorCode, errorDescription, nil, nil, nil, correlationID, nil);
     }
 
-    MSID_LOG_ERROR_CORR(correlationID, @"Encountered error with code %ld, description %@", (long)errorCode, errorDescription);
+    MSID_LOG_ERROR_CORR(correlationID, @"Encountered error with code %ld", (long)errorCode);
+    MSID_LOG_ERROR_CORR_PII(correlationID, @"Encountered error with code %ld, description %@", (long)errorCode, errorDescription);
 }

@@ -40,6 +40,7 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDWebViewFactory.h"
 
 @interface MSIDInteractiveTokenRequest()
 
@@ -66,13 +67,13 @@
         _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
         _tokenCache = tokenCache;
-        _webViewConfiguration = [self.oauthFactory webViewConfigurationWithRequestParameters:parameters];
+        _webViewConfiguration = [self.oauthFactory.webviewFactory webViewConfigurationWithRequestParameters:parameters];
     }
 
     return self;
 }
 
-- (void)acquireToken:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
     NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId ?: self.requestParameters.loginHint;
 

@@ -156,7 +156,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -254,7 +254,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -352,7 +352,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -437,7 +437,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -499,7 +499,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -560,7 +560,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNil(error);
@@ -618,7 +618,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);

@@ -51,7 +51,7 @@
 
 #pragma mark - MSIDSilentTokenRequest
 
-- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
 {
     completionBlock(self.testTokenResult, self.testError);
 }

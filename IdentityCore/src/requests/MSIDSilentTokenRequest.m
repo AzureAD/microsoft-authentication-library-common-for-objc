@@ -62,7 +62,7 @@
     return self;
 }
 
-- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
 {
     if (!self.requestParameters.accountIdentifier)
     {
@@ -86,11 +86,11 @@
              return;
          }
 
-         [self acquireTokenImpl:completionBlock];
+         [self executeRequestImpl:completionBlock];
      }];
 }
 
-- (void)acquireTokenImpl:(MSIDRequestCompletionBlock)completionBlock
+- (void)executeRequestImpl:(MSIDRequestCompletionBlock)completionBlock
 {
     if (!self.forceRefresh && ![self.requestParameters.claims count])
     {
