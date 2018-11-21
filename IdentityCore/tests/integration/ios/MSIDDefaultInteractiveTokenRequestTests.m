@@ -93,7 +93,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -190,7 +190,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"instance_aware" : @"true" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -288,7 +288,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -378,7 +378,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -466,7 +466,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -528,7 +528,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -586,7 +586,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
