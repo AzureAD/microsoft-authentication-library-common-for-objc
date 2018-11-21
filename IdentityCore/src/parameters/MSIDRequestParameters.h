@@ -74,4 +74,14 @@
 
 - (BOOL)validateParametersWithError:(NSError **)error;
 
+#pragma mark - Init
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           scopes:(NSOrderedSet<NSString *> *)scopes
+                       oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
+                    correlationId:(NSUUID *)correlationId
+                   telemetryApiId:(NSString *)telemetryApiId
+                            error:(NSError **)error;
+
 @end

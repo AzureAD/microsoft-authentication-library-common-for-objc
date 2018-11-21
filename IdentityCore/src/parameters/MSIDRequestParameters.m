@@ -29,6 +29,7 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDConfiguration.h"
+#import "MSIDTelemetry+Internal.h"
 
 @implementation MSIDRequestParameters
 
@@ -40,15 +41,54 @@
 
     if (self)
     {
-        _tokenExpirationBuffer = 300;
-        [self initDefaultAppMetadata];
+        [self initDefaultSettings];
     }
 
     return self;
 }
 
-- (void)initDefaultAppMetadata
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           scopes:(NSOrderedSet<NSString *> *)scopes
+                       oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
+                    correlationId:(NSUUID *)correlationId
+                   telemetryApiId:(NSString *)telemetryApiId
+                            error:(NSError **)error
 {
+    self = [super init];
+
+    if (self)
+    {
+        _authority = authority;
+        _redirectUri = redirectUri;
+        _clientId = clientId;
+        _correlationId = correlationId ?: [NSUUID new];
+        _telemetryApiId = telemetryApiId;
+
+        if ([scopes intersectsOrderedSet:oidScopes])
+        {
+            NSString *errorMessage = [NSString stringWithFormat:@"%@ are reserved scopes and may not be specified in the acquire token call.", oidScopes];
+            MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, errorMessage, correlationId);
+            return nil;
+        }
+
+        _target = [scopes msidToString];
+        _oidcScope = [oidScopes msidToString];
+        [self initDefaultSettings];
+    }
+
+    return self;
+}
+
+- (void)initDefaultSettings
+{
+    _tokenExpirationBuffer = 300;
+    _oidcScope = MSID_OAUTH2_SCOPE_OPENID_VALUE;
+    _extendedLifetimeEnabled = NO;
+    _logComponent = [MSIDVersion sdkName];
+    _telemetryRequestId = [[MSIDTelemetry sharedInstance] generateRequestId];
+
     NSDictionary *metadata = [[NSBundle mainBundle] infoDictionary];
 
     NSString *appName = metadata[@"CFBundleDisplayName"];

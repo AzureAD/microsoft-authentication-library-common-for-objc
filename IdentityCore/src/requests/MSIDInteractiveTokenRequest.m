@@ -168,26 +168,63 @@
     };
 
     self.webViewConfiguration = [self.oauthFactory.webviewFactory webViewConfigurationWithRequestParameters:self.requestParameters];
+    [self showWebComponentWithCompletion:webAuthCompletion];
+}
 
-    if (self.requestParameters.useEmbeddedWebView)
-    {
-        [MSIDWebviewAuthorization startEmbeddedWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                              oauth2Factory:self.oauthFactory
-                                                                    webview:self.requestParameters.customWebview
-                                                                    context:self.requestParameters
-                                                          completionHandler:webAuthCompletion];
-    }
+- (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
+{
 #if TARGET_OS_IPHONE
-    else
-    {
-        [MSIDWebviewAuthorization startSystemWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                            oauth2Factory:self.oauthFactory
-                                                 useAuthenticationSession:!self.requestParameters.useSafariViewController
-                                                allowSafariViewController:self.requestParameters.useSafariViewController
-                                                                  context:self.requestParameters
-                                                        completionHandler:webAuthCompletion];
+
+    BOOL useSession = YES;
+    BOOL allowSafariViewController = YES;
+    
+    switch (self.requestParameters.webviewType) {
+        case MSIDWebviewTypeWKWebView:
+        {
+            [self showEmbeddedWebviewWithCompletion:completionHandler];
+            return;
+        }
+        case MSIDWebviewTypeAuthenticationSession:
+            useSession = YES;
+            allowSafariViewController = NO;
+            break;
+
+        case MSIDWebviewTypeSafariViewController:
+            useSession = NO;
+            allowSafariViewController = YES;
+            break;
+
+        default:
+            break;
     }
+
+    [self showSystemWebViewWithSession:useSession
+             allowSafariViewController:allowSafariViewController
+                            completion:completionHandler];
+#else
+    [self showEmbeddedWebviewWithCompletion:completionHandler];
 #endif
+}
+
+- (void)showEmbeddedWebviewWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
+{
+    [MSIDWebviewAuthorization startEmbeddedWebviewAuthWithConfiguration:self.webViewConfiguration
+                                                          oauth2Factory:self.oauthFactory
+                                                                webview:self.requestParameters.customWebview
+                                                                context:self.requestParameters
+                                                      completionHandler:completionHandler];
+}
+
+- (void)showSystemWebViewWithSession:(BOOL)useAuthSession
+           allowSafariViewController:(BOOL)allowSafariViewController
+                          completion:(MSIDWebviewAuthCompletionHandler)completionHandler
+{
+    [MSIDWebviewAuthorization startSystemWebviewAuthWithConfiguration:self.webViewConfiguration
+                                                        oauth2Factory:self.oauthFactory
+                                             useAuthenticationSession:useAuthSession
+                                            allowSafariViewController:allowSafariViewController
+                                                              context:self.requestParameters
+                                                    completionHandler:completionHandler];
 }
 
 #pragma mark - Helpers

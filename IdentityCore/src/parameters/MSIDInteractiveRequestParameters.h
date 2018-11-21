@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDRequestParameters.h"
+#import "MSIDConstants.h"
 
 typedef NS_ENUM(NSInteger, MSIDInteractiveRequestType)
 {
@@ -43,8 +44,7 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 @property (nonatomic) MSIDInteractiveRequestType requestType;
 @property (nonatomic) MSIDUIBehaviorType uiBehaviorType;
 @property (nonatomic) NSString *loginHint;
-@property (nonatomic) BOOL useEmbeddedWebView;
-@property (nonatomic) BOOL useSafariViewController;
+@property (nonatomic) MSIDWebviewType webviewType;
 @property (nonatomic) WKWebView *customWebview;
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIViewController *parentViewController;
@@ -56,5 +56,18 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 @property (nonatomic) NSString *supportedBrokerProtocolScheme;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
+
+// Initialize parameters with extra scopes, and interactive request type
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           scopes:(NSOrderedSet<NSString *> *)scopes
+                       oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
+             extraScopesToConsent:(NSOrderedSet<NSString *> *)extraScopesToConsent
+                    correlationId:(NSUUID *)correlationId
+                   telemetryApiId:(NSString *)telemetryApiId
+          supportedBrokerProtocol:(NSString *)brokerProtocolScheme
+                      requestType:(MSIDInteractiveRequestType)requestType
+                            error:(NSError **)error;
 
 @end

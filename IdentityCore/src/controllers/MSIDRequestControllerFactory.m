@@ -77,11 +77,11 @@
     }
 
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]
-        && !(parameters.useEmbeddedWebView && parameters.customWebview))
+        && !(parameters.webviewType == MSIDWebviewTypeWKWebView && parameters.customWebview))
     {
         // If developer provides us an custom webview, we should be able to use it for authentication in app extension
-        BOOL hasSupportedEmbeddedWebView = parameters.useEmbeddedWebView && parameters.customWebview;
-        BOOL hasSupportedSystemWebView = parameters.useSafariViewController && parameters.parentViewController;
+        BOOL hasSupportedEmbeddedWebView = parameters.webviewType == MSIDWebviewTypeWKWebView && parameters.customWebview;
+        BOOL hasSupportedSystemWebView = parameters.webviewType == MSIDWebviewTypeSafariViewController && parameters.parentViewController;
 
         if (!hasSupportedEmbeddedWebView && !hasSupportedSystemWebView)
         {
