@@ -33,16 +33,15 @@
     NSString *homeAccountId = self.requestParameters.accountIdentifier.homeAccountId;
     NSString *username = self.requestParameters.accountIdentifier.legacyAccountId;
     
-    NSDictionary *contents =
-    @{
-      @"scope": self.requestParameters.allTokenRequestScopes ?: @"",
-      @"home_account_id": homeAccountId ?: @"",
-      @"username": username ?: @"",
-      @"login_hint": self.requestParameters.loginHint ?: @"",
-      @"extra_consent_scopes": self.requestParameters.extraScopesToConsent ?: @"",
-      @"prompt" : self.requestParameters.promptType ?: @"",
-      @"msg_protocol_ver": @"3"
-      };
+    // if value is nil, it won't appear in the dictionary
+    NSMutableDictionary *contents = [NSMutableDictionary new];
+    [contents setValue:self.requestParameters.allTokenRequestScopes forKey:@"scope"];
+    [contents setValue:homeAccountId forKey:@"home_account_id"];
+    [contents setValue:username forKey:@"username"];
+    [contents setValue:self.requestParameters.loginHint forKey:@"login_hint"];
+    [contents setValue:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
+    [contents setValue:self.requestParameters.promptType forKey:@"prompt"];
+    [contents setValue:@"3" forKey:@"msg_protocol_ver"];
     
     return contents;
 }

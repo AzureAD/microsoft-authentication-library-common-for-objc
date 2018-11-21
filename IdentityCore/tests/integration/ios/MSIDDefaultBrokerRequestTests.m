@@ -56,12 +56,10 @@
                                       @"client_capabilities" : @"",
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
-                                      @"username" : @"",
                                       @"claims" : @"",
                                       //V2 broker protocol specific
-                                      @"login_hint" : @"",
-                                      @"home_account_id" : @"",
-                                      @"extra_consent_scopes" : @"",
+                                      //Nil value is not sent,
+                                      //So no @"login_hint", @"home_account_id", @"extra_consent_scopes", @"username"
                                       @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
@@ -108,15 +106,12 @@
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
                                       @"claims" : @"",
-                                      @"extra_consent_scopes" : @"",
                                       @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
-                                      @"login_hint" : @"",
                                       //if account set, both of the following should be set
                                       @"home_account_id" : @"myHomeAccountId",
                                       @"username" : @"user",
-                                      
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -160,12 +155,9 @@
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
                                       @"claims" : @"",
-                                      @"extra_consent_scopes" : @"",
                                       @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
-                                      @"home_account_id" : @"",
-                                      @"username" : @"",
                                       //login hint should be set
                                       @"login_hint" : @"myuser",
                                       
@@ -215,9 +207,6 @@
                                       @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
-                                      @"home_account_id" : @"",
-                                      @"username" : @"",
-                                      @"login_hint" : @"",
                                       //extra scopes should be set
                                       @"extra_consent_scopes" : @"extraScope1 extraScope2",
                                       };
