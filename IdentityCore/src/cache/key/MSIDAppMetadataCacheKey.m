@@ -71,7 +71,7 @@ static NSInteger kGeneralTypePrefix = 3000;
 
 - (NSData *)generic
 {
-    return self.familyId ? [self.familyId dataUsingEncoding:NSUTF8StringEncoding] : nil;
+    return [self.familyId dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSNumber *)type
