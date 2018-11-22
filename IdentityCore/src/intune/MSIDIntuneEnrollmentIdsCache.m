@@ -31,10 +31,6 @@ NSString *const MSID_INTUNE_TID = @"tid";
 NSString *const MSID_INTUNE_OID = @"oid";
 NSString *const MSID_INTUNE_HOME_ACCOUNT_ID = @"home_account_id";
 
-#define MSID_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
-#define MSID_INTUNE_ENROLLMENT_ID_VERSION @"1"
-#define MSID_INTUNE_ENROLLMENT_ID_KEY (MSID_INTUNE_ENROLLMENT_ID MSID_INTUNE_ENROLLMENT_ID_VERSION)
-
 static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 @interface MSIDIntuneEnrollmentIdsCache()
@@ -140,27 +136,34 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
-                                    legacyUserId:(NSString *)legacyUserId
+                              legacyUserId:(NSString *)legacyUserId
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error
 {
+    NSString *enrollmentId = nil;
+    
+    // If homeAccountID is provided, try to match by it first.
     if (homeAccountId)
     {
-        // If homeAccountID is provided, always require an exact match
-        return [self enrollmentIdForUserId:homeAccountId context:context error:error];
-    }
-    else
-    {
-        // If legacy userID is provided and we didn't find an exact match, do a fallback to any enrollment ID to support no userID or single userID scenarios
-        NSString *enrollmentID = legacyUserId ? [self enrollmentIdForUserId:legacyUserId context:context error:error] : nil;
-        if (enrollmentID)
+        enrollmentId = [self enrollmentIdForHomeAccountId:homeAccountId context:context error:error];
+        if (enrollmentId)
         {
-            return enrollmentID;
+            return enrollmentId;
         }
-        
-        enrollmentID = [self enrollmentIdIfAvailableWithContext:context error:error];
-        return enrollmentID;
     }
+    
+    // If legacy userID is provided, try to match by userID.
+    if (legacyUserId)
+    {
+        enrollmentId = [self enrollmentIdForUserId:legacyUserId context:context error:error];
+        if (enrollmentId)
+        {
+            return enrollmentId;
+        }
+    }
+    
+    // If we haven't found an exact match yet, fallback to any enrollment ID to support no userID or single userID scenarios.
+    return [self enrollmentIdIfAvailableWithContext:context error:error];
 }
 
 - (NSString *)enrollmentIdIfAvailableWithContext:(id<MSIDRequestContext>)context

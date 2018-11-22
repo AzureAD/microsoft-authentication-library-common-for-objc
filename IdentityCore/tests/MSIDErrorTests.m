@@ -46,13 +46,23 @@
 
     NSMutableDictionary *customUserInfo = [userInfo mutableCopy];
     customUserInfo[@"custom_description"] = errorDescription;
-    customUserInfo[@"custom_oautherror"] = oauthError;
-    customUserInfo[@"custom_suberror"] = subError;
+    customUserInfo[self.oauthErrorKey] = oauthError;
+    customUserInfo[self.subErrorKey] = subError;
     customUserInfo[@"custom_underlyingerror"] = underlyingError;
     customUserInfo[@"custom_correlationid"] = [correlationId UUIDString];
 
     NSError *resultError = [NSError errorWithDomain:newDomain code:errorCode userInfo:customUserInfo];
     return resultError;
+}
+
+- (NSString *)oauthErrorKey
+{
+    return @"custom_oautherror";
+}
+
+- (nonnull NSString *)subErrorKey
+{
+    return @"custom_suberror";
 }
 
 @end

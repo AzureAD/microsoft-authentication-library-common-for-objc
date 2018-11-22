@@ -38,4 +38,8 @@ typedef NS_OPTIONS(NSUInteger, MSIDErrorFilteringOptions)
  */
 - (nonnull NSError *)msidErrorWithFilteringOptions:(MSIDErrorFilteringOptions)option;
 
+- (nullable NSString *)msidOauthError;
+
+- (nullable NSString *)msidSubError;
+
 @end

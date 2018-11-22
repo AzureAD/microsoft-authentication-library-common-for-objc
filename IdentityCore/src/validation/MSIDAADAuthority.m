@@ -28,6 +28,7 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @interface MSIDAADAuthority()
 
@@ -189,6 +190,17 @@
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
     
     return authority;
+}
+
+- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+                              legacyUserId:(NSString *)legacyUserId
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
+{
+    return [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:homeAccountId
+                                                                       legacyUserId:legacyUserId
+                                                                            context:context
+                                                                              error:error];
 }
 
 - (nonnull NSString *)telemetryAuthorityType
