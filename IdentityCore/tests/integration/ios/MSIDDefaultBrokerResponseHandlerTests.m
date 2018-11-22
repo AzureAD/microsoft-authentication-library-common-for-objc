@@ -112,7 +112,6 @@
       @"refresh_token" : @"i-am-a-refresh-token",
       @"expires_on" : expiresOnString,
       @"ext_expires_on" : extExpiresOnString,
-      @"user_id" : @"user@contoso.com",
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
       @"foci" : @"1"
@@ -212,7 +211,10 @@
       @"error_description" : @"Error occured",
       @"oauth_error" : @"invalid_grant",
       @"oauth_sub_error" : @"consent_required",
-      @"user_id" : @"user@contoso.com",
+      @"username" : @"user@contoso.com",
+      @"home_account_id" : @"1.1234-5678-90abcdefg",
+      @"declined_scopes" : @"decliendScope1 decliendScope2",
+      @"granted_scopes" : @"grantedScope1 grantedScope2",
       };
     NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
     
@@ -245,6 +247,10 @@
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"consent_required");
     XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"user@contoso.com");
+    XCTAssertEqualObjects(error.userInfo[MSIDHomeAccountIdkey], @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(error.userInfo[MSIDDeclinedScopesKey], @"decliendScope1 decliendScope2");
+    XCTAssertEqualObjects(error.userInfo[MSIDGrantedScopesKey], @"grantedScope1 grantedScope2");
+
 }
 
 - (void)testHandleBrokerResponse_whenBrokerErrorResponseWithHttpHeaders_shouldReturnNilResultAndErrorWithHeaders
@@ -320,7 +326,8 @@
       @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
       @"oauth_error" : @"unauthorized_client",
       @"oauth_sub_error" : @"protection_policies_required",
-      @"user_id" : @"user@contoso.com",
+      @"username" : @"user@contoso.com",
+      @"home_account_id" : @"1.1234-5678-90abcdefg",
       };
     NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
     
@@ -353,6 +360,7 @@
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"unauthorized_client");
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"protection_policies_required");
     XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"user@contoso.com");
+    XCTAssertEqualObjects(error.userInfo[MSIDHomeAccountIdkey], @"1.1234-5678-90abcdefg");
     XCTAssertNil(error.userInfo[MSIDDeclinedScopesKey]);
     XCTAssertNil(error.userInfo[MSIDGrantedScopesKey]);
 }
@@ -394,7 +402,6 @@
       @"refresh_token" : @"intune-mam-refreshtoken",
       @"expires_on" : expiresOnString,
       @"ext_expires_on" : extExpiresOnString,
-      @"user_id" : @"user@contoso.com",
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
       };
@@ -406,7 +413,8 @@
       @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
       @"oauth_error" : @"unauthorized_client",
       @"oauth_sub_error" : @"protection_policies_required",
-      @"user_id" : @"user@contoso.com",
+      @"username" : @"user@contoso.com",
+      @"home_account_id" : @"1.1234-5678-90abcdefg",
       };
     NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
     
@@ -440,6 +448,7 @@
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"unauthorized_client");
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"protection_policies_required");
     XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"user@contoso.com");
+    XCTAssertEqualObjects(error.userInfo[MSIDHomeAccountIdkey], @"1.1234-5678-90abcdefg");
     XCTAssertNil(error.userInfo[MSIDDeclinedScopesKey]);
     XCTAssertNil(error.userInfo[MSIDGrantedScopesKey]);
     
@@ -460,6 +469,117 @@
     
     MSIDRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"intune-mam-refreshtoken");
+    XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertNil(refreshToken.familyId);
+}
+
+- (void)testHandleBrokerResponse_whenScopesDeclinedErrorResponse_withAdditionalToken_shouldReturnNilResultAndError_andCacheAdditionalToken
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSString *mamIdTokenString = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"user@contoso.com"
+                                                                           subject:@"mysubject"
+                                                                         givenName:@"myGivenName"
+                                                                        familyName:@"myFamilyName"
+                                                                              name:@"Contoso"
+                                                                           version:@"2.0"
+                                                                               tid:@"contoso.com-guid"];
+    
+    NSDictionary *mamClientInfo = @{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"};
+    NSString *mamRawClientInfo = [mamClientInfo msidBase64UrlJson];
+    
+    NSDate *expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
+    
+    NSDate *extExpiresOn = [NSDate dateWithTimeIntervalSinceNow:36000];
+    NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
+    
+    NSString *scopes = @"myscope1 myscope2 myscope3 myscope4";
+    
+    NSDictionary *additionalTokenDictionary =
+    @{
+      @"authority" : @"https://login.microsoftonline.com/common",
+      @"scope" : scopes,
+      @"client_id" : @"my_client_id",
+      @"id_token" : mamIdTokenString,
+      @"client_info" : mamRawClientInfo,
+      @"access_token" : @"additional-accesstoken",
+      @"token_type" : @"Bearer",
+      @"refresh_token" : @"additional-refreshtoken",
+      @"expires_on" : expiresOnString,
+      @"ext_expires_on" : extExpiresOnString,
+      @"correlation_id" : correlationId,
+      @"x-broker-app-ver" : @"1.0.0",
+      };
+    NSString *additionalTokenString = [additionalTokenDictionary msidJSONSerializeWithContext:nil];
+    
+    NSDictionary *errorMetadata =
+    @{
+      @"http_response_code" : @200,
+      @"error_description" : @"Error occured",
+      @"oauth_error" : @"invalid_grant",
+      @"oauth_sub_error" : @"consent_required",
+      @"username" : @"user@contoso.com",
+      @"home_account_id" : @"1.1234-5678-90abcdefg",
+      @"granted_scopes" : @"myscope1 myscope2",
+      @"declined_scopes" : @"myscope3 myscope4",
+      };
+    NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"error_code" : @"-42004",
+      @"error_domain" : @"MSALErrorDomain",
+      @"correlation_id" : correlationId,
+      @"x-broker-app-ver" : @"1.0.0",
+      @"error_metadata" : errorMetaDataString,
+      @"additional_tokens" : additionalTokenString,
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL error:&error];
+    
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, -42004);
+    XCTAssertEqualObjects(error.domain, @"MSALErrorDomain");
+    XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], correlationId);
+    XCTAssertEqualObjects(error.userInfo[MSIDBrokerVersionKey], @"1.0.0");
+    XCTAssertEqualObjects(error.userInfo[MSIDHTTPResponseCodeKey], @200);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Error occured");
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"consent_required");
+    XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"user@contoso.com");
+    XCTAssertEqualObjects(error.userInfo[MSIDHomeAccountIdkey], @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(error.userInfo[MSIDDeclinedScopesKey], @"myscope3 myscope4");
+    XCTAssertEqualObjects(error.userInfo[MSIDGrantedScopesKey], @"myscope1 myscope2");
+    
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:self.cacheAccessor];
+    XCTAssertEqual([accessTokens count], 1);
+    
+    MSIDAccessToken *accessToken = accessTokens[0];
+    XCTAssertEqualObjects(accessToken.accessToken, @"additional-accesstoken");
+    XCTAssertEqualObjects(accessToken.scopes, [scopes msidScopeSet]);
+    XCTAssertEqualObjects(accessToken.clientId, @"my_client_id");
+    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
+    XCTAssertTrue([expiresOn timeIntervalSinceDate:accessToken.expiresOn] < 1);
+    XCTAssertTrue([extExpiresOn timeIntervalSinceDate:accessToken.extendedExpireTime] < 1);
+    XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
+    
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:self.cacheAccessor];
+    XCTAssertEqual([refreshTokens count], 1);
+    
+    MSIDRefreshToken *refreshToken = refreshTokens[0];
+    XCTAssertEqualObjects(refreshToken.refreshToken, @"additional-refreshtoken");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertNil(refreshToken.familyId);

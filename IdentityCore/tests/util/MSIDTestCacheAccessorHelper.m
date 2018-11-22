@@ -72,7 +72,7 @@
     
     for (MSIDBaseToken *token in allTokens)
     {
-        if (token.credentialType == type
+        if ([token supportsCredentialType:type]
             && [token isKindOfClass:typeClass])
         {
             [results addObject:token];

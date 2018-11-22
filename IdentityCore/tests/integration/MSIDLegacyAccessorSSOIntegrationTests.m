@@ -1871,7 +1871,7 @@
     XCTAssertEqual([refreshTokens count], 0);
 
     NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
-    XCTAssertEqual([accessTokens count], 0);
+    XCTAssertEqual([accessTokens count], 2);
 
     NSArray *legacyTokens = [MSIDTestCacheAccessorHelper getAllLegacyTokens:_legacyAccessor];
     XCTAssertEqual([legacyTokens count], 2);
@@ -1915,7 +1915,7 @@
     XCTAssertEqual([refreshTokens count], 0);
 
     NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
-    XCTAssertEqual([accessTokens count], 0);
+    XCTAssertEqual([accessTokens count], 1);
 
     NSArray *legacyTokens = [MSIDTestCacheAccessorHelper getAllLegacyTokens:_legacyAccessor];
     XCTAssertEqual([legacyTokens count], 1);

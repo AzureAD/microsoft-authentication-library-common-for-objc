@@ -24,6 +24,7 @@
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
 
 @implementation MSIDDefaultBrokerTokenRequest
 
@@ -35,13 +36,13 @@
     
     // if value is nil, it won't appear in the dictionary
     NSMutableDictionary *contents = [NSMutableDictionary new];
-    [contents setValue:self.requestParameters.allTokenRequestScopes forKey:@"scope"];
-    [contents setValue:homeAccountId forKey:@"home_account_id"];
-    [contents setValue:username forKey:@"username"];
-    [contents setValue:self.requestParameters.loginHint forKey:@"login_hint"];
-    [contents setValue:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
-    [contents setValue:self.requestParameters.promptType forKey:@"prompt"];
-    [contents setValue:@"3" forKey:@"msg_protocol_ver"];
+    [contents msidSetNonEmptyString:self.requestParameters.allTokenRequestScopes forKey:@"scope"];
+    [contents msidSetNonEmptyString:homeAccountId forKey:@"home_account_id"];
+    [contents msidSetNonEmptyString:username forKey:@"username"];
+    [contents msidSetNonEmptyString:self.requestParameters.loginHint forKey:@"login_hint"];
+    [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
+    [contents msidSetNonEmptyString:self.requestParameters.promptType forKey:@"prompt"];
+    [contents msidSetNonEmptyString:@"3" forKey:@"msg_protocol_ver"];
     
     return contents;
 }

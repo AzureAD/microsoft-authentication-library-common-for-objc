@@ -53,6 +53,10 @@
                                 @"http_headers" : MSIDHTTPHeadersKey,
                                 @"http_response_code" : MSIDHTTPResponseCodeKey,
                                 @"x-broker-app-ver" : MSIDBrokerVersionKey,
+                                @"username" : MSIDUserDisplayableIdkey,
+                                @"home_account_id" : MSIDHomeAccountIdkey,
+                                @"declined_scopes" : MSIDDeclinedScopesKey,
+                                @"granted_scopes" : MSIDGrantedScopesKey,
                                 };
     }
     
@@ -76,7 +80,6 @@
     
     // Save additional tokens,
     // assuming they could come in both successful case and failure case.
-    NSString *userDisplayableId = nil;
     if (decryptedResponse[@"additional_tokens"])
     {
         MSIDTokenResult *tokenResult = nil;
@@ -106,10 +109,6 @@
             MSID_LOG_CORR_WARN(correlationID, @"Unable to save additional tokens with error %ld, %@", (long)additionalTokensError.code, additionalTokensError.domain);
             MSID_LOG_WARN_CORR_PII(correlationID, @"Unable to save additional token with error %@", additionalTokensError);
         }
-        else
-        {
-            userDisplayableId = tokenResult.account.username;
-        }
     }
     
     // Successful case
@@ -126,8 +125,7 @@
         return nil;
     }
     
-    NSError *brokerError = [self resultFromBrokerErrorResponse:brokerResponse
-                                             userDisplayableId:userDisplayableId];
+    NSError *brokerError = [self resultFromBrokerErrorResponse:brokerResponse];
     
     if (error)
     {
@@ -156,7 +154,6 @@
 }
 
 - (NSError *)resultFromBrokerErrorResponse:(MSIDAADV2BrokerResponse *)errorResponse
-                         userDisplayableId:(NSString *)userId
 {
     NSString *errorDomain = errorResponse.errorDomain;
     
@@ -187,8 +184,6 @@
             [userInfo setValue:errorResponse.errorMetadata[metadataKey] forKey:userInfokey];
         }
     }
-
-    userInfo[MSIDUserDisplayableIdkey] = errorResponse.userId ? errorResponse.userId : userId;
 
     //Special handling for non-string error metadata
     NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:errorResponse.httpHeaders];

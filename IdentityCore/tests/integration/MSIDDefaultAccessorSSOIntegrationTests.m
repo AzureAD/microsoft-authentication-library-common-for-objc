@@ -418,7 +418,6 @@
       @"user_id" : @"user@contoso.com",
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
-      @"foci" : @"1"
       };
     
     NSError *error = nil;
@@ -438,16 +437,16 @@
     XCTAssertEqual([accessTokens count], 0);
     
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
-    XCTAssertEqual([refreshTokens count], 2);
+    XCTAssertEqual([refreshTokens count], 1);
     
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqual(refreshToken.credentialType, MSIDRefreshTokenType);
     XCTAssertEqualObjects(refreshToken.refreshToken, @"i-am-a-refresh-token");
-    XCTAssertEqualObjects(refreshToken.familyId, @"1");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(refreshToken.clientId, @"my_client_id");
-    XCTAssertEqualObjects(refreshToken.additionalServerInfo, nil);
+    XCTAssertNil(refreshToken.additionalServerInfo);
+    XCTAssertNil(refreshToken.familyId);
     
     NSArray *accounts = [_defaultAccessor allAccountsForAuthority:nil clientId:nil familyId:nil context:nil error:nil];
     MSIDAccount *account = accounts[0];
@@ -509,7 +508,6 @@
       @"user_id" : @"user@contoso.com",
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
-      @"foci" : @"1"
       };
     
     NSError *error = nil;
@@ -545,16 +543,16 @@
     XCTAssertEqualObjects(idToken.rawIdToken, idTokenString);
     
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
-    XCTAssertEqual([refreshTokens count], 2);
+    XCTAssertEqual([refreshTokens count], 1);
     
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqual(refreshToken.credentialType, MSIDRefreshTokenType);
     XCTAssertEqualObjects(refreshToken.refreshToken, @"i-am-a-refresh-token");
-    XCTAssertEqualObjects(refreshToken.familyId, @"1");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(refreshToken.clientId, @"my_client_id");
-    XCTAssertEqualObjects(refreshToken.additionalServerInfo, nil);
+    XCTAssertNil(refreshToken.additionalServerInfo);
+    XCTAssertNil(refreshToken.familyId);
     
     NSArray *accounts = [_defaultAccessor allAccountsForAuthority:nil clientId:nil familyId:nil context:nil error:nil];
     MSIDAccount *account = accounts[0];

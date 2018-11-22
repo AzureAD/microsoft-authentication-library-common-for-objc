@@ -73,9 +73,9 @@ MSID_FORM_ACCESSOR(@"scope", scope);
     return self.errorMetadata[@"http_headers"];
 }
 
-- (NSString *)userId
+- (NSString *)username
 {
-    return self.errorMetadata[@"user_id"];
+    return self.errorMetadata[@"username"];
 }
 
 @end
