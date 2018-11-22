@@ -60,6 +60,8 @@
 
     if (self)
     {
+        [self initDefaultSettings];
+
         _authority = authority;
         _redirectUri = redirectUri;
         _clientId = clientId;
@@ -75,7 +77,6 @@
 
         _target = [scopes msidToString];
         _oidcScope = [oidScopes msidToString];
-        [self initDefaultSettings];
     }
 
     return self;
@@ -100,9 +101,9 @@
 
     NSString *appVer = metadata[@"CFBundleShortVersionString"];
 
-    self.appRequestMetadata = @{MSID_VERSION_KEY: [MSIDVersion sdkVersion],
-                                MSID_APP_NAME_KEY: appName ? appName : @"",
-                                MSID_APP_VER_KEY: appVer ? appVer : @""};
+    _appRequestMetadata = @{MSID_VERSION_KEY: [MSIDVersion sdkVersion],
+                            MSID_APP_NAME_KEY: appName ? appName : @"",
+                            MSID_APP_VER_KEY: appVer ? appVer : @""};
 }
 
 #pragma mark - Helpers

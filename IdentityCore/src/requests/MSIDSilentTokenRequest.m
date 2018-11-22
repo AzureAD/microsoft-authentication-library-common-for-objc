@@ -31,6 +31,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDTokenResult.h"
+#import "NSError+MSIDExtensions.h"
 
 @interface MSIDSilentTokenRequest()
 
@@ -198,7 +199,7 @@
                              return;
                          }
 
-                         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.userInfo[MSIDOAuthErrorKey], error.userInfo[MSIDOAuthSubErrorKey], error, self.requestParameters.correlationId, nil);
+                         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil);
                          completionBlock(nil, interactionError);
                      }
                      else
@@ -229,7 +230,7 @@
                      //Check if server returns invalid_grant or invalid_request
                      if ([self isErrorRecoverableByUserInteraction:error])
                      {
-                         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.userInfo[MSIDOAuthErrorKey], error.userInfo[MSIDOAuthSubErrorKey], error, self.requestParameters.correlationId, nil);
+                         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil);
 
                          completionBlock(nil, interactionError);
                          return;
@@ -256,7 +257,7 @@
         If it's an unrecoverable error, server will show error message to user in the web UI.
         If client wants to not show UI in particular cases, they can examine error contents and do custom handling based on Oauth2 error code and/or sub error.
      */
-    return ![NSString msidIsStringNilOrBlank:msidError.userInfo[MSIDOAuthErrorKey]];
+    return ![NSString msidIsStringNilOrBlank:msidError.msidOauthError];
 }
 
 - (void)refreshAccessToken:(id<MSIDRefreshableToken>)refreshToken completionBlock:(MSIDRequestCompletionBlock)completionBlock

@@ -29,6 +29,7 @@
 #import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAADAuthorityMetadataResponse.h"
+#import "NSError+MSIDExtensions.h"
 
 static dispatch_queue_t s_aadValidationQueue;
 
@@ -135,7 +136,7 @@ static dispatch_queue_t s_aadValidationQueue;
      {
          if (error)
          {
-             if ([error.userInfo[MSIDOAuthErrorKey] isEqualToString:@"invalid_instance"])
+             if ([error.msidOauthError isEqualToString:@"invalid_instance"])
              {
                  [self.aadCache addInvalidRecord:authority oauthError:error context:context];
              }

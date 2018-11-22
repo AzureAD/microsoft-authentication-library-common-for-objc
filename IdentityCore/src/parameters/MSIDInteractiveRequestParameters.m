@@ -69,4 +69,22 @@
     return requestScopes;
 }
 
+- (BOOL)validateParametersWithError:(NSError **)error
+{
+    BOOL result = [super validateParametersWithError:error];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    if ([self.claims count] && self.extraQueryParameters[MSID_OAUTH2_CLAIMS])
+    {
+        MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil);
+        return NO;
+    }
+
+    return YES;
+}
+
 @end
