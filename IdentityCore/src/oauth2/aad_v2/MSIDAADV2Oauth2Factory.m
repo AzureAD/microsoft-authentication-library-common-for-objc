@@ -218,9 +218,15 @@
                                                                        developerClaims:parameters.claims];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
+    // TODO: use client_info returned on authorize 
+    NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
+                                                                   legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                                        context:parameters
+                                                                          error:nil];
+
     MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                                clientId:parameters.clientId
-                                                                                                           enrollmentId:nil
+                                                                                                           enrollmentId:enrollmentId
                                                                                                                   scope:allScopes
                                                                                                             redirectUri:parameters.redirectUri
                                                                                                                    code:authCode
@@ -238,9 +244,14 @@
                                                                        developerClaims:parameters.claims];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
+    NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
+                                                                   legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                                        context:parameters
+                                                                          error:nil];
+
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                      clientId:parameters.clientId
-                                                                                                 enrollmentId:nil // TODO: add enrollment ID handling, once it's available in common core
+                                                                                                 enrollmentId:enrollmentId
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
