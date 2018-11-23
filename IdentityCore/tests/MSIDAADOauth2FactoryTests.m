@@ -311,7 +311,7 @@
     XCTAssertNotNil(metadata);
     XCTAssertEqualObjects(metadata.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(metadata.environment, configuration.authority.environment);
-    XCTAssertNil(metadata.familyId);
+    XCTAssertEqualObjects(metadata.familyId, @"");
 }
 
 @end
