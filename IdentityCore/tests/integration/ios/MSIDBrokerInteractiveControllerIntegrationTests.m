@@ -164,7 +164,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"status"], @"succeeded");
         XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
         XCTAssertEqualObjects(telemetryEvent[@"user_id"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], @"common");
+        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], @"1234-5678-90abcdefg");
         XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
@@ -348,7 +348,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"status"], @"succeeded");
         XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
         XCTAssertEqualObjects(telemetryEvent[@"user_id"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], @"common");
+        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], @"1234-5678-90abcdefg");
         XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);

@@ -167,7 +167,7 @@
         XCTAssertEqualObjects(result.accessToken.accessToken, @"i am a access token!");
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil defaultV2IdToken]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
         XCTAssertNil(installBrokerResponse);
         XCTAssertNil(error);
 
@@ -265,7 +265,7 @@
         XCTAssertEqualObjects(result.accessToken.accessToken, @"i am a access token!");
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil defaultV2IdToken]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://contoso.onmicrosoft.cn/common");
+        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://contoso.onmicrosoft.cn/1234-5678-90abcdefg");
         XCTAssertNil(installBrokerResponse);
         XCTAssertNil(error);
 

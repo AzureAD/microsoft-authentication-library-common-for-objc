@@ -76,7 +76,8 @@
         }
 
         _target = [scopes msidToString];
-        _oidcScope = [oidScopes msidToString];
+
+        if (oidScopes) _oidcScope = [oidScopes msidToString];
     }
 
     return self;

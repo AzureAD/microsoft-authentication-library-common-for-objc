@@ -32,8 +32,8 @@
 
 @interface MSIDSilentController()
 
-@property (nonatomic) BOOL forceRefresh;
-@property (nonatomic) id<MSIDRequestControlling> interactiveController;
+@property (nonatomic, readwrite) BOOL forceRefresh;
+@property (nonatomic, readwrite) id<MSIDRequestControlling> interactiveController;
 
 @end
 

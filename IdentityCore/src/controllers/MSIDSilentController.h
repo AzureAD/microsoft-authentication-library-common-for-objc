@@ -27,6 +27,8 @@
 
 @interface MSIDSilentController : MSIDBaseRequestController <MSIDRequestControlling>
 
+@property (nonatomic, readonly) BOOL forceRefresh;
+
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
