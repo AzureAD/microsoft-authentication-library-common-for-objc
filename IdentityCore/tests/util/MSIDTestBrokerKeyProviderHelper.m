@@ -25,6 +25,7 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDBrokerKeyProvider.h"
 #import <CommonCrypto/CommonCryptor.h>
+#import <Security/Security.h>
 
 @implementation MSIDTestBrokerKeyProviderHelper
 
