@@ -182,7 +182,7 @@
             }
         }
 
-        self.appMetadata.familyId = nil;
+        self.appMetadata.familyId = @"";
         return [self.defaultAccessor updateAppMetadata:self.appMetadata context:self.requestParameters error:cacheError];
     }
 
