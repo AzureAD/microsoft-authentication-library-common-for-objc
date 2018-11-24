@@ -194,7 +194,7 @@
         return NO;
     }
     
-    metadata.familyId = response.familyId;
+    metadata.familyId = response.familyId ? response.familyId : @"";
     return YES;
 }
 
