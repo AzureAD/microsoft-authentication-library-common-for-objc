@@ -36,6 +36,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDAccount.h"
+#import "MSIDNotifications.h"
 
 @interface MSIDBrokerInteractiveController()
 
@@ -192,13 +193,19 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     NSError *resultError = nil;
     MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:resultURL error:&resultError];
 
+    [MSIDNotifications notifyWebAuthDidReceiveResponseFromBroker:result];
+
+    BOOL completionResult = result != nil;
+
     if ([self.class currentBrokerController])
     {
         MSIDBrokerInteractiveController *currentBrokerController = [self.class currentBrokerController];
-        return [currentBrokerController completeAcquireTokenWithResult:result error:resultError];
+        completionResult = [currentBrokerController completeAcquireTokenWithResult:result error:resultError];
     }
 
-    return result != nil;
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+
+    return completionResult;
 }
 
 #pragma mark - Notifications
@@ -251,6 +258,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
         MSIDBrokerInteractiveController *brokerController = [self.class currentBrokerController];
         [brokerController completeAcquireTokenWithResult:nil error:error];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     }
 }
 

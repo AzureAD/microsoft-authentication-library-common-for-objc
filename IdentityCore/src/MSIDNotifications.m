@@ -121,4 +121,21 @@ static NSString *s_webAuthDidReceiveResponseFromBrokerNotificationName;
     }
 }
 
++ (void)notifyWebAuthDidReceiveResponseFromBroker:(MSIDTokenResult *)result
+{
+    if (s_webAuthDidReceiveResponseFromBrokerNotificationName)
+    {
+        NSDictionary *userInfo = nil;
+
+        if (result)
+        {
+            userInfo = @{@"response": result};
+        }
+
+        [[NSNotificationCenter defaultCenter] postNotificationName:s_webAuthDidReceiveResponseFromBrokerNotificationName
+                                                            object:nil
+                                                          userInfo:userInfo];
+    }
+}
+
 @end
