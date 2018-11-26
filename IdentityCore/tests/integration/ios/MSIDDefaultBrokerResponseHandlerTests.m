@@ -139,7 +139,7 @@
     XCTAssertTrue([extExpiresOn timeIntervalSinceDate:result.accessToken.extendedExpireTime] < 1);
     
     XCTAssertEqualObjects(result.rawIdToken, idTokenString);
-    XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
     XCTAssertEqualObjects(result.correlationId.UUIDString, correlationId);
     XCTAssertEqual(result.extendedLifeTimeToken, NO);
     
