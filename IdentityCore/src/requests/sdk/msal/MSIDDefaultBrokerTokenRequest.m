@@ -36,13 +36,14 @@
     
     // if value is nil, it won't appear in the dictionary
     NSMutableDictionary *contents = [NSMutableDictionary new];
-    [contents msidSetNonEmptyString:self.requestParameters.allTokenRequestScopes forKey:@"scope"];
+    [contents msidSetNonEmptyString:self.requestParameters.target forKey:@"request_scopes"];
+    [contents msidSetNonEmptyString:self.requestParameters.oidcScope forKey:@"extra_oidc_scopes"];
     [contents msidSetNonEmptyString:homeAccountId forKey:@"home_account_id"];
     [contents msidSetNonEmptyString:username forKey:@"username"];
     [contents msidSetNonEmptyString:self.requestParameters.loginHint forKey:@"login_hint"];
     [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
     [contents msidSetNonEmptyString:self.requestParameters.promptType forKey:@"prompt"];
-    [contents msidSetNonEmptyString:@"3" forKey:@"msg_protocol_ver"];
+    [contents setValue:@"3" forKey:@"msg_protocol_ver"];
     
     return contents;
 }

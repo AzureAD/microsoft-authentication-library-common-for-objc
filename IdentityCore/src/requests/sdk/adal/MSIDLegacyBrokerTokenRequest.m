@@ -57,10 +57,10 @@
     NSMutableDictionary *contents = [NSMutableDictionary new];
     [contents msidSetNonEmptyString:skipCacheValue forKey:@"skip_cache"];
     [contents msidSetNonEmptyString:self.requestParameters.target forKey:@"resource"];
-    [contents msidSetNonEmptyString:self.requestParameters.uiBehaviorType == MSIDUIBehaviorForceType ? @"YES" : @"NO" forKey:@"force"];
     [contents msidSetNonEmptyString:username forKey:@"username"];
     [contents msidSetNonEmptyString:usernameType forKey:@"username_type"];
-    [contents msidSetNonEmptyString:@"2" forKey:@"max_protocol_ver"];
+    [contents setValue:@"2" forKey:@"max_protocol_ver"];
+    [contents setValue:self.requestParameters.uiBehaviorType == MSIDUIBehaviorForceType ? @"YES" : @"NO" forKey:@"force"];
 
     return contents;
 }

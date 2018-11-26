@@ -54,7 +54,8 @@
                                       @"client_app_version" : @"1.0",
                                       //V2 broker protocol specific
                                       //Nil/empty value is not sent
-                                      @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
+                                      @"request_scopes" : @"myscope1 myscope2",
+                                      @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
                                       };
@@ -95,7 +96,8 @@
                                       @"client_version" : [MSIDVersion sdkVersion],
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
-                                      @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
+                                      @"request_scopes" : @"myscope1 myscope2",
+                                      @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
                                       //if account set, both of the following should be set
@@ -139,7 +141,8 @@
                                       @"client_version" : [MSIDVersion sdkVersion],
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
-                                      @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
+                                      @"request_scopes" : @"myscope1 myscope2",
+                                      @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
                                       //login hint should be set
@@ -183,7 +186,8 @@
                                       @"client_version" : [MSIDVersion sdkVersion],
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
-                                      @"scope" : @"myscope1 myscope2 oidcscope1 oidcscope2",
+                                      @"request_scopes" : @"myscope1 myscope2",
+                                      @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
                                       //extra scopes should be set
