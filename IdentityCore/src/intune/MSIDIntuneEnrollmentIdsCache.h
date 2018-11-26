@@ -24,6 +24,10 @@
 #import <Foundation/Foundation.h>
 #import "MSIDIntuneCacheDataSource.h"
 
+#define MSID_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
+#define MSID_INTUNE_ENROLLMENT_ID_VERSION @"1"
+#define MSID_INTUNE_ENROLLMENT_ID_KEY (MSID_INTUNE_ENROLLMENT_ID MSID_INTUNE_ENROLLMENT_ID_VERSION)
+
 @protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -54,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
  then checks legacyUserId, then returns any enrollmentId available.
  */
 - (NSString *)enrollmentIdForHomeAccountId:(nullable NSString *)homeAccountId
-                                    legacyUserId:(nullable NSString *)legacyUserId
+                              legacyUserId:(nullable NSString *)legacyUserId
                                    context:(nullable id<MSIDRequestContext>)context
                                      error:(NSError *__autoreleasing *)error;
 

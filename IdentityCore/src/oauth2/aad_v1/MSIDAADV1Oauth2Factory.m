@@ -232,23 +232,15 @@
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
                                                                              authCode:(NSString *)authCode
 {
-    // TODO: implement me
+    // TODO: implement me for ADAL
     return nil;
 }
 
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                               refreshToken:(NSString *)refreshToken
 {
-    // TODO: implement me
+    // TODO: implement me for ADAL
     return nil;
-}
-
-- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-{
-    MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
-
-    // TODO: implement me
-    return configuration;
 }
 
 @end

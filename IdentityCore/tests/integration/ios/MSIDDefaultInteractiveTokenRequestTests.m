@@ -45,6 +45,7 @@
 #import "MSIDApplicationTestUtil.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDDefaultInteractiveTokenRequestTests : XCTestCase
 
@@ -71,8 +72,11 @@
 
 - (void)tearDown
 {
-    [super tearDown];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+    [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [super tearDown];
 }
 
 #pragma mark - Tests
@@ -89,7 +93,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -152,7 +156,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -163,7 +167,7 @@
         XCTAssertEqualObjects(result.accessToken.accessToken, @"i am a access token!");
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil defaultV2IdToken]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
         XCTAssertNil(installBrokerResponse);
         XCTAssertNil(error);
 
@@ -186,7 +190,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"instance_aware" : @"true" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -248,13 +252,9 @@
     MSIDTestURLResponse *wwOidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:wwAuthority];
     [MSIDTestURLSession addResponse:wwOidcResponse];
 
-    NSString *sovereignAuthority = @"https://contoso.onmicrosoft.cn/common";
-    MSIDTestURLResponse *sovereignOidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:sovereignAuthority];
-    [MSIDTestURLSession addResponse:sovereignOidcResponse];
-
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -265,7 +265,7 @@
         XCTAssertEqualObjects(result.accessToken.accessToken, @"i am a access token!");
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil defaultV2IdToken]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://contoso.onmicrosoft.cn/common");
+        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://contoso.onmicrosoft.cn/1234-5678-90abcdefg");
         XCTAssertNil(installBrokerResponse);
         XCTAssertNil(error);
 
@@ -288,7 +288,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -352,7 +352,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -378,7 +378,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -437,7 +437,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -466,7 +466,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -499,7 +499,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -528,7 +528,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -560,7 +560,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNil(error);
@@ -586,7 +586,7 @@
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
-    parameters.useEmbeddedWebView = YES;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
@@ -618,7 +618,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);

@@ -36,6 +36,6 @@
                                                          forceRefresh:(BOOL)forceRefresh;
 - (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                                             brokerKey:(nonnull NSString *)brokerKey
-                                                                error:(NSError *_Nullable *_Nullable)error;
+                                                                error:(NSError * _Nullable * _Nullable)error;
 
 @end

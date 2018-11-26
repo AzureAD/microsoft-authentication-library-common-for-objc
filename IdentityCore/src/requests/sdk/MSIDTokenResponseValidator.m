@@ -28,6 +28,7 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDBrokerResponse.h"
 #import "MSIDAuthorityFactory.h"
+#import "MSIDAccessToken.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -61,14 +62,12 @@
 
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse configuration:configuration];
 
-    MSIDAuthority *authority = configuration.authority;
-
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
                                                                    idToken:tokenResponse.idToken
                                                                    account:account
-                                                                 authority:authority
+                                                                 authority:accessToken.authority
                                                              correlationId:correlationID
                                                              tokenResponse:tokenResponse];
 

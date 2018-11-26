@@ -60,6 +60,11 @@ extern NSString *MSIDDeclinedScopesKey;
  */
 extern NSString *MSIDGrantedScopesKey;
 
+/*!
+ This flag will be set if server is unavailable
+ */
+extern NSString *MSIDServerUnavailableStatusKey;
+
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
     /*!
@@ -77,7 +82,16 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorMissingAccountParameter    = -51113,
    
     // Unsupported functionality
-    MSIDErrorUnsupportedFunctionality   = -51199,
+    MSIDErrorUnsupportedFunctionality   = -51114,
+
+    // Interaction Required
+    MSIDErrorInteractionRequired        = -51115,
+
+    // Redirect to non HTTPS detected
+    MSIDErrorServerNonHttpsRedirect     = -51116,
+
+    // Different account returned
+    MSIDErrorMismatchedAccount  =   -51117,
 
     /*!
     =========================================================
@@ -86,87 +100,86 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      */
 
     // Multiple users found in cache when one was intended
-    MSIDErrorCacheMultipleUsers     = -51201,
-    MSIDErrorCacheBadFormat         = -51302,
+    MSIDErrorCacheMultipleUsers     = -51200,
+    MSIDErrorCacheBadFormat         = -51201,
     
     /*!
      =========================================================
      Server errors  (514xx) - MSIDOAuthErrorDomain
      =========================================================
      */
-    // Interaction Required
-    MSIDErrorInteractionRequired        = -51411,
     
     // Server returned a response indicating an OAuth error
-    MSIDErrorServerOauth                = -51421,
+    MSIDErrorServerOauth                = -51400,
     // Server returned an invalid response
-    MSIDErrorServerInvalidResponse      = -51422,
+    MSIDErrorServerInvalidResponse      = -51401,
     // Server returned a refresh token reject response
-    MSIDErrorServerRefreshTokenRejected = -51423,
+    MSIDErrorServerRefreshTokenRejected = -514102,
     // Other specific server response errors
     
-    MSIDErrorServerInvalidRequest       = -51431,
-    MSIDErrorServerInvalidClient        = -51432,
-    MSIDErrorServerInvalidGrant         = -51433,
-    MSIDErrorServerInvalidScope         = -51434,
-    MSIDErrorServerUnauthorizedClient   = -51435,
-    MSIDErrorServerUnhandledResponse    = -51436,
-    MSIDErrorServerDeclinedScopes       = -51437,
+    MSIDErrorServerInvalidRequest       = -51410,
+    MSIDErrorServerInvalidClient        = -51411,
+    MSIDErrorServerInvalidGrant         = -51412,
+    MSIDErrorServerInvalidScope         = -51413,
+    MSIDErrorServerUnauthorizedClient   = -51414,
+    MSIDErrorServerDeclinedScopes       = -51415,
     
     // State verification has failed
-    MSIDErrorServerInvalidState         = -51441,
-    
-    // Redirect to non HTTPS detected
-    MSIDErrorServerNonHttpsRedirect     = -51451,
+    MSIDErrorServerInvalidState         = -51420,
 
     // Intune Protection Policies Required
-    MSIDErrorServerProtectionPoliciesRequired = -51461,
-    
-    /*!
-     =========================================================
-     Authority Validation  (515xx) - MSIDErrorDomain
-     =========================================================
-     */
-    // Authority validation response failure
-    MSIDErrorAuthorityValidation            = -51500,
-    MSIDErrorAuthorityValidationWebFinger   = -51501,
+    MSIDErrorServerProtectionPoliciesRequired = -51430,
 
-    /*!
-     =========================================================
-     Interactive flow errors    (516xx) - MSIDOAuthErrorDomain
-     =========================================================
-     */
-    
     // The user or application failed to authenticate in the interactive flow.
     // Inspect MSALOAuthErrorKey and MSALErrorDescriptionKey in the userInfo
     // dictionary for more detailed information about the specific error.
-    MSIDErrorAuthorizationFailed        = -51600,
+    MSIDErrorAuthorizationFailed        = -51440,
+
+    /*!
+     =========================================================
+     HTTP Errors  (515xx) - MSIDHttpErrorCodeDomain
+     =========================================================
+     */
+
+    MSIDErrorServerUnhandledResponse    = -51500,
+    
+    /*!
+     =========================================================
+     Authority Validation  (516xx) - MSIDErrorDomain
+     =========================================================
+     */
+    // Authority validation response failure
+    MSIDErrorAuthorityValidation            = -51600,
+    MSIDErrorAuthorityValidationWebFinger   = -51601,
+
+    /*!
+     =========================================================
+     Interactive flow errors    (517xx) - MSIDErrorDomain
+     =========================================================
+     */
 
     // User has cancelled the interactive flow.
-    MSIDErrorUserCancel                 = -51611,
+    MSIDErrorUserCancel                 = -51700,
     
     // The interactive flow was cancelled programmatically.
-    MSIDErrorSessionCanceledProgrammatically = -51612,
+    MSIDErrorSessionCanceledProgrammatically = -51701,
     
     // Interactive authentication session failed to start.
-    MSIDErrorInteractiveSessionStartFailure = -51621,
+    MSIDErrorInteractiveSessionStartFailure = -51702,
     /*!
      An interactive authentication session is already running.
      Another authentication session can not be launched yet.
      */
-    MSIDErrorInteractiveSessionAlreadyRunning = -51622,
+    MSIDErrorInteractiveSessionAlreadyRunning = -51710,
 
     // Embedded webview has failed to find a view controller to display web contents
-    MSIDErrorNoMainViewController = - 51631,
+    MSIDErrorNoMainViewController = - 51720,
 
     // Attempted to open link while running inside extension
-    MSIDErrorAttemptToOpenURLFromExtension = -51632,
+    MSIDErrorAttemptToOpenURLFromExtension = -51730,
 
     // Tried to open local UI in app extension
-    MSIDErrorUINotSupportedInExtension  = -51633,
-
-    // Different account returned
-    MSIDErrorMismatchedAccount  =   -51731,
+    MSIDErrorUINotSupportedInExtension  = -51731,
 
     /*!
      =========================================================
@@ -175,37 +188,37 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      */
 
     // Broker response was not received
-    MSIDErrorBrokerResponseNotReceived  =   -51831,
+    MSIDErrorBrokerResponseNotReceived  =   -51800,
 
     // Resume state was not found in data store, app might have deleted it
-    MSIDErrorBrokerNoResumeStateFound   =   -51832,
+    MSIDErrorBrokerNoResumeStateFound   =   -51801,
 
     // Resume state found in datastore but has some fields missing
-    MSIDErrorBrokerBadResumeStateFound  =   -51833,
+    MSIDErrorBrokerBadResumeStateFound  =   -51802,
 
     // Resume state found in datastore but it doesn't match the response being handled
-    MSIDErrorBrokerMismatchedResumeState  =   -51834,
+    MSIDErrorBrokerMismatchedResumeState  =   -51803,
 
     // Has missing in the broker response
-    MSIDErrorBrokerResponseHashMissing  =   -51931,
+    MSIDErrorBrokerResponseHashMissing  =   -51804,
 
     // Valid broker response not present
-    MSIDErrorBrokerCorruptedResponse    =   -51932,
+    MSIDErrorBrokerCorruptedResponse    =   -51805,
 
     // Failed to decrypt broker response
-    MSIDErrorBrokerResponseDecryptionFailed     =   -51933,
+    MSIDErrorBrokerResponseDecryptionFailed     =   -51806,
 
     // Broker hash mismatched in result after decryption
-    MSIDErrorBrokerResponseHashMismatch     =   -51934,
+    MSIDErrorBrokerResponseHashMismatch     =   -51807,
 
     // Failed to create broker encryption key
-    MSIDErrorBrokerKeyFailedToCreate     =   -51935,
+    MSIDErrorBrokerKeyFailedToCreate     =   -51808,
 
     // Couldn't read broker key
-    MSIDErrorBrokerKeyNotFound     =   -51936,
+    MSIDErrorBrokerKeyNotFound     =   -51809,
 
     // Unknown broker error returned
-    MSIDErrorBrokerUnknown  =   -51937,
+    MSIDErrorBrokerUnknown  =   -51810,
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

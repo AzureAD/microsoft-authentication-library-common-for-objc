@@ -54,7 +54,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError *_Nullable *_Nullable)error
+                                                        error:(NSError * _Nullable * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters tokenRequestProvider:tokenRequestProvider error:error];
 
@@ -71,7 +71,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                             brokerInstallLink:(nonnull NSURL *)brokerInstallLink
-                                                        error:(NSError *_Nullable *_Nullable)error
+                                                        error:(NSError * _Nullable * _Nullable)error
 {
     self = [self initWithInteractiveRequestParameters:parameters tokenRequestProvider:tokenRequestProvider error:error];
 
@@ -83,10 +83,16 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     return self;
 }
 
-#pragma mark - MSIDInteractiveRequestControlling
+#pragma mark - MSIDRequestControlling
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
+    if (!completionBlock)
+    {
+        MSID_LOG_ERROR(nil, @"Passed nil completionBlock");
+        return;
+    }
+
     if ([self.class currentBrokerController])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Broker authentication already in progress", nil, nil, nil, self.requestParameters.correlationId, nil);
@@ -138,7 +144,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     NSDictionary *brokerResumeDictionary = brokerRequest.resumeDictionary;
     [[NSUserDefaults standardUserDefaults] setObject:brokerResumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
-    [[NSUserDefaults standardUserDefaults] synchronize];
 
     [self callBrokerWithRequest:brokerRequest];
 }
@@ -266,9 +271,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 - (BOOL)completeAcquireTokenWithResult:(MSIDTokenResult *)tokenResult error:(NSError *)error
 {
-    // TODO: vt handling!
+    // TODO: vt handling for older broker (not necessary for MSAL, so can come later)
 
-    [self.class setCurrentBrokerController:nil];
     [self.class stopTrackingAppState];
 
     MSIDTelemetryBrokerEvent *brokerEvent = [[MSIDTelemetryBrokerEvent alloc] initWithName:MSID_TELEMETRY_EVENT_LAUNCH_BROKER requestId:self.requestParameters.telemetryRequestId correlationId:self.requestParameters.correlationId];
@@ -292,13 +296,23 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     if (self.requestCompletionBlock)
     {
-        MSIDRequestCompletionBlock requestCompletion = [self.requestCompletionBlock copy];
-        self.requestCompletionBlock = nil;
+        MSIDRequestCompletionBlock requestCompletion = [self copyAndClearCompletionBlock];
         requestCompletion(tokenResult, error);
+        [self.class setCurrentBrokerController:nil];
         return YES;
     }
 
+    [self.class setCurrentBrokerController:nil];
     return NO;
+}
+
+- (MSIDRequestCompletionBlock)copyAndClearCompletionBlock
+{
+    @synchronized (self) {
+        MSIDRequestCompletionBlock completionBlock = [self.requestCompletionBlock copy];
+        self.requestCompletionBlock = completionBlock;
+        return completionBlock;
+    }
 }
 
 #pragma mark - Current controller

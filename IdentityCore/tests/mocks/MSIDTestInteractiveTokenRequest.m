@@ -53,7 +53,7 @@
 
 #pragma mark - MSIDInteractiveTokenRequest
 
-- (void)acquireToken:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
     completionBlock(self.testTokenResult, self.testError, self.testBrokerResponse);
 }

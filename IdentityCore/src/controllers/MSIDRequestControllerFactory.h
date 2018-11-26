@@ -33,10 +33,10 @@
 + (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
                                                         forceRefresh:(BOOL)forceRefresh
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError *_Nullable *_Nullable)error;
+                                                               error:(NSError * _Nullable * _Nullable)error;
 
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                                    error:(NSError *_Nullable *_Nullable)error;
+                                                                    error:(NSError * _Nullable * _Nullable)error;
 
 @end

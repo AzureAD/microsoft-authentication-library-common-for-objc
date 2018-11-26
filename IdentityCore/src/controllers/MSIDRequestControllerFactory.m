@@ -36,7 +36,7 @@
 + (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
                                                         forceRefresh:(BOOL)forceRefresh
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError *_Nullable *_Nullable)error
+                                                               error:(NSError * _Nullable * _Nullable)error
 {
     return [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                       forceRefresh:forceRefresh
@@ -46,7 +46,7 @@
 
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                                    error:(NSError *_Nullable *_Nullable)error
+                                                                    error:(NSError * _Nullable * _Nullable)error
 {
     id<MSIDRequestControlling> interactiveController = [self platformInteractiveController:parameters
                                                                       tokenRequestProvider:tokenRequestProvider
@@ -66,7 +66,7 @@
 
 + (nullable id<MSIDRequestControlling>)platformInteractiveController:(nonnull MSIDInteractiveRequestParameters *)parameters
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError *_Nullable *_Nullable)error
+                                                               error:(NSError * _Nullable * _Nullable)error
 {
 #if TARGET_OS_IPHONE
     if ([self canUseBrokerOnDeviceWithParameters:parameters])
@@ -77,11 +77,11 @@
     }
 
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]
-        && !(parameters.useEmbeddedWebView && parameters.customWebview))
+        && !(parameters.webviewType == MSIDWebviewTypeWKWebView && parameters.customWebview))
     {
         // If developer provides us an custom webview, we should be able to use it for authentication in app extension
-        BOOL hasSupportedEmbeddedWebView = parameters.useEmbeddedWebView && parameters.customWebview;
-        BOOL hasSupportedSystemWebView = parameters.useSafariViewController && parameters.parentViewController;
+        BOOL hasSupportedEmbeddedWebView = parameters.webviewType == MSIDWebviewTypeWKWebView && parameters.customWebview;
+        BOOL hasSupportedSystemWebView = parameters.webviewType == MSIDWebviewTypeSafariViewController && parameters.parentViewController;
 
         if (!hasSupportedEmbeddedWebView && !hasSupportedSystemWebView)
         {

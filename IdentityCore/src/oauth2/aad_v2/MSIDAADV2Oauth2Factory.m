@@ -41,6 +41,7 @@
 #import "MSIDAADRefreshTokenGrantRequest.h"
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -217,9 +218,15 @@
                                                                        developerClaims:parameters.claims];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
+    // TODO: use client_info returned on authorize 
+    NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
+                                                                   legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                                        context:parameters
+                                                                          error:nil];
+
     MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                                clientId:parameters.clientId
-                                                                                                           enrollmentId:nil
+                                                                                                           enrollmentId:enrollmentId
                                                                                                                   scope:allScopes
                                                                                                             redirectUri:parameters.redirectUri
                                                                                                                    code:authCode
@@ -237,36 +244,20 @@
                                                                        developerClaims:parameters.claims];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
+    NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
+                                                                   legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                                        context:parameters
+                                                                          error:nil];
+
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                      clientId:parameters.clientId
-                                                                                                 enrollmentId:nil // TODO: add enrollment ID
+                                                                                                 enrollmentId:enrollmentId
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
                                                                                                       context:parameters];
 
     return tokenRequest;
-}
-
-- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-{
-    MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
-
-    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
-                                                                       developerClaims:parameters.claims];
-
-    configuration.claims = claims;
-
-    /*
-
-     TODO: set uid+utid
-
-     config.uid = _parameters.account.homeAccountId.objectId;
-     config.utid = _parameters.account.homeAccountId.tenantId;
-
-     */
-
-    return configuration;
 }
 
 @end

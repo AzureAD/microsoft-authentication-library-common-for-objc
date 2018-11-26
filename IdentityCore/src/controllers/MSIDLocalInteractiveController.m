@@ -47,7 +47,7 @@
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError *_Nullable *_Nullable)error
+                                                        error:(NSError * _Nullable * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
@@ -61,15 +61,21 @@
     return self;
 }
 
-#pragma mark - MSIDInteractiveRequestControlling
+#pragma mark - MSIDRequestControlling
 
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
+    if (!completionBlock)
+    {
+        MSID_LOG_ERROR(nil, @"Passed nil completionBlock");
+        return;
+    }
+
     [[MSIDTelemetry sharedInstance] startEvent:self.interactiveRequestParamaters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
 
     MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
 
-    [interactiveRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
 
         if (installBrokerResponse)
         {

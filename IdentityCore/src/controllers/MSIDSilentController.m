@@ -32,8 +32,8 @@
 
 @interface MSIDSilentController()
 
-@property (nonatomic) BOOL forceRefresh;
-@property (nonatomic) id<MSIDRequestControlling> interactiveController;
+@property (nonatomic, readwrite) BOOL forceRefresh;
+@property (nonatomic, readwrite) id<MSIDRequestControlling> interactiveController;
 
 @end
 
@@ -44,7 +44,7 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError *_Nullable *_Nullable)error
+                                             error:(NSError * _Nullable * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
@@ -62,7 +62,7 @@
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                      fallbackInteractiveController:(nullable id<MSIDRequestControlling>)fallbackController
-                                             error:(NSError *_Nullable *_Nullable)error
+                                             error:(NSError * _Nullable * _Nullable)error
 {
     self = [self initWithRequestParameters:parameters forceRefresh:forceRefresh tokenRequestProvider:tokenRequestProvider error:error];
 
@@ -78,12 +78,18 @@
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
+    if (!completionBlock)
+    {
+        MSID_LOG_ERROR(nil, @"Passed nil completionBlock");
+        return;
+    }
+
     [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
 
     MSIDSilentTokenRequest *silentRequest = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
                                                                                            forceRefresh:self.forceRefresh];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         if (result || !self.interactiveController)
         {

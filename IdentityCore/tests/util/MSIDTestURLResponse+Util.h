@@ -49,7 +49,8 @@
                                            responseScope:(NSString *)responseScope
                                       responseClientInfo:(NSString *)responseClientInfo
                                                      url:(NSString *)url
-                                            responseCode:(NSUInteger)responseCode;
+                                            responseCode:(NSUInteger)responseCode
+                                               expiresIn:(NSString *)expiresIn;
 
 + (MSIDTestURLResponse *)errorRefreshTokenGrantResponseWithRT:(NSString *)requestRT
                                                 requestClaims:(NSString *)requestClaims

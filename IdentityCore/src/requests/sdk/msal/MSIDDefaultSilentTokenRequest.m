@@ -31,6 +31,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDRefreshToken.h"
+#import "NSError+MSIDExtensions.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -161,7 +162,7 @@
                                 cacheError:(NSError **)cacheError
 {
     //When FRT is used by client which is not part of family, the server returns "client_mismatch" as sub-error
-    NSString *subError = serverError.userInfo[MSIDOAuthSubErrorKey];
+    NSString *subError = serverError.msidSubError;
     if (subError && [subError isEqualToString:MSIDServerErrorClientMismatch])
     {
         //reset family id if set in app's metadata
@@ -181,7 +182,7 @@
             }
         }
 
-        self.appMetadata.familyId = nil;
+        self.appMetadata.familyId = @"";
         return [self.defaultAccessor updateAppMetadata:self.appMetadata context:self.requestParameters error:cacheError];
     }
 

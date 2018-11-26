@@ -40,6 +40,7 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDWebViewFactory.h"
 
 @interface MSIDInteractiveTokenRequest()
 
@@ -66,13 +67,12 @@
         _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
         _tokenCache = tokenCache;
-        _webViewConfiguration = [self.oauthFactory webViewConfigurationWithRequestParameters:parameters];
     }
 
     return self;
 }
 
-- (void)acquireToken:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
     NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId ?: self.requestParameters.loginHint;
 
@@ -167,25 +167,55 @@
         }
     };
 
-    if (self.requestParameters.useEmbeddedWebView)
-    {
-        [MSIDWebviewAuthorization startEmbeddedWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                              oauth2Factory:self.oauthFactory
-                                                                    webview:self.requestParameters.customWebview
-                                                                    context:self.requestParameters
-                                                          completionHandler:webAuthCompletion];
-    }
+    self.webViewConfiguration = [self.oauthFactory.webviewFactory webViewConfigurationWithRequestParameters:self.requestParameters];
+    [self showWebComponentWithCompletion:webAuthCompletion];
+}
+
+- (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
+{
 #if TARGET_OS_IPHONE
-    else
-    {
-        [MSIDWebviewAuthorization startSystemWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                            oauth2Factory:self.oauthFactory
-                                                 useAuthenticationSession:!self.requestParameters.useSafariViewController
-                                                allowSafariViewController:self.requestParameters.useSafariViewController
-                                                                  context:self.requestParameters
-                                                        completionHandler:webAuthCompletion];
+
+    BOOL useSession = YES;
+    BOOL allowSafariViewController = YES;
+    
+    switch (self.requestParameters.webviewType) {
+        case MSIDWebviewTypeWKWebView:
+        {
+            [self showEmbeddedWebviewWithCompletion:completionHandler];
+            return;
+        }
+        case MSIDWebviewTypeAuthenticationSession:
+            useSession = YES;
+            allowSafariViewController = NO;
+            break;
+
+        case MSIDWebviewTypeSafariViewController:
+            useSession = NO;
+            allowSafariViewController = YES;
+            break;
+
+        default:
+            break;
     }
+
+    [MSIDWebviewAuthorization startSystemWebviewAuthWithConfiguration:self.webViewConfiguration
+                                                        oauth2Factory:self.oauthFactory
+                                             useAuthenticationSession:useSession
+                                            allowSafariViewController:allowSafariViewController
+                                                              context:self.requestParameters
+                                                    completionHandler:completionHandler];
+#else
+    [self showEmbeddedWebviewWithCompletion:completionHandler];
 #endif
+}
+
+- (void)showEmbeddedWebviewWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
+{
+    [MSIDWebviewAuthorization startEmbeddedWebviewAuthWithConfiguration:self.webViewConfiguration
+                                                          oauth2Factory:self.oauthFactory
+                                                                webview:self.requestParameters.customWebview
+                                                                context:self.requestParameters
+                                                      completionHandler:completionHandler];
 }
 
 #pragma mark - Helpers

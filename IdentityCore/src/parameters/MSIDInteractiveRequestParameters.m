@@ -26,6 +26,37 @@
 
 @implementation MSIDInteractiveRequestParameters
 
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           scopes:(NSOrderedSet<NSString *> *)scopes
+                       oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
+             extraScopesToConsent:(NSOrderedSet<NSString *> *)extraScopesToConsent
+                    correlationId:(NSUUID *)correlationId
+                   telemetryApiId:(NSString *)telemetryApiId
+          supportedBrokerProtocol:(NSString *)brokerProtocolScheme
+                      requestType:(MSIDInteractiveRequestType)requestType
+                            error:(NSError **)error
+{
+    self = [super initWithAuthority:authority
+                        redirectUri:redirectUri
+                           clientId:clientId
+                             scopes:scopes
+                         oidcScopes:oidScopes
+                      correlationId:correlationId
+                     telemetryApiId:telemetryApiId
+                              error:error];
+
+    if (self)
+    {
+        _extraScopesToConsent = [extraScopesToConsent msidToString];
+        _supportedBrokerProtocolScheme = brokerProtocolScheme;
+        _requestType = requestType;
+    }
+
+    return self;
+}
+
 - (NSOrderedSet *)allAuthorizeRequestScopes
 {
     NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.allTokenRequestScopes] mutableCopy];
@@ -36,6 +67,24 @@
         [requestScopes unionOrderedSet:extraScopes];
     }
     return requestScopes;
+}
+
+- (BOOL)validateParametersWithError:(NSError **)error
+{
+    BOOL result = [super validateParametersWithError:error];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    if ([self.claims count] && self.extraQueryParameters[MSID_OAUTH2_CLAIMS])
+    {
+        MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil);
+        return NO;
+    }
+
+    return YES;
 }
 
 @end

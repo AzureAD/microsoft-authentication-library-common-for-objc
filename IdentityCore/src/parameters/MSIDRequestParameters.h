@@ -57,10 +57,12 @@
 @property (nonatomic) NSArray *clientCapabilities;
 
 #pragma mark Configuration
-@property (nonatomic) MSIDConfiguration *msidConfiguration; // TODO: this one is not necessary, MSIDConfiguration should be replaced with MSIDRequestParams or vice versa
+// TODO: today we have both configuration and request params
+// In future we should think about either combining them or reconsiling configuration pieces in configuration to stop duplicating
+// This will be done separately
+@property (nonatomic) MSIDConfiguration *msidConfiguration;
 
 #pragma mark - Cache
-// TODO: should this be moved somewhere else?
 @property (nonatomic) NSString *keychainAccessGroup;
 
 - (NSURL *)tokenEndpoint;
@@ -71,5 +73,15 @@
 - (NSString *)allTokenRequestScopes;
 
 - (BOOL)validateParametersWithError:(NSError **)error;
+
+#pragma mark - Init
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           scopes:(NSOrderedSet<NSString *> *)scopes
+                       oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
+                    correlationId:(NSUUID *)correlationId
+                   telemetryApiId:(NSString *)telemetryApiId
+                            error:(NSError **)error;
 
 @end

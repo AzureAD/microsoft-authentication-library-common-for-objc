@@ -31,6 +31,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDTokenResult.h"
+#import "NSError+MSIDExtensions.h"
 
 @interface MSIDSilentTokenRequest()
 
@@ -62,8 +63,17 @@
     return self;
 }
 
-- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
 {
+    if (!self.requestParameters.accountIdentifier)
+    {
+        MSID_LOG_ERROR(self.requestParameters, @"Account parameter cannot be nil");
+
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil);
+        completionBlock(nil, error);
+        return;
+    }
+
     NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId;
 
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
@@ -77,21 +87,12 @@
              return;
          }
 
-         [self acquireTokenImpl:completionBlock];
+         [self executeRequestImpl:completionBlock];
      }];
 }
 
-- (void)acquireTokenImpl:(MSIDRequestCompletionBlock)completionBlock
+- (void)executeRequestImpl:(MSIDRequestCompletionBlock)completionBlock
 {
-    if (!self.requestParameters.accountIdentifier)
-    {
-        MSID_LOG_ERROR(self.requestParameters, @"Account parameter cannot be nil");
-
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil);
-        completionBlock(nil, error);
-        return;
-    }
-
     if (!self.forceRefresh && ![self.requestParameters.claims count])
     {
         NSError *accessTokenError = nil;
@@ -198,7 +199,7 @@
                              return;
                          }
 
-                         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.userInfo[MSIDOAuthErrorKey], error.userInfo[MSIDOAuthSubErrorKey], error, self.requestParameters.correlationId, nil);
+                         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil);
                          completionBlock(nil, interactionError);
                      }
                      else
@@ -229,7 +230,7 @@
                      //Check if server returns invalid_grant or invalid_request
                      if ([self isErrorRecoverableByUserInteraction:error])
                      {
-                         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.userInfo[MSIDOAuthErrorKey], error.userInfo[MSIDOAuthSubErrorKey], error, self.requestParameters.correlationId, nil);
+                         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil);
 
                          completionBlock(nil, interactionError);
                          return;
@@ -256,7 +257,7 @@
         If it's an unrecoverable error, server will show error message to user in the web UI.
         If client wants to not show UI in particular cases, they can examine error contents and do custom handling based on Oauth2 error code and/or sub error.
      */
-    return ![NSString msidIsStringNilOrBlank:msidError.userInfo[MSIDOAuthErrorKey]];
+    return ![NSString msidIsStringNilOrBlank:msidError.msidOauthError];
 }
 
 - (void)refreshAccessToken:(id<MSIDRefreshableToken>)refreshToken completionBlock:(MSIDRequestCompletionBlock)completionBlock
@@ -295,7 +296,9 @@
 
         if (error)
         {
-            if ([self isServerUnavailable:error] && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
+            BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
+
+            if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
             {
                 NSError *cacheError = nil;
                 MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken error:&cacheError];
@@ -325,17 +328,6 @@
 
         completionBlock(tokenResult, nil);
     }];
-}
-
-- (BOOL)isServerUnavailable:(NSError *)error
-{
-    if (![error.domain isEqualToString:MSIDHttpErrorCodeDomain])
-    {
-        return NO;
-    }
-
-    NSInteger responseCode = [[error.userInfo objectForKey:MSIDHTTPResponseCodeKey] intValue];
-    return error.code == MSIDErrorServerUnhandledResponse && responseCode >= 500 && responseCode <= 599;
 }
 
 #pragma mark - Abstract

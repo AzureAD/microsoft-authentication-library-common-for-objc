@@ -47,6 +47,14 @@
     _homeAccountId = homeAccountId;
     _legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
+    NSArray *accountComponents = [homeAccountId componentsSeparatedByString:@"."];
+
+    if ([accountComponents count] == 2)
+    {
+        _uid = accountComponents[0];
+        _utid = accountComponents[1];
+    }
+
     return self;
 }
 

@@ -46,6 +46,7 @@
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDError.h"
 #import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -70,7 +71,7 @@
 - (MSIDRequestParameters *)silentRequestParameters
 {
     MSIDRequestParameters *parameters = [MSIDRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"] context:nil error:nil];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
     parameters.oidcScope = @"openid profile offline_access";
@@ -103,8 +104,11 @@
 
 - (void)tearDown
 {
-    [super tearDown];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+    [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [super tearDown];
 }
 
 #pragma mark - Silent
@@ -117,7 +121,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -136,6 +140,10 @@
     [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
                                                                                                        forceRefresh:NO
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
@@ -144,14 +152,14 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read user.write tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.authority, silentParameters.authority);
         [expectation fulfill];
@@ -175,7 +183,7 @@
     BOOL removeResult = [tokenCache removeToken:accessToken context:nil error:nil];
     XCTAssertTrue(removeResult);
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -190,8 +198,9 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -203,16 +212,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -228,7 +238,7 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     silentParameters.target = @"new.scope1 new.scope2";
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -243,8 +253,9 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"new.scope1 new.scope2"
                                                                            responseClientInfo:nil
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -256,16 +267,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"new.scope1 new.scope2"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -280,7 +292,7 @@
     [self saveExpiredTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -295,8 +307,9 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -308,16 +321,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -343,7 +357,7 @@
 
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -358,8 +372,9 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -371,16 +386,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -413,7 +429,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/contoso.com/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -425,16 +442,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -461,6 +479,10 @@
     BOOL result = [tokenCache removeToken:refreshToken context:silentParameters error:nil];
     XCTAssertTrue(result);
 
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
                                                                                                        forceRefresh:NO
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
@@ -469,7 +491,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -494,7 +516,7 @@
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache];
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -509,23 +531,25 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -552,6 +576,10 @@
     BOOL result = [tokenCache removeToken:refreshToken context:silentParameters error:nil];
     XCTAssertTrue(result);
 
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
     MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
                                                                                                        forceRefresh:YES
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
@@ -560,7 +588,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -585,7 +613,7 @@
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache];
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -603,14 +631,15 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:differentClientInfo
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -635,7 +664,7 @@
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache];
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -653,14 +682,15 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:differentClientInfo
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -679,7 +709,7 @@
     [self saveExpiredTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -694,8 +724,9 @@
                                                                                         responseID:nil
                                                                                      responseScope:@"user.read tasks.read"
                                                                                 responseClientInfo:nil
-                                                                                               url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                      responseCode:500];
+                                                                                               url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                      responseCode:500
+                                                                                         expiresIn:nil];
 
     [MSIDTestURLSession addResponse:errorTokenResponse];
 
@@ -707,8 +738,9 @@
                                                                                           responseID:nil
                                                                                        responseScope:@"user.read tasks.read"
                                                                                   responseClientInfo:nil
-                                                                                                 url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                        responseCode:200];
+                                                                                                 url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                        responseCode:200
+                                                                                           expiresIn:nil];
 
     [MSIDTestURLSession addResponse:successTokenResponse];
 
@@ -720,16 +752,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at 2");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -744,7 +777,7 @@
     [self saveExpiredTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -755,14 +788,14 @@
     [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
 
     MSIDTestURLResponse *errorTokenResponse =
-    [MSIDTestURLResponse requestURLString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
+    [MSIDTestURLResponse requestURLString:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
                            requestHeaders:reqHeaders
                         requestParamsBody:@{ @"client_id" : @"my_client_id",
                                              @"scope" : @"user.read tasks.read openid profile offline_access",
                                              @"grant_type" : @"refresh_token",
                                              @"refresh_token" : DEFAULT_TEST_REFRESH_TOKEN,
                                              @"client_info" : @"1"}
-                        responseURLString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
+                        responseURLString:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
                              responseCode:429
                          httpHeaderFields:@{@"Retry-After": @"256",
                                             @"Other-Header-Field": @"Other header field"
@@ -781,7 +814,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -807,8 +840,6 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/tfp/contoso.com/signup";
-    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
-    [MSIDTestURLSession addResponse:discoveryResponse];
 
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
@@ -822,7 +853,8 @@
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/tfp/contoso.com/signup/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -834,16 +866,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new b2c at");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/1234-5678-90abcdefg/signup"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -861,7 +894,7 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     silentParameters.claims = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -876,8 +909,9 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -889,16 +923,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -925,7 +960,7 @@
 
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -941,8 +976,9 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:500];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:500
+                                                                                    expiresIn:nil];
 
     // MSAL will retry twice
     [MSIDTestURLSession addResponse:tokenResponse];
@@ -956,14 +992,14 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read user.write tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertTrue(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.authority, silentParameters.authority);
         [expectation fulfill];
@@ -1004,7 +1040,7 @@
     BOOL result = [tokenCache removeToken:refreshToken context:silentParameters error:nil];
     XCTAssertTrue(result);
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -1019,8 +1055,9 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:nil
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -1032,16 +1069,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -1079,7 +1117,7 @@
     BOOL result = [[self accountCredentialCache] saveCredential:refreshToken.tokenCacheItem context:nil error:nil];
     XCTAssertTrue(result);
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -1092,7 +1130,7 @@
                                                                                      responseError:@"invalid_grant"
                                                                                        description:nil
                                                                                           subError:nil
-                                                                                               url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
+                                                                                               url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
                                                                                       responseCode:200];
 
     [MSIDTestURLSession addResponse:tokenResponse];
@@ -1105,8 +1143,9 @@
                                                                                        responseID:nil
                                                                                     responseScope:@"user.read tasks.read"
                                                                                responseClientInfo:nil
-                                                                                              url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                     responseCode:200];
+                                                                                              url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                     responseCode:200
+                                                                                        expiresIn:nil];
 
     [MSIDTestURLSession addResponse:mrrtTokenResponse];
 
@@ -1118,16 +1157,17 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at mrrt");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         [expectation fulfill];
     }];
 
@@ -1140,6 +1180,7 @@
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
 
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    silentParameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/1234-5678-90abcdefg"] context:nil error:nil];
 
     [self saveTokensInCache:tokenCache
               configuration:silentParameters.msidConfiguration
@@ -1165,11 +1206,11 @@
     BOOL result = [[self accountCredentialCache] saveCredential:refreshToken.tokenCacheItem context:nil error:nil];
     XCTAssertTrue(result);
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.windows.net/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
-    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
     [MSIDTestURLSession addResponse:oidcResponse];
 
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse errorRefreshTokenGrantResponseWithRT:@"family refresh token"
@@ -1178,7 +1219,7 @@
                                                                                      responseError:@"invalid_grant"
                                                                                        description:nil
                                                                                           subError:@"client_mismatch"
-                                                                                               url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
+                                                                                               url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
                                                                                       responseCode:200];
 
     [MSIDTestURLSession addResponse:tokenResponse];
@@ -1191,8 +1232,9 @@
                                                                                        responseID:nil
                                                                                     responseScope:@"user.read tasks.read"
                                                                                responseClientInfo:nil
-                                                                                              url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                     responseCode:200];
+                                                                                              url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                     responseCode:200
+                                                                                        expiresIn:@"1"];
 
     [MSIDTestURLSession addResponse:mrrtTokenResponse];
 
@@ -1204,21 +1246,22 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at mrrt");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.windows.net/1234-5678-90abcdefg"];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
         
         [expectation fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    [self waitForExpectationsWithTimeout:100.0 handler:nil];
 
     // Next silent request shouldn't try to use FRT anymore
 
@@ -1236,23 +1279,24 @@
                                                                                        responseID:nil
                                                                                     responseScope:@"user.read tasks.read"
                                                                                responseClientInfo:nil
-                                                                                              url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                     responseCode:200];
+                                                                                              url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                     responseCode:200
+                                                                                     expiresIn:nil];
 
     [MSIDTestURLSession addResponse:secondResponse];
 
     XCTestExpectation *secondExpecation = [self expectationWithDescription:@"silent request"];
 
-    [secondSilentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [secondSilentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at mrrt");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        XCTAssertEqualObjects(result.authority.url, silentParameters.authority.url);
 
         [secondExpecation fulfill];
     }];
@@ -1290,7 +1334,7 @@
     BOOL result = [self.tokenCache removeToken:refreshToken context:nil error:nil];
     XCTAssertTrue(result);
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -1303,7 +1347,7 @@
                                                                                      responseError:@"invalid_grant"
                                                                                        description:nil
                                                                                           subError:nil
-                                                                                               url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
+                                                                                               url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
                                                                                       responseCode:200];
 
     [MSIDTestURLSession addResponse:tokenResponse];
@@ -1316,7 +1360,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -1338,7 +1382,7 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     silentParameters.target = @"new.scope1 new.scope2";
 
-    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
@@ -1353,8 +1397,9 @@
                                                                                    responseID:nil
                                                                                 responseScope:@"new.scope"
                                                                            responseClientInfo:nil
-                                                                                          url:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-                                                                                 responseCode:200];
+                                                                                          url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 
@@ -1366,7 +1411,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
-    [silentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
         XCTAssertNil(result);
@@ -1389,14 +1434,14 @@
                                                                                                                tokenCache:tokenCache];
     XCTestExpectation *secondExpectation = [self expectationWithDescription:@"silent request"];
 
-    [secondSilentRequest acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [secondSilentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
         XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"new.scope"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
-        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub"]);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.authority, silentParameters.authority);
 

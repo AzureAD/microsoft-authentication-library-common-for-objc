@@ -159,6 +159,14 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return @[self.environment];
 }
 
+- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+                              legacyUserId:(NSString *)legacyUserId
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error;
+{
+    return nil;
+}
+
 - (BOOL)isKnown
 {
     // TODO: Can we move it out from here? What about ADFS & B2C?

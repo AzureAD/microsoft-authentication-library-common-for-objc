@@ -78,8 +78,6 @@
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                               refreshToken:(NSString *)refreshToken;
 
-- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
-
 // Webview Factory
 @property (readonly) MSIDWebviewFactory *webviewFactory;
 
