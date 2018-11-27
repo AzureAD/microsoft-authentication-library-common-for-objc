@@ -251,6 +251,14 @@
 
 - (BOOL)isErrorRecoverableByUserInteraction:(NSError *)msidError
 {
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(msidError.msidOauthError, MSIDErrorServerInvalidGrant);
+
+    if (oauthError == MSIDErrorServerInvalidScope
+        || oauthError == MSIDErrorServerInvalidClient)
+    {
+        return NO;
+    }
+
     /*
         The default behavior of SDK should be to always show UI
         as long as server returns us valid response with an existing Oauth2 error.
