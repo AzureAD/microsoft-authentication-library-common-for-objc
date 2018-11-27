@@ -115,12 +115,14 @@
     {
         return [self saveSSOStateWithConfiguration:configuration
                                           response:response.tokenResponse
+                                           factory:factory
                                            context:context
                                              error:error];
     }
     
     return [self saveTokensWithConfiguration:configuration
                                     response:response.tokenResponse
+                                     factory:factory
                                      context:context
                                        error:error];
 }

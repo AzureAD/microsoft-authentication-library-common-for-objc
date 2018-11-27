@@ -431,6 +431,7 @@
     
     BOOL result = [_defaultAccessor saveTokensWithBrokerResponse:brokerResponse
                                                 saveSSOStateOnly:YES
+                                                         factory:[MSIDAADV2Oauth2Factory new]
                                                          context:nil
                                                            error:&error];
     
