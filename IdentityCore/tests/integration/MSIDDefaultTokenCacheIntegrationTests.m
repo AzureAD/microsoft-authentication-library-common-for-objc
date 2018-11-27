@@ -63,9 +63,8 @@
     // TODO: this should be replaced with a real macOS datasource instead
     _dataSource = [[MSIDTestCacheDataSource alloc] init];
 #endif
-    MSIDOauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-    _otherAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil factory:factory];
-    _cacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:@[_otherAccessor] factory:factory];
+    _otherAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
+    _cacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:@[_otherAccessor]];
     [super setUp];
 }
 
@@ -88,6 +87,7 @@
 
     BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                      response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
                                                         error:&error];
 
@@ -103,6 +103,7 @@
     NSError *error = nil;
     BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                      response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
                                                         error:&error];
 
@@ -129,6 +130,7 @@
     NSError *error = nil;
     BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                      response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
                                                         error:&error];
 
@@ -148,6 +150,7 @@
 
     BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                      response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
                                                         error:nil];
 
@@ -161,6 +164,7 @@
     NSError *error = nil;
     result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                 response:tokenResponse2
+                                                 factory:[MSIDAADV2Oauth2Factory new]
                                                  context:nil
                                                    error:nil];
 
@@ -179,6 +183,7 @@
     // save 1st token with default test scope
     BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                      response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
                                                         error:nil];
 
@@ -193,6 +198,7 @@
 
     result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                 response:tokenResponse2
+                                                 factory:[MSIDAADV2Oauth2Factory new]
                                                  context:nil
                                                    error:&error];
 
@@ -212,6 +218,7 @@
     // save 1st token with default test scope
     BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                      response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
                                                         error:&error];
 
@@ -228,6 +235,7 @@
 
     result = [_cacheAccessor saveTokensWithConfiguration:configuration
                                                 response:tokenResponse2
+                                                 factory:[MSIDAADV2Oauth2Factory new]
                                                  context:nil
                                                    error:&error];
 
@@ -247,6 +255,7 @@
     NSError *error = nil;
     BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                      response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
                                                         error:&error];
 
@@ -264,6 +273,7 @@
 
     result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                 response:tokenResponse2
+                                                 factory:[MSIDAADV2Oauth2Factory new]
                                                  context:nil
                                                    error:&error];
 
@@ -288,6 +298,7 @@
 
     BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                      response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
                                                         error:&error];
     XCTAssertNil(error);
@@ -313,6 +324,7 @@
     NSError *error = nil;
     BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                      response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
                                                         error:&error];
 
@@ -332,6 +344,7 @@
 
     BOOL result = [_cacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                        response:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                                        factory:[MSIDAADV2Oauth2Factory new]
                                                         context:nil
                                                           error:&error];
 
@@ -357,6 +370,7 @@
 
     BOOL result = [_cacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                                        response:response
+                                                        factory:[MSIDAADV2Oauth2Factory new]
                                                         context:nil
                                                           error:&error];
 
@@ -392,6 +406,7 @@
     // save 1st token with default test scope
     [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                        response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
 
@@ -408,6 +423,7 @@
 
     [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfigurationWithScopes:scopes]
                                        response:tokenResponse2
+                                        factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
 
@@ -427,6 +443,7 @@
 
     [_cacheAccessor saveTokensWithConfiguration:configuration
                                        response:tokenResponse3
+                                        factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
 
@@ -441,6 +458,7 @@
 
     [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                        response:tokenResponse4
+                                        factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
 
@@ -472,6 +490,7 @@
     // Save token
     [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                        response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
 
@@ -500,6 +519,7 @@
     // Save token
     [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                        response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
 
@@ -542,6 +562,7 @@
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
     [_cacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                          response:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                          factory:[MSIDAADV2Oauth2Factory new]
                                           context:nil
                                             error:nil];
 
@@ -562,6 +583,7 @@
 {
     [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                        response:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                        factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
 
@@ -589,12 +611,14 @@
     // Save an access token
     [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                        response:response
+                                        factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
 
     // Save a refresh token
     [_cacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                          response:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                          factory:[MSIDAADV2Oauth2Factory new]
                                           context:nil
                                             error:nil];
 
