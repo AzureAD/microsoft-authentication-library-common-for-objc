@@ -21,6 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+@class MSIDTokenResult;
+
+typedef NS_ENUM(NSInteger, MSIDWebviewType)
+{
+#if TARGET_OS_IPHONE
+    // For iOS 11 and up, uses AuthenticationSession (ASWebAuthenticationSession
+    // or SFAuthenticationSession).
+    // For older versions, with AuthenticationSession not being available, uses
+    // SafariViewController.
+    MSIDWebviewTypeDefault,
+
+    // Use SFAuthenticationSession/ASWebAuthenticationSession
+    MSIDWebviewTypeAuthenticationSession,
+
+    // Use SFSafariViewController for all versions.
+    MSIDWebviewTypeSafariViewController,
+
+#endif
+    // Use WKWebView
+    MSIDWebviewTypeWKWebView,
+};
+
+typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
+
 extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
 extern NSString * _Nonnull const MSID_VERSION_KEY;
 extern NSString * _Nonnull const MSID_CPU_KEY;//E.g. ARM64
@@ -28,6 +52,10 @@ extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
 extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
 extern NSString * _Nonnull const MSID_APP_NAME_KEY;
 extern NSString * _Nonnull const MSID_APP_VER_KEY;
+extern NSString * _Nonnull const MSID_BROKER_RESUME_DICTIONARY_KEY;
+extern NSString * _Nonnull const MSID_BROKER_SYMMETRIC_KEY_TAG;
+extern NSString * _Nonnull const MSID_BROKER_ADAL_SCHEME;
+extern NSString * _Nonnull const MSID_BROKER_MSAL_SCHEME;
 
 extern NSString * _Nonnull const MSIDTrustedAuthority;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUS;

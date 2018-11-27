@@ -37,6 +37,11 @@
 @class MSIDWebviewFactory;
 @class MSIDAuthority;
 @class MSIDAppMetadataCacheItem;
+@class MSIDAuthorizationCodeGrantRequest;
+@class MSIDRequestParameters;
+@class MSIDRefreshTokenGrantRequest;
+@class MSIDWebviewConfiguration;
+@class MSIDInteractiveRequestParameters;
 
 @protocol MSIDRequestContext;
 
@@ -64,6 +69,14 @@
 - (MSIDLegacySingleResourceToken *)legacyTokenFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAccount *)accountFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
 - (MSIDAppMetadataCacheItem *)appMetadataFromResponse:(MSIDTokenResponse *)response configuration:(MSIDConfiguration *)configuration;
+
+// Network requests
+- (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                         codeVerifier:(NSString *)pkceCodeVerifier
+                                                                             authCode:(NSString *)authCode;
+
+- (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                              refreshToken:(NSString *)refreshToken;
 
 // Webview Factory
 @property (readonly) MSIDWebviewFactory *webviewFactory;

@@ -154,4 +154,38 @@
     return YES;
 }
 
+- (NSString *)msidJSONSerializeWithContext:(id<MSIDRequestContext>)context
+{
+    NSError *serializationError = nil;
+    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:self options:0 error:&serializationError];
+
+    if (!serializedData)
+    {
+        MSID_LOG_WARN(context, @"Failed to serialize data with error %ld, %@", (long)serializationError.code, serializationError.domain);
+        MSID_LOG_WARN_PII(context, @"Failed to serialize data with error %@", serializationError);
+        return nil;
+    }
+
+    return [[NSString alloc] initWithData:serializedData encoding:NSUTF8StringEncoding];
+}
+
+// TODO: verify this is still necessary as it was done in ADAL
+- (NSDictionary *)msidDictionaryWithoutNulls
+{
+    NSMutableDictionary *cleanedDictionary = [NSMutableDictionary new];
+
+    for (NSString *key in self.allKeys)
+    {
+        NSString *val = [self valueForKey:key];
+
+        if ([val isKindOfClass:[NSString class]]
+            && ![val isEqualToString:@"(null)"])
+        {
+            cleanedDictionary[key] = val;
+        }
+    }
+
+    return cleanedDictionary;
+}
+
 @end

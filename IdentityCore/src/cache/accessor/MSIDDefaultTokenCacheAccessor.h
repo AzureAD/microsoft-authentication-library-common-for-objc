@@ -70,6 +70,7 @@
 
 - (BOOL)saveAppMetadataWithConfiguration:(MSIDConfiguration *)configuration
                                 response:(MSIDTokenResponse *)response
+                                 factory:(MSIDOauth2Factory *)factory
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 

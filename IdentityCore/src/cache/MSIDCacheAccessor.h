@@ -39,8 +39,7 @@
 @protocol MSIDCacheAccessor <NSObject>
 
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-               otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors
-                           factory:(MSIDOauth2Factory *)factory;
+               otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors;
 
 /*!
  This method saves all tokens to the cache based on the token response.
@@ -48,6 +47,7 @@
  */
 - (BOOL)saveTokensWithConfiguration:(MSIDConfiguration *)configuration
                            response:(MSIDTokenResponse *)response
+                            factory:(MSIDOauth2Factory *)factory
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
 
@@ -58,6 +58,7 @@
  */
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
                     saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                             factory:(MSIDOauth2Factory *)factory
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;
 
@@ -66,6 +67,7 @@
  */
 - (BOOL)saveSSOStateWithConfiguration:(MSIDConfiguration *)configuration
                              response:(MSIDTokenResponse *)response
+                              factory:(MSIDOauth2Factory *)factory
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
 

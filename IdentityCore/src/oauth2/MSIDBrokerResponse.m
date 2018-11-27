@@ -23,53 +23,45 @@
 
 #import "MSIDBrokerResponse.h"
 #import "MSIDAADV1TokenResponse.h"
+#import "MSIDBrokerResponse+Internal.h"
 
 @implementation MSIDBrokerResponse
 
 MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
 MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_RESOURCE, resource);
-
-MSID_FORM_ACCESSOR(MSID_OAUTH2_ACCESS_TOKEN, accessToken);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_REFRESH_TOKEN, refreshToken);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_EXPIRES_ON, expiresOn);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_ID_TOKEN, idToken);
-MSID_FORM_ACCESSOR(MSID_FAMILY_ID, familyId);
 
 MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
 MSID_FORM_ACCESSOR(@"vt", validAuthority);
 
 MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
 MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_ERROR_DESCRIPTION, errorDescription);
-MSID_FORM_ACCESSOR(MSID_CLIENT_INFO_CACHE_KEY, clientInfo)
+MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
 
-- (instancetype)initWithDictionary:(NSDictionary *)form
-                             error:(NSError **)error
+- (instancetype)initWithDictionary:(NSDictionary *)form error:(NSError *__autoreleasing *)error
 {
     self = [super initWithDictionary:form error:error];
-    
+
     if (self)
     {
-        // Broker only works for AAD for now
-        NSMutableDictionary *formDictionary = [form mutableCopy];
-        formDictionary[MSID_OAUTH2_TOKEN_TYPE] = @"Bearer";
-        
-        _tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:formDictionary
-                                                                          error:error];
+        [self initDerivedProperties];
     }
-    
+
     return self;
 }
 
-- (NSString *)oauthErrorCode
+- (void)initDerivedProperties
 {
-    if (_urlForm[@"protocol_code"])
-    {
-        return _urlForm[@"protocol_code"];
-    }
-    
-    return _urlForm[@"code"];
+    self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:_urlForm error:nil];
+}
+
+- (NSString *)target
+{
+    return _urlForm[@"scope"];
+}
+
+- (BOOL)accessTokenInvalidForResponse
+{
+    return NO;
 }
 
 @end

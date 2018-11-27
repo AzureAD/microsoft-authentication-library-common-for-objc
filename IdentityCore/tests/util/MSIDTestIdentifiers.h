@@ -23,6 +23,7 @@
 
 #define DEFAULT_TEST_UID @"1"
 #define DEFAULT_TEST_UTID @"1234-5678-90abcdefg"
+#define DEFAULT_TEST_HOME_ACCOUNT_ID @"1.1234-5678-90abcdefg"
 #define DEFAULT_TEST_RESOURCE @"https://graph.microsoft.com/"
 #define DEFAULT_TEST_AUTHORITY @"https://login.microsoftonline.com/common"
 #define DEFAULT_TEST_AUTHORIZATION_ENDPOINT @"https://login.microsoftonline.com/common/common/oauth2/authorize"

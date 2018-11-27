@@ -28,6 +28,7 @@
 @class MSIDWebviewResponse;
 @class MSIDWebviewSession;
 @class WKWebView;
+@class MSIDInteractiveRequestParameters;
 
 @interface MSIDWebviewFactory : NSObject
 
@@ -57,5 +58,7 @@
 
 // Helper for generating state for state verification
 - (NSString *)generateStateValue;
+
+- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
 
 @end

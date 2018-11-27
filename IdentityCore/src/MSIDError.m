@@ -29,6 +29,11 @@ NSString *MSIDOAuthSubErrorKey = @"MSIDOAuthSubErrorKey";
 NSString *MSIDCorrelationIdKey = @"MSIDCorrelationIdKey";
 NSString *MSIDHTTPHeadersKey = @"MSIDHTTPHeadersKey";
 NSString *MSIDHTTPResponseCodeKey = @"MSIDHTTPResponseCodeKey";
+NSString *MSIDDeclinedScopesKey = @"MSIDDeclinedScopesKey";
+NSString *MSIDGrantedScopesKey = @"MSIDGrantedScopesKey";
+NSString *MSIDUserDisplayableIdkey = @"MSIDUserDisplayableIdkey";
+NSString *MSIDBrokerVersionKey = @"MSIDBrokerVersionKey";
+NSString *MSIDServerUnavailableStatusKey = @"MSIDServerUnavailableStatusKey";
 
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
@@ -86,7 +91,11 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorInternal),
                       @(MSIDErrorInvalidInternalParameter),
                       @(MSIDErrorInvalidDeveloperParameter),
+                      @(MSIDErrorMissingAccountParameter),
                       @(MSIDErrorUnsupportedFunctionality),
+                      @(MSIDErrorInteractionRequired),
+                      @(MSIDErrorServerNonHttpsRedirect),
+                      @(MSIDErrorMismatchedAccount),
                       
                       // Cache Errors
                       @(MSIDErrorCacheMultipleUsers),
@@ -94,16 +103,33 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       
                       // Authority Validation Errors
                       @(MSIDErrorAuthorityValidation),
+                      @(MSIDErrorAuthorityValidationWebFinger),
                       
                       // Interactive flow errors
                       @(MSIDErrorUserCancel),
                       @(MSIDErrorSessionCanceledProgrammatically),
                       @(MSIDErrorInteractiveSessionStartFailure),
                       @(MSIDErrorInteractiveSessionAlreadyRunning),
-                      @(MSIDErrorNoMainViewController)
+                      @(MSIDErrorNoMainViewController),
+                      @(MSIDErrorServerInvalidResponse),
+                      @(MSIDErrorAttemptToOpenURLFromExtension),
+                      @(MSIDErrorUINotSupportedInExtension),
+
+                      // Broker errors
+                      @(MSIDErrorBrokerResponseNotReceived),
+                      @(MSIDErrorBrokerNoResumeStateFound),
+                      @(MSIDErrorBrokerBadResumeStateFound),
+                      @(MSIDErrorBrokerMismatchedResumeState),
+                      @(MSIDErrorBrokerResponseHashMissing),
+                      @(MSIDErrorBrokerCorruptedResponse),
+                      @(MSIDErrorBrokerResponseDecryptionFailed),
+                      @(MSIDErrorBrokerResponseHashMismatch),
+                      @(MSIDErrorBrokerKeyFailedToCreate),
+                      @(MSIDErrorBrokerKeyNotFound),
+                      @(MSIDErrorBrokerUnknown)
+
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
-                      @(MSIDErrorInteractionRequired),
                       @(MSIDErrorServerOauth),
                       @(MSIDErrorServerInvalidResponse),
                       @(MSIDErrorServerRefreshTokenRejected),
@@ -111,13 +137,27 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorServerInvalidClient),
                       @(MSIDErrorServerInvalidGrant),
                       @(MSIDErrorServerInvalidScope),
+                      @(MSIDErrorServerUnauthorizedClient),
+                      @(MSIDErrorServerDeclinedScopes),
                       @(MSIDErrorServerInvalidState),
-                      @(MSIDErrorServerNonHttpsRedirect),
                       @(MSIDErrorServerProtectionPoliciesRequired),
-                      @(MSIDErrorAuthorizationFailed)
+                      @(MSIDErrorAuthorizationFailed),
                       ],
               MSIDHttpErrorCodeDomain : @[
                       @(MSIDErrorServerUnhandledResponse)
                       ]
+
+              // TODO: add new codes here
               };
+}
+
+void MSIDFillAndLogError(NSError **error, MSIDErrorCode errorCode, NSString *errorDescription, NSUUID *correlationID)
+{
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, errorCode, errorDescription, nil, nil, nil, correlationID, nil);
+    }
+
+    MSID_LOG_ERROR_CORR(correlationID, @"Encountered error with code %ld", (long)errorCode);
+    MSID_LOG_ERROR_CORR_PII(correlationID, @"Encountered error with code %ld, description %@", (long)errorCode, errorDescription);
 }

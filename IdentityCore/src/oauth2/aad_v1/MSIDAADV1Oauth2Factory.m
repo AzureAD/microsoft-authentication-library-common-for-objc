@@ -40,6 +40,7 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAADTenant.h"
+#import "MSIDRefreshTokenGrantRequest.h"
 
 @implementation MSIDAADV1Oauth2Factory
 
@@ -121,6 +122,8 @@
 
             if (error)
             {
+                NSDictionary *userInfo = @{MSIDUserDisplayableIdkey : response.additionalUserId ?: @""};
+
                 *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                          errorCode,
                                          response.errorDescription,
@@ -128,7 +131,7 @@
                                          response.suberror,
                                          nil,
                                          context.correlationId,
-                                         nil);
+                                         userInfo);
             }
         }
 
@@ -214,7 +217,6 @@
 }
 
 #pragma mark - Webview
-#pragma mark - Webview
 - (MSIDWebviewFactory *)webviewFactory
 {
     if (!_webviewFactory)
@@ -222,6 +224,23 @@
         _webviewFactory = [[MSIDAADV1WebviewFactory alloc] init];
     }
     return _webviewFactory;
+}
+
+#pragma mark - Network requests
+
+- (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                         codeVerifier:(NSString *)pkceCodeVerifier
+                                                                             authCode:(NSString *)authCode
+{
+    // TODO: implement me for ADAL
+    return nil;
+}
+
+- (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                              refreshToken:(NSString *)refreshToken
+{
+    // TODO: implement me for ADAL
+    return nil;
 }
 
 @end

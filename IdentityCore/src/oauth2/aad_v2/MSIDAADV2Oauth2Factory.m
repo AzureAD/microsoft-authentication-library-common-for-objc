@@ -35,6 +35,13 @@
 #import "MSIDAADV2WebviewFactory.h"
 #import "MSIDAuthorityFactory.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDAADAuthorizationCodeGrantRequest.h"
+#import "MSIDAADRefreshTokenGrantRequest.h"
+#import "MSIDWebviewConfiguration.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -199,6 +206,58 @@
         _webviewFactory = [[MSIDAADV2WebviewFactory alloc] init];
     }
     return _webviewFactory;
+}
+
+#pragma mark - Network requests
+
+- (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                         codeVerifier:(NSString *)pkceCodeVerifier
+                                                                             authCode:(NSString *)authCode
+{
+    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
+                                                                       developerClaims:parameters.claims];
+    NSString *allScopes = parameters.allTokenRequestScopes;
+
+    // TODO: use client_info returned on authorize 
+    NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
+                                                                   legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                                        context:parameters
+                                                                          error:nil];
+
+    MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                               clientId:parameters.clientId
+                                                                                                           enrollmentId:enrollmentId
+                                                                                                                  scope:allScopes
+                                                                                                            redirectUri:parameters.redirectUri
+                                                                                                                   code:authCode
+                                                                                                                 claims:claims
+                                                                                                           codeVerifier:pkceCodeVerifier
+                                                                                                                context:parameters];
+
+    return tokenRequest;
+}
+
+- (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                              refreshToken:(NSString *)refreshToken
+{
+    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
+                                                                       developerClaims:parameters.claims];
+    NSString *allScopes = parameters.allTokenRequestScopes;
+
+    NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
+                                                                   legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                                        context:parameters
+                                                                          error:nil];
+
+    MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                     clientId:parameters.clientId
+                                                                                                 enrollmentId:enrollmentId
+                                                                                                        scope:allScopes
+                                                                                                 refreshToken:refreshToken
+                                                                                                       claims:claims
+                                                                                                      context:parameters];
+
+    return tokenRequest;
 }
 
 @end

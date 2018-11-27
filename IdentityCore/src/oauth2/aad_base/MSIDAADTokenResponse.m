@@ -45,6 +45,7 @@ MSID_JSON_RW(MSID_OAUTH2_CLIENT_INFO, rawClientInfo, setRawClientInfo)
 MSID_JSON_ACCESSOR(MSID_FAMILY_ID, familyId)
 MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_SUB_ERROR, suberror)
+MSID_JSON_ACCESSOR(@"adi", additionalUserId)
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token

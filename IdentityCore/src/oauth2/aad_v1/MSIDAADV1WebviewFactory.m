@@ -23,6 +23,7 @@
 
 #import "MSIDAADV1WebviewFactory.h"
 #import "MSIDWebviewConfiguration.h"
+#import "MSIDInteractiveRequestParameters.h"
 
 @implementation MSIDAADV1WebviewFactory
 
@@ -36,5 +37,12 @@
     return parameters;
 }
 
+- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
+
+    // TODO: implement me for ADAL
+    return configuration;
+}
 
 @end

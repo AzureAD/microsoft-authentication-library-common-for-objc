@@ -30,6 +30,7 @@
                                       scope:(nullable NSString *)scope
                                 redirectUri:(nonnull NSString *)redirectUri
                                        code:(nonnull NSString *)code
+                                     claims:(nullable NSString *)claims
                                codeVerifier:(nullable NSString *)codeVerifier
                                     context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 

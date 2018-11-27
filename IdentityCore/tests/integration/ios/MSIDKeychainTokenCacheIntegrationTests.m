@@ -57,7 +57,7 @@
     [super tearDown];
     
     [MSIDKeychainTokenCache reset];
-    
+
     MSIDKeychainTokenCache.defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 

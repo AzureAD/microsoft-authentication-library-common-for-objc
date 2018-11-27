@@ -99,6 +99,11 @@
     return MSID_TELEMETRY_VALUE_AUTHORITY_B2C;
 }
 
+- (BOOL)supportsBrokeredAuthentication
+{
+    return NO;
+}
+
 #pragma mark - Protected
 
 - (id<MSIDAuthorityResolving>)resolver

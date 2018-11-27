@@ -41,6 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
                                   developerClaims:(NSDictionary *)developerClaims;
 
++ (NSString *)jsonFromClaims:(NSDictionary *)claims;
+
 @end
 
 NS_ASSUME_NONNULL_END

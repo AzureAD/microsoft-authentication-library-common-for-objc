@@ -43,7 +43,7 @@
 
 - (nullable NSData *)serialize;
 - (BOOL)deserialize:(nullable NSData*)data
-              error:(NSError *_Nullable *_Nullable)error;
+              error:(NSError * _Nullable * _Nullable)error;
 
 - (void)clear;
 

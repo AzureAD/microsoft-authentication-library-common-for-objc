@@ -54,14 +54,26 @@
     return error;
 }
 
+- (id<MSIDErrorConverting>)msidErrorConverter
+{
+    id<MSIDErrorConverting> errorConverter = MSIDErrorConverter.errorConverter;
+
+    if (!errorConverter)
+    {
+        errorConverter = MSIDErrorConverter.defaultErrorConverter;
+    }
+
+    return errorConverter;
+}
+
 - (nullable NSString *)msidOauthError
 {
-    return self.userInfo[MSIDErrorConverter.errorConverter.oauthErrorKey];
+    return self.userInfo[self.msidErrorConverter.oauthErrorKey];
 }
 
 - (nullable NSString *)msidSubError
 {
-    return self.userInfo[MSIDErrorConverter.errorConverter.subErrorKey];
+    return self.userInfo[self.msidErrorConverter.subErrorKey];
 }
 
 @end

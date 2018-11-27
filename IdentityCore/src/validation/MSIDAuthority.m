@@ -62,6 +62,9 @@
 #import "MSIDOpenIdConfigurationInfoRequest.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "MSIDTelemetryAuthorityValidationEvent.h"
 
 static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
 
@@ -106,6 +109,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     
     id <MSIDAuthorityResolving> resolver = [self resolver];
     NSParameterAssert(resolver);
+
+    [[MSIDTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION];
     
     [resolver resolveAuthority:self
              userPrincipalName:upn
@@ -114,6 +119,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
                completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          self.openIdConfigurationEndpoint = openIdConfigurationEndpoint;
+
+         MSIDTelemetryAuthorityValidationEvent *validationEvent = [[MSIDTelemetryAuthorityValidationEvent alloc] initWithName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION context:context];
+         [validationEvent setAuthorityValidationStatus:validated ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
+         [validationEvent setAuthority:self];
+         [[MSIDTelemetry sharedInstance] stopEvent:context.telemetryRequestId event:validationEvent];
          
          if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
      }];
@@ -161,6 +171,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 {
     // TODO: Can we move it out from here? What about ADFS & B2C?
     return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:self.url.host.lowercaseString];
+}
+
+- (BOOL)supportsBrokeredAuthentication
+{
+    return NO;
 }
 
 - (nonnull NSString *)telemetryAuthorityType

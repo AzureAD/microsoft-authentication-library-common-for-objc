@@ -49,7 +49,6 @@
 {
     MSIDAccountCredentialCache *_accountCredentialCache;
     NSArray<id<MSIDCacheAccessor>> *_otherAccessors;
-    MSIDOauth2Factory *_factory;
 }
 
 @end
@@ -60,7 +59,6 @@
 
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
                otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors
-                           factory:(MSIDOauth2Factory *)factory
 {
     self = [super init];
 
@@ -68,7 +66,6 @@
     {
         _accountCredentialCache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
         _otherAccessors = otherAccessors;
-        _factory = factory;
     }
 
     return self;
@@ -76,27 +73,29 @@
 
 - (BOOL)saveTokensWithConfiguration:(MSIDConfiguration *)configuration
                            response:(MSIDTokenResponse *)response
+                            factory:(MSIDOauth2Factory *)factory
                             context:(id<MSIDRequestContext>)context
                               error:(NSError *__autoreleasing *)error
 {
     MSID_LOG_VERBOSE(context, @"(Default accessor) Saving multi resource refresh token");
 
     // Save access token
-    BOOL result = [self saveAccessTokenWithConfiguration:configuration response:response context:context error:error];
+    BOOL result = [self saveAccessTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
 
     if (!result) return result;
 
     // Save ID token
-    result = [self saveIDTokenWithConfiguration:configuration response:response context:context error:error];
+    result = [self saveIDTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
 
     if (!result) return result;
     
     // Save SSO state (refresh token and account)
-    return [self saveSSOStateWithConfiguration:configuration response:response context:context error:error];
+    return [self saveSSOStateWithConfiguration:configuration response:response factory:factory context:context error:error];
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
                     saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                             factory:(MSIDOauth2Factory *)factory
                              context:(id<MSIDRequestContext>)context
                                error:(NSError *__autoreleasing *)error
 {
@@ -111,6 +110,7 @@
 
 - (BOOL)saveSSOStateWithConfiguration:(MSIDConfiguration *)configuration
                              response:(MSIDTokenResponse *)response
+                              factory:(MSIDOauth2Factory *)factory
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError *__autoreleasing *)error
 {
@@ -122,16 +122,16 @@
 
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving SSO state");
 
-    BOOL result = [self saveRefreshTokenWithConfiguration:configuration response:response context:context error:error];
+    BOOL result = [self saveRefreshTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
 
     if (!result) return NO;
     
     //Save App metadata
-    result = [self saveAppMetadataWithConfiguration:configuration response:response context:context error:error];
+    result = [self saveAppMetadataWithConfiguration:configuration response:response factory:factory context:context error:error];
     
     if (!result) return NO;
 
-    return [self saveAccountWithConfiguration:configuration response:response context:context error:error];
+    return [self saveAccountWithConfiguration:configuration response:response factory:factory context:context error:error];
 }
 
 - (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
@@ -567,10 +567,11 @@
 
 - (BOOL)saveAccessTokenWithConfiguration:(MSIDConfiguration *)configuration
                                 response:(MSIDTokenResponse *)response
+                                 factory:(MSIDOauth2Factory *)factory
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
-    MSIDAccessToken *accessToken = [_factory accessTokenFromResponse:response configuration:configuration];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     if (!accessToken)
     {
         [self fillInternalErrorWithMessage:@"Response does not contain an access token" context:context error:error];
@@ -587,10 +588,11 @@
 
 - (BOOL)saveIDTokenWithConfiguration:(MSIDConfiguration *)configuration
                             response:(MSIDTokenResponse *)response
+                             factory:(MSIDOauth2Factory *)factory
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
-    MSIDIdToken *idToken = [_factory idTokenFromResponse:response configuration:configuration];
+    MSIDIdToken *idToken = [factory idTokenFromResponse:response configuration:configuration];
 
     if (idToken)
     {
@@ -602,10 +604,11 @@
 
 - (BOOL)saveRefreshTokenWithConfiguration:(MSIDConfiguration *)configuration
                                  response:(MSIDTokenResponse *)response
+                                  factory:(MSIDOauth2Factory *)factory
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
 {
-    MSIDRefreshToken *refreshToken = [_factory refreshTokenFromResponse:response configuration:configuration];
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response configuration:configuration];
 
     if (!refreshToken)
     {
@@ -630,10 +633,11 @@
 
 - (BOOL)saveAccountWithConfiguration:(MSIDConfiguration *)configuration
                             response:(MSIDTokenResponse *)response
+                             factory:(MSIDOauth2Factory *)factory
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
-    MSIDAccount *account = [_factory accountFromResponse:response configuration:configuration];
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
 
     if (account)
     {
@@ -876,10 +880,11 @@
 
 - (BOOL)saveAppMetadataWithConfiguration:(MSIDConfiguration *)configuration
                                 response:(MSIDTokenResponse *)response
+                                 factory:(MSIDOauth2Factory *)factory
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
-    MSIDAppMetadataCacheItem *metadata = [_factory appMetadataFromResponse:response configuration:configuration];
+    MSIDAppMetadataCacheItem *metadata = [factory appMetadataFromResponse:response configuration:configuration];
     if (!metadata)
     {
         [self fillInternalErrorWithMessage:@"Failed to create app metadata from response" context:context error:error];

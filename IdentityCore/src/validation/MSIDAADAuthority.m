@@ -208,6 +208,11 @@
     return MSID_TELEMETRY_VALUE_AUTHORITY_AAD;
 }
 
+- (BOOL)supportsBrokeredAuthentication
+{
+    return YES;
+}
+
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone

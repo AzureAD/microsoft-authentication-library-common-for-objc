@@ -72,9 +72,8 @@
 {
     [MSIDKeychainTokenCache reset];
     _dataSource = [[MSIDKeychainTokenCache alloc] init];
-    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    _legacyCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil factory:factory];
-    _defaultCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil factory:factory];
+    _legacyCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
+    _defaultCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
     
     [super setUp];
 }
@@ -106,6 +105,7 @@
 
     BOOL result = [_legacyCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                              response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                              factory:[MSIDAADV1Oauth2Factory new]
                                                               context:reqContext
                                                                 error:nil];
     XCTAssertNil(error);
@@ -168,6 +168,7 @@
     
     BOOL result = [_legacyCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                              response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                              factory:[MSIDAADV1Oauth2Factory new]
                                                               context:reqContext
                                                                 error:nil];
     XCTAssertNil(error);
@@ -235,6 +236,7 @@
 
     BOOL result = [_defaultCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                               response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                               factory:factory
                                                                context:reqContext
                                                                  error:nil];
     XCTAssertNil(error);
@@ -297,6 +299,7 @@
     
     BOOL result = [_defaultCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                               response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                               factory:[MSIDAADV1Oauth2Factory new]
                                                                context:reqContext
                                                                  error:nil];
     XCTAssertNil(error);

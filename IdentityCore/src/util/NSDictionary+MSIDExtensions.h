@@ -31,7 +31,9 @@
 
 - (NSString *)msidWWWFormURLEncode;
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
+- (NSString *)msidJSONSerializeWithContext:(id<MSIDRequestContext>)context;
 
+- (NSDictionary *)msidDictionaryWithoutNulls;
 
 - (BOOL)msidAssertType:(Class)type
                ofField:(NSString *)field
