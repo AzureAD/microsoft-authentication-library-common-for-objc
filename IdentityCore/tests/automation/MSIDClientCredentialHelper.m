@@ -130,9 +130,8 @@
               return;
           }
           
-          __auto_type authorityFactory = [MSIDAuthorityFactory new];
           __auto_type authorityUrl = [[NSURL alloc] initWithString:authorityString];
-          __auto_type authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+          __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
           
           MSIDConfiguration *configuration = [MSIDConfiguration new];
           configuration.authority = authority;
