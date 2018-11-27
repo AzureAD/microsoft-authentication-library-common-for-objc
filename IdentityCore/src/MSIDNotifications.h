@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class MSIDTokenResult;
+
 @interface MSIDNotifications : NSObject
 
 #pragma mark - Web auth notifications
@@ -56,5 +58,6 @@
 + (void)notifyWebAuthDidFailWithError:(NSError *)error;
 + (void)notifyWebAuthDidCompleteWithURL:(NSURL *)url;
 + (void)notifyWebAuthWillSwitchToBroker;
++ (void)notifyWebAuthDidReceiveResponseFromBroker:(MSIDTokenResult *)result;
 
 @end

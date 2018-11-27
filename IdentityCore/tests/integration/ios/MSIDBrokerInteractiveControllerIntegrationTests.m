@@ -114,7 +114,7 @@
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
                                            @"test-resume-key2": @"test-resume-value2"};
 
-    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"];
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey1"];
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
@@ -208,7 +208,7 @@
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
                                            @"test-resume-key2": @"test-resume-value2"};
 
-    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"];
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey2"];
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
@@ -302,7 +302,7 @@
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
                                            @"test-resume-key2": @"test-resume-value2"};
 
-    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"];
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey3"];
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
@@ -314,16 +314,33 @@
 
     MSIDTokenResult *testResult = [self resultWithParameters:parameters];
 
+    XCTestExpectation *firstRequestExpectation = [self expectationWithDescription:@"First request"];
+    XCTestExpectation *secondRequestExpectation = [self expectationWithDescription:@"Second request"];
+
     [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
 
         XCTAssertEqualObjects(url, brokerRequestURL);
 
         NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
         XCTAssertEqualObjects(resumeDictionary, testResumeDictionary);
+
+        MSIDBrokerInteractiveController *secondBrokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:nil];
+
+        [secondBrokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+            XCTAssertNotNil(error);
+            XCTAssertEqual(error.code, MSIDErrorInteractiveSessionAlreadyRunning);
+            XCTAssertNil(result);
+
+            [secondRequestExpectation fulfill];
+
+            // Call acquire token completion after we get this error
+            MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+
+            [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"] brokerResponseHandler:brokerResponseHandler];
+        }];
+
         return YES;
     }];
-
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
     [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
@@ -362,23 +379,10 @@
         XCTAssertNotNil(brokerEvent[@"start_time"]);
         XCTAssertNotNil(brokerEvent[@"stop_time"]);
 
-        [expectation fulfill];
+        [firstRequestExpectation fulfill];
     }];
 
-    MSIDBrokerInteractiveController *secondBrokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
-
-    [secondBrokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, MSIDErrorInteractiveSessionAlreadyRunning);
-        XCTAssertNil(result);
-
-        // Call acquire token completion after we get this error
-        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
-
-        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"] brokerResponseHandler:brokerResponseHandler];
-    }];
-
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    [self waitForExpectations:@[secondRequestExpectation, firstRequestExpectation] timeout:1.0 enforceOrder:YES];
 }
 
 - (void)testAcquireToken_whenFailedToCreateBrokerRequest_shouldReturnError
@@ -470,7 +474,7 @@
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
                                            @"test-resume-key2": @"test-resume-value2"};
 
-    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"];
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey4"];
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
@@ -486,6 +490,11 @@
 
         NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
         XCTAssertEqualObjects(resumeDictionary, testResumeDictionary);
+
+        // Post UIApplication lifecycle notifications to simulate user coming back to the app
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+
         return YES;
     }];
 
@@ -533,10 +542,6 @@
 
         [expectation fulfill];
     }];
-
-    // Post UIApplication lifecycle notifications to simulate user coming back to the app
-    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
@@ -565,7 +570,7 @@
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
                                            @"test-resume-key2": @"test-resume-value2"};
 
-    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"];
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey5"];
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
@@ -577,16 +582,25 @@
 
     MSIDTokenResult *testResult = [self resultWithParameters:parameters];
 
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
     [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
 
         XCTAssertEqualObjects(url, brokerRequestURL);
 
         NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
         XCTAssertEqualObjects(resumeDictionary, testResumeDictionary);
+
+        // Post UIApplication lifecycle notifications to simulate user coming back to the app
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+
+        // Now call acquire token completion, to simulate response arriving after user coming back to the app
+        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"] brokerResponseHandler:brokerResponseHandler];
+
         return YES;
     }];
-
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
     __block BOOL calledCompletion = NO;
 
@@ -630,15 +644,6 @@
 
         [expectation fulfill];
     }];
-
-    // Post UIApplication lifecycle notifications to simulate user coming back to the app
-    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
-
-    // Now call acquire token completion, to simulate response arriving after user coming back to the app
-    MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
-
-    [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"] brokerResponseHandler:brokerResponseHandler];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }

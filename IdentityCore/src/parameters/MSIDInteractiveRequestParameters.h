@@ -38,6 +38,9 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 };
 
 @class WKWebView;
+#if TARGET_OS_IPHONE
+@class UIViewController;
+#endif
 
 @interface MSIDInteractiveRequestParameters : MSIDRequestParameters
 

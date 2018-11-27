@@ -48,7 +48,6 @@
 {
     id<MSIDTokenCacheDataSource> _dataSource;
     MSIDKeyedArchiverSerializer *_serializer;
-    MSIDOauth2Factory *_factory;
     NSArray *_otherAccessors;
 }
 
@@ -60,7 +59,6 @@
 
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
                otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors
-                           factory:(MSIDOauth2Factory *)factory
 {
     self = [super init];
 
@@ -69,7 +67,6 @@
         _dataSource = dataSource;
         _serializer = [[MSIDKeyedArchiverSerializer alloc] init];
         _otherAccessors = otherAccessors;
-        _factory = factory;
     }
 
     return self;
@@ -79,27 +76,29 @@
 
 - (BOOL)saveTokensWithConfiguration:(MSIDConfiguration *)configuration
                            response:(MSIDTokenResponse *)response
+                            factory:(MSIDOauth2Factory *)factory
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
     if (response.isMultiResource)
     {
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving multi resource refresh token");
-        BOOL result = [self saveAccessTokenWithConfiguration:configuration response:response context:context error:error];
+        BOOL result = [self saveAccessTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
 
         if (!result) return NO;
 
-        return [self saveSSOStateWithConfiguration:configuration response:response context:context error:error];
+        return [self saveSSOStateWithConfiguration:configuration response:response factory:factory context:context error:error];
     }
     else
     {
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving single resource refresh token");
-        return [self saveLegacySingleResourceTokenWithConfiguration:configuration response:response context:context error:error];
+        return [self saveLegacySingleResourceTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
     }
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
                     saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                             factory:(MSIDOauth2Factory *)factory
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
 {
@@ -119,18 +118,21 @@
     {
         return [self saveSSOStateWithConfiguration:configuration
                                           response:response.tokenResponse
+                                           factory:factory
                                            context:context
                                              error:error];
     }
 
     return [self saveTokensWithConfiguration:configuration
                                     response:response.tokenResponse
+                                     factory:factory
                                      context:context
                                        error:error];
 }
 
 - (BOOL)saveSSOStateWithConfiguration:(MSIDConfiguration *)configuration
                              response:(MSIDTokenResponse *)response
+                              factory:(MSIDOauth2Factory *)factory
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
@@ -144,6 +146,7 @@
 
     BOOL result = [self saveRefreshTokenWithConfiguration:configuration
                                                  response:response
+                                                  factory:factory
                                                   context:context
                                                     error:error];
 
@@ -158,6 +161,7 @@
 
         if (![accessor saveSSOStateWithConfiguration:configuration
                                             response:response
+                                             factory:factory
                                              context:context
                                                error:&otherAccessorError])
         {
@@ -513,10 +517,11 @@
 
 - (BOOL)saveAccessTokenWithConfiguration:(MSIDConfiguration *)configuration
                                 response:(MSIDTokenResponse *)response
+                                 factory:(MSIDOauth2Factory *)factory
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
-    MSIDLegacyAccessToken *accessToken = [_factory legacyAccessTokenFromResponse:response configuration:configuration];
+    MSIDLegacyAccessToken *accessToken = [factory legacyAccessTokenFromResponse:response configuration:configuration];
 
     if (!accessToken)
     {
@@ -536,10 +541,11 @@
 
 - (BOOL)saveRefreshTokenWithConfiguration:(MSIDConfiguration *)configuration
                                  response:(MSIDTokenResponse *)response
+                                  factory:(MSIDOauth2Factory *)factory
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
 {
-    MSIDLegacyRefreshToken *refreshToken = [_factory legacyRefreshTokenFromResponse:response configuration:configuration];
+    MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
 
     if (!refreshToken)
     {
@@ -578,10 +584,11 @@
 
 - (BOOL)saveLegacySingleResourceTokenWithConfiguration:(MSIDConfiguration *)configuration
                                               response:(MSIDTokenResponse *)response
+                                               factory:(MSIDOauth2Factory *)factory
                                                context:(id<MSIDRequestContext>)context
                                                  error:(NSError **)error
 {
-    MSIDLegacySingleResourceToken *legacyToken = [_factory legacyTokenFromResponse:response configuration:configuration];
+    MSIDLegacySingleResourceToken *legacyToken = [factory legacyTokenFromResponse:response configuration:configuration];
 
     if (!legacyToken)
     {

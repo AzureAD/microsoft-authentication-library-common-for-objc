@@ -59,7 +59,7 @@
 - (MSIDDefaultTokenCacheAccessor *)tokenCache
 {
     id<MSIDTokenCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
-    MSIDDefaultTokenCacheAccessor *tokenCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:[MSIDAADV2Oauth2Factory new]];
+    MSIDDefaultTokenCacheAccessor *tokenCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     return tokenCache;
 }
 
@@ -1511,6 +1511,7 @@
     NSError *error = nil;
     BOOL result = [tokenCache saveTokensWithConfiguration:configuration
                                                  response:tokenResponse
+                                                  factory:[MSIDAADV2Oauth2Factory new] 
                                                   context:nil
                                                     error:&error];
     XCTAssertTrue(result);

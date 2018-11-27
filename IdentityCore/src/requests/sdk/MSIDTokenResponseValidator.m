@@ -123,6 +123,7 @@
     NSError *savingError = nil;
     BOOL isSaved = [tokenCache saveTokensWithBrokerResponse:brokerResponse
                                            saveSSOStateOnly:brokerResponse.accessTokenInvalidForResponse
+                                                    factory:factory
                                                     context:nil
                                                       error:error];
 
@@ -192,6 +193,7 @@
     NSError *savingError = nil;
     BOOL isSaved = [tokenCache saveTokensWithConfiguration:parameters.msidConfiguration
                                                   response:tokenResponse
+                                                   factory:factory
                                                    context:parameters
                                                      error:&savingError];
 

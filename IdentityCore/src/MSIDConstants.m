@@ -32,8 +32,8 @@ NSString *const MSID_APP_NAME_KEY               = @"x-app-name";
 NSString *const MSID_APP_VER_KEY                = @"x-app-ver";
 NSString *const MSID_BROKER_RESUME_DICTIONARY_KEY   =   @"adal-broker-resume-dictionary";
 NSString *const MSID_BROKER_SYMMETRIC_KEY_TAG   = @"com.microsoft.adBrokerKey";
-NSString *const MSID_BROKER_V2_SCHEME = @"msauth";
-NSString *const MSID_BROKER_V3_SCHEME = @"msauthv2";
+NSString *const MSID_BROKER_ADAL_SCHEME         = @"msauth";
+NSString *const MSID_BROKER_MSAL_SCHEME         = @"msauthv2";
 
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
 NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";

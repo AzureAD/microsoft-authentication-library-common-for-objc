@@ -89,7 +89,8 @@
     MSIDSilentTokenRequest *silentRequest = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
                                                                                            forceRefresh:self.forceRefresh];
 
-    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
+    {
 
         if (result || !self.interactiveController)
         {
