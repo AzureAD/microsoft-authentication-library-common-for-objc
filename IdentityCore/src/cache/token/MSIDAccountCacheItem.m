@@ -109,8 +109,9 @@
 
 #pragma mark - JSON
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error
 {
+    MSID_TRACE;
     if (!(self = [super init]))
     {
         return nil;
@@ -148,6 +149,7 @@
 
 - (NSDictionary *)jsonDictionary
 {    
+    MSID_TRACE;
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
 
     if (_json)

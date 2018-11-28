@@ -35,4 +35,11 @@
 + (NSDictionary *)createLegacyBrokerResponseDictionary:(NSDictionary *)parameters
                                          encryptionKey:(NSData *)brokerKey;
 
++ (NSURL *)createDefaultBrokerResponse:(NSDictionary *)parameters
+                           redirectUri:(NSString *)redirectUri
+                         encryptionKey:(NSData *)encryptionKey;
+
++ (NSDictionary *)createDefaultBrokerResponseDictionary:(NSDictionary *)parameters
+                                          encryptionKey:(NSData *)brokerKey;
+
 @end

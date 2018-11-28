@@ -21,41 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenFilteringHelper.h"
-#import "MSIDCredentialCacheItem.h"
-#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
+#import "MSIDCredentialType.h"
 
+@protocol MSIDCacheAccessor;
 
-@implementation MSIDTokenFilteringHelper
+@interface MSIDTestCacheAccessorHelper : NSObject
 
-#pragma mark - Generic
++ (NSArray *)getAllLegacyAccessTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllLegacyRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllLegacyTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllDefaultAccessTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllDefaultRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllIdTokens:(id<MSIDCacheAccessor>)cacheAccessor;
 
-+ (NSArray *)filterTokenCacheItems:(NSArray<MSIDCredentialCacheItem *> *)allCacheItems
-                         tokenType:(MSIDCredentialType)tokenType
-                       returnFirst:(BOOL)returnFirst
-                          filterBy:(MSIDTokenCacheItemFiltering)tokenFiltering
-{
-    NSMutableArray *matchedItems = [NSMutableArray new];
-    
-    for (MSIDCredentialCacheItem *cacheItem in allCacheItems)
-    {
-        if (tokenFiltering && tokenFiltering(cacheItem))
-        {
-            MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
-            
-            if (token)
-            {
-                [matchedItems addObject:token];
-            }
-            
-            if (returnFirst)
-            {
-                break;
-            }
-        }
-    }
-    
-    return matchedItems;
-}
++ (NSArray *)getAllTokens:(id<MSIDCacheAccessor>)cacheAccessor type:(MSIDCredentialType)type class:(Class)typeClass;
 
 @end

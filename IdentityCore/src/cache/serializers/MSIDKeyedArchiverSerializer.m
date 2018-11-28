@@ -24,6 +24,7 @@
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDUserInformation.h"
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"

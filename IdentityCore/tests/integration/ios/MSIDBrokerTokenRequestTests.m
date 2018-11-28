@@ -139,11 +139,6 @@
                                       @"redirect_uri": @"my-redirect://com.microsoft.test",
                                       @"broker_key": @"brokerKey",
                                       @"client_version": [MSIDVersion sdkVersion],
-                                      @"extra_qp": @"",
-                                      @"claims": @"",
-                                      @"intune_enrollment_ids": @"",
-                                      @"intune_mam_resource": @"",
-                                      @"client_capabilities": @"",
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0"
                                       };
@@ -183,8 +178,6 @@
                                       @"client_version": [MSIDVersion sdkVersion],
                                       @"extra_qp": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4",
                                       @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%2C%22essential%22%3Atrue%7D%7D%7D",
-                                      @"intune_enrollment_ids": @"",
-                                      @"intune_mam_resource": @"",
                                       @"client_capabilities": @"cp1,cp2",
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0"
@@ -256,11 +249,8 @@
                                       @"redirect_uri": @"my-redirect://com.microsoft.test",
                                       @"broker_key": @"brokerKey",
                                       @"client_version": [MSIDVersion sdkVersion],
-                                      @"extra_qp": @"",
-                                      @"claims": @"",
                                       @"intune_enrollment_ids": @"{\"enrollment_ids\":[{\"home_account_id\":\"1e4dd613-dave-4527-b50a-97aca38b57ba\",\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\"user_id\":\"dave@contoso.com\",\"oid\":\"6eec576f-dave-416a-9c4a-536b178a194a\",\"enrollment_id\":\"64d0557f-dave-4193-b630-8491ffd3b180\"},{\"home_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\",\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\"user_id\":\"mike@contoso.com\",\"oid\":\"d3444455-mike-4271-b6ea-e499cc0cab46\",\"enrollment_id\":\"adf79e3f-mike-454d-9f0f-2299e76dbfd5\"}]}",
                                       @"intune_mam_resource": @"{\"login.windows.net\":\"https:\\/\\/www.microsoft.com\\/windowsIntune\",\"login.microsoftonline.com\":\"https:\\/\\/www.microsoft.com\\/intune\",\"login.microsoftonline.de\":\"https:\\/\\/www.microsoft.com\\/intune-de\"}",
-                                      @"client_capabilities": @"",
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0"
                                       };
