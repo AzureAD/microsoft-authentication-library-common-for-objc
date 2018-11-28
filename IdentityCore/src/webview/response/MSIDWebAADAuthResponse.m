@@ -37,6 +37,7 @@
     if (self)
     {
         _cloudHostName = self.parameters[MSID_AUTH_CLOUD_INSTANCE_HOST_NAME];
+        _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:self.parameters[MSID_OAUTH2_CLIENT_INFO] error:nil];
     }
     return self;
 }
@@ -51,6 +52,7 @@
     if (self)
     {
         _cloudHostName = self.parameters[MSID_AUTH_CLOUD_INSTANCE_HOST_NAME];
+        _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:self.parameters[MSID_OAUTH2_CLIENT_INFO] error:nil];
     }
     return self;
 }

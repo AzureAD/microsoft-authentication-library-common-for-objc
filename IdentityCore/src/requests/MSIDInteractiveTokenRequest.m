@@ -128,6 +128,7 @@
                 {
                     MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
                     [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];
+                    self.requestParameters.accountIdentifier.homeAccountId = aadResponse.clientInfo.accountIdentifier;
                 }
 
                 [self acquireTokenWithCode:oauthResponse.authorizationCode completion:completionBlock];
@@ -237,6 +238,7 @@
 
         NSError *validationError = nil;
 
+        // TODO: return homeAccountId in validation error.
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:response
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache

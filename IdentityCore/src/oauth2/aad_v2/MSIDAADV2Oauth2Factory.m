@@ -218,7 +218,6 @@
                                                                        developerClaims:parameters.claims];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
-    // TODO: use client_info returned on authorize 
     NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
                                                                    legacyUserId:parameters.accountIdentifier.legacyAccountId
                                                                         context:parameters
