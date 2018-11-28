@@ -21,41 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenFilteringHelper.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
+#import "MSIDCredentialType.h"
+#import "MSIDBaseToken.h"
+#import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDLegacySingleResourceToken.h"
+#import "MSIDIdToken.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
 
+@implementation MSIDCredentialCacheItem (MSIDBaseToken)
 
-@implementation MSIDTokenFilteringHelper
-
-#pragma mark - Generic
-
-+ (NSArray *)filterTokenCacheItems:(NSArray<MSIDCredentialCacheItem *> *)allCacheItems
-                         tokenType:(MSIDCredentialType)tokenType
-                       returnFirst:(BOOL)returnFirst
-                          filterBy:(MSIDTokenCacheItemFiltering)tokenFiltering
+- (MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType
 {
-    NSMutableArray *matchedItems = [NSMutableArray new];
-    
-    for (MSIDCredentialCacheItem *cacheItem in allCacheItems)
+    switch (credentialType)
     {
-        if (tokenFiltering && tokenFiltering(cacheItem))
+        case MSIDAccessTokenType:
         {
-            MSIDBaseToken *token = [cacheItem tokenWithType:tokenType];
-            
-            if (token)
-            {
-                [matchedItems addObject:token];
-            }
-            
-            if (returnFirst)
-            {
-                break;
-            }
+            return [[MSIDAccessToken alloc] initWithTokenCacheItem:self];
         }
+        case MSIDRefreshTokenType:
+        {
+            return [[MSIDRefreshToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDLegacySingleResourceTokenType:
+        {
+            return [[MSIDLegacySingleResourceToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDIDTokenType:
+        {
+            return [[MSIDIdToken alloc] initWithTokenCacheItem:self];
+        }
+        default:
+            return [[MSIDBaseToken alloc] initWithTokenCacheItem:self];
     }
-    
-    return matchedItems;
+
+    return nil;
 }
 
 @end

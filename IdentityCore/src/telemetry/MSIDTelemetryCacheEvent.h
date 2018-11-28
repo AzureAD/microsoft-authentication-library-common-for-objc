@@ -23,6 +23,7 @@
 
 #import "MSIDTelemetryBaseEvent.h"
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 
 @interface MSIDTelemetryCacheEvent : MSIDTelemetryBaseEvent
 
