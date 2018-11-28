@@ -35,6 +35,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
+#import "MSIDRefreshToken.h"
 #if TARGET_OS_IPHONE
 #import "MSIDApplicationTestUtil.h"
 #import "MSIDWebMSAuthResponse.h"
@@ -80,9 +81,11 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     MSIDTokenResponse *response = [factory tokenResponseFromJSON:testResponse context:nil error:nil];
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:parameters.msidConfiguration];
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response configuration:parameters.msidConfiguration];
     MSIDAccount *account = [factory accountFromResponse:response configuration:parameters.msidConfiguration];
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:refreshToken
                                                                    idToken:response.idToken
                                                                    account:account
                                                                  authority:accessToken.authority

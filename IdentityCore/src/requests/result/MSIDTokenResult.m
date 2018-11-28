@@ -29,6 +29,7 @@
 @implementation MSIDTokenResult
 
 - (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
+                                refreshToken:(nullable id<MSIDRefreshableToken>)refreshToken
                                      idToken:(nonnull NSString *)rawIdToken
                                      account:(nonnull MSIDAccount *)account
                                    authority:(nonnull MSIDAuthority *)authority
@@ -40,6 +41,7 @@
     if (self)
     {
         _accessToken = accessToken;
+        _refreshToken = refreshToken;
         _rawIdToken = rawIdToken;
         _authority = authority;
         _correlationId = correlationId;

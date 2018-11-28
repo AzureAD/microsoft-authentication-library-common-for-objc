@@ -29,6 +29,7 @@
 #import "MSIDBrokerResponse.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -61,10 +62,12 @@
     }
 
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse configuration:configuration];
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:tokenResponse configuration:configuration];
 
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:refreshToken
                                                                    idToken:tokenResponse.idToken
                                                                    account:account
                                                                  authority:accessToken.authority

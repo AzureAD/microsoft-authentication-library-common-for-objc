@@ -63,6 +63,7 @@
 }
 
 - (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
+                                       refreshToken:(id<MSIDRefreshableToken>)refreshToken
                                               error:(NSError * _Nullable * _Nullable)error
 {
     // TODO: ADAL pieces
