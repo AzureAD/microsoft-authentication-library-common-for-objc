@@ -53,7 +53,7 @@
     if (self)
     {
         _appInstallLink = self.parameters[@"app_link"];
-        _upn = self.parameters[@"upn"];
+        _upn = self.parameters[@"username"];
     }
     
     return self;

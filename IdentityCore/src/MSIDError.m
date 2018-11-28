@@ -127,6 +127,7 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorBrokerResponseHashMismatch),
                       @(MSIDErrorBrokerKeyFailedToCreate),
                       @(MSIDErrorBrokerKeyNotFound),
+                      @(MSIDErrorWorkplaceJoinRequired),
                       @(MSIDErrorBrokerUnknown)
 
                       ],
