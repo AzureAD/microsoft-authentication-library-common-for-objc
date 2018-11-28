@@ -59,13 +59,29 @@
                 context:(id<MSIDRequestContext>)context
              completion:(void (^)(BOOL result, NSError *error))completion
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSError *error;
-        BOOL result = [self processImpl:metadata authority:authority openIdConfigEndpoint:openIdConfigEndpoint context:context error:&error];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completion(result, error);
+    NSParameterAssert(completion);
+    if (!completion) return;
+    
+    if ([NSThread isMainThread])
+    {
+        // If it is main thread, move heavy parsing operation to background queue.
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self processMetadata:metadata
+             openIdConfigEndpoint:openIdConfigEndpoint
+                        authority:authority
+                          context:context
+                       completion:completion];
         });
-    });
+        return;
+    }
+    
+    NSError *error;
+    BOOL result = [self processImpl:metadata
+                          authority:authority
+               openIdConfigEndpoint:openIdConfigEndpoint
+                            context:context
+                              error:&error];
+    completion(result, error);
 }
 
 static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id<MSIDRequestContext> context, NSError * __autoreleasing *error)
