@@ -37,6 +37,7 @@
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDAccount.h"
 #import "MSIDNotifications.h"
+#import "MSIDConstants.h"
 
 @interface MSIDBrokerInteractiveController()
 
@@ -187,9 +188,28 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     [appPasteBoard setURL:url];
 }
 
-+ (BOOL)completeAcquireToken:(NSURL *)resultURL
-       brokerResponseHandler:(MSIDBrokerResponseHandler *)responseHandler
++ (BOOL)completeAcquireToken:(nullable NSURL *)resultURL
+           sourceApplication:(nonnull NSString *)sourceApplication
+       brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler
 {
+    if (!sourceApplication)
+    {
+        MSID_LOG_INFO(nil, @"Asked to handle non broker response. Skipping request.");
+        return NO;
+    }
+
+    BOOL isBrokerResponse = [sourceApplication isEqualToString:MSID_BROKER_APP_BUNDLE_ID];
+
+#ifdef DOGFOOD_BROKER
+    isBrokerResponse = isBrokerResponse || [sourceApplication isEqualToString:MSID_BROKER_APP_BUNDLE_ID_DF];
+#endif
+
+    if (!isBrokerResponse)
+    {
+        MSID_LOG_INFO(nil, @"Asked to handle non broker response. Skipping request.");
+        return NO;
+    }
+
     NSError *resultError = nil;
     MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:resultURL error:&resultError];
 

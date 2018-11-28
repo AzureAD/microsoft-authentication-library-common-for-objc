@@ -44,6 +44,7 @@
                                                         error:(NSError * _Nullable * _Nullable)error;
 
 + (BOOL)completeAcquireToken:(nullable NSURL *)resultURL
+           sourceApplication:(nonnull NSString *)sourceApplication
        brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler;
 
 @end
