@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
 
 @interface MSIDDictionaryExtensionsTests : XCTestCase
 
@@ -160,6 +161,34 @@
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"key1 is not a NSString.");
     XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
     XCTAssertEqual(error.code, 1);
+}
+
+- (void)testMsidSetNonEmptyString_whenNilKey_shouldDoNothing
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    [dic msidSetNonEmptyString:@"value" forKey:nil];
+    XCTAssertTrue(dic.count==0);
+}
+
+- (void)testMsidSetNonEmptyString_whenNilValue_shouldDoNothing
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    [dic msidSetNonEmptyString:nil forKey:@"key"];
+    XCTAssertTrue(dic.count==0);
+}
+
+- (void)testMsidSetNonEmptyString_whenEmptyValue_shouldDoNothing
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    [dic msidSetNonEmptyString:@"" forKey:@"key"];
+    XCTAssertTrue(dic.count==0);
+}
+
+- (void)testMsidSetNonEmptyString_whenNonEmptyValue_shouldSetIt
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    [dic msidSetNonEmptyString:@"value" forKey:@"key"];
+    XCTAssertTrue(dic.count==1);
 }
 
 @end

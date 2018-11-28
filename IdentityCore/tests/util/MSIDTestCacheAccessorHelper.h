@@ -21,25 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDCredentialType.h"
 
-@interface MSIDTestBrokerResponseHelper : NSObject
+@protocol MSIDCacheAccessor;
 
-+ (NSURL *)createLegacyBrokerResponse:(NSDictionary *)parameters
-                          redirectUri:(NSString *)redirectUri
-                        encryptionKey:(NSData *)encryptionKey;
+@interface MSIDTestCacheAccessorHelper : NSObject
 
-+ (NSURL *)createLegacyBrokerErrorResponse:(NSDictionary *)parameters
-                               redirectUri:(NSString *)redirectUri;
++ (NSArray *)getAllLegacyAccessTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllLegacyRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllLegacyTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllDefaultAccessTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllDefaultRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor;
++ (NSArray *)getAllIdTokens:(id<MSIDCacheAccessor>)cacheAccessor;
 
-+ (NSDictionary *)createLegacyBrokerResponseDictionary:(NSDictionary *)parameters
-                                         encryptionKey:(NSData *)brokerKey;
-
-+ (NSURL *)createDefaultBrokerResponse:(NSDictionary *)parameters
-                           redirectUri:(NSString *)redirectUri
-                         encryptionKey:(NSData *)encryptionKey;
-
-+ (NSDictionary *)createDefaultBrokerResponseDictionary:(NSDictionary *)parameters
-                                          encryptionKey:(NSData *)brokerKey;
++ (NSArray *)getAllTokens:(id<MSIDCacheAccessor>)cacheAccessor type:(MSIDCredentialType)type class:(Class)typeClass;
 
 @end
