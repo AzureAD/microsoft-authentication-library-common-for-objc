@@ -65,6 +65,11 @@ extern NSString *MSIDGrantedScopesKey;
  */
 extern NSString *MSIDServerUnavailableStatusKey;
 
+/*!
+ This flag will be set if we received a valid token response, but returned data mismatched.
+ */
+extern NSString *MSIDInvalidTokenResultKey;
+
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
     /*!

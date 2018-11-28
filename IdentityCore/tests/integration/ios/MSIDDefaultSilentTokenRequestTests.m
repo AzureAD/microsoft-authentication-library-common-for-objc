@@ -1435,6 +1435,15 @@
         XCTAssertEqualObjects(error.userInfo[MSIDDeclinedScopesKey], declinedScopes);
         NSArray *grantedScopes = @[@"new.scope"];
         XCTAssertEqualObjects(error.userInfo[MSIDGrantedScopesKey], grantedScopes);
+        MSIDTokenResult *invalidTokenResult = error.userInfo[MSIDInvalidTokenResultKey];
+        XCTAssertNotNil(invalidTokenResult);
+        XCTAssertEqualObjects(invalidTokenResult.accessToken.accessToken, @"new at");
+        XCTAssertEqualObjects(invalidTokenResult.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"new.scope"]);
+        XCTAssertEqualObjects(invalidTokenResult.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
+        XCTAssertEqualObjects(invalidTokenResult.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
+        XCTAssertFalse(invalidTokenResult.extendedLifeTimeToken);
+        XCTAssertEqualObjects(invalidTokenResult.authority.url.absoluteString, authority);
+        XCTAssertEqualObjects(invalidTokenResult.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 

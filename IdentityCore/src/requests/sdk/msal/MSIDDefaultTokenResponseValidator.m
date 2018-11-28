@@ -57,6 +57,7 @@
             [declinedScopeSet minusOrderedSet:grantedScopes];
 
             additionalUserInfo[MSIDDeclinedScopesKey] = [declinedScopeSet array];
+            additionalUserInfo[MSIDInvalidTokenResultKey] = tokenResult;
 
             *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerDeclinedScopes, @"Server returned less scopes than requested", nil, nil, nil, nil, additionalUserInfo);
         }
@@ -69,7 +70,8 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, nil);
+            NSDictionary *userInfo = @{MSIDInvalidTokenResultKey : tokenResult};
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, userInfo);
         }
 
         return NO;
