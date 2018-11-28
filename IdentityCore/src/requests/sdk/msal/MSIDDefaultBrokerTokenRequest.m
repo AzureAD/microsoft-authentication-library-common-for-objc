@@ -22,20 +22,35 @@
 // THE SOFTWARE.
 
 #import "MSIDDefaultBrokerTokenRequest.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAccountIdentifier.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
 
 @implementation MSIDDefaultBrokerTokenRequest
 
 // Those parameters will be different depending on the broker protocol version
 - (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
 {
-    // TODO: MSAL pieces
-    return @{};
+    NSString *homeAccountId = self.requestParameters.accountIdentifier.homeAccountId;
+    NSString *username = self.requestParameters.accountIdentifier.legacyAccountId;
+    
+    // if value is nil, it won't appear in the dictionary
+    NSMutableDictionary *contents = [NSMutableDictionary new];
+    [contents msidSetNonEmptyString:self.requestParameters.target forKey:@"request_scopes"];
+    [contents msidSetNonEmptyString:self.requestParameters.oidcScope forKey:@"extra_oidc_scopes"];
+    [contents msidSetNonEmptyString:homeAccountId forKey:@"home_account_id"];
+    [contents msidSetNonEmptyString:username forKey:@"username"];
+    [contents msidSetNonEmptyString:self.requestParameters.loginHint forKey:@"login_hint"];
+    [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
+    [contents msidSetNonEmptyString:self.requestParameters.promptType forKey:@"prompt"];
+    [contents setValue:@"3" forKey:@"msg_protocol_ver"];
+    
+    return contents;
 }
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
-    // TODO: MSAL pieces
-    return @{};
+    return @{@"scope": self.requestParameters.target ?: @""};
 }
 
 @end

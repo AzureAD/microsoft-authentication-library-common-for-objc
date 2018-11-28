@@ -25,6 +25,7 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDJsonSerializable.h"
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
 

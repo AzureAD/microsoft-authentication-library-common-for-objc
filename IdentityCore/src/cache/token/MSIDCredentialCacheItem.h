@@ -63,8 +63,6 @@
 
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 
-- (nullable MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType;
-
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;
 
 - (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId

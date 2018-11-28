@@ -30,6 +30,7 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDConstants.h"
 #import "NSString+MSIDExtensions.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -147,24 +148,23 @@
     NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
     NSString *extraQueryParameters = [self.requestParameters.extraQueryParameters count] ? [self.requestParameters.extraQueryParameters msidWWWFormURLEncode] : @"";
 
-    NSDictionary *queryDictionary =
-    @{
-      @"authority": self.requestParameters.authority.url.absoluteString,
-      @"client_id": self.requestParameters.clientId,
-      @"redirect_uri": self.requestParameters.redirectUri,
-      @"correlation_id": self.requestParameters.correlationId.UUIDString,
+    NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.clientId forKey:@"client_id"];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.redirectUri forKey:@"redirect_uri"];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.correlationId.UUIDString forKey:@"correlation_id"];
 #if TARGET_OS_IPHONE
-      @"broker_key": self.brokerKey,
+    [queryDictionary msidSetNonEmptyString:self.brokerKey forKey:@"broker_key"];
 #endif
-      @"client_version": [MSIDVersion sdkVersion],
-      @"extra_qp": extraQueryParameters,
-      @"claims": claimsString ?: @"",
-      @"intune_enrollment_ids": enrollmentIds ?: @"",
-      @"intune_mam_resource": mamResources ?: @"",
-      @"client_capabilities": capabilities ?: @"",
-      @"client_app_name": clientAppName ?: @"",
-      @"client_app_version": clientAppVersion ?: @""
-    };
+    
+    [queryDictionary msidSetNonEmptyString:[MSIDVersion sdkVersion] forKey:@"client_version"];
+    [queryDictionary msidSetNonEmptyString:extraQueryParameters forKey:@"extra_qp"];
+    [queryDictionary msidSetNonEmptyString:claimsString forKey:@"claims"];
+    [queryDictionary msidSetNonEmptyString:enrollmentIds forKey:@"intune_enrollment_ids"];
+    [queryDictionary msidSetNonEmptyString:mamResources forKey:@"intune_mam_resource"];
+    [queryDictionary msidSetNonEmptyString:capabilities forKey:@"client_capabilities"];
+    [queryDictionary msidSetNonEmptyString:clientAppName forKey:@"client_app_name"];
+    [queryDictionary msidSetNonEmptyString:clientAppVersion forKey:@"client_app_version"];
 
     return queryDictionary;
 }

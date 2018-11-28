@@ -39,6 +39,7 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
+#import "MSIDTestCacheAccessorHelper.h"
 
 @interface MSIDLegacyBrokerResponseHandlerTests : XCTestCase
 
@@ -117,7 +118,7 @@
     XCTAssertFalse(result.accessToken.isExpired);
     XCTAssertEqualObjects(result.correlationId.UUIDString, correlationId);
 
-    NSArray *accessTokens = [self getAllLegacyAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:self.cacheAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
@@ -125,7 +126,7 @@
     XCTAssertEqualObjects(accessToken.idToken, idToken);
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
 
-    NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 2);
 
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
@@ -264,7 +265,7 @@
     XCTAssertEqualObjects(error.userInfo[MSIDBrokerVersionKey], @"1.0.0");
     XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"user@contoso.com");
 
-    NSArray *accessTokens = [self getAllLegacyAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:self.cacheAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
@@ -272,7 +273,7 @@
     XCTAssertEqualObjects(accessToken.idToken, idToken);
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
 
-    NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
@@ -377,7 +378,7 @@
     XCTAssertFalse(result.accessToken.isExpired);
     XCTAssertEqualObjects(result.correlationId.UUIDString, correlationId);
 
-    NSArray *accessTokens = [self getAllLegacyAccessTokens];
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:self.cacheAccessor];
     XCTAssertEqual([accessTokens count], 1);
 
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
@@ -385,7 +386,7 @@
     XCTAssertEqualObjects(accessToken.idToken, idToken);
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
 
-    NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 1);
 
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
@@ -395,37 +396,6 @@
 }
 
 #pragma mark - Helpers
-
-- (NSArray *)getAllLegacyAccessTokens
-{
-    return [self getAllTokensWithType:MSIDAccessTokenType class:MSIDLegacyAccessToken.class];
-}
-
-- (NSArray *)getAllLegacyRefreshTokens
-{
-    return [self getAllTokensWithType:MSIDRefreshTokenType class:MSIDLegacyRefreshToken.class];
-}
-
-- (NSArray *)getAllTokensWithType:(MSIDCredentialType)type class:(Class)typeClass
-{
-    NSError *error = nil;
-
-    NSArray *allTokens = [self.cacheAccessor allTokensWithContext:nil error:&error];
-    XCTAssertNil(error);
-
-    NSMutableArray *results = [NSMutableArray array];
-
-    for (MSIDBaseToken *token in allTokens)
-    {
-        if (token.credentialType == type
-            && [token isKindOfClass:typeClass])
-        {
-            [results addObject:token];
-        }
-    }
-
-    return results;
-}
 
 - (void)saveResumeStateWithAuthority:(NSString *)authority
 {

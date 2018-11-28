@@ -33,4 +33,12 @@
     }
 }
 
+- (void)msidSetNonEmptyString:(NSString *)string forKey:(id<NSCopying>)dictKey
+{
+    if (dictKey && ![NSString msidIsStringNilOrBlank:string])
+    {
+        [self setObject:string forKey:dictKey];
+    }
+}
+
 @end

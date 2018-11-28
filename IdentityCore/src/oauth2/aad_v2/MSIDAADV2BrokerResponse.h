@@ -28,12 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDAADV2BrokerResponse : MSIDBrokerResponse
 
 @property (readonly) NSString *scope;
-@property (readonly) NSDictionary *errorUserInfo;
+@property (readonly) NSDictionary *errorMetadata;
 
 @property (readonly) NSString *oauthErrorCode;
 @property (readonly) NSString *errorDescription;
 @property (readonly) NSString *subError;
 @property (readonly) NSString *httpHeaders;
+@property (readonly) NSString *username;
 
 @end
 

@@ -78,6 +78,12 @@ MSID_JSON_ACCESSOR(@"adi", additionalUserId)
     {
         _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSinceNow:self.extendedExpiresIn];
     }
+    else if (_json[@"ext_expires_on"] && [MSIDHelpers msidIntegerValue:_json[@"ext_expires_on"]])
+    {
+        //Broker could send ext_expires_on rather than ext_expires_in
+        NSInteger extExpiresOn = [MSIDHelpers msidIntegerValue:_json[@"ext_expires_on"]];
+        _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSince1970:extExpiresOn];
+    }
     
     if (self.rawClientInfo && !_clientInfo)
     {
