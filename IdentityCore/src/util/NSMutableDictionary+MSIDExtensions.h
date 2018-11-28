@@ -25,6 +25,6 @@
 
 @interface NSMutableDictionary (MSIDExtensions)
 
-- (void)msidSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey;
+- (BOOL)msidSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey;
 
 @end

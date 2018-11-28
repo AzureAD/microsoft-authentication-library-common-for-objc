@@ -25,12 +25,14 @@
 
 @implementation NSMutableDictionary (MSIDExtensions)
 
-- (void)msidSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey
+- (BOOL)msidSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey
 {
     if (dictObject)
     {
         [self setObject:dictObject forKey:dictKey];
+        return YES;
     }
+    return NO;
 }
 
 @end
