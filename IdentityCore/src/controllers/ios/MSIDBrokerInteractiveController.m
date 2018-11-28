@@ -192,21 +192,11 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
            sourceApplication:(nonnull NSString *)sourceApplication
        brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler
 {
-    if (!sourceApplication)
-    {
-        MSID_LOG_INFO(nil, @"Asked to handle non broker response. Skipping request.");
-        return NO;
-    }
-
-    BOOL isBrokerResponse = [sourceApplication isEqualToString:MSID_BROKER_APP_BUNDLE_ID];
-
-#ifdef DOGFOOD_BROKER
-    isBrokerResponse = isBrokerResponse || [sourceApplication isEqualToString:MSID_BROKER_APP_BUNDLE_ID_DF];
-#endif
+    BOOL isBrokerResponse = [self responseIsFromBroker:sourceApplication];
 
     if (!isBrokerResponse)
     {
-        MSID_LOG_INFO(nil, @"Asked to handle non broker response. Skipping request.");
+        MSID_LOG_WARN(nil, @"Asked to handle non broker response. Skipping request.");
         return NO;
     }
 
@@ -226,6 +216,27 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
 
     return completionResult;
+}
+
++ (BOOL)responseIsFromBroker:(NSString *)sourceApplication
+{
+#if AD_BROKER
+    return YES;
+#else
+    if ([NSString msidIsStringNilOrBlank:sourceApplication])
+    {
+        MSID_LOG_INFO(nil, @"Asked to handle non broker response. Skipping request.");
+        return NO;
+    }
+
+    BOOL isBrokerResponse = [sourceApplication isEqualToString:MSID_BROKER_APP_BUNDLE_ID];
+
+#ifdef DOGFOOD_BROKER
+    isBrokerResponse = isBrokerResponse || [sourceApplication isEqualToString:MSID_BROKER_APP_BUNDLE_ID_DF];
+#endif
+
+    return isBrokerResponse;
+#endif
 }
 
 #pragma mark - Notifications
