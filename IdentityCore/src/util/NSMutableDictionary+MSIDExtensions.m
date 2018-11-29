@@ -27,7 +27,7 @@
 
 - (BOOL)msidSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey
 {
-    if (dictObject)
+    if (dictKey && dictObject)
     {
         [self setObject:dictObject forKey:dictKey];
         return YES;

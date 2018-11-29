@@ -163,31 +163,52 @@
     XCTAssertEqual(error.code, 1);
 }
 
-- (void)testMsidSetNonEmptyString_whenNilKey_shouldDoNothing
+- (void)testMsidSetObjectIfNotNil_whenNilKey_shouldDoNothingAndReturnFalse
 {
     NSMutableDictionary *dic = [NSMutableDictionary new];
-    [dic msidSetNonEmptyString:@"value" forKey:nil];
+    XCTAssertFalse([dic msidSetObjectIfNotNil:@"value" forKey:nil]);
     XCTAssertTrue(dic.count==0);
 }
 
-- (void)testMsidSetNonEmptyString_whenNilValue_shouldDoNothing
+- (void)testMsidSetObjectIfNotNil_whenNilValue_shouldDoNothingAndReturnFalse
 {
     NSMutableDictionary *dic = [NSMutableDictionary new];
-    [dic msidSetNonEmptyString:nil forKey:@"key"];
+    XCTAssertFalse([dic msidSetObjectIfNotNil:nil forKey:@"key"]);
     XCTAssertTrue(dic.count==0);
 }
 
-- (void)testMsidSetNonEmptyString_whenEmptyValue_shouldDoNothing
+- (void)testMsidSetObjectIfNotNil_whenNonEmptyValue_shouldSetItAndReturnYes
 {
     NSMutableDictionary *dic = [NSMutableDictionary new];
-    [dic msidSetNonEmptyString:@"" forKey:@"key"];
+    XCTAssertTrue([dic msidSetObjectIfNotNil:@"value" forKey:@"key"]);
+    XCTAssertTrue(dic.count==1);
+}
+
+- (void)testMsidSetNonEmptyString_whenNilKey_shouldDoNothingAndReturnFalse
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    XCTAssertFalse([dic msidSetNonEmptyString:@"value" forKey:nil]);
     XCTAssertTrue(dic.count==0);
 }
 
-- (void)testMsidSetNonEmptyString_whenNonEmptyValue_shouldSetIt
+- (void)testMsidSetNonEmptyString_whenNilValue_shouldDoNothingAndReturnFalse
 {
     NSMutableDictionary *dic = [NSMutableDictionary new];
-    [dic msidSetNonEmptyString:@"value" forKey:@"key"];
+    XCTAssertFalse([dic msidSetNonEmptyString:nil forKey:@"key"]);
+    XCTAssertTrue(dic.count==0);
+}
+
+- (void)testMsidSetNonEmptyString_whenEmptyValue_shouldDoNothingAndReturnFalse
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    XCTAssertFalse([dic msidSetNonEmptyString:@"" forKey:@"key"]);
+    XCTAssertTrue(dic.count==0);
+}
+
+- (void)testMsidSetNonEmptyString_whenNonEmptyValue_shouldSetItAndReturnYes
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    XCTAssertTrue([dic msidSetNonEmptyString:@"value" forKey:@"key"]);
     XCTAssertTrue(dic.count==1);
 }
 
