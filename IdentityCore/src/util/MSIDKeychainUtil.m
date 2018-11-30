@@ -52,27 +52,31 @@
     
     dispatch_once(&once, ^{
         NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
-                                 (id)kSecAttrAccount : @"teamIDHint",
+                                 (id)kSecAttrAccount : @"SDK.ObjC.teamIDHint",
                                  (id)kSecAttrService : @"",
                                  (id)kSecReturnAttributes : @YES };
         CFDictionaryRef result = nil;
         
-        OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+        OSStatus readStatus = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
 
-        if (status == errSecInteractionNotAllowed)
+        if (readStatus == errSecInteractionNotAllowed)
         {
+            MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld", (long)readStatus);
+
             OSStatus deleteStatus = SecItemDelete((__bridge CFDictionaryRef)query);
             MSID_LOG_WARN(nil, @"Deleted existing teamID");
 
             if (deleteStatus != errSecSuccess)
             {
-                MSID_LOG_ERROR(nil, @"Failed to delete teamID, result %d", (int)deleteStatus);
+                MSID_LOG_ERROR(nil, @"Failed to delete teamID, result %ld", (long)deleteStatus);
                 return;
             }
         }
+
+        OSStatus status = readStatus;
         
-        if (status == errSecItemNotFound
-            || status == errSecInteractionNotAllowed)
+        if (readStatus == errSecItemNotFound
+            || readStatus == errSecInteractionNotAllowed)
         {
             NSMutableDictionary* addQuery = [query mutableCopy];
             [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
@@ -88,7 +92,7 @@
         }
         else
         {
-            MSID_LOG_ERROR(nil, @"fetching kSecAttrAccessGroup, status: %d", (int)status);
+            MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld, read status %ld", (long)status, (long)readStatus);
         }
     });
     
