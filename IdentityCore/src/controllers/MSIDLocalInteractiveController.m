@@ -75,11 +75,11 @@
 
     MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
 
-    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable msauthResponse) {
 
-        if (installBrokerResponse)
+        if (msauthResponse)
         {
-            [self handleBrokerResponse:installBrokerResponse completion:completionBlock];
+            [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
             return;
         }
 
@@ -90,7 +90,7 @@
     }];
 }
 
-- (void)handleBrokerResponse:(MSIDWebMSAuthResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
+- (void)handleWebMSAuthResponse:(MSIDWebMSAuthResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
 {
     if (![NSString msidIsStringNilOrBlank:response.appInstallLink])
     {

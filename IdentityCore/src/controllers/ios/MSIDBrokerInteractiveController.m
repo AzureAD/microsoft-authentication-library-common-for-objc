@@ -192,7 +192,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
            sourceApplication:(nonnull NSString *)sourceApplication
        brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler
 {
-    BOOL isBrokerResponse = [self responseIsFromBroker:sourceApplication];
+    BOOL isBrokerResponse = [self isResponseFromBroker:sourceApplication];
 
     if (!isBrokerResponse)
     {
@@ -218,7 +218,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     return completionResult;
 }
 
-+ (BOOL)responseIsFromBroker:(NSString *)sourceApplication
++ (BOOL)isResponseFromBroker:(NSString *)sourceApplication
 {
 #if AD_BROKER
     return YES;
