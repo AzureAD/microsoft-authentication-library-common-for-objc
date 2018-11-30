@@ -793,5 +793,58 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+- (void)testProcessMetadata_whenMetadataProvidedAndInvokedOnMainThread_shouldCreateExpectedRecordsAndReturnOnBgThread
+{
+    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSString *expectedHost = @"fakeauthority.com";
+    NSString *expectedNetworkHost = @"fakeauthority.net";
+    NSString *expectedCacheHost = @"sts.fakeauthority.com";
+    NSArray *expectedAliases = @[ expectedHost, expectedCacheHost, expectedNetworkHost ];
+    NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
+                              @"preferred_cache" :  expectedCacheHost,
+                              @"aliases" : expectedAliases } ];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+     {
+         XCTAssertFalse([NSThread isMainThread]);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testProcessMetadata_whenMetadataProvidedAndInvokedOnBgThread_shouldCreateExpectedRecordsAndReturnOnSameThread
+{
+    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSString *expectedHost = @"fakeauthority.com";
+    NSString *expectedNetworkHost = @"fakeauthority.net";
+    NSString *expectedCacheHost = @"sts.fakeauthority.com";
+    NSArray *expectedAliases = @[ expectedHost, expectedCacheHost, expectedNetworkHost ];
+    NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
+                              @"preferred_cache" :  expectedCacheHost,
+                              @"aliases" : expectedAliases } ];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    dispatch_queue_global_t bgQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(bgQueue, ^{
+        const char *l1 = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
+        [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+         {
+             const char *l2 = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
+             XCTAssertEqual(l1, l2);
+             
+             [expectation fulfill];
+         }];
+    });
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
 @end
 
