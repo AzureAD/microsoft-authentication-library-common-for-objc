@@ -56,6 +56,9 @@ extern NSString * _Nonnull const MSID_BROKER_RESUME_DICTIONARY_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SYMMETRIC_KEY_TAG;
 extern NSString * _Nonnull const MSID_BROKER_ADAL_SCHEME;
 extern NSString * _Nonnull const MSID_BROKER_MSAL_SCHEME;
+extern NSString * _Nonnull const MSID_BROKER_APP_BUNDLE_ID;
+extern NSString * _Nonnull const MSID_BROKER_APP_BUNDLE_ID_DF;
+extern NSString * _Nonnull const MSID_AUTHENTICATOR_REDIRECT_URI;
 
 extern NSString * _Nonnull const MSIDTrustedAuthority;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUS;

@@ -37,6 +37,7 @@
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDTestBrokerResponseHandler.h"
 #import "MSIDTestTokenRequestProvider.h"
+#import "MSIDRefreshToken.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
@@ -76,9 +77,11 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     MSIDTokenResponse *response = [factory tokenResponseFromJSON:testResponse context:nil error:nil];
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:parameters.msidConfiguration];
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response configuration:parameters.msidConfiguration];
     MSIDAccount *account = [factory accountFromResponse:response configuration:parameters.msidConfiguration];
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:refreshToken
                                                                    idToken:response.idToken
                                                                    account:account
                                                                  authority:accessToken.authority
@@ -135,7 +138,9 @@
 
         MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
 
-        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"] brokerResponseHandler:brokerResponseHandler];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:@"com.microsoft.azureauthenticator"
+                                        brokerResponseHandler:brokerResponseHandler];
         return YES;
     }];
 
@@ -229,7 +234,9 @@
 
         MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:nil testError:testError];
 
-        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"] brokerResponseHandler:brokerResponseHandler];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:@"com.microsoft.azureauthenticator"
+                                        brokerResponseHandler:brokerResponseHandler];
         return YES;
     }];
 
@@ -336,7 +343,9 @@
             // Call acquire token completion after we get this error
             MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
 
-            [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"] brokerResponseHandler:brokerResponseHandler];
+            [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                                sourceApplication:@"com.microsoft.azureauthenticator"
+                                            brokerResponseHandler:brokerResponseHandler];
         }];
 
         return YES;
@@ -597,7 +606,9 @@
 
         // Now call acquire token completion, to simulate response arriving after user coming back to the app
         MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
-        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"] brokerResponseHandler:brokerResponseHandler];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:@"com.microsoft.azureauthenticator"
+                                        brokerResponseHandler:brokerResponseHandler];
 
         return YES;
     }];
@@ -646,6 +657,18 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testCompleteAcquireToken_whenNonBrokerResponse_shouldReturnNOAndNotHandleRequest
+{
+    MSIDTokenResult *testResult = [self resultWithParameters:[self requestParameters]];
+
+    MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+    BOOL result = [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                                      sourceApplication:@"com.microsoft.otherapp"
+                                                  brokerResponseHandler:brokerResponseHandler];
+
+    XCTAssertFalse(result);
 }
 
 @end

@@ -107,8 +107,18 @@
 
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer])
         {
+            NSError *rtError = nil;
+            id<MSIDRefreshableToken> refreshableToken = [self appRefreshTokenWithError:&rtError];
+
+            if (!refreshableToken)
+            {
+                MSID_LOG_WARN(self.requestParameters, @"Didn't find app refresh token with error: %ld, %@", (long)rtError.code, rtError.domain);
+                MSID_LOG_WARN_PII(self.requestParameters, @"Didn't find app refresh token with error: %@", rtError);
+            }
+
             NSError *resultError = nil;
             MSIDTokenResult *tokenResult = [self resultWithAccessToken:accessToken
+                                                          refreshToken:refreshableToken
                                                                  error:&resultError];
 
             if (resultError)
@@ -309,7 +319,9 @@
             if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
             {
                 NSError *cacheError = nil;
-                MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken error:&cacheError];
+                MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken
+                                                              refreshToken:refreshToken
+                                                                     error:&cacheError];
                 tokenResult.extendedLifeTimeToken = YES;
 
                 completionBlock(tokenResult, cacheError);
@@ -347,6 +359,7 @@
 }
 
 - (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
+                                       refreshToken:(id<MSIDRefreshableToken>)refreshToken
                                               error:(NSError * _Nullable * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");

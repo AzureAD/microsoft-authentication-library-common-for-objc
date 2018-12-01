@@ -75,11 +75,11 @@
 
     MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
 
-    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable msauthResponse) {
 
-        if (installBrokerResponse)
+        if (msauthResponse)
         {
-            [self promptBrokerInstallWithResponse:installBrokerResponse completionBlock:completionBlock];
+            [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
             return;
         }
 
@@ -88,6 +88,30 @@
         [self stopTelemetryEvent:telemetryEvent error:error];
         completionBlock(result, error);
     }];
+}
+
+- (void)handleWebMSAuthResponse:(MSIDWebMSAuthResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
+{
+    if (![NSString msidIsStringNilOrBlank:response.appInstallLink])
+    {
+        [self promptBrokerInstallWithResponse:response completionBlock:completionBlock];
+        return;
+    }
+
+    if (![NSString msidIsStringNilOrBlank:response.upn])
+    {
+        NSDictionary *additionalInfo = @{MSIDUserDisplayableIdkey : response.upn};
+        NSError *registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Workplace join is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo);
+        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+        [telemetryEvent setLoginHint:response.upn];
+        [self stopTelemetryEvent:telemetryEvent error:registrationError];
+        completionBlock(nil, registrationError);
+        return;
+    }
+
+    NSError *appInstallError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"App install link is missing. Incorrect URL returned from server", nil, nil, nil, self.requestParameters.correlationId, nil);
+    [self stopTelemetryEvent:[self telemetryAPIEvent] error:appInstallError];
+    completionBlock(nil, appInstallError);
 }
 
 - (void)promptBrokerInstallWithResponse:(MSIDWebMSAuthResponse *)response completionBlock:(MSIDRequestCompletionBlock)completion

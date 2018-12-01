@@ -90,6 +90,7 @@
 }
 
 - (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
+                                       refreshToken:(id<MSIDRefreshableToken>)refreshToken
                                               error:(NSError * _Nullable * _Nullable)error
 {
     if (!accessToken)
@@ -121,6 +122,7 @@
     }
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:refreshToken
                                                                    idToken:idToken.rawIdToken
                                                                    account:account
                                                                  authority:accessToken.authority

@@ -162,6 +162,7 @@
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
         [expectation fulfill];
     }];
 
@@ -223,6 +224,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -278,6 +280,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -332,6 +335,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -397,6 +401,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -453,6 +458,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -550,6 +556,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -763,6 +770,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt 2");
         [expectation fulfill];
     }];
 
@@ -877,6 +885,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/1234-5678-90abcdefg/signup"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -934,6 +943,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -1002,6 +1012,7 @@
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertTrue(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
         [expectation fulfill];
     }];
 
@@ -1080,6 +1091,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -1168,6 +1180,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -1257,6 +1270,7 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:@"https://login.windows.net/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new mrrt");
         
         [expectation fulfill];
     }];
@@ -1297,6 +1311,7 @@
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.authority.url, silentParameters.authority.url);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
 
         [secondExpecation fulfill];
     }];
@@ -1420,6 +1435,15 @@
         XCTAssertEqualObjects(error.userInfo[MSIDDeclinedScopesKey], declinedScopes);
         NSArray *grantedScopes = @[@"new.scope"];
         XCTAssertEqualObjects(error.userInfo[MSIDGrantedScopesKey], grantedScopes);
+        MSIDTokenResult *invalidTokenResult = error.userInfo[MSIDInvalidTokenResultKey];
+        XCTAssertNotNil(invalidTokenResult);
+        XCTAssertEqualObjects(invalidTokenResult.accessToken.accessToken, @"new at");
+        XCTAssertEqualObjects(invalidTokenResult.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"new.scope"]);
+        XCTAssertEqualObjects(invalidTokenResult.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
+        XCTAssertEqualObjects(invalidTokenResult.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
+        XCTAssertFalse(invalidTokenResult.extendedLifeTimeToken);
+        XCTAssertEqualObjects(invalidTokenResult.authority.url.absoluteString, authority);
+        XCTAssertEqualObjects(invalidTokenResult.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];
 
@@ -1444,6 +1468,7 @@
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 
         [secondExpectation fulfill];
     }];

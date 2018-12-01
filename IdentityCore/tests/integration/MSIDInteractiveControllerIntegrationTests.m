@@ -35,6 +35,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
+#import "MSIDRefreshToken.h"
 #if TARGET_OS_IPHONE
 #import "MSIDApplicationTestUtil.h"
 #import "MSIDWebMSAuthResponse.h"
@@ -80,9 +81,11 @@
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     MSIDTokenResponse *response = [factory tokenResponseFromJSON:testResponse context:nil error:nil];
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:parameters.msidConfiguration];
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response configuration:parameters.msidConfiguration];
     MSIDAccount *account = [factory accountFromResponse:response configuration:parameters.msidConfiguration];
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:refreshToken
                                                                    idToken:response.idToken
                                                                    account:account
                                                                  authority:accessToken.authority
@@ -245,7 +248,7 @@
     MSIDInteractiveRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_success";
 
-    NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2"];
+    NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2&username=my@test.com"];
     MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
 
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
@@ -273,7 +276,9 @@
 
         MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
 
-        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"] brokerResponseHandler:brokerResponseHandler];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:@"com.microsoft.azureauthenticator"
+                                        brokerResponseHandler:brokerResponseHandler];
         return YES;
     }];
 
@@ -315,6 +320,68 @@
         XCTAssertEqualObjects(brokerEvent[@"status"], @"succeeded");
         XCTAssertNotNil(brokerEvent[@"start_time"]);
         XCTAssertNotNil(brokerEvent[@"stop_time"]);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenWPJRequest_shouldReturnWorkplaceJoinRequiredError
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+
+    // Setup test request providers
+    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_broker_wpj";
+
+    NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?username=my@test.com"];
+    MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:nil resumeDictionary:nil];
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
+
+    XCTAssertNotNil(interactiveController);
+    XCTAssertNil(error);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorWorkplaceJoinRequired);
+        XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"my@test.com");
+
+        // Check Telemetry event
+        XCTAssertEqual([receivedEvents count], 1);
+        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertNotNil(telemetryEvent[@"start_time"]);
+        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_wpj");
+        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
+        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
+        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"no");
+        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(telemetryEvent[@"status"], @"failed");
+        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"b3bf42e34c6997b665e8693acf69075072641a1bd44ffe0d2aae21296e32ba02");
+        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
+        XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
         [expectation fulfill];
     }];

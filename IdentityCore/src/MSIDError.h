@@ -65,6 +65,11 @@ extern NSString *MSIDGrantedScopesKey;
  */
 extern NSString *MSIDServerUnavailableStatusKey;
 
+/*!
+ This flag will be set if we received a valid token response, but returned data mismatched.
+ */
+extern NSString *MSIDInvalidTokenResultKey;
+
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
     /*!
@@ -217,8 +222,11 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Couldn't read broker key
     MSIDErrorBrokerKeyNotFound     =   -51809,
 
+    // Workplace join is required to proceed
+    MSIDErrorWorkplaceJoinRequired  =   -51810,
+
     // Unknown broker error returned
-    MSIDErrorBrokerUnknown  =   -51810,
+    MSIDErrorBrokerUnknown  =   -51811,
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

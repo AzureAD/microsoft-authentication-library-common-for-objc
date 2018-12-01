@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDRefreshableToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,6 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*! The Access Token requested. */
 @property (nonatomic) MSIDAccessToken *accessToken;
+
+/*! The Refresh Token for this request. */
+@property (nonatomic, nullable) id<MSIDRefreshableToken> refreshToken;
 
 /*! ID token */
 @property (nonatomic) NSString *rawIdToken;
@@ -65,6 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *brokerAppVersion;
 
 - (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
+                                refreshToken:(nullable id<MSIDRefreshableToken>)refreshToken
                                      idToken:(nonnull NSString *)rawIdToken
                                      account:(nonnull MSIDAccount *)account
                                    authority:(nonnull MSIDAuthority *)authority

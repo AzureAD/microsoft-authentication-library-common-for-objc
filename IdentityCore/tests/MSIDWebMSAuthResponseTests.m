@@ -53,7 +53,7 @@
 - (void)testInit_whenMSAuthScheme_shouldReturnResponsewithNoError
 {
     NSError *error = nil;
-    MSIDWebMSAuthResponse *response = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&upn=user"]]
+    MSIDWebMSAuthResponse *response = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&username=user"]]
                                                                            context:nil
                                                                              error:&error];
 
