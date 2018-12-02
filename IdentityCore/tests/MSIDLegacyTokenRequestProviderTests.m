@@ -29,6 +29,7 @@
 #import "MSIDLegacySilentTokenRequest.h"
 #import "MSIDLegacyBrokerTokenRequest.h"
 #import "MSIDAuthorityFactory.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDLegacyTokenRequestProviderTests : XCTestCase
 
@@ -58,10 +59,14 @@
     MSIDLegacyTokenRequestProvider *provider = [[MSIDLegacyTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] legacyAccessor:[MSIDLegacyTokenCacheAccessor new]];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    parameters.redirectUri = @"x-msauth-testapp://auth";
-    parameters.target = @"user.read";
-    parameters.clientId = @"client_id";
+
+    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"x-msauth-testapp://auth"
+                                                                           clientId:@"client_id"
+                                                                             target:@"user.read"];
+
+    parameters.configuration = configuration;
     parameters.correlationId = [NSUUID UUID];
 
     NSError *error = nil;

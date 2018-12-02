@@ -26,26 +26,20 @@
 
 @implementation MSIDInteractiveRequestParameters
 
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           scopes:(NSOrderedSet<NSString *> *)scopes
-                       oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
-             extraScopesToConsent:(NSOrderedSet<NSString *> *)extraScopesToConsent
-                    correlationId:(NSUUID *)correlationId
-                   telemetryApiId:(NSString *)telemetryApiId
-          supportedBrokerProtocol:(NSString *)brokerProtocolScheme
-                      requestType:(MSIDInteractiveRequestType)requestType
-                            error:(NSError **)error
+- (instancetype)initWithConfiguration:(MSIDConfiguration *)configuration
+                           oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
+                 extraScopesToConsent:(NSOrderedSet<NSString *> *)extraScopesToConsent
+                        correlationId:(NSUUID *)correlationId
+                       telemetryApiId:(NSString *)telemetryApiId
+              supportedBrokerProtocol:(NSString *)brokerProtocolScheme
+                          requestType:(MSIDInteractiveRequestType)requestType
+                                error:(NSError **)error
 {
-    self = [super initWithAuthority:authority
-                        redirectUri:redirectUri
-                           clientId:clientId
-                             scopes:scopes
-                         oidcScopes:oidScopes
-                      correlationId:correlationId
-                     telemetryApiId:telemetryApiId
-                              error:error];
+    self = [super initWithConfiguration:configuration
+                             oidcScopes:oidScopes
+                          correlationId:correlationId
+                         telemetryApiId:telemetryApiId
+                                  error:error];
 
     if (self)
     {

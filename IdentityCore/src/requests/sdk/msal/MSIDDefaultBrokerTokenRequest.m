@@ -25,6 +25,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDConfiguration.h"
 
 @implementation MSIDDefaultBrokerTokenRequest
 
@@ -36,7 +37,7 @@
     
     // if value is nil, it won't appear in the dictionary
     NSMutableDictionary *contents = [NSMutableDictionary new];
-    [contents msidSetNonEmptyString:self.requestParameters.target forKey:@"request_scopes"];
+    [contents msidSetNonEmptyString:self.requestParameters.configuration.target forKey:@"request_scopes"];
     [contents msidSetNonEmptyString:self.requestParameters.oidcScope forKey:@"extra_oidc_scopes"];
     [contents msidSetNonEmptyString:homeAccountId forKey:@"home_account_id"];
     [contents msidSetNonEmptyString:username forKey:@"username"];
@@ -50,7 +51,7 @@
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
-    return @{@"scope": self.requestParameters.target ?: @""};
+    return @{@"scope": self.requestParameters.configuration.target ?: @""};
 }
 
 @end

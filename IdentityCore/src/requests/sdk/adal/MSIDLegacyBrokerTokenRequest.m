@@ -25,6 +25,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDConfiguration.h"
 
 @implementation MSIDLegacyBrokerTokenRequest
 
@@ -56,7 +57,7 @@
 
     NSMutableDictionary *contents = [NSMutableDictionary new];
     [contents msidSetNonEmptyString:skipCacheValue forKey:@"skip_cache"];
-    [contents msidSetNonEmptyString:self.requestParameters.target forKey:@"resource"];
+    [contents msidSetNonEmptyString:self.requestParameters.configuration.target forKey:@"resource"];
     [contents msidSetNonEmptyString:username forKey:@"username"];
     [contents msidSetNonEmptyString:usernameType forKey:@"username_type"];
     [contents setValue:@"2" forKey:@"max_protocol_ver"];
@@ -67,7 +68,7 @@
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
-    return @{@"resource": self.requestParameters.target ?: @""};
+    return @{@"resource": self.requestParameters.configuration.target ?: @""};
 }
 
 @end

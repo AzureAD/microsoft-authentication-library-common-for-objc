@@ -33,11 +33,12 @@
 
 @interface MSIDRequestParameters : NSObject <MSIDRequestContext>
 
-@property (nonatomic) MSIDAuthority *authority;
-@property (nonatomic) MSIDAuthority *cloudAuthority;
-@property (nonatomic) NSString *redirectUri;
-@property (nonatomic) NSString *clientId;
-@property (nonatomic) NSString *target;
+@property (nonatomic) MSIDConfiguration *configuration;
+//@property (nonatomic) MSIDAuthority *authority;
+//@property (nonatomic) MSIDAuthority *cloudAuthority;
+//@property (nonatomic) NSString *redirectUri;
+//@property (nonatomic) NSString *clientId;
+//@property (nonatomic) NSString *target;
 @property (nonatomic) NSString *oidcScope;
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic) BOOL validateAuthority;
@@ -75,13 +76,10 @@
 - (BOOL)validateParametersWithError:(NSError **)error;
 
 #pragma mark - Init
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           scopes:(NSOrderedSet<NSString *> *)scopes
-                       oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
-                    correlationId:(NSUUID *)correlationId
-                   telemetryApiId:(NSString *)telemetryApiId
-                            error:(NSError **)error;
+- (instancetype)initWithConfiguration:(MSIDConfiguration *)configuration
+                           oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
+                        correlationId:(NSUUID *)correlationId
+                       telemetryApiId:(NSString *)telemetryApiId
+                                error:(NSError **)error;
 
 @end

@@ -219,16 +219,16 @@
     NSString *allScopes = parameters.allTokenRequestScopes;
 
     // TODO: use client_info returned on authorize 
-    NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
-                                                                   legacyUserId:parameters.accountIdentifier.legacyAccountId
-                                                                        context:parameters
-                                                                          error:nil];
+    NSString *enrollmentId = [parameters.configuration.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
+                                                                                 legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                                                      context:parameters
+                                                                                        error:nil];
 
     MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
-                                                                                                               clientId:parameters.clientId
+                                                                                                               clientId:parameters.configuration.clientId
                                                                                                            enrollmentId:enrollmentId
                                                                                                                   scope:allScopes
-                                                                                                            redirectUri:parameters.redirectUri
+                                                                                                            redirectUri:parameters.configuration.redirectUri
                                                                                                                    code:authCode
                                                                                                                  claims:claims
                                                                                                            codeVerifier:pkceCodeVerifier
@@ -244,13 +244,13 @@
                                                                        developerClaims:parameters.claims];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
-    NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
-                                                                   legacyUserId:parameters.accountIdentifier.legacyAccountId
-                                                                        context:parameters
-                                                                          error:nil];
+    NSString *enrollmentId = [parameters.configuration.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
+                                                                                 legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                                                      context:parameters
+                                                                                        error:nil];
 
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
-                                                                                                     clientId:parameters.clientId
+                                                                                                     clientId:parameters.configuration.clientId
                                                                                                  enrollmentId:enrollmentId
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken

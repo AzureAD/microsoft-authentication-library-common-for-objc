@@ -32,6 +32,7 @@
 #import "MSIDIntuneInMemoryCacheDataSource.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
@@ -50,11 +51,13 @@
 - (MSIDInteractiveRequestParameters *)defaultTestParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
-    parameters.clientId = @"my_client_id";
-    parameters.target = @"mytarget mytarget2";
+    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"my-redirect://com.microsoft.test"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"mytarget mytarget2"];
+    parameters.configuration = configuration;
     parameters.correlationId = [NSUUID new];
-    parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
     parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
     return parameters;
@@ -65,7 +68,7 @@
 - (void)testInitBrokerRequest_whenAuthorityMissing_shouldReturnNOAndFillError
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
-    parameters.authority = nil;
+    parameters.configuration.authority = nil;
 
     NSError *error = nil;
     MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
@@ -89,7 +92,7 @@
 - (void)testInitBrokerRequest_whenTargetMissing_shouldReturnNOAndFillError
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
-    parameters.target = nil;
+    parameters.configuration.target = nil;
 
     NSError *error = nil;
     MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
@@ -101,7 +104,7 @@
 - (void)testInitBrokerRequest_whenRedirectUriMissing_shouldReturnNOAndFillError
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
-    parameters.redirectUri = nil;
+    parameters.configuration.redirectUri = nil;
 
     NSError *error = nil;
     MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
@@ -113,7 +116,7 @@
 - (void)testInitBrokerRequest_whenClientIdMissing_shouldReturnNOAndFillError
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
-    parameters.clientId = nil;
+    parameters.configuration.clientId = nil;
 
     NSError *error = nil;
     MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];

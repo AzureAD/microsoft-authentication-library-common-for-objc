@@ -47,14 +47,11 @@
     return self;
 }
 
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           scopes:(NSOrderedSet<NSString *> *)scopes
-                       oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
-                    correlationId:(NSUUID *)correlationId
-                   telemetryApiId:(NSString *)telemetryApiId
-                            error:(NSError **)error
+- (instancetype)initWithConfiguration:(MSIDConfiguration *)configuration
+                           oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
+                        correlationId:(NSUUID *)correlationId
+                       telemetryApiId:(NSString *)telemetryApiId
+                                error:(NSError **)error
 {
     self = [super init];
 
@@ -62,20 +59,17 @@
     {
         [self initDefaultSettings];
 
-        _authority = authority;
-        _redirectUri = redirectUri;
-        _clientId = clientId;
+        _configuration = configuration;
+
         _correlationId = correlationId ?: [NSUUID new];
         _telemetryApiId = telemetryApiId;
 
-        if ([scopes intersectsOrderedSet:oidScopes])
+        if ([configuration.scopes intersectsOrderedSet:oidScopes])
         {
             NSString *errorMessage = [NSString stringWithFormat:@"%@ are reserved scopes and may not be specified in the acquire token call.", oidScopes];
             MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, errorMessage, correlationId);
             return nil;
         }
-
-        _target = [scopes msidToString];
 
         if (oidScopes) _oidcScope = [oidScopes msidToString];
     }
@@ -111,13 +105,7 @@
 
 - (NSURL *)tokenEndpoint
 {
-    NSURLComponents *tokenEndpoint = [NSURLComponents componentsWithURL:self.authority.metadata.tokenEndpoint resolvingAgainstBaseURL:NO];
-
-    if (self.cloudAuthority)
-    {
-        tokenEndpoint.host = self.cloudAuthority.environment;
-    }
-
+    NSURLComponents *tokenEndpoint = [NSURLComponents componentsWithURL:self.configuration.authority.metadata.tokenEndpoint resolvingAgainstBaseURL:NO];
     NSMutableDictionary *endpointQPs = [[NSDictionary msidDictionaryFromWWWFormURLEncodedString:tokenEndpoint.percentEncodedQuery] mutableCopy];
 
     if (!endpointQPs)
@@ -138,27 +126,10 @@
 {
     if ([NSString msidIsStringNilOrBlank:cloudHostName]) return;
 
-    NSURL *cloudAuthority = [self.authority.url msidAuthorityWithCloudInstanceHostname:cloudHostName];
-    _cloudAuthority = [MSIDAuthorityFactory authorityFromUrl:cloudAuthority context:self error:nil];
-    [self updateMSIDConfiguration];
-}
-
-- (void)setAuthority:(MSIDAuthority *)authority
-{
-    _authority = authority;
-    [self updateMSIDConfiguration];
-}
-
-- (void)setClientId:(NSString *)clientId
-{
-    _clientId = clientId;
-    [self updateMSIDConfiguration];
-}
-
-- (void)setTarget:(NSString *)target
-{
-    _target = target;
-    [self updateMSIDConfiguration];
+    // TODO: this is a problem, we replace authority and wipe metadata with it
+    // tokenEndpointMethod will crash because of that
+    NSURL *cloudAuthority = [self.configuration.authority.url msidAuthorityWithCloudInstanceHostname:cloudHostName];
+    _configuration.authority = [MSIDAuthorityFactory authorityFromUrl:cloudAuthority context:self error:nil];
 }
 
 - (BOOL)setClaimsFromJSON:(NSString *)claims error:(NSError **)error
@@ -183,61 +154,40 @@
 
 - (NSString *)allTokenRequestScopes
 {
-    NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.target] mutableCopy];
+    NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.configuration.target] mutableCopy];
     NSOrderedSet *oidcScopes = [NSOrderedSet msidOrderedSetFromString:self.oidcScope];
 
     if (oidcScopes)
     {
         [requestScopes unionOrderedSet:oidcScopes];
     }
-    [requestScopes removeObject:self.clientId];
+    [requestScopes removeObject:self.configuration.clientId];
     return [requestScopes msidToString];
-}
-
-- (void)updateMSIDConfiguration
-{
-    MSIDAuthority *authority = self.cloudAuthority ? self.cloudAuthority : self.authority;
-
-    MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
-                                                                 redirectUri:self.redirectUri
-                                                                    clientId:self.clientId
-                                                                      target:self.target];
-    _msidConfiguration = config;
-}
-
-- (MSIDConfiguration *)msidConfiguration
-{
-    if (!_msidConfiguration)
-    {
-        [self updateMSIDConfiguration];
-    }
-
-    return _msidConfiguration;
 }
 
 #pragma mark - Validate
 
 - (BOOL)validateParametersWithError:(NSError **)error
 {
-    if (!self.authority)
+    if (!self.configuration.authority)
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing authority parameter", self.correlationId);
         return NO;
     }
 
-    if (!self.redirectUri)
+    if (!self.configuration.redirectUri)
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing redirectUri parameter", self.correlationId);
         return NO;
     }
 
-    if (!self.clientId)
+    if (!self.configuration.clientId)
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing clientId parameter", self.correlationId);
         return NO;
     }
 
-    if (!self.target)
+    if (!self.configuration.target)
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing target parameter", self.correlationId);
         return NO;

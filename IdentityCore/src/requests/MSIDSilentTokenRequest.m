@@ -32,6 +32,7 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDTokenResult.h"
 #import "NSError+MSIDExtensions.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDSilentTokenRequest()
 
@@ -76,10 +77,10 @@
 
     NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId;
 
-    [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
-                                       userPrincipalName:upn
-                                                 context:self.requestParameters
-                                         completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [self.requestParameters.configuration.authority resolveAndValidate:self.requestParameters.validateAuthority
+                                                     userPrincipalName:upn
+                                                               context:self.requestParameters
+                                                       completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          if (error)
          {
@@ -162,8 +163,8 @@
 
 - (void)tryFRT:(MSIDRefreshToken *)familyRefreshToken completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    MSID_LOG_VERBOSE(self.requestParameters, @"Trying to acquire access token using FRT for clientId %@, authority %@", self.requestParameters.authority, self.requestParameters.clientId);
-    MSID_LOG_VERBOSE(self.requestParameters, @"Trying to acquire access token using FRT for clientId %@, authority %@, account %@", self.requestParameters.authority, self.requestParameters.clientId, self.requestParameters.accountIdentifier.homeAccountId);
+    MSID_LOG_VERBOSE(self.requestParameters, @"Trying to acquire access token using FRT for clientId %@, authority %@", self.requestParameters.configuration.authority, self.requestParameters.configuration.clientId);
+    MSID_LOG_VERBOSE(self.requestParameters, @"Trying to acquire access token using FRT for clientId %@, authority %@, account %@", self.requestParameters.configuration.authority, self.requestParameters.configuration.clientId, self.requestParameters.accountIdentifier.homeAccountId);
 
     [self refreshAccessToken:familyRefreshToken
              completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
@@ -279,8 +280,8 @@
 
     MSID_LOG_INFO(self.requestParameters, @"Refreshing access token");
 
-    [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                    completionBlock:^(MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error) {
+    [self.requestParameters.configuration.authority loadOpenIdMetadataWithContext:self.requestParameters
+                                                                  completionBlock:^(MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error) {
 
                                                         if (error)
                                                         {

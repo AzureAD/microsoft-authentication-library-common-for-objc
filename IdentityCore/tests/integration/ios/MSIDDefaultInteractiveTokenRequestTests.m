@@ -46,6 +46,7 @@
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDDefaultInteractiveTokenRequestTests : XCTestCase
 
@@ -86,10 +87,11 @@
     __block NSUUID *correlationId = [NSUUID new];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
-    parameters.clientId = @"my_client_id";
+
+    MSIDAuthority *authorityObj = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authorityObj redirectUri:@"x-msauth-test://com.microsoft.testapp" clientId:@"my_client_id" target:@"fakescope1 fakescope2"];
+
+    parameters.configuration = configuration;
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
@@ -97,7 +99,7 @@
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
-    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
+    parameters.configuration.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
@@ -183,10 +185,15 @@
     __block NSUUID *correlationId = [NSUUID new];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
-    parameters.clientId = @"my_client_id";
+
+    MSIDAuthority *authorityObj = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authorityObj
+                                                                        redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"fakescope1 fakescope2"];
+
+    parameters.configuration = configuration;
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"instance_aware" : @"true" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
@@ -194,7 +201,7 @@
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
-    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
+    parameters.configuration.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
@@ -281,10 +288,14 @@
     __block NSUUID *correlationId = [NSUUID new];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
-    parameters.clientId = @"my_client_id";
+
+    MSIDAuthority *authorityObj = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authorityObj
+                                                                        redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"fakescope1 fakescope2"];
+
+    parameters.configuration = configuration;
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
@@ -292,7 +303,7 @@
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
-    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
+    parameters.configuration.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
@@ -371,10 +382,15 @@
     __block NSUUID *correlationId = [NSUUID new];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
-    parameters.clientId = @"my_client_id";
+
+    MSIDAuthority *authorityObj = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authorityObj
+                                                                        redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"fakescope1 fakescope2"];
+
+    parameters.configuration = configuration;
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
@@ -382,7 +398,7 @@
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
-    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
+    parameters.configuration.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
@@ -459,10 +475,14 @@
     __block NSUUID *correlationId = [NSUUID new];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
-    parameters.clientId = @"my_client_id";
+    MSIDAuthority *authorityObj = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authorityObj
+                                                                        redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"fakescope1 fakescope2"];
+
+    parameters.configuration = configuration;
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
@@ -470,7 +490,7 @@
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
-    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
+    parameters.configuration.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
@@ -521,10 +541,15 @@
     __block NSUUID *correlationId = [NSUUID new];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
-    parameters.clientId = @"my_client_id";
+
+    MSIDAuthority *authorityObj = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authorityObj
+                                                                        redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"fakescope1 fakescope2"];
+
+    parameters.configuration = configuration;
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
@@ -532,7 +557,7 @@
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
-    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
+    parameters.configuration.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
@@ -579,10 +604,15 @@
     __block NSUUID *correlationId = [NSUUID new];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
-    parameters.clientId = @"my_client_id";
+
+    MSIDAuthority *authorityObj = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authorityObj
+                                                                        redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"fakescope1 fakescope2"];
+
+    parameters.configuration = configuration;
     parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
@@ -590,7 +620,7 @@
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = @"force_consent";
-    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
+    parameters.configuration.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];

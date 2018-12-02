@@ -397,9 +397,9 @@
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
-                                                                                                         clientId:parameters.clientId
+                                                                                                         clientId:parameters.configuration.clientId
                                                                                                             scope:allScopes
-                                                                                                      redirectUri:parameters.redirectUri
+                                                                                                      redirectUri:parameters.configuration.redirectUri
                                                                                                              code:authCode
                                                                                                            claims:claims
                                                                                                      codeVerifier:pkceCodeVerifier
@@ -413,7 +413,7 @@
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDRefreshTokenGrantRequest *tokenRequest = [[MSIDRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
-                                                                                               clientId:parameters.clientId
+                                                                                               clientId:parameters.configuration.clientId
                                                                                                   scope:allScopes
                                                                                            refreshToken:refreshToken
                                                                                                 context:parameters];

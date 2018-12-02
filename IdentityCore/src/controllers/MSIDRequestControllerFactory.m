@@ -30,6 +30,7 @@
 #import "MSIDBrokerInteractiveController.h"
 #endif
 #import "MSIDAuthority.h"
+#import "MSIDConfiguration.h"
 
 @implementation MSIDRequestControllerFactory
 
@@ -116,7 +117,7 @@
         return NO;
     }
 
-    if (!parameters.authority.supportsBrokeredAuthentication)
+    if (!parameters.configuration.authority.supportsBrokeredAuthentication)
     {
         return NO;
     }

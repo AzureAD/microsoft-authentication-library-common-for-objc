@@ -41,6 +41,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDWebViewFactory.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDInteractiveTokenRequest()
 
@@ -76,10 +77,10 @@
 {
     NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId ?: self.requestParameters.loginHint;
 
-    [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
-                                       userPrincipalName:upn
-                                                 context:self.requestParameters
-                                         completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [self.requestParameters.configuration.authority resolveAndValidate:self.requestParameters.validateAuthority
+                                                     userPrincipalName:upn
+                                                               context:self.requestParameters
+                                                       completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          if (error)
          {
@@ -87,8 +88,8 @@
              return;
          }
 
-         [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                         completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+         [self.requestParameters.configuration.authority loadOpenIdMetadataWithContext:self.requestParameters
+                                                                       completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
           {
               if (error)
               {

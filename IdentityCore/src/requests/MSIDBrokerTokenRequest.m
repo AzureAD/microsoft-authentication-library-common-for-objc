@@ -31,6 +31,7 @@
 #import "MSIDConstants.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDConfiguration.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -126,10 +127,10 @@
 
 - (NSDictionary *)defaultPayloadContents:(NSError **)error
 {
-    if (![self checkParameter:self.requestParameters.authority parameterName:@"authority" error:error]) return nil;
-    if (![self checkParameter:self.requestParameters.target parameterName:@"target" error:error]) return nil;
-    if (![self checkParameter:self.requestParameters.clientId parameterName:@"clientId" error:error]) return nil;
-    if (![self checkParameter:self.requestParameters.redirectUri parameterName:@"redirectUri" error:error]) return nil;
+    if (![self checkParameter:self.requestParameters.configuration.authority parameterName:@"authority" error:error]) return nil;
+    if (![self checkParameter:self.requestParameters.configuration.target parameterName:@"target" error:error]) return nil;
+    if (![self checkParameter:self.requestParameters.configuration.clientId parameterName:@"clientId" error:error]) return nil;
+    if (![self checkParameter:self.requestParameters.configuration.redirectUri parameterName:@"redirectUri" error:error]) return nil;
     if (![self checkParameter:self.requestParameters.correlationId parameterName:@"correlationId" error:error]) return nil;
     if (![self checkParameter:self.brokerKey parameterName:@"brokerKey" error:error]) return nil;
 
@@ -149,9 +150,9 @@
     NSString *extraQueryParameters = [self.requestParameters.extraQueryParameters count] ? [self.requestParameters.extraQueryParameters msidWWWFormURLEncode] : @"";
 
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
-    [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
-    [queryDictionary msidSetNonEmptyString:self.requestParameters.clientId forKey:@"client_id"];
-    [queryDictionary msidSetNonEmptyString:self.requestParameters.redirectUri forKey:@"redirect_uri"];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.configuration.authority.url.absoluteString forKey:@"authority"];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.configuration.clientId forKey:@"client_id"];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.configuration.redirectUri forKey:@"redirect_uri"];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.correlationId.UUIDString forKey:@"correlation_id"];
 #if TARGET_OS_IPHONE
     [queryDictionary msidSetNonEmptyString:self.brokerKey forKey:@"broker_key"];
@@ -173,9 +174,9 @@
 {
     NSDictionary *resumeDictionary =
     @{
-      @"authority"        : self.requestParameters.authority.url.absoluteString,
-      @"client_id"        : self.requestParameters.clientId,
-      @"redirect_uri"     : self.requestParameters.redirectUri,
+      @"authority"        : self.requestParameters.configuration.authority.url.absoluteString,
+      @"client_id"        : self.requestParameters.configuration.clientId,
+      @"redirect_uri"     : self.requestParameters.configuration.redirectUri,
       @"correlation_id"   : self.requestParameters.correlationId.UUIDString,
 #if TARGET_OS_IPHONE
       @"keychain_group"   : self.requestParameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup

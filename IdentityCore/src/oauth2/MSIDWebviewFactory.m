@@ -37,6 +37,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDConfiguration.h"
 
 @implementation MSIDWebviewFactory
 
@@ -175,9 +176,10 @@
 
 - (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
 {
-    MSIDWebviewConfiguration *configuration = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:parameters.authority.metadata.authorizationEndpoint
-                                                                                                  redirectUri:parameters.redirectUri
-                                                                                                     clientId:parameters.clientId resource:nil
+    MSIDWebviewConfiguration *configuration = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:parameters.configuration.authority.metadata.authorizationEndpoint
+                                                                                                  redirectUri:parameters.configuration.redirectUri
+                                                                                                     clientId:parameters.configuration.clientId
+                                                                                                     resource:nil
                                                                                                        scopes:parameters.allAuthorizeRequestScopes
                                                                                                 correlationId:parameters.correlationId
                                                                                                    enablePkce:YES];

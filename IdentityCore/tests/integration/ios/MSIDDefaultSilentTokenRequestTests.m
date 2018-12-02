@@ -47,6 +47,7 @@
 #import "MSIDError.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -71,11 +72,14 @@
 - (MSIDRequestParameters *)silentRequestParameters
 {
     MSIDRequestParameters *parameters = [MSIDRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"] context:nil error:nil];
-    parameters.clientId = @"my_client_id";
-    parameters.target = @"user.read tasks.read";
+
+    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"] context:nil error:nil];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"my_redirect_uri"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"user.read tasks.read"];
+    parameters.configuration = configuration;
     parameters.oidcScope = @"openid profile offline_access";
-    parameters.redirectUri = @"my_redirect_uri";
     parameters.correlationId = [NSUUID new];
     parameters.extendedLifetimeEnabled = YES;
     return parameters;
@@ -85,11 +89,14 @@
 - (MSIDRequestParameters *)silentB2CParameters
 {
     MSIDRequestParameters *parameters = [MSIDRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.com/signup"] context:nil error:nil];
-    parameters.clientId = @"my_client_id";
-    parameters.target = @"user.read tasks.read";
+
+    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.com/signup"] context:nil error:nil];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"my_redirect_uri"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"user.read tasks.read"];
+    parameters.configuration = configuration;
     parameters.oidcScope = @"openid profile offline_access";
-    parameters.redirectUri = @"my_redirect_uri";
     parameters.correlationId = [NSUUID new];
     return parameters;
 }
@@ -161,7 +168,7 @@
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        XCTAssertEqualObjects(result.authority, silentParameters.configuration.authority);
         [expectation fulfill];
     }];
 
@@ -236,7 +243,7 @@
 
     [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
-    silentParameters.target = @"new.scope1 new.scope2";
+    silentParameters.configuration.target = @"new.scope1 new.scope2";
 
     NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
@@ -412,7 +419,7 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/contoso.com";
-    silentParameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:authority] context:nil error:nil];
+    silentParameters.configuration.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:authority] context:nil error:nil];
 
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
@@ -1001,7 +1008,7 @@
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertTrue(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        XCTAssertEqualObjects(result.authority, silentParameters.configuration.authority);
         [expectation fulfill];
     }];
 
@@ -1180,7 +1187,7 @@
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
 
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
-    silentParameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/1234-5678-90abcdefg"] context:nil error:nil];
+    silentParameters.configuration.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/1234-5678-90abcdefg"] context:nil error:nil];
 
     [self saveTokensInCache:tokenCache
               configuration:silentParameters.msidConfiguration
@@ -1296,7 +1303,7 @@
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority.url, silentParameters.authority.url);
+        XCTAssertEqualObjects(result.authority.url, silentParameters.configuration.authority.url);
 
         [secondExpecation fulfill];
     }];
@@ -1380,7 +1387,7 @@
 
     [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
-    silentParameters.target = @"new.scope1 new.scope2";
+    silentParameters.configuration.target = @"new.scope1 new.scope2";
 
     NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
@@ -1425,7 +1432,7 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
-    silentParameters.target = @"new.scope";
+    silentParameters.configuration.target = @"new.scope";
 
     MSIDDefaultSilentTokenRequest *secondSilentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
                                                                                                              forceRefresh:NO
@@ -1443,7 +1450,7 @@
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        XCTAssertEqualObjects(result.authority, silentParameters.configuration.authority);
 
         [secondExpectation fulfill];
     }];

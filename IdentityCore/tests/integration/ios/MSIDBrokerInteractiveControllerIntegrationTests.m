@@ -37,6 +37,7 @@
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDTestBrokerResponseHandler.h"
 #import "MSIDTestTokenRequestProvider.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
@@ -49,11 +50,16 @@
 - (MSIDInteractiveRequestParameters *)requestParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
-    parameters.clientId = @"my_client_id";
-    parameters.target = @"user.read tasks.read";
+
+    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"my_redirect_uri"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"user.read tasks.read"];
+
+    parameters.configuration = configuration;
     parameters.oidcScope = @"openid profile offline_access";
-    parameters.redirectUri = @"my_redirect_uri";
     parameters.correlationId = [NSUUID new];
     parameters.extendedLifetimeEnabled = YES;
     parameters.telemetryRequestId = [[NSUUID new] UUIDString];

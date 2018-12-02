@@ -28,6 +28,7 @@
 #import "NSURL+MSIDTestUtil.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDDefaultBrokerRequestTests : XCTestCase
 
@@ -217,11 +218,15 @@
 - (MSIDInteractiveRequestParameters *)defaultTestParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
-    parameters.clientId = @"my_client_id";
-    parameters.target = @"myscope1 myscope2";
+
+    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"my-redirect://com.microsoft.test"
+                                                                           clientId:@"my_client_id"
+                                                                             target:@"myscope1 myscope2"];
+    parameters.configuration = configuration;
     parameters.correlationId = [NSUUID new];
-    parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
     parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
     parameters.promptType = @"select_account";

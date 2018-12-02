@@ -32,6 +32,7 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDRefreshToken.h"
 #import "NSError+MSIDExtensions.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -106,7 +107,7 @@
 
     if (!idToken)
     {
-        MSID_LOG_WARN(self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
+        MSID_LOG_WARN(self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@", self.requestParameters.configuration.clientId, self.requestParameters.configuration.authority.url);
     }
 
     MSIDAccount *account = [self.defaultAccessor accountForIdentifier:self.requestParameters.accountIdentifier
@@ -117,7 +118,7 @@
 
     if (!account)
     {
-        MSID_LOG_WARN(self.requestParameters, @"Couldn't find an account for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
+        MSID_LOG_WARN(self.requestParameters, @"Couldn't find an account for clientId %@, authority %@", self.requestParameters.configuration.clientId, self.requestParameters.configuration.authority.url);
     }
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken

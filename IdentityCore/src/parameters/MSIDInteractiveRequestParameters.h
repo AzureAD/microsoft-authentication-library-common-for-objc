@@ -61,16 +61,13 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 
 // Initialize parameters with extra scopes, and interactive request type
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           scopes:(NSOrderedSet<NSString *> *)scopes
-                       oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
-             extraScopesToConsent:(NSOrderedSet<NSString *> *)extraScopesToConsent
-                    correlationId:(NSUUID *)correlationId
-                   telemetryApiId:(NSString *)telemetryApiId
-          supportedBrokerProtocol:(NSString *)brokerProtocolScheme
-                      requestType:(MSIDInteractiveRequestType)requestType
-                            error:(NSError **)error;
+- (instancetype)initWithConfiguration:(MSIDConfiguration *)configuration
+                           oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
+               extraScopesToConsent:(NSOrderedSet<NSString *> *)extraScopesToConsent
+                        correlationId:(NSUUID *)correlationId
+                       telemetryApiId:(NSString *)telemetryApiId
+              supportedBrokerProtocol:(NSString *)brokerProtocolScheme
+                          requestType:(MSIDInteractiveRequestType)requestType
+                                error:(NSError **)error;
 
 @end
