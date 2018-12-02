@@ -37,6 +37,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDPromptType_Internal.h"
 
 @implementation MSIDWebviewFactory
 
@@ -182,7 +183,8 @@
                                                                                                 correlationId:parameters.correlationId
                                                                                                    enablePkce:YES];
 
-    configuration.promptBehavior = parameters.promptType;
+    NSString *promptParam = MSIDPromptParamFromType(parameters.promptType);
+    configuration.promptBehavior = promptParam;
     configuration.loginHint = parameters.accountIdentifier.legacyAccountId ?: parameters.loginHint;
     configuration.extraQueryParameters = parameters.extraQueryParameters;
     configuration.sliceParameters = parameters.sliceParameters;

@@ -96,7 +96,7 @@
     parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
-    parameters.promptType = @"force_consent";
+    parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
@@ -193,7 +193,7 @@
     parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
-    parameters.promptType = @"force_consent";
+    parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
@@ -291,7 +291,7 @@
     parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
-    parameters.promptType = @"force_consent";
+    parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
@@ -381,7 +381,7 @@
     parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
-    parameters.promptType = @"force_consent";
+    parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
@@ -469,7 +469,7 @@
     parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
-    parameters.promptType = @"force_consent";
+    parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
@@ -531,7 +531,7 @@
     parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
-    parameters.promptType = @"force_consent";
+    parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
@@ -589,7 +589,7 @@
     parameters.webviewType = MSIDWebviewTypeWKWebView;
     parameters.extraScopesToConsent = @"fakescope3";
     parameters.oidcScope = @"openid profile offline_access";
-    parameters.promptType = @"force_consent";
+    parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 

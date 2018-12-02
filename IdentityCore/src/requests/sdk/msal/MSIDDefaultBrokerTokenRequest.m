@@ -25,6 +25,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDPromptType_Internal.h"
 
 @implementation MSIDDefaultBrokerTokenRequest
 
@@ -42,7 +43,8 @@
     [contents msidSetNonEmptyString:username forKey:@"username"];
     [contents msidSetNonEmptyString:self.requestParameters.loginHint forKey:@"login_hint"];
     [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
-    [contents msidSetNonEmptyString:self.requestParameters.promptType forKey:@"prompt"];
+    NSString *promptParam = MSIDPromptParamFromType(self.requestParameters.promptType);
+    [contents msidSetNonEmptyString:promptParam forKey:@"prompt"];
     [contents setValue:@"3" forKey:@"msg_protocol_ver"];
     
     return contents;

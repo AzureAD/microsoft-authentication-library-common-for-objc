@@ -43,6 +43,30 @@ typedef NS_ENUM(NSInteger, MSIDWebviewType)
     MSIDWebviewTypeWKWebView,
 };
 
+typedef NS_ENUM(NSInteger, MSIDInteractiveRequestType)
+{
+    MSIDInteractiveRequestBrokeredType = 0,
+    MSIDInteractiveRequestLocalType
+};
+
+typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
+{
+    MSIDUIBehaviorInteractiveType = 0,
+    MSIDUIBehaviorAutoType,
+    MSIDUIBehaviorForceType
+};
+
+typedef NS_ENUM(NSInteger, MSIDPromptType)
+{
+    MSIDPromptTypeNotSpecified = 0, // No prompt specified, will use cookies is present
+    MSIDPromptTypeLogin, // prompt == "login", will force user to enter credentials
+    MSIDPromptTypeConsent, // prompt == "consent", will force user to grant permissions
+    MSIDPromptTypeSelectAccount, // prompt == "select_account", will show an account picker UI
+    MSIDPromptTypeRefreshSession, // prompt=refresh_session
+    MSIDPromptTypeNever, // prompt=none, ensures user is never prompted
+    MSIDPromptTypeDefault = MSIDPromptTypeNotSpecified
+};
+
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 
 extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
