@@ -23,7 +23,7 @@
 
 #import "MSIDPromptType_Internal.h"
 
-extern NSString * MSIDPromptParamFromType(MSIDPromptType type)
+NSString * MSIDPromptParamFromType(MSIDPromptType type)
 {
     switch (type) {
         case MSIDPromptTypeLogin:
@@ -42,7 +42,7 @@ extern NSString * MSIDPromptParamFromType(MSIDPromptType type)
     }
 }
 
-extern MSIDPromptType MSIDPromptTypeFromString(NSString *promptTypeString)
+MSIDPromptType MSIDPromptTypeFromString(NSString *promptTypeString)
 {
     if ([promptTypeString isEqualToString:@"login"])
     {
