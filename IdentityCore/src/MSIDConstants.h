@@ -58,13 +58,13 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 
 typedef NS_ENUM(NSInteger, MSIDPromptType)
 {
-    MSIDPromptTypeNotSpecified = 0, // No prompt specified, will use cookies is present
+    MSIDPromptTypePromptIfNecessary = 0, // No prompt specified, will use cookies is present, prompt otherwise
     MSIDPromptTypeLogin, // prompt == "login", will force user to enter credentials
     MSIDPromptTypeConsent, // prompt == "consent", will force user to grant permissions
     MSIDPromptTypeSelectAccount, // prompt == "select_account", will show an account picker UI
     MSIDPromptTypeRefreshSession, // prompt=refresh_session
     MSIDPromptTypeNever, // prompt=none, ensures user is never prompted
-    MSIDPromptTypeDefault = MSIDPromptTypeNotSpecified
+    MSIDPromptTypeDefault = MSIDPromptTypePromptIfNecessary
 };
 
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
