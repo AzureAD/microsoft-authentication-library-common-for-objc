@@ -34,7 +34,7 @@
 
 - (NSData *)toJsonData:(id<MSIDJsonSerializable>)serializable
                context:(id<MSIDRequestContext>)context
-                 error:(NSError **)error;
+                 error:(NSError **)error
 {
     __auto_type jsonDictionary = [serializable jsonDictionary];
     if (!jsonDictionary)
