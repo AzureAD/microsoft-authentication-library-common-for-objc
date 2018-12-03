@@ -127,3 +127,4 @@ NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-
 NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the token response";
 
 NSString *const MSIDServerErrorClientMismatch            = @"client_mismatch";
+NSString *const MSIDServerErrorBadToken                  = @"bad_token";

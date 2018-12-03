@@ -35,6 +35,7 @@
 @class MSIDBaseToken;
 @class MSIDAccount;
 @class MSIDAuthority;
+@class MSIDAccessToken;
 
 @protocol MSIDCacheAccessor <NSObject>
 
@@ -99,5 +100,13 @@
                     clientId:(NSString *)clientId
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error;
+
+- (BOOL)validateAndRemoveRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
+
+- (BOOL)removeAccessToken:(MSIDAccessToken *)token
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error;
 
 @end

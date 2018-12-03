@@ -151,7 +151,7 @@
     return nil;
 }
 
-- (nullable id<MSIDRefreshableToken>)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
 {
     return [self.defaultAccessor getRefreshTokenWithAccount:self.requestParameters.accountIdentifier
                                                    familyId:nil
@@ -189,6 +189,14 @@
     }
 
     return YES;
+}
+
+- (BOOL)shouldRemoveRefreshToken:(NSError *)serverError
+{
+    // MSAL removes RTs on invalid_grant + bad token combination
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
+    NSString *subError = serverError.msidSubError;
+    return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorBadToken];
 }
 
 - (id<MSIDCacheAccessor>)tokenCache

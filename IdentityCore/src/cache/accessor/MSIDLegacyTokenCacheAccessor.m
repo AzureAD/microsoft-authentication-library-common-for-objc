@@ -394,23 +394,29 @@
         MSID_LOG_VERBOSE(context, @"Found refresh token in cache and it's the latest version, removing token");
         MSID_LOG_VERBOSE_PII(context, @"Found refresh token in cache and it's the latest version, removing token %@", token);
 
-        return [self removeTokenCacheItem:tokenInCache.legacyTokenCacheItem
-                                   userId:tokenInCache.accountIdentifier.legacyAccountId
-                                  context:context
-                                    error:error];
+        return [self removeTokenWithAuthority:tokenInCache.authority.url
+                                     clientId:cacheItem.clientId
+                                       target:cacheItem.target
+                                       userId:tokenInCache.accountIdentifier.legacyAccountId
+                               credentialType:cacheItem.credentialType
+                                      context:context
+                                        error:error];
     }
 
     return YES;
 }
 
-- (BOOL)removeAccessToken:(MSIDLegacyAccessToken *)token
+- (BOOL)removeAccessToken:(MSIDAccessToken *)token
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error
 {
-    return [self removeTokenCacheItem:token.legacyTokenCacheItem
-                               userId:token.accountIdentifier.legacyAccountId
-                              context:context
-                                error:error];
+    return [self removeTokenWithAuthority:token.authority.url
+                                 clientId:token.clientId
+                                   target:token.resource
+                                   userId:token.accountIdentifier.legacyAccountId
+                           credentialType:token.credentialType
+                                  context:context
+                                    error:error];
 }
 
 - (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
@@ -453,7 +459,13 @@
             {
                 if (clientId && [cacheItem.clientId isEqualToString:clientId])
                 {
-                    result &= [self removeTokenCacheItem:cacheItem userId:cacheItem.idTokenClaims.userId context:context error:error];
+                    result &= [self removeTokenWithAuthority:cacheItem.authority
+                                                    clientId:cacheItem.clientId
+                                                      target:cacheItem.target
+                                                      userId:cacheItem.idTokenClaims.userId
+                                              credentialType:cacheItem.credentialType
+                                                     context:context
+                                                       error:error];
                 }
             }
         }
@@ -666,34 +678,37 @@
     return tokens;
 }
 
-- (BOOL)removeTokenCacheItem:(MSIDLegacyTokenCacheItem *)cacheItem
-                      userId:(NSString *)userId
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error
+- (BOOL)removeTokenWithAuthority:(NSURL *)authority
+                        clientId:(NSString *)clientId
+                          target:(NSString *)target
+                          userId:(NSString *)userId
+                  credentialType:(MSIDCredentialType)credentialType
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
 {
-    if (!cacheItem)
+    if (!authority || !clientId || !userId)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Token not provided", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Token key components not provided", nil, nil, nil, context.correlationId, nil);
         }
 
         return NO;
     }
 
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Removing token with clientId %@, authority %@", cacheItem.clientId, cacheItem.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Removing token %@ with account %@", cacheItem, userId);
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Removing token with clientId %@, authority %@", clientId, authority);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Removing token with clientId %@, authority %@, target %@, account %@", clientId, authority, target, userId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:cacheItem.authority
-                                                                             clientId:cacheItem.clientId
-                                                                             resource:cacheItem.target
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:authority
+                                                                             clientId:clientId
+                                                                             resource:target
                                                                          legacyUserId:userId];
 
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
 
-    if (result && cacheItem.credentialType == MSIDRefreshTokenType)
+    if (result && credentialType == MSIDRefreshTokenType)
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }

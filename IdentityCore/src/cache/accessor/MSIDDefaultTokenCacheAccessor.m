@@ -693,6 +693,16 @@
 }
 
 // Removal
+
+- (BOOL)removeAccessToken:(MSIDAccessToken *)token
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error
+{
+    return [self removeToken:token
+                     context:context
+                       error:error];
+}
+
 - (BOOL)removeToken:(MSIDBaseToken *)token
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error

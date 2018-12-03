@@ -56,10 +56,6 @@
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error;
 
-- (BOOL)validateAndRemoveRefreshToken:(MSIDRefreshToken *)token
-                              context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error;
-
 - (BOOL)removeToken:(MSIDBaseToken *)token
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error;
