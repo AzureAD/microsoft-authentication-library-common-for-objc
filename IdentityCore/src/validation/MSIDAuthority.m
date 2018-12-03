@@ -178,6 +178,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return NO;
 }
 
+- (BOOL)supportsClientIDAsScope
+{
+    return NO;
+}
+
 - (nonnull NSString *)telemetryAuthorityType
 {
     NSAssert(NO, @"Abstract method.");
