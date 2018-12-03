@@ -26,13 +26,15 @@
 
 @class MSIDDefaultTokenCacheAccessor;
 @class MSIDOauth2Factory;
+@class MSIDTokenResponseValidator;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
 
 - (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor;
+                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
+                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
 
 @end
 
