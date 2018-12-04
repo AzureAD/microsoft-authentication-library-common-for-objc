@@ -32,13 +32,15 @@
 
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *tokenCache;
+@property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 
 @end
 
 @implementation MSIDDefaultTokenRequestProvider
 
-- (instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                     defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
+- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
+                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
+                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
 {
     self = [super init];
 
@@ -46,6 +48,7 @@
     {
         _oauthFactory = oauthFactory;
         _tokenCache = defaultAccessor;
+        _tokenResponseValidator = tokenResponseValidator;
     }
 
     return self;
@@ -55,7 +58,7 @@
 {
     return [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters
                                                              oauthFactory:self.oauthFactory
-                                                   tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                   tokenResponseValidator:self.tokenResponseValidator
                                                                tokenCache:self.tokenCache];
 }
 
@@ -65,7 +68,7 @@
     return [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
                                                                forceRefresh:forceRefresh
                                                                oauthFactory:self.oauthFactory
-                                                     tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                     tokenResponseValidator:self.tokenResponseValidator
                                                                  tokenCache:self.tokenCache];
 }
 
