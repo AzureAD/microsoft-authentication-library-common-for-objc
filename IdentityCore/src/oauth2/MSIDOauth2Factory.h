@@ -42,6 +42,7 @@
 @class MSIDRefreshTokenGrantRequest;
 @class MSIDWebviewConfiguration;
 @class MSIDInteractiveRequestParameters;
+@class MSIDClientInfo;
 
 @protocol MSIDRequestContext;
 
@@ -73,7 +74,8 @@
 // Network requests
 - (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
-                                                                             authCode:(NSString *)authCode;
+                                                                             authCode:(NSString *)authCode
+                                                                           clientInfo:(MSIDClientInfo *)clientInfo;
 
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                               refreshToken:(NSString *)refreshToken;

@@ -231,6 +231,7 @@
 - (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
                                                                              authCode:(NSString *)authCode
+                                                                           clientInfo:(MSIDClientInfo *)clientInfo
 {
     // TODO: implement me for ADAL
     return nil;
