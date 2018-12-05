@@ -21,32 +21,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryBaseEvent.h"
-#import "MSIDConstants.h"
+#import "MSIDPromptType_Internal.h"
 
-@class MSIDAccount;
-@class MSIDAuthority;
+NSString * MSIDPromptParamFromType(MSIDPromptType type)
+{
+    switch (type) {
+        case MSIDPromptTypeLogin:
+            return @"login";
+        case MSIDPromptTypeConsent:
+            return @"consent";
+        case MSIDPromptTypeSelectAccount:
+            return @"select_account";
+        case MSIDPromptTypeRefreshSession:
+            return @"refresh_session";
+        case MSIDPromptTypeNever:
+            return @"none";
 
-@interface MSIDTelemetryAPIEvent : MSIDTelemetryBaseEvent
+        default:
+            return @"";
+    }
+}
 
-- (void)setCorrelationId:(NSUUID *)correlationId;
-- (void)setExtendedExpiresOnSetting:(NSString *)extendedExpiresOnSetting;
-- (void)setUserId:(NSString *)userId;
-- (void)setClientId:(NSString *)clientId;
-- (void)setIsExtendedLifeTimeToken:(NSString *)isExtendedLifeToken;
-- (void)setErrorDomain:(NSString *)errorDomain;
+MSIDPromptType MSIDPromptTypeFromString(NSString *promptTypeString)
+{
+    if ([promptTypeString isEqualToString:@"login"])
+    {
+        return MSIDPromptTypeLogin;
+    }
+    else if ([promptTypeString isEqualToString:@"consent"])
+    {
+        return MSIDPromptTypeConsent;
+    }
+    else if ([promptTypeString isEqualToString:@"select_account"])
+    {
+        return MSIDPromptTypeSelectAccount;
+    }
+    else if ([promptTypeString isEqualToString:@"refresh_session"])
+    {
+        return MSIDPromptTypeRefreshSession;
+    }
+    else if ([promptTypeString isEqualToString:@"none"])
+    {
+        return MSIDPromptTypeNever;
+    }
 
-- (void)setApiId:(NSString *)apiId;
-
-- (void)setWebviewType:(NSString *)webviewType;
-
-- (void)setLoginHint:(NSString *)loginHint;
-- (void)setErrorCode:(NSUInteger)errorCode;
-- (void)setPromptType:(MSIDPromptType)promptType;
-
-- (void)setIsSuccessfulStatus:(NSString *)successStatus;
-- (void)setResultStatus:(NSString *)resultStatus;
-- (void)setUserInformation:(MSIDAccount *)account;
-- (void)setOauthErrorCode:(NSString *)oauthErrorCode;
-
-@end
+    return MSIDPromptTypeDefault;
+}
