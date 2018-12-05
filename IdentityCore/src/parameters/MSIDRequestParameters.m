@@ -74,6 +74,12 @@
             MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, errorMessage, correlationId);
             return nil;
         }
+        else if (!_authority.supportsClientIDAsScope && [scopes containsObject:clientId])
+        {
+            NSString *errorMessage = [NSString stringWithFormat:@"Passing clientId %@ as scope is not supported by %@. Please remove %@ from your scopes list", clientId, _authority.url, clientId];
+            MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, errorMessage, correlationId);
+            return nil;
+        }
 
         _target = [scopes msidToString];
 

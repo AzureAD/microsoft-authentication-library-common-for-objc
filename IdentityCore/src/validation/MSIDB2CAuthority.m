@@ -104,6 +104,11 @@
     return NO;
 }
 
+- (BOOL)supportsClientIDAsScope
+{
+    return YES;
+}
+
 #pragma mark - Protected
 
 - (id<MSIDAuthorityResolving>)resolver
