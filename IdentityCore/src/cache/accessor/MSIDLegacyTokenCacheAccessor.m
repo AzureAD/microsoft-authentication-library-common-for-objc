@@ -72,7 +72,7 @@
     return self;
 }
 
-#pragma mark - Persistence
+#pragma mark - Saving
 
 - (BOOL)saveTokensWithConfiguration:(MSIDConfiguration *)configuration
                            response:(MSIDTokenResponse *)response
@@ -94,40 +94,6 @@
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving single resource refresh token");
         return [self saveLegacySingleResourceTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
     }
-}
-
-- (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
-                    saveSSOStateOnly:(BOOL)saveSSOStateOnly
-                             factory:(MSIDOauth2Factory *)factory
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
-{
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
-
-    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:response.authority]
-                                                           context:context error:error];
-    
-    if (!authority) return NO;
-    
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
-                                                                        redirectUri:nil
-                                                                           clientId:response.clientId
-                                                                             target:response.target];
-
-    if (saveSSOStateOnly)
-    {
-        return [self saveSSOStateWithConfiguration:configuration
-                                          response:response.tokenResponse
-                                           factory:factory
-                                           context:context
-                                             error:error];
-    }
-
-    return [self saveTokensWithConfiguration:configuration
-                                    response:response.tokenResponse
-                                     factory:factory
-                                     context:context
-                                       error:error];
 }
 
 - (BOOL)saveSSOStateWithConfiguration:(MSIDConfiguration *)configuration
@@ -173,6 +139,8 @@
     return YES;
 }
 
+#pragma mark - Refresh token read
+
 - (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
                                         familyId:(NSString *)familyId
                                    configuration:(MSIDConfiguration *)configuration
@@ -210,23 +178,30 @@
 
 }
 
+#pragma mark - Clear cache
+
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error
 {
+    MSID_LOG_WARN(context, @"(Legacy accessor) Clearing everything in cache. This method should only be called in tests!");
     return [_dataSource clearWithContext:context error:error];
 }
 
-- (NSArray<MSIDAccount *> *)allAccountsForAuthority:(MSIDAuthority *)authority
-                                           clientId:(NSString *)clientId
-                                           familyId:(NSString *)familyId
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error
+#pragma mark - Read all accounts
+
+- (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
+                                         clientId:(NSString *)clientId
+                                         familyId:(NSString *)familyId // TODO: make sure familyId==1 is passed by MSAL
+                                accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error
 {
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get accounts with environment %@, clientId %@, familyId %@", authority.environment, clientId, familyId);
-
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get accounts with environment %@, clientId %@, familyId %@, account identifier %@, legacy identifier %@", authority.environment, clientId, familyId, accountIdentifier.homeAccountId, accountIdentifier.legacyAccountId);
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
+    query.legacyUserId = accountIdentifier.legacyAccountId;
     __auto_type items = [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
 
     NSArray<NSString *> *environmentAliases = [authority defaultCacheEnvironmentAliases];
@@ -280,50 +255,6 @@
     }
 
     return [resultAccounts allObjects];
-}
-
-- (MSIDAccount *)accountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                             familyId:(NSString *)familyId
-                        configuration:(MSIDConfiguration *)configuration
-                              context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error
-{
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@", configuration.clientId, familyId, configuration.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@, legacy user ID %@, home account ID %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.legacyAccountId, accountIdentifier.homeAccountId);
-
-    MSIDLegacyRefreshToken *refreshToken = [self getLegacyRefreshTokenForAccountImpl:accountIdentifier
-                                                                            familyId:familyId
-                                                                       configuration:configuration
-                                                                             context:context
-                                                                               error:error];
-
-    if (refreshToken)
-    {
-        MSIDAccount *account = [MSIDAccount new];
-        account.accountIdentifier = refreshToken.accountIdentifier;
-        // TODO: Should we create account if authority is nil?
-        __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:context error:nil];
-        account.authority = authority;
-        account.accountType = MSIDAccountTypeMSSTS;
-        return account;
-    }
-
-    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
-    {
-        MSIDAccount *account = [accessor accountForIdentifier:accountIdentifier
-                                                     familyId:familyId
-                                                configuration:configuration
-                                                      context:context
-                                                        error:error];
-
-        if (account)
-        {
-            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found account in a different accessor %@", [accessor class]);
-            return account;
-        }
-    }
-
-    return nil;
 }
 
 #pragma mark - Public
@@ -420,16 +351,11 @@
 }
 
 - (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error
-{
-    return [self clearCacheForAccount:account clientId:nil context:context error:error];
-}
-
-- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+                   authority:(MSIDAuthority *)authority
                     clientId:(NSString *)clientId
+                    familyId:(NSString *)familyId
                      context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error
+                       error:(NSError **)error // TODO: update me
 {
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Clearing cache with account and client id %@", clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Clearing cache with account %@ and client id %@", account.legacyAccountId, clientId);
@@ -661,6 +587,8 @@
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
                                              error:(NSError **)error
 {
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     __auto_type items = [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
     
@@ -674,7 +602,8 @@
             [tokens addObject:token];
         }
     }
-    
+
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:[tokens count] > 0 context:context];
     return tokens;
 }
 
