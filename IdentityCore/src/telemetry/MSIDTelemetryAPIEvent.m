@@ -28,6 +28,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDPromptType_Internal.h"
 
 @implementation MSIDTelemetryAPIEvent
 
@@ -82,9 +83,10 @@
     [self setProperty:MSID_TELEMETRY_KEY_API_ERROR_CODE value:[NSString stringWithFormat:@"%ld", (long)errorCode]];
 }
 
-- (void)setPromptType:(NSString *)promptType
+- (void)setPromptType:(MSIDPromptType)promptType
 {
-    [self setProperty:MSID_TELEMETRY_KEY_PROMPT_BEHAVIOR value:promptType];
+    NSString *promptParam = MSIDPromptParamFromType(promptType);
+    [self setProperty:MSID_TELEMETRY_KEY_PROMPT_BEHAVIOR value:promptParam];
 }
 
 - (void)setIsSuccessfulStatus:(NSString *)successStatus

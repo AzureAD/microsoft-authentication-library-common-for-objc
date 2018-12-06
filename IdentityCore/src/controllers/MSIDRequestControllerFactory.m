@@ -52,7 +52,7 @@
                                                                       tokenRequestProvider:tokenRequestProvider
                                                                                      error:error];
 
-    if (parameters.uiBehaviorType != MSIDUIBehaviorPromptAutoType)
+    if (parameters.uiBehaviorType != MSIDUIBehaviorAutoType)
     {
         return interactiveController;
     }

@@ -38,7 +38,10 @@
     NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
                                                                                                  requestState:state];
 
-    parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
+    if (![NSString msidIsStringNilOrBlank:configuration.promptBehavior])
+    {
+        parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
+    }
     
     if (configuration.correlationId)
     {

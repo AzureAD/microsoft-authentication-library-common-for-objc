@@ -224,7 +224,7 @@
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
     parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
-    parameters.promptType = @"select_account";
+    parameters.promptType = MSIDPromptTypeSelectAccount;
     parameters.oidcScope = @"oidcscope1 oidcscope2";
     return parameters;
 }

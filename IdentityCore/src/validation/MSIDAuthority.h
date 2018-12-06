@@ -78,6 +78,9 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (BOOL)supportsBrokeredAuthentication;
 
+// Only certain authorities support passing clientID as an allowed scope
+- (BOOL)supportsClientIDAsScope;
+
 /* It is used in telemetry */
 - (nonnull NSString *)telemetryAuthorityType;
 
