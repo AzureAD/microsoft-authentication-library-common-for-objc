@@ -110,11 +110,10 @@
         MSID_LOG_WARN(self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
     }
 
-    MSIDAccount *account = [self.defaultAccessor accountForIdentifier:self.requestParameters.accountIdentifier
-                                                             familyId:nil
-                                                        configuration:self.requestParameters.msidConfiguration
-                                                              context:self.requestParameters
-                                                                error:&cacheError];
+    MSIDAccount *account = [self.defaultAccessor getAccountForIdentifier:self.requestParameters.accountIdentifier
+                                                               authority:self.requestParameters.authority
+                                                                 context:self.requestParameters
+                                                                   error:&cacheError];
 
     if (!account)
     {

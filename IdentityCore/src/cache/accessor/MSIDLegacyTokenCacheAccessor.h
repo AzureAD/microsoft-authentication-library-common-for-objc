@@ -46,8 +46,4 @@
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error;
 
-- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error;
-
 @end

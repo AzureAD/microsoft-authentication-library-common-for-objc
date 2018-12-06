@@ -104,7 +104,7 @@
 {
     if (!response)
     {
-        [self fillInternalErrorWithMessage:@"No response provided" context:context error:error];
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"No response provided", context.correlationId);
         return NO;
     }
 
@@ -299,7 +299,7 @@
 {
     if (!token || [NSString msidIsStringNilOrBlank:token.refreshToken])
     {
-        [self fillInternalErrorWithMessage:@"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided." context:context error:error];
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", context.correlationId);
         return NO;
     }
 
@@ -369,6 +369,7 @@
 
     // If only user id is provided, optimize operation by deleting from data source directly
     if ([NSString msidIsStringNilOrBlank:clientId]
+        && [NSString msidIsStringNilOrBlank:familyId] && !authority
         && ![NSString msidIsStringNilOrBlank:account.legacyAccountId])
     {
         result = [_dataSource removeItemsWithKey:query context:context error:error];
@@ -381,12 +382,16 @@
 
         if (results)
         {
+            NSString *requestClientID = familyId ? [MSIDCacheKey familyClientId:familyId] : clientId;
+            NSArray *aliases = authority.legacyRefreshTokenLookupAliases;
+
             for (MSIDLegacyTokenCacheItem *cacheItem in results)
             {
-                if (clientId && [cacheItem.clientId isEqualToString:clientId])
+                if ((!requestClientID || [cacheItem.clientId isEqualToString:requestClientID])
+                    && (!authority || [cacheItem.environment msidIsEquivalentWithAnyAlias:aliases]))
                 {
                     result &= [self removeTokenWithAuthority:cacheItem.authority
-                                                    clientId:cacheItem.clientId
+                                                    clientId:requestClientID
                                                       target:cacheItem.target
                                                       userId:cacheItem.idTokenClaims.userId
                                               credentialType:cacheItem.credentialType
@@ -403,7 +408,9 @@
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
         if (![accessor clearCacheForAccount:account
+                                  authority:authority
                                    clientId:clientId
+                                   familyId:familyId
                                     context:context
                                       error:error])
         {
@@ -413,18 +420,6 @@
     }
 
     return result;
-}
-
-#pragma mark - Input validation
-
-- (BOOL)fillInternalErrorWithMessage:(NSString *)message
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
-{
-    MSID_LOG_ERROR(context, @"%@", message);
-
-    if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, message, nil, nil, nil, context.correlationId, nil);
-    return YES;
 }
 
 #pragma mark - Internal
@@ -463,7 +458,7 @@
 
     if (!accessToken)
     {
-        [self fillInternalErrorWithMessage:@"Tried to save access token, but no access token returned" context:context error:error];
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Tried to save access token, but no access token returned", context.correlationId);
         return NO;
     }
 
@@ -530,7 +525,7 @@
 
     if (!legacyToken)
     {
-        [self fillInternalErrorWithMessage:@"Tried to save single resource token, but no access token returned" context:context error:error];
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Tried to save single resource token, but no access token returned", context.correlationId);
         return NO;
     }
 
