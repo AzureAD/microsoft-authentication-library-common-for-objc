@@ -191,7 +191,7 @@
 
 - (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
                                          clientId:(NSString *)clientId
-                                         familyId:(NSString *)familyId // TODO: make sure familyId==1 is passed by MSAL
+                                         familyId:(NSString *)familyId
                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
