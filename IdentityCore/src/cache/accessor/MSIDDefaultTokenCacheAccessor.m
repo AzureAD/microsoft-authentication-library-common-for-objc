@@ -267,7 +267,7 @@
 
 - (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
                                          clientId:(NSString *)clientId
-                                         familyId:(NSString *)familyId // TODO: make sure familyId==1 is passed by MSAL
+                                         familyId:(NSString *)familyId
                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
@@ -326,6 +326,11 @@
         // If we have accountIds to filter by, only return account if it has an associated refresh token
         if (!filterAccountIds || [filterAccountIds containsObject:accountCacheItem.homeAccountId])
         {
+            if (authority.environment)
+            {
+                accountCacheItem.environment = authority.environment;
+            }
+
             MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
             if (account) [filteredAccountsSet addObject:account];
         }
@@ -401,6 +406,12 @@
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error
 {
+    if (!account)
+    {
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Cannot clear cache without account provided", context.correlationId);
+        return NO;
+    }
+
     MSID_LOG_VERBOSE(context, @"(Default accessor) Clearing cache for environment: %@, client ID %@, family ID %@", authority.environment, clientId, familyId);
     MSID_LOG_VERBOSE(context, @"(Default accessor) Clearing cache for environment: %@, client ID %@, family ID %@, account %@", authority.environment, clientId, familyId, account.homeAccountId);
 

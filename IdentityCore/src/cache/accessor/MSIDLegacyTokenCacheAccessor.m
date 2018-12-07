@@ -357,6 +357,12 @@
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error // TODO: update me
 {
+    if (!account)
+    {
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Cannot clear cache without account provided", context.correlationId);
+        return NO;
+    }
+
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Clearing cache with account and client id %@", clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Clearing cache with account %@ and client id %@", account.legacyAccountId, clientId);
 
@@ -383,7 +389,7 @@
         if (results)
         {
             NSString *requestClientID = familyId ? [MSIDCacheKey familyClientId:familyId] : clientId;
-            NSArray *aliases = authority.legacyRefreshTokenLookupAliases;
+            NSArray *aliases = authority.defaultCacheEnvironmentAliases;
 
             for (MSIDLegacyTokenCacheItem *cacheItem in results)
             {

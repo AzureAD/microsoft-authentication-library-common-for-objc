@@ -184,11 +184,7 @@
                                                           context:reqContext
                                                             error:&error];
 
-    NSArray *returnedAccounts = [_legacyCacheAccessor allAccountsForAuthority:authority
-                                                                     clientId:@"test_client_id"
-                                                                     familyId:nil
-                                                                      context:reqContext
-                                                                        error:&error];
+    NSArray *returnedAccounts = [_legacyCacheAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:reqContext error:&error];
     
     // expect no token because it has been deleted
     XCTAssertNil(error);
@@ -311,20 +307,12 @@
 
     MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
 
-    result = [_defaultCacheAccessor clearCacheForAccount:account
-                                               authority:authority
-                                                    clientId:@"test_client_id"
-                                                    context:nil
-                                                    error:&error];
+    result = [_defaultCacheAccessor clearCacheForAccount:account authority:authority clientId:@"test_client_id" familyId:nil context:nil error:&error];
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
+    NSArray *returnedTokens = [_defaultCacheAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:reqContext error:&error];
 
-    NSArray *returnedTokens = [_defaultCacheAccessor allAccountsForAuthority:authority
-                                                                    clientId:@"test_client_id"
-                                                                    familyId:nil
-                                                                     context:reqContext
-                                                                       error:&error];
     // expect no token because it has been deleted
     XCTAssertNil(error);
     XCTAssertEqual(returnedTokens.count, 0);

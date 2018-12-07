@@ -32,6 +32,7 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDRefreshToken.h"
 #import "NSError+MSIDExtensions.h"
+#import "MSIDConstants.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -136,7 +137,7 @@
     self.appMetadata = [self appMetadataWithError:error];
 
     //On first network try, app metadata will be nil but on every subsequent attempt, it should reflect if clientId is part of family
-    NSString *familyId = self.appMetadata ? self.appMetadata.familyId : @"1";
+    NSString *familyId = self.appMetadata ? self.appMetadata.familyId : MSID_DEFAULT_FAMILY_ID;
 
     if (![NSString msidIsStringNilOrBlank:familyId])
     {

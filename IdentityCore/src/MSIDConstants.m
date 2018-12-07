@@ -37,6 +37,7 @@ NSString *const MSID_BROKER_MSAL_SCHEME         = @"msauthv2";
 NSString *const MSID_BROKER_APP_BUNDLE_ID        = @"com.microsoft.azureauthenticator";
 NSString *const MSID_BROKER_APP_BUNDLE_ID_DF     = @"com.microsoft.azureauthenticator-df";
 NSString *const MSID_AUTHENTICATOR_REDIRECT_URI  = @"urn:ietf:wg:oauth:2.0:oob";
+NSString *const MSID_DEFAULT_FAMILY_ID           = @"1";
 
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
 NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
