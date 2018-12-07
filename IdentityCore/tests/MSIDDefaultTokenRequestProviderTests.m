@@ -29,6 +29,7 @@
 #import "MSIDDefaultSilentTokenRequest.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDAuthorityFactory.h"
+#import "MSIDDefaultTokenResponseValidator.h"
 
 @interface MSIDDefaultTokenRequestProviderTests : XCTestCase
 
@@ -38,7 +39,7 @@
 
 - (void)testInteractiveTokenRequestWithParameters_whenParametersProvided_shouldReturnNonNilInteractiveTokenRequest
 {
-    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new]];
+    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
     MSIDInteractiveTokenRequest *interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveRequestParameters new]];
     XCTAssertNotNil(interactiveRequest);
@@ -46,7 +47,7 @@
 
 - (void)testSilentTokenRequestWithParameters_whenParametersProvided_shouldReturnDefaultSilentTokenRequest
 {
-    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new]];
+    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
     MSIDSilentTokenRequest *silentRequest = [provider silentTokenRequestWithParameters:[MSIDRequestParameters new] forceRefresh:YES];
     XCTAssertNotNil(silentRequest);
@@ -55,7 +56,7 @@
 
 - (void)testBrokerTokenRequestWIthParameters_whenParametersProvided_shouldReturnDefaultBrokerTokenRequest
 {
-    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new]];
+    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];

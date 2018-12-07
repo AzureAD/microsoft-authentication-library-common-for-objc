@@ -21,21 +21,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDPromptType_Internal.h"
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+NSString * MSIDPromptParamFromType(MSIDPromptType type)
+{
+    switch (type) {
+        case MSIDPromptTypeLogin:
+            return @"login";
+        case MSIDPromptTypeConsent:
+            return @"consent";
+        case MSIDPromptTypeSelectAccount:
+            return @"select_account";
+        case MSIDPromptTypeRefreshSession:
+            return @"refresh_session";
+        case MSIDPromptTypeNever:
+            return @"none";
 
-NS_ASSUME_NONNULL_BEGIN
+        default:
+            return @"";
+    }
+}
 
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
+MSIDPromptType MSIDPromptTypeFromString(NSString *promptTypeString)
+{
+    if ([promptTypeString isEqualToString:@"login"])
+    {
+        return MSIDPromptTypeLogin;
+    }
+    else if ([promptTypeString isEqualToString:@"consent"])
+    {
+        return MSIDPromptTypeConsent;
+    }
+    else if ([promptTypeString isEqualToString:@"select_account"])
+    {
+        return MSIDPromptTypeSelectAccount;
+    }
+    else if ([promptTypeString isEqualToString:@"refresh_session"])
+    {
+        return MSIDPromptTypeRefreshSession;
+    }
+    else if ([promptTypeString isEqualToString:@"none"])
+    {
+        return MSIDPromptTypeNever;
+    }
 
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
-
-@end
-
-NS_ASSUME_NONNULL_END
+    return MSIDPromptTypeDefault;
+}

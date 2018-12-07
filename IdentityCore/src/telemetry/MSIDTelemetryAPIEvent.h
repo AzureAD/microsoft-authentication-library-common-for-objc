@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDTelemetryBaseEvent.h"
+#import "MSIDConstants.h"
 
 @class MSIDAccount;
 @class MSIDAuthority;
@@ -41,7 +42,7 @@
 
 - (void)setLoginHint:(NSString *)loginHint;
 - (void)setErrorCode:(NSUInteger)errorCode;
-- (void)setPromptType:(NSString *)promptType;
+- (void)setPromptType:(MSIDPromptType)promptType;
 
 - (void)setIsSuccessfulStatus:(NSString *)successStatus;
 - (void)setResultStatus:(NSString *)resultStatus;

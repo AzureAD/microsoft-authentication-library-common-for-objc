@@ -24,19 +24,6 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDConstants.h"
 
-typedef NS_ENUM(NSInteger, MSIDInteractiveRequestType)
-{
-    MSIDInteractiveRequestBrokeredType = 0,
-    MSIDInteractiveRequestLocalType
-};
-
-typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
-{
-    MSIDUIBehaviorPromptAlwaysType = 0,
-    MSIDUIBehaviorPromptAutoType,
-    MSIDUIBehaviorForceType
-};
-
 @class WKWebView;
 #if TARGET_OS_IPHONE
 @class UIViewController;
@@ -53,7 +40,7 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 @property (nonatomic) UIViewController *parentViewController;
 #endif
 @property (nonatomic) NSString *extraScopesToConsent;
-@property (nonatomic) NSString *promptType;
+@property (nonatomic) MSIDPromptType promptType;
 @property (nonatomic) NSDictionary *extraQueryParameters;
 @property (nonatomic) NSString *telemetryWebviewType;
 @property (nonatomic) NSString *supportedBrokerProtocolScheme;
