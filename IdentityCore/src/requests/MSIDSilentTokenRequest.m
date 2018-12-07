@@ -341,19 +341,6 @@
                 completionBlock(tokenResult, cacheError);
                 return;
             }
-            else if ([self shouldRemoveRefreshToken:error])
-            {
-                NSError *removalError = nil;
-                BOOL result = [self.tokenCache validateAndRemoveRefreshToken:refreshToken
-                                                                     context:self.requestParameters
-                                                                       error:&removalError];
-
-                if (!result)
-                {
-                    MSID_LOG_WARN(self.requestParameters, @"Failed to remove invalid refresh token with error %ld, %@", (long)removalError.code, removalError.domain);
-                    MSID_LOG_WARN_PII(self.requestParameters, @"Failed to remove invalid refresh token with error %@", removalError);
-                }
-            }
 
             completionBlock(nil, error);
             return;
@@ -366,6 +353,20 @@
                                                                                       tokenCache:self.tokenCache
                                                                                requestParameters:self.requestParameters
                                                                                            error:&validationError];
+
+        if (!tokenResult && [self shouldRemoveRefreshToken:validationError])
+        {
+            NSError *removalError = nil;
+            BOOL result = [self.tokenCache validateAndRemoveRefreshToken:refreshToken
+                                                                 context:self.requestParameters
+                                                                   error:&removalError];
+
+            if (!result)
+            {
+                MSID_LOG_WARN(self.requestParameters, @"Failed to remove invalid refresh token with error %ld, %@", (long)removalError.code, removalError.domain);
+                MSID_LOG_WARN_PII(self.requestParameters, @"Failed to remove invalid refresh token with error %@", removalError);
+            }
+        }
 
         if (!tokenResult)
         {
