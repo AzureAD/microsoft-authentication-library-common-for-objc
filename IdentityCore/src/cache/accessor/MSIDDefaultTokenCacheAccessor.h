@@ -65,8 +65,10 @@
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 
-- (BOOL)updateAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error;
+- (BOOL)updateAppMetadataWithFamilyId:(NSString *)familyId
+                             clientId:(NSString *)clientId
+                            authority:(MSIDAuthority *)authority
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
 
 @end

@@ -33,6 +33,7 @@
 #import "MSIDRefreshToken.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDConstants.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -167,25 +168,18 @@
     NSString *subError = serverError.msidSubError;
     if (subError && [subError isEqualToString:MSIDServerErrorClientMismatch])
     {
+        BOOL result = [self.defaultAccessor updateAppMetadataWithFamilyId:@""
+                                                                 clientId:self.requestParameters.msidConfiguration.clientId
+                                                                authority:self.requestParameters.msidConfiguration.authority
+                                                                  context:self.requestParameters
+                                                                    error:cacheError];
+
+
         //reset family id if set in app's metadata
-        if (!self.appMetadata)
+        if (!result)
         {
-            self.appMetadata = [self appMetadataWithError:cacheError];
-
-            if (!self.appMetadata)
-            {
-                if (cacheError)
-                {
-                    *cacheError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Cannot update app metadata, because it's missing", nil, nil, nil, self.requestParameters.correlationId, nil);
-                }
-
-                MSID_LOG_ERROR(self.requestParameters, @"Cannot update app metadata");
-                return NO;
-            }
+            MSID_LOG_WARN(self.requestParameters, @"Failed to update app metadata");
         }
-
-        self.appMetadata.familyId = @"";
-        return [self.defaultAccessor updateAppMetadata:self.appMetadata context:self.requestParameters error:cacheError];
     }
 
     return YES;

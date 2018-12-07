@@ -846,15 +846,50 @@
     return [_accountCredentialCache getAppMetadataEntriesWithQuery:metadataQuery context:context error:error];
 }
 
-- (BOOL)updateAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
+- (BOOL)updateAppMetadataWithFamilyId:(NSString *)familyId
+                             clientId:(NSString *)clientId
+                            authority:(MSIDAuthority *)authority
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_APP_METADATA_WRITE
-                                                                    context:context];
-    BOOL result = [_accountCredentialCache saveAppMetadata:appMetadata context:context error:error];
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
-    return result;
+    MSIDAppMetadataCacheQuery *metadataQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    metadataQuery.clientId = clientId;
+    metadataQuery.generalType = MSIDAppMetadataType;
+    metadataQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
+    NSArray<MSIDAppMetadataCacheItem *> *appmetadataItems = [_accountCredentialCache getAppMetadataEntriesWithQuery:metadataQuery context:context error:error];
+
+    if (!appmetadataItems)
+    {
+        MSID_LOG_ERROR(context, @"(Default accessor) Couldn't read app metadata cache items");
+        return NO;
+    }
+
+    if (![appmetadataItems count])
+    {
+        // Create new app metadata if there's no app metadata present at all
+        MSIDAppMetadataCacheItem *appmetadata = [MSIDAppMetadataCacheItem new];
+        appmetadata.clientId = clientId;
+        appmetadata.environment = [[authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
+        appmetadata.familyId = familyId;
+        return [_accountCredentialCache saveAppMetadata:appmetadata context:context error:error];
+    }
+    else
+    {
+        // If existing app metadata is present, update app metadata entries
+        for (MSIDAppMetadataCacheItem *appmetadata in appmetadataItems)
+        {
+            appmetadata.familyId = familyId;
+            BOOL updateResult = [_accountCredentialCache saveAppMetadata:appmetadata context:context error:error];
+
+            if (!updateResult)
+            {
+                MSID_LOG_ERROR(context, @"(Default accessor) Failed to save updated app metadata");
+                return NO;
+            }
+        }
+
+        return YES;
+    }
 }
 
 @end
