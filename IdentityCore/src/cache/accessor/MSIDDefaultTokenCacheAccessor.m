@@ -434,7 +434,6 @@
         MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
         query.clientId = clientId;
         query.familyId = familyId;
-        query.clientIdMatchingOptions = MSIDSuperSet;
         query.homeAccountId = homeAccountId;
         query.environmentAliases = aliases;
         query.matchAnyCredentialType = YES;
