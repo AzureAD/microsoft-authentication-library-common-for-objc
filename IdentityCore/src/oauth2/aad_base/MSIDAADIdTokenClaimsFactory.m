@@ -52,14 +52,16 @@
         }
     }
 
-    // If no version claim is returned, or it's unsupported version, check if UPN claim is present
-    // If UPN is present, return AAD v1 id token.
+    // If no version claim is returned, or it's unsupported version, check if UPN or unique_name claims are present
+    // If UPN/unique_name is present, return AAD v1 id token.
     // Return base OIDC token in all other cases
     // Note, that we shouldn't be checking for upn claim only and deciding v1 vs v2, because if v2 adds upn claim one day, this logic will break
-    // However, AAD cannot stop returning ver 2.0 claim for AAD v2 or upn for AAD v1 because that would be a breaking change, so we can rely on those
+    // However, AAD cannot stop returning ver 2.0 claim for AAD v2 or upn/unique_name for AAD v1 because that would be a breaking change, so we can rely on those
     NSString *idTokenUPNClaim = allClaims[@"upn"];
+    NSString *idTokenUniqueNameClaim = allClaims[@"unique_name"];
 
-    if (![NSString msidIsStringNilOrBlank:idTokenUPNClaim])
+    if (![NSString msidIsStringNilOrBlank:idTokenUPNClaim]
+        || ![NSString msidIsStringNilOrBlank:idTokenUniqueNameClaim])
     {
         return [[MSIDAADV1IdTokenClaims alloc] initWithJSONDictionary:allClaims error:error];
     }
