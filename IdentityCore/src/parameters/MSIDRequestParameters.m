@@ -189,14 +189,13 @@
 
 - (NSString *)allTokenRequestScopes
 {
-    NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.target] mutableCopy];
+    NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.target normalize:NO] mutableCopy];
     NSOrderedSet *oidcScopes = [NSOrderedSet msidOrderedSetFromString:self.oidcScope];
 
     if (oidcScopes)
     {
         [requestScopes unionOrderedSet:oidcScopes];
     }
-    [requestScopes removeObject:self.clientId];
     return [requestScopes msidToString];
 }
 

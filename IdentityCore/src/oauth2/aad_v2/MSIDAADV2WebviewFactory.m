@@ -36,19 +36,6 @@
 {
     NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
                                                                                                  requestState:state];
- 
-    NSMutableOrderedSet<NSString *> *allScopes = parameters[MSID_OAUTH2_SCOPE].msidScopeSet.mutableCopy;
-    if (!allScopes)
-    {
-        allScopes = [NSMutableOrderedSet new];
-    }
-    
-    [allScopes addObject:MSID_OAUTH2_SCOPE_OPENID_VALUE];
-    [allScopes addObject:MSID_OAUTH2_SCOPE_OFFLINE_ACCESS_VALUE];
-    [allScopes addObject:MSID_OAUTH2_SCOPE_PROFILE_VALUE];
-    
-    parameters[MSID_OAUTH2_SCOPE] = allScopes.msidToString;
-    
     parameters[MSID_OAUTH2_LOGIN_REQ] = configuration.uid;
     parameters[MSID_OAUTH2_DOMAIN_REQ] = configuration.utid;
     
