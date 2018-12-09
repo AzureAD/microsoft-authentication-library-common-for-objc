@@ -90,7 +90,7 @@
                                           @"client-request-id" : correlationId.UUIDString,
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
-                                          @"scope" : @"scope1 openid offline_access profile",
+                                          @"scope" : @"scope1",
                                           @"login_req" : config.uid,
                                           @"domain_req" : config.utid,
                                           @"prompt" : @"login",
