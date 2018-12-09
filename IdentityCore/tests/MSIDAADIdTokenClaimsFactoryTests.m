@@ -31,6 +31,7 @@
 #import "MSIDAADV2IdTokenClaims.h"
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDIdTokenClaims.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDAADIdTokenClaimsFactoryTests : XCTestCase
 
@@ -55,6 +56,41 @@
     NSError *error = nil;
     MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken error:&error];
     XCTAssertTrue([claims isKindOfClass:[MSIDAADV1IdTokenClaims class]]);
+    XCTAssertNil(error);
+}
+
+- (void)testClaimsForRawIDToken_whenAADV1IDToken_withoutVerClaim_withUPNClaim_shouldReturnAADV1Claims
+{
+    NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
+    NSString *idTokenp2 = [@{ @"iss" : @"issuer",
+                              @"preferred_username" : @"username",
+                              @"sub" : @"sub",
+                              @"tid": @"tenantId",
+                              @"upn": @"upn"
+                              } msidBase64UrlJson];
+    NSString *idToken = [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
+
+    NSError *error = nil;
+    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken error:&error];
+    XCTAssertTrue([claims isKindOfClass:[MSIDAADV1IdTokenClaims class]]);
+    XCTAssertNil(error);
+}
+
+- (void)testClaimsForRawIDToken_whenAADV2IDToken_withUPNClaim_shouldReturnAADV2Claims
+{
+    NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
+    NSString *idTokenp2 = [@{ @"iss" : @"issuer",
+                              @"preferred_username" : @"username",
+                              @"sub" : @"sub",
+                              @"ver": @"2.0",
+                              @"tid": @"tenantId",
+                              @"upn": @"upn"
+                              } msidBase64UrlJson];
+    NSString *idToken = [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
+
+    NSError *error = nil;
+    MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken error:&error];
+    XCTAssertTrue([claims isKindOfClass:[MSIDAADV2IdTokenClaims class]]);
     XCTAssertNil(error);
 }
 

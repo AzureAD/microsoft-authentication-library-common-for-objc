@@ -36,15 +36,30 @@
     MSIDIdTokenClaims *claims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:rawIdTokenString error:error];
 
     NSDictionary *allClaims = [claims jsonDictionary];
-    CGFloat idTokenVersion = [allClaims[@"ver"] floatValue];
+    NSString *idTokenVersionClaim = allClaims[@"ver"];
+    CGFloat idTokenVersion = [idTokenVersionClaim floatValue];
 
-    if (idTokenVersion == 1.0f)
+    // If version claim is returned, determine ID token version based on the version claim
+    if (![NSString msidIsStringNilOrBlank:idTokenVersionClaim])
+    {
+        if (idTokenVersion == 1.0f)
+        {
+            return [[MSIDAADV1IdTokenClaims alloc] initWithJSONDictionary:allClaims error:error];
+        }
+        else if (idTokenVersion == 2.0f)
+        {
+            return [[MSIDAADV2IdTokenClaims alloc] initWithJSONDictionary:allClaims error:error];
+        }
+    }
+
+    // If no version claim is returned, or it's unsupported version, check if UPN claim is present
+    // If UPN is present, return AAD v1 id token.
+    // Return base OIDC token in all other cases
+    NSString *idTokenUPNClaim = allClaims[@"upn"];
+
+    if (![NSString msidIsStringNilOrBlank:idTokenUPNClaim])
     {
         return [[MSIDAADV1IdTokenClaims alloc] initWithJSONDictionary:allClaims error:error];
-    }
-    else if (idTokenVersion == 2.0f)
-    {
-        return [[MSIDAADV2IdTokenClaims alloc] initWithJSONDictionary:allClaims error:error];
     }
 
     return claims;
