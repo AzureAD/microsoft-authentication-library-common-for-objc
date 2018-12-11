@@ -439,7 +439,7 @@
     if ([NSString msidIsStringNilOrBlank:clientId]
         && ![NSString msidIsStringNilOrBlank:account.legacyAccountId])
     {
-        result = [_dataSource removeItemsWithKey:query context:context error:error];
+        result = [_dataSource removeTokensWithKey:query context:context error:error];
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
     else
@@ -691,7 +691,7 @@
                                                                              resource:cacheItem.target
                                                                          legacyUserId:userId];
 
-    BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
+    BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
 
     if (result && cacheItem.credentialType == MSIDRefreshTokenType)
     {

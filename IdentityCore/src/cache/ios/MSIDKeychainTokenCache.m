@@ -154,6 +154,8 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         return NO;
     }
     
+    MSIDCacheKey *tokenCacheKey = [self tokenCacheKeyFromCacheKey:key];
+    
     NSData *itemData = [serializer serializeCredentialCacheItem:item];
     
     if (!itemData)
@@ -169,7 +171,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     MSID_LOG_INFO_PII(context, @"Save keychain item, item info %@", item);
     
     return [self saveData:itemData
-                      key:key
+                      key:tokenCacheKey
                   context:context
                     error:error];
 }
@@ -200,7 +202,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
-    NSArray *items = [self itemsWithKey:key context:context error:error];
+    MSIDCacheKey *tokenCacheKey = [self tokenCacheKeyFromCacheKey:key];
+    
+    NSArray *items = [self itemsWithKey:tokenCacheKey context:context error:error];
     
     if (!items)
     {
@@ -327,8 +331,86 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return accountItems;
 }
 
+#pragma mark - Metadata
+
+- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
+{
+    assert(item);
+    assert(serializer);
+    
+    NSData *itemData = [serializer serializeAppMetadataCacheItem:item];
+    
+    if (!itemData)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize app metadata item.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Failed to serialize app metadata item.");
+        return NO;
+    }
+    
+    MSID_LOG_INFO_PII(context, @"Save keychain item, item info %@", item);
+    
+    return [self saveData:itemData
+                      key:key
+                  context:context
+                    error:error];
+}
+
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
+                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error
+{
+    
+    NSArray *items = [self itemsWithKey:key context:context error:error];
+    
+    if (!items)
+    {
+        return nil;
+    }
+    
+    NSMutableArray *appMetadataitems = [[NSMutableArray<MSIDAppMetadataCacheItem *> alloc] initWithCapacity:items.count];
+    
+    for (NSDictionary *attrs in items)
+    {
+        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
+        MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
+        
+        if (appMetadata)
+        {
+            [appMetadataitems addObject:appMetadata];
+        }
+        else
+        {
+            MSID_LOG_ERROR(context, @"Failed to deserialize app metadata item.");
+        }
+    }
+    
+    MSID_LOG_INFO(context, @"Found %lu items.", (unsigned long)appMetadataitems.count);
+    MSID_LOG_INFO(context, @"Items info %@", appMetadataitems);
+    
+    return appMetadataitems;
+}
+
 #pragma mark - Removal
 
+// used for removing tokens
+- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    MSIDCacheKey *tokenCacheKey = [self tokenCacheKeyFromCacheKey:key];
+    
+    return [self removeItemsWithKey:tokenCacheKey context:context error:error];
+}
+
+// used for removing anything but tokens
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
@@ -625,69 +707,10 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     return YES;
 }
 
-- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
-                    key:(MSIDCacheKey *)key
-             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+// Override the following function in subclasses if special key handling is needed
+- (MSIDCacheKey *)tokenCacheKeyFromCacheKey:(MSIDCacheKey *)key
 {
-    assert(item);
-    assert(serializer);
-    
-    NSData *itemData = [serializer serializeAppMetadataCacheItem:item];
-    
-    if (!itemData)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize app metadata item.", nil, nil, nil, context.correlationId, nil);
-        }
-        MSID_LOG_ERROR(context, @"Failed to serialize app metadata item.");
-        return NO;
-    }
-    
-    MSID_LOG_INFO_PII(context, @"Save keychain item, item info %@", item);
-    
-    return [self saveData:itemData
-                      key:key
-                  context:context
-                    error:error];
-}
-
-- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
-                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                                                           context:(id<MSIDRequestContext>)context
-                                                             error:(NSError **)error
-{
-    
-    NSArray *items = [self itemsWithKey:key context:context error:error];
-    
-    if (!items)
-    {
-        return nil;
-    }
-    
-    NSMutableArray *appMetadataitems = [[NSMutableArray<MSIDAppMetadataCacheItem *> alloc] initWithCapacity:items.count];
-    
-    for (NSDictionary *attrs in items)
-    {
-        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
-        MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
-        
-        if (appMetadata)
-        {
-            [appMetadataitems addObject:appMetadata];
-        }
-        else
-        {
-            MSID_LOG_ERROR(context, @"Failed to deserialize app metadata item.");
-        }
-    }
-    
-    MSID_LOG_INFO(context, @"Found %lu items.", (unsigned long)appMetadataitems.count);
-    MSID_LOG_INFO(context, @"Items info %@", appMetadataitems);
-    
-    return appMetadataitems;
+    return key;
 }
 
 @end

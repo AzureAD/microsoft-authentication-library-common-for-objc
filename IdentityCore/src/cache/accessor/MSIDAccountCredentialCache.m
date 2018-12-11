@@ -286,7 +286,7 @@
 
     if (cacheQuery.exactMatch)
     {
-        return [_dataSource removeItemsWithKey:cacheQuery context:context error:error];
+        return [_dataSource removeTokensWithKey:cacheQuery context:context error:error];
     }
 
     NSArray<MSIDCredentialCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery context:context error:error];
@@ -314,7 +314,7 @@
     key.realm = credential.realm;
     key.target = credential.target;
 
-    BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
+    BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
 
     if (result && credential.credentialType == MSIDRefreshTokenType)
     {
