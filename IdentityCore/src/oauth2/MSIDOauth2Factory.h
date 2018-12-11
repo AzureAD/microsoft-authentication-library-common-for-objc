@@ -75,7 +75,7 @@
 - (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
                                                                              authCode:(NSString *)authCode
-                                                                           clientInfo:(MSIDClientInfo *)clientInfo;
+                                                                        homeAccountId:(NSString *)homeAccountId;
 
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                               refreshToken:(NSString *)refreshToken;

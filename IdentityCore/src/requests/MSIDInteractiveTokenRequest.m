@@ -228,7 +228,7 @@
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.oauthFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
                                                                                                            codeVerifier:self.webViewConfiguration.pkce.codeVerifier
                                                                                                                authCode:authCode
-                                                                                                             clientInfo:self.authCodeClientInfo];
+                                                                                                          homeAccountId:self.authCodeClientInfo.accountIdentifier];
 
     [tokenRequest sendWithBlock:^(id response, NSError *error) {
 
@@ -254,9 +254,14 @@
                 NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
                 updatedUserInfo[MSIDHomeAccountIdkey] = self.authCodeClientInfo.accountIdentifier;
                 
-                validationError = [NSError errorWithDomain:validationError.domain
-                                                      code:validationError.code
-                                                  userInfo:updatedUserInfo];
+                validationError = MSIDCreateError(validationError.domain,
+                                                  validationError.code,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  updatedUserInfo);
             }
             
             completionBlock(nil, validationError, nil);

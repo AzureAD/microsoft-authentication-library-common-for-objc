@@ -142,6 +142,42 @@
     XCTAssertNil(error);
 }
 
+- (void)testVerifyResponse_whenProtectionPolicyRequiredError_shouldReturnErrorWithSuberror
+{
+    MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    
+    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:@{@"error":@"unauthorized_client",
+                                                                                                @"suberror":MSID_PROTECTION_POLICY_REQUIRED,
+                                                                                            @"adi":@"cooldude@somewhere.com"
+                                                                                                }
+                                                                                        error:nil];
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
+    XCTAssertEqual(error.userInfo[MSIDUserDisplayableIdkey], @"cooldude@somewhere.com");
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
+}
+
+- (void)testVerifyResponse_whenProtectionPolicyRequiredErrorAndNoAdiInResponse_shouldReturnErrorWithSuberrorAndEmptyDisplayableId
+{
+    MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    
+    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:@{@"error":@"unauthorized_client",
+                                                                                            @"suberror":MSID_PROTECTION_POLICY_REQUIRED                                                                                            }
+                                                                                    error:nil];
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
+    XCTAssertEqual(error.userInfo[MSIDUserDisplayableIdkey], @"");
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
+}
+
 #pragma mark - Tokens
 
 - (void)testBaseTokenFromResponse_whenAADTokenResponse_shouldReturnToken

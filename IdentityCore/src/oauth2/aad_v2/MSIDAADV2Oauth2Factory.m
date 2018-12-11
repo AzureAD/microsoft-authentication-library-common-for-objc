@@ -96,31 +96,6 @@
 
     if (!result)
     {
-        if (response.error && error)
-        {
-            MSIDErrorCode errorCode = response.oauthErrorCode;
-            NSDictionary *additionalUserInfo = nil;
-            
-            /* This is a special error case for True MAM,
-             where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
-            MSIDErrorCode oauthErrorCode = MSIDErrorCodeForOAuthError(response.error, MSIDErrorServerOauth);
-            if (oauthErrorCode == MSIDErrorServerUnauthorizedClient
-                && [response.suberror isEqualToString:MSID_PROTECTION_POLICY_REQUIRED])
-            {
-                errorCode = MSIDErrorServerProtectionPoliciesRequired;
-                additionalUserInfo = @{MSIDUserDisplayableIdkey : response.additionalUserId ?: @""};
-            }
-            
-            *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     errorCode,
-                                     response.errorDescription,
-                                     response.error,
-                                     response.suberror,
-                                     nil,
-                                     context.correlationId,
-                                     additionalUserInfo);
-        }
-
         return result;
     }
 
@@ -226,18 +201,18 @@
 - (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
                                                                              authCode:(NSString *)authCode
-                                                                           clientInfo:(MSIDClientInfo *)clientInfo
+                                                                        homeAccountId:(NSString *)homeAccountId;
 {
     NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
                                                                        developerClaims:parameters.claims];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
     NSString *enrollmentId = nil;
-    if (clientInfo.accountIdentifier != parameters.accountIdentifier.homeAccountId)
+    if (homeAccountId != parameters.accountIdentifier.homeAccountId)
     {
         // If there was an account switch during request (or no user account provided),
         // rely only on the homeAccountId from clientInfo obtained during auth code request.
-        enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:clientInfo.accountIdentifier
+        enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:homeAccountId
                                                              legacyUserId:nil
                                                                   context:parameters
                                                                     error:nil];

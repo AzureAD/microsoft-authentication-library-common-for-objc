@@ -348,9 +348,14 @@
                 NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
                 updatedUserInfo[MSIDHomeAccountIdkey] = self.requestParameters.accountIdentifier.homeAccountId;
                 
-                validationError = [NSError errorWithDomain:validationError.domain
-                                                      code:validationError.code
-                                                  userInfo:updatedUserInfo];
+                validationError = MSIDCreateError(validationError.domain,
+                                                  validationError.code,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  updatedUserInfo);
             }
             
             completionBlock(nil, validationError);

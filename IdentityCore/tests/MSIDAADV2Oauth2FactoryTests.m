@@ -158,6 +158,25 @@
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
 }
 
+- (void)testVerifyResponse_whenProtectionPolicyRequiredError_shouldReturnErrorWithSuberror
+{
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"error":@"unauthorized_client",
+                                                                                                @"suberror":MSID_PROTECTION_POLICY_REQUIRED,
+                                                                                                @"adi":@"cooldude@somewhere.com"
+                                                                                                }
+                                                                                        error:nil];
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
+    XCTAssertEqual(error.userInfo[MSIDUserDisplayableIdkey], @"cooldude@somewhere.com");
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
+}
+
 - (void)testVerifyResponse_whenNoClientInfo_shouldReturnError
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];

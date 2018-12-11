@@ -106,33 +106,17 @@
 
     if (!result)
     {
-        if (response.error)
+        // In case of not overriden error code, change it to default error code for v1.
+        if ([*error code] != MSIDErrorServerProtectionPoliciesRequired)
         {
-            MSIDErrorCode errorCode = fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
-            MSIDErrorCode oauthErrorCode = MSIDErrorCodeForOAuthError(response.error, errorCode);
-
-            /* This is a special error case for True MAM,
-             where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
-
-            if (oauthErrorCode == MSIDErrorServerUnauthorizedClient
-                && [response.suberror isEqualToString:MSID_PROTECTION_POLICY_REQUIRED])
-            {
-                errorCode = MSIDErrorServerProtectionPoliciesRequired;
-            }
-
-            if (error)
-            {
-                NSDictionary *userInfo = @{MSIDUserDisplayableIdkey : response.additionalUserId ?: @""};
-
-                *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                         errorCode,
-                                         response.errorDescription,
-                                         response.error,
-                                         response.suberror,
-                                         nil,
-                                         context.correlationId,
-                                         userInfo);
-            }
+            *error = MSIDCreateError([*error domain],
+                                     fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth,
+                                     nil,
+                                     nil,
+                                     nil,
+                                     nil,
+                                     nil,
+                                     [*error userInfo]);
         }
 
         return result;
@@ -231,7 +215,7 @@
 - (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
                                                                              authCode:(NSString *)authCode
-                                                                           clientInfo:(MSIDClientInfo *)clientInfo
+                                                                        homeAccountId:(NSString *)homeAccountId;
 {
     // TODO: implement me for ADAL
     return nil;

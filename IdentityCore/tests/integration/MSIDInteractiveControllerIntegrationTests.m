@@ -226,6 +226,78 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+- (void)testAcquireToken_whenProtectionPolicyRequired_shouldReturnFailure
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+    
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+    
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+    
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+    
+    // Setup test request providers
+    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_protection_policy_required";
+    
+    NSError *testError = MSIDCreateError(MSIDOAuthErrorDomain,
+                                         MSIDErrorServerProtectionPoliciesRequired,
+                                         @"Unauthorized client",
+                                         @"unauthorized_client",
+                                         MSID_PROTECTION_POLICY_REQUIRED,
+                                         nil,
+                                         nil,
+                                         @{ MSIDUserDisplayableIdkey: @"saddude@nowhere.com",
+                                            MSIDHomeAccountIdkey: @"nowhere.nowhere"
+                                            });
+    
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
+    
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
+    
+    XCTAssertNotNil(interactiveController);
+    XCTAssertNil(error);
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error, testError);
+        
+        // Check Telemetry event
+        XCTAssertEqual([receivedEvents count], 1);
+        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertNotNil(telemetryEvent[@"start_time"]);
+        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_protection_policy_required");
+        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
+        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
+        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"no");
+        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(telemetryEvent[@"status"], @"failed");
+        XCTAssertNotNil(telemetryEvent[@"response_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_error_code"], @"-51430");
+        XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDOAuthErrorDomain);
+        XCTAssertEqualObjects(telemetryEvent[@"error_protocol_code"], @"unauthorized_client");
+        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
+        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
+        
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 #if TARGET_OS_IPHONE
 - (void)testAcquireToken_whenBrokerInstallPrompt_andSuccessfulResponse_shouldReturnResult
 {
