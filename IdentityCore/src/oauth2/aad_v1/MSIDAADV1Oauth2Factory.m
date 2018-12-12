@@ -107,7 +107,8 @@
     if (!result)
     {
         // In case of not overriden error code, change it to default error code for v1.
-        if ([*error code] != MSIDErrorServerProtectionPoliciesRequired)
+        if (*error &&
+            [*error code] != MSIDErrorServerProtectionPoliciesRequired)
         {
             *error = MSIDCreateError([*error domain],
                                      fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth,

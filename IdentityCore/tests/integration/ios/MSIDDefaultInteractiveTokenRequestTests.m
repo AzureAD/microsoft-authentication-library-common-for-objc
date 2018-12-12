@@ -457,18 +457,6 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-
-/*NSError *testError = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     MSIDErrorServerProtectionPoliciesRequired,
-                                     @"Unauthorized client",
-                                     @"unauthorized_client",
-                                     MSID_PROTECTION_POLICY_REQUIRED,
-                                     nil,
-                                     nil,
-                                     @{ MSIDUserDisplayableIdkey: @"saddude@nowhere.com",
-                                        MSIDHomeAccountIdkey: @"nowhere.nowhere"
-                                        });*/
-
 - (void)testInteractiveRequestFlow_whenErrorInCodeRedemption_shouldReturnNilResultWithError
 {
     __block NSUUID *correlationId = [NSUUID new];
