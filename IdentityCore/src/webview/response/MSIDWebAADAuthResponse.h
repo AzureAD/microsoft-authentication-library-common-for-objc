@@ -26,9 +26,11 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebOAuth2Response.h"
+#import "MSIDClientInfo.h"
 
 @interface MSIDWebAADAuthResponse : MSIDWebOAuth2Response
 
 @property (readonly) NSString *cloudHostName;
+@property (readonly) MSIDClientInfo *clientInfo;
 
 @end

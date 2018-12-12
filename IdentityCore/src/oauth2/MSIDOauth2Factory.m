@@ -392,6 +392,7 @@
 - (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
                                                                              authCode:(NSString *)authCode
+                                                                        homeAccountId:(NSString *)homeAccountId;
 {
     NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
     NSString *allScopes = [parameters allTokenRequestScopes];
