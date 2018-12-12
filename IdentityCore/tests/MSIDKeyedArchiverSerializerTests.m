@@ -26,6 +26,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAccountCacheItem+Util.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDClientInfo.h"
 

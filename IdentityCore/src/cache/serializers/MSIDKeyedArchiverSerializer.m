@@ -26,6 +26,7 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAccountCacheItem+Util.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
 

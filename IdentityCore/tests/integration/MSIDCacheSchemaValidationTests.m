@@ -31,6 +31,7 @@
 #import "MSIDDefaultCredentialCacheKey.h"
 #import "MSIDDefaultAccountCacheKey.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAccountCacheItem+Util.h"
 #import "MSIDB2CTokenResponse.h"
 #import "MSIDB2COauth2Factory.h"
 #import "MSIDAppMetadataCacheItem.h"

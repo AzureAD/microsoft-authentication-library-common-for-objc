@@ -27,6 +27,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAccountCacheItem+Util.h"
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDConfiguration.h"
 #import "MSIDOauth2Factory.h"

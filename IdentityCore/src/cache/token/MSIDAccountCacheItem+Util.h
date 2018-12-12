@@ -21,14 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccountCacheItem.h"
-#import "MSIDAccountCacheItem+Util.h"
 #import "MSIDAccountCacheItem+ClientInfoUtil.h"
-#import "MSIDClientInfo.h"
 
-@implementation MSIDAccountCacheItem
+@interface MSIDAccountCacheItem (Util) <NSCopying, MSIDJsonSerializable>
 
-// See MSIDAccountCacheItem+Util and MSIDAccountCacheItem+ClientInfoUtil
-// (Implementaiton moved to categories in order to facilitate integration with msalcpp.)
+- (BOOL)isEqual:(nullable id)object;
+
+- (BOOL)isEqualToItem:(nullable MSIDAccountCacheItem *)item;
+
+- (NSUInteger)hash;
+
+- (nonnull id)copyWithZone:(nullable NSZone *)zone;
+
+- (nonnull instancetype)initWithJSONDictionary:(nullable NSDictionary *)json error:(__unused NSError * __nullable * __nullable)error;
+
+- (nullable NSDictionary *)jsonDictionary;
+
+- (void)updateFieldsFromAccount:(nullable MSIDAccountCacheItem *)account;
+
+- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
+                     environment:(nullable NSString *)environment
+              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
 
 @end

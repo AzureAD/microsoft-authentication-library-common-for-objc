@@ -27,6 +27,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAccountCacheItem+Util.h"
 #import "MSIDAppMetadataCacheItem.h"
 
 @interface MSIDCacheItemJsonSerializerTests : XCTestCase

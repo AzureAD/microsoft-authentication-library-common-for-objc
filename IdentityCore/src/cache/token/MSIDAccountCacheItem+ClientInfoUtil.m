@@ -22,13 +22,18 @@
 // THE SOFTWARE.
 
 #import "MSIDAccountCacheItem.h"
-#import "MSIDAccountCacheItem+Util.h"
 #import "MSIDAccountCacheItem+ClientInfoUtil.h"
 #import "MSIDClientInfo.h"
 
-@implementation MSIDAccountCacheItem
+@implementation MSIDAccountCacheItem (ClientInfoUtil)
 
-// See MSIDAccountCacheItem+Util and MSIDAccountCacheItem+ClientInfoUtil
-// (Implementaiton moved to categories in order to facilitate integration with msalcpp.)
+-(void)setRawClientInfo:(NSString*)rawClientInfo
+{
+    self.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
+}
 
+-(NSString *)rawClientInfo
+{
+    return self.clientInfo.rawClientInfo;
+}
 @end

@@ -25,6 +25,7 @@
 #import "MSIDTestIdentifiers.h"
 #import "MSIDAccount.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAccountCacheItem+Util.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDConfiguration.h"
 #import "MSIDTokenResponse.h"

@@ -21,14 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccountCacheItem.h"
-#import "MSIDAccountCacheItem+Util.h"
-#import "MSIDAccountCacheItem+ClientInfoUtil.h"
-#import "MSIDClientInfo.h"
+@interface MSIDAccountCacheItem (ClientInfoUtil)
 
-@implementation MSIDAccountCacheItem
-
-// See MSIDAccountCacheItem+Util and MSIDAccountCacheItem+ClientInfoUtil
-// (Implementaiton moved to categories in order to facilitate integration with msalcpp.)
+-(void)setRawClientInfo:(nullable NSString*)rawClientInfo;
+-(nullable NSString *)rawClientInfo;
 
 @end

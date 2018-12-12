@@ -20,13 +20,15 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+#ifndef MSIDAccountCacheItem_H
+#define MSIDAccountCacheItem_H
 
 #import "MSIDAccountType.h"
 #import "MSIDJsonSerializable.h"
 
 @class MSIDClientInfo;
 
-@interface MSIDAccountCacheItem : NSObject <NSCopying, MSIDJsonSerializable>
+@interface MSIDAccountCacheItem : NSObject
 
 @property (readwrite) MSIDAccountType accountType;
 @property (readwrite, nonnull) NSString *homeAccountId;
@@ -43,10 +45,8 @@
 
 @property (readwrite, nullable) NSDictionary *additionalAccountFields;
 
-- (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
-
-- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
-                     environment:(nullable NSString *)environment
-              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
+@property (readwrite, nullable) NSDictionary *json;
 
 @end
+
+#endif // MSIDAccountCacheItem_H

@@ -32,6 +32,7 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAccountCacheItem+Util.h"
 #import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDAppMetadataCacheItem.h"
