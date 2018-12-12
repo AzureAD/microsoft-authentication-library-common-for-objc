@@ -102,22 +102,29 @@
         return NO;
     }
 
-    BOOL result = [super verifyResponse:response context:context error:error];
+    NSError *internalError = nil;
+    BOOL result = [super verifyResponse:response context:context error:&internalError];
 
     if (!result)
     {
-        // In case of not overriden error code, change it to default error code for v1.
-        if (*error &&
-            [*error code] != MSIDErrorServerProtectionPoliciesRequired)
+        if (internalError)
         {
-            *error = MSIDCreateError([*error domain],
-                                     fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth,
-                                     nil,
-                                     nil,
-                                     nil,
-                                     nil,
-                                     nil,
-                                     [*error userInfo]);
+            // In case of not overriden error code, change it to default error code for v1.
+            if (internalError.code != MSIDErrorServerProtectionPoliciesRequired)
+            {
+                *error = MSIDCreateError(internalError.domain,
+                                         fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth,
+                                         nil,
+                                         nil,
+                                         nil,
+                                         nil,
+                                         nil,
+                                         internalError.userInfo);
+            }
+            else
+            {
+                *error = internalError;
+            }
         }
 
         return result;
