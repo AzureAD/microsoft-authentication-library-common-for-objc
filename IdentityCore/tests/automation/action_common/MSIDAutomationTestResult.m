@@ -21,18 +21,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAutomationTestAction.h"
+#import "MSIDAutomationTestResult.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDAutomationTestResult
 
-@interface MSIDAutomationActionManager : NSObject
+- (instancetype)initWithAction:(NSString *)actionId
+                       success:(BOOL)success
+                additionalInfo:(NSDictionary *)additionalInfo
+{
+    self = [super init];
 
-+ (MSIDAutomationActionManager *)sharedInstance;
-- (void)configureActions:(NSDictionary<NSString *,id<MSIDAutomationTestAction>> *)actions;
-- (id<MSIDAutomationTestAction>)actionForIdentifier:(NSString *)actionIdentifier;
-- (NSArray<NSString *> *)actionIdentifiers;
+    if (self)
+    {
+        _actionId = actionId;
+        _success = success;
+        _additionalInfo = additionalInfo;
+    }
+    return self;
+}
+
+- (NSString *)jsonResult
+{
+    NSMutableDictionary *jsonResultDict = [NSMutableDictionary new];
+    jsonResultDict[@"action_id"] = _actionId;
+    jsonResultDict[@"success"] = @(_success);
+
+    if (_additionalInfo)
+    {
+        [jsonResultDict addEntriesFromDictionary:_additionalInfo];
+    }
+
+    NSData *jsonResultData = [NSJSONSerialization dataWithJSONObject:jsonResultDict options:0 error:nil];
+    return [[NSString alloc] initWithData:jsonResultData encoding:NSUTF8StringEncoding];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

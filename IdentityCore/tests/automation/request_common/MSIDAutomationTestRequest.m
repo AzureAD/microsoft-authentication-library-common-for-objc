@@ -21,18 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAutomationTestAction.h"
+#import "MSIDAutomationTestRequest.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDAutomationTestRequest
 
-@interface MSIDAutomationActionManager : NSObject
-
-+ (MSIDAutomationActionManager *)sharedInstance;
-- (void)configureActions:(NSDictionary<NSString *,id<MSIDAutomationTestAction>> *)actions;
-- (id<MSIDAutomationTestAction>)actionForIdentifier:(NSString *)actionIdentifier;
-- (NSArray<NSString *> *)actionIdentifiers;
+- (BOOL)usesEmbeddedWebView
+{
+    return self.webViewType == MSIDWebviewTypeWKWebView || self.usePassedWebView;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -26,12 +26,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationActionManager : NSObject
-
-+ (MSIDAutomationActionManager *)sharedInstance;
-- (void)configureActions:(NSDictionary<NSString *,id<MSIDAutomationTestAction>> *)actions;
-- (id<MSIDAutomationTestAction>)actionForIdentifier:(NSString *)actionIdentifier;
-- (NSArray<NSString *> *)actionIdentifiers;
+@interface MSIDClearKeychainTestAction : NSObject <MSIDAutomationTestAction>
 
 @end
 

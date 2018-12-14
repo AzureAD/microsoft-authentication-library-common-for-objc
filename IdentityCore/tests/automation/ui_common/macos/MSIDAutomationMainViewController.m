@@ -27,10 +27,12 @@
 #import "MSIDAutomation.h"
 #import "MSIDAutomationPassedInWebViewController.h"
 #import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationTestResult.h"
 
 @interface MSIDAutomationMainViewController ()
 
 @property (nonatomic, strong) IBOutlet NSStackView *actionsView;
+@property (atomic) NSMutableString *resultLogs;
 
 @end
 
@@ -80,11 +82,31 @@
     return webViewController.passedInWebview;
 }
 
+#pragma mark - View lifecycle
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     [self setupActions];
+    [self setupLogger];
 }
+
+#pragma mark - Logger
+
+- (void)setupLogger
+{
+    [[MSIDLogger sharedLogger] setCallback:^(MSIDLogLevel level, NSString *message, BOOL containsPII) {
+
+        if (self.resultLogs)
+        {
+            [self.resultLogs appendString:message];
+        }
+    }];
+
+    [[MSIDLogger sharedLogger] setLevel:MSIDLogLevelVerbose];
+}
+
+#pragma mark - Actions
 
 - (void)setupActions
 {
@@ -96,17 +118,19 @@
         button.accessibilityLabel = testAction;
         button.target = self;
         button.action = @selector(performAction:);
-        [self.actionsView addArrangedSubview:button];
+        [self.actionsView addView:button inGravity:NSStackViewGravityBottom];
     }
 }
 
-- (void)performAction:(UIButton *)sender
+- (void)performAction:(NSButton *)sender
 {
-    id<MSIDAutomationTestAction> action = [[MSIDAutomationActionManager sharedInstance] actionForIdentifier:sender.titleLabel.text];
+    self.resultLogs = [NSMutableString new];
+
+    id<MSIDAutomationTestAction> action = [[MSIDAutomationActionManager sharedInstance] actionForIdentifier:sender.title];
 
     if (!action)
     {
-        NSLog(@"Couldn't find action for identifier %@", sender.titleLabel.text);
+        NSLog(@"Couldn't find action for identifier %@", sender.title);
         return;
     }
 
@@ -121,19 +145,15 @@
         [self performAction:action parameters:parameters];
     };
 
-    [self performSegueWithIdentifier:MSID_SHOW_REQUEST_SEGUE sender:@{MSID_COMPLETION_BLOCK_SEGUE_KEY : completionBlock}];
+    [self showRequestDataViewWithCompletionHandler:completionBlock];
 }
 
 - (void)performAction:(id<MSIDAutomationTestAction>)action parameters:(NSDictionary *)parameters
 {
     [action performActionWithParameters:parameters
                     containerController:self
-                        completionBlock:^(NSDictionary *result, NSString *logOutput) {
-
-                            NSData *jsonResult = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
-                            NSString *jsonResultString = [[NSString alloc] initWithData:jsonResult encoding:NSUTF8StringEncoding];
-
-                            [self showResultViewWithResult:jsonResultString logs:logOutput];
+                        completionBlock:^(MSIDAutomationTestResult *result) {
+                            [self showResultViewWithResult:result.jsonResult logs:self.resultLogs];
 
                         }];
 }

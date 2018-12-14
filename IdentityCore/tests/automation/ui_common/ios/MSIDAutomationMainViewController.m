@@ -27,11 +27,14 @@
 #import "MSIDAutomation.h"
 #import "MSIDAutomationPassedInWebViewController.h"
 #import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationTestResult.h"
+#import "MSIDLogger+Internal.h"
 #import <WebKit/WebKit.h>
 
 @interface MSIDAutomationMainViewController ()
 
 @property (nonatomic, strong) IBOutlet UIStackView *actionsView;
+@property (atomic) NSMutableString *resultLogs;
 
 @end
 
@@ -114,6 +117,8 @@
     return self.webView;
 }
 
+#pragma mark - View lifecycle
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -121,7 +126,25 @@
     self.webView = [[WKWebView alloc] init];
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self setupActions];
+    [self setupLogger];
 }
+
+#pragma mark - Logger
+
+- (void)setupLogger
+{
+    [[MSIDLogger sharedLogger] setCallback:^(MSIDLogLevel level, NSString *message, BOOL containsPII) {
+
+        if (self.resultLogs)
+        {
+            [self.resultLogs appendString:message];
+        }
+    }];
+
+    [[MSIDLogger sharedLogger] setLevel:MSIDLogLevelVerbose];
+}
+
+#pragma mark - Actions
 
 - (void)setupActions
 {
@@ -132,11 +155,14 @@
         [button setTitle:testAction forState:UIControlStateNormal];
         [button setAccessibilityIdentifier:testAction];
         [button addTarget:self action:@selector(performAction:) forControlEvents:UIControlEventTouchUpInside];
+        [self.actionsView addArrangedSubview:button];
     }
 }
 
 - (void)performAction:(UIButton *)sender
 {
+    self.resultLogs = [NSMutableString new];
+
     id<MSIDAutomationTestAction> action = [[MSIDAutomationActionManager sharedInstance] actionForIdentifier:sender.titleLabel.text];
 
     if (!action)
@@ -163,12 +189,9 @@
 {
     [action performActionWithParameters:parameters
                     containerController:self
-                        completionBlock:^(NSDictionary *result, NSString *logOutput) {
+                        completionBlock:^(MSIDAutomationTestResult *result) {
 
-                            NSData *jsonResult = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
-                            NSString *jsonResultString = [[NSString alloc] initWithData:jsonResult encoding:NSUTF8StringEncoding];
-
-                            [self showResultViewWithResult:jsonResultString logs:logOutput];
+                            [self showResultViewWithResult:result.jsonResult logs:self.resultLogs];
 
                         }];
 }

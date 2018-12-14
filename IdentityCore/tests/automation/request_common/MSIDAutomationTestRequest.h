@@ -22,17 +22,29 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAutomationTestAction.h"
+#import "MSIDTestAutomationConfiguration.h"
+#import "MSIDConstants.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDAutomationTestRequest : NSObject
 
-@interface MSIDAutomationActionManager : NSObject
+@property (nonatomic, strong) NSString *clientId;
+@property (nonatomic, strong) NSString *requestTarget;
+@property (nonatomic, strong) NSString *expectedResultTarget;
+@property (nonatomic, strong) NSString *redirectUri;
+@property (nonatomic, strong) NSString *authority;
+@property (nonatomic, strong) NSString *expectedResultAuthority;
+@property (nonatomic, strong) NSString *cacheAuthority;
+@property (nonatomic, strong) NSString *uiBehavior;
+@property (nonatomic, strong) NSString *accountIdentifier;
+@property (nonatomic, strong) NSString *loginHint;
+@property (nonatomic, strong) NSString *claims;
+@property (nonatomic, strong) MSIDTestAccount *testAccount;
+@property (nonatomic) BOOL usePassedWebView;
+@property (nonatomic) MSIDWebviewType webViewType;
+@property (nonatomic) BOOL validateAuthority;
+@property (nonatomic, strong) NSDictionary *additionalParameters;
+@property (nonatomic, strong) NSDictionary *sliceParameters;
 
-+ (MSIDAutomationActionManager *)sharedInstance;
-- (void)configureActions:(NSDictionary<NSString *,id<MSIDAutomationTestAction>> *)actions;
-- (id<MSIDAutomationTestAction>)actionForIdentifier:(NSString *)actionIdentifier;
-- (NSArray<NSString *> *)actionIdentifiers;
+- (BOOL)usesEmbeddedWebView;
 
 @end
-
-NS_ASSUME_NONNULL_END

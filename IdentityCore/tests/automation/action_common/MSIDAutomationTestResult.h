@@ -22,16 +22,20 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAutomationTestAction.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationActionManager : NSObject
+@interface MSIDAutomationTestResult : NSObject
 
-+ (MSIDAutomationActionManager *)sharedInstance;
-- (void)configureActions:(NSDictionary<NSString *,id<MSIDAutomationTestAction>> *)actions;
-- (id<MSIDAutomationTestAction>)actionForIdentifier:(NSString *)actionIdentifier;
-- (NSArray<NSString *> *)actionIdentifiers;
+@property (nonatomic) BOOL success;
+@property (nonatomic) NSString *actionId;
+@property (nonatomic) NSDictionary *additionalInfo;
+
+- (instancetype)initWithAction:(NSString *)actionId
+                       success:(BOOL)success
+                additionalInfo:(nullable NSDictionary *)additionalInfo;
+
+- (NSString *)jsonResult;
 
 @end
 

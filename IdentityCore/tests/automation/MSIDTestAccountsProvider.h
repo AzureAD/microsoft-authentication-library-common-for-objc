@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTestAutomationConfigurationRequest.h"
 #import "MSIDTestAutomationConfiguration.h"
+#import "MSIDAutomationTestRequest.h"
 
 @interface MSIDTestAccountsProvider : NSObject
 
@@ -53,7 +54,9 @@ This information would normally come from a configuration file.
                               certificatePassword:(NSString *)password
                          additionalConfigurations:(NSDictionary *)additionalConfigurations
                                   appInstallLinks:(NSDictionary *)appInstallLinks
-                                          apiPath:(NSString *)apiPath;
+                                          apiPath:(NSString *)apiPath
+                                   defaultClients:(NSDictionary *)defaultClients
+                              defaultEnvironments:(NSDictionary *)defaultEnvironments;
 
 - (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
 
@@ -64,5 +67,6 @@ This information would normally come from a configuration file.
          completionHandler:(void (^)(NSString *password))completionHandler;
 
 - (NSDictionary *)appInstallForConfiguration:(NSString *)appId;
+- (NSString *)defaultEnvironmentForIdentifier:(NSString *)environmentIDentifier;
 
 @end

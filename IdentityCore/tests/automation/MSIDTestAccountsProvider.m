@@ -30,6 +30,8 @@
 @property (nonatomic, strong) NSDictionary *appInstallLinks;
 @property (nonatomic, strong) KeyvaultAuthentication *keyvaultAuthentication;
 @property (nonatomic, strong) NSString *apiPath;
+@property (nonatomic, strong) NSDictionary *defaultClients;
+@property (nonatomic, strong) NSDictionary *defaultEnvironments;
 
 @end
 
@@ -40,6 +42,8 @@
                          additionalConfigurations:(NSDictionary *)additionalConfigurations
                                   appInstallLinks:(NSDictionary *)appInstallLinks
                                           apiPath:(NSString *)apiPath
+                                   defaultClients:(NSDictionary *)defaultClients
+                              defaultEnvironments:(NSDictionary *)defaultEnvironments
 {
     self = [super init];
 
@@ -50,6 +54,8 @@
         _apiPath = apiPath;
         [_cachedConfigurations addEntriesFromDictionary:additionalConfigurations];
         _appInstallLinks = appInstallLinks;
+        _defaultClients = defaultClients;
+        _defaultEnvironments = defaultEnvironments;
     }
 
     return self;
@@ -94,7 +100,9 @@
                                certificatePassword:certificatePassword
                           additionalConfigurations:additionalConfsDictionary
                                    appInstallLinks:configurationDictionary[@"app_install_urls"]
-                                           apiPath:apiPath];
+                                           apiPath:apiPath
+                                    defaultClients:configurationDictionary[@"environments"]
+                               defaultEnvironments:configurationDictionary[@"default_clients"]];
 
 }
 
@@ -174,6 +182,79 @@
             completionHandler(secret.value);
         }
     }];
+}
+
+#pragma mark - Default apps
+
+- (MSIDAutomationTestRequest *)defaultConvergedAppRequest
+{
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    NSDictionary *defaultConf = self.defaultClients[@"default_converged"];
+
+    if (defaultConf)
+    {
+        request.clientId = defaultConf[@"client_id"];
+        request.redirectUri = defaultConf[@"redirect_uri"];
+        request.validateAuthority = YES;
+        request.webViewType = MSIDWebviewTypeDefault;
+    }
+
+    return request;
+}
+
+- (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest
+{
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    NSDictionary *defaultConf = self.defaultClients[@"default_nonconverged"];
+
+    if (defaultConf)
+    {
+        request.clientId = defaultConf[@"client_id"];
+        request.redirectUri = defaultConf[@"redirect_uri"];
+        request.validateAuthority = YES;
+        request.webViewType = MSIDWebviewTypeDefault;
+    }
+
+    return request;
+}
+
+- (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker
+{
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    NSDictionary *defaultConf = self.defaultClients[@"default_foci_nobroker"];
+
+    if (defaultConf)
+    {
+        request.clientId = defaultConf[@"client_id"];
+        request.redirectUri = defaultConf[@"redirect_uri"];
+        request.validateAuthority = YES;
+        request.webViewType = MSIDWebviewTypeDefault;
+    }
+
+    return request;
+}
+
+- (MSIDAutomationTestRequest *)defaultFociRequestWithBroker
+{
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    NSDictionary *defaultConf = self.defaultClients[@"default_foci_broker"];
+
+    if (defaultConf)
+    {
+        request.clientId = defaultConf[@"client_id"];
+        request.redirectUri = defaultConf[@"redirect_uri"];
+        request.validateAuthority = YES;
+        request.webViewType = MSIDWebviewTypeDefault;
+    }
+
+    return request;
+}
+
+#pragma mark - Environments
+
+- (NSString *)defaultEnvironmentForIdentifier:(NSString *)environmentIDentifier
+{
+    return self.defaultEnvironments[environmentIDentifier];
 }
 
 @end
