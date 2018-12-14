@@ -152,11 +152,15 @@
     for (NSString *testAction in testActions)
     {
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        [button setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+        button.titleLabel.font = [UIFont systemFontOfSize:14];
         [button setTitle:testAction forState:UIControlStateNormal];
         [button setAccessibilityIdentifier:testAction];
         [button addTarget:self action:@selector(performAction:) forControlEvents:UIControlEventTouchUpInside];
         [self.actionsView addArrangedSubview:button];
     }
+
+    self.actionsView.distribution = UIStackViewDistributionFillEqually;
 }
 
 - (void)performAction:(UIButton *)sender
