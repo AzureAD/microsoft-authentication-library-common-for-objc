@@ -24,6 +24,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDAutomation.h"
 
+@class MSIDAutomationMainViewController;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDAutomationTestAction <NSObject>
@@ -32,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) BOOL needsRequestParameters;
 
 - (void)performActionWithParameters:(NSDictionary *)parameters
-                containerController:(MSIDAutoViewController *)containerController
+                containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock;
 
 @end
