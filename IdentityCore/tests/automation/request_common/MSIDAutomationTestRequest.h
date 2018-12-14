@@ -24,25 +24,29 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTestAutomationConfiguration.h"
 #import "MSIDConstants.h"
+#import "MSIDJsonSerializable.h"
 
-@interface MSIDAutomationTestRequest : NSObject
+@interface MSIDAutomationTestRequest : NSObject <MSIDJsonSerializable>
 
 @property (nonatomic, strong) NSString *clientId;
 @property (nonatomic, strong) NSString *requestTarget;
 @property (nonatomic, strong) NSString *expectedResultTarget;
+@property (nonatomic, strong) NSString *extraScopes;
 @property (nonatomic, strong) NSString *redirectUri;
-@property (nonatomic, strong) NSString *authority;
+@property (nonatomic, strong) NSString *configurationAuthority;
+@property (nonatomic, strong) NSString *acquireTokenAuthority;
 @property (nonatomic, strong) NSString *expectedResultAuthority;
 @property (nonatomic, strong) NSString *cacheAuthority;
 @property (nonatomic, strong) NSString *uiBehavior;
-@property (nonatomic, strong) NSString *accountIdentifier;
+@property (nonatomic, strong) NSString *homeAccountIdentifier;
+@property (nonatomic, strong) NSString *displayableAccountIdentifier;
 @property (nonatomic, strong) NSString *loginHint;
 @property (nonatomic, strong) NSString *claims;
 @property (nonatomic, strong) MSIDTestAccount *testAccount;
 @property (nonatomic) BOOL usePassedWebView;
 @property (nonatomic) MSIDWebviewType webViewType;
 @property (nonatomic) BOOL validateAuthority;
-@property (nonatomic, strong) NSDictionary *additionalParameters;
+@property (nonatomic, strong) NSDictionary *extraQueryParameters;
 @property (nonatomic, strong) NSDictionary *sliceParameters;
 
 - (BOOL)usesEmbeddedWebView;
