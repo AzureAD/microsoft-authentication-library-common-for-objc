@@ -23,12 +23,13 @@
 
 #import "MSIDClearKeychainTestAction.h"
 #import "MSIDAutomationTestResult.h"
+#import "MSIDAutomationActionConstants.h"
 
 @implementation MSIDClearKeychainTestAction
 
 - (NSString *)actionIdentifier
 {
-    return @"clear_keychain";
+    return MSID_AUTO_CLEAR_KEYCHAIN_ACTION_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters

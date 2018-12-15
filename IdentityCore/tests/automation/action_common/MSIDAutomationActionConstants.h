@@ -21,37 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDClearKeychainTestAction.h"
-#import "MSIDMacTokenCache.h"
-#import "MSIDAutomationTestResult.h"
-#import "MSIDAutomationActionConstants.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDClearKeychainTestAction
+NS_ASSUME_NONNULL_BEGIN
 
-- (NSString *)actionIdentifier
-{
-    return MSID_AUTO_CLEAR_KEYCHAIN_ACTION_IDENTIFIER;
-}
+@interface MSIDAutomationActionConstants : NSObject
 
-- (BOOL)needsRequestParameters
-{
-    return NO;
-}
-
-- (void)performActionWithParameters:(NSDictionary *)parameters
-                containerController:(MSIDAutoViewController *)containerController
-                    completionBlock:(MSIDAutoCompletionBlock)completionBlock
-{
-    [[MSIDMacTokenCache defaultCache] clear];
-
-    MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
-                                                                                    success:YES
-                                                                             additionalInfo:nil];
-
-    if (completionBlock)
-    {
-        completionBlock(testResult);
-    }
-}
+extern NSString *const MSID_AUTO_CLEAR_KEYCHAIN_ACTION_IDENTIFIER;
+extern NSString *const MSID_AUTO_CLEAR_COOKIES_ACTION_IDENTIFIER;
+extern NSString *const MSID_AUTO_OPEN_URL_ACTION_IDENTIFIER;
+extern NSString *const MSID_AUTO_ACQUIRE_TOKEN_ACTION_IDENTIFIER;
+extern NSString *const MSID_AUTO_ACQUIRE_TOKEN_SILENT_ACTION_IDENTIFIER;
+extern NSString *const MSID_AUTO_EXPIRE_AT_ACTION_IDENTIFIER;
+extern NSString *const MSID_AUTO_INVALIDATE_RT_ACTION_IDENTIFIER;
+extern NSString *const MSID_AUTO_REMOVE_ACCOUNT_ACTION_IDENTIFIER;
+extern NSString *const MSID_AUTO_READ_ACCOUNTS_ACTION_IDENTIFIER;
 
 @end
+
+NS_ASSUME_NONNULL_END

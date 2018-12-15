@@ -21,37 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDClearKeychainTestAction.h"
-#import "MSIDMacTokenCache.h"
-#import "MSIDAutomationTestResult.h"
-#import "MSIDAutomationActionConstants.h"
+#import <Foundation/Foundation.h>
+#import "MSIDAutomationTestAction.h"
 
-@implementation MSIDClearKeychainTestAction
+NS_ASSUME_NONNULL_BEGIN
 
-- (NSString *)actionIdentifier
-{
-    return MSID_AUTO_CLEAR_KEYCHAIN_ACTION_IDENTIFIER;
-}
-
-- (BOOL)needsRequestParameters
-{
-    return NO;
-}
-
-- (void)performActionWithParameters:(NSDictionary *)parameters
-                containerController:(MSIDAutoViewController *)containerController
-                    completionBlock:(MSIDAutoCompletionBlock)completionBlock
-{
-    [[MSIDMacTokenCache defaultCache] clear];
-
-    MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
-                                                                                    success:YES
-                                                                             additionalInfo:nil];
-
-    if (completionBlock)
-    {
-        completionBlock(testResult);
-    }
-}
+@interface MSIDOpenURLAction : NSObject <MSIDAutomationTestAction>
 
 @end
+
+NS_ASSUME_NONNULL_END

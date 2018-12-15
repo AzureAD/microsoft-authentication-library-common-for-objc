@@ -21,51 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDClearCookiesTestAction.h"
+#import "MSIDOpenURLAction.h"
+#import "MSIDAutomationTestRequest.h"
 #import "MSIDAutomationTestResult.h"
 #import "MSIDAutomationActionConstants.h"
 
-@implementation MSIDClearCookiesTestAction
+@implementation MSIDOpenURLAction
 
 - (NSString *)actionIdentifier
 {
-    return MSID_AUTO_CLEAR_COOKIES_ACTION_IDENTIFIER;
+    return MSID_AUTO_OPEN_URL_ACTION_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters
 {
-    return NO;
+    return YES;
 }
 
-- (void)performActionWithParameters:(NSDictionary *)parameters
-                containerController:(MSIDAutoViewController *)containerController
+- (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
+                containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
-    NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    int count = 0;
-    for (NSHTTPCookie *cookie in cookieStore.cookies)
-    {
-        [cookieStore deleteCookie:cookie];
-        count++;
-    }
+    NSString *urlString = parameters.extraQueryParameters[@"url"];
+    NSURL *url = [NSURL URLWithString:urlString];
 
-    // Clear WKWebView cookies
-    if (@available(macOS 10.11, *)) {
-        NSSet *allTypes = [WKWebsiteDataStore allWebsiteDataTypes];
-        [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
-                                                   modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
-                                               completionHandler:^{}];
-    } else {
-        // Fallback on earlier versions
-    }
-
-    MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
-                                                                                    success:YES
-                                                                             additionalInfo:@{@"cleared_items_count":@(count)}];
-    if (completionBlock)
+    if (!url)
     {
+        MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier success:NO additionalInfo:nil];
         completionBlock(testResult);
+        return;
     }
+
+    [[UIApplication sharedApplication] openURL:url];
+
+    MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier success:YES additionalInfo:nil];
+    completionBlock(testResult);
 }
 
 @end
