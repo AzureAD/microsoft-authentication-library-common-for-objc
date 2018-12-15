@@ -22,8 +22,9 @@
 // THE SOFTWARE.
 
 @class MSIDAutomationTestResult;
+@class MSIDAutomationTestRequest;
 
-typedef void (^MSIDAutoParamBlock)(NSDictionary<NSString *, NSString *> * parameters);
+typedef void (^MSIDAutoParamBlock)(MSIDAutomationTestRequest *requestParams);
 typedef void (^MSIDAutoCompletionBlock)(MSIDAutomationTestResult *result);
 
 #import <WebKit/WebKit.h>

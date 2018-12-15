@@ -72,6 +72,7 @@
         _sliceParameters = json[@"slice_parameters"];
         _extraQueryParameters = json[@"extra_query_params"];
         _extraScopes = json[@"extra_scopes"];
+        _usePassedWebView = [json[@"use_passed_in_webview"] boolValue];
     }
 
     return self;
@@ -91,6 +92,7 @@
     json[@"displayable_account_id"] = _displayableAccountIdentifier;
     json[@"login_hint"] = _loginHint;
     json[@"claims"] = _claims;
+    json[@"use_passed_in_webview"] = @(_usePassedWebView);
 
     NSString *webviewType = nil;
 

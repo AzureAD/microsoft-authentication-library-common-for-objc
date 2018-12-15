@@ -29,6 +29,7 @@
 #import "MSIDAutomationActionManager.h"
 #import "MSIDAutomationTestResult.h"
 #import "MSIDLogger+Internal.h"
+#import "MSIDAutomationTestRequest.h"
 #import <WebKit/WebKit.h>
 
 @interface MSIDAutomationMainViewController ()
@@ -181,15 +182,15 @@
         return;
     }
 
-    MSIDAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    MSIDAutoParamBlock completionBlock = ^void (MSIDAutomationTestRequest *requestParams)
     {
-        [self performAction:action parameters:parameters];
+        [self performAction:action parameters:requestParams];
     };
 
     [self performSegueWithIdentifier:MSID_SHOW_REQUEST_SEGUE sender:@{MSID_COMPLETION_BLOCK_SEGUE_KEY : completionBlock}];
 }
 
-- (void)performAction:(id<MSIDAutomationTestAction>)action parameters:(NSDictionary *)parameters
+- (void)performAction:(id<MSIDAutomationTestAction>)action parameters:(MSIDAutomationTestRequest *)parameters
 {
     [action performActionWithParameters:parameters
                     containerController:self
