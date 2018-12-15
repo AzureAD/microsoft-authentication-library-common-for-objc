@@ -25,8 +25,14 @@
 #import "MSIDAutomationTestRequest.h"
 #import "MSIDAutomationTestResult.h"
 #import "MSIDAutomationActionConstants.h"
+#import "MSIDAutomationActionManager.h"
 
 @implementation MSIDOpenURLAction
+
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[MSIDOpenURLAction new]];
+}
 
 - (NSString *)actionIdentifier
 {

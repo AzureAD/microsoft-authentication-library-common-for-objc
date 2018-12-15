@@ -25,7 +25,7 @@
 
 @interface MSIDAutomationActionManager()
 
-@property (nonatomic, strong) NSDictionary<NSString *,id<MSIDAutomationTestAction>> *testActions;
+@property (nonatomic, strong) NSMutableDictionary<NSString *,id<MSIDAutomationTestAction>> *testActions;
 
 @end
 
@@ -38,14 +38,22 @@
 
     dispatch_once(&onceToken, ^{
         singleton = [[MSIDAutomationActionManager alloc] init];
+        singleton.testActions = [NSMutableDictionary new];
     });
 
     return singleton;
 }
 
-- (void)configureActions:(NSDictionary<NSString *,id<MSIDAutomationTestAction>> *)actions
+- (void)registerAction:(id<MSIDAutomationTestAction>)action
 {
-    self.testActions = actions;
+    if (!action)
+    {
+        return;
+    }
+
+    @synchronized (self) {
+        self.testActions[action.actionIdentifier] = action;
+    }
 }
 
 - (id<MSIDAutomationTestAction>)actionForIdentifier:(NSString *)actionIdentifier

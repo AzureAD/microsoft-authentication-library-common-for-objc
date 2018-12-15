@@ -24,8 +24,14 @@
 #import "MSIDClearKeychainTestAction.h"
 #import "MSIDAutomationTestResult.h"
 #import "MSIDAutomationActionConstants.h"
+#import "MSIDAutomationActionManager.h"
 
 @implementation MSIDClearKeychainTestAction
+
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[MSIDClearKeychainTestAction new]];
+}
 
 - (NSString *)actionIdentifier
 {

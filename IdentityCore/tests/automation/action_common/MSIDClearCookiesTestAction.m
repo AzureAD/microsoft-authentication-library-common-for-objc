@@ -24,8 +24,14 @@
 #import "MSIDClearCookiesTestAction.h"
 #import "MSIDAutomationTestResult.h"
 #import "MSIDAutomationActionConstants.h"
+#import "MSIDAutomationActionManager.h"
 
 @implementation MSIDClearCookiesTestAction
+
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[MSIDClearCookiesTestAction new]];
+}
 
 - (NSString *)actionIdentifier
 {
