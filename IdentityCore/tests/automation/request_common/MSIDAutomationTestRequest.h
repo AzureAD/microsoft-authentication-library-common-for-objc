@@ -48,6 +48,7 @@
 @property (nonatomic) BOOL validateAuthority;
 @property (nonatomic, strong) NSDictionary *extraQueryParameters;
 @property (nonatomic, strong) NSDictionary *sliceParameters;
+@property (nonatomic) BOOL forceRefresh;
 
 - (BOOL)usesEmbeddedWebView;
 

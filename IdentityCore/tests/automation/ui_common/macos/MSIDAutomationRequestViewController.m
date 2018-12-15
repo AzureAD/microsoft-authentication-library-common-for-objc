@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAutomationRequestViewController.h"
+#import "MSIDAutomationTestRequest.h"
 
 @implementation MSIDAutomationRequestViewController
 
@@ -37,12 +38,12 @@
     NSDictionary *params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.string dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
     if (!params)
     {
-        NSString *errorString = [NSString stringWithFormat:@"Error Domain=%@ Code=%ld Description=%@", error.domain, (long)error.code, error.localizedDescription];
-
-        params = @{ @"error" : errorString };
+        self.completionBlock(nil);
+        return;
     }
 
-    self.completionBlock(params);
+    MSIDAutomationTestRequest *testRequest = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
+    self.completionBlock(testRequest);
 }
 
 @end

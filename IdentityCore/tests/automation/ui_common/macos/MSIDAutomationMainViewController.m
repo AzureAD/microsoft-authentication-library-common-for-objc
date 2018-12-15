@@ -28,6 +28,7 @@
 #import "MSIDAutomationPassedInWebViewController.h"
 #import "MSIDAutomationActionManager.h"
 #import "MSIDAutomationTestResult.h"
+#import "MSIDAutomationTestRequest.h"
 
 @interface MSIDAutomationMainViewController ()
 
@@ -140,15 +141,22 @@
         return;
     }
 
-    MSIDAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    MSIDAutoParamBlock completionBlock = ^void (MSIDAutomationTestRequest * parameters)
     {
+        if (!parameters)
+        {
+            MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:action.actionIdentifier success:NO additionalInfo:nil];
+            [self showResultViewWithResult:testResult.jsonResult logs:self.resultLogs];
+            return;
+        }
+
         [self performAction:action parameters:parameters];
     };
 
     [self showRequestDataViewWithCompletionHandler:completionBlock];
 }
 
-- (void)performAction:(id<MSIDAutomationTestAction>)action parameters:(NSDictionary *)parameters
+- (void)performAction:(id<MSIDAutomationTestAction>)action parameters:(MSIDAutomationTestRequest *)parameters
 {
     [action performActionWithParameters:parameters
                     containerController:self

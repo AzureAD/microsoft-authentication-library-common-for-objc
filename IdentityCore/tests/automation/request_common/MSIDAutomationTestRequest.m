@@ -49,6 +49,7 @@
         _loginHint = json[@"login_hint"];
         _claims = json[@"claims"];
 
+#if TARGET_OS_IPHONE
         NSString *webviewTypeString = json[@"webviewtype"];
 
         if ([webviewTypeString isEqualToString:@"default"])
@@ -67,12 +68,16 @@
         {
             _webViewType = MSIDWebviewTypeWKWebView;
         }
+#else
+        _webViewType = MSIDWebviewTypeWKWebView;
+#endif
 
         _validateAuthority = [json[@"validate_authority"] boolValue];
         _sliceParameters = json[@"slice_parameters"];
         _extraQueryParameters = json[@"extra_query_params"];
         _extraScopes = json[@"extra_scopes"];
         _usePassedWebView = [json[@"use_passed_in_webview"] boolValue];
+        _forceRefresh = [json[@"force_refresh"] boolValue];
     }
 
     return self;
@@ -97,6 +102,7 @@
     NSString *webviewType = nil;
 
     switch (_webViewType) {
+#if TARGET_OS_IPHONE
         case MSIDWebviewTypeDefault:
             webviewType = @"default";
             break;
@@ -108,6 +114,7 @@
         case MSIDWebviewTypeSafariViewController:
             webviewType = @"safari";
             break;
+#endif
 
         case MSIDWebviewTypeWKWebView:
             webviewType = @"embedded";
@@ -121,6 +128,7 @@
     json[@"slice_parameters"] = _sliceParameters;
     json[@"extra_query_params"] = _extraQueryParameters;
     json[@"extra_scopes"] = _extraScopes;
+    json[@"force_refresh"] = @(_forceRefresh);
 
     return json;
 }

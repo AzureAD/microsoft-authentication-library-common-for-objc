@@ -186,6 +186,15 @@
 
 #pragma mark - Default apps
 
+- (MSIDWebviewType)defaultWebviewTypeForPlatform
+{
+#if TARGET_OS_IPHONE
+    return MSIDWebviewTypeDefault;
+#else
+    return MSIDWebviewTypeWKWebView;
+#endif
+}
+
 - (MSIDAutomationTestRequest *)defaultConvergedAppRequest
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
@@ -196,7 +205,7 @@
         request.clientId = defaultConf[@"client_id"];
         request.redirectUri = defaultConf[@"redirect_uri"];
         request.validateAuthority = YES;
-        request.webViewType = MSIDWebviewTypeDefault;
+        request.webViewType = self.defaultWebviewTypeForPlatform;
     }
 
     return request;
@@ -212,7 +221,7 @@
         request.clientId = defaultConf[@"client_id"];
         request.redirectUri = defaultConf[@"redirect_uri"];
         request.validateAuthority = YES;
-        request.webViewType = MSIDWebviewTypeDefault;
+        request.webViewType = self.defaultWebviewTypeForPlatform;
     }
 
     return request;
@@ -228,7 +237,7 @@
         request.clientId = defaultConf[@"client_id"];
         request.redirectUri = defaultConf[@"redirect_uri"];
         request.validateAuthority = YES;
-        request.webViewType = MSIDWebviewTypeDefault;
+        request.webViewType = self.defaultWebviewTypeForPlatform;
     }
 
     return request;
@@ -244,7 +253,7 @@
         request.clientId = defaultConf[@"client_id"];
         request.redirectUri = defaultConf[@"redirect_uri"];
         request.validateAuthority = YES;
-        request.webViewType = MSIDWebviewTypeDefault;
+        request.webViewType = self.defaultWebviewTypeForPlatform;
     }
 
     return request;

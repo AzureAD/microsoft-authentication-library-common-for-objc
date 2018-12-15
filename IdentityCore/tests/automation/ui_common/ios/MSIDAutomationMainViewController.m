@@ -184,6 +184,13 @@
 
     MSIDAutoParamBlock completionBlock = ^void (MSIDAutomationTestRequest *requestParams)
     {
+        if (!requestParams)
+        {
+            MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:action.actionIdentifier success:NO additionalInfo:nil];
+            [self showResultViewWithResult:result.jsonResult logs:self.resultLogs];
+            return;
+        }
+
         [self performAction:action parameters:requestParams];
     };
 
