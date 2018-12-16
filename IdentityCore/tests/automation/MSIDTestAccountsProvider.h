@@ -28,35 +28,9 @@
 
 @interface MSIDTestAccountsProvider : NSObject
 
+@property (nonatomic, strong) NSString *wwEnvironment;
+
 - (instancetype)init NS_UNAVAILABLE;
-
-/*
-This information would normally come from a configuration file.
-@param certificate Base64 encoded client certificate to authenticate with keyvault
-@param password Certificate password in case it's password protected
-@param additionalConfigurations Additional local configurations that should override server configurations
-@param appInstallLinks Information necessary to install additional apps to run multi-app tests, e.g.
-
- "msal": {
-    "install_url": "https://...",
-    "app_bundle_id": "com.microsoft.MSALTestApp",
-    "app_name": "MSAL Test App"
- },
- "broker": {
-    "install_url": "https://...",
-    "app_bundle_id": "com.microsoft.broker",
-    "app_name": "Broker"
- }
-@param apiPath Lab API path
- */
-
-- (instancetype)initWithClientCertificateContents:(NSString *)certificate
-                              certificatePassword:(NSString *)password
-                         additionalConfigurations:(NSDictionary *)additionalConfigurations
-                                  appInstallLinks:(NSDictionary *)appInstallLinks
-                                          apiPath:(NSString *)apiPath
-                                   defaultClients:(NSDictionary *)defaultClients
-                              defaultEnvironments:(NSDictionary *)defaultEnvironments;
 
 - (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
 
@@ -66,7 +40,22 @@ This information would normally come from a configuration file.
 - (void)passwordForAccount:(MSIDTestAccount *)account
          completionHandler:(void (^)(NSString *password))completionHandler;
 
+// Default configuration
+- (MSIDAutomationTestRequest *)defaultFociRequestWithBroker;
+- (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker;
+- (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest;
+- (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment;
 - (NSDictionary *)appInstallForConfiguration:(NSString *)appId;
+// Environment configuration
 - (NSString *)defaultEnvironmentForIdentifier:(NSString *)environmentIDentifier;
+- (NSString *)defaultAuthorityForIdentifier:(NSString *)environmentIdentifier;
+- (NSString *)defaultAuthorityForIdentifier:(NSString *)environmentIdentifier tenantId:(NSString *)tenantId;
+// Fill default params
+- (MSIDAutomationTestRequest *)fillDefaultRequestParams:(MSIDAutomationTestRequest *)request
+                                                 config:(MSIDTestAutomationConfiguration *)configuration
+                                                account:(MSIDTestAccount *)account;
+
+- (NSString *)scopesForEnvironment:(NSString *)environment type:(NSString *)type;
+- (NSString *)resourceForEnvironment:(NSString *)environment type:(NSString *)type;
 
 @end

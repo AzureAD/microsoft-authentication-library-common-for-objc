@@ -29,8 +29,9 @@
 @interface MSIDAutomationTestRequest : NSObject <MSIDJsonSerializable>
 
 @property (nonatomic, strong) NSString *clientId;
-@property (nonatomic, strong) NSString *requestTarget;
-@property (nonatomic, strong) NSString *expectedResultTarget;
+@property (nonatomic, strong) NSString *requestResource;
+@property (nonatomic, strong) NSString *requestScopes;
+@property (nonatomic, strong) NSString *expectedResultScopes;
 @property (nonatomic, strong) NSString *extraScopes;
 @property (nonatomic, strong) NSString *redirectUri;
 @property (nonatomic, strong) NSString *configurationAuthority;

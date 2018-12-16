@@ -23,6 +23,8 @@
 
 #import "MSIDTestAccountsProvider.h"
 #import "MSIDAutomation-Swift.h"
+#import "NSOrderedSet+MSIDExtensions.h"
+#import "NSString+MSIDAutomationUtils.h"
 
 @interface MSIDTestAccountsProvider()
 
@@ -32,6 +34,8 @@
 @property (nonatomic, strong) NSString *apiPath;
 @property (nonatomic, strong) NSDictionary *defaultClients;
 @property (nonatomic, strong) NSDictionary *defaultEnvironments;
+@property (nonatomic, strong) NSDictionary *defaultScopes;
+@property (nonatomic, strong) NSDictionary *defaultResources;
 
 @end
 
@@ -44,6 +48,9 @@
                                           apiPath:(NSString *)apiPath
                                    defaultClients:(NSDictionary *)defaultClients
                               defaultEnvironments:(NSDictionary *)defaultEnvironments
+                            wwEnvironmentIdenfier:(NSString *)wwEnrivonmentIdentifier
+                                    defaultScopes:(NSDictionary *)defaultScopes
+                                 defaultResources:(NSDictionary *)defaultResources
 {
     self = [super init];
 
@@ -56,6 +63,9 @@
         _appInstallLinks = appInstallLinks;
         _defaultClients = defaultClients;
         _defaultEnvironments = defaultEnvironments;
+        _wwEnvironment = wwEnrivonmentIdentifier;
+        _defaultScopes = defaultScopes;
+        _defaultResources = defaultResources;
     }
 
     return self;
@@ -101,8 +111,11 @@
                           additionalConfigurations:additionalConfsDictionary
                                    appInstallLinks:configurationDictionary[@"app_install_urls"]
                                            apiPath:apiPath
-                                    defaultClients:configurationDictionary[@"environments"]
-                               defaultEnvironments:configurationDictionary[@"default_clients"]];
+                                    defaultClients:configurationDictionary[@"default_clients"]
+                               defaultEnvironments:configurationDictionary[@"environments"]
+                             wwEnvironmentIdenfier:configurationDictionary[@"default_environment"]
+                                     defaultScopes:configurationDictionary[@"scopes"]
+                                  defaultResources:configurationDictionary[@"resources"]];
 
 }
 
@@ -195,7 +208,7 @@
 #endif
 }
 
-- (MSIDAutomationTestRequest *)defaultConvergedAppRequest
+- (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
     NSDictionary *defaultConf = self.defaultClients[@"default_converged"];
@@ -206,6 +219,9 @@
         request.redirectUri = defaultConf[@"redirect_uri"];
         request.validateAuthority = YES;
         request.webViewType = self.defaultWebviewTypeForPlatform;
+        request.requestScopes = [self scopesForEnvironment:environment type:@"ms_graph"];
+        request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:[self scopesForEnvironment:environment type:@"oidc"]];
+        request.configurationAuthority = [self defaultAuthorityForIdentifier:environment];
     }
 
     return request;
@@ -264,6 +280,39 @@
 - (NSString *)defaultEnvironmentForIdentifier:(NSString *)environmentIDentifier
 {
     return self.defaultEnvironments[environmentIDentifier];
+}
+
+- (NSString *)defaultAuthorityForIdentifier:(NSString *)environmentIdentifier
+{
+    return [self defaultAuthorityForIdentifier:environmentIdentifier tenantId:@"common"];
+}
+
+- (NSString *)defaultAuthorityForIdentifier:(NSString *)environmentIdentifier tenantId:(NSString *)tenantId
+{
+    NSString *authority = [NSString stringWithFormat:@"https://%@/%@", [self defaultEnvironmentForIdentifier:environmentIdentifier], (tenantId ? tenantId : @"common")];
+    return authority;
+}
+
+- (NSString *)scopesForEnvironment:(NSString *)environment type:(NSString *)type
+{
+    return self.defaultScopes[type][environment];
+}
+
+- (NSString *)resourceForEnvironment:(NSString *)environment type:(NSString *)type
+{
+    return self.defaultResources[type][environment];
+}
+
+- (MSIDAutomationTestRequest *)fillDefaultRequestParams:(MSIDAutomationTestRequest *)request
+                                                 config:(MSIDTestAutomationConfiguration *)configuration
+                                                account:(MSIDTestAccount *)account
+{
+    if (!request.clientId) request.clientId = configuration.clientId;
+    if (!request.redirectUri) request.redirectUri = configuration.redirectUri;
+    if (!request.requestResource) request.requestResource = configuration.resource;
+    if (!request.requestScopes) request.requestScopes = [configuration.resource stringByAppendingString:@"/.default"];
+    if (!request.configurationAuthority) request.configurationAuthority = [self defaultAuthorityForIdentifier:@"ww" tenantId:account.homeTenantId];
+    return request;
 }
 
 @end

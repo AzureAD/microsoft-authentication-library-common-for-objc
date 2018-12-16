@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDTestAutomationConfiguration.h"
+#import "MSIDAutomationTestRequest.h"
 
 @implementation MSIDTestAccount
 
@@ -277,60 +278,6 @@
     }
 
     return redirectUris[0];
-}
-
-- (NSDictionary *)config
-{
-    return [self configForAccount:nil];
-}
-
-- (NSDictionary *)configForAccount:(MSIDTestAccount *)account
-{
-    return @{@"authority" : [self authorityWithAccount:account],
-             @"client_id" : self.clientId,
-             @"redirect_uri" : self.redirectUri,
-             @"resource" : self.resource,
-             @"scopes": [self.resource stringByAppendingString:@"/.default"]
-             };
-}
-
-- (NSString *)authority
-{
-    return [self authorityWithAccount:nil];
-}
-
-- (NSString *)authorityWithAccount:(MSIDTestAccount *)account
-{
-    NSString *authorityHost = _authorityHost;
-
-    // TODO: lab is fixing this hack on the server side and should be returning the full authority or just always the host
-    if (account.homeTenantId)
-    {
-        return [authorityHost stringByAppendingString:account.targetTenantId];
-    }
-    else if (![authorityHost containsString:@"common"]
-             && ![authorityHost containsString:@"adfs"]
-             && (!account.targetTenantId || ![authorityHost containsString:account.targetTenantId]))
-    {
-        return [authorityHost stringByAppendingString:@"common"];
-    }
-
-    return _authorityHost;
-}
-
-- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration
-{
-    NSMutableDictionary *configParams = [[self config] mutableCopy];
-    [configParams addEntriesFromDictionary:additionalConfiguration];
-    return configParams;
-}
-
-- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration
-                                               account:(MSIDTestAccount *)account
-{
-    NSMutableDictionary *configParams = [[self configForAccount:account] mutableCopy];
-    [configParams addEntriesFromDictionary:additionalConfiguration];
-    return configParams;
 }
 
 - (void)addAdditionalAccount:(MSIDTestAccount *)additionalAccount

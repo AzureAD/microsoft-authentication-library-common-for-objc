@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class MSIDAutomationTestRequest;
+
 @interface MSIDTestAccount : NSObject <NSCopying>
 
 @property (nonatomic) NSString *account;
@@ -52,11 +54,6 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)response;
 - (instancetype)initWithJSONResponseData:(NSData *)response;
-- (NSDictionary *)config;
-- (NSDictionary *)configForAccount:(MSIDTestAccount *)account;
-- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration;
-- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration
-                                               account:(MSIDTestAccount *)account;
 - (void)addAdditionalAccount:(MSIDTestAccount *)additionalAccount;
 
 @end

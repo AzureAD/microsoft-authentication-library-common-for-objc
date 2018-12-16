@@ -550,6 +550,9 @@
 		B25A39F021C4CD6300213A62 /* MSIDAutomationActionConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A39EE21C4CD6300213A62 /* MSIDAutomationActionConstants.h */; };
 		B25A39F121C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39EF21C4CD6300213A62 /* MSIDAutomationActionConstants.m */; };
 		B25A39F221C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39EF21C4CD6300213A62 /* MSIDAutomationActionConstants.m */; };
+		B25A39FF21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A39FD21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h */; };
+		B25A3A0021C60A9E00213A62 /* NSString+MSIDAutomationUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */; };
+		B25A3A0121C60A9E00213A62 /* NSString+MSIDAutomationUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */; };
 		B25A436D21C33D88000B3DD4 /* MSIDClearCookiesTestAction.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A436B21C33D88000B3DD4 /* MSIDClearCookiesTestAction.h */; };
 		B25A436E21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A436C21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m */; };
 		B25A436F21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A436C21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m */; };
@@ -1474,6 +1477,8 @@
 		B25A39E621C4C83E00213A62 /* MSIDOpenURLAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDOpenURLAction.m; sourceTree = "<group>"; };
 		B25A39EE21C4CD6300213A62 /* MSIDAutomationActionConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationActionConstants.h; sourceTree = "<group>"; };
 		B25A39EF21C4CD6300213A62 /* MSIDAutomationActionConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationActionConstants.m; sourceTree = "<group>"; };
+		B25A39FD21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+MSIDAutomationUtils.h"; sourceTree = "<group>"; };
+		B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDAutomationUtils.m"; sourceTree = "<group>"; };
 		B25A436B21C33D88000B3DD4 /* MSIDClearCookiesTestAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDClearCookiesTestAction.h; sourceTree = "<group>"; };
 		B25A436C21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDClearCookiesTestAction.m; sourceTree = "<group>"; };
 		B25A437021C34A26000B3DD4 /* MSIDAutomationTestResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationTestResult.h; sourceTree = "<group>"; };
@@ -2866,6 +2871,8 @@
 				B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */,
 				B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */,
 				B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */,
+				B25A39FD21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h */,
+				B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */,
 			);
 			path = automation;
 			sourceTree = "<group>";
@@ -3262,6 +3269,7 @@
 				B25A39F021C4CD6300213A62 /* MSIDAutomationActionConstants.h in Headers */,
 				B2D8582421C1DAF20043035A /* MSIDAutomation.h in Headers */,
 				B25A437721C34CB6000B3DD4 /* MSIDClearKeychainTestAction.h in Headers */,
+				B25A39FF21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h in Headers */,
 				B25A438121C3516B000B3DD4 /* MSIDAutomationTestRequest.h in Headers */,
 				B2D8582121C1DAF20043035A /* MSIDAutomationTestAction.h in Headers */,
 				B27551EA20817CD400AA7A38 /* MSIDTestAutomationConfiguration.h in Headers */,
@@ -3789,6 +3797,7 @@
 				B27551EE20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */,
 				B25A39F121C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */,
 				B27551FE208182BE00AA7A38 /* Authentication.swift in Sources */,
+				B25A3A0021C60A9E00213A62 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2D8583B21C1DD830043035A /* MSIDAutomationPassedInWebViewController.m in Sources */,
 				B2D8583C21C1DD830043035A /* MSIDAutomationRequestViewController.m in Sources */,
 				B2755204208182BE00AA7A38 /* Secret.swift in Sources */,
@@ -3818,6 +3827,7 @@
 				B27551F220817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m in Sources */,
 				B25A39F221C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */,
 				B27551EF20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */,
+				B25A3A0121C60A9E00213A62 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2D8584321C1DD9A0043035A /* MSIDAutomationPassedInWebViewController.m in Sources */,
 				B27551FF208182BE00AA7A38 /* Authentication.swift in Sources */,
 				B2755205208182BE00AA7A38 /* Secret.swift in Sources */,

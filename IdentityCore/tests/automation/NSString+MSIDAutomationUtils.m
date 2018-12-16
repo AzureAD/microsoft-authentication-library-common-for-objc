@@ -21,34 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationPassedInWebViewController.h"
-#import <WebKit/WebKit.h>
-#import "MSIDWebviewAuthorization.h"
+#import "NSString+MSIDAutomationUtils.h"
+#import "NSString+MSIDExtensions.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
-@interface MSIDAutomationPassedInWebViewController ()
-@property (weak, nonatomic) IBOutlet UIView *contentView;
-@end
+@implementation NSString (MSIDAutomationUtils)
 
-@implementation MSIDAutomationPassedInWebViewController
-
-- (void)viewDidLoad
++ (NSString *)msidCombinedScopes:(NSString *)scopes
+                      withScopes:(NSString *)otherScopes
 {
-    [super viewDidLoad];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    
-    [self.contentView addSubview:self.passedInWebview];
-    self.passedInWebview.frame = CGRectMake(0, 0, self.contentView.frame.size.width, self.contentView.frame.size.height);
-}
-
-- (IBAction)cancelTapped:(id)sender {
-    
-    [self dismissViewControllerAnimated:YES completion:^{
-        [MSIDWebviewAuthorization cancelCurrentSession];
-    }];
+    NSMutableOrderedSet *expectedResultScopes = [[scopes msidScopeSet] mutableCopy];
+    NSOrderedSet *otherScopeSet = [otherScopes msidScopeSet];
+    [expectedResultScopes addObjectsFromArray:otherScopeSet.array];
+    return [expectedResultScopes msidToString];
 }
 
 @end

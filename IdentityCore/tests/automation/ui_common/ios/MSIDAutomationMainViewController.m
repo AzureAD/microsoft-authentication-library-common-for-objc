@@ -110,7 +110,17 @@
     }
 
     [self.webView loadHTMLString:@"<html><head></head><body>Loading...</body></html>" baseURL:nil];
-    [self performSegueWithIdentifier:MSID_SHOW_PASSED_IN_WEBVIEW_SEGUE sender:sender];
+
+    if (self.presentedViewController)
+    {
+        [self dismissViewControllerAnimated:NO completion:^{
+            [self performSegueWithIdentifier:MSID_SHOW_PASSED_IN_WEBVIEW_SEGUE sender:sender];
+        }];
+    }
+    else
+    {
+        [self performSegueWithIdentifier:MSID_SHOW_PASSED_IN_WEBVIEW_SEGUE sender:sender];
+    }
 }
 
 - (WKWebView *)passedinWebView

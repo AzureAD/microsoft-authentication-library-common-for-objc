@@ -38,9 +38,10 @@
     if (self)
     {
         _clientId = json[@"client_id"];
-        _requestTarget = json[@"target"];
+        _requestResource = json[@"resource"];
+        _requestScopes = json[@"scope"];
         _redirectUri = json[@"redirect_uri"];
-        _configurationAuthority = json[@"configuration_authority"];
+        _configurationAuthority = json[@"authority"];
         _acquireTokenAuthority = json[@"acquiretoken_authority"];
         _cacheAuthority = json[@"cache_authority"];
         _uiBehavior = json[@"ui_behavior"];
@@ -87,9 +88,10 @@
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
     json[@"client_id"] = _clientId;
-    json[@"target"] = _requestTarget;
+    json[@"resource"] = _requestResource;
+    json[@"scope"] = _requestScopes;
     json[@"redirect_uri"] = _redirectUri;
-    json[@"configuration_authority"] = _configurationAuthority;
+    json[@"authority"] = _configurationAuthority;
     json[@"acquiretoken_authority"] = _acquireTokenAuthority;
     json[@"cache_authority"] = _cacheAuthority;
     json[@"ui_behavior"] = _uiBehavior;
@@ -124,6 +126,7 @@
             break;
     }
 
+    json[@"webviewtype"] = webviewType;
     json[@"validate_authority"] = @(_validateAuthority);
     json[@"slice_parameters"] = _sliceParameters;
     json[@"extra_query_params"] = _extraQueryParameters;

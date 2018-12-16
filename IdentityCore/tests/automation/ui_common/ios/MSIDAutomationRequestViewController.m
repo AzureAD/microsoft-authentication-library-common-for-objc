@@ -55,9 +55,7 @@
 
     MSIDAutomationTestRequest *request = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
     
-    [self dismissViewControllerAnimated:NO completion:^{
-        self.completionBlock(request);
-    }];
+    self.completionBlock(request);
 }
 
 @end
