@@ -112,11 +112,13 @@
 
             /* This is a special error case for True MAM,
              where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
-
+            NSMutableDictionary *userInfo = nil;
             if (oauthErrorCode == MSIDErrorServerUnauthorizedClient
                 && [response.suberror isEqualToString:MSID_PROTECTION_POLICY_REQUIRED])
             {
                 errorCode = MSIDErrorServerProtectionPoliciesRequired;
+                userInfo = [[NSMutableDictionary alloc] initWithCapacity:1];
+                userInfo[MSIDAdditionalUserIdentifierKey] = response.jsonDictionary[MSID_ADDITIONAL_USER_IDENTIFIER];
             }
 
             if (error)
@@ -128,7 +130,7 @@
                                          response.suberror,
                                          nil,
                                          context.correlationId,
-                                         nil);
+                                         userInfo);
             }
         }
 
