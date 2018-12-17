@@ -297,7 +297,9 @@
 
     NSSet<NSString *> *filterAccountIds = nil;
 
-    if (clientId || familyId)
+    BOOL filterByClient = (clientId || familyId);
+
+    if (filterByClient)
     {
         // Retrieve refresh tokens in cache, so that we only return accounts for which we have refresh tokens in cache
         MSIDDefaultCredentialCacheQuery *refreshTokenQuery = [MSIDDefaultCredentialCacheQuery new];
@@ -324,7 +326,7 @@
     for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
     {
         // If we have accountIds to filter by, only return account if it has an associated refresh token
-        if ((!clientId && !familyId) || [filterAccountIds containsObject:accountCacheItem.homeAccountId])
+        if (!filterByClient || [filterAccountIds containsObject:accountCacheItem.homeAccountId])
         {
             if (authority.environment)
             {
