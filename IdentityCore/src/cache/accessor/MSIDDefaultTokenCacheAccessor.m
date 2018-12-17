@@ -292,7 +292,7 @@
     {
         MSID_LOG_ERROR(context, @"(Default accessor) Failed accounts lookup");
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-        return @[];
+        return nil;
     }
 
     NSSet<NSString *> *filterAccountIds = nil;
@@ -313,7 +313,7 @@
         {
             MSID_LOG_ERROR(context, @"(Default accessor) Failed refresh token lookup");
             [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-            return @[];
+            return nil;
         }
 
         filterAccountIds = [NSSet setWithArray:[refreshTokens valueForKey:@"homeAccountId"]];
@@ -324,7 +324,7 @@
     for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
     {
         // If we have accountIds to filter by, only return account if it has an associated refresh token
-        if (!filterAccountIds || [filterAccountIds containsObject:accountCacheItem.homeAccountId])
+        if ((!clientId && !familyId) || [filterAccountIds containsObject:accountCacheItem.homeAccountId])
         {
             if (authority.environment)
             {
