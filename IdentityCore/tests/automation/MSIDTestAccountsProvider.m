@@ -293,6 +293,14 @@
     return authority;
 }
 
+- (NSString *)b2cAuthorityForIdentifier:(NSString *)environmentIdentifier
+                             tenantName:(NSString *)tenantName
+                                 policy:(NSString *)policy
+{
+    NSString *authority = [NSString stringWithFormat:@"https://%@/tfp/%@/%@", [self defaultEnvironmentForIdentifier:environmentIdentifier], tenantName, policy];
+    return authority;
+}
+
 - (NSString *)scopesForEnvironment:(NSString *)environment type:(NSString *)type
 {
     return self.defaultScopes[type][environment];

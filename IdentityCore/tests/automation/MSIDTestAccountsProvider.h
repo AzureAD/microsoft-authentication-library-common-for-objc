@@ -50,6 +50,9 @@
 - (NSString *)defaultEnvironmentForIdentifier:(NSString *)environmentIDentifier;
 - (NSString *)defaultAuthorityForIdentifier:(NSString *)environmentIdentifier;
 - (NSString *)defaultAuthorityForIdentifier:(NSString *)environmentIdentifier tenantId:(NSString *)tenantId;
+- (NSString *)b2cAuthorityForIdentifier:(NSString *)environmentIdentifier
+                             tenantName:(NSString *)tenantName
+                                 policy:(NSString *)policy;
 // Fill default params
 - (MSIDAutomationTestRequest *)fillDefaultRequestParams:(MSIDAutomationTestRequest *)request
                                                  config:(MSIDTestAutomationConfiguration *)configuration

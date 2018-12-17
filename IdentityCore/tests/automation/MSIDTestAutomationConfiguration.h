@@ -51,6 +51,7 @@
 @property (nonatomic) NSString *redirectUri;
 @property (nonatomic) NSString *resource;
 @property (nonatomic) NSArray<MSIDTestAccount *> *accounts;
+@property (nonatomic) NSDictionary *policies;
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)response;
 - (instancetype)initWithJSONResponseData:(NSData *)response;

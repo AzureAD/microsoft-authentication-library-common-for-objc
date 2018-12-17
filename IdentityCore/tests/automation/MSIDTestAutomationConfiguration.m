@@ -237,6 +237,7 @@
         }
 
         _accounts = accounts;
+        _policies = responseDict[@"Policy"];
     }
 
     return self;

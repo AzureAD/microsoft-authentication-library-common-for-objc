@@ -50,6 +50,7 @@
 @property (nonatomic, strong) NSDictionary *extraQueryParameters;
 @property (nonatomic, strong) NSDictionary *sliceParameters;
 @property (nonatomic) BOOL forceRefresh;
+@property (nonatomic, strong) NSString *requestIDP;
 
 - (BOOL)usesEmbeddedWebView;
 
