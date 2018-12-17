@@ -34,9 +34,6 @@
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
 {
-    // TODO: ADAL pieces
-    // TODO: remove invalid refresh token for invalid_grant in v1 and bad_token in v2
-
     // Validate correct account returned
     BOOL accountValid = [self checkAccount:tokenResult
                          accountIdentifier:accountIdentifier

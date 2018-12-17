@@ -24,6 +24,7 @@
 #import "MSIDLegacySilentTokenRequest.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDAccessToken.h"
+#import "NSError+MSIDExtensions.h"
 
 @interface MSIDLegacySilentTokenRequest()
 
@@ -76,7 +77,7 @@
     return nil;
 }
 
-- (nullable id<MSIDRefreshableToken>)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
 {
     // TODO: ADAL pieces
     return nil;
@@ -87,6 +88,13 @@
 {
     // TODO: ADAL pieces
     return NO;
+}
+
+- (BOOL)shouldRemoveRefreshToken:(NSError *)serverError
+{
+    // ADAL removes RTs on invalid_grant
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
+    return oauthError == MSIDErrorServerInvalidGrant;
 }
 
 - (id<MSIDCacheAccessor>)tokenCache
