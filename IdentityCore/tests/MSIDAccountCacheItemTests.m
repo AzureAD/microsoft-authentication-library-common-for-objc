@@ -70,7 +70,7 @@
 
 #pragma mark - JSON deserialization
 
-- (void)testInitWithJSONDictionary_whenAccount_andAllFieldsSet_shouldAccountCacheItem
+- (void)testAccountWithJSONDictionary_whenAccount_andAllFieldsSet_shouldAccountCacheItem
 {
     NSDictionary *jsonDictionary = @{@"authority_type": @"AAD",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
