@@ -26,7 +26,7 @@
 #import "MSIDTestAutomationConfiguration.h"
 #import "MSIDAutomationTestRequest.h"
 
-@interface MSIDTestAccountsProvider : NSObject
+@interface MSIDTestConfigurationProvider : NSObject
 
 @property (nonatomic, strong) NSString *wwEnvironment;
 

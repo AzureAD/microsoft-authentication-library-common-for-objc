@@ -21,12 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTestAccountsProvider.h"
+#import "MSIDTestConfigurationProvider.h"
 #import "MSIDAutomation-Swift.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "NSString+MSIDAutomationUtils.h"
 
-@interface MSIDTestAccountsProvider()
+@interface MSIDTestConfigurationProvider()
 
 @property (nonatomic, strong) NSMutableDictionary *cachedConfigurations;
 @property (nonatomic, strong) NSDictionary *appInstallLinks;
@@ -39,7 +39,7 @@
 
 @end
 
-@implementation MSIDTestAccountsProvider
+@implementation MSIDTestConfigurationProvider
 
 - (instancetype)initWithClientCertificateContents:(NSString *)certificate
                               certificatePassword:(NSString *)password

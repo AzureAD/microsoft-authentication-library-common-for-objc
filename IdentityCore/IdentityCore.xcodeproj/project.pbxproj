@@ -591,9 +591,9 @@
 		B27551DF20817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
 		B27551E020817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
 		B27551EA20817CD400AA7A38 /* MSIDTestAutomationConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E420817CD300AA7A38 /* MSIDTestAutomationConfiguration.h */; };
-		B27551EB20817CD400AA7A38 /* MSIDTestAccountsProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */; };
-		B27551EC20817CD400AA7A38 /* MSIDTestAccountsProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */; };
-		B27551ED20817CD400AA7A38 /* MSIDTestAccountsProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E620817CD400AA7A38 /* MSIDTestAccountsProvider.h */; };
+		B27551EB20817CD400AA7A38 /* MSIDTestConfigurationProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestConfigurationProvider.m */; };
+		B27551EC20817CD400AA7A38 /* MSIDTestConfigurationProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestConfigurationProvider.m */; };
+		B27551ED20817CD400AA7A38 /* MSIDTestConfigurationProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E620817CD400AA7A38 /* MSIDTestConfigurationProvider.h */; };
 		B27551EE20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */; };
 		B27551EF20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */; };
 		B27551F020817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E820817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h */; };
@@ -1510,8 +1510,8 @@
 		B27551E220817AF400AA7A38 /* identitycore__automation__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__mac.xcconfig; sourceTree = "<group>"; };
 		B27551E320817AF400AA7A38 /* identitycore__automation__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__ios.xcconfig; sourceTree = "<group>"; };
 		B27551E420817CD300AA7A38 /* MSIDTestAutomationConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestAutomationConfiguration.h; sourceTree = "<group>"; };
-		B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestAccountsProvider.m; sourceTree = "<group>"; };
-		B27551E620817CD400AA7A38 /* MSIDTestAccountsProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestAccountsProvider.h; sourceTree = "<group>"; };
+		B27551E520817CD400AA7A38 /* MSIDTestConfigurationProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestConfigurationProvider.m; sourceTree = "<group>"; };
+		B27551E620817CD400AA7A38 /* MSIDTestConfigurationProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestConfigurationProvider.h; sourceTree = "<group>"; };
 		B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestAutomationConfiguration.m; sourceTree = "<group>"; };
 		B27551E820817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTestAutomationConfigurationRequest.h; sourceTree = "<group>"; };
 		B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTestAutomationConfigurationRequest.m; sourceTree = "<group>"; };
@@ -2861,8 +2861,8 @@
 				B25A436A21C33D70000B3DD4 /* action_common */,
 				B2D8581B21C1DABD0043035A /* ui_common */,
 				B27551F7208182BE00AA7A38 /* keyvault */,
-				B27551E620817CD400AA7A38 /* MSIDTestAccountsProvider.h */,
-				B27551E520817CD400AA7A38 /* MSIDTestAccountsProvider.m */,
+				B27551E620817CD400AA7A38 /* MSIDTestConfigurationProvider.h */,
+				B27551E520817CD400AA7A38 /* MSIDTestConfigurationProvider.m */,
 				B27551E420817CD300AA7A38 /* MSIDTestAutomationConfiguration.h */,
 				B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */,
 				B27551E820817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h */,
@@ -3277,7 +3277,7 @@
 				B2D8583221C1DC2E0043035A /* MSIDAutomationRequestViewController.h in Headers */,
 				B27551DE20817A5E00AA7A38 /* MSIDClientCredentialHelper.h in Headers */,
 				B25A437221C34A26000B3DD4 /* MSIDAutomationTestResult.h in Headers */,
-				B27551ED20817CD400AA7A38 /* MSIDTestAccountsProvider.h in Headers */,
+				B27551ED20817CD400AA7A38 /* MSIDTestConfigurationProvider.h in Headers */,
 				B2D8583021C1DC2E0043035A /* MSIDAutomationResultViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3807,7 +3807,7 @@
 				B2755202208182BE00AA7A38 /* Network.swift in Sources */,
 				B2755206208182BE00AA7A38 /* KeyVaultError.swift in Sources */,
 				B2D8583921C1DD830043035A /* MSIDAutomationMainViewController.m in Sources */,
-				B27551EB20817CD400AA7A38 /* MSIDTestAccountsProvider.m in Sources */,
+				B27551EB20817CD400AA7A38 /* MSIDTestConfigurationProvider.m in Sources */,
 				B25A39E421C4C81B00213A62 /* MSIDOpenURLAction.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3837,7 +3837,7 @@
 				B2D8582321C1DAF20043035A /* MSIDAutomationActionManager.m in Sources */,
 				B2755203208182BE00AA7A38 /* Network.swift in Sources */,
 				B2755207208182BE00AA7A38 /* KeyVaultError.swift in Sources */,
-				B27551EC20817CD400AA7A38 /* MSIDTestAccountsProvider.m in Sources */,
+				B27551EC20817CD400AA7A38 /* MSIDTestConfigurationProvider.m in Sources */,
 				B25A39E721C4C83E00213A62 /* MSIDOpenURLAction.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
