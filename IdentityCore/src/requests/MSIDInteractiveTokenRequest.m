@@ -49,6 +49,7 @@
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic) MSIDWebviewConfiguration *webViewConfiguration;
+@property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 
 @end
 
@@ -128,6 +129,7 @@
                 {
                     MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
                     [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];
+                    self.authCodeClientInfo = aadResponse.clientInfo;
                 }
 
                 [self acquireTokenWithCode:oauthResponse.authorizationCode completion:completionBlock];
@@ -225,7 +227,8 @@
 {
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.oauthFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
                                                                                                            codeVerifier:self.webViewConfiguration.pkce.codeVerifier
-                                                                                                               authCode:authCode];
+                                                                                                               authCode:authCode
+                                                                                                          homeAccountId:self.authCodeClientInfo.accountIdentifier];
 
     [tokenRequest sendWithBlock:^(id response, NSError *error) {
 
@@ -236,7 +239,7 @@
         }
 
         NSError *validationError = nil;
-
+        
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:response
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
@@ -245,6 +248,22 @@
 
         if (!tokenResult)
         {
+            // Special case - need to return homeAccountId in case of Intune policies required.
+            if (validationError.code == MSIDErrorServerProtectionPoliciesRequired)
+            {
+                NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
+                updatedUserInfo[MSIDHomeAccountIdkey] = self.authCodeClientInfo.accountIdentifier;
+                
+                validationError = MSIDCreateError(validationError.domain,
+                                                  validationError.code,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  updatedUserInfo);
+            }
+            
             completionBlock(nil, validationError, nil);
             return;
         }

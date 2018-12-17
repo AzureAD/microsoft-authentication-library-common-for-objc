@@ -370,6 +370,22 @@
 
         if (!tokenResult)
         {
+            // Special case - need to return homeAccountId in case of Intune policies required.
+            if (validationError.code == MSIDErrorServerProtectionPoliciesRequired)
+            {
+                NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
+                updatedUserInfo[MSIDHomeAccountIdkey] = self.requestParameters.accountIdentifier.homeAccountId;
+                
+                validationError = MSIDCreateError(validationError.domain,
+                                                  validationError.code,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  updatedUserInfo);
+            }
+            
             completionBlock(nil, validationError);
             return;
         }

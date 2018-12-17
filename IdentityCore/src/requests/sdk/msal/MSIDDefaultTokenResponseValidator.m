@@ -33,7 +33,6 @@
 @implementation MSIDDefaultTokenResponseValidator
 
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
-               oauthFactory:(MSIDOauth2Factory *)factory
               configuration:(MSIDConfiguration *)configuration
              requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID

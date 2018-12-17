@@ -78,7 +78,6 @@
 }
 
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
-               oauthFactory:(MSIDOauth2Factory *)factory
               configuration:(MSIDConfiguration *)configuration
              requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
@@ -154,7 +153,6 @@
     }
 
     BOOL resultValid = [self validateTokenResult:tokenResult
-                                    oauthFactory:factory
                                    configuration:configuration
                                   requestAccount:nil
                                    correlationID:correlationID
@@ -224,7 +222,6 @@
     }
 
     BOOL resultValid = [self validateTokenResult:tokenResult
-                                    oauthFactory:factory
                                    configuration:parameters.msidConfiguration
                                   requestAccount:parameters.accountIdentifier
                                    correlationID:parameters.correlationId

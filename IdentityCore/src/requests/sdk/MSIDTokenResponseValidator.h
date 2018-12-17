@@ -50,4 +50,10 @@
                                       correlationID:(nonnull NSUUID *)correlationID
                                               error:(NSError * _Nullable * _Nullable)error;
 
+- (BOOL)validateTokenResult:(nonnull MSIDTokenResult *)tokenResult
+              configuration:(nonnull MSIDConfiguration *)configuration
+             requestAccount:(nullable MSIDAccountIdentifier *)accountIdentifier
+              correlationID:(nonnull NSUUID *)correlationID
+                      error:(NSError * _Nullable * _Nullable)error;
+
 @end
