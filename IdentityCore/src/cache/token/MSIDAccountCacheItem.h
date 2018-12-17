@@ -20,6 +20,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+#ifndef MSIDAccountCacheItem_H
+#define MSIDAccountCacheItem_H
 
 #import "MSIDAccountType.h"
 #import "MSIDJsonSerializable.h"
@@ -49,4 +51,10 @@
                      environment:(nullable NSString *)environment
               environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
 
++ (nullable instancetype)accountWithJSONDictionary:(nullable NSDictionary *)jsonDictionary
+                                             error:(__unused NSError *__nullable *__nullable)error;
+
+- (void)setRawClientInfo:(nullable NSString *)base64String error:(NSError *__nullable *__nullable)error;
 @end
+
+#endif // MSIDAccountCacheItem_H

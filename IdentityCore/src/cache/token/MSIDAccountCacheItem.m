@@ -109,6 +109,11 @@
 
 #pragma mark - JSON
 
++ (instancetype)accountWithJSONDictionary:(nullable NSDictionary *)jsonDictionary
+                                    error:(__unused NSError *__nullable *__nullable)error {
+    return [[MSIDAccountCacheItem alloc] initWithJSONDictionary:jsonDictionary error:error];
+}
+
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error
 {
     MSID_TRACE;
@@ -209,6 +214,11 @@
     }
 
     return YES;
+}
+
+- (void)setRawClientInfo:(NSString *)base64String error:(NSError**)error
+{
+    _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:error];
 }
 
 @end

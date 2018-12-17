@@ -87,8 +87,8 @@
                                      };
     
     NSError *error = nil;
-    MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
-    
+    MSIDAccountCacheItem *cacheItem = [MSIDAccountCacheItem accountWithJSONDictionary:jsonDictionary error:&error];
+
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
@@ -144,9 +144,7 @@
     firstAccount.name = @"test user";
     firstAccount.realm = @"contoso.com";
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
-    NSError *error = nil;
-    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:&error];
-    firstAccount.clientInfo = clientInfo;
+    [firstAccount setRawClientInfo:base64String error:nil];
     firstAccount.alternativeAccountId = @"alternative_clientID";
     firstAccount.additionalAccountFields = @{@"test": @"test2",
                                              @"test3": @"test4"};
