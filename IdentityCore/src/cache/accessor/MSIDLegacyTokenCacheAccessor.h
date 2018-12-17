@@ -46,16 +46,4 @@
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error;
 
-- (BOOL)validateAndRemoveRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                              context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error;
-
-- (BOOL)removeAccessToken:(MSIDLegacyAccessToken *)token
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error;
-
-- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error;
-
 @end

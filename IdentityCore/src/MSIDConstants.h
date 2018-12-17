@@ -83,6 +83,7 @@ extern NSString * _Nonnull const MSID_BROKER_MSAL_SCHEME;
 extern NSString * _Nonnull const MSID_BROKER_APP_BUNDLE_ID;
 extern NSString * _Nonnull const MSID_BROKER_APP_BUNDLE_ID_DF;
 extern NSString * _Nonnull const MSID_AUTHENTICATOR_REDIRECT_URI;
+extern NSString * _Nonnull const MSID_DEFAULT_FAMILY_ID;
 
 extern NSString * _Nonnull const MSIDTrustedAuthority;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUS;

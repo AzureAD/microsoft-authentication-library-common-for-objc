@@ -46,19 +46,10 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
 
-- (BOOL)removeAccount:(MSIDAccount *)account
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error;
-
-- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
-                   authority:(MSIDAuthority *)authority
-                    clientId:(NSString *)clientId
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error;
-
-- (BOOL)validateAndRemoveRefreshToken:(MSIDRefreshToken *)token
-                              context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error;
+- (MSIDAccount *)getAccountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                               authority:(MSIDAuthority *)authority
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error;
 
 - (BOOL)removeToken:(MSIDBaseToken *)token
             context:(id<MSIDRequestContext>)context
@@ -74,8 +65,10 @@
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 
-- (BOOL)updateAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error;
+- (BOOL)updateAppMetadataWithFamilyId:(NSString *)familyId
+                             clientId:(NSString *)clientId
+                            authority:(MSIDAuthority *)authority
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error;
 
 @end
