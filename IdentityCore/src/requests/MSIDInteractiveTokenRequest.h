@@ -29,10 +29,15 @@
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
 @class MSIDWebMSAuthResponse;
+@class MSIDWebviewConfiguration;
 
 typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse);
 
 @interface MSIDInteractiveTokenRequest : NSObject
+
+@property (nonatomic, readonly, nonnull) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, readonly, nonnull) id<MSIDCacheAccessor> tokenCache;
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
