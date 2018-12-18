@@ -46,9 +46,12 @@
         _cacheAuthority = json[@"cache_authority"];
         _uiBehavior = json[@"ui_behavior"];
         _homeAccountIdentifier = json[@"home_account_id"];
-        _displayableAccountIdentifier = json[@"displayable_account_id"];
+        _legacyAccountIdentifier = json[@"legacy_account_id"];
+        _legacyAccountIdentifierType = json[@"legacy_account_id_type"];
         _loginHint = json[@"login_hint"];
         _claims = json[@"claims"];
+        _brokerEnabled = [json[@"brokerEnabled"] boolValue];
+        _clientCapabilities = json[@"client_capabilities"];
 
 #if TARGET_OS_IPHONE
         NSString *webviewTypeString = json[@"webviewtype"];
@@ -96,7 +99,7 @@
     json[@"cache_authority"] = _cacheAuthority;
     json[@"ui_behavior"] = _uiBehavior;
     json[@"home_account_id"] = _homeAccountIdentifier;
-    json[@"displayable_account_id"] = _displayableAccountIdentifier;
+    json[@"legacy_account_id"] = _legacyAccountIdentifier;
     json[@"login_hint"] = _loginHint;
     json[@"claims"] = _claims;
     json[@"use_passed_in_webview"] = @(_usePassedWebView);
@@ -132,6 +135,9 @@
     json[@"extra_query_params"] = _extraQueryParameters;
     json[@"extra_scopes"] = _extraScopes;
     json[@"force_refresh"] = @(_forceRefresh);
+    json[@"brokerEnabled"] = @(_brokerEnabled);
+    json[@"client_capabilities"] = _clientCapabilities;
+    json[@"legacy_account_id_type"] = _legacyAccountIdentifierType;
 
     return json;
 }

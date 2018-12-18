@@ -40,7 +40,8 @@
 @property (nonatomic, strong) NSString *cacheAuthority;
 @property (nonatomic, strong) NSString *uiBehavior;
 @property (nonatomic, strong) NSString *homeAccountIdentifier;
-@property (nonatomic, strong) NSString *displayableAccountIdentifier;
+@property (nonatomic, strong) NSString *legacyAccountIdentifier;
+@property (nonatomic, strong) NSString *legacyAccountIdentifierType;
 @property (nonatomic, strong) NSString *loginHint;
 @property (nonatomic, strong) NSString *claims;
 @property (nonatomic, strong) MSIDTestAccount *testAccount;
@@ -51,6 +52,8 @@
 @property (nonatomic, strong) NSDictionary *sliceParameters;
 @property (nonatomic) BOOL forceRefresh;
 @property (nonatomic, strong) NSString *requestIDP;
+@property (nonatomic) BOOL brokerEnabled;
+@property (nonatomic) NSArray *clientCapabilities;
 
 - (BOOL)usesEmbeddedWebView;
 
