@@ -325,7 +325,7 @@
         MSID_LOG_VERBOSE(context, @"Found refresh token in cache and it's the latest version, removing token");
         MSID_LOG_VERBOSE_PII(context, @"Found refresh token in cache and it's the latest version, removing token %@", token);
 
-        return [self removeTokenWithAuthority:tokenInCache.authority.url
+        return [self removeTokenWithAuthority:storageAuthority.url
                                      clientId:cacheItem.clientId
                                        target:cacheItem.target
                                        userId:tokenInCache.accountIdentifier.legacyAccountId
