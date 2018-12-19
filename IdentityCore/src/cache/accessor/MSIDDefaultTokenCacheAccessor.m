@@ -159,6 +159,23 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError *__autoreleasing *)error
 {
+    return [self getRefreshableTokenWithAccount:account
+                                       familyId:familyId
+                                 credentialType:MSIDRefreshTokenType
+                                  configuration:configuration
+                                        context:context
+                                          error:error];
+}
+
+- (MSIDRefreshToken *)getRefreshableTokenWithAccount:(MSIDAccountIdentifier *)account
+                                            familyId:(NSString *)familyId
+                                      credentialType:(MSIDCredentialType)credentialType
+                                       configuration:(MSIDConfiguration *)configuration
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError *__autoreleasing *)error
+{
+    if (credentialType!=MSIDRefreshTokenType && credentialType!=MSIDPrimaryRefreshTokenType) return nil;
+    
     if (![NSString msidIsStringNilOrBlank:account.homeAccountId])
     {
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding token with user ID, clientId %@, familyID %@, authority %@", configuration.clientId, familyId, configuration.authority);
@@ -169,7 +186,7 @@
         query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
         query.clientId = familyId ? nil : configuration.clientId;
         query.familyId = familyId;
-        query.credentialType = MSIDRefreshTokenType;
+        query.credentialType = credentialType;
 
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getTokenWithAuthority:configuration.authority
                                                                                cacheQuery:query
@@ -188,12 +205,13 @@
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", configuration.clientId, configuration.authority);
         MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, configuration.clientId, configuration.authority);
 
-        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getRefreshTokenByLegacyUserId:account.legacyAccountId
-                                                                                        authority:configuration.authority
-                                                                                         clientId:configuration.clientId
-                                                                                         familyId:familyId
-                                                                                          context:context
-                                                                                            error:error];
+        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getRefreshableTokenByLegacyUserId:account.legacyAccountId
+                                                                                            authority:configuration.authority
+                                                                                             clientId:configuration.clientId
+                                                                                             familyId:familyId
+                                                                                       credentialType:credentialType
+                                                                                              context:context
+                                                                                                error:error];
 
         if (refreshToken)
         {
@@ -204,8 +222,9 @@
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        MSIDRefreshToken *refreshToken = [accessor getRefreshTokenWithAccount:account
+        MSIDRefreshToken *refreshToken = [accessor getRefreshableTokenWithAccount:account
                                                                      familyId:familyId
+                                                                   credentialType:credentialType
                                                                 configuration:configuration
                                                                       context:context
                                                                         error:error];
@@ -449,6 +468,19 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
+    return [self validateAndRemoveRefreshableToken:token
+                                    credentialType:MSIDRefreshTokenType
+                                           context:context
+                                             error:error];
+}
+
+- (BOOL)validateAndRemoveRefreshableToken:(MSIDRefreshToken *)token
+                           credentialType:(MSIDCredentialType)credentialType
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
+{
+    if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType) return NO;
+    
     if (!token || [NSString msidIsStringNilOrBlank:token.refreshToken])
     {
         [self fillInternalErrorWithMessage:@"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided." context:context error:error];
@@ -466,7 +498,7 @@
     query.environment = authority.msidHostWithPortIfNecessary;
     query.clientId = token.clientId;
     query.familyId = token.familyId;
-    query.credentialType = MSIDRefreshTokenType;
+    query.credentialType = credentialType;
 
     MSIDRefreshToken *tokenInCache = (MSIDRefreshToken *) [self getTokenWithAuthority:token.authority
                                                                            cacheQuery:query
@@ -790,10 +822,11 @@
     return nil;
 }
 
-- (MSIDBaseToken *)getRefreshTokenByLegacyUserId:(NSString *)legacyUserId
+- (MSIDBaseToken *)getRefreshableTokenByLegacyUserId:(NSString *)legacyUserId
                                        authority:(MSIDAuthority *)authority
                                         clientId:(NSString *)clientId
                                         familyId:(NSString *)familyId
+                                      credentialType:(MSIDCredentialType)credentialType
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
@@ -826,7 +859,7 @@
         rtQuery.environmentAliases = aliases;
         rtQuery.clientId = familyId ? nil : clientId;
         rtQuery.familyId = familyId;
-        rtQuery.credentialType = MSIDRefreshTokenType;
+        rtQuery.credentialType = credentialType;
 
         NSArray<MSIDCredentialCacheItem *> *rtCacheItems = [_accountCredentialCache getCredentialsWithQuery:rtQuery
                                                                                                     context:context
@@ -836,7 +869,7 @@
         {
             MSID_LOG_VERBOSE(context, @"(Default accessor) Found %lu refresh tokens", (unsigned long)[rtCacheItems count]);
             MSIDCredentialCacheItem *resultItem = rtCacheItems[0];
-            MSIDBaseToken *resultToken = [resultItem tokenWithType:MSIDRefreshTokenType];
+            MSIDBaseToken *resultToken = [resultItem tokenWithType:credentialType];
             resultToken.storageAuthority = resultToken.authority;
             resultToken.authority = authority;
             [MSIDTelemetry stopCacheEvent:event withItem:resultToken success:YES context:context];

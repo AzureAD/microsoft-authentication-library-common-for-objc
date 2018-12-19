@@ -33,8 +33,13 @@
 @protocol MSIDRequestContext;
 @class MSIDLegacyAccessToken;
 @class MSIDOauth2Factory;
+@class MSIDKeyedArchiverSerializer;
 
 @interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDCacheAccessor>
+
+- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
+               otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors
+                        serializer:(MSIDKeyedArchiverSerializer *)serializer;
 
 - (MSIDLegacyAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
                                       configuration:(MSIDConfiguration *)configuration

@@ -53,6 +53,14 @@
         {
             return [[MSIDIdToken alloc] initWithTokenCacheItem:self];
         }
+#if AD_BROKER
+        case MSIDPrimaryRefreshTokenType:
+        {
+            return [[NSClassFromString(@"ADBrokerPrimaryRefreshToken") alloc] initWithTokenCacheItem:self];
+            // Alternative solution:
+            // We could also pass in additional credential type and class as parameter of this function
+        }
+#endif
         default:
             return [[MSIDBaseToken alloc] initWithTokenCacheItem:self];
     }

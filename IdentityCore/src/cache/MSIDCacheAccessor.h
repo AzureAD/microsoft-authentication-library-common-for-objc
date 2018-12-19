@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDCredentialType.h"
 
 @class MSIDOauth2Factory;
 @class MSIDConfiguration;
@@ -76,6 +77,13 @@
                                    configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
+
+- (MSIDRefreshToken *)getRefreshableTokenWithAccount:(MSIDAccountIdentifier *)account
+                                            familyId:(NSString *)familyId
+                                      credentialType:(MSIDCredentialType)credentialType
+                                       configuration:(MSIDConfiguration *)configuration
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError *__autoreleasing *)error;
 
 - (NSArray<MSIDAccount *> *)allAccountsForAuthority:(MSIDAuthority *)authority
                                            clientId:(NSString *)clientId

@@ -226,9 +226,9 @@
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.homeAccountId, credential.environment, credential.environment, credential.clientId);
 
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
-                                                                                         environment:credential.environment
-                                                                                            clientId:credential.clientId
-                                                                                      credentialType:credential.credentialType];
+                                                                                          environment:credential.environment
+                                                                                             clientId:credential.clientId
+                                                                                       credentialType:credential.credentialType];
 
     key.familyId = credential.familyId;
     key.realm = credential.realm;
