@@ -37,6 +37,9 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
+#import "MSIDCache.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @interface MSIDAccountCredentialsCacheTests : XCTestCase
 
@@ -66,6 +69,7 @@
 - (void)tearDown
 {
     [self cleanCache];
+    [self setUpEnrollmentIdsCache:YES];
     [super tearDown];
 }
 
@@ -130,6 +134,138 @@
     XCTAssertNotNil(results);
     XCTAssertEqual([results count], 1);
     XCTAssertEqualObjects(results[0], item);
+}
+
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andIntuneEnrolled_shouldReturnItems
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid2.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    [self saveItem:item];
+    
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid2.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 1);
+    XCTAssertEqualObjects(results[0], item);
+}
+
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andMismatchedEnrollmentId_shouldReturnEmptyResult
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid2.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    [self saveItem:item];
+    
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid2.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    query.enrollmentId = @"differentEnrollmentId";
+    
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 0);
+}
+
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andIntuneUnenrolledCaller_shouldReturnEmptyResult
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid2.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    [self saveItem:item];
+    
+    // Empty enrollment IDs cache for querying "app".
+    [self setUpEnrollmentIdsCache:YES];
+    
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid2.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 0);
+}
+
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andNoEnrollmentIdOnCachedToken_shouldReturnEmptyResult
+{
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    [self saveItem:item];
+    
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    query.enrollmentId = @"someEnrollmentId";
+    
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 0);
 }
 
 - (void)testGetCredentialsWithQuery_whenExactMatch_andRefreshTokenQuery_noItemsInCache_shouldReturnEmptyResult
@@ -1161,6 +1297,28 @@
     XCTAssertEqualObjects(resultItem, item);
 }
 
+- (void)testGetCredentialWithKey_whenAccessTokenKey_andIntuneEnrolled_shouldReturnItem
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    // First save the token
+    MSIDCredentialCacheItem *item = [self createTestAccessTokenCacheItem];
+    [self saveItem:item];
+    
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                          environment:@"login.microsoftonline.com"
+                                                                                             clientId:@"client"
+                                                                                       credentialType:MSIDAccessTokenType];
+    
+    key.realm = @"contoso.com";
+    key.target = @"user.read user.write";
+    
+    NSError *error = nil;
+    MSIDCredentialCacheItem *resultItem = [self.cache getCredential:key context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(resultItem, item);
+}
+
 - (void)testGetCredentialWithKey_whenRefreshTokenKey_noItemsInCache_shouldReturnNil
 {
     MSIDCredentialCacheItem *accessToken = [self createTestAccessTokenCacheItem];
@@ -2112,6 +2270,32 @@
     BOOL result = [self.cache saveAppMetadata:item context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
+}
+
+- (void)setUpEnrollmentIdsCache:(BOOL)isEmpty
+{
+    NSDictionary *emptyDict = @{};
+    
+    NSDictionary *dict = @{MSID_INTUNE_ENROLLMENT_ID_KEY: @{@"enrollment_ids": @[@{
+                                                                                     @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                                                                                     @"oid" : @"d3444455-mike-4271-b6ea-e499cc0cab46",
+                                                                                     @"home_account_id" : @"60406d5d-mike-41e1-aa70-e97501076a22",
+                                                                                     @"user_id" : @"uid.utid",
+                                                                                     @"enrollment_id" : @"adf79e3f-mike-454d-9f0f-2299e76dbfd5"
+                                                                                     },
+                                                                                 @{
+                                                                                     @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                                                                                     @"oid" : @"6eec576f-dave-416a-9c4a-536b178a194a",
+                                                                                     @"home_account_id" : @"uid2.utid",
+                                                                                     @"user_id" : @"dave@contoso.com",
+                                                                                     @"enrollment_id" : @"64d0557f-dave-4193-b630-8491ffd3b180"
+                                                                                     }
+                                                                                 ]}};
+    
+    MSIDCache *msidCache = [[MSIDCache alloc] initWithDictionary:isEmpty ? emptyDict : dict];
+    MSIDIntuneInMemoryCacheDataSource *memoryCache = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:msidCache];
+    MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
+    [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];
 }
 
 - (MSIDAccountCacheItem *)createTestAccountCacheItem

@@ -23,6 +23,9 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDDefaultCredentialCacheKey.h"
+#import "MSIDCache.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @interface MSIDDefaultCacheKeyTests : XCTestCase
 
@@ -46,6 +49,28 @@
     
     NSData *genericData = [@"accesstoken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(key.generic, genericData);
+}
+
+- (void)testDefaultKeyForAccessToken_withRealmAndEnrollmentId_shouldReturnKey
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                          environment:@"login.microsoftonline.com"
+                                                                                             clientId:@"client"
+                                                                                       credentialType:MSIDAccessTokenType];
+    
+    key.realm = @"contoso.com";
+    key.target = @"user.read user.write";
+    
+    XCTAssertEqualObjects(key.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertEqualObjects(key.service, @"accesstoken-client-contoso.com-enrollid123-user.read user.write");
+    XCTAssertEqualObjects(key.type, @2001);
+    
+    NSData *genericData = [@"accesstoken-client-contoso.com-enrollid123" dataUsingEncoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(key.generic, genericData);
+    
+    [self setUpEnrollmentIdsCache:YES];
 }
 
 - (void)testDefaultKeyForAccessToken_withUpperCaseComponents_shouldReturnKeyLowerCase
@@ -131,6 +156,32 @@
     NSData *genericData = [@"refreshtoken-familyid-" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(key.generic, genericData);
     XCTAssertEqualObjects(key.type, @2002);
+}
+
+- (void)setUpEnrollmentIdsCache:(BOOL)isEmpty
+{
+    NSDictionary *emptyDict = @{};
+    
+    NSDictionary *dict = @{MSID_INTUNE_ENROLLMENT_ID_KEY: @{@"enrollment_ids": @[@{
+                                                                                     @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                                                                                     @"oid" : @"d3444455-mike-4271-b6ea-e499cc0cab46",
+                                                                                     @"home_account_id" : @"60406d5d-mike-41e1-aa70-e97501076a22",
+                                                                                     @"user_id" : @"uid.utid",
+                                                                                     @"enrollment_id" : @"enrollid123"
+                                                                                     },
+                                                                                 @{
+                                                                                     @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                                                                                     @"oid" : @"6eec576f-dave-416a-9c4a-536b178a194a",
+                                                                                     @"home_account_id" : @"uid2.utid",
+                                                                                     @"user_id" : @"dave@contoso.com",
+                                                                                     @"enrollment_id" : @"64d0557f-dave-4193-b630-8491ffd3b180"
+                                                                                     }
+                                                                                 ]}};
+    
+    MSIDCache *msidCache = [[MSIDCache alloc] initWithDictionary:isEmpty ? emptyDict : dict];
+    MSIDIntuneInMemoryCacheDataSource *memoryCache = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:msidCache];
+    MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
+    [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];
 }
 
 @end
