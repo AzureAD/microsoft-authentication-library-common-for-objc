@@ -84,7 +84,7 @@ NSString *const MSID_OAUTH2_ADDITIONAL_SERVER_INFO       = @"additional_server_i
 NSString *const MSID_OAUTH2_ENVIRONMENT                  = @"environment";
 
 NSString *const MSID_PROTECTION_POLICY_REQUIRED          = @"protection_policy_required";
-NSString *const MSID_ADDITIONAL_USER_IDENTIFIER          = @"adi";
+NSString *const MSID_DISPLAYABLE_USER_IDENTIFIER         = @"adi";
 
 NSString *const MSID_AUTH_CLOUD_INSTANCE_HOST_NAME       = @"cloud_instance_host_name";
 
