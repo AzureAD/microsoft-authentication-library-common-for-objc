@@ -71,9 +71,9 @@
     NSError *cacheError = nil;
 
     NSArray<MSIDCredentialCacheItem *> *results = [_dataSource tokensWithKey:cacheQuery
-                                                             serializer:_serializer
-                                                                context:context
-                                                                  error:&cacheError];
+                                                                  serializer:_serializer
+                                                                     context:context
+                                                                       error:&cacheError];
 
     if (cacheError)
     {

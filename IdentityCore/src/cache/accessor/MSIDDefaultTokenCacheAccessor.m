@@ -223,11 +223,11 @@
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
         MSIDRefreshToken *refreshToken = [accessor getRefreshableTokenWithAccount:account
-                                                                     familyId:familyId
+                                                                         familyId:familyId
                                                                    credentialType:credentialType
-                                                                configuration:configuration
-                                                                      context:context
-                                                                        error:error];
+                                                                    configuration:configuration
+                                                                          context:context
+                                                                            error:error];
 
         if (refreshToken)
         {
@@ -823,12 +823,12 @@
 }
 
 - (MSIDBaseToken *)getRefreshableTokenByLegacyUserId:(NSString *)legacyUserId
-                                       authority:(MSIDAuthority *)authority
-                                        clientId:(NSString *)clientId
-                                        familyId:(NSString *)familyId
+                                           authority:(MSIDAuthority *)authority
+                                            clientId:(NSString *)clientId
+                                            familyId:(NSString *)familyId
                                       credentialType:(MSIDCredentialType)credentialType
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError **)error
 {
     MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for token with authority %@, clientId %@", authority, clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for token with authority %@, clientId %@, legacy userId %@", authority, clientId, legacyUserId);

@@ -211,11 +211,11 @@
         for (id<MSIDCacheAccessor> accessor in _otherAccessors)
         {
             MSIDRefreshToken *refreshToken = [accessor getRefreshableTokenWithAccount:account
-                                                                         familyId:familyId
+                                                                             familyId:familyId
                                                                        credentialType:credentialType
-                                                                    configuration:configuration
-                                                                          context:context
-                                                                            error:error];
+                                                                        configuration:configuration
+                                                                              context:context
+                                                                                error:error];
 
             if (refreshToken)
             {
