@@ -29,7 +29,7 @@ NSString *MSIDOAuthSubErrorKey = @"MSIDOAuthSubErrorKey";
 NSString *MSIDCorrelationIdKey = @"MSIDCorrelationIdKey";
 NSString *MSIDHTTPHeadersKey = @"MSIDHTTPHeadersKey";
 NSString *MSIDHTTPResponseCodeKey = @"MSIDHTTPResponseCodeKey";
-NSString *MSIDAdditionalUserIdentifierKey = @"MSIDAdditionalUserIdentifierKey";
+NSString *MSIDUserDisplayableIdKey = @"MSIDUserDisplayableIdKey";
 
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";

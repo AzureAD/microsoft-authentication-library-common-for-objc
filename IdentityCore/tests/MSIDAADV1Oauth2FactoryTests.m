@@ -174,7 +174,7 @@
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
-    XCTAssert([@"user@microsoft.com" isEqualToString:error.userInfo[MSIDAdditionalUserIdentifierKey]]);
+    XCTAssert([@"user@microsoft.com" isEqualToString:error.userInfo[MSIDUserDisplayableIdKey]]);
 }
 
 - (void)testVerifyResponse_whenOAuthErrorViaAuthCode_shouldReturnError

@@ -27,7 +27,7 @@ extern NSString *MSIDOAuthSubErrorKey;
 extern NSString *MSIDCorrelationIdKey;
 extern NSString *MSIDHTTPHeadersKey;
 extern NSString *MSIDHTTPResponseCodeKey;
-extern NSString *MSIDAdditionalUserIdentifierKey;
+extern NSString *MSIDUserDisplayableIdKey;
 
 /*!
  ADAL and MSID use different error domains and error codes.
