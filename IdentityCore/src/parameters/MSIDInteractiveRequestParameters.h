@@ -36,6 +36,7 @@
 @property (nonatomic) NSString *loginHint;
 @property (nonatomic) MSIDWebviewType webviewType;
 @property (nonatomic) WKWebView *customWebview;
+@property (readwrite) NSMutableDictionary<NSString *, NSString *> *customWebviewHeaders;
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIViewController *parentViewController;
 #endif
@@ -44,6 +45,7 @@
 @property (nonatomic) NSDictionary *extraQueryParameters;
 @property (nonatomic) NSString *telemetryWebviewType;
 @property (nonatomic) NSString *supportedBrokerProtocolScheme;
+@property (nonatomic) BOOL enablePkce;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 
