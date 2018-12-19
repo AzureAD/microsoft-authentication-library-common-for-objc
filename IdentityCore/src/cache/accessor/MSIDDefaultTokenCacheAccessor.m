@@ -204,7 +204,7 @@
     {
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", configuration.clientId, configuration.authority);
         MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, configuration.clientId, configuration.authority);
-
+        
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getRefreshableTokenByLegacyUserId:account.legacyAccountId
                                                                                             authority:configuration.authority
                                                                                              clientId:configuration.clientId
