@@ -118,7 +118,7 @@
             {
                 errorCode = MSIDErrorServerProtectionPoliciesRequired;
                 userInfo = [[NSMutableDictionary alloc] initWithCapacity:1];
-                userInfo[MSIDUserDisplayableIdKey] = response.jsonDictionary[MSID_ADDITIONAL_USER_IDENTIFIER];
+                userInfo[MSIDUserDisplayableIdKey] = response.jsonDictionary[MSID_USER_DISPLAYABLE_IDENTIFIER];
             }
 
             if (error)
