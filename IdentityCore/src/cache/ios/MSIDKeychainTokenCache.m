@@ -339,8 +339,15 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error
 {
-    assert(item);
-    assert(serializer);
+    if (!item || !serializer)
+    {
+        if (error)
+        {
+            NSString *errorMessage = @"Item or serializer is nil while saving app metadata!";
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+        }
+        return NO;
+    }
     
     NSData *itemData = [serializer serializeAppMetadataCacheItem:item];
     
@@ -348,7 +355,8 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize app metadata item.", nil, nil, nil, context.correlationId, nil);
+            NSString *errorMessage = @"Failed to serialize app metadata item.";
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to serialize app metadata item.");
         return NO;
