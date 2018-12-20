@@ -79,7 +79,7 @@
     if ([typeString isEqualToString:@"RequiredDisplayableId"])  return MSIDLegacyIdentifierTypeRequiredDisplayableId;
     if ([typeString isEqualToString:@"OptionalDisplayableId"])  return MSIDLegacyIdentifierTypeOptionalDisplayableId;
         
-    return MSIDLegacyIdentifierTypeRequiredDisplayableId; // default for broker.
+    return MSIDLegacyIdentifierTypeOptionalDisplayableId; // default for broker.
 }
 
 #pragma mark - Copy
