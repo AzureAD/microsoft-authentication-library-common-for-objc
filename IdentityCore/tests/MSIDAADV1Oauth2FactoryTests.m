@@ -164,7 +164,7 @@
 
     MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"error":@"unauthorized_client",
                                                                                                 @"suberror":MSID_PROTECTION_POLICY_REQUIRED,
-                                                                                                @"adi":@"user@microsoft.com"
+                                                                                                @"adi":@"cooldude@somewhere.com"
                                                                                                 }
                                                                                         error:nil];
     NSError *error = nil;
@@ -175,7 +175,7 @@
     XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
     XCTAssertEqual(error.userInfo[MSIDUserDisplayableIdkey], @"cooldude@somewhere.com");
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
-    XCTAssert([@"user@microsoft.com" isEqualToString:error.userInfo[MSIDUserDisplayableIdKey]]);
+    XCTAssert([@"cooldude@somewhere.com" isEqualToString:error.userInfo[MSIDUserDisplayableIdkey]]);
 }
 
 - (void)testVerifyResponse_whenOAuthErrorViaAuthCode_shouldReturnError
