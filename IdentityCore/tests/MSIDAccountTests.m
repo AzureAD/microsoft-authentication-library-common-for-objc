@@ -77,10 +77,10 @@
 
 - (void)testInitWithLegacyUserIdHomeAccountId_shouldInitAccountAndSetProperties
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy user id" homeAccountId:@"some id"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy user id" homeAccountId:@"some id"];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyAccountId, @"legacy user id");
+    XCTAssertEqualObjects(account.displayableId, @"legacy user id");
     XCTAssertEqualObjects(account.homeAccountId, @"some id");
 }
 
@@ -90,10 +90,10 @@
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
     
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy user id" clientInfo:clientInfo];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy user id" clientInfo:clientInfo];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyAccountId, @"legacy user id");
+    XCTAssertEqualObjects(account.displayableId, @"legacy user id");
     XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
 }
 
@@ -102,40 +102,40 @@
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
     
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy user id" clientInfo:clientInfo];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy user id" clientInfo:clientInfo];
     
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.legacyAccountId, @"legacy user id");
+    XCTAssertEqualObjects(account.displayableId, @"legacy user id");
     XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
 }
 
 - (void)testAccountIdentifier_whenCopied_shouldReturnSameItem
 {
-    MSIDAccountIdentifier *account1 = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy account id" homeAccountId:@"home account id"];
+    MSIDAccountIdentifier *account1 = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy account id" homeAccountId:@"home account id"];
     MSIDAccountIdentifier *account2 = [account1 copy];
     XCTAssertEqualObjects(account1, account2);
 }
 
 - (void)testAccountIdentifierIsEqual_whenBothAccountsEqual_shouldReturnYES
 {
-    MSIDAccountIdentifier *account1 = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy account id" homeAccountId:@"home account id"];
-    MSIDAccountIdentifier *account2 = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy account id" homeAccountId:@"home account id"];
+    MSIDAccountIdentifier *account1 = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy account id" homeAccountId:@"home account id"];
+    MSIDAccountIdentifier *account2 = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy account id" homeAccountId:@"home account id"];
 
     XCTAssertEqualObjects(account1, account2);
 }
 
 - (void)testAccountIdentifierIsEqual_whenHomeAccountIdNotEqual_shouldReturnNO
 {
-    MSIDAccountIdentifier *account1 = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy account id" homeAccountId:@"home account id 2"];
-    MSIDAccountIdentifier *account2 = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy account id" homeAccountId:@"home account id"];
+    MSIDAccountIdentifier *account1 = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy account id" homeAccountId:@"home account id 2"];
+    MSIDAccountIdentifier *account2 = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy account id" homeAccountId:@"home account id"];
 
     XCTAssertNotEqualObjects(account1, account2);
 }
 
 - (void)testAccountIdentifierIsEqual_whenLegacyAccountIdNotEqual_shouldReturnNO
 {
-    MSIDAccountIdentifier *account1 = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy account id" homeAccountId:@"home account id"];
-    MSIDAccountIdentifier *account2 = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy account id 2" homeAccountId:@"home account id"];
+    MSIDAccountIdentifier *account1 = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy account id" homeAccountId:@"home account id"];
+    MSIDAccountIdentifier *account2 = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy account id 2" homeAccountId:@"home account id"];
 
     XCTAssertNotEqualObjects(account1, account2);
 }
@@ -153,7 +153,7 @@
     account.familyName = @"Cartman";
     account.accountType = MSIDAccountTypeMSA;
     account.localAccountId = @"local account id";
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"some id"];
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"some id"];
 
     MSIDAccountCacheItem *cacheItem = [account accountCacheItem];
     
@@ -220,7 +220,7 @@
 {
     MSIDAccount *account = [MSIDAccount new];
     account.accountType = MSIDAccountTypeMSSTS;
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy id" homeAccountId:@"uid.utid"];
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy id" homeAccountId:@"uid.utid"];
     account.localAccountId = @"local";
     account.authority = [@"https://login.microsoftonline.com/common" authority];
     account.storageAuthority = [@"https://login.windows2.net/contoso.com" authority];

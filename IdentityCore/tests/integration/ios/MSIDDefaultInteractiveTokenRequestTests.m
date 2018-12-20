@@ -98,7 +98,7 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
 
@@ -195,7 +195,7 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
 
@@ -293,7 +293,7 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
 
@@ -383,7 +383,7 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
     
@@ -474,7 +474,7 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
 
@@ -562,7 +562,7 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
 
@@ -624,7 +624,7 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
 
@@ -682,7 +682,7 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
 

@@ -75,7 +75,7 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
-    NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId ?: self.requestParameters.loginHint;
+    NSString *upn = self.requestParameters.accountIdentifier.displayableId ?: self.requestParameters.loginHint;
 
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn

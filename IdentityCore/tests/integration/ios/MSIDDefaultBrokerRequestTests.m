@@ -81,7 +81,7 @@
 - (void)testInitBrokerRequest_whenAccountSet_shouldSendHomeAccountIdAndUsername
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"user" homeAccountId:@"myHomeAccountId"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user" homeAccountId:@"myHomeAccountId"];
     
     NSError *error = nil;
     MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];

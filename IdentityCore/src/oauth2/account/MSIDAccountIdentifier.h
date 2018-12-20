@@ -35,17 +35,18 @@ typedef NS_ENUM(NSInteger, MSIDLegacyAccountIdentifierType)
 @interface MSIDAccountIdentifier : NSObject <NSCopying>
 
 @property (nonatomic, readwrite) NSString *homeAccountId;
-@property (nonatomic, readwrite) NSString *legacyAccountId;
+@property (nonatomic, readwrite) NSString *displayableId;
 @property (nonatomic, readwrite) MSIDLegacyAccountIdentifierType legacyAccountIdentifierType;
 @property (nonatomic, readwrite) NSString *uid;
 @property (nonatomic, readwrite) NSString *utid;
 
-- (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
+- (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
                              clientInfo:(MSIDClientInfo *)clientInfo;
 
-- (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
+- (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
                           homeAccountId:(NSString *)homeAccountId;
 
-+ (NSString *)legacyAccountIdentifierAsString:(MSIDLegacyAccountIdentifierType)type;
++ (NSString *)legacyAccountIdentifierTypeAsString:(MSIDLegacyAccountIdentifierType)type;
++ (MSIDLegacyAccountIdentifierType)legacyAccountIdentifierTypeFromString:(NSString *)typeString;
 
 @end
