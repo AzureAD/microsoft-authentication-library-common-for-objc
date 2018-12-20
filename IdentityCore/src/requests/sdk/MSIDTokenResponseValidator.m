@@ -78,7 +78,6 @@
 }
 
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
-               oauthFactory:(MSIDOauth2Factory *)factory
               configuration:(MSIDConfiguration *)configuration
              requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
@@ -111,7 +110,8 @@
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target];
 
-    MSIDTokenResult *tokenResult = [self validateTokenResponse:brokerResponse.tokenResponse
+    MSIDTokenResponse *tokenResponse = brokerResponse.tokenResponse;
+    MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
                                                   oauthFactory:factory
                                                  configuration:configuration
                                                 requestAccount:nil
@@ -123,12 +123,28 @@
         return nil;
     }
 
+    BOOL shouldSaveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse;
+    MSID_LOG_VERBOSE_CORR(correlationID, @"Saving broker response, only save SSO state %d", shouldSaveSSOStateOnly);
+
     NSError *savingError = nil;
-    BOOL isSaved = [tokenCache saveTokensWithBrokerResponse:brokerResponse
-                                           saveSSOStateOnly:brokerResponse.accessTokenInvalidForResponse
+    BOOL isSaved = NO;
+
+    if (shouldSaveSSOStateOnly)
+    {
+        isSaved = [tokenCache saveSSOStateWithConfiguration:configuration
+                                                   response:tokenResponse
                                                     factory:factory
                                                     context:nil
-                                                      error:error];
+                                                      error:&savingError];
+    }
+    else
+    {
+        isSaved = [tokenCache saveTokensWithConfiguration:configuration
+                                                 response:tokenResponse
+                                                  factory:factory
+                                                  context:nil
+                                                    error:&savingError];
+    }
 
     if (!isSaved)
     {
@@ -137,7 +153,6 @@
     }
 
     BOOL resultValid = [self validateTokenResult:tokenResult
-                                    oauthFactory:factory
                                    configuration:configuration
                                   requestAccount:nil
                                    correlationID:correlationID
@@ -207,7 +222,6 @@
     }
 
     BOOL resultValid = [self validateTokenResult:tokenResult
-                                    oauthFactory:factory
                                    configuration:parameters.msidConfiguration
                                   requestAccount:parameters.accountIdentifier
                                    correlationID:parameters.correlationId

@@ -102,36 +102,28 @@
         return NO;
     }
 
-    BOOL result = [super verifyResponse:response context:context error:error];
+    NSError *internalError = nil;
+    BOOL result = [super verifyResponse:response context:context error:&internalError];
 
     if (!result)
     {
-        if (response.error)
+        if (internalError)
         {
-            MSIDErrorCode errorCode = fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth;
-            MSIDErrorCode oauthErrorCode = MSIDErrorCodeForOAuthError(response.error, errorCode);
-
-            /* This is a special error case for True MAM,
-             where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
-
-            if (oauthErrorCode == MSIDErrorServerUnauthorizedClient
-                && [response.suberror isEqualToString:MSID_PROTECTION_POLICY_REQUIRED])
+            // In case of not overriden error code, change it to default error code for v1.
+            if (internalError.code != MSIDErrorServerProtectionPoliciesRequired)
             {
-                errorCode = MSIDErrorServerProtectionPoliciesRequired;
-            }
-
-            if (error)
-            {
-                NSDictionary *userInfo = @{MSIDUserDisplayableIdkey : response.additionalUserId ?: @""};
-
-                *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                         errorCode,
-                                         response.errorDescription,
-                                         response.error,
-                                         response.suberror,
+                *error = MSIDCreateError(internalError.domain,
+                                         fromRefreshToken ? MSIDErrorServerRefreshTokenRejected : MSIDErrorServerOauth,
                                          nil,
-                                         context.correlationId,
-                                         userInfo);
+                                         nil,
+                                         nil,
+                                         nil,
+                                         nil,
+                                         internalError.userInfo);
+            }
+            else
+            {
+                *error = internalError;
             }
         }
 
@@ -231,6 +223,7 @@
 - (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
                                                                              authCode:(NSString *)authCode
+                                                                        homeAccountId:(NSString *)homeAccountId;
 {
     // TODO: implement me for ADAL
     return nil;
