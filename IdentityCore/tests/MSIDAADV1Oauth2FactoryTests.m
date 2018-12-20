@@ -163,7 +163,8 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"error":@"unauthorized_client",
-                                                                                                @"suberror":MSID_PROTECTION_POLICY_REQUIRED
+                                                                                                @"suberror":MSID_PROTECTION_POLICY_REQUIRED,
+                                                                                                @"adi":@"user@microsoft.com"
                                                                                                 }
                                                                                         error:nil];
     NSError *error = nil;
@@ -173,6 +174,7 @@
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
+    XCTAssert([@"user@microsoft.com" isEqualToString:error.userInfo[MSIDUserDisplayableIdKey]]);
 }
 
 - (void)testVerifyResponse_whenOAuthErrorViaAuthCode_shouldReturnError
