@@ -362,7 +362,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         return NO;
     }
     
-    MSID_LOG_INFO_PII(context, @"Save keychain item, item info %@", item);
+    MSID_LOG_INFO(context, @"Save keychain item, item info %@", item);
     
     return [self saveData:itemData
                       key:key
