@@ -54,6 +54,7 @@
     {
         _appInstallLink = self.parameters[@"app_link"];
         _upn = self.parameters[@"username"];
+        _clientInfo = self.parameters[@"client_info"];
     }
     
     return self;

@@ -31,5 +31,6 @@
 
 @property (readonly) NSString *upn;
 @property (readonly) NSString *appInstallLink;
+@property (readonly) NSString *clientInfo;
 
 @end

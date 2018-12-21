@@ -32,6 +32,7 @@ NSString *MSIDHTTPResponseCodeKey = @"MSIDHTTPResponseCodeKey";
 NSString *MSIDDeclinedScopesKey = @"MSIDDeclinedScopesKey";
 NSString *MSIDGrantedScopesKey = @"MSIDGrantedScopesKey";
 NSString *MSIDUserDisplayableIdkey = @"MSIDUserDisplayableIdkey";
+NSString *MSIDClientInfoKey = @"MSIDClientInfoKey";
 NSString *MSIDHomeAccountIdkey = @"MSIDHomeAccountIdkey";
 NSString *MSIDBrokerVersionKey = @"MSIDBrokerVersionKey";
 NSString *MSIDServerUnavailableStatusKey = @"MSIDServerUnavailableStatusKey";

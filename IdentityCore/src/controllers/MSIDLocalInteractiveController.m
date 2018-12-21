@@ -100,7 +100,10 @@
 
     if (![NSString msidIsStringNilOrBlank:response.upn])
     {
-        NSDictionary *additionalInfo = @{MSIDUserDisplayableIdkey : response.upn};
+        NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
+        additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
+        additionalInfo[MSIDClientInfoKey] = response.clientInfo;
+        
         NSError *registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Workplace join is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo);
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setLoginHint:response.upn];
