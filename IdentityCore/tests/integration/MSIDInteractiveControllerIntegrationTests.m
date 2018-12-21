@@ -348,7 +348,7 @@
     MSIDInteractiveRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_wpj";
 
-    NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?username=my@test.com"];
+    NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?username=my@test.com&client_info=eyJ1aWQiOiIwZWE5OWM1OC02NGIzLTRhZmEtYmU1MC00NGU2NDA4ZWRjZDUiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
     MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:nil resumeDictionary:nil];
 
@@ -366,6 +366,7 @@
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, MSIDErrorWorkplaceJoinRequired);
         XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"my@test.com");
+        XCTAssertEqualObjects(error.userInfo[MSIDClientInfoKey], @"eyJ1aWQiOiIwZWE5OWM1OC02NGIzLTRhZmEtYmU1MC00NGU2NDA4ZWRjZDUiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0");
 
         // Check Telemetry event
         XCTAssertEqual([receivedEvents count], 1);
