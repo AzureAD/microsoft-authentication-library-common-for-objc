@@ -181,13 +181,14 @@
                                                                                                      clientId:parameters.clientId resource:nil
                                                                                                        scopes:parameters.allAuthorizeRequestScopes
                                                                                                 correlationId:parameters.correlationId
-                                                                                                   enablePkce:YES];
+                                                                                                   enablePkce:parameters.enablePkce];
 
     NSString *promptParam = MSIDPromptParamFromType(parameters.promptType);
     configuration.promptBehavior = promptParam;
     configuration.loginHint = parameters.accountIdentifier.displayableId ?: parameters.loginHint;
     configuration.extraQueryParameters = parameters.extraQueryParameters;
     configuration.sliceParameters = parameters.sliceParameters;
+    configuration.customHeaders = parameters.customWebviewHeaders;
 #if TARGET_OS_IPHONE
     configuration.parentController = parameters.parentViewController;
 #endif
