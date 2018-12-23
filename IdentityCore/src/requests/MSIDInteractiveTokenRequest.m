@@ -36,6 +36,7 @@
 #endif
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
+#import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDPkce.h"
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
@@ -229,9 +230,10 @@
                                                                                                            codeVerifier:self.webViewConfiguration.pkce.codeVerifier
                                                                                                                authCode:authCode
                                                                                                           homeAccountId:self.authCodeClientInfo.accountIdentifier];
+    tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self.oauthFactory];
 
-    [tokenRequest sendWithBlock:^(id response, NSError *error) {
-
+    [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
+    {
         if (error)
         {
             completionBlock(nil, error, nil);
@@ -239,8 +241,7 @@
         }
 
         NSError *validationError = nil;
-        
-        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:response
+        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
                                                                                requestParameters:self.requestParameters
