@@ -61,4 +61,20 @@
     XCTAssertEqualObjects(serializedResponse[@"p"], @"v");
 }
 
+- (void)testResponseObjectForResponse_whenJsonIsArray_shouldReturnError
+{
+    __auto_type jsonData = @[@{@"p" : @"v"}];
+    __auto_type data = [NSJSONSerialization dataWithJSONObject:jsonData options:0 error:nil];
+    __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type response = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:0 HTTPVersion:nil headerFields:nil];
+    
+    NSError *error;
+    id serializedResponse = [self.responseSerializer responseObjectForResponse:response data:data context:nil error:&error];
+    
+    XCTAssertNil(serializedResponse);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+}
+
 @end

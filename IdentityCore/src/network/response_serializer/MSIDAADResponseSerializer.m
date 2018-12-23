@@ -41,6 +41,18 @@
         return nil;
     }
     
+    if (jsonObject && ![jsonObject isKindOfClass:[NSDictionary class]])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Response is not of the expected type: NSDictionary.", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        MSID_LOG_ERROR(context, @"Response is not of the expected type: NSDictionary.");
+        
+        return nil;
+    }
+    
     jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
     
     NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
