@@ -30,6 +30,9 @@
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewSession.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAuthority.h"
+#import "MSIDClientCapabilitiesUtil.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -118,7 +121,29 @@
     return response;
 }
 
+- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
 
+    if (!configuration)
+    {
+        return nil;
+    }
+
+    NSURL *authorizationEndpoint = configuration.authorizationEndpoint;
+    NSURL *networkURL = [parameters.authority networkUrlWithContext:parameters];
+
+    NSURLComponents *authorizationComponents = [NSURLComponents componentsWithURL:authorizationEndpoint resolvingAgainstBaseURL:NO];
+    authorizationComponents.host = networkURL.host;
+    configuration.authorizationEndpoint = authorizationComponents.URL;
+
+    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
+                                                                       developerClaims:parameters.claims];
+
+    configuration.claims = claims;
+
+    return configuration;
+}
 
 
 @end
