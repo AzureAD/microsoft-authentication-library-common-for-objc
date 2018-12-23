@@ -30,6 +30,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "MSIDClientInfo.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBrokerInteractiveController.h"
 #endif
@@ -102,7 +103,7 @@
     {
         NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
         additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
-        additionalInfo[MSIDClientInfoKey] = response.clientInfo;
+        additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
         
         NSError *registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Workplace join is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo);
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];

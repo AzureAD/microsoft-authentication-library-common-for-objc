@@ -28,7 +28,6 @@ extern NSString *MSIDCorrelationIdKey;
 extern NSString *MSIDHTTPHeadersKey;
 extern NSString *MSIDHTTPResponseCodeKey;
 extern NSString *MSIDUserDisplayableIdkey;
-extern NSString *MSIDClientInfoKey;
 extern NSString *MSIDHomeAccountIdkey;
 extern NSString *MSIDBrokerVersionKey;
 
