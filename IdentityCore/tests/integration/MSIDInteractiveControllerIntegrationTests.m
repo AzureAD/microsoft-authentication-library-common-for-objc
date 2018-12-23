@@ -366,7 +366,7 @@
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, MSIDErrorWorkplaceJoinRequired);
         XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"my@test.com");
-        XCTAssertEqualObjects(error.userInfo[MSIDClientInfoKey], @"eyJ1aWQiOiIwZWE5OWM1OC02NGIzLTRhZmEtYmU1MC00NGU2NDA4ZWRjZDUiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0");
+        XCTAssertEqualObjects(error.userInfo[MSIDHomeAccountIdkey], @"0ea99c58-64b3-4afa-be50-44e6408edcd5.f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
 
         // Check Telemetry event
         XCTAssertEqual([receivedEvents count], 1);
