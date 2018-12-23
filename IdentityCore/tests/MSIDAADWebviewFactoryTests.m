@@ -111,7 +111,7 @@
 
     MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
     MSIDOpenIdProviderMetadata *metadata = [MSIDOpenIdProviderMetadata new];
-    metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.windows.net/common/oauth/authorize"];
+    metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.windows.net/contoso.com/mypath/oauth/authorize"];
     authority.metadata = metadata;
 
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"scope", nil];
@@ -130,7 +130,7 @@
 
     MSIDWebviewConfiguration *configuration = [factory webViewConfigurationWithRequestParameters:parameters];
     XCTAssertNotNil(configuration);
-    NSURL *expectedAuthorizationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth/authorize"];
+    NSURL *expectedAuthorizationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/mypath/oauth/authorize"];
     XCTAssertEqualObjects(configuration.authorizationEndpoint, expectedAuthorizationEndpoint);
 }
 
