@@ -22,21 +22,21 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
 
-@interface MSIDAADResponseSerializerTests : XCTestCase
+@interface MSIDAADJsonResponsePreprocessorTests : XCTestCase
 
-@property (nonatomic) MSIDAADResponseSerializer *responseSerializer;
+@property (nonatomic) MSIDAADJsonResponsePreprocessor *preprocessor;
 
 @end
 
-@implementation MSIDAADResponseSerializerTests
+@implementation MSIDAADJsonResponsePreprocessorTests
 
 - (void)setUp
 {
     [super setUp];
     
-    self.responseSerializer = [MSIDAADResponseSerializer new];
+    self.preprocessor = [MSIDAADJsonResponsePreprocessor new];
 }
 
 - (void)tearDown
@@ -54,7 +54,7 @@
                             MSID_OAUTH2_CLIENT_TELEMETRY : clientTelemetry};
     __auto_type response = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:0 HTTPVersion:nil headerFields:headers];
     
-    id serializedResponse = [self.responseSerializer responseObjectForResponse:response data:data context:nil error:nil];
+    id serializedResponse = [self.preprocessor responseObjectForResponse:response data:data context:nil error:nil];
     
     XCTAssertEqualObjects(serializedResponse[@"spe_info"], @"I");
     XCTAssertEqualObjects(serializedResponse[@"correlation_id"], @"correlation_id_value");
@@ -69,7 +69,7 @@
     __auto_type response = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:0 HTTPVersion:nil headerFields:nil];
     
     NSError *error;
-    id serializedResponse = [self.responseSerializer responseObjectForResponse:response data:data context:nil error:&error];
+    id serializedResponse = [self.preprocessor responseObjectForResponse:response data:data context:nil error:&error];
     
     XCTAssertNil(serializedResponse);
     XCTAssertNotNil(error);

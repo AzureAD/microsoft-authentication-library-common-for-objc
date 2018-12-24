@@ -25,15 +25,18 @@
 
 @protocol MSIDRequestContext;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol MSIDResponseSerialization <NSObject>
 
 /**
  Parses response and data and returns parsed result.
  Result could be any type, it depens on specific implementation in a subclass.
  */
-- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
-                           data:(NSData *)data
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError *__autoreleasing *)error;
+- (nullable id)responseObjectForResponse:(nullable NSHTTPURLResponse *)httpResponse
+                           data:(nullable NSData *)data
+                        context:(nullable id <MSIDRequestContext>)context
+                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
+NS_ASSUME_NONNULL_END

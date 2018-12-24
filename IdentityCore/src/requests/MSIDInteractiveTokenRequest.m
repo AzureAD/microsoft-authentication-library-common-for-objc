@@ -36,7 +36,6 @@
 #endif
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
-#import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDPkce.h"
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
@@ -230,7 +229,6 @@
                                                                                                            codeVerifier:self.webViewConfiguration.pkce.codeVerifier
                                                                                                                authCode:authCode
                                                                                                           homeAccountId:self.authCodeClientInfo.accountIdentifier];
-    tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self.oauthFactory];
 
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
     {

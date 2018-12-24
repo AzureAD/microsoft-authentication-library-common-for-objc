@@ -23,7 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDHttpRequest.h"
-#import "MSIDJsonResponseSerializer.h"
+#import "MSIDHttpResponseSerializer.h"
 #import "MSIDUrlRequestSerializer.h"
 #import "MSIDTestURLSession.h"
 #import "MSIDTestURLResponse.h"
@@ -31,6 +31,7 @@
 #import "MSIDHttpRequestErrorHandling.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
+#import "MSIDJsonResponsePreprocessor.h"
 
 @interface MSIDTestRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
 
@@ -108,9 +109,14 @@
     XCTAssertNil(self.request.urlRequest);
 }
 
-- (void)testRequest_byDefaultUseMSIDJsonResponseSerializer
+- (void)testRequest_byDefaultUseMSIDHttpResponseSerializerWithMSIDJsonResponsePreprocessor
 {
-    XCTAssertTrue([self.request.responseSerializer isKindOfClass:MSIDJsonResponseSerializer.class]);
+    XCTAssertTrue([self.request.responseSerializer isKindOfClass:MSIDHttpResponseSerializer.class]);
+    if ([self.request.responseSerializer isKindOfClass:MSIDHttpResponseSerializer.class])
+    {
+        __auto_type responseSerializer = (MSIDHttpResponseSerializer *)self.request.responseSerializer;
+        XCTAssertTrue([responseSerializer.preprocessor isKindOfClass:MSIDJsonResponsePreprocessor.class]);
+    }
 }
 
 - (void)testRequest_byDefaultUseMSIDUrlRequestSerializer

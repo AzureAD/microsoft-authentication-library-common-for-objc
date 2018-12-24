@@ -27,7 +27,6 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDRefreshTokenGrantRequest.h"
-#import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAuthority.h"
 #import "MSIDOauth2Factory.h"
@@ -324,7 +323,6 @@
 {
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
-    tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self.oauthFactory];
 
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error) {
 

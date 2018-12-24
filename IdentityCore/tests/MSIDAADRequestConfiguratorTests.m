@@ -24,9 +24,10 @@
 #import <XCTest/XCTest.h>
 #import "MSIDAADRequestConfigurator.h"
 #import "MSIDHttpRequest.h"
-#import "MSIDAADResponseSerializer.h"
 #import "MSIDAADRequestErrorHandler.h"
 #import "MSIDTestContext.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
+#import "MSIDHttpResponseSerializer.h"
 
 @interface MSIDAADRequestConfiguratorTests : XCTestCase
 
@@ -65,7 +66,12 @@
     
     [self.requestConfigurator configure:httpRequest];
     
-    XCTAssertTrue([httpRequest.responseSerializer isKindOfClass:MSIDAADResponseSerializer.class]);
+    XCTAssertTrue([httpRequest.responseSerializer isKindOfClass:MSIDHttpResponseSerializer.class]);
+    if ([httpRequest.responseSerializer isKindOfClass:MSIDHttpResponseSerializer.class])
+    {
+        __auto_type responseSerializer = (MSIDHttpResponseSerializer *)httpRequest.responseSerializer;
+        XCTAssertTrue([responseSerializer.preprocessor isKindOfClass:MSIDAADJsonResponsePreprocessor.class]);
+    }
     XCTAssertTrue([httpRequest.errorHandler isKindOfClass:MSIDAADRequestErrorHandler.class]);
     XCTAssertEqualObjects(httpRequest.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/json");
     XCTAssertEqual(httpRequest.urlRequest.timeoutInterval, 60);

@@ -7,13 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDHttpResponseSerializer.h"
 
 @class MSIDOauth2Factory;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAADTokenResponseSerializer : MSIDAADResponseSerializer
+@interface MSIDAADTokenResponseSerializer : MSIDHttpResponseSerializer
 
 - (instancetype _Nullable)initWithOauth2Factory:(nonnull MSIDOauth2Factory *)oauth2Factory NS_DESIGNATED_INITIALIZER;
 

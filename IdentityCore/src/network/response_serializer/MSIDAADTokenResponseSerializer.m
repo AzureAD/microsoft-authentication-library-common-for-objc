@@ -8,6 +8,7 @@
 
 #import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDOauth2Factory.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
 
 @interface MSIDAADTokenResponseSerializer()
 
@@ -23,6 +24,7 @@
     if (self)
     {
         _oauth2Factory = oauth2Factory;
+        self.preprocessor = [MSIDAADJsonResponsePreprocessor new];
     }
     return self;
 }

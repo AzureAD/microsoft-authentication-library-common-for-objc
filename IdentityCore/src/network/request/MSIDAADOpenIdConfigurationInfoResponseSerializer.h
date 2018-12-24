@@ -21,9 +21,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDHttpResponseSerializer.h"
 
-@interface MSIDOpenIdConfigurationInfoResponseSerializer : MSIDAADResponseSerializer
+@interface MSIDAADOpenIdConfigurationInfoResponseSerializer : MSIDHttpResponseSerializer
 
 @property (nonatomic) NSURL *endpoint;
 

@@ -21,8 +21,19 @@
 // THE SOFTWARE.
 
 #import "MSIDDRSDiscoveryResponseSerializer.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
 
 @implementation MSIDDRSDiscoveryResponseSerializer
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        self.preprocessor = [MSIDAADJsonResponsePreprocessor new];
+    }
+    return self;
+}
 
 - (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
                            data:(NSData *)data
