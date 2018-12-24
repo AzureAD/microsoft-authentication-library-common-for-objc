@@ -54,6 +54,7 @@
 @property (nonatomic, strong) NSString *requestIDP;
 @property (nonatomic) BOOL brokerEnabled;
 @property (nonatomic) NSArray *clientCapabilities;
+@property (nonatomic) NSString *refreshToken;
 
 - (BOOL)usesEmbeddedWebView;
 

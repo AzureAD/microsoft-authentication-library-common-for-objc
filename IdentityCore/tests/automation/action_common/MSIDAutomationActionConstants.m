@@ -34,5 +34,9 @@ NSString *const MSID_AUTO_EXPIRE_AT_ACTION_IDENTIFIER                =   @"Expir
 NSString *const MSID_AUTO_INVALIDATE_RT_ACTION_IDENTIFIER            =   @"Invalidate refresh token";
 NSString *const MSID_AUTO_REMOVE_ACCOUNT_ACTION_IDENTIFIER           =   @"Remove account";
 NSString *const MSID_AUTO_READ_ACCOUNTS_ACTION_IDENTIFIER            =   @"Read accounts";
+NSString *const MSID_AUTO_ACQUIRE_TOKEN_WITH_RT_IDENTIFIER           =   @"Acquire Token with RT";
+NSString *const MSID_AUTO_EMPTY_STRESS_TEST_ACTION_IDENTIFIER        =   @"Empty stress test";
+NSString *const MSID_AUTO_NON_EMPTY_STRESS_TEST_ACTION_IDENTIFIER    =   @"Non empty stress test";
+NSString *const MSID_AUTO_INTERACTIVE_STRESS_TEST_ACTION_IDENTIFIER  =   @"Interactive stress test";
 
 @end

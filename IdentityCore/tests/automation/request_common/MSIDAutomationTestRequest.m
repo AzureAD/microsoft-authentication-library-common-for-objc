@@ -52,6 +52,7 @@
         _claims = json[@"claims"];
         _brokerEnabled = [json[@"brokerEnabled"] boolValue];
         _clientCapabilities = json[@"client_capabilities"];
+        _refreshToken = json[@"refresh_token"];
 
 #if TARGET_OS_IPHONE
         NSString *webviewTypeString = json[@"webviewtype"];
@@ -103,6 +104,7 @@
     json[@"login_hint"] = _loginHint;
     json[@"claims"] = _claims;
     json[@"use_passed_in_webview"] = @(_usePassedWebView);
+    json[@"refresh_token"] = _refreshToken;
 
     NSString *webviewType = nil;
 

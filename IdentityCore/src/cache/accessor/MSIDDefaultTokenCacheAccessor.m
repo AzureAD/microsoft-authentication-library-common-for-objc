@@ -340,7 +340,7 @@
 
     if ([filteredAccountsSet count])
     {
-        MSID_LOG_INFO(context, @"(Default accessor) Found %ld accounts in default accessor", [filteredAccountsSet count]);
+        MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in default accessor", (unsigned long)[filteredAccountsSet count]);
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
     else
