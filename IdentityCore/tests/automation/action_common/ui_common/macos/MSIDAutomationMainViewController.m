@@ -52,11 +52,15 @@
     requestController.requestInfo.string = @"";
 }
 
-- (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs
+- (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs
 {
     [self selectTabViewAtIndex:2];
     MSIDAutomationResultViewController *resultController = (MSIDAutomationResultViewController *) [self viewControllerAtIndex:2];
-    resultController.resultInfoString = resultJson;
+
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resultJson options:0 error:nil];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+    resultController.resultInfoString = jsonString;
     resultController.resultLogsString = resultLogs;
 }
 
@@ -146,7 +150,7 @@
         if (!parameters)
         {
             MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:action.actionIdentifier success:NO additionalInfo:nil];
-            [self showResultViewWithResult:testResult.jsonResult logs:self.resultLogs];
+            [self showResultViewWithResult:testResult.jsonDictionary logs:self.resultLogs];
             return;
         }
 
@@ -161,7 +165,7 @@
     [action performActionWithParameters:parameters
                     containerController:self
                         completionBlock:^(MSIDAutomationTestResult *result) {
-                            [self showResultViewWithResult:result.jsonResult logs:self.resultLogs];
+                            [self showResultViewWithResult:result.jsonDictionary logs:self.resultLogs];
 
                         }];
 }

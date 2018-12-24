@@ -40,19 +40,35 @@
     return self;
 }
 
-- (NSString *)jsonResult
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                                 error:(NSError * __autoreleasing *)error
+{
+    self = [super init];
+
+    if (self)
+    {
+        _actionId = json[@"action_id"];
+        _success = [json[@"success"] boolValue];
+        _actionCount = [json[@"action_count"] integerValue];
+        _additionalInfo = json;
+    }
+
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *jsonResultDict = [NSMutableDictionary new];
     jsonResultDict[@"action_id"] = _actionId;
     jsonResultDict[@"success"] = @(_success);
+    jsonResultDict[@"action_count"] = @(_actionCount);
 
     if (_additionalInfo)
     {
         [jsonResultDict addEntriesFromDictionary:_additionalInfo];
     }
 
-    NSData *jsonResultData = [NSJSONSerialization dataWithJSONObject:jsonResultDict options:0 error:nil];
-    return [[NSString alloc] initWithData:jsonResultData encoding:NSUTF8StringEncoding];
+    return jsonResultDict;
 }
 
 @end

@@ -21,20 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDAutomationTestResult.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationTestResult : NSObject <MSIDJsonSerializable>
+@interface MSIDAutomationErrorResult : MSIDAutomationTestResult
 
-@property (nonatomic) BOOL success;
-@property (nonatomic) NSString *actionId;
-@property (nonatomic) NSDictionary *additionalInfo;
-@property (nonatomic) NSInteger actionCount;
+@property (nonatomic) NSInteger errorCode;
+@property (nonatomic) NSString *errorDomain;
+@property (nonatomic) NSString *errorDescription;
+@property (nonatomic) NSDictionary *errorUserInfo;
 
 - (instancetype)initWithAction:(NSString *)actionId
-                       success:(BOOL)success
+                         error:(NSError *)error
                 additionalInfo:(nullable NSDictionary *)additionalInfo;
 
 @end

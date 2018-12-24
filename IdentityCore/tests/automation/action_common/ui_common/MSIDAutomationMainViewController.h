@@ -32,7 +32,7 @@
 @property (nonatomic) WKWebView *webView;
 
 - (void)showRequestDataViewWithCompletionHandler:(MSIDAutoParamBlock)completionHandler;
-- (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs;
+- (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs;
 - (void)showPassedInWebViewControllerWithContext:(NSDictionary *)context;
 - (WKWebView *)passedinWebView;
 

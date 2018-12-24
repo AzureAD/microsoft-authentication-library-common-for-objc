@@ -80,17 +80,20 @@
 }
 
 
-- (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs
+- (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs
 {
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resultJson options:0 error:nil];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
     if (self.presentedViewController)
     {
         [self.presentedViewController dismissViewControllerAnimated:NO completion:^{
-            [self presentResults:resultJson logs:resultLogs];
+            [self presentResults:jsonString logs:resultLogs];
         }];
     }
     else
     {
-        [self presentResults:resultJson logs:resultLogs];
+        [self presentResults:jsonString logs:resultLogs];
     }
 }
 
@@ -197,7 +200,7 @@
         if (!requestParams)
         {
             MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:action.actionIdentifier success:NO additionalInfo:nil];
-            [self showResultViewWithResult:result.jsonResult logs:self.resultLogs];
+            [self showResultViewWithResult:result.jsonDictionary logs:self.resultLogs];
             return;
         }
 
@@ -213,7 +216,7 @@
                     containerController:self
                         completionBlock:^(MSIDAutomationTestResult *result) {
 
-                            [self showResultViewWithResult:result.jsonResult logs:self.resultLogs];
+                            [self showResultViewWithResult:result.jsonDictionary logs:self.resultLogs];
 
                         }];
 }
