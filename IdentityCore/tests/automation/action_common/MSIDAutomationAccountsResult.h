@@ -26,26 +26,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationSuccessResult : MSIDAutomationTestResult
+@interface MSIDAutomationAccountsResult : MSIDAutomationTestResult
 
-@property (nonatomic) MSIDAutomationUserInformation *userInformation;
-@property (nonatomic) NSString *accessToken;
-@property (nonatomic) NSString *refreshToken;
-@property (nonatomic) NSString *idToken;
-@property (nonatomic) NSString *authority;
-@property (nonatomic) NSString *target;
-@property (nonatomic) long expiresOnDate;
-@property (nonatomic) BOOL isMRRT;
+@property (nonatomic) NSArray<MSIDAutomationUserInformation *> *accounts;
 
 - (instancetype)initWithAction:(NSString *)actionId
-                   accessToken:(NSString *)accessToken
-                  refreshToken:(NSString *)refreshToken
-                       idToken:(NSString *)idToken
-                     authority:(NSString *)authority
-                        target:(NSString *)target
-                 expiresOnDate:(long)expiresOnDate
-                        isMRRT:(BOOL)isMRRT
-               userInformation:(MSIDAutomationUserInformation *)userInformation
+                      accounts:(NSArray<MSIDAutomationUserInformation *> *)accounts
                 additionalInfo:(nullable NSDictionary *)additionalInfo;
 
 @end

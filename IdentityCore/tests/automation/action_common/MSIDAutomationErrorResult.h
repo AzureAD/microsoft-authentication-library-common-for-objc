@@ -28,12 +28,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDAutomationErrorResult : MSIDAutomationTestResult
 
 @property (nonatomic) NSInteger errorCode;
+@property (nonatomic) NSString *errorName;
 @property (nonatomic) NSString *errorDomain;
 @property (nonatomic) NSString *errorDescription;
 @property (nonatomic) NSDictionary *errorUserInfo;
 
 - (instancetype)initWithAction:(NSString *)actionId
                          error:(NSError *)error
+                     errorName:(NSString *)errorName
                 additionalInfo:(nullable NSDictionary *)additionalInfo;
 
 @end

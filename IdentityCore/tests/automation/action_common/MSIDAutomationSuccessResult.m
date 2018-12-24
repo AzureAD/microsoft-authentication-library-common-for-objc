@@ -23,47 +23,6 @@
 
 #import "MSIDAutomationSuccessResult.h"
 
-@implementation MSIDAutomationUserInformation
-
-- (NSDictionary *)jsonDictionary
-{
-    NSMutableDictionary *json = [NSMutableDictionary new];
-    json[@"object_id"] = self.objectId;
-    json[@"tenant_id"] = self.tenantId;
-    json[@"given_name"] = self.givenName;
-    json[@"family_name"] = self.familyName;
-    json[@"username"] = self.username;
-    json[@"home_account_id"] = self.homeAccountId;
-    json[@"local_account_id"] = self.localAccountId;
-    json[@"home_object_id"] = self.homeObjectId;
-    json[@"home_tenant_id"] = self.homeTenantId;
-    json[@"environment"] = self.environment;
-    return json;
-}
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
-{
-    self = [super init];
-
-    if (self)
-    {
-        _objectId = json[@"object_id"];
-        _tenantId = json[@"tenant_id"];
-        _givenName = json[@"given_name"];
-        _familyName = json[@"family_name"];
-        _username = json[@"username"];
-        _homeAccountId = json[@"home_account_id"];
-        _localAccountId = json[@"local_account_id"];
-        _homeObjectId = json[@"home_object_id"];
-        _homeTenantId = json[@"home_tenant_id"];
-        _environment = json[@"environment"];
-    }
-
-    return self;
-}
-
-@end
-
 @implementation MSIDAutomationSuccessResult
 
 - (instancetype)initWithAction:(NSString *)actionId

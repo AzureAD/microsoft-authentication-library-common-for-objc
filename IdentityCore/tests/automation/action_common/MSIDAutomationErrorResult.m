@@ -29,6 +29,7 @@ NSString * const MSIDAutomationErrorDescriptionKey = @"MSIDAutomationErrorDescri
 
 - (instancetype)initWithAction:(NSString *)actionId
                          error:(NSError *)error
+                     errorName:(NSString *)errorName
                 additionalInfo:(nullable NSDictionary *)additionalInfo
 {
     self = [super initWithAction:actionId success:NO additionalInfo:additionalInfo];
@@ -39,6 +40,7 @@ NSString * const MSIDAutomationErrorDescriptionKey = @"MSIDAutomationErrorDescri
         _errorDomain = error.domain;
         _errorDescription = error.description;
         _errorUserInfo = [self userInfoDictionary:error];
+        _errorName = errorName;
     }
 
     return self;
@@ -55,20 +57,21 @@ NSString * const MSIDAutomationErrorDescriptionKey = @"MSIDAutomationErrorDescri
         _errorDomain = json[@"error_domain"];
         _errorDescription = json[@"error_description"];
         _errorUserInfo = json[@"user_info"];
+        _errorName = json[@"error_name"];
     }
 
     return self;
 }
 
-- (NSDictionary *)dictionaryFromError:(NSError *)error
+- (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *errorFields = [NSMutableDictionary new];
-
-    errorFields[@"error_code"] = @(error.code);
-    errorFields[@"error_domain"] = error.domain;
-    errorFields[@"error_description"] = error.description;
-    errorFields[@"user_info"] = [self userInfoDictionary:error];
-    return errorFields;
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    json[@"error_code"] = @(self.errorCode);
+    json[@"error_domain"] = self.errorDomain;
+    json[@"error_description"] = self.errorDescription;
+    json[@"user_info"] = self.errorUserInfo;
+    json[@"error_name"] = self.errorName;
+    return json;
 }
 
 - (NSDictionary *)userInfoDictionary:(NSError *)error
@@ -79,7 +82,9 @@ NSString * const MSIDAutomationErrorDescriptionKey = @"MSIDAutomationErrorDescri
     {
         id userInfoObj = error.userInfo[userInfoKey];
 
-        if ([userInfoObj isKindOfClass:[NSString class]])
+        if ([userInfoObj isKindOfClass:[NSString class]]
+            || [userInfoObj isKindOfClass:[NSArray class]]
+            || [userInfoObj isKindOfClass:[NSDictionary class]])
         {
             userInfo[userInfoKey] = userInfoObj;
         }

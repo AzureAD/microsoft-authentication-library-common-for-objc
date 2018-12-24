@@ -21,32 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationTestResult.h"
-#import "MSIDAutomationUserInformation.h"
+#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationSuccessResult : MSIDAutomationTestResult
+@interface MSIDAutomationUserInformation : NSObject <MSIDJsonSerializable>
 
-@property (nonatomic) MSIDAutomationUserInformation *userInformation;
-@property (nonatomic) NSString *accessToken;
-@property (nonatomic) NSString *refreshToken;
-@property (nonatomic) NSString *idToken;
-@property (nonatomic) NSString *authority;
-@property (nonatomic) NSString *target;
-@property (nonatomic) long expiresOnDate;
-@property (nonatomic) BOOL isMRRT;
-
-- (instancetype)initWithAction:(NSString *)actionId
-                   accessToken:(NSString *)accessToken
-                  refreshToken:(NSString *)refreshToken
-                       idToken:(NSString *)idToken
-                     authority:(NSString *)authority
-                        target:(NSString *)target
-                 expiresOnDate:(long)expiresOnDate
-                        isMRRT:(BOOL)isMRRT
-               userInformation:(MSIDAutomationUserInformation *)userInformation
-                additionalInfo:(nullable NSDictionary *)additionalInfo;
+@property (nonatomic) NSString *objectId;
+@property (nonatomic) NSString *tenantId;
+@property (nonatomic) NSString *givenName;
+@property (nonatomic) NSString *familyName;
+@property (nonatomic) NSString *username;
+@property (nonatomic) NSString *homeAccountId;
+@property (nonatomic) NSString *localAccountId;
+@property (nonatomic) NSString *homeObjectId;
+@property (nonatomic) NSString *homeTenantId;
+@property (nonatomic) NSString *environment;
 
 @end
 
