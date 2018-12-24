@@ -52,6 +52,7 @@
         _extraScopesToConsent = [extraScopesToConsent msidToString];
         _supportedBrokerProtocolScheme = brokerProtocolScheme;
         _requestType = requestType;
+        _enablePkce = YES;
     }
 
     return self;
