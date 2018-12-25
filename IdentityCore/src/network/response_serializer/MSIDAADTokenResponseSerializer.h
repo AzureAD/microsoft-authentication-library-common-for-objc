@@ -6,19 +6,11 @@
 //  Copyright © 2018 Microsoft. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import "MSIDHttpResponseSerializer.h"
-
-@class MSIDOauth2Factory;
+#import "MSIDTokenResponseSerializer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAADTokenResponseSerializer : MSIDHttpResponseSerializer
-
-- (instancetype _Nullable)initWithOauth2Factory:(nonnull MSIDOauth2Factory *)oauth2Factory NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+@interface MSIDAADTokenResponseSerializer : MSIDTokenResponseSerializer
 
 @end
 
