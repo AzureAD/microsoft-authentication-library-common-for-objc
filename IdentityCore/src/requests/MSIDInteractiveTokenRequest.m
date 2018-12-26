@@ -175,7 +175,7 @@
 
 - (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
     BOOL useSession = YES;
     BOOL allowSafariViewController = YES;
