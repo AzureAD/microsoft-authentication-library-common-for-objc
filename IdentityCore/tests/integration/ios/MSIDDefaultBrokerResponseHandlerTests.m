@@ -132,7 +132,7 @@
     XCTAssertEqualObjects(result.accessToken.scopes, [scopes msidScopeSet]);
     XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(result.accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
-    XCTAssertEqualObjects(result.accessToken.accountIdentifier.legacyAccountId, @"user@contoso.com");
+    XCTAssertEqualObjects(result.accessToken.accountIdentifier.displayableId, @"user@contoso.com");
     XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
     XCTAssertTrue([expiresOn timeIntervalSinceDate:result.accessToken.expiresOn] < 1);
     XCTAssertTrue([extExpiresOn timeIntervalSinceDate:result.accessToken.extendedExpireTime] < 1);
@@ -150,7 +150,7 @@
     XCTAssertEqualObjects(tokenResponse.scope, scopes);
     XCTAssertEqualObjects(tokenResponse.familyId, @"1");
     
-    XCTAssertEqualObjects(result.account.accountIdentifier.legacyAccountId, @"user@contoso.com");
+    XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
     XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(result.account.clientInfo.rawClientInfo, rawClientInfo);
     XCTAssertEqualObjects(result.account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
@@ -194,7 +194,7 @@
     XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
     XCTAssertEqualObjects(account.username, @"user@contoso.com");
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
-    XCTAssertEqualObjects(account.accountIdentifier.legacyAccountId, @"user@contoso.com");
+    XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"user@contoso.com");
     XCTAssertEqualObjects(account.clientInfo.rawClientInfo, rawClientInfo);
 }
 

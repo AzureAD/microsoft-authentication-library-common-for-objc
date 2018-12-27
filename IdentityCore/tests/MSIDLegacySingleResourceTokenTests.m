@@ -311,7 +311,7 @@
     XCTAssertEqualObjects(token.accessToken, @"at");
     XCTAssertEqualObjects(token.refreshToken, @"rt");
     XCTAssertEqualObjects(token.idToken, idToken);
-    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, @"testuser@upn.com");
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, @"testuser@upn.com");
     XCTAssertEqualObjects(token.accessTokenType, @"token type");
 
     MSIDCredentialCacheItem *newCacheItem = [token legacyTokenCacheItem];
@@ -327,7 +327,7 @@
     token.authority = [@"https://contoso.com/common" authority];
     token.clientId = @"some clientId";
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"uid.utid"];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"uid.utid"];
     token.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     token.cachedAt = [NSDate dateWithTimeIntervalSince1970:1500000000];
     token.accessToken = @"token";

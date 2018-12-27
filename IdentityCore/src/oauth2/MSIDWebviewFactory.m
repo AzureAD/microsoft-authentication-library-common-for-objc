@@ -185,7 +185,7 @@
 
     NSString *promptParam = MSIDPromptParamFromType(parameters.promptType);
     configuration.promptBehavior = promptParam;
-    configuration.loginHint = parameters.accountIdentifier.legacyAccountId ?: parameters.loginHint;
+    configuration.loginHint = parameters.accountIdentifier.displayableId ?: parameters.loginHint;
     configuration.extraQueryParameters = parameters.extraQueryParameters;
     configuration.sliceParameters = parameters.sliceParameters;
     configuration.customHeaders = parameters.customWebviewHeaders;

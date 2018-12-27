@@ -137,7 +137,7 @@
     token.authority = [@"https://contoso.com/common" authority];
     token.clientId = @"some clientId";
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"uid.utid"];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"uid.utid"];
     token.rawIdToken = @"idToken";
     return token;
 }
