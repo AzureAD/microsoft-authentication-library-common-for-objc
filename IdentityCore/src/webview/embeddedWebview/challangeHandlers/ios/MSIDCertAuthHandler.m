@@ -28,6 +28,8 @@
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "UIApplication+MSIDExtensions.h"
 
+#if !MSID_EXCLUDE_SYSTEMWV
+
 static NSArray<UIActivity *> *s_activities = nil;
 static NSObject<SFSafariViewControllerDelegate> *s_safariDelegate = nil;
 static SFSafariViewController *s_safariController = nil;
@@ -62,17 +64,16 @@ static NSString *s_redirectScheme = nil;
 }
 @end
 
-
+#endif
 
 @implementation MSIDCertAuthHandler
+
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
 + (void)load
 {
     s_safariDelegate = [MSIDCertAuthDelegate new];
 }
-
-+ (void)resetHandler { }
-
 
 + (void)setRedirectUriPrefix:(NSString *)prefix
                    forScheme:(NSString *)scheme
@@ -115,12 +116,16 @@ static NSString *s_redirectScheme = nil;
     return NO;
 }
 
+#endif
+
++ (void)resetHandler { }
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
+#if !MSID_EXCLUDE_SYSTEMWV
     MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
     
     if (!currentSession)
@@ -174,5 +179,9 @@ static NSString *s_redirectScheme = nil;
     completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, NULL);
     
     return YES;
+#else
+    return NO;
+#endif
 }
+
 @end

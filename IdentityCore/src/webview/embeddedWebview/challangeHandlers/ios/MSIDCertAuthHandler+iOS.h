@@ -28,12 +28,16 @@
 
 @interface MSIDCertAuthHandler (iOS)
 
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+
 + (void)setRedirectUriPrefix:(NSString *)prefix
                    forScheme:(NSString *)scheme;
 
 // These are for cert auth challenge for iOS
 + (void)setCustomActivities:(NSArray<UIActivity *> *)activities;
 + (BOOL)completeCertAuthChallenge:(NSURL *)endUrl;
+
+#endif
 
 @end
 #endif /* MSIDCertAuthHandler_mac_h */
