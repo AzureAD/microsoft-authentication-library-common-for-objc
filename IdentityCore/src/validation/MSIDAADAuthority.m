@@ -33,7 +33,6 @@
 @interface MSIDAADAuthority()
 
 @property (nonatomic) MSIDAadAuthorityCache *authorityCache;
-@property (nonatomic) MSIDAuthorityFactory *authorityFactory;
 
 @end
 
@@ -50,7 +49,6 @@
         if (!_url) return nil;
         _tenant = [self.class tenantFromAuthorityUrl:self.url context:context error:error];
         _authorityCache = [MSIDAadAuthorityCache sharedInstance];
-        _authorityFactory = [MSIDAuthorityFactory new];
     }
     
     return self;
