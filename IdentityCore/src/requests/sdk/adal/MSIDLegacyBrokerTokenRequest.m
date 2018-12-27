@@ -43,15 +43,15 @@
     NSString *usernameType = @"";
     NSString *username = @"";
 
-    if (self.requestParameters.accountIdentifier.legacyAccountId)
+    if (self.requestParameters.accountIdentifier.displayableId)
     {
-        username = self.requestParameters.accountIdentifier.legacyAccountId;
-        usernameType = [MSIDAccountIdentifier legacyAccountIdentifierAsString:self.requestParameters.accountIdentifier.legacyAccountIdentifierType];
+        username = self.requestParameters.accountIdentifier.displayableId;
+        usernameType = [MSIDAccountIdentifier legacyAccountIdentifierTypeAsString:self.requestParameters.accountIdentifier.legacyAccountIdentifierType];
     }
     else if (self.requestParameters.loginHint)
     {
         username = self.requestParameters.loginHint;
-        usernameType = [MSIDAccountIdentifier legacyAccountIdentifierAsString:MSIDLegacyIdentifierTypeOptionalDisplayableId];
+        usernameType = [MSIDAccountIdentifier legacyAccountIdentifierTypeAsString:MSIDLegacyIdentifierTypeOptionalDisplayableId];
     }
 
     NSMutableDictionary *contents = [NSMutableDictionary new];
