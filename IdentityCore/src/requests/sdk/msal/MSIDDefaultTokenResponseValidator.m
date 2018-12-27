@@ -34,6 +34,7 @@
 
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(MSIDConfiguration *)configuration
+                  oidcScope:(NSString *)oidcScope
              requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
@@ -43,13 +44,18 @@
      we'd like to throw an error and specify which scopes were granted and which ones not
      */
 
-    NSOrderedSet *grantedScopes = [tokenResult.tokenResponse.scope msidScopeSet];
+    NSMutableOrderedSet *grantedScopes = [[tokenResult.tokenResponse.scope msidScopeSet] mutableCopy];
+    NSOrderedSet *oidcScopes = [oidcScope msidScopeSet];
 
     if (![configuration.scopes isSubsetOfOrderedSet:grantedScopes])
     {
         if (error)
         {
             NSMutableDictionary *additionalUserInfo = [NSMutableDictionary new];
+            
+            MSID_LOG_ERROR_CORR(correlationID, @"Server returned less scopes than requested, granted scopes: %@", grantedScopes);
+            // Remove oidc scopes.
+            [grantedScopes minusOrderedSet:oidcScopes];
             additionalUserInfo[MSIDGrantedScopesKey] = [grantedScopes array];
 
             NSMutableOrderedSet *declinedScopeSet = [[NSOrderedSet msidOrderedSetFromString:configuration.target] mutableCopy];

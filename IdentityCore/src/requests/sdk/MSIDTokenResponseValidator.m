@@ -79,6 +79,7 @@
 
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(MSIDConfiguration *)configuration
+                  oidcScope:(NSString *)oidcScope
              requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
@@ -88,6 +89,7 @@
 }
 
 - (MSIDTokenResult *)validateAndSaveBrokerResponse:(MSIDBrokerResponse *)brokerResponse
+                                         oidcScope:(NSString *)oidcScope
                                       oauthFactory:(MSIDOauth2Factory *)factory
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
                                      correlationID:(NSUUID *)correlationID
@@ -154,6 +156,7 @@
 
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:configuration
+                                       oidcScope:oidcScope
                                   requestAccount:nil
                                    correlationID:correlationID
                                            error:error];
@@ -220,9 +223,12 @@
         MSID_LOG_ERROR(parameters, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
         MSID_LOG_ERROR_PII(parameters, @"Failed to save tokens in cache. Error %@", savingError);
     }
+    
+    
 
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:parameters.msidConfiguration
+                                       oidcScope:parameters.oidcScope
                                   requestAccount:parameters.accountIdentifier
                                    correlationID:parameters.correlationId
                                            error:error];
