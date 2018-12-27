@@ -320,6 +320,7 @@
 		962EA03E2190D4930049C4C8 /* MSIDCertAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 962EA03C2190D4930049C4C8 /* MSIDCertAuthHandler.m */; };
 		962EA0412190D4A50049C4C8 /* MSIDCertAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 962EA0402190D4A50049C4C8 /* MSIDCertAuthHandler.m */; };
 		963553BF20CA7C52005235E5 /* MSIDSystemWebviewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 963553BE20CA7C52005235E5 /* MSIDSystemWebviewControllerTests.m */; };
+		963634D421D4EBD400C60742 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF3A20A3968400A989B7 /* AppKit.framework */; };
 		963CFAF320AD817600BDA25F /* MSIDWebviewAuthorizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 963CFAF220AD817600BDA25F /* MSIDWebviewAuthorizationTests.m */; };
 		963CFAF420AD817600BDA25F /* MSIDWebviewAuthorizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 963CFAF220AD817600BDA25F /* MSIDWebviewAuthorizationTests.m */; };
 		963E68E721489A9500D7D0CC /* NSString+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 96DAC2CC21431DE30001FBF5 /* NSString+MSIDTestUtil.m */; };
@@ -1723,6 +1724,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				963634D421D4EBD400C60742 /* AppKit.framework in Frameworks */,
 				60D6ED0D20D9BBA0002FCBBB /* IOKit.framework in Frameworks */,
 				60D6ED0220D9BB02002FCBBB /* SecurityInterface.framework in Frameworks */,
 				60B55FFF20AE28AE00DDB46D /* GSS.framework in Frameworks */,
