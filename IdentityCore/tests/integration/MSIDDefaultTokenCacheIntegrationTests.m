@@ -42,6 +42,9 @@
 #import "MSIDAccountIdentifier.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDTestCacheAccessorHelper.h"
+#import "MSIDCache.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @interface MSIDDefaultTokenCacheIntegrationTests : XCTestCase
 {
@@ -116,6 +119,32 @@
 
     XCTAssertEqual([accessTokens count], 1);
     XCTAssertEqualObjects([accessTokens[0] accessToken], tokenResponse.accessToken);
+}
+
+- (void)testSaveTokensWithRequestParams_withAccessToken_andIntuneEnrolled_shouldSaveToken
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    
+    NSError *error = nil;
+    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                     response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
+                                                      context:nil
+                                                        error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
+    XCTAssertNil(error);
+    
+    XCTAssertEqual([accessTokens count], 1);
+    XCTAssertEqualObjects([accessTokens[0] accessToken], tokenResponse.accessToken);
+    XCTAssertEqualObjects([accessTokens[0] enrollmentId], @"enrollmentId");
+    
+    [self setUpEnrollmentIdsCache:YES];
 }
 
 - (void)testSaveTokensWithRequestParams_withNilAccessToken_shouldNotSaveToken_returnError
@@ -508,6 +537,41 @@
     XCTAssertNil(error);
     XCTAssertNotNil(returnedToken);
     XCTAssertEqualObjects(returnedToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertNil(returnedToken.enrollmentId);
+}
+
+- (void)testGetTokenWithType_whenTypeAccessCorrectAccountAndParameters_andIntuneEnrolled_shouldReturnToken
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                            homeAccountId:@"1.1234-5678-90abcdefg"];
+    
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    
+    // Save token
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+    
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    
+    NSError *error = nil;
+    
+    MSIDAccessToken *returnedToken = [_cacheAccessor getAccessTokenForAccount:account
+                                                                configuration:configuration
+                                                                      context:nil
+                                                                        error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(returnedToken);
+    XCTAssertEqualObjects(returnedToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(returnedToken.enrollmentId, @"enrollmentId");
+    
+    [self setUpEnrollmentIdsCache:YES];
 }
 
 - (void)testGetTokenWithType_whenTypeAccessCorrectAccountAndParametersWithNoAuthority_shouldReturnToken
@@ -645,6 +709,34 @@
 
     NSArray *allIDs = [MSIDTestCacheAccessorHelper getAllIdTokens:_cacheAccessor];
     XCTAssertEqual([allIDs count], 1);
+}
+
+#pragma mark - Helpers
+
+- (void)setUpEnrollmentIdsCache:(BOOL)isEmpty
+{
+    NSDictionary *emptyDict = @{};
+    
+    NSDictionary *dict = @{MSID_INTUNE_ENROLLMENT_ID_KEY: @{@"enrollment_ids": @[@{
+                                                                                     @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                                                                                     @"oid" : @"d3444455-mike-4271-b6ea-e499cc0cab46",
+                                                                                     @"home_account_id" : @"1.1234-5678-90abcdefg",
+                                                                                     @"user_id" : @"mike@contoso.com",
+                                                                                     @"enrollment_id" : @"enrollmentId"
+                                                                                     },
+                                                                                 @{
+                                                                                     @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                                                                                     @"oid" : @"6eec576f-dave-416a-9c4a-536b178a194a",
+                                                                                     @"home_account_id" : @"1e4dd613-dave-4527-b50a-97aca38b57ba",
+                                                                                     @"user_id" : @"dave@contoso.com",
+                                                                                     @"enrollment_id" : @"64d0557f-dave-4193-b630-8491ffd3b180"
+                                                                                     }
+                                                                                 ]}};
+    
+    MSIDCache *msidCache = [[MSIDCache alloc] initWithDictionary:isEmpty ? emptyDict : dict];
+    MSIDIntuneInMemoryCacheDataSource *memoryCache = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:msidCache];
+    MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
+    [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];
 }
 
 @end

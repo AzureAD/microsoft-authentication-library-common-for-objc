@@ -106,14 +106,6 @@ static NSInteger kCredentialTypePrefix = 2000;
         _environment = environment;
         _clientId = clientId;
         _credentialType = type;
-        
-        if (_credentialType == MSIDAccessTokenType)
-        {
-            _enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:homeAccountId
-                                                                                        legacyUserId:nil
-                                                                                             context:nil
-                                                                                               error:nil];
-        }
     }
 
     return self;

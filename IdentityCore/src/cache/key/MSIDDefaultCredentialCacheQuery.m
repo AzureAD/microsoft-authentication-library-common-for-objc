@@ -85,7 +85,7 @@
         && self.target
         && self.targetMatchingOptions == MSIDExactStringMatch)
     {
-        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:self.realm enrollmentId:[self getEnrollmentId] target:self.target];
+        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:self.realm enrollmentId:self.enrollmentId target:self.target];
     }
 
     return nil;
@@ -136,7 +136,7 @@
         genericString = [self credentialIdWithType:self.credentialType
                                           clientId:clientId
                                              realm:self.realm
-                                      enrollmentId:(self.credentialType == MSIDAccessTokenType) ? [self getEnrollmentId] : nil];
+                                      enrollmentId:(self.credentialType == MSIDAccessTokenType) ? self.enrollmentId : nil];
     }
 
     return [genericString dataUsingEncoding:NSUTF8StringEncoding];
@@ -166,19 +166,6 @@
     }
 
     return nil;
-}
-
-- (NSString *)getEnrollmentId
-{
-    if (!self.enrollmentId)
-    {
-        self.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:self.homeAccountId
-                                                                                        legacyUserId:nil
-                                                                                             context:nil
-                                                                                               error:nil];
-    }
-    
-    return self.enrollmentId;
 }
 
 @end
