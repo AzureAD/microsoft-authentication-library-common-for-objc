@@ -89,8 +89,8 @@
 - (void)tearDown
 {
     [super tearDown];
-    [_defaultDataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
-    [_otherDataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
+    [_defaultDataSource removeItemsWithTokenKey:[MSIDCacheKey new] context:nil error:nil];
+    [_otherDataSource removeItemsWithTokenKey:[MSIDCacheKey new] context:nil error:nil];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
 
 #if !TARGET_OS_IOS
