@@ -76,7 +76,7 @@
 {
     [super tearDown];
 
-    [_dataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
+    [_dataSource removeItemsWithTokenKey:[MSIDCacheKey new] context:nil error:nil];
 }
 
 #pragma mark - Saving

@@ -154,7 +154,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         return NO;
     }
     
-    MSIDCacheKey *tokenCacheKey = [self tokenCacheKeyFromCacheKey:key];
+    MSIDCacheKey *tokenCacheKey = [self overrideTokenKey:key];
     
     NSData *itemData = [serializer serializeCredentialCacheItem:item];
     
@@ -202,7 +202,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
-    MSIDCacheKey *tokenCacheKey = [self tokenCacheKeyFromCacheKey:key];
+    MSIDCacheKey *tokenCacheKey = [self overrideTokenKey:key];
     
     NSArray *items = [self itemsWithKey:tokenCacheKey context:context error:error];
     
@@ -408,17 +408,29 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 
 #pragma mark - Removal
 
-// used for removing tokens
-- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
 {
-    MSIDCacheKey *tokenCacheKey = [self tokenCacheKeyFromCacheKey:key];
+    MSIDCacheKey *tokenCacheKey = [self overrideTokenKey:key];
     
     return [self removeItemsWithKey:tokenCacheKey context:context error:error];
 }
 
-// used for removing anything but tokens
+- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
@@ -716,7 +728,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
 // Override the following function in subclasses if special key handling is needed
-- (MSIDCacheKey *)tokenCacheKeyFromCacheKey:(MSIDCacheKey *)key
+- (MSIDCacheKey *)overrideTokenKey:(MSIDCacheKey *)key
 {
     return key;
 }

@@ -62,15 +62,17 @@
 
 // Removal
 
-// used for removing tokens
-- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
+- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error;
 
-// used for removing anything but tokens
-- (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error;
+- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error;
+
+- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error;
 
 // Accounts
 

@@ -378,7 +378,7 @@
         && [NSString msidIsStringNilOrBlank:familyId] && !authority
         && ![NSString msidIsStringNilOrBlank:account.displayableId])
     {
-        result = [_dataSource removeTokensWithKey:query context:context error:error];
+        result = [_dataSource removeItemsWithTokenKey:query context:context error:error];
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
     else
@@ -636,7 +636,7 @@
                                                                              resource:target
                                                                          legacyUserId:userId];
 
-    BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
+    BOOL result = [_dataSource removeItemsWithTokenKey:key context:context error:error];
 
     if (result && credentialType == MSIDRefreshTokenType)
     {
