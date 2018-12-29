@@ -56,6 +56,10 @@
             MSID_LOG_ERROR_CORR(correlationID, @"Server returned less scopes than requested, granted scopes: %@", grantedScopes);
             // Remove oidc scopes.
             [grantedScopes minusOrderedSet:oidcScopes];
+            
+            MSID_LOG_INFO_CORR(correlationID, @"Removing reserved scopes from granted scopes: %@", oidcScopes);
+            MSID_LOG_INFO_CORR(correlationID, @"Final granted scopes: %@", grantedScopes);
+            
             additionalUserInfo[MSIDGrantedScopesKey] = [grantedScopes array];
 
             NSMutableOrderedSet *declinedScopeSet = [[NSOrderedSet msidOrderedSetFromString:configuration.target] mutableCopy];
