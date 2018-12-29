@@ -27,9 +27,12 @@
 
 #import "MSIDWebviewResponse.h"
 
+@class MSIDClientInfo;
+
 @interface MSIDWebMSAuthResponse : MSIDWebviewResponse
 
 @property (readonly) NSString *upn;
 @property (readonly) NSString *appInstallLink;
+@property (readonly) MSIDClientInfo *clientInfo;
 
 @end

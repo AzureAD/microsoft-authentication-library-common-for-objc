@@ -32,6 +32,8 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDRefreshToken.h"
 #import "NSError+MSIDExtensions.h"
+#import "MSIDConstants.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -110,11 +112,10 @@
         MSID_LOG_WARN(self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
     }
 
-    MSIDAccount *account = [self.defaultAccessor accountForIdentifier:self.requestParameters.accountIdentifier
-                                                             familyId:nil
-                                                        configuration:self.requestParameters.msidConfiguration
-                                                              context:self.requestParameters
-                                                                error:&cacheError];
+    MSIDAccount *account = [self.defaultAccessor getAccountForIdentifier:self.requestParameters.accountIdentifier
+                                                               authority:self.requestParameters.authority
+                                                                 context:self.requestParameters
+                                                                   error:&cacheError];
 
     if (!account)
     {
@@ -137,7 +138,7 @@
     self.appMetadata = [self appMetadataWithError:error];
 
     //On first network try, app metadata will be nil but on every subsequent attempt, it should reflect if clientId is part of family
-    NSString *familyId = self.appMetadata ? self.appMetadata.familyId : @"1";
+    NSString *familyId = self.appMetadata ? self.appMetadata.familyId : MSID_DEFAULT_FAMILY_ID;
 
     if (![NSString msidIsStringNilOrBlank:familyId])
     {
@@ -151,7 +152,7 @@
     return nil;
 }
 
-- (nullable id<MSIDRefreshableToken>)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
 {
     return [self.defaultAccessor getRefreshTokenWithAccount:self.requestParameters.accountIdentifier
                                                    familyId:nil
@@ -167,28 +168,29 @@
     NSString *subError = serverError.msidSubError;
     if (subError && [subError isEqualToString:MSIDServerErrorClientMismatch])
     {
+        BOOL result = [self.defaultAccessor updateAppMetadataWithFamilyId:@""
+                                                                 clientId:self.requestParameters.msidConfiguration.clientId
+                                                                authority:self.requestParameters.msidConfiguration.authority
+                                                                  context:self.requestParameters
+                                                                    error:cacheError];
+
+
         //reset family id if set in app's metadata
-        if (!self.appMetadata)
+        if (!result)
         {
-            self.appMetadata = [self appMetadataWithError:cacheError];
-
-            if (!self.appMetadata)
-            {
-                if (cacheError)
-                {
-                    *cacheError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Cannot update app metadata, because it's missing", nil, nil, nil, self.requestParameters.correlationId, nil);
-                }
-
-                MSID_LOG_ERROR(self.requestParameters, @"Cannot update app metadata");
-                return NO;
-            }
+            MSID_LOG_WARN(self.requestParameters, @"Failed to update app metadata");
         }
-
-        self.appMetadata.familyId = @"";
-        return [self.defaultAccessor updateAppMetadata:self.appMetadata context:self.requestParameters error:cacheError];
     }
 
     return YES;
+}
+
+- (BOOL)shouldRemoveRefreshToken:(NSError *)serverError
+{
+    // MSAL removes RTs on invalid_grant + bad token combination
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
+    NSString *subError = serverError.msidSubError;
+    return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorBadToken];
 }
 
 - (id<MSIDCacheAccessor>)tokenCache

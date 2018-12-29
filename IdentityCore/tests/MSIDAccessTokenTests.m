@@ -324,7 +324,7 @@
 - (MSIDAccessToken *)createToken
 {
     MSIDAccessToken *token = [MSIDAccessToken new];
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"uid.utid"];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy_id" homeAccountId:@"uid.utid"];
     token.authority = [@"https://contoso.com/common" authority];
     token.clientId = @"clientId";
     token.additionalServerInfo = @{@"spe_info" : @"value2"};

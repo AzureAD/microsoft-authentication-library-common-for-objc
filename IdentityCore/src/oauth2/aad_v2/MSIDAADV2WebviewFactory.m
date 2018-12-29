@@ -48,6 +48,7 @@
     [allScopes addObject:MSID_OAUTH2_SCOPE_PROFILE_VALUE];
     
     parameters[MSID_OAUTH2_SCOPE] = allScopes.msidToString;
+    parameters[MSID_OAUTH2_CLIENT_INFO] = @"1";
     
     parameters[MSID_OAUTH2_LOGIN_REQ] = configuration.uid;
     parameters[MSID_OAUTH2_DOMAIN_REQ] = configuration.utid;

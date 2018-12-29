@@ -117,9 +117,23 @@
     return token;
 }
 
-- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }

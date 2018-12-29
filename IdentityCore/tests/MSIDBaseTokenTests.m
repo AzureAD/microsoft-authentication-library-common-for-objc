@@ -136,9 +136,9 @@
 - (void)testBaseTokenIsEqual_whenHomeAccountIdIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"value 1"];
+    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy_id" homeAccountId:@"value 1"];
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"value 2"];
+    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy_id" homeAccountId:@"value 2"];
 
     XCTAssertNotEqualObjects(lhs, rhs);
 }
@@ -146,9 +146,9 @@
 - (void)testBaseTokenIsEqual_whenHomeAccountIdIdIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"value 1"];
+    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy_id" homeAccountId:@"value 1"];
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy_id" homeAccountId:@"value 1"];
+    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy_id" homeAccountId:@"value 1"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
@@ -156,9 +156,9 @@
 - (void)testBaseTokenIsEqual_whenLegacyAccountIdIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"value 1" homeAccountId:@"value 1"];
+    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"value 1" homeAccountId:@"value 1"];
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"value 2" homeAccountId:@"value 2"];
+    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"value 2" homeAccountId:@"value 2"];
 
     XCTAssertNotEqualObjects(lhs, rhs);
 }
@@ -166,9 +166,9 @@
 - (void)testBaseTokenIsEqual_whenLegacyAccountIdIdIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"value 1" homeAccountId:@"value 1"];
+    lhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"value 1" homeAccountId:@"value 1"];
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"value 1" homeAccountId:@"value 1"];
+    rhs.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"value 1" homeAccountId:@"value 1"];
 
     XCTAssertEqualObjects(lhs, rhs);
 }
@@ -263,7 +263,7 @@
     token.authority = [@"https://contoso.com/common" authority];
     token.clientId = @"some clientId";
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"uid.utid"];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"uid.utid"];
     return token;
 }
 
