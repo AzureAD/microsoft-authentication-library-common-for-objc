@@ -81,7 +81,7 @@
 
         case MSIDLegacyIdentifierTypeUniqueNonDisplayableId:
         {
-            return [accountIdentifier.displayableId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString];
+            return [accountIdentifier.localAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString];
         }
         case MSIDLegacyIdentifierTypeOptionalDisplayableId:
         {
