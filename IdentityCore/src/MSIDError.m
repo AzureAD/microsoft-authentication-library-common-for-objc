@@ -113,7 +113,6 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorInteractiveSessionStartFailure),
                       @(MSIDErrorInteractiveSessionAlreadyRunning),
                       @(MSIDErrorNoMainViewController),
-                      @(MSIDErrorServerInvalidResponse),
                       @(MSIDErrorAttemptToOpenURLFromExtension),
                       @(MSIDErrorUINotSupportedInExtension),
 

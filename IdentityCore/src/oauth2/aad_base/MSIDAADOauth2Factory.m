@@ -243,7 +243,7 @@
     account.accountType = MSIDAccountTypeMSSTS;
     account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:account.accountIdentifier.legacyAccountId
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:account.accountIdentifier.displayableId
                                                                          homeAccountId:response.clientInfo.accountIdentifier];
 
     return YES;
@@ -265,7 +265,7 @@
         return NO;
     }
 
-    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:baseToken.accountIdentifier.legacyAccountId
+    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:baseToken.accountIdentifier.displayableId
                                                                            homeAccountId:response.clientInfo.accountIdentifier];
 
     if (response.speInfo)

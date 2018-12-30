@@ -170,7 +170,7 @@
     
     NSError *error;
     
-    [self.dataSource removeItemsWithKey:key context:nil error:&error];
+    [self.dataSource removeItemsWithTokenKey:key context:nil error:&error];
     
     items = [self.dataSource tokensWithKey:[MSIDCacheKey new] serializer:self.serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
@@ -189,7 +189,7 @@
     
     NSError *error;
     
-    [self.dataSource removeItemsWithKey:key context:nil error:&error];
+    [self.dataSource removeItemsWithTokenKey:key context:nil error:&error];
     
     items = [self.dataSource tokensWithKey:[MSIDCacheKey new] serializer:self.serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
@@ -225,7 +225,7 @@
     
     NSError *error;
     
-    BOOL result = [self.dataSource removeItemsWithKey:nil context:nil error:&error];
+    BOOL result = [self.dataSource removeItemsWithTokenKey:nil context:nil error:&error];
     items = [self.dataSource tokensWithKey:nil serializer:self.serializer context:nil error:nil];
     
     XCTAssertFalse(result);

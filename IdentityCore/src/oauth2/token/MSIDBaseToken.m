@@ -147,7 +147,7 @@
 
         if (tokenCacheItem.homeAccountId)
         {
-            _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:tokenCacheItem.homeAccountId];
+            _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:tokenCacheItem.homeAccountId];
         }
     }
     

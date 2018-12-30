@@ -103,7 +103,7 @@
         _authority = authority;
 
         MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
-        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
     }
 
     return self;

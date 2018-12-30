@@ -153,12 +153,12 @@
         }
     }
 
-    if (![NSString msidIsStringNilOrBlank:account.legacyAccountId])
+    if (![NSString msidIsStringNilOrBlank:account.displayableId])
     {
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", configuration.clientId, configuration.authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, configuration.clientId, configuration.authority);
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.displayableId, configuration.clientId, configuration.authority);
 
-        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getRefreshTokenByLegacyUserId:account.legacyAccountId
+        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getRefreshTokenByLegacyUserId:account.displayableId
                                                                                         authority:configuration.authority
                                                                                          clientId:configuration.clientId
                                                                                          familyId:familyId
@@ -273,7 +273,7 @@
                                             error:(NSError **)error
 {
     MSID_LOG_VERBOSE(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@", authority.environment, clientId, familyId);
-    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@, account %@, username %@", authority.environment, clientId, familyId, accountIdentifier.homeAccountId, accountIdentifier.legacyAccountId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@, account %@, username %@", authority.environment, clientId, familyId, accountIdentifier.homeAccountId, accountIdentifier.displayableId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
@@ -284,7 +284,7 @@
     accountsQuery.accountType = MSIDAccountTypeMSSTS;
     accountsQuery.environmentAliases = environmentAliases;
     accountsQuery.homeAccountId = accountIdentifier.homeAccountId;
-    accountsQuery.username = accountIdentifier.legacyAccountId;
+    accountsQuery.username = accountIdentifier.displayableId;
 
     NSArray<MSIDAccountCacheItem *> *allAccounts = [_accountCredentialCache getAccountsWithQuery:accountsQuery context:context error:error];
 
@@ -340,7 +340,7 @@
 
     if ([filteredAccountsSet count])
     {
-        MSID_LOG_INFO(context, @"(Default accessor) Found %ld accounts in default accessor", [filteredAccountsSet count]);
+        MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in default accessor", (unsigned long)[filteredAccountsSet count]);
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
     else
@@ -369,7 +369,7 @@
                                    error:(NSError **)error
 {
     MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for account with authority %@", authority.url);
-    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for account with authority %@, legacy user ID %@, home account ID %@", authority.url, accountIdentifier.legacyAccountId, accountIdentifier.homeAccountId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for account with authority %@, legacy user ID %@, home account ID %@", authority.url, accountIdentifier.displayableId, accountIdentifier.homeAccountId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
@@ -377,7 +377,7 @@
     cacheQuery.homeAccountId = accountIdentifier.homeAccountId;
     cacheQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
     cacheQuery.realm = [authority.url msidTenant];
-    cacheQuery.username = accountIdentifier.legacyAccountId;
+    cacheQuery.username = accountIdentifier.displayableId;
     cacheQuery.accountType = MSIDAccountTypeMSSTS;
 
     NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:cacheQuery context:context error:error];
@@ -422,11 +422,11 @@
     NSString *homeAccountId = account.homeAccountId;
 
     if ([NSString msidIsStringNilOrBlank:homeAccountId]
-        && ![NSString msidIsStringNilOrBlank:account.legacyAccountId])
+        && ![NSString msidIsStringNilOrBlank:account.displayableId])
     {
-        homeAccountId = [self homeAccountIdForLegacyId:account.legacyAccountId authority:authority context:context error:error];
+        homeAccountId = [self homeAccountIdForLegacyId:account.displayableId authority:authority context:context error:error];
         MSID_LOG_VERBOSE(context, @"(Default accessor) Resolving home account ID from legacy account ID");
-        MSID_LOG_VERBOSE(context, @"(Default accessor) Resolving home account ID from legacy account ID, legacy account %@, resolved account %@", account.legacyAccountId, homeAccountId);
+        MSID_LOG_VERBOSE(context, @"(Default accessor) Resolving home account ID from legacy account ID, legacy account %@, resolved account %@", account.displayableId, homeAccountId);
     }
 
     if (homeAccountId)

@@ -74,7 +74,7 @@
     [super tearDown];
 
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
-    [_dataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
+    [_dataSource removeItemsWithTokenKey:[MSIDCacheKey new] context:nil error:nil];
 }
 
 #pragma mark - Saving
@@ -384,7 +384,7 @@
 
 - (void)testGetTokenWithType_whenTypeAccessNoItemsInCache_shouldReturnNil
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
 
     NSError *error = nil;
@@ -399,7 +399,7 @@
 
 - (void)testGetTokenWithType_whenTypeAccessMultipleAccessTokensInCache_shouldReturnRightToken
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
@@ -483,7 +483,7 @@
 
 - (void)testGetTokenWithType_whenTypeAccessCorrectAccountAndParameters_shouldReturnToken
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
 
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
@@ -514,7 +514,7 @@
 {
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
 
     // Save token
@@ -541,7 +541,7 @@
 
 - (void)testGetTokenWithType_whenTypeRefreshNoItemsInCache_shouldReturnNil
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
 
     NSError *error = nil;
@@ -559,7 +559,7 @@
 
 - (void)testGetTokenWithType_whenTypeRefreshAccountWithUtidAndUidProvided_shouldReturnToken
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
     [_cacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                          response:[MSIDTestTokenResponse v2DefaultTokenResponse]
@@ -588,7 +588,7 @@
                                         context:nil
                                           error:nil];
 
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:nil];
 
     NSError *error = nil;

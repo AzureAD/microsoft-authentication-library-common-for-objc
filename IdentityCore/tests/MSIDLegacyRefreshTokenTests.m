@@ -183,7 +183,7 @@
     XCTAssertEqualObjects(token.familyId, @"1");
     XCTAssertEqualObjects(token.refreshToken, @"rt");
     XCTAssertEqualObjects(token.idToken, idToken);
-    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, @"testuser@upn.com");
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, @"testuser@upn.com");
 
     MSIDCredentialCacheItem *newCacheItem = [token legacyTokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
