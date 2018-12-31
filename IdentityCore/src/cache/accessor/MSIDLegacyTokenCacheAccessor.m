@@ -141,13 +141,13 @@
 
 #pragma mark - Refresh token read
 
-- (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
+- (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
                                         familyId:(NSString *)familyId
                                    configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
 {
-    MSIDRefreshToken *refreshToken = [self getRefreshableTokenWithAccount:account
+    MSIDRefreshToken *refreshToken = [self getRefreshableTokenWithAccount:accountIdentifier
                                                                  familyId:familyId
                                                            credentialType:MSIDRefreshTokenType
                                                             configuration:configuration
@@ -158,7 +158,7 @@
     
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        refreshToken = [accessor getRefreshTokenWithAccount:account
+        refreshToken = [accessor getRefreshTokenWithAccount:accountIdentifier
                                                    familyId:familyId
                                               configuration:configuration
                                                     context:context
@@ -174,7 +174,7 @@
     return nil;
 }
 
-- (MSIDRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
+- (MSIDRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
                                                familyId:(NSString *)familyId
                                           configuration:(MSIDConfiguration *)configuration
                                                 context:(id<MSIDRequestContext>)context
@@ -183,7 +183,7 @@
     MSIDConfiguration *config = [configuration copy];
     config.clientId = MSID_LEGACY_CACHE_NIL_KEY;
     
-    MSIDRefreshToken *prt =  [self getRefreshableTokenWithAccount:account
+    MSIDRefreshToken *prt =  [self getRefreshableTokenWithAccount:accountIdentifier
                                                          familyId:familyId
                                                    credentialType:MSIDPrimaryRefreshTokenType
                                                     configuration:config
@@ -194,7 +194,7 @@
     
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        prt = [accessor getPrimaryRefreshTokenWithAccount:account
+        prt = [accessor getPrimaryRefreshTokenWithAccount:accountIdentifier
                                                  familyId:familyId
                                             configuration:configuration
                                                   context:context
@@ -210,7 +210,7 @@
     return nil;
 }
 
-- (MSIDRefreshToken *)getRefreshableTokenWithAccount:(MSIDAccountIdentifier *)account
+- (MSIDRefreshToken *)getRefreshableTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
                                             familyId:(NSString *)familyId
                                       credentialType:(MSIDCredentialType)credentialType
                                        configuration:(MSIDConfiguration *)configuration
@@ -218,11 +218,11 @@
                                                error:(NSError **)error
 {
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Get token %@ with authority %@, clientId %@, familyID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], configuration.authority, configuration.clientId, familyId);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Get token %@ with authority %@, clientId %@, familyID %@, account %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], configuration.authority, configuration.clientId, familyId, account.homeAccountId);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Get token %@ with authority %@, clientId %@, familyID %@, account %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], configuration.authority, configuration.clientId, familyId, accountIdentifier.homeAccountId);
     
     if (credentialType!=MSIDRefreshTokenType && credentialType!=MSIDPrimaryRefreshTokenType) return nil;
 
-    MSIDRefreshToken *refreshToken = [self getLegacyRefreshableTokenForAccountImpl:account
+    MSIDRefreshToken *refreshToken = [self getLegacyRefreshableTokenForAccountImpl:accountIdentifier
                                                                           familyId:familyId
                                                                     credentialType:credentialType
                                                                      configuration:configuration
@@ -313,14 +313,14 @@
 
 #pragma mark - Public
 
-- (MSIDLegacyAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
+- (MSIDLegacyAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)accountIdentifier
                                       configuration:(MSIDConfiguration *)configuration
                                             context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error
 {
     NSArray *aliases = [configuration.authority legacyAccessTokenLookupAuthorities] ?: @[];
 
-    return (MSIDLegacyAccessToken *)[self getTokenByLegacyUserId:account.displayableId
+    return (MSIDLegacyAccessToken *)[self getTokenByLegacyUserId:accountIdentifier.displayableId
                                                             type:MSIDAccessTokenType
                                                        authority:configuration.authority
                                                    lookupAliases:aliases
@@ -330,14 +330,14 @@
                                                            error:error];
 }
 
-- (MSIDLegacySingleResourceToken *)getSingleResourceTokenForAccount:(MSIDAccountIdentifier *)account
+- (MSIDLegacySingleResourceToken *)getSingleResourceTokenForAccount:(MSIDAccountIdentifier *)accountIdentifier
                                                       configuration:(MSIDConfiguration *)configuration
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error
 {
     NSArray *aliases = [configuration.authority legacyAccessTokenLookupAuthorities] ?: @[];
 
-    return (MSIDLegacySingleResourceToken *)[self getTokenByLegacyUserId:account.displayableId
+    return (MSIDLegacySingleResourceToken *)[self getTokenByLegacyUserId:accountIdentifier.displayableId
                                                                     type:MSIDLegacySingleResourceTokenType
                                                                authority:configuration.authority
                                                            lookupAliases:aliases
@@ -418,33 +418,33 @@
                                     error:error];
 }
 
-- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)accountIdentifier
                    authority:(MSIDAuthority *)authority
                     clientId:(NSString *)clientId
                     familyId:(NSString *)familyId
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error // TODO: update me
 {
-    if (!account)
+    if (!accountIdentifier)
     {
         MSIDFillAndLogError(error, MSIDErrorInternal, @"Cannot clear cache without account provided", context.correlationId);
         return NO;
     }
 
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Clearing cache with account and client id %@", clientId);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Clearing cache with account %@ and client id %@", account.displayableId, clientId);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Clearing cache with account %@ and client id %@", accountIdentifier.displayableId, clientId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
     BOOL result = YES;
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
-    query.legacyUserId = account.displayableId;
+    query.legacyUserId = accountIdentifier.displayableId;
 
     // If only user id is provided, optimize operation by deleting from data source directly
     if ([NSString msidIsStringNilOrBlank:clientId]
         && [NSString msidIsStringNilOrBlank:familyId] && !authority
-        && ![NSString msidIsStringNilOrBlank:account.displayableId])
+        && ![NSString msidIsStringNilOrBlank:accountIdentifier.displayableId])
     {
         result = [_dataSource removeItemsWithTokenKey:query context:context error:error];
         [_dataSource saveWipeInfoWithContext:context error:nil];
@@ -481,7 +481,7 @@
     // Clear cache from other accessors
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        if (![accessor clearCacheForAccount:account
+        if (![accessor clearCacheForAccount:accountIdentifier
                                   authority:authority
                                    clientId:clientId
                                    familyId:familyId
@@ -498,7 +498,7 @@
 
 #pragma mark - Internal
 
-- (MSIDLegacyRefreshToken *)getLegacyRefreshableTokenForAccountImpl:(MSIDAccountIdentifier *)account
+- (MSIDLegacyRefreshToken *)getLegacyRefreshableTokenForAccountImpl:(MSIDAccountIdentifier *)accountIdentifier
                                                            familyId:(NSString *)familyId
                                                      credentialType:(MSIDCredentialType)credentialType
                                                       configuration:(MSIDConfiguration *)configuration
@@ -511,9 +511,9 @@
     NSArray<NSURL *> *aliases = [configuration.authority legacyRefreshTokenLookupAliases] ?: @[];
 
     MSID_LOG_VERBOSE(context, @"(Legacy accessor) Finding token %@ with legacy user ID, clientId %@, authority %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], clientId, aliases);
-    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding token %@ with legacy user ID %@, clientId %@, authority %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], account.displayableId, clientId, aliases);
+    MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Finding token %@ with legacy user ID %@, clientId %@, authority %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], accountIdentifier.displayableId, clientId, aliases);
 
-    return (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:account.displayableId
+    return (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:accountIdentifier.displayableId
                                                              type:credentialType
                                                         authority:configuration.authority
                                                     lookupAliases:aliases

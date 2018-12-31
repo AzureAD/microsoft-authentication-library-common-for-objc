@@ -294,6 +294,8 @@
 		60D6ED0A20D9BB79002FCBBB /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60D6ED0920D9BB79002FCBBB /* SafariServices.framework */; };
 		60D6ED0C20D9BB89002FCBBB /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60D6ED0B20D9BB89002FCBBB /* Security.framework */; };
 		60D6ED0D20D9BBA0002FCBBB /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20657D61FC92D2700412B7D /* IOKit.framework */; };
+		60F7BE8B21DA4E2900F1BBA1 /* MSIDPrimaryRefreshToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 60F7BE8A21DA4E2900F1BBA1 /* MSIDPrimaryRefreshToken.m */; };
+		60F7BE8E21DA504900F1BBA1 /* MSIDPRTCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 60F7BE8D21DA504900F1BBA1 /* MSIDPRTCacheItem.m */; };
 		60FDA9C521A18D3F001E09B8 /* MSIDDefaultBrokerRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9C421A18D3F001E09B8 /* MSIDDefaultBrokerRequestTests.m */; };
 		60FDA9C721A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */; };
 		60FDA9DB21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */; };
@@ -1211,6 +1213,10 @@
 		60D6ED0720D9BB6A002FCBBB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		60D6ED0920D9BB79002FCBBB /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/SafariServices.framework; sourceTree = DEVELOPER_DIR; };
 		60D6ED0B20D9BB89002FCBBB /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
+		60F7BE8921DA4DFC00F1BBA1 /* MSIDPrimaryRefreshToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPrimaryRefreshToken.h; sourceTree = "<group>"; };
+		60F7BE8A21DA4E2900F1BBA1 /* MSIDPrimaryRefreshToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPrimaryRefreshToken.m; sourceTree = "<group>"; };
+		60F7BE8C21DA500F00F1BBA1 /* MSIDPRTCacheItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPRTCacheItem.h; sourceTree = "<group>"; };
+		60F7BE8D21DA504900F1BBA1 /* MSIDPRTCacheItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPRTCacheItem.m; sourceTree = "<group>"; };
 		60FDA9C421A18D3F001E09B8 /* MSIDDefaultBrokerRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultBrokerRequestTests.m; sourceTree = "<group>"; };
 		60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultBrokerResponseHandlerTests.m; sourceTree = "<group>"; };
 		60FDA9D921A5EBBA001E09B8 /* MSIDTestCacheAccessorHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestCacheAccessorHelper.h; sourceTree = "<group>"; };
@@ -2422,6 +2428,8 @@
 				B2B1D57120425DFD00DD81F0 /* MSIDAccountCacheItem.m */,
 				1E3590B3216C3702003D43BE /* MSIDAppMetadataCacheItem.h */,
 				1E3590B4216C3702003D43BE /* MSIDAppMetadataCacheItem.m */,
+				60F7BE8C21DA500F00F1BBA1 /* MSIDPRTCacheItem.h */,
+				60F7BE8D21DA504900F1BBA1 /* MSIDPRTCacheItem.m */,
 			);
 			path = token;
 			sourceTree = "<group>";
@@ -2491,6 +2499,8 @@
 				B251CC42204105A6005E0179 /* MSIDRefreshableToken.h */,
 				B2DD4B2420A7D67C0047A66E /* MSIDLegacyRefreshToken.h */,
 				B2DD4B2520A7D67C0047A66E /* MSIDLegacyRefreshToken.m */,
+				60F7BE8921DA4DFC00F1BBA1 /* MSIDPrimaryRefreshToken.h */,
+				60F7BE8A21DA4E2900F1BBA1 /* MSIDPrimaryRefreshToken.m */,
 			);
 			path = token;
 			sourceTree = "<group>";
@@ -4108,6 +4118,7 @@
 				23B39A8220993302000AA905 /* MSIDAadAuthorityResolver.m in Sources */,
 				96F21AEE20A4C6F2002B87C3 /* UIApplication+MSIDExtensions.m in Sources */,
 				96CE53EA20C73E3A002E24C9 /* MSIDWebviewFactory.m in Sources */,
+				60F7BE8E21DA504900F1BBA1 /* MSIDPRTCacheItem.m in Sources */,
 				96235F99207D72A6007EAB36 /* MSIDWebAADAuthResponse.m in Sources */,
 				0570FE81219E33FB00958ECF /* MSIDCredentialCacheItem+MSIDBaseToken.m in Sources */,
 				1E3C0ED5217FE2A70022D61D /* MSIDAppMetadataCacheQuery.m in Sources */,
@@ -4258,6 +4269,7 @@
 				B210F4561FDDFA7B005A8F76 /* MSIDBrokerResponse.m in Sources */,
 				B2DD4B2720A7D67C0047A66E /* MSIDLegacyRefreshToken.m in Sources */,
 				B297E1E220A1272600F370EC /* MSIDLegacyTokenCacheQuery.m in Sources */,
+				60F7BE8B21DA4E2900F1BBA1 /* MSIDPrimaryRefreshToken.m in Sources */,
 				B214C39F1FE854FE0070C4F2 /* MSIDLegacyTokenCacheAccessor.m in Sources */,
 				D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 				B2B1D579204369D600DD81F0 /* MSIDAccountType.m in Sources */,

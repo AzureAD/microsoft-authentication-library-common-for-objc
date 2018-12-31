@@ -30,6 +30,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
+#import "MSIDPrimaryRefreshToken.h"
 
 @implementation MSIDCredentialCacheItem (MSIDBaseToken)
 
@@ -53,14 +54,10 @@
         {
             return [[MSIDIdToken alloc] initWithTokenCacheItem:self];
         }
-#if AD_BROKER
         case MSIDPrimaryRefreshTokenType:
         {
-            return [[NSClassFromString(@"ADBrokerPrimaryRefreshToken") alloc] initWithTokenCacheItem:self];
-            // Alternative solution:
-            // We could also pass in additional credential type and class as parameter of this function
+            return [[MSIDPrimaryRefreshToken alloc] initWithTokenCacheItem:self];
         }
-#endif
         default:
             return [[MSIDBaseToken alloc] initWithTokenCacheItem:self];
     }

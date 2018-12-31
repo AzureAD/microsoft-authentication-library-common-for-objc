@@ -28,6 +28,7 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDPRTCacheItem.h"
 
 @implementation MSIDKeyedArchiverSerializer
 {
@@ -44,7 +45,9 @@
         _defaultEncodeClassMap = [[NSMutableDictionary alloc] initWithDictionary:@{@"ADUserInformation" : MSIDUserInformation.class,
                                                                                    @"ADTokenCacheStoreItem" : MSIDLegacyTokenCacheItem.class
                                                                                    }];
-        _defaultDecodeClassMap = [[NSMutableDictionary alloc] initWithDictionary:@{@"ADUserInformation" : MSIDUserInformation.class}];
+        _defaultDecodeClassMap = [[NSMutableDictionary alloc] initWithDictionary:@{@"ADUserInformation" : MSIDUserInformation.class,
+                                                                                   @"ADBrokerPRTCacheItem" : MSIDPRTCacheItem.class
+                                                                                   }];
     }
     
     return self;
@@ -86,9 +89,9 @@
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     // Maintain backward compatibility with ADAL.
     [unarchiver setClass:className forClassName:@"ADTokenCacheStoreItem"];
-    for (NSString *c in _defaultDecodeClassMap)
+    for (NSString *defaultClassName in _defaultDecodeClassMap)
     {
-        [unarchiver setClass:_defaultDecodeClassMap[className] forClassName:c];
+        [unarchiver setClass:_defaultDecodeClassMap[defaultClassName] forClassName:defaultClassName];
     }
     
     MSIDLegacyTokenCacheItem *token = [unarchiver decodeObjectOfClass:className forKey:NSKeyedArchiveRootObjectKey];
