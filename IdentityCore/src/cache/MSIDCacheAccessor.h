@@ -69,12 +69,11 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 
-- (MSIDRefreshToken *)getRefreshableTokenWithAccount:(MSIDAccountIdentifier *)account
-                                            familyId:(NSString *)familyId
-                                      credentialType:(MSIDCredentialType)credentialType
-                                       configuration:(MSIDConfiguration *)configuration
-                                             context:(id<MSIDRequestContext>)context
-                                               error:(NSError *__autoreleasing *)error;
+- (MSIDRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
+                                               familyId:(NSString *)familyId
+                                          configuration:(MSIDConfiguration *)configuration
+                                                context:(id<MSIDRequestContext>)context
+                                                  error:(NSError **)error;
 
 - (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
                                          clientId:(NSString *)clientId
@@ -99,6 +98,10 @@
 - (BOOL)validateAndRemoveRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
+
+- (BOOL)validateAndRemovePrimaryRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
+                                     context:(id<MSIDRequestContext>)context
+                                       error:(NSError **)error;
 
 - (BOOL)removeAccessToken:(MSIDAccessToken *)token
                   context:(id<MSIDRequestContext>)context

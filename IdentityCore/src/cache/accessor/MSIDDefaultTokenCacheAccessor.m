@@ -129,12 +129,64 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError *__autoreleasing *)error
 {
-    return [self getRefreshableTokenWithAccount:account
-                                       familyId:familyId
-                                 credentialType:MSIDRefreshTokenType
-                                  configuration:configuration
-                                        context:context
-                                          error:error];
+    MSIDRefreshToken *refreshToken =  [self getRefreshableTokenWithAccount:account
+                                                                  familyId:familyId
+                                                            credentialType:MSIDRefreshTokenType
+                                                             configuration:configuration
+                                                                   context:context
+                                                                     error:error];
+    
+    if (refreshToken) return refreshToken;
+    
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        MSIDRefreshToken *refreshToken = [accessor getRefreshTokenWithAccount:account
+                                                                     familyId:familyId
+                                                                configuration:configuration
+                                                                      context:context
+                                                                        error:error];
+        
+        if (refreshToken)
+        {
+            MSID_LOG_VERBOSE(context, @"(Default accessor) Found refresh token in a different accessor %@", [accessor class]);
+            return refreshToken;
+        }
+    }
+    
+    return nil;
+}
+
+- (MSIDRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
+                                               familyId:(NSString *)familyId
+                                          configuration:(MSIDConfiguration *)configuration
+                                                context:(id<MSIDRequestContext>)context
+                                                  error:(NSError *__autoreleasing *)error
+{
+    MSIDRefreshToken *prt = [self getRefreshableTokenWithAccount:account
+                                                        familyId:familyId
+                                                  credentialType:MSIDPrimaryRefreshTokenType
+                                                   configuration:configuration
+                                                         context:context
+                                                           error:error];
+    
+    if (prt) return prt;
+    
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        MSIDRefreshToken *prt = [accessor getPrimaryRefreshTokenWithAccount:account
+                                                                   familyId:familyId
+                                                              configuration:configuration
+                                                                    context:context
+                                                                      error:error];
+        
+        if (prt)
+        {
+            MSID_LOG_VERBOSE(context, @"(Default accessor) Found primary refresh token in a different accessor %@", [accessor class]);
+            return prt;
+        }
+    }
+    
+    return nil;
 }
 
 - (MSIDRefreshToken *)getRefreshableTokenWithAccount:(MSIDAccountIdentifier *)account
@@ -165,7 +217,7 @@
 
         if (refreshToken)
         {
-            MSID_LOG_VERBOSE(context, @"(Default accessor) Found refresh token by home account id");
+            MSID_LOG_VERBOSE(context, @"(Default accessor) Found %@refresh token by home account id", credentialType == MSIDPrimaryRefreshTokenType ? @"primary " : @"");
             return refreshToken;
         }
     }
@@ -185,23 +237,7 @@
 
         if (refreshToken)
         {
-            MSID_LOG_VERBOSE(context, @"(Default accessor) Found refresh token by legacy account id");
-            return refreshToken;
-        }
-    }
-
-    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
-    {
-        MSIDRefreshToken *refreshToken = [accessor getRefreshableTokenWithAccount:account
-                                                                         familyId:familyId
-                                                                   credentialType:credentialType
-                                                                    configuration:configuration
-                                                                          context:context
-                                                                            error:error];
-
-        if (refreshToken)
-        {
-            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found refresh token in a different accessor %@", [accessor class]);
+            MSID_LOG_VERBOSE(context, @"(Default accessor) Found %@refresh token by legacy account id", credentialType == MSIDPrimaryRefreshTokenType ? @"primary " : @"");
             return refreshToken;
         }
     }
@@ -491,6 +527,16 @@
 {
     return [self validateAndRemoveRefreshableToken:token
                                     credentialType:MSIDRefreshTokenType
+                                           context:context
+                                             error:error];
+}
+
+- (BOOL)validateAndRemovePrimaryRefreshToken:(MSIDRefreshToken *)token
+                                     context:(id<MSIDRequestContext>)context
+                                       error:(NSError **)error
+{
+    return [self validateAndRemoveRefreshableToken:token
+                                    credentialType:MSIDPrimaryRefreshTokenType
                                            context:context
                                              error:error];
 }

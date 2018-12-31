@@ -90,7 +90,6 @@
     {
         [unarchiver setClass:_defaultDecodeClassMap[className] forClassName:c];
     }
-    [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
     
     MSIDLegacyTokenCacheItem *token = [unarchiver decodeObjectOfClass:className forKey:NSKeyedArchiveRootObjectKey];
     [unarchiver finishDecoding];
