@@ -54,7 +54,7 @@
     
     NSError *error;
     MSIDPRTCacheItem *prtCacheItem = [[MSIDPRTCacheItem alloc] initWithJSONDictionary:cacheItem.jsonDictionary error:&error];
-    if (error) return nil;
+    if (!prtCacheItem) return nil;
     
     prtCacheItem.sessionKey = self.sessionKey;
     

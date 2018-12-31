@@ -885,7 +885,11 @@
     for (MSIDCredentialCacheItem *item in cacheItems)
     {
         MSIDBaseToken *token = [item tokenWithType:item.credentialType];
-        if (token) { [tokens addObject:token];}
+        if (token)
+        {
+            token.storageAuthority = token.authority;
+            [tokens addObject:token];
+        }
     }
 
     return tokens;

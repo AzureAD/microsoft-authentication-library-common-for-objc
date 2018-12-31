@@ -669,6 +669,7 @@
         MSIDBaseToken *token = [item tokenWithType:item.credentialType];
         if (token)
         {
+            token.storageAuthority = token.authority;
             [tokens addObject:token];
         }
     }
