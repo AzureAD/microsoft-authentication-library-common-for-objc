@@ -296,6 +296,8 @@
 		60D6ED0D20D9BBA0002FCBBB /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20657D61FC92D2700412B7D /* IOKit.framework */; };
 		60F7BE8B21DA4E2900F1BBA1 /* MSIDPrimaryRefreshToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 60F7BE8A21DA4E2900F1BBA1 /* MSIDPrimaryRefreshToken.m */; };
 		60F7BE8E21DA504900F1BBA1 /* MSIDPRTCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 60F7BE8D21DA504900F1BBA1 /* MSIDPRTCacheItem.m */; };
+		60F7BEA221DA698C00F1BBA1 /* MSIDPRTCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 60F7BE8D21DA504900F1BBA1 /* MSIDPRTCacheItem.m */; };
+		60F7BEA321DA69A000F1BBA1 /* MSIDPrimaryRefreshToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 60F7BE8A21DA4E2900F1BBA1 /* MSIDPrimaryRefreshToken.m */; };
 		60FDA9C521A18D3F001E09B8 /* MSIDDefaultBrokerRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9C421A18D3F001E09B8 /* MSIDDefaultBrokerRequestTests.m */; };
 		60FDA9C721A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */; };
 		60FDA9DB21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */; };
@@ -3754,6 +3756,7 @@
 				B2C7088F2198E48E00D917B8 /* NSData+AES.m in Sources */,
 				96F21B3320A65896002B87C3 /* MSIDWebviewAuthorization.m in Sources */,
 				238E19D92086FE28004DF483 /* MSIDAADRefreshTokenGrantRequest.m in Sources */,
+				60F7BEA221DA698C00F1BBA1 /* MSIDPRTCacheItem.m in Sources */,
 				B210F44C1FDDF5A7005A8F76 /* MSIDClientInfo.m in Sources */,
 				23B37D1C20C9ECFB0018722F /* MSIDCache.m in Sources */,
 				235480C820DDF81000246F72 /* MSIDAuthorityFactory.m in Sources */,
@@ -3777,6 +3780,7 @@
 				9658103320C7E1180025F4A4 /* MSIDWebviewResponse.m in Sources */,
 				B214C3A51FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m in Sources */,
 				B2000C7A20EC47860092790A /* NSData+JWT.m in Sources */,
+				60F7BEA321DA69A000F1BBA1 /* MSIDPrimaryRefreshToken.m in Sources */,
 				D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */,
 				B210F4331FDDE7EB005A8F76 /* MSIDTokenResponse.m in Sources */,
 				B2964BE3205103920000BC95 /* MSIDTokenFilteringHelper.m in Sources */,
