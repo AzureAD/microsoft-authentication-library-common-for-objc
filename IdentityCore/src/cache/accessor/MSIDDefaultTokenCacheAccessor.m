@@ -44,6 +44,7 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -229,6 +230,10 @@
     query.target = configuration.target;
     query.targetMatchingOptions = MSIDSubSet;
     query.credentialType = MSIDAccessTokenType;
+    query.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:account.homeAccountId
+                                                                                     legacyUserId:account.displayableId
+                                                                                          context:context
+                                                                                            error:nil];
 
     return (MSIDAccessToken *) [self getTokenWithAuthority:configuration.authority
                                                 cacheQuery:query
@@ -554,6 +559,7 @@
     query.target = [accessToken.scopes msidToString];
     query.targetMatchingOptions = MSIDIntersect;
     query.credentialType = MSIDAccessTokenType;
+    query.enrollmentId = accessToken.enrollmentId;
 
     BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
 

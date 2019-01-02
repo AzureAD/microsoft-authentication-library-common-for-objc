@@ -158,6 +158,26 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
+- (void)testAccessTokenIsEqual_whenEnrollmentIdIsNotEqual_shouldReturnFalse
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"value 1" forKey:@"enrollmentId"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"value 2" forKey:@"enrollmentId"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenEnrollmentIdIsEqual_shouldReturnTrue
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:@"value 1" forKey:@"enrollmentId"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:@"value 1" forKey:@"enrollmentId"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
 #pragma mark - Token cache item
 
 - (void)testInitWithTokenCacheItem_whenNilCacheItem_shouldReturnNil
@@ -205,6 +225,46 @@
     XCTAssertNil(token);
 }
 
+- (void)testInitWithTokenCacheItem_whenAllFieldsSet_andNoEnrollmentId_shouldReturnToken
+{
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
+    NSDate *extExpireTime = [NSDate date];
+    cacheItem.additionalInfo = @{@"test": @"test2", @"extended_expires_on": extExpireTime};
+    cacheItem.homeAccountId = @"uid.utid";
+    cacheItem.clientId = @"client id";
+    cacheItem.secret = @"token";
+    
+    NSDate *expiresOn = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    
+    cacheItem.expiresOn = expiresOn;
+    cacheItem.cachedAt = cachedAt;
+    cacheItem.target = @"target";
+    
+    MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/contoso.com" authority]);
+    XCTAssertEqualObjects(token.clientId, @"client id");
+    NSDictionary *additionalServerInfo = @{@"test": @"test2", @"extended_expires_on": extExpireTime};
+    XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
+    XCTAssertEqualObjects(token.extendedExpireTime, extExpireTime);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.expiresOn, expiresOn);
+    XCTAssertEqualObjects(token.cachedAt, cachedAt);
+    XCTAssertEqualObjects(token.resource, @"target");
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"target", nil];
+    XCTAssertEqualObjects(token.scopes, scopes);
+    XCTAssertEqualObjects(token.accessToken, @"token");
+    XCTAssertNil(token.enrollmentId);
+    XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
+    
+    MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
+    XCTAssertEqualObjects(cacheItem, newCacheItem);
+}
+
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
@@ -216,6 +276,7 @@
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"token";
+    cacheItem.enrollmentId = @"enrollmentId";
 
     NSDate *expiresOn = [NSDate date];
     NSDate *cachedAt = [NSDate date];
@@ -238,6 +299,7 @@
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"target", nil];
     XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertEqualObjects(token.accessToken, @"token");
+    XCTAssertEqual(token.enrollmentId, @"enrollmentId");
     XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
 
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
@@ -332,6 +394,7 @@
     token.cachedAt = [NSDate dateWithTimeIntervalSince1970:1500000000];
     token.accessToken = @"token";
     token.resource = @"target";
+    token.enrollmentId = @"enrollmentId";
     return token;
 }
 

@@ -233,6 +233,7 @@
     key.familyId = credential.familyId;
     key.realm = credential.realm;
     key.target = credential.target;
+    key.enrollmentId = credential.enrollmentId;
 
     return [_dataSource saveToken:credential
                               key:key
@@ -313,6 +314,7 @@
     key.familyId = credential.familyId;
     key.realm = credential.realm;
     key.target = credential.target;
+    key.enrollmentId = credential.enrollmentId;
 
     BOOL result = [_dataSource removeItemsWithTokenKey:key context:context error:error];
 

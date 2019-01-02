@@ -74,6 +74,7 @@
     result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqual:item.cachedAt];
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
+    result &= (!self.enrollmentId && !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
     result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
     return result;
 }
@@ -93,6 +94,7 @@
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
+    hash = hash * 31 + self.enrollmentId.hash;
     hash = hash * 31 + self.additionalInfo.hash;
     return hash;
 }
@@ -112,6 +114,7 @@
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
+    item.enrollmentId = [self.enrollmentId copyWithZone:zone];
     item.additionalInfo = [self.additionalInfo copyWithZone:zone];
     return item;
 }
@@ -151,6 +154,7 @@
     _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_CACHED_AT_CACHE_KEY]];
     _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
     _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
+    _enrollmentId = json[MSID_ENROLLMENT_ID_CACHE_KEY];
 
     // Additional Info
     
@@ -188,6 +192,7 @@
     dictionary[MSID_CACHED_AT_CACHE_KEY] = _cachedAt.msidDateToTimestamp;
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
+    dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
     dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = [_additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] msidDateToTimestamp];
     return dictionary;

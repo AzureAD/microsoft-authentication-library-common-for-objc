@@ -47,6 +47,7 @@ static NSUInteger s_expirationBuffer = 300;
     MSIDAccessToken *item = [super copyWithZone:zone];
     item->_expiresOn = [_expiresOn copyWithZone:zone];
     item->_cachedAt = [_cachedAt copyWithZone:zone];
+    item->_enrollmentId = [_enrollmentId copyWithZone:zone];
     item->_accessToken = [_accessToken copyWithZone:zone];
     item->_target = [_target copyWithZone:zone];
 
@@ -77,6 +78,7 @@ static NSUInteger s_expirationBuffer = 300;
     hash = hash * 31 + self.accessToken.hash;
     hash = hash * 31 + self.target.hash;
     hash = hash * 31 + self.cachedAt.hash;
+    hash = hash * 31 + self.enrollmentId.hash;
     return hash;
 }
 
@@ -92,6 +94,7 @@ static NSUInteger s_expirationBuffer = 300;
     result &= (!self.accessToken && !token.accessToken) || [self.accessToken isEqualToString:token.accessToken];
     result &= (!self.target && !token.target) || [self.target isEqualToString:token.target];
     result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
+    result &= (!self.enrollmentId && !token.enrollmentId) || [self.enrollmentId isEqualToString:token.enrollmentId];
 
     return result;
 }
@@ -106,6 +109,7 @@ static NSUInteger s_expirationBuffer = 300;
     {
         _expiresOn = tokenCacheItem.expiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
+        _enrollmentId = tokenCacheItem.enrollmentId;
         _accessToken = tokenCacheItem.secret;
 
         if (!_accessToken)
@@ -133,6 +137,7 @@ static NSUInteger s_expirationBuffer = 300;
     cacheItem.cachedAt = self.cachedAt;
     cacheItem.secret = self.accessToken;
     cacheItem.target = self.target;
+    cacheItem.enrollmentId = self.enrollmentId;
     cacheItem.credentialType = MSIDAccessTokenType;
     return cacheItem;
 }
