@@ -66,6 +66,7 @@
 #pragma mark - Abstract impl
 
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
+                                                     oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
                                                          error:(NSError **)error
 {
@@ -93,6 +94,7 @@
             if (!additionalTokensError)
             {
                 tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
+                                                                               oidcScope:oidcScope
                                                                             oauthFactory:self.oauthFactory
                                                                               tokenCache:self.tokenCache
                                                                            correlationID:correlationID

@@ -72,7 +72,8 @@
                                                @"redirect_uri" : @"my-redirect://com.microsoft.test",
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
-                                               @"scope" : @"myscope1 myscope2"
+                                               @"scope" : @"myscope1 myscope2",
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -117,7 +118,8 @@
                                                @"redirect_uri" : @"my-redirect://com.microsoft.test",
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
-                                               @"scope" : @"myscope1 myscope2"
+                                               @"scope" : @"myscope1 myscope2",
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -162,7 +164,8 @@
                                                @"redirect_uri" : @"my-redirect://com.microsoft.test",
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
-                                               @"scope" : @"myscope1 myscope2"
+                                               @"scope" : @"myscope1 myscope2",
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -206,7 +209,8 @@
                                                @"redirect_uri" : @"my-redirect://com.microsoft.test",
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
-                                               @"scope" : @"myscope1 myscope2"
+                                               @"scope" : @"myscope1 myscope2",
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);

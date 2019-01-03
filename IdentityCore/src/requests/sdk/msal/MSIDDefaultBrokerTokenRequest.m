@@ -52,7 +52,8 @@
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
-    return @{@"scope": self.requestParameters.target ?: @""};
+    return @{@"scope": self.requestParameters.target ?: @"",
+             @"oidc_scope": self.requestParameters.oidcScope ?: @""};
 }
 
 @end
