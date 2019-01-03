@@ -265,7 +265,12 @@
         {
             return NO;
         }
-
+#if AD_BROKER
+        if (tokenCacheItem.credentialType == MSIDPrimaryRefreshTokenType)
+        {
+            return YES;
+        }
+#endif
         if (clientId && ![tokenCacheItem.clientId isEqualToString:clientId])
         {
             return NO;
@@ -283,21 +288,29 @@
                                                                    tokenType:MSIDRefreshTokenType
                                                                  returnFirst:NO
                                                                     filterBy:filterBlock];
+    
+    NSArray *primaryRefreshTokens = [MSIDTokenFilteringHelper filterTokenCacheItems:items
+                                                                          tokenType:MSIDPrimaryRefreshTokenType
+                                                                        returnFirst:NO
+                                                                           filterBy:filterBlock];
+    
+    NSMutableArray *allRefreshTokens = [refreshTokens mutableCopy];
+    [allRefreshTokens addObjectsFromArray:primaryRefreshTokens];
 
-    if ([refreshTokens count] == 0)
+    if ([allRefreshTokens count] == 0)
     {
         MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found no refresh tokens");
         [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
     }
     else
     {
-        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found %lu refresh tokens", (unsigned long)[refreshTokens count]);
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found %lu refresh tokens", (unsigned long)[allRefreshTokens count]);
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
 
     NSMutableSet *resultAccounts = [NSMutableSet set];
 
-    for (MSIDLegacyRefreshToken *refreshToken in refreshTokens)
+    for (MSIDLegacyRefreshToken *refreshToken in allRefreshTokens)
     {
         __auto_type account = [MSIDAccount new];
         account.accountIdentifier = refreshToken.accountIdentifier;

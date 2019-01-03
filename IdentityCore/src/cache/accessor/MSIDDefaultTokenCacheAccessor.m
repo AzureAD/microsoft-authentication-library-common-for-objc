@@ -372,6 +372,24 @@
             [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
             return nil;
         }
+#if AD_BROKER
+        // Retrieve primary refresh tokens in cache too
+        MSIDDefaultCredentialCacheQuery *prtQuery = [MSIDDefaultCredentialCacheQuery new];
+        prtQuery.credentialType = MSIDPrimaryRefreshTokenType;
+        prtQuery.environmentAliases = environmentAliases;
+        
+        NSArray<MSIDCredentialCacheItem *> *primaryRefreshTokens = [_accountCredentialCache getCredentialsWithQuery:prtQuery context:context error:error];
+
+        if (!primaryRefreshTokens)
+        {
+            MSID_LOG_ERROR(context, @"(Default accessor) Failed primary refresh token lookup");
+            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+            return nil;
+        }
+        NSMutableArray *allRefreshTokens = [refreshTokens mutableCopy];
+        [allRefreshTokens addObjectsFromArray:primaryRefreshTokens];
+        refreshTokens = allRefreshTokens;
+#endif
 
         filterAccountIds = [NSSet setWithArray:[refreshTokens valueForKey:@"homeAccountId"]];
     }
