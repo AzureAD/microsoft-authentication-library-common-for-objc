@@ -91,6 +91,7 @@
     [super tearDown];
     
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+    [self setUpEnrollmentIdsCache:YES];
 }
 
 #pragma mark - init
@@ -415,7 +416,7 @@
 
 - (void)testEnrollmentIdForHomeAccountId_whenValidHomeAccountId_shouldReturnEnrollmentId
 {
-    [self setUpEnrollmentIdsCache];
+    [self setUpEnrollmentIdsCache:NO];
     
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
     MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
@@ -427,7 +428,7 @@
 
 - (void)testEnrollmentIdForHomeAccountId_whenNilHomeAccountIdAndValidUserId_shouldReturnEnrollmentId
 {
-    [self setUpEnrollmentIdsCache];
+    [self setUpEnrollmentIdsCache:NO];
     
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
     MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
@@ -439,7 +440,7 @@
 
 - (void)testEnrollmentIdForHomeAccountId_whenUnenrolledHomeAccountIdAndUserId_shouldReturnFirstEnrollmentId
 {
-    [self setUpEnrollmentIdsCache];
+    [self setUpEnrollmentIdsCache:NO];
     
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
     MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
@@ -451,7 +452,7 @@
 
 - (void)testEnrollmentIdForHomeAccountId_whenNilHomeAccountIdAndUserId_shouldReturnFirstEnrollmentId
 {
-    [self setUpEnrollmentIdsCache];
+    [self setUpEnrollmentIdsCache:NO];
     
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
     MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
@@ -679,8 +680,10 @@
     [cache setObject:record forKey:@"login.microsoftonline.com"];
 }
 
-- (void)setUpEnrollmentIdsCache
+- (void)setUpEnrollmentIdsCache:(BOOL)isEmpty
 {
+    NSDictionary *emptyDict = @{};
+    
     NSDictionary *dict = @{MSID_INTUNE_ENROLLMENT_ID_KEY: @{@"enrollment_ids": @[@{
                                                                                      @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
                                                                                      @"oid" : @"d3444455-mike-4271-b6ea-e499cc0cab46",
@@ -697,7 +700,7 @@
                                                                                      }
                                                                                  ]}};
     
-    MSIDCache *msidCache = [[MSIDCache alloc] initWithDictionary:dict];
+    MSIDCache *msidCache = [[MSIDCache alloc] initWithDictionary:isEmpty ? emptyDict : dict];
     MSIDIntuneInMemoryCacheDataSource *memoryCache = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:msidCache];
     MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
     [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];

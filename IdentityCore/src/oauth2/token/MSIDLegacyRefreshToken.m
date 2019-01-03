@@ -101,7 +101,7 @@
         _refreshToken = tokenCacheItem.refreshToken;
 
         MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
-        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
         _realm = claims.realm;
     }
 
@@ -137,7 +137,7 @@
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(id token=%@, legacy user ID=%@)", _PII_NULLIFY(_idToken), _accountIdentifier.legacyAccountId];
+    return [baseDescription stringByAppendingFormat:@"(id token=%@, legacy user ID=%@)", _PII_NULLIFY(_idToken), _accountIdentifier.displayableId];
 }
 
 @end

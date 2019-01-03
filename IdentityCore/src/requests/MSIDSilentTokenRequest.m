@@ -74,7 +74,7 @@
         return;
     }
 
-    NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId;
+    NSString *upn = self.requestParameters.accountIdentifier.displayableId;
 
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn

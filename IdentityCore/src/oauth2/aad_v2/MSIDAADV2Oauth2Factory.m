@@ -221,7 +221,7 @@
     else
     {
         enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
-                                                             legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                             legacyUserId:parameters.accountIdentifier.displayableId
                                                                   context:parameters
                                                                     error:nil];
     }
@@ -248,7 +248,7 @@
     NSString *allScopes = parameters.allTokenRequestScopes;
 
     NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
-                                                                   legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                                   legacyUserId:parameters.accountIdentifier.displayableId
                                                                         context:parameters
                                                                           error:nil];
 

@@ -30,6 +30,7 @@
 
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(MSIDConfiguration *)configuration
+                  oidcScope:(NSString *)oidcScope
              requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
@@ -42,7 +43,7 @@
     if (!accountValid)
     {
         MSID_LOG_ERROR_CORR(correlationID, @"Different account returned");
-        MSID_LOG_ERROR_CORR_PII(correlationID, @"Different account returned, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.legacyAccountId, tokenResult.account.accountIdentifier.legacyAccountId, tokenResult.account.localAccountId);
+        MSID_LOG_ERROR_CORR_PII(correlationID, @"Different account returned, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
 
         if (error)
         {
@@ -60,9 +61,9 @@
        correlationID:(NSUUID *)correlationID
 {
     MSID_LOG_VERBOSE_CORR(correlationID, @"Checking returned account");
-    MSID_LOG_VERBOSE_CORR_PII(correlationID, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.legacyAccountId, tokenResult.account.accountIdentifier.legacyAccountId, tokenResult.account.localAccountId);
+    MSID_LOG_VERBOSE_CORR_PII(correlationID, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
 
-    if (!accountIdentifier.legacyAccountId)
+    if (!accountIdentifier.displayableId)
     {
         return YES;
     }
@@ -76,12 +77,12 @@
     {
         case MSIDLegacyIdentifierTypeRequiredDisplayableId:
         {
-            return [accountIdentifier.legacyAccountId.lowercaseString isEqualToString:tokenResult.account.accountIdentifier.legacyAccountId.lowercaseString];
+            return [accountIdentifier.displayableId.lowercaseString isEqualToString:tokenResult.account.accountIdentifier.displayableId.lowercaseString];
         }
 
         case MSIDLegacyIdentifierTypeUniqueNonDisplayableId:
         {
-            return [accountIdentifier.legacyAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString];
+            return [accountIdentifier.localAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString];
         }
         case MSIDLegacyIdentifierTypeOptionalDisplayableId:
         {

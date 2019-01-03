@@ -206,7 +206,7 @@
     token.authority = configuration.authority;
     token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
                                                                        homeAccountId:response.idTokenObj.userId];
     return YES;
 }
@@ -307,7 +307,7 @@
     
     token.refreshToken = response.refreshToken;
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     return YES;
 }
@@ -324,7 +324,7 @@
     }
 
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     return YES;
 }
@@ -341,7 +341,7 @@
     }
 
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
     token.realm = response.idTokenObj.realm;
     return YES;
 }
@@ -357,7 +357,7 @@
         return NO;
     }
 
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.username homeAccountId:homeAccountId];
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.username homeAccountId:homeAccountId];
     account.username = response.idTokenObj.username;
     account.givenName = response.idTokenObj.givenName;
     account.familyName = response.idTokenObj.familyName;
