@@ -156,28 +156,28 @@
     return nil;
 }
 
-- (MSIDRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
-                                               familyId:(NSString *)familyId
-                                          configuration:(MSIDConfiguration *)configuration
-                                                context:(id<MSIDRequestContext>)context
-                                                  error:(NSError *__autoreleasing *)error
+- (MSIDPrimaryRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
+                                                      familyId:(NSString *)familyId
+                                                 configuration:(MSIDConfiguration *)configuration
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError *__autoreleasing *)error
 {
-    MSIDRefreshToken *prt = [self getRefreshableTokenWithAccount:accountIdentifier
-                                                        familyId:familyId
-                                                  credentialType:MSIDPrimaryRefreshTokenType
-                                                   configuration:configuration
-                                                         context:context
-                                                           error:error];
+    MSIDPrimaryRefreshToken *prt = (MSIDPrimaryRefreshToken *)[self getRefreshableTokenWithAccount:accountIdentifier
+                                                                                          familyId:familyId
+                                                                                    credentialType:MSIDPrimaryRefreshTokenType
+                                                                                     configuration:configuration
+                                                                                           context:context
+                                                                                             error:error];
     
     if (prt) return prt;
     
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        MSIDRefreshToken *prt = [accessor getPrimaryRefreshTokenWithAccount:accountIdentifier
-                                                                   familyId:familyId
-                                                              configuration:configuration
-                                                                    context:context
-                                                                      error:error];
+        MSIDPrimaryRefreshToken *prt = [accessor getPrimaryRefreshTokenWithAccount:accountIdentifier
+                                                                          familyId:familyId
+                                                                     configuration:configuration
+                                                                           context:context
+                                                                             error:error];
         
         if (prt)
         {

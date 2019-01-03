@@ -174,21 +174,21 @@
     return nil;
 }
 
-- (MSIDRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
-                                               familyId:(NSString *)familyId
-                                          configuration:(MSIDConfiguration *)configuration
-                                                context:(id<MSIDRequestContext>)context
-                                                  error:(NSError **)error
+- (MSIDPrimaryRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
+                                                      familyId:(NSString *)familyId
+                                                 configuration:(MSIDConfiguration *)configuration
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError **)error
 {
     MSIDConfiguration *config = [configuration copy];
     config.clientId = MSID_LEGACY_CACHE_NIL_KEY;
     
-    MSIDRefreshToken *prt =  [self getRefreshableTokenWithAccount:accountIdentifier
-                                                         familyId:familyId
-                                                   credentialType:MSIDPrimaryRefreshTokenType
-                                                    configuration:config
-                                                          context:context
-                                                            error:error];
+    MSIDPrimaryRefreshToken *prt = (MSIDPrimaryRefreshToken *)[self getRefreshableTokenWithAccount:accountIdentifier
+                                                                                          familyId:familyId
+                                                                                    credentialType:MSIDPrimaryRefreshTokenType
+                                                                                     configuration:config
+                                                                                           context:context
+                                                                                             error:error];
     
     if (prt) return prt;
     

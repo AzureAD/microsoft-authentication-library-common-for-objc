@@ -37,6 +37,7 @@
 @class MSIDAccount;
 @class MSIDAuthority;
 @class MSIDAccessToken;
+@class MSIDPrimaryRefreshToken;
 
 @protocol MSIDCacheAccessor <NSObject>
 
@@ -69,11 +70,11 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 
-- (MSIDRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
-                                               familyId:(NSString *)familyId
-                                          configuration:(MSIDConfiguration *)configuration
-                                                context:(id<MSIDRequestContext>)context
-                                                  error:(NSError **)error;
+- (MSIDPrimaryRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
+                                                      familyId:(NSString *)familyId
+                                                 configuration:(MSIDConfiguration *)configuration
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError **)error;
 
 - (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
                                          clientId:(NSString *)clientId
