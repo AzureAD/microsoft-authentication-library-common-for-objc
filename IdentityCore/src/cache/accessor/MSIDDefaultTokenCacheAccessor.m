@@ -356,12 +356,12 @@
     if (filterByClient)
     {
         // we only return accounts for which we have refresh tokens in cache
-        filterAccountIds = [self accountIdsWithAuthority:authority
-                                                clientId:clientId
-                                                familyId:familyId
-                                  accountCredentialCache:_accountCredentialCache
-                                                 context:context
-                                                   error:error];
+        filterAccountIds = [self homeAccountIdsFromRTsWithAuthority:authority
+                                                           clientId:clientId
+                                                           familyId:familyId
+                                             accountCredentialCache:_accountCredentialCache
+                                                            context:context
+                                                              error:error];
         
         if (*error)
         {
@@ -889,12 +889,12 @@
     return tokens;
 }
 
-- (NSSet<NSString *> *)accountIdsWithAuthority:(MSIDAuthority *)authority
-                                      clientId:(NSString *)clientId
-                                      familyId:(NSString *)familyId
-                        accountCredentialCache:(MSIDAccountCredentialCache *)accountCredentialCache
-                                       context:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error
+- (NSSet<NSString *> *)homeAccountIdsFromRTsWithAuthority:(MSIDAuthority *)authority
+                                                 clientId:(NSString *)clientId
+                                                 familyId:(NSString *)familyId
+                                   accountCredentialCache:(MSIDAccountCredentialCache *)accountCredentialCache
+                                                  context:(id<MSIDRequestContext>)context
+                                                    error:(NSError **)error
 {
     // Retrieve refresh tokens in cache, and return account ids for those refresh tokens
     MSIDDefaultCredentialCacheQuery *refreshTokenQuery = [MSIDDefaultCredentialCacheQuery new];
