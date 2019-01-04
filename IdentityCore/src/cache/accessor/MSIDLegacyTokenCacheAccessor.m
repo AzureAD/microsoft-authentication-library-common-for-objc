@@ -265,12 +265,10 @@
         {
             return NO;
         }
-#if AD_BROKER
         if (tokenCacheItem.credentialType == MSIDPrimaryRefreshTokenType)
         {
             return YES;
         }
-#endif
         if (clientId && ![tokenCacheItem.clientId isEqualToString:clientId])
         {
             return NO;

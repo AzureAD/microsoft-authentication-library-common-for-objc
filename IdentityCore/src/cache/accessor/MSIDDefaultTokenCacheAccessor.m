@@ -349,49 +349,25 @@
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
         return nil;
     }
-
+    
     NSSet<NSString *> *filterAccountIds = nil;
 
     BOOL filterByClient = (clientId || familyId);
-
     if (filterByClient)
     {
-        // Retrieve refresh tokens in cache, so that we only return accounts for which we have refresh tokens in cache
-        MSIDDefaultCredentialCacheQuery *refreshTokenQuery = [MSIDDefaultCredentialCacheQuery new];
-        refreshTokenQuery.credentialType = MSIDRefreshTokenType;
-        refreshTokenQuery.clientId = clientId;
-        refreshTokenQuery.familyId = familyId;
-        refreshTokenQuery.environmentAliases = environmentAliases;
-        refreshTokenQuery.clientIdMatchingOptions = MSIDSuperSet;
-
-        NSArray<MSIDCredentialCacheItem *> *refreshTokens = [_accountCredentialCache getCredentialsWithQuery:refreshTokenQuery context:context error:error];
-
-        if (!refreshTokens)
-        {
-            MSID_LOG_ERROR(context, @"(Default accessor) Failed refresh token lookup");
-            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-            return nil;
-        }
-#if AD_BROKER
-        // Retrieve primary refresh tokens in cache too
-        MSIDDefaultCredentialCacheQuery *prtQuery = [MSIDDefaultCredentialCacheQuery new];
-        prtQuery.credentialType = MSIDPrimaryRefreshTokenType;
-        prtQuery.environmentAliases = environmentAliases;
+        // we only return accounts for which we have refresh tokens in cache
+        filterAccountIds = [self accountIdsWithAuthority:authority
+                                                clientId:clientId
+                                                familyId:familyId
+                                  accountCredentialCache:_accountCredentialCache
+                                                 context:context
+                                                   error:error];
         
-        NSArray<MSIDCredentialCacheItem *> *primaryRefreshTokens = [_accountCredentialCache getCredentialsWithQuery:prtQuery context:context error:error];
-
-        if (!primaryRefreshTokens)
+        if (*error)
         {
-            MSID_LOG_ERROR(context, @"(Default accessor) Failed primary refresh token lookup");
             [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
             return nil;
         }
-        NSMutableArray *allRefreshTokens = [refreshTokens mutableCopy];
-        [allRefreshTokens addObjectsFromArray:primaryRefreshTokens];
-        refreshTokens = allRefreshTokens;
-#endif
-
-        filterAccountIds = [NSSet setWithArray:[refreshTokens valueForKey:@"homeAccountId"]];
     }
 
     NSMutableSet<MSIDAccount *> *filteredAccountsSet = [NSMutableSet new];
@@ -911,6 +887,32 @@
     }
 
     return tokens;
+}
+
+- (NSSet<NSString *> *)accountIdsWithAuthority:(MSIDAuthority *)authority
+                                      clientId:(NSString *)clientId
+                                      familyId:(NSString *)familyId
+                        accountCredentialCache:(MSIDAccountCredentialCache *)accountCredentialCache
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
+{
+    // Retrieve refresh tokens in cache, and return account ids for those refresh tokens
+    MSIDDefaultCredentialCacheQuery *refreshTokenQuery = [MSIDDefaultCredentialCacheQuery new];
+    refreshTokenQuery.credentialType = MSIDRefreshTokenType;
+    refreshTokenQuery.clientId = clientId;
+    refreshTokenQuery.familyId = familyId;
+    refreshTokenQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
+    refreshTokenQuery.clientIdMatchingOptions = MSIDSuperSet;
+    
+    NSArray<MSIDCredentialCacheItem *> *refreshTokens = [accountCredentialCache getCredentialsWithQuery:refreshTokenQuery context:context error:error];
+    
+    if (!refreshTokens)
+    {
+        MSID_LOG_ERROR(context, @"(Default accessor) Failed refresh token lookup");
+        return nil;
+    }
+    
+    return [NSSet setWithArray:[refreshTokens valueForKey:@"homeAccountId"]];
 }
 
 #pragma mark - App metadata
