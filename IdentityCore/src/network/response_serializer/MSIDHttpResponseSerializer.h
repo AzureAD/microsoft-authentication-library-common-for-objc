@@ -26,4 +26,6 @@
 
 @interface MSIDHttpResponseSerializer : NSObject <MSIDResponseSerialization>
 
+@property (nonatomic, nullable) id<MSIDResponseSerialization> preprocessor;
+
 @end

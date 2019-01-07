@@ -20,12 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDOpenIdConfigurationInfoResponseSerializer.h"
+#import "MSIDAADOpenIdConfigurationInfoResponseSerializer.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
 
 static NSString *s_tenantIdPlaceholder = @"{tenantid}";
 
-@implementation MSIDOpenIdConfigurationInfoResponseSerializer
+@implementation MSIDAADOpenIdConfigurationInfoResponseSerializer
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        self.preprocessor = [MSIDAADJsonResponsePreprocessor new];
+    }
+    return self;
+}
 
 - (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
                            data:(NSData *)data

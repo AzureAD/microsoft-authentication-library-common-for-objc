@@ -171,34 +171,12 @@
 }
 
 
-- (MSIDTokenResult *)validateAndSaveTokenResponse:(id)response
+- (MSIDTokenResult *)validateAndSaveTokenResponse:(MSIDTokenResponse *)tokenResponse
                                      oauthFactory:(MSIDOauth2Factory *)factory
                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
                                 requestParameters:(MSIDRequestParameters *)parameters
                                             error:(NSError **)error
 {
-    if (response && ![response isKindOfClass:[NSDictionary class]])
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Token response is not of the expected type: NSDictionary.", nil, nil, nil, parameters.correlationId, nil);
-        }
-
-        MSID_LOG_ERROR(parameters, @"Unexpected response from STS, not of NSDictionary type");
-
-        return nil;
-    }
-
-    NSDictionary *jsonDictionary = (NSDictionary *)response;
-    MSIDTokenResponse *tokenResponse = [factory tokenResponseFromJSON:jsonDictionary
-                                                              context:parameters
-                                                                error:error];
-    if (!tokenResponse)
-    {
-        MSID_LOG_ERROR(parameters, @"Failed to create token response");
-        return nil;
-    }
-
     MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
                                                   oauthFactory:factory
                                                  configuration:parameters.msidConfiguration
