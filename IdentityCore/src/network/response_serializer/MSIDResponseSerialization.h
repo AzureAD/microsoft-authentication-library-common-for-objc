@@ -25,8 +25,6 @@
 
 @protocol MSIDRequestContext;
 
-NS_ASSUME_NONNULL_BEGIN
-
 @protocol MSIDResponseSerialization <NSObject>
 
 /**
@@ -39,4 +37,3 @@ NS_ASSUME_NONNULL_BEGIN
                           error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
-NS_ASSUME_NONNULL_END
