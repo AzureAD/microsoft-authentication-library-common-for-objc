@@ -22,7 +22,7 @@
 
 #import "MSIDOpenIdConfigurationInfoRequest.h"
 #import "MSIDOpenIdProviderMetadata.h"
-#import "MSIDOpenIdConfigurationInfoResponseSerializer.h"
+#import "MSIDAADOpenIdConfigurationInfoResponseSerializer.h"
 #import "MSIDAuthority.h"
 #import "MSIDAADRequestConfigurator.h"
 
@@ -48,7 +48,7 @@
         __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
         [requestConfigurator configure:self];
         
-        __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
+        __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
         responseSerializer.endpoint = endpoint;
         _responseSerializer = responseSerializer;
     }

@@ -30,7 +30,20 @@
                         context:(id <MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    return data;
+    id result;
+    if (self.preprocessor)
+    {
+        result = [self.preprocessor responseObjectForResponse:httpResponse
+                                                         data:data
+                                                      context:context
+                                                        error:error];
+    }
+    else
+    {
+        result = data;
+    }
+    
+    return result;
 }
 
 @end

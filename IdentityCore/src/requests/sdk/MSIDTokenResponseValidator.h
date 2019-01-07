@@ -31,7 +31,7 @@
 
 @interface MSIDTokenResponseValidator : NSObject
 
-- (nullable MSIDTokenResult *)validateAndSaveTokenResponse:(nonnull id)response
+- (nullable MSIDTokenResult *)validateAndSaveTokenResponse:(nonnull MSIDTokenResponse *)tokenResponse
                                               oauthFactory:(nonnull MSIDOauth2Factory *)factory
                                                 tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                                          requestParameters:(nonnull MSIDRequestParameters *)parameters

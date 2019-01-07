@@ -22,14 +22,14 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDOpenIdConfigurationInfoResponseSerializer.h"
+#import "MSIDAADOpenIdConfigurationInfoResponseSerializer.h"
 #import "MSIDOpenIdProviderMetadata.h"
 
-@interface MSIDOpenIdConfigurationInfoResponseSerializerTests : XCTestCase
+@interface MSIDAADOpenIdConfigurationInfoResponseSerializerTests : XCTestCase
 
 @end
 
-@implementation MSIDOpenIdConfigurationInfoResponseSerializerTests
+@implementation MSIDAADOpenIdConfigurationInfoResponseSerializerTests
 
 - (void)setUp
 {
@@ -51,7 +51,7 @@
                                  @"issuer" : @"https://login.microsoftonline.com/common/v2.0",
                                  };
     NSData *data = [NSJSONSerialization dataWithJSONObject:responseJson options:0 error:nil];
-    __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
+    __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
     
     NSError *error = nil;
     __auto_type response = (MSIDOpenIdProviderMetadata *)[responseSerializer responseObjectForResponse:[NSHTTPURLResponse new] data:data context:nil error:&error];
@@ -64,7 +64,7 @@
 
 - (void)testResponseObjectForResponse_whenJsonNil_shouldReturnNilWithNilError
 {
-    __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
+    __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
     
     NSError *error = nil;
     __auto_type response = (MSIDOpenIdProviderMetadata *)[responseSerializer responseObjectForResponse:[NSHTTPURLResponse new] data:nil context:nil error:&error];
@@ -83,7 +83,7 @@
                                  @"issuer" : @"https://login.microsoftonline.com/common/v2.0",
                                  };
     NSData *data = [NSJSONSerialization dataWithJSONObject:responseJson options:0 error:nil];
-    __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
+    __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
     
     NSError *error = nil;
     __auto_type response = (MSIDOpenIdProviderMetadata *)[responseSerializer responseObjectForResponse:[NSHTTPURLResponse new] data:data context:nil error:&error];
@@ -100,7 +100,7 @@
                                  @"issuer" : @"https://login.microsoftonline.com/common/v2.0",
                                  };
     NSData *data = [NSJSONSerialization dataWithJSONObject:responseJson options:0 error:nil];
-    __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
+    __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
     
     NSError *error = nil;
     __auto_type response = (MSIDOpenIdProviderMetadata *)[responseSerializer responseObjectForResponse:[NSHTTPURLResponse new] data:data context:nil error:&error];
@@ -119,7 +119,7 @@
                                  @"issuer" : @"https://login.microsoftonline.com/common/v2.0",
                                  };
     NSData *data = [NSJSONSerialization dataWithJSONObject:responseJson options:0 error:nil];
-    __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
+    __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
     
     NSError *error = nil;
     __auto_type response = (MSIDOpenIdProviderMetadata *)[responseSerializer responseObjectForResponse:[NSHTTPURLResponse new] data:data context:nil error:&error];
@@ -136,7 +136,7 @@
                                  @"issuer" : @"https://login.microsoftonline.com/common/v2.0",
                                  };
     NSData *data = [NSJSONSerialization dataWithJSONObject:responseJson options:0 error:nil];
-    __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
+    __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
     
     NSError *error = nil;
     __auto_type response = (MSIDOpenIdProviderMetadata *)[responseSerializer responseObjectForResponse:[NSHTTPURLResponse new] data:data context:nil error:&error];
@@ -155,7 +155,7 @@
                                  @"qwe" : @"https://login.microsoftonline.com/common/v2.0",
                                  };
     NSData *data = [NSJSONSerialization dataWithJSONObject:responseJson options:0 error:nil];
-    __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
+    __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
     
     NSError *error = nil;
     __auto_type response = (MSIDOpenIdProviderMetadata *)[responseSerializer responseObjectForResponse:[NSHTTPURLResponse new] data:data context:nil error:&error];
@@ -172,7 +172,7 @@
                                  @"issuer" : @1,
                                  };
     NSData *data = [NSJSONSerialization dataWithJSONObject:responseJson options:0 error:nil];
-    __auto_type responseSerializer = [MSIDOpenIdConfigurationInfoResponseSerializer new];
+    __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
     
     NSError *error = nil;
     __auto_type response = (MSIDOpenIdProviderMetadata *)[responseSerializer responseObjectForResponse:[NSHTTPURLResponse new] data:data context:nil error:&error];
