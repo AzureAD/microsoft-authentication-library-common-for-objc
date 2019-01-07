@@ -112,11 +112,8 @@
 - (void)testRequest_byDefaultUseMSIDHttpResponseSerializerWithMSIDJsonResponsePreprocessor
 {
     XCTAssertTrue([self.request.responseSerializer isKindOfClass:MSIDHttpResponseSerializer.class]);
-    if ([self.request.responseSerializer isKindOfClass:MSIDHttpResponseSerializer.class])
-    {
-        __auto_type responseSerializer = (MSIDHttpResponseSerializer *)self.request.responseSerializer;
-        XCTAssertTrue([responseSerializer.preprocessor isKindOfClass:MSIDJsonResponsePreprocessor.class]);
-    }
+    __auto_type responseSerializer = (MSIDHttpResponseSerializer *)self.request.responseSerializer;
+    XCTAssertTrue([responseSerializer.preprocessor isKindOfClass:MSIDJsonResponsePreprocessor.class]);
 }
 
 - (void)testRequest_byDefaultUseMSIDUrlRequestSerializer
