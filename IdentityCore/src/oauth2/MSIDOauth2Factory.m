@@ -44,6 +44,7 @@
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDTokenResponseSerializer.h"
 
 @implementation MSIDOauth2Factory
 
@@ -405,6 +406,8 @@
                                                                                                            claims:claims
                                                                                                      codeVerifier:pkceCodeVerifier
                                                                                                           context:parameters];
+    tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
     return tokenRequest;
 }
 
@@ -418,6 +421,8 @@
                                                                                                   scope:allScopes
                                                                                            refreshToken:refreshToken
                                                                                                 context:parameters];
+    tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
     return tokenRequest;
 }
 

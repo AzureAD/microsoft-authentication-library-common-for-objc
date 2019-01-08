@@ -283,4 +283,9 @@ typedef unsigned char byte;
     return jsonDictionary;
 }
 
++ (NSString *)msidScopeFromResource:(NSString *)resource
+{
+    return [resource stringByAppendingString:@"/.default"];
+}
+
 @end

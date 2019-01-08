@@ -94,6 +94,7 @@ NSString *const MSID_ENVIRONMENT_CACHE_KEY               = @"environment";
 NSString *const MSID_REALM_CACHE_KEY                     = @"realm";
 NSString *const MSID_AUTHORITY_CACHE_KEY                 = @"authority";
 NSString *const MSID_HOME_ACCOUNT_ID_CACHE_KEY           = @"home_account_id";
+NSString *const MSID_ENROLLMENT_ID_CACHE_KEY             = @"enrollment_id";
 NSString *const MSID_CLIENT_ID_CACHE_KEY                 = @"client_id";
 NSString *const MSID_FAMILY_ID_CACHE_KEY                 = @"family_id";
 NSString *const MSID_TOKEN_CACHE_KEY                     = @"secret";

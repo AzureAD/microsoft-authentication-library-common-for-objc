@@ -286,4 +286,19 @@
     XCTAssertEqualObjects(json[@"json_key"], @"value");
 }
 
+- (void)testMsidScopeFromResource_whenResourceIsNil_shouldReturnNil
+{
+    XCTAssertNil([NSString msidScopeFromResource:nil]);
+}
+
+- (void)testMsidScopeFromResource_whenResourceIsNotNil_shouldAppendScopeSuffixWithSlash
+{
+    XCTAssertEqualObjects([NSString msidScopeFromResource:@"https://contoso.com"], @"https://contoso.com/.default");
+}
+
+- (void)testMsidScopeFromResource_whenResourceContainsSlashAtEnd_shouldAppendScopeSuffixWithSlash
+{
+    XCTAssertEqualObjects([NSString msidScopeFromResource:@"https://contoso.com/"], @"https://contoso.com//.default");
+}
+
 @end

@@ -30,6 +30,7 @@
 
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(MSIDConfiguration *)configuration
+                  oidcScope:(NSString *)oidcScope
              requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
@@ -81,7 +82,7 @@
 
         case MSIDLegacyIdentifierTypeUniqueNonDisplayableId:
         {
-            return [accountIdentifier.displayableId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString];
+            return [accountIdentifier.localAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString];
         }
         case MSIDLegacyIdentifierTypeOptionalDisplayableId:
         {

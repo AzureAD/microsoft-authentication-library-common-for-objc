@@ -36,6 +36,7 @@ typedef NS_ENUM(NSInteger, MSIDLegacyAccountIdentifierType)
 
 @property (nonatomic, readwrite) NSString *homeAccountId;
 @property (nonatomic, readwrite) NSString *displayableId;
+@property (nonatomic, readwrite) NSString *localAccountId;
 @property (nonatomic, readwrite) MSIDLegacyAccountIdentifierType legacyAccountIdentifierType;
 @property (nonatomic, readwrite) NSString *uid;
 @property (nonatomic, readwrite) NSString *utid;

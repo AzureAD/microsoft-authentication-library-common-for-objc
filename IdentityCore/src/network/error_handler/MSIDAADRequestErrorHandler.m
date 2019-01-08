@@ -23,7 +23,8 @@
 
 
 #import "MSIDAADRequestErrorHandler.h"
-#import "MSIDJsonResponseSerializer.h"
+#import "MSIDHttpResponseSerializer.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
 #import "MSIDAADTokenResponse.h"
 
 @implementation MSIDAADRequestErrorHandler
@@ -59,7 +60,8 @@
         return;
     }
 
-    id responseSerializer = [MSIDJsonResponseSerializer new];
+    __auto_type responseSerializer = [MSIDHttpResponseSerializer new];
+    responseSerializer.preprocessor = [MSIDAADJsonResponsePreprocessor new];
     id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:nil];
 
     if (responseObject)

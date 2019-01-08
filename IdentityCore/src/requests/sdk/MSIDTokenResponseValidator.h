@@ -31,13 +31,14 @@
 
 @interface MSIDTokenResponseValidator : NSObject
 
-- (nullable MSIDTokenResult *)validateAndSaveTokenResponse:(nonnull id)response
+- (nullable MSIDTokenResult *)validateAndSaveTokenResponse:(nonnull MSIDTokenResponse *)tokenResponse
                                               oauthFactory:(nonnull MSIDOauth2Factory *)factory
                                                 tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                                          requestParameters:(nonnull MSIDRequestParameters *)parameters
                                                      error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable MSIDTokenResult *)validateAndSaveBrokerResponse:(nonnull MSIDBrokerResponse *)brokerResponse
+                                                  oidcScope:(nullable NSString *)oidcScope
                                                oauthFactory:(nonnull MSIDOauth2Factory *)factory
                                                  tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                                               correlationID:(nullable NSUUID *)correlationID
@@ -52,6 +53,7 @@
 
 - (BOOL)validateTokenResult:(nonnull MSIDTokenResult *)tokenResult
               configuration:(nonnull MSIDConfiguration *)configuration
+                  oidcScope:(nullable NSString *)oidcScope
              requestAccount:(nullable MSIDAccountIdentifier *)accountIdentifier
               correlationID:(nonnull NSUUID *)correlationID
                       error:(NSError * _Nullable * _Nullable)error;

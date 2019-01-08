@@ -90,6 +90,7 @@
     account.displayableId = [_displayableId copyWithZone:zone];
     account.homeAccountId = [_homeAccountId copyWithZone:zone];
     account.legacyAccountIdentifierType = _legacyAccountIdentifierType;
+    account.localAccountId = [_localAccountId copyWithZone:zone];
     return account;
 }
 
@@ -115,6 +116,7 @@
     NSUInteger hash = 0;
     hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.displayableId.hash;
+    hash = hash * 31 + self.localAccountId.hash;
     hash = hash * 31 + self.legacyAccountIdentifierType;
     return hash;
 }
@@ -129,6 +131,7 @@
     BOOL result = YES;
     result &= (!self.homeAccountId && !account.homeAccountId) || [self.homeAccountId isEqualToString:account.homeAccountId];
     result &= (!self.displayableId && !account.displayableId) || [self.displayableId isEqualToString:account.displayableId];
+    result &= (!self.localAccountId && !account.localAccountId) || [self.localAccountId isEqualToString:account.localAccountId];
     result &= self.legacyAccountIdentifierType == account.legacyAccountIdentifierType;
     return result;
 }

@@ -79,6 +79,7 @@
 
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(MSIDConfiguration *)configuration
+                  oidcScope:(NSString *)oidcScope
              requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
@@ -88,6 +89,7 @@
 }
 
 - (MSIDTokenResult *)validateAndSaveBrokerResponse:(MSIDBrokerResponse *)brokerResponse
+                                         oidcScope:(NSString *)oidcScope
                                       oauthFactory:(MSIDOauth2Factory *)factory
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
                                      correlationID:(NSUUID *)correlationID
@@ -154,6 +156,7 @@
 
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:configuration
+                                       oidcScope:oidcScope
                                   requestAccount:nil
                                    correlationID:correlationID
                                            error:error];
@@ -168,34 +171,12 @@
 }
 
 
-- (MSIDTokenResult *)validateAndSaveTokenResponse:(id)response
+- (MSIDTokenResult *)validateAndSaveTokenResponse:(MSIDTokenResponse *)tokenResponse
                                      oauthFactory:(MSIDOauth2Factory *)factory
                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
                                 requestParameters:(MSIDRequestParameters *)parameters
                                             error:(NSError **)error
 {
-    if (response && ![response isKindOfClass:[NSDictionary class]])
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Token response is not of the expected type: NSDictionary.", nil, nil, nil, parameters.correlationId, nil);
-        }
-
-        MSID_LOG_ERROR(parameters, @"Unexpected response from STS, not of NSDictionary type");
-
-        return nil;
-    }
-
-    NSDictionary *jsonDictionary = (NSDictionary *)response;
-    MSIDTokenResponse *tokenResponse = [factory tokenResponseFromJSON:jsonDictionary
-                                                              context:parameters
-                                                                error:error];
-    if (!tokenResponse)
-    {
-        MSID_LOG_ERROR(parameters, @"Failed to create token response");
-        return nil;
-    }
-
     MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
                                                   oauthFactory:factory
                                                  configuration:parameters.msidConfiguration
@@ -220,9 +201,12 @@
         MSID_LOG_ERROR(parameters, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
         MSID_LOG_ERROR_PII(parameters, @"Failed to save tokens in cache. Error %@", savingError);
     }
+    
+    
 
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:parameters.msidConfiguration
+                                       oidcScope:parameters.oidcScope
                                   requestAccount:parameters.accountIdentifier
                                    correlationID:parameters.correlationId
                                            error:error];

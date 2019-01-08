@@ -44,6 +44,7 @@
     cacheItem.realm = @"contoso.com";
     cacheItem.secret = DEFAULT_TEST_ACCESS_TOKEN;
     cacheItem.homeAccountId = @"uid.utid";
+    cacheItem.enrollmentId = @"enrollmentId";
 
     NSDate *expiresOn = [NSDate date];
     NSDate *cachedAt = [NSDate date];
@@ -72,7 +73,8 @@
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"extended_expires_on": extExpiresOnString,
                                          @"spe_info": @"2",
-                                         @"home_account_id": @"uid.utid"
+                                         @"home_account_id": @"uid.utid",
+                                         @"enrollment_id": @"enrollmentId"
                                          };
     
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
@@ -143,7 +145,8 @@
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"extended_expires_on": extExpiresOnString,
                                      @"spe_info": @"2",
-                                     @"home_account_id": @"uid.utid"
+                                     @"home_account_id": @"uid.utid",
+                                     @"enrollment_id": @"enrollmentId"
                                      };
     
     NSError *error = nil;
@@ -161,6 +164,7 @@
     NSDictionary *additionalInfo = @{@"spe_info": @"2", @"extended_expires_on": extExpiresOn};
     XCTAssertEqualObjects(cacheItem.additionalInfo, additionalInfo);
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.enrollmentId, @"enrollmentId");
 }
 
 - (void)testInitWithJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnRefreshTokenCacheItem
@@ -184,6 +188,7 @@
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(cacheItem.familyId, DEFAULT_TEST_FAMILY_ID);
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
+    XCTAssertNil(cacheItem.enrollmentId);
 }
 
 - (void)testInitWithJSONDictionary_whenIDToken_andAllFieldsSet_shouldReturnIDTokenCacheItem
@@ -206,6 +211,7 @@
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ID_TOKEN);
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
+    XCTAssertNil(cacheItem.enrollmentId);
 }
 
 - (void)testEqualityForCredentialCacheItems_WhenEitherOfTheComparedPropertiesInTheObject_IsNil

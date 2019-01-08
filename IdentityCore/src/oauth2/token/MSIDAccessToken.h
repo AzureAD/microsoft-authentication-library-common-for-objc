@@ -32,6 +32,7 @@
 @property (readonly) NSDate *extendedExpireTime;
 @property (readwrite) NSDate *cachedAt;
 @property (readwrite) NSString *accessToken;
+@property (readwrite) NSString *enrollmentId;
 
 // v1 access tokens are scoped down to resources
 @property (readwrite) NSString *resource;

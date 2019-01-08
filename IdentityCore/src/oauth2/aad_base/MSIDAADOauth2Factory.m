@@ -43,6 +43,7 @@
 #import "MSIDAADTenant.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -163,6 +164,11 @@
     {
         return NO;
     }
+    
+    accessToken.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:accessToken.accountIdentifier.homeAccountId
+                                                                                           legacyUserId:accessToken.accountIdentifier.displayableId
+                                                                                                context:nil
+                                                                                                  error:nil];
 
     if (!response.extendedExpiresOnDate) return YES;
 

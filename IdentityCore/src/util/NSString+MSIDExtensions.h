@@ -91,4 +91,7 @@
  Returns nil if it is not a json string. */
 - (NSDictionary *)msidJson;
 
+/*! Convert resource to scope */
++ (NSString *)msidScopeFromResource:(NSString *)resource;
+
 @end
