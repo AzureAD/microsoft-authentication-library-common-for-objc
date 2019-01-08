@@ -42,7 +42,7 @@
     [coder encodeObject:self.sessionKey forKey:@"sessionKey"];
 }
 
-- (id) initWithCoder:(NSCoder *)decoder
+- (id)initWithCoder:(NSCoder *)decoder
 {
     self = [super initWithCoder:decoder];
     if (self)
@@ -62,9 +62,9 @@
         return nil;
     }
     
-    if (json[@"session_key"])
+    if (json[MSID_SESSION_KEY_CACHE_KEY])
     {
-        _sessionKey = [NSData msidDataFromBase64UrlEncodedString:json[@"session_key"]];
+        _sessionKey = [NSData msidDataFromBase64UrlEncodedString:json[MSID_SESSION_KEY_CACHE_KEY]];
     }
     
     return self;
@@ -79,7 +79,7 @@
         dictionary = [NSMutableDictionary new];
     }
     
-    dictionary[@"session_key"] = [self.sessionKey msidBase64UrlEncodedString];
+    dictionary[MSID_SESSION_KEY_CACHE_KEY] = [self.sessionKey msidBase64UrlEncodedString];
     return dictionary;
 }
 

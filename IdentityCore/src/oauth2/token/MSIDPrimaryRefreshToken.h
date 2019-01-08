@@ -21,11 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRefreshToken.h"
+#import "MSIDLegacyRefreshToken.h"
 
 @class MSIDLegacyTokenCacheItem;
 
-@interface MSIDPrimaryRefreshToken : MSIDRefreshToken
+@interface MSIDPrimaryRefreshToken : MSIDLegacyRefreshToken
 
 @property (nonatomic) NSData *sessionKey;
 
