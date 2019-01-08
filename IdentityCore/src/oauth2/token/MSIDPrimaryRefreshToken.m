@@ -36,7 +36,7 @@
     
     if (self)
     {
-        _sessionKey = [NSData msidDataFromBase64UrlEncodedString:tokenCacheItem.jsonDictionary[@"session_key"]];
+        _sessionKey = [NSData msidDataFromBase64UrlEncodedString:tokenCacheItem.jsonDictionary[MSID_SESSION_KEY_CACHE_KEY]];
         
         if (!_sessionKey)
         {
@@ -57,6 +57,7 @@
     if (!prtCacheItem) return nil;
     
     prtCacheItem.sessionKey = self.sessionKey;
+    prtCacheItem.credentialType = MSIDPrimaryRefreshTokenType;
     
     return prtCacheItem;
 }
@@ -64,11 +65,17 @@
 // for legacy PRT reading from cache
 - (instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem
 {
-    self = [self initWithTokenCacheItem:tokenCacheItem];
+    self = [super initWithLegacyTokenCacheItem:tokenCacheItem];
     
     if (self)
     {
-        _accountIdentifier.displayableId = tokenCacheItem.idTokenClaims.username;
+        _sessionKey = [NSData msidDataFromBase64UrlEncodedString:tokenCacheItem.jsonDictionary[MSID_SESSION_KEY_CACHE_KEY]];
+        
+        if (!_sessionKey)
+        {
+            MSID_LOG_ERROR(nil, @"Trying to initialize primary refresh token when missing session key field");
+            return nil;
+        }
     }
     
     return self;

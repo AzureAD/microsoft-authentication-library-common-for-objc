@@ -211,32 +211,9 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
         return nil;
     }
     
-    NSMutableArray *tokenItems = [[NSMutableArray<MSIDCredentialCacheItem *> alloc] initWithCapacity:items.count];
-    
-    for (NSDictionary *attrs in items)
-    {
-        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
-        MSIDCredentialCacheItem *tokenItem = [serializer deserializeCredentialCacheItem:itemData];
-        
-        if (tokenItem)
-        {
-            // Delete tombstones generated from previous versions of ADAL.
-            if ([tokenItem isTombstone])
-            {
-                [self deleteTombstoneWithService:attrs[(id)kSecAttrService]
-                                         account:attrs[(id)kSecAttrAccount]
-                                         context:context];
-            }
-            else
-            {
-                [tokenItems addObject:tokenItem];
-            }
-        }
-        else
-        {
-            MSID_LOG_ERROR(context, @"Failed to deserialize token item.");
-        }
-    }
+    NSMutableArray *tokenItems = [self filterTokenItemsFromKeychainItems:items
+                                                              serializer:serializer
+                                                                 context:context];
     
     MSID_LOG_INFO(context, @"Found %lu items.", (unsigned long)tokenItems.count);
     MSID_LOG_INFO_PII(context, @"Items info %@", tokenItems);
@@ -725,6 +702,40 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     }
 
     return YES;
+}
+
+- (NSMutableArray<MSIDCredentialCacheItem *> *)filterTokenItemsFromKeychainItems:(NSArray *)items
+                                                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                                                         context:(id<MSIDRequestContext>)context
+{
+    NSMutableArray *tokenItems = [[NSMutableArray<MSIDCredentialCacheItem *> alloc] initWithCapacity:items.count];
+    
+    for (NSDictionary *attrs in items)
+    {
+        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
+        MSIDCredentialCacheItem *tokenItem = [serializer deserializeCredentialCacheItem:itemData];
+        
+        if (tokenItem)
+        {
+            // Delete tombstones generated from previous versions of ADAL.
+            if ([tokenItem isTombstone])
+            {
+                [self deleteTombstoneWithService:attrs[(id)kSecAttrService]
+                                         account:attrs[(id)kSecAttrAccount]
+                                         context:context];
+            }
+            else
+            {
+                [tokenItems addObject:tokenItem];
+            }
+        }
+        else
+        {
+            MSID_LOG_ERROR(context, @"Failed to deserialize token item.");
+        }
+    }
+    
+    return tokenItems;
 }
 
 // Override the following function in subclasses if special key handling is needed
