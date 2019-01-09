@@ -22,21 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDLegacyTokenCacheItem.h"
 
-typedef NS_ENUM(NSInteger, MSIDCredentialType)
-{
-    MSIDCredentialTypeOther = 0,
-    MSIDAccessTokenType = 1,
-    MSIDRefreshTokenType = 2,
-    MSIDIDTokenType = 3,
-    MSIDLegacySingleResourceTokenType = 4,
-    MSIDPrimaryRefreshTokenType = 5
-};
+@interface MSIDPRTCacheItem : MSIDLegacyTokenCacheItem
 
-@interface MSIDCredentialTypeHelpers : NSObject
-
-+ (NSString *)credentialTypeAsString:(MSIDCredentialType)type;
-+ (MSIDCredentialType)credentialTypeFromString:(NSString *)type;
-+ (MSIDCredentialType)credentialTypeWithRefreshToken:(NSString *)refreshToken accessToken:(NSString *)accessToken;
+@property NSData *sessionKey;
 
 @end

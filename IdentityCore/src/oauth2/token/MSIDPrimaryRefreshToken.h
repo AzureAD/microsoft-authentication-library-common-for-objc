@@ -21,22 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDLegacyRefreshToken.h"
 
-typedef NS_ENUM(NSInteger, MSIDCredentialType)
-{
-    MSIDCredentialTypeOther = 0,
-    MSIDAccessTokenType = 1,
-    MSIDRefreshTokenType = 2,
-    MSIDIDTokenType = 3,
-    MSIDLegacySingleResourceTokenType = 4,
-    MSIDPrimaryRefreshTokenType = 5
-};
+@class MSIDLegacyTokenCacheItem;
 
-@interface MSIDCredentialTypeHelpers : NSObject
+@interface MSIDPrimaryRefreshToken : MSIDLegacyRefreshToken
 
-+ (NSString *)credentialTypeAsString:(MSIDCredentialType)type;
-+ (MSIDCredentialType)credentialTypeFromString:(NSString *)type;
-+ (MSIDCredentialType)credentialTypeWithRefreshToken:(NSString *)refreshToken accessToken:(NSString *)accessToken;
+@property (nonatomic) NSData *sessionKey;
+
+- (instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)legacyTokenCacheItem;
 
 @end

@@ -114,11 +114,13 @@ extern NSString *const MSID_MIDDLE_NAME_CACHE_KEY;
 extern NSString *const MSID_FAMILY_NAME_CACHE_KEY;
 extern NSString *const MSID_NAME_CACHE_KEY;
 extern NSString *const MSID_ALTERNATIVE_ACCOUNT_ID_KEY;
+extern NSString *const MSID_SESSION_KEY_CACHE_KEY;
 
 extern NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_ID_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_PRT_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_GENERAL_CACHE_ITEM_TYPE;
 extern NSString *const MSID_APP_METADATA_CACHE_TYPE;

@@ -208,6 +208,10 @@
     
     NSArray *refreshTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([refreshTokensInCache count], 1);
+    // storageAuthority is a property set by cache accessor used for latter token deletion,
+    // while token directly from network response doesn't have storageAuthority
+    // So here set it manually for easy comparison
+    token.storageAuthority = token.authority;
     XCTAssertEqualObjects(refreshTokensInCache[0], token);
 }
 
@@ -256,6 +260,10 @@
     NSArray *refreshTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([refreshTokensInCache count], 1);
     // Check that the token got overriden
+    // storageAuthority is a property set by cache accessor used for latter token deletion,
+    // while token directly from network response doesn't have storageAuthority
+    // So here set it manually for easy comparison
+    secondToken.storageAuthority = secondToken.authority;
     XCTAssertEqualObjects(refreshTokensInCache[0], secondToken);
 }
 
@@ -884,6 +892,10 @@
     
     NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([allRTs count], 1);
+    // storageAuthority is a property set by cache accessor used for latter token deletion,
+    // while token directly from network response doesn't have storageAuthority
+    // So here set it manually for easy comparison
+    token.storageAuthority = token.authority;
     XCTAssertEqualObjects(allRTs[0], token);
 }
 

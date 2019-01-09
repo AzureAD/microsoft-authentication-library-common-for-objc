@@ -25,7 +25,7 @@
 #import "MSIDHelpers.h"
 
 //A special attribute to write, instead of nil/empty one.
-static NSString *const s_nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
+NSString *const MSID_LEGACY_CACHE_NIL_KEY = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
 static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
 static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
@@ -40,7 +40,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
 - (NSString *)getAttributeName:(NSString *)attribute
 {
-    return ([NSString msidIsStringNilOrBlank:attribute]) ? s_nilKey : [attribute msidBase64UrlEncode];
+    return ([NSString msidIsStringNilOrBlank:attribute]) ? MSID_LEGACY_CACHE_NIL_KEY : [attribute msidBase64UrlEncode];
 }
 
 - (NSString *)serviceWithAuthority:(NSURL *)authority
@@ -248,7 +248,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
             NSString *authority = [items[1] msidBase64UrlDecode];
             self.authority = [NSURL URLWithString:authority];
 
-            NSString *resource = [items[2] isEqualToString:s_nilKey] ? nil : [items[2] msidBase64UrlDecode];
+            NSString *resource = [items[2] isEqualToString:MSID_LEGACY_CACHE_NIL_KEY] ? nil : [items[2] msidBase64UrlDecode];
             self.resource = resource;
 
             NSString *clientId = [items[3] msidBase64UrlDecode];
