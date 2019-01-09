@@ -285,8 +285,8 @@
     query.target = configuration.target;
     query.targetMatchingOptions = MSIDSubSet;
     query.credentialType = MSIDAccessTokenType;
-    query.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:account.homeAccountId
-                                                                                     legacyUserId:account.displayableId
+    query.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:accountIdentifier.homeAccountId
+                                                                                     legacyUserId:accountIdentifier.displayableId
                                                                                           context:context
                                                                                             error:nil];
 
