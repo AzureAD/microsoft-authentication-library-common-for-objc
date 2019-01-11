@@ -45,13 +45,13 @@
     cacheItem.localAccountId = @"0000004-0000004-000004";
     cacheItem.givenName = @"First name";
     cacheItem.familyName = @"Last name";
-    cacheItem.accountType = MSIDAccountTypeAADV1;
+    cacheItem.accountType = MSIDAccountTypeMSSTS;
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.username = @"username";
     cacheItem.alternativeAccountId = @"alt";
     cacheItem.name = @"test user";
     
-    NSDictionary *expectedDictionary = @{@"authority_type": @"AAD",
+    NSDictionary *expectedDictionary = @{@"authority_type": @"MSSTS",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"realm": @"contoso.com",
                                          @"local_account_id": @"0000004-0000004-000004",
@@ -72,7 +72,7 @@
 
 - (void)testInitWithJSONDictionary_whenAccount_andAllFieldsSet_shouldAccountCacheItem
 {
-    NSDictionary *jsonDictionary = @{@"authority_type": @"AAD",
+    NSDictionary *jsonDictionary = @{@"authority_type": @"MSSTS",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"realm": @"contoso.com",
                                      @"local_account_id": @"0000004-0000004-000004",
@@ -92,7 +92,7 @@
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
-    XCTAssertEqual(cacheItem.accountType, MSIDAccountTypeAADV1);
+    XCTAssertEqual(cacheItem.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(cacheItem.localAccountId, @"0000004-0000004-000004");
     XCTAssertEqualObjects(cacheItem.givenName, @"First name");
     XCTAssertEqualObjects(cacheItem.familyName, @"Last name");
@@ -113,7 +113,7 @@
     MSIDAccountCacheItem *secondAccount = [MSIDAccountCacheItem new];
     secondAccount.additionalAccountFields = @{@"field1": @"new_value",
                                               @"field3": @"value3"};
-    secondAccount.accountType = MSIDAccountTypeAADV1;
+    secondAccount.accountType = MSIDAccountTypeMSSTS;
     
     [secondAccount updateFieldsFromAccount:firstAccount];
     
@@ -122,7 +122,7 @@
     NSDictionary *expectedDictionary = @{@"field1": @"new_value",
                                          @"field2": @"value2",
                                          @"field3": @"value3",
-                                         @"authority_type": @"AAD"
+                                         @"authority_type": @"MSSTS"
                                          };
     
     XCTAssertEqualObjects(jsonDictionary, expectedDictionary);
