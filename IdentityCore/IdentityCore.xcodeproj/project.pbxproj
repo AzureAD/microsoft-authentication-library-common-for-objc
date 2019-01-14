@@ -996,6 +996,8 @@
 		04930F941FEDB2E000FC4DCD /* MSIDAuthority.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthority.m; sourceTree = "<group>"; };
 		04D32CB01FD6212F000B123E /* MSIDError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDError.h; sourceTree = "<group>"; };
 		04D32CB11FD62141000B123E /* MSIDError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDError.m; sourceTree = "<group>"; };
+		0544CA8B21ED1B5500A723E7 /* MSIDStorageManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MSIDStorageManager.h; path = src/cache/MSIDStorageManager.h; sourceTree = "<group>"; };
+		0544CA8C21ED1B5500A723E7 /* MSIDStorageManagerMac.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MSIDStorageManagerMac.m; path = src/cache/MSIDStorageManagerMac.m; sourceTree = "<group>"; };
 		0570FE7C219B8C8C00958ECF /* MSIDCredentialCacheItem+MSIDBaseToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MSIDCredentialCacheItem+MSIDBaseToken.m"; sourceTree = "<group>"; };
 		0570FE7D219B8C8C00958ECF /* MSIDCredentialCacheItem+MSIDBaseToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDCredentialCacheItem+MSIDBaseToken.h"; sourceTree = "<group>"; };
 		1E2EDFF8219125400054FAD9 /* MSIDTokenResponse+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDTokenResponse+Internal.h"; sourceTree = "<group>"; };
@@ -2878,6 +2880,8 @@
 		D68FB47E1FBA698A005308BB = {
 			isa = PBXGroup;
 			children = (
+				0544CA8B21ED1B5500A723E7 /* MSIDStorageManager.h */,
+				0544CA8C21ED1B5500A723E7 /* MSIDStorageManagerMac.m */,
 				D6DA89721FBA6A4E004C56C7 /* src */,
 				D6DA89731FBA6A4E004C56C7 /* tests */,
 				D626FF751FBA7A6600EE4487 /* xcconfig */,
