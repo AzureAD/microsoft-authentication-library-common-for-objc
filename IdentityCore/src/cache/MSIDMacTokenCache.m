@@ -28,6 +28,7 @@
 #import "MSIDAccountItemSerializer.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDUserInformation.h"
+#import "MSIDRequestContext.h"
 
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
