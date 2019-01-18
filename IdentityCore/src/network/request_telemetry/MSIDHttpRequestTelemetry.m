@@ -25,6 +25,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryHttpEvent.h"
+#import "MSIDRequestContext.h"
 
 @implementation MSIDHttpRequestTelemetry
 

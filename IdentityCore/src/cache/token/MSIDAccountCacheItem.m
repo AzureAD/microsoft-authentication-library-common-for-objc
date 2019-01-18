@@ -187,28 +187,4 @@
     _additionalAccountFields = allAdditionalFields;
 }
 
-#pragma mark - Query
-
-- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
-                     environment:(nullable NSString *)environment
-              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
-{
-    if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
-    {
-        return NO;
-    }
-
-    if (environment && ![self.environment isEqualToString:environment])
-    {
-        return NO;
-    }
-
-    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
-    {
-        return NO;
-    }
-
-    return YES;
-}
-
 @end

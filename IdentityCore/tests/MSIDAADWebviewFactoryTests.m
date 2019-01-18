@@ -34,6 +34,12 @@
 #import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAadAuthorityCacheRecord.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority+Internal.h"
+#import "MSIDOpenIdProviderMetadata.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -93,6 +99,40 @@
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
 
+- (void)testWebViewConfiguration_whenNonPreferredNetworkAuthorityProvided_shouldSetPreferredAuthorityToConfiguration
+{
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
+    __auto_type record = [MSIDAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"login.microsoftonline.com";
+    [cache setObject:record forKey:@"login.windows.net"];
+
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
+    MSIDOpenIdProviderMetadata *metadata = [MSIDOpenIdProviderMetadata new];
+    metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.windows.net/contoso.com/mypath/oauth/authorize"];
+    authority.metadata = metadata;
+
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"scope", nil];
+
+    MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
+                                                                                                   redirectUri:@"redirect"
+                                                                                                      clientId:@"client"
+                                                                                                        scopes:scopes
+                                                                                                    oidcScopes:nil
+                                                                                          extraScopesToConsent:nil
+                                                                                                 correlationId:nil
+                                                                                                telemetryApiId:nil
+                                                                                       supportedBrokerProtocol:nil
+                                                                                                   requestType:MSIDInteractiveRequestLocalType
+                                                                                                         error:nil];
+
+    MSIDWebviewConfiguration *configuration = [factory webViewConfigurationWithRequestParameters:parameters];
+    XCTAssertNotNil(configuration);
+    NSURL *expectedAuthorizationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/mypath/oauth/authorize"];
+    XCTAssertEqualObjects(configuration.authorizationEndpoint, expectedAuthorizationEndpoint);
+}
 
 - (void)testResponseWithURL_whenURLSchemeMsauth_shouldReturnWPJResponse
 {

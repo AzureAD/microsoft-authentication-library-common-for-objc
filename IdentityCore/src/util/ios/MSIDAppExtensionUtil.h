@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "UIApplication+MSIDExtensions.h"
 
 /// Collection of utilities to execute methods normally marked as non-application-extension safe. This allows us to produce a single framework that can be marked as application-extension-safe while still exercising capabilites when linked against a main app executable.
 @interface MSIDAppExtensionUtil : NSObject

@@ -44,6 +44,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDRequestContext.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -71,7 +72,7 @@
 #pragma mark - Response
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
-                                     context:(id<MSIDRequestContext>)context
+                                     context:(__unused id<MSIDRequestContext>)context
                                        error:(NSError **)error
 {
     return [[MSIDAADTokenResponse alloc] initWithJSONDictionary:json error:error];
@@ -79,7 +80,7 @@
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                 refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                     context:(id<MSIDRequestContext>)context
+                                     context:(__unused id<MSIDRequestContext>)context
                                        error:(NSError * __autoreleasing *)error
 {
     return [[MSIDAADTokenResponse alloc] initWithJSONDictionary:json refreshToken:token error:error];

@@ -24,6 +24,7 @@
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDAuthority.h"
 #import "MSIDIntuneInMemoryCacheDataSource.h"
+#import "MSIDRequestContext.h"
 
 #define MSID_INTUNE_RESOURCE_ID @"intune_mam_resource_V"
 #define MSID_INTUNE_RESOURCE_ID_VERSION @"1"

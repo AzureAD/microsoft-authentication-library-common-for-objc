@@ -35,6 +35,7 @@
 #import "MSIDAppMetaDataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
+#import "MSIDCacheItemUtils.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -165,9 +166,10 @@
         for (MSIDAccountCacheItem *cacheItem in cacheItems)
         {
             if (shouldMatchAccount
-                && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
-                                           environment:cacheQuery.environment
-                                    environmentAliases:cacheQuery.environmentAliases])
+                && ![MSIDCacheItemUtils accountMatchesWithAccount:cacheItem
+                                                    homeAccountId:cacheQuery.homeAccountId
+                                                      environment:cacheQuery.environment
+                                               environmentAliases:cacheQuery.environmentAliases])
             {
                 continue;
             }

@@ -35,6 +35,7 @@
 #import "MSIDTelemetry.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewFactory.h"
+#import "MSIDRequestContext.h"
 
 @implementation MSIDWebviewAuthorization
 

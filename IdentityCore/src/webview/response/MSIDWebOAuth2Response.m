@@ -27,6 +27,7 @@
 
 #import "MSIDWebOAuth2Response.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDRequestContext.h"
 
 @implementation MSIDWebOAuth2Response
 

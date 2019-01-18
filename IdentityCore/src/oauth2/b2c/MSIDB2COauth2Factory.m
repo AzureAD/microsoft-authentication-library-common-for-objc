@@ -31,6 +31,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDIdToken.h"
+#import "MSIDRequestContext.h"
 
 @implementation MSIDB2COauth2Factory
 
@@ -58,7 +59,7 @@
 #pragma mark - Response
 
 - (MSIDB2CTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
-                                        context:(id<MSIDRequestContext>)context
+                                        context:(__unused id<MSIDRequestContext>)context
                                           error:(NSError **)error
 {
     return [[MSIDB2CTokenResponse alloc] initWithJSONDictionary:json error:error];
@@ -66,7 +67,7 @@
 
 - (MSIDB2CTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                    refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                        context:(id<MSIDRequestContext>)context
+                                        context:(__unused id<MSIDRequestContext>)context
                                           error:(NSError * __autoreleasing *)error
 {
     return [[MSIDB2CTokenResponse alloc] initWithJSONDictionary:json refreshToken:token error:error];

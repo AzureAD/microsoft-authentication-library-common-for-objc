@@ -29,6 +29,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDRequestContext.h"
 
 @interface MSIDAADAuthority()
 
@@ -193,7 +194,7 @@
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                               legacyUserId:(NSString *)legacyUserId
                                    context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error;
+                                     error:(NSError **)error
 {
     return [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:homeAccountId
                                                                        legacyUserId:legacyUserId

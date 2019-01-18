@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDRequestContext.h"
 
 @implementation NSDictionary (MSIDExtensions)
 

@@ -43,6 +43,7 @@
 #import "MSIDTelemetry+Cache.h"
 #import "MSIDAuthorityFactory.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDRequestContext.h"
 
 @interface MSIDLegacyTokenCacheAccessor()
 {

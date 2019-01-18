@@ -25,6 +25,7 @@
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDRequestContext.h"
 
 @implementation MSIDTelemetry (Cache)
 

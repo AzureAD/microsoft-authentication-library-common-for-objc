@@ -45,6 +45,7 @@
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDRequestContext.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {

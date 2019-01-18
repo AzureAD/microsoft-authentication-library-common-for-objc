@@ -102,10 +102,9 @@
 }
 
 
+#if TARGET_OS_IPHONE
 + (BOOL)canUseBrokerOnDeviceWithParameters:(MSIDInteractiveRequestParameters *)parameters
 {
-#if TARGET_OS_IPHONE
-
     if (parameters.requestType != MSIDInteractiveRequestBrokeredType)
     {
         return NO;
@@ -128,16 +127,19 @@
 
     return [self isBrokerInstalled:parameters];
 #else
++ (BOOL)canUseBrokerOnDeviceWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
+{
     return NO;
 #endif
 }
 
-+ (BOOL)isBrokerInstalled:(MSIDInteractiveRequestParameters *)parameters
-{
 #if AD_BROKER
++ (BOOL)isBrokerInstalled:(__unused MSIDInteractiveRequestParameters *)parameters
+{
     return YES;
 #elif TARGET_OS_IPHONE
-
++ (BOOL)isBrokerInstalled:(MSIDInteractiveRequestParameters *)parameters
+{
     if (![NSThread isMainThread])
     {
         __block BOOL result = NO;
@@ -159,6 +161,8 @@
         return NO;
     }
 #else
++ (BOOL)isBrokerInstalled:(__unused MSIDInteractiveRequestParameters *)parameters
+{
     return NO;
 #endif
 }

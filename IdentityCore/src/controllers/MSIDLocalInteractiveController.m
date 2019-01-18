@@ -118,9 +118,9 @@
     completionBlock(nil, appInstallError);
 }
 
+#if TARGET_OS_IPHONE
 - (void)promptBrokerInstallWithResponse:(MSIDWebMSAuthResponse *)response completionBlock:(MSIDRequestCompletionBlock)completion
 {
-#if TARGET_OS_IPHONE
     if ([NSString msidIsStringNilOrBlank:response.appInstallLink])
     {
         NSError *appInstallError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"App install link is missing. Incorrect URL returned from server", nil, nil, nil, self.requestParameters.correlationId, nil);
@@ -144,6 +144,8 @@
 
     [brokerController acquireToken:completion];
 #else
+- (void)promptBrokerInstallWithResponse:(__unused MSIDWebMSAuthResponse *)response completionBlock:(MSIDRequestCompletionBlock)completion
+{
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Trying to install broker on macOS, where it's not currently supported", nil, nil, nil, self.requestParameters.correlationId, nil);
     [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
     completion(nil, error);

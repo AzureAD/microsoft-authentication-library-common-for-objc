@@ -7,12 +7,13 @@
 //
 
 #import "MSIDJsonResponsePreprocessor.h"
+#import "MSIDRequestContext.h"
 
 @implementation MSIDJsonResponsePreprocessor
 
-- (nullable id)responseObjectForResponse:(nullable NSHTTPURLResponse *)httpResponse
+- (nullable id)responseObjectForResponse:(nullable __unused  NSHTTPURLResponse *)httpResponse
                                     data:(nullable NSData *)data
-                                 context:(nullable id<MSIDRequestContext>)context
+                                 context:(nullable __unused id<MSIDRequestContext>)context
                                    error:(NSError *__autoreleasing  _Nullable * _Nullable)error
 {
     id jsonObject;

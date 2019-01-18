@@ -26,6 +26,7 @@
 #import "MSIDWebFingerRequest.h"
 #import "MSIDDRSDiscoveryRequest.h"
 #import "MSIDAuthorityCacheRecord.h"
+#import "MSIDRequestContext.h"
 
 static NSString *const s_kTrustedRelation = @"http://schemas.microsoft.com/rel/trusted-realm";
 static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;

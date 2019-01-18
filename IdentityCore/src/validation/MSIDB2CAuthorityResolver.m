@@ -25,11 +25,12 @@
 #import "MSIDB2CAuthority.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAADEndpointProviding.h"
+#import "MSIDRequestContext.h"
 
 @implementation MSIDB2CAuthorityResolver
 
 - (void)resolveAuthority:(MSIDB2CAuthority *)authority
-       userPrincipalName:(NSString *)upn
+       userPrincipalName:(__unused NSString *)upn
                 validate:(BOOL)validate
                  context:(id<MSIDRequestContext>)context
          completionBlock:(MSIDAuthorityInfoBlock)completionBlock

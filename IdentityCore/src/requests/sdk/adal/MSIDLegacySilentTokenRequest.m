@@ -57,34 +57,34 @@
 
 #pragma mark - Abstract impl
 
-- (nullable MSIDAccessToken *)accessTokenWithError:(NSError **)error
+- (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError **)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
-- (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
-                                       refreshToken:(id<MSIDRefreshableToken>)refreshToken
-                                              error:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDTokenResult *)resultWithAccessToken:(__unused MSIDAccessToken *)accessToken
+                                       refreshToken:(__unused id<MSIDRefreshableToken>)refreshToken
+                                              error:(__unused NSError * _Nullable * _Nullable)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
-- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
-- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
-- (BOOL)updateFamilyIdCacheWithServerError:(NSError *)serverError
-                                cacheError:(NSError **)cacheError
+- (BOOL)updateFamilyIdCacheWithServerError:(__unused NSError *)serverError
+                                cacheError:(__unused NSError **)cacheError
 {
     // TODO: ADAL pieces
     return NO;

@@ -24,6 +24,7 @@
 #import "NSURL+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDRequestContext.h"
 
 const unichar fragmentSeparator = '#';
 const unichar queryStringSeparator = '?';
