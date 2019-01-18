@@ -553,6 +553,7 @@
 		B25D495F21B3649500502BE5 /* MSIDPromptType.m in Sources */ = {isa = PBXBuildFile; fileRef = B25D495C21B3649500502BE5 /* MSIDPromptType.m */; };
 		B25D496421B4BE2A00502BE5 /* MSIDRequestParametersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B25D496321B4BE2A00502BE5 /* MSIDRequestParametersTests.m */; };
 		B25D496521B4BE2A00502BE5 /* MSIDRequestParametersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B25D496321B4BE2A00502BE5 /* MSIDRequestParametersTests.m */; };
+		B2649E0221F2805E00CAD2D9 /* MSIDCacheItemUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D2779D21F272F6003A9A55 /* MSIDCacheItemUtils.m */; };
 		B26A0B7D2071ADCE006BD95A /* MSIDOauth2Factory.h in Headers */ = {isa = PBXBuildFile; fileRef = B26A0B7B2071ADCE006BD95A /* MSIDOauth2Factory.h */; };
 		B26A0B7E2071ADCE006BD95A /* MSIDOauth2Factory.m in Sources */ = {isa = PBXBuildFile; fileRef = B26A0B7C2071ADCE006BD95A /* MSIDOauth2Factory.m */; };
 		B26A0B7F2071ADCE006BD95A /* MSIDOauth2Factory.m in Sources */ = {isa = PBXBuildFile; fileRef = B26A0B7C2071ADCE006BD95A /* MSIDOauth2Factory.m */; };
@@ -3951,6 +3952,7 @@
 				1E3C0ED7217FE2BF0022D61D /* MSIDAppMetadataCacheQuery.m in Sources */,
 				23B3A4532187AFD3009070B2 /* MSIDJsonSerializer.m in Sources */,
 				B20657AC1FC91FB100412B7D /* MSIDTelemetryPiiOiiRules.m in Sources */,
+				B2649E0221F2805E00CAD2D9 /* MSIDCacheItemUtils.m in Sources */,
 				B2DD4B2320A7D2F90047A66E /* MSIDLegacyAccessToken.m in Sources */,
 				600D19AF20964CC00004CD43 /* MSIDRegistrationInformation.m in Sources */,
 				96448C9D20CF296C00E2D89C /* MSIDAADWebviewFactory.m in Sources */,
