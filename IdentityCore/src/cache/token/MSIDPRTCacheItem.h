@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -21,10 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDLegacyTokenCacheItem.h"
 
-@interface MSIDOpenIdConfigurationInfoResponseSerializer : MSIDAADResponseSerializer
+@interface MSIDPRTCacheItem : MSIDLegacyTokenCacheItem
 
-@property (nonatomic) NSURL *endpoint;
+@property NSData *sessionKey;
 
 @end

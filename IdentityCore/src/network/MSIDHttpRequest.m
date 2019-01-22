@@ -22,13 +22,14 @@
 // THE SOFTWARE.
 
 #import "MSIDHttpRequest.h"
-#import "MSIDJsonResponseSerializer.h"
+#import "MSIDHttpResponseSerializer.h"
 #import "MSIDUrlRequestSerializer.h"
 #import "MSIDHttpRequestTelemetryHandling.h"
 #import "MSIDHttpRequestErrorHandling.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
 #import "MSIDURLSessionManager.h"
+#import "MSIDJsonResponsePreprocessor.h"
 
 static NSInteger const s_defaultRetryCounter = 1;
 static NSTimeInterval const s_defaultRetryInterval = 0.5;
@@ -42,7 +43,9 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
     if (self)
     {
         _sessionManager = MSIDURLSessionManager.defaultManager;
-        _responseSerializer = [MSIDJsonResponseSerializer new];
+        __auto_type responseSerializer = [MSIDHttpResponseSerializer new];
+        responseSerializer.preprocessor = [MSIDJsonResponsePreprocessor new];
+        _responseSerializer = responseSerializer;
         _requestSerializer = [MSIDUrlRequestSerializer new];
         _telemetry = [MSIDHttpRequestTelemetry new];
         _retryCounter = s_defaultRetryCounter;

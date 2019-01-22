@@ -74,7 +74,7 @@
         return;
     }
 
-    NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId;
+    NSString *upn = self.requestParameters.accountIdentifier.displayableId;
 
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn
@@ -324,7 +324,7 @@
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
 
-    [tokenRequest sendWithBlock:^(id response, NSError *error) {
+    [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error) {
 
         if (error)
         {
@@ -348,7 +348,7 @@
 
         NSError *validationError = nil;
 
-        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:response
+        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
                                                                                requestParameters:self.requestParameters

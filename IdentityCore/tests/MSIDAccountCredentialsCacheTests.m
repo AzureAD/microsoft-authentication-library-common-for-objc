@@ -132,6 +132,134 @@
     XCTAssertEqualObjects(results[0], item);
 }
 
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andIntuneEnrolled_shouldReturnItems
+{
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid2.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    item.enrollmentId = @"enrollmentId";
+    [self saveItem:item];
+    
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid2.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    query.enrollmentId = @"enrollmentId";
+    
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 1);
+    XCTAssertEqualObjects(results[0], item);
+}
+
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andMismatchedEnrollmentId_shouldReturnEmptyResult
+{
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid2.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    item.enrollmentId = @"enrollmentId";
+    [self saveItem:item];
+    
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid2.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    query.enrollmentId = @"differentEnrollmentId";
+    
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 0);
+}
+
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andIntuneUnenrolledCaller_shouldReturnEmptyResult
+{
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid2.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    item.enrollmentId = @"enrollmentId";
+    [self saveItem:item];
+    
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid2.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    // Don't assign enrollmentId for querying unenrolled "app".
+    
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 0);
+}
+
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andNoEnrollmentIdOnCachedToken_shouldReturnEmptyResult
+{
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    [self saveItem:item];
+    
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    query.enrollmentId = @"someEnrollmentId";
+    
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 0);
+}
+
 - (void)testGetCredentialsWithQuery_whenExactMatch_andRefreshTokenQuery_noItemsInCache_shouldReturnEmptyResult
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
@@ -1155,6 +1283,28 @@
     key.realm = @"contoso.com";
     key.target = @"user.read user.write";
 
+    NSError *error = nil;
+    MSIDCredentialCacheItem *resultItem = [self.cache getCredential:key context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(resultItem, item);
+}
+
+- (void)testGetCredentialWithKey_whenAccessTokenKey_andIntuneEnrolled_shouldReturnItem
+{
+    // First save the token
+    MSIDCredentialCacheItem *item = [self createTestAccessTokenCacheItem];
+    item.enrollmentId = @"enrollmentId";
+    [self saveItem:item];
+    
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                          environment:@"login.microsoftonline.com"
+                                                                                             clientId:@"client"
+                                                                                       credentialType:MSIDAccessTokenType];
+    
+    key.realm = @"contoso.com";
+    key.target = @"user.read user.write";
+    key.enrollmentId = @"enrollmentId";
+    
     NSError *error = nil;
     MSIDCredentialCacheItem *resultItem = [self.cache getCredential:key context:nil error:&error];
     XCTAssertNil(error);

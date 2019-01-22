@@ -43,6 +43,7 @@
 #import "MSIDAADTenant.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @implementation MSIDAADOauth2Factory
 
@@ -163,6 +164,11 @@
     {
         return NO;
     }
+    
+    accessToken.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:accessToken.accountIdentifier.homeAccountId
+                                                                                           legacyUserId:accessToken.accountIdentifier.displayableId
+                                                                                                context:nil
+                                                                                                  error:nil];
 
     if (!response.extendedExpiresOnDate) return YES;
 
@@ -243,7 +249,7 @@
     account.accountType = MSIDAccountTypeMSSTS;
     account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:account.accountIdentifier.legacyAccountId
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:account.accountIdentifier.displayableId
                                                                          homeAccountId:response.clientInfo.accountIdentifier];
 
     return YES;
@@ -265,7 +271,7 @@
         return NO;
     }
 
-    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:baseToken.accountIdentifier.legacyAccountId
+    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:baseToken.accountIdentifier.displayableId
                                                                            homeAccountId:response.clientInfo.accountIdentifier];
 
     if (response.speInfo)
@@ -280,6 +286,7 @@
 
 
 #pragma mark - Webview
+
 - (MSIDWebviewFactory *)webviewFactory
 {
     if (!_webviewFactory)

@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -24,6 +23,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDHttpResponseSerializer.h"
 
-@interface MSIDJsonResponseSerializer : MSIDHttpResponseSerializer
+@interface MSIDAADOpenIdConfigurationInfoResponseSerializer : MSIDHttpResponseSerializer
+
+@property (nonatomic) NSURL *endpoint;
 
 @end

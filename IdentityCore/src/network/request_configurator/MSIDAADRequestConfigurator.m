@@ -24,7 +24,7 @@
 #import "MSIDAADRequestConfigurator.h"
 #import "MSIDHttpRequest.h"
 #import "MSIDAADRequestErrorHandler.h"
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDHttpResponseSerializer.h"
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDVersion.h"
@@ -32,6 +32,7 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority.h"
 #import "MSIDConstants.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
 
 static NSTimeInterval const s_defaultTimeoutInterval = 300;
 
@@ -55,7 +56,9 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     NSParameterAssert(request.urlRequest);
     NSParameterAssert(request.urlRequest.URL);
     
-    request.responseSerializer = [MSIDAADResponseSerializer new];
+    __auto_type serializer = [MSIDHttpResponseSerializer new];
+    serializer.preprocessor = [MSIDAADJsonResponsePreprocessor new];
+    request.responseSerializer = serializer;
     request.errorHandler = [MSIDAADRequestErrorHandler new];
     
     __auto_type requestUrl = request.urlRequest.URL;

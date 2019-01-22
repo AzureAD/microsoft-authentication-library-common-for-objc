@@ -21,8 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonResponseSerializer.h"
+#import "MSIDLegacyRefreshToken.h"
 
-@interface MSIDAADResponseSerializer : MSIDJsonResponseSerializer
+@class MSIDLegacyTokenCacheItem;
+
+@interface MSIDPrimaryRefreshToken : MSIDLegacyRefreshToken
+
+@property (nonatomic) NSData *sessionKey;
+
+- (instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)legacyTokenCacheItem;
 
 @end

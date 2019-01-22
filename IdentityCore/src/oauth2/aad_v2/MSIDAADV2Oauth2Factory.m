@@ -42,6 +42,7 @@
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAADTokenResponseSerializer.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -220,7 +221,7 @@
     else
     {
         enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
-                                                             legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                             legacyUserId:parameters.accountIdentifier.displayableId
                                                                   context:parameters
                                                                     error:nil];
     }
@@ -234,6 +235,7 @@
                                                                                                                  claims:claims
                                                                                                            codeVerifier:pkceCodeVerifier
                                                                                                                 context:parameters];
+    tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 
     return tokenRequest;
 }
@@ -246,7 +248,7 @@
     NSString *allScopes = parameters.allTokenRequestScopes;
 
     NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId
-                                                                   legacyUserId:parameters.accountIdentifier.legacyAccountId
+                                                                   legacyUserId:parameters.accountIdentifier.displayableId
                                                                         context:parameters
                                                                           error:nil];
 
@@ -257,6 +259,7 @@
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
                                                                                                       context:parameters];
+    tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 
     return tokenRequest;
 }

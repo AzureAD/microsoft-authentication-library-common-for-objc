@@ -48,6 +48,25 @@
     XCTAssertEqualObjects(key.generic, genericData);
 }
 
+- (void)testDefaultKeyForAccessToken_withRealmAndEnrollmentId_shouldReturnKey
+{
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                          environment:@"login.microsoftonline.com"
+                                                                                             clientId:@"client"
+                                                                                       credentialType:MSIDAccessTokenType];
+    
+    key.realm = @"contoso.com";
+    key.target = @"user.read user.write";
+    key.enrollmentId = @"enrollmentId";
+    
+    XCTAssertEqualObjects(key.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertEqualObjects(key.service, @"accesstoken-client-contoso.com-enrollmentid-user.read user.write");
+    XCTAssertEqualObjects(key.type, @2001);
+    
+    NSData *genericData = [@"accesstoken-client-contoso.com-enrollmentid" dataUsingEncoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(key.generic, genericData);
+}
+
 - (void)testDefaultKeyForAccessToken_withUpperCaseComponents_shouldReturnKeyLowerCase
 {
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"UID.utid"

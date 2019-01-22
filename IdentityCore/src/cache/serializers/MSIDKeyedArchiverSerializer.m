@@ -28,8 +28,30 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDPRTCacheItem.h"
 
 @implementation MSIDKeyedArchiverSerializer
+{
+    // class mapping for maintaining backward compatibility
+    NSMutableDictionary *_defaultEncodeClassMap;
+    NSMutableDictionary *_defaultDecodeClassMap;
+}
+
+- (id)init
+{
+    self = [super init];
+    if(self)
+    {
+        _defaultEncodeClassMap = [[NSMutableDictionary alloc] initWithDictionary:@{@"ADUserInformation" : MSIDUserInformation.class,
+                                                                                   @"ADTokenCacheStoreItem" : MSIDLegacyTokenCacheItem.class
+                                                                                   }];
+        _defaultDecodeClassMap = [[NSMutableDictionary alloc] initWithDictionary:@{@"ADUserInformation" : MSIDUserInformation.class,
+                                                                                   @"ADBrokerPRTCacheItem" : MSIDPRTCacheItem.class
+                                                                                   }];
+    }
+    
+    return self;
+}
 
 #pragma mark - Private
 
@@ -47,8 +69,10 @@
     // See here: https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/Archiving/Articles/creating.html
     NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
     // Maintain backward compatibility with ADAL.
-    [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
-    [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDLegacyTokenCacheItem.class];
+    for (NSString *className in _defaultEncodeClassMap)
+    {
+        [archiver setClassName:className forClass:_defaultEncodeClassMap[className]];
+    }
     [archiver encodeObject:item forKey:NSKeyedArchiveRootObjectKey];
     [archiver finishEncoding];
     
@@ -64,8 +88,12 @@
     
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     // Maintain backward compatibility with ADAL.
-    [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
     [unarchiver setClass:className forClassName:@"ADTokenCacheStoreItem"];
+    for (NSString *defaultClassName in _defaultDecodeClassMap)
+    {
+        [unarchiver setClass:_defaultDecodeClassMap[defaultClassName] forClassName:defaultClassName];
+    }
+    
     MSIDLegacyTokenCacheItem *token = [unarchiver decodeObjectOfClass:className forKey:NSKeyedArchiveRootObjectKey];
     [unarchiver finishDecoding];
     
@@ -97,6 +125,22 @@
     }
     
     return nil;
+}
+
+#pragma mark - Class Mapping
+
+- (void)addEncodeClassMapping:(NSDictionary *)classMap
+{
+    if (!classMap) return;
+    
+    [_defaultEncodeClassMap addEntriesFromDictionary:classMap];
+}
+
+- (void)addDecodeClassMapping:(NSDictionary *)classMap
+{
+    if (!classMap) return;
+    
+    [_defaultDecodeClassMap addEntriesFromDictionary:classMap];
 }
 
 @end
