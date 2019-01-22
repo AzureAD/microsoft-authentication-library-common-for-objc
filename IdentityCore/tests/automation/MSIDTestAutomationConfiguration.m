@@ -290,6 +290,11 @@
     self.accounts = accounts;
 }
 
+- (NSString *)authorityWithTenantId:(NSString *)tenantId
+{
+    return [NSString stringWithFormat:@"https://%@/%@", _authorityHost, tenantId];
+}
+
 #pragma mark - Class properties
 
 static NSString *s_defaultAppScheme = nil;

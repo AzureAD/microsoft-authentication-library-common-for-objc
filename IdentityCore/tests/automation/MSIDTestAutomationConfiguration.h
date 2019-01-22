@@ -57,5 +57,6 @@
 - (instancetype)initWithJSONDictionary:(NSDictionary *)response;
 - (instancetype)initWithJSONResponseData:(NSData *)response;
 - (void)addAdditionalAccount:(MSIDTestAccount *)additionalAccount;
+- (NSString *)authorityWithTenantId:(NSString *)tenantId;
 
 @end
