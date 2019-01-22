@@ -29,6 +29,7 @@
 @interface MSIDTestConfigurationProvider : NSObject
 
 @property (nonatomic, strong) NSString *wwEnvironment;
+@property (nonatomic) int stressTestInterval;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -45,6 +46,8 @@
 - (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker;
 - (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest;
 - (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment;
+- (MSIDAutomationTestRequest *)defaultAppRequest;
+
 - (NSDictionary *)appInstallForConfiguration:(NSString *)appId;
 // Environment configuration
 - (NSString *)defaultEnvironmentForIdentifier:(NSString *)environmentIDentifier;

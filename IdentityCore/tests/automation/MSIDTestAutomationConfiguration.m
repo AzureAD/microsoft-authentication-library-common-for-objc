@@ -209,8 +209,10 @@
         // TODO: why are there multiple resources?
         _resource = responseDict[@"Resource_ids"][0];
 
-        // TODO: fix this hack on server side, only one authority should be returned
-        _authorityHost = responseDict[@"Authority"][0];
+        _authority = responseDict[@"Authority"][0];
+        
+        NSURL *authorityURL = [NSURL URLWithString:_authority];
+        _authorityHost = [authorityURL msidHostWithPortIfNecessary];
 
         NSMutableArray *accounts = [NSMutableArray array];
 
@@ -272,7 +274,7 @@
 {
     for (NSString *uri in redirectUris)
     {
-        if ([uri hasPrefix:@"x-msauth"])
+        if ([uri hasPrefix:self.class.defaultRegisteredScheme])
         {
             return uri;
         }
@@ -286,6 +288,20 @@
     NSMutableArray *accounts = [self.accounts mutableCopy];
     [accounts addObject:additionalAccount];
     self.accounts = accounts;
+}
+
+#pragma mark - Class properties
+
+static NSString *s_defaultAppScheme = nil;
+
++ (void)setDefaultRegisteredScheme:(NSString *)defaultRegisteredScheme
+{
+    s_defaultAppScheme = defaultRegisteredScheme;
+}
+
++ (NSString *)defaultRegisteredScheme
+{
+    return s_defaultAppScheme;
 }
 
 @end

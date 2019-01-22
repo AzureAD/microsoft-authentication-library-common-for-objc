@@ -25,7 +25,7 @@
 
 @implementation MSIDAutomationActionConstants
 
-NSString *const MSID_AUTO_CLEAR_KEYCHAIN_ACTION_IDENTIFIER           =   @"Clear keychain";
+NSString *const MSID_AUTO_CLEAR_CACHE_ACTION_IDENTIFIER              =   @"Clear cache";
 NSString *const MSID_AUTO_CLEAR_COOKIES_ACTION_IDENTIFIER            =   @"Clear cookies";
 NSString *const MSID_AUTO_OPEN_URL_ACTION_IDENTIFIER                 =   @"Open URL";
 NSString *const MSID_AUTO_ACQUIRE_TOKEN_ACTION_IDENTIFIER            =   @"Acquire Token";

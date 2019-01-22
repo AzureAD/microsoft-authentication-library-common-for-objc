@@ -561,7 +561,6 @@
 		B25A437421C34A26000B3DD4 /* MSIDAutomationTestResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A437121C34A26000B3DD4 /* MSIDAutomationTestResult.m */; };
 		B25A437721C34CB6000B3DD4 /* MSIDClearKeychainTestAction.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A437521C34CB6000B3DD4 /* MSIDClearKeychainTestAction.h */; };
 		B25A437821C34CB6000B3DD4 /* MSIDClearKeychainTestAction.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A437621C34CB6000B3DD4 /* MSIDClearKeychainTestAction.m */; };
-		B25A437D21C34CDA000B3DD4 /* MSIDClearKeychainTestAction.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A437C21C34CDA000B3DD4 /* MSIDClearKeychainTestAction.m */; };
 		B25A438121C3516B000B3DD4 /* MSIDAutomationTestRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A437F21C3516B000B3DD4 /* MSIDAutomationTestRequest.h */; };
 		B25A438221C3516B000B3DD4 /* MSIDAutomationTestRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A438021C3516B000B3DD4 /* MSIDAutomationTestRequest.m */; };
 		B25A438321C3516B000B3DD4 /* MSIDAutomationTestRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A438021C3516B000B3DD4 /* MSIDAutomationTestRequest.m */; };
@@ -1497,7 +1496,6 @@
 		B25A437121C34A26000B3DD4 /* MSIDAutomationTestResult.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationTestResult.m; sourceTree = "<group>"; };
 		B25A437521C34CB6000B3DD4 /* MSIDClearKeychainTestAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDClearKeychainTestAction.h; sourceTree = "<group>"; };
 		B25A437621C34CB6000B3DD4 /* MSIDClearKeychainTestAction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDClearKeychainTestAction.m; sourceTree = "<group>"; };
-		B25A437C21C34CDA000B3DD4 /* MSIDClearKeychainTestAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDClearKeychainTestAction.m; sourceTree = "<group>"; };
 		B25A437F21C3516B000B3DD4 /* MSIDAutomationTestRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationTestRequest.h; sourceTree = "<group>"; };
 		B25A438021C3516B000B3DD4 /* MSIDAutomationTestRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationTestRequest.m; sourceTree = "<group>"; };
 		B25D495B21B3649500502BE5 /* MSIDPromptType_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPromptType_Internal.h; sourceTree = "<group>"; };
@@ -2671,7 +2669,6 @@
 		B25A437A21C34CC7000B3DD4 /* macos */ = {
 			isa = PBXGroup;
 			children = (
-				B25A437C21C34CDA000B3DD4 /* MSIDClearKeychainTestAction.m */,
 				B25A39E621C4C83E00213A62 /* MSIDOpenURLAction.m */,
 			);
 			path = macos;
@@ -3869,7 +3866,6 @@
 				B27551FF208182BE00AA7A38 /* Authentication.swift in Sources */,
 				B2755205208182BE00AA7A38 /* Secret.swift in Sources */,
 				B275520C208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */,
-				B25A437D21C34CDA000B3DD4 /* MSIDClearKeychainTestAction.m in Sources */,
 				B25A437421C34A26000B3DD4 /* MSIDAutomationTestResult.m in Sources */,
 				B2D8582321C1DAF20043035A /* MSIDAutomationActionManager.m in Sources */,
 				B2755203208182BE00AA7A38 /* Network.swift in Sources */,

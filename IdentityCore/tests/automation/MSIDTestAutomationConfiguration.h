@@ -52,6 +52,7 @@
 @property (nonatomic) NSString *resource;
 @property (nonatomic) NSArray<MSIDTestAccount *> *accounts;
 @property (nonatomic) NSDictionary *policies;
+@property (nonatomic, class) NSString *defaultRegisteredScheme;
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)response;
 - (instancetype)initWithJSONResponseData:(NSData *)response;

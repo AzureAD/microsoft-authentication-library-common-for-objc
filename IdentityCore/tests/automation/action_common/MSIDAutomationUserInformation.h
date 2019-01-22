@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *givenName;
 @property (nonatomic) NSString *familyName;
 @property (nonatomic) NSString *username;
+@property (nonatomic) NSString *legacyAccountId;
 @property (nonatomic) NSString *homeAccountId;
 @property (nonatomic) NSString *localAccountId;
 @property (nonatomic) NSString *homeObjectId;

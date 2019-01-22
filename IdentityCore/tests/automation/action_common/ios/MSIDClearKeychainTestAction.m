@@ -35,7 +35,7 @@
 
 - (NSString *)actionIdentifier
 {
-    return MSID_AUTO_CLEAR_KEYCHAIN_ACTION_IDENTIFIER;
+    return MSID_AUTO_CLEAR_CACHE_ACTION_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters

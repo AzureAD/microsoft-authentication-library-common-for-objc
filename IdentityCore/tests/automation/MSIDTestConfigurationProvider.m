@@ -25,6 +25,7 @@
 #import "MSIDAutomation-Swift.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "NSString+MSIDAutomationUtils.h"
+#import "NSURL+MSIDExtensions.h"
 
 @interface MSIDTestConfigurationProvider()
 
@@ -49,6 +50,7 @@
                                    defaultClients:(NSDictionary *)defaultClients
                               defaultEnvironments:(NSDictionary *)defaultEnvironments
                             wwEnvironmentIdenfier:(NSString *)wwEnrivonmentIdentifier
+                               stressTestInterval:(int)stressTestInterval
                                     defaultScopes:(NSDictionary *)defaultScopes
                                  defaultResources:(NSDictionary *)defaultResources
 {
@@ -66,6 +68,7 @@
         _wwEnvironment = wwEnrivonmentIdentifier;
         _defaultScopes = defaultScopes;
         _defaultResources = defaultResources;
+        _stressTestInterval = stressTestInterval;
     }
 
     return self;
@@ -114,6 +117,7 @@
                                     defaultClients:configurationDictionary[@"default_clients"]
                                defaultEnvironments:configurationDictionary[@"environments"]
                              wwEnvironmentIdenfier:configurationDictionary[@"default_environment"]
+                                stressTestInterval:[configurationDictionary[@"stress_test_interval"] intValue]
                                      defaultScopes:configurationDictionary[@"scopes"]
                                   defaultResources:configurationDictionary[@"resources"]];
 
@@ -219,9 +223,12 @@
         request.redirectUri = defaultConf[@"redirect_uri"];
         request.validateAuthority = YES;
         request.webViewType = self.defaultWebviewTypeForPlatform;
-        request.requestScopes = [self scopesForEnvironment:environment type:@"ms_graph"];
-        request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:[self scopesForEnvironment:environment type:@"oidc"]];
-        request.configurationAuthority = [self defaultAuthorityForIdentifier:environment];
+        
+        NSString *testEnvironment = environment ? environment : self.wwEnvironment;
+        
+        request.requestScopes = [self scopesForEnvironment:testEnvironment type:@"ms_graph"];
+        request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:[self scopesForEnvironment:testEnvironment type:@"oidc"]];
+        request.configurationAuthority = [self defaultAuthorityForIdentifier:testEnvironment];
     }
 
     return request;
@@ -240,6 +247,15 @@
         request.webViewType = self.defaultWebviewTypeForPlatform;
     }
 
+    return request;
+}
+
+- (MSIDAutomationTestRequest *)defaultAppRequest
+{
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    request.validateAuthority = YES;
+    request.webViewType = self.defaultWebviewTypeForPlatform;
+    request.configurationAuthority = [self defaultAuthorityForIdentifier:nil];
     return request;
 }
 
@@ -289,7 +305,15 @@
 
 - (NSString *)defaultAuthorityForIdentifier:(NSString *)environmentIdentifier tenantId:(NSString *)tenantId
 {
-    NSString *authority = [NSString stringWithFormat:@"https://%@/%@", [self defaultEnvironmentForIdentifier:environmentIdentifier], (tenantId ? tenantId : @"common")];
+    NSString *identifier = environmentIdentifier ? environmentIdentifier : self.wwEnvironment;
+    NSString *environment = [self defaultEnvironmentForIdentifier:identifier];
+    
+    return [self authorityWithHost:environment tenantId:tenantId];
+}
+
+- (NSString *)authorityWithHost:(NSString *)authorityHost tenantId:(NSString *)tenantId
+{
+    NSString *authority = [NSString stringWithFormat:@"https://%@/%@", authorityHost, (tenantId ? tenantId : @"common")];
     return authority;
 }
 
@@ -303,11 +327,21 @@
 
 - (NSString *)scopesForEnvironment:(NSString *)environment type:(NSString *)type
 {
+    if (!environment)
+    {
+        environment = self.wwEnvironment;
+    }
+    
     return self.defaultScopes[type][environment];
 }
 
 - (NSString *)resourceForEnvironment:(NSString *)environment type:(NSString *)type
 {
+    if (!environment)
+    {
+        environment = self.wwEnvironment;
+    }
+    
     return self.defaultResources[type][environment];
 }
 
@@ -319,7 +353,11 @@
     if (!request.redirectUri) request.redirectUri = configuration.redirectUri;
     if (!request.requestResource) request.requestResource = configuration.resource;
     if (!request.requestScopes) request.requestScopes = [configuration.resource stringByAppendingString:@"/.default"];
-    if (!request.configurationAuthority) request.configurationAuthority = [self defaultAuthorityForIdentifier:@"ww" tenantId:account.homeTenantId];
+    if (!request.configurationAuthority)
+    {
+        request.configurationAuthority = [self authorityWithHost:configuration.authorityHost tenantId:account.homeTenantId];
+        
+    }
     return request;
 }
 

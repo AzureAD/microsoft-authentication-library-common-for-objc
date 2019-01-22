@@ -140,7 +140,7 @@
     self.webView = [[WKWebView alloc] init];
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self setupActions];
-    [self setupLogger];
+    //[self setupLogger]; // TODO: check how to implement it for ADAL
 }
 
 #pragma mark - Logger

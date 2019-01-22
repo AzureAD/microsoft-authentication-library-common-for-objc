@@ -93,7 +93,7 @@
 {
     [super viewDidLoad];
     [self setupActions];
-    [self setupLogger];
+    //[self setupLogger];
 }
 
 #pragma mark - Logger

@@ -38,6 +38,7 @@
     json[@"home_object_id"] = self.homeObjectId;
     json[@"home_tenant_id"] = self.homeTenantId;
     json[@"environment"] = self.environment;
+    json[@"legacyAccountId"] = self.legacyAccountId;
     return json;
 }
 
@@ -57,6 +58,7 @@
         _homeObjectId = json[@"home_object_id"];
         _homeTenantId = json[@"home_tenant_id"];
         _environment = json[@"environment"];
+        _legacyAccountId = json[@"legacyAccountId"];
     }
 
     return self;

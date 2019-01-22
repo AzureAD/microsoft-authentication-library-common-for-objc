@@ -39,15 +39,15 @@
     {
         _clientId = json[@"client_id"];
         _requestResource = json[@"resource"];
-        _requestScopes = json[@"scope"];
+        _requestScopes = json[@"scopes"];
         _redirectUri = json[@"redirect_uri"];
         _configurationAuthority = json[@"authority"];
         _acquireTokenAuthority = json[@"acquiretoken_authority"];
         _cacheAuthority = json[@"cache_authority"];
-        _uiBehavior = json[@"ui_behavior"];
-        _homeAccountIdentifier = json[@"home_account_id"];
-        _legacyAccountIdentifier = json[@"legacy_account_id"];
-        _legacyAccountIdentifierType = json[@"legacy_account_id_type"];
+        _uiBehavior = json[@"prompt_behavior"];
+        _homeAccountIdentifier = json[@"home_account_identifier"];
+        _legacyAccountIdentifier = json[@"user_identifier"];
+        _legacyAccountIdentifierType = json[@"user_identifier_type"];
         _loginHint = json[@"login_hint"];
         _claims = json[@"claims"];
         _brokerEnabled = [json[@"brokerEnabled"] boolValue];
@@ -93,14 +93,14 @@
     NSMutableDictionary *json = [NSMutableDictionary new];
     json[@"client_id"] = _clientId;
     json[@"resource"] = _requestResource;
-    json[@"scope"] = _requestScopes;
+    json[@"scopes"] = _requestScopes;
     json[@"redirect_uri"] = _redirectUri;
     json[@"authority"] = _configurationAuthority;
     json[@"acquiretoken_authority"] = _acquireTokenAuthority;
     json[@"cache_authority"] = _cacheAuthority;
-    json[@"ui_behavior"] = _uiBehavior;
-    json[@"home_account_id"] = _homeAccountIdentifier;
-    json[@"legacy_account_id"] = _legacyAccountIdentifier;
+    json[@"prompt_behavior"] = _uiBehavior;
+    json[@"home_account_identifier"] = _homeAccountIdentifier;
+    json[@"user_identifier"] = _legacyAccountIdentifier;
     json[@"login_hint"] = _loginHint;
     json[@"claims"] = _claims;
     json[@"use_passed_in_webview"] = @(_usePassedWebView);
@@ -139,7 +139,7 @@
     json[@"force_refresh"] = @(_forceRefresh);
     json[@"brokerEnabled"] = @(_brokerEnabled);
     json[@"client_capabilities"] = _clientCapabilities;
-    json[@"legacy_account_id_type"] = _legacyAccountIdentifierType;
+    json[@"user_identifier_type"] = _legacyAccountIdentifierType;
 
     return json;
 }
