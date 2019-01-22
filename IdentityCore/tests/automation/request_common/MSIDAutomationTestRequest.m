@@ -44,7 +44,7 @@
         _configurationAuthority = json[@"authority"];
         _acquireTokenAuthority = json[@"acquiretoken_authority"];
         _cacheAuthority = json[@"cache_authority"];
-        _uiBehavior = json[@"prompt_behavior"];
+        _promptBehavior = json[@"prompt_behavior"];
         _homeAccountIdentifier = json[@"home_account_identifier"];
         _legacyAccountIdentifier = json[@"user_identifier"];
         _legacyAccountIdentifierType = json[@"user_identifier_type"];
@@ -98,7 +98,7 @@
     json[@"authority"] = _configurationAuthority;
     json[@"acquiretoken_authority"] = _acquireTokenAuthority;
     json[@"cache_authority"] = _cacheAuthority;
-    json[@"prompt_behavior"] = _uiBehavior;
+    json[@"prompt_behavior"] = _promptBehavior;
     json[@"home_account_identifier"] = _homeAccountIdentifier;
     json[@"user_identifier"] = _legacyAccountIdentifier;
     json[@"login_hint"] = _loginHint;

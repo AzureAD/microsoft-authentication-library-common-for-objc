@@ -38,7 +38,7 @@
 @property (nonatomic, strong) NSString *acquireTokenAuthority;
 @property (nonatomic, strong) NSString *expectedResultAuthority;
 @property (nonatomic, strong) NSString *cacheAuthority;
-@property (nonatomic, strong) NSString *uiBehavior;
+@property (nonatomic, strong) NSString *promptBehavior;
 @property (nonatomic, strong) NSString *homeAccountIdentifier;
 @property (nonatomic, strong) NSString *legacyAccountIdentifier;
 @property (nonatomic, strong) NSString *legacyAccountIdentifierType;
