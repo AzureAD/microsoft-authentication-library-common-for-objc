@@ -138,7 +138,7 @@
 }
 
 #if TARGET_OS_IPHONE
-- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(NSString *)keychainGroup
+- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
                                                   error:(NSError **)error
 {
     MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
@@ -146,9 +146,6 @@
     MSIDDefaultTokenCacheAccessor *cache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
     return cache;
 #else
-- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                  error:(NSError **)error
-{
     if (error)
     {
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker responses not supported on macOS", nil, nil, nil, nil, nil);
