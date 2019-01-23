@@ -41,4 +41,10 @@
                          clientId:(NSString *)clientId
                            target:(NSString *)target;
 
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource
+                           scopes:(NSOrderedSet<NSString *> *)scopes;
+
 @end
