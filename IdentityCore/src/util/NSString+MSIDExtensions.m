@@ -105,14 +105,14 @@ typedef unsigned char byte;
 
 - (NSString *)msidWWWFormURLEncode
 {
-    /*
-     https://www.ietf.org/rfc/rfc3986.txt
-     https://www.w3.org/TR/html5/forms.html#url-encoded-form-data
-     Section 4.10.22.5 gives us the characters not to percent encode:
-    ALPHA / DIGIT / “*” / “-” / “.” / “_”
+    /*https://tools.ietf.org/html/rfc3986#section-3
+     Characters that are allowed in a URI but do not have a reserved
+     purpose are called unreserved.  These include uppercase and lowercase
+     letters, decimal digits, hyphen, period, underscore, and tilde.
+     unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
      */
     NSMutableCharacterSet *allowedCharacters = [NSMutableCharacterSet alphanumericCharacterSet];
-    NSString *unreserved = @"*-._ ";
+    NSString *unreserved = @"-._~ ";
     [allowedCharacters addCharactersInString:unreserved];
     NSString *encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacters];
     return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];

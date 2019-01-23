@@ -82,7 +82,8 @@
     }
     
     // Decodes base64 string.
-    return [[self class] initWithBase64EncodedString:encodedStringCopy options:NSUTF8StringEncoding];
+    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:encodedStringCopy options:0];
+    return decodedData;
     //https://en.wikipedia.org/wiki/Base64#Variants_summary_table
 }
 
