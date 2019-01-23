@@ -357,22 +357,18 @@
     
     NSSet<NSString *> *filterAccountIds = nil;
 
-    BOOL filterByClient = (clientId || familyId);
-    if (filterByClient)
+    // we only return accounts for which we have refresh tokens in cache
+    filterAccountIds = [self homeAccountIdsFromRTsWithAuthority:authority
+                                                       clientId:clientId
+                                                       familyId:familyId
+                                         accountCredentialCache:_accountCredentialCache
+                                                        context:context
+                                                          error:error];
+    
+    if (*error)
     {
-        // we only return accounts for which we have refresh tokens in cache
-        filterAccountIds = [self homeAccountIdsFromRTsWithAuthority:authority
-                                                           clientId:clientId
-                                                           familyId:familyId
-                                             accountCredentialCache:_accountCredentialCache
-                                                            context:context
-                                                              error:error];
-        
-        if (*error)
-        {
-            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-            return nil;
-        }
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+        return nil;
     }
 
     NSMutableSet<MSIDAccount *> *filteredAccountsSet = [NSMutableSet new];
@@ -380,7 +376,7 @@
     for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
     {
         // If we have accountIds to filter by, only return account if it has an associated refresh token
-        if (!filterByClient || [filterAccountIds containsObject:accountCacheItem.homeAccountId])
+        if ([filterAccountIds containsObject:accountCacheItem.homeAccountId])
         {
             if (authority.environment)
             {

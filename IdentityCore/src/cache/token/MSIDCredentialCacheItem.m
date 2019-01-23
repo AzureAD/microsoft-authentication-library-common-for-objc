@@ -302,4 +302,17 @@
     return [self.secret isEqualToString:@"<tombstone>"];
 }
 
+- (BOOL)storeAppKey:(NSString *)cacheKeyString
+{
+    if ([NSString msidIsStringNilOrBlank:cacheKeyString]) return NO;
+    
+    NSArray *components = [cacheKeyString componentsSeparatedByString:@"|"];
+    
+    if (components.count != 2)
+        return NO;
+    
+    self.appKey = components[1];
+    return YES;
+}
+
 @end

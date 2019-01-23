@@ -714,6 +714,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         NSData *itemData = [attrs objectForKey:(id)kSecValueData];
         MSIDCredentialCacheItem *tokenItem = [serializer deserializeCredentialCacheItem:itemData];
+        [tokenItem storeAppKey:attrs[(id)kSecAttrService]];
         
         if (tokenItem)
         {
