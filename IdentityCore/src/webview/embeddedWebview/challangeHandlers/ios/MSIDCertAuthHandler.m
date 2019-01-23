@@ -27,7 +27,6 @@
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "UIApplication+MSIDExtensions.h"
-#import "MSIDRequestContext.h"
 
 #if !MSID_EXCLUDE_SYSTEMWV
 

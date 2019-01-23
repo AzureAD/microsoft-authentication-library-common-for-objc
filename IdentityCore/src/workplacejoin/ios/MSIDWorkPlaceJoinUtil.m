@@ -26,7 +26,6 @@
 #import "MSIDRegistrationInformation.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDError.h"
-#import "MSIDRequestContext.h"
 
 @implementation MSIDWorkPlaceJoinUtil
 

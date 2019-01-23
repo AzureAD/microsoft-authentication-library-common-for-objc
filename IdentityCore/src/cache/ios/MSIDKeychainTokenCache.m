@@ -29,7 +29,6 @@
 #import "MSIDError.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAppMetadataItemSerializer.h"
-#import "MSIDRequestContext.h"
 
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
 static MSIDKeychainTokenCache *s_defaultCache = nil;
@@ -502,7 +501,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError **)error;
 {
     NSMutableDictionary *query = [self.defaultWipeQuery mutableCopy];
     [query setObject:@YES forKey:(id)kSecReturnData];
