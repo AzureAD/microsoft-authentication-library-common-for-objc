@@ -84,6 +84,4 @@
 
 - (BOOL)isTombstone;
 
-- (BOOL)storeAppKey:(nullable NSString *)cacheKeyString;
-
 @end

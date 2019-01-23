@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *familyId;
 @property (nullable, nonatomic) NSString *target;
 @property (nullable, nonatomic) NSString *enrollmentId;
+@property (nullable, nonatomic) NSString *appKey;
 @property (nonatomic) MSIDCredentialType credentialType;
 
 - (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
@@ -43,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
                              clientId:(NSString *)clientId
                        credentialType:(MSIDCredentialType)type;
 
-- (NSString *)serviceWithType:(MSIDCredentialType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm enrollmentId:(nullable NSString *)enrollmentId target:(nullable NSString *)target;
+- (NSString *)serviceWithType:(MSIDCredentialType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm enrollmentId:(nullable NSString *)enrollmentId target:(nullable NSString *)target appKey:(nullable NSString *)appKey;
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type clientId:(NSString *)clientId realm:(nullable NSString *)realm enrollmentId:(nullable NSString *)enrollmentId;
 - (NSString *)accountIdWithHomeAccountId:(NSString *)homeAccountId environment:(NSString *)environment;
 - (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType;

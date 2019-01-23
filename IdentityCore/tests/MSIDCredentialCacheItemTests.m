@@ -241,49 +241,4 @@
     XCTAssertNotEqualObjects(cacheItem1, cacheItem2);
 }
 
-- (void)testStoreAppKey_whenNilKeyString_shouldNotStore
-{
-    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    
-    [cacheItem storeAppKey:nil];
-    
-    XCTAssertNil(cacheItem.appKey);
-}
-
-- (void)testStoreAppKey_whenEmptyKeyString_shouldNotStore
-{
-    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    
-    [cacheItem storeAppKey:@""];
-    
-    XCTAssertNil(cacheItem.appKey);
-}
-
-- (void)testStoreAppKey_whenInvalidKeyStringWithoutDelimiter_shouldNotStore
-{
-    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    
-    [cacheItem storeAppKey:@"abc"];
-    
-    XCTAssertNil(cacheItem.appKey);
-}
-
-- (void)testStoreAppKey_whenInvalidKeyStringWithTooManyDelimiters_shouldNotStore
-{
-    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    
-    [cacheItem storeAppKey:@"abc|d|e"];
-    
-    XCTAssertNil(cacheItem.appKey);
-}
-
-- (void)testStoreAppKey_whenValidKeyString_shouldStore
-{
-    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
-    
-    [cacheItem storeAppKey:@"abc|d"];
-    
-    XCTAssertEqualObjects(cacheItem.appKey, @"d");
-}
-
 @end

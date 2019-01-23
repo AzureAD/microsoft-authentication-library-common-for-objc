@@ -315,11 +315,9 @@
     key.realm = credential.realm;
     key.target = credential.target;
     key.enrollmentId = credential.enrollmentId;
-    
-    // Append app key to service part if any in case this is an item in broker
-    MSIDCacheKey *overridenKey = [self appendAppKey:credential.appKey toKey:key];
+    key.appKey = credential.appKey;
 
-    BOOL result = [_dataSource removeItemsWithTokenKey:overridenKey context:context error:error];
+    BOOL result = [_dataSource removeItemsWithTokenKey:key context:context error:error];
 
     if (result && credential.credentialType == MSIDRefreshTokenType)
     {
@@ -496,21 +494,6 @@
     }
     
     return cacheItems;
-}
-
-- (MSIDCacheKey *)appendAppKey:(NSString *)appKey
-                         toKey:(MSIDDefaultCredentialCacheKey *)key
-{
-    if ([NSString msidIsStringNilOrBlank:appKey])
-        return key;
-    
-    // We append app key to service part
-    NSString *service = [NSString stringWithFormat:@"%@|%@", key.service, appKey];
-    
-    return [[MSIDCacheKey alloc] initWithAccount:key.account
-                                         service:service
-                                         generic:key.generic
-                                            type:key.type];
 }
 
 @end
