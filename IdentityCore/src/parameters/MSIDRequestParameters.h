@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDRequestContext.h"
 #import "MSIDCacheAccessor.h"
 
 @class MSIDAuthority;

@@ -23,6 +23,7 @@
 
 #import "MSIDOauth2Factory.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDRequestContext.h"
 #import "MSIDAccessToken.h"
 #import "MSIDBaseToken.h"
 #import "MSIDRefreshToken.h"
