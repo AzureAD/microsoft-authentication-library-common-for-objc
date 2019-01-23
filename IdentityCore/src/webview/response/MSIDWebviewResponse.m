@@ -27,7 +27,6 @@
 
 #import "MSIDWebviewResponse.h"
 #import "NSURL+MSIDExtensions.h"
-#import "MSIDRequestContext.h"
 
 @implementation MSIDWebviewResponse
 

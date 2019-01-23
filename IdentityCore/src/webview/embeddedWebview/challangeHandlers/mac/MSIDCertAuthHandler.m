@@ -23,7 +23,6 @@
 
 #import "MSIDCertAuthHandler.h"
 #import "MSIDCertificateChooser.h"
-#import "MSIDRequestContext.h"
 
 @implementation MSIDCertAuthHandler
 

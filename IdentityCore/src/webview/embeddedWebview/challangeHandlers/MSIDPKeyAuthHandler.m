@@ -30,7 +30,6 @@
 #import "MSIDDeviceId.h"
 #import "MSIDConstants.h"
 #import "NSDictionary+MSIDExtensions.h"
-#import "MSIDRequestContext.h"
 
 @implementation MSIDPKeyAuthHandler
 

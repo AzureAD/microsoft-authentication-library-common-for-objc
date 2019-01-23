@@ -23,7 +23,6 @@
 
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneInMemoryCacheDataSource.h"
-#import "MSIDRequestContext.h"
 
 NSString *const MSID_INTUNE_ENROLLMENT_ID_ARRAY = @"enrollment_ids";
 NSString *const MSID_INTUNE_USER_ID = @"user_id";

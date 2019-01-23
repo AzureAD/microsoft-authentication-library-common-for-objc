@@ -30,7 +30,6 @@
 #import "MSIDVersion.h"
 #import "MSIDTelemetry.h"
 #import "NSData+MSIDExtensions.h"
-#import "MSIDRequestContext.h"
 
 @implementation MSIDTelemetryBaseEvent
 

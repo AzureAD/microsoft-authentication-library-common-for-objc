@@ -26,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDLogger.h"
-#import "MSIDRequestContext.h"
 
 // Convenience macro for obscuring PII in log macros that don't allow PII.
 #define _PII_NULLIFY(_OBJ) _OBJ ? @"(not-nil)" : @"(nil)"

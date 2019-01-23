@@ -25,7 +25,6 @@
 //
 //------------------------------------------------------------------------------
 #import "MSIDWebOpenBrowserResponse.h"
-#import "MSIDRequestContext.h"
 
 @implementation MSIDWebOpenBrowserResponse
 

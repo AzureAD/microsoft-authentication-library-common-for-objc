@@ -30,7 +30,6 @@
 #import "MSIDHttpRequestTelemetry.h"
 #import "MSIDURLSessionManager.h"
 #import "MSIDJsonResponsePreprocessor.h"
-#import "MSIDRequestContext.h"
 
 static NSInteger const s_defaultRetryCounter = 1;
 static NSTimeInterval const s_defaultRetryInterval = 0.5;

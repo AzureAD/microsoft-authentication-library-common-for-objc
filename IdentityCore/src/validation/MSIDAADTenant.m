@@ -23,7 +23,6 @@
 
 
 #import "MSIDAADTenant.h"
-#import "MSIDRequestContext.h"
 
 NSString *const MSIDAADTenantTypeCommonRawValue = @"common";
 NSString *const MSIDAADTenantTypeOrganizationsRawValue = @"organizations";

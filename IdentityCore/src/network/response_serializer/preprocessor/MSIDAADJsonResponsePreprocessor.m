@@ -9,7 +9,6 @@
 #import "MSIDAADJsonResponsePreprocessor.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "NSString+MSIDTelemetryExtensions.h"
-#import "MSIDRequestContext.h"
 
 @implementation MSIDAADJsonResponsePreprocessor
 

@@ -25,7 +25,6 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDRegistrationInformation.h"
-#import "MSIDRequestContext.h"
 
 // Convenience macro for checking keychain status codes while looking up the WPJ information.
 #define CHECK_KEYCHAIN_STATUS(OPERATION) \

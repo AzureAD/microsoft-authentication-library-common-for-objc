@@ -33,7 +33,6 @@
 #import "MSIDAuthority.h"
 #import "MSIDConstants.h"
 #import "MSIDAADJsonResponsePreprocessor.h"
-#import "MSIDRequestContext.h"
 
 static NSTimeInterval const s_defaultTimeoutInterval = 300;
 

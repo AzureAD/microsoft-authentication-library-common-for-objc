@@ -30,7 +30,6 @@
 #import "MSIDError.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAadAuthorityCacheRecord.h"
-#import "MSIDRequestContext.h"
 
 #define CHECK_CLASS_TYPE(_CHK, _CLS, _ERROR) \
     if (![_CHK isKindOfClass:[_CLS class]]) { \

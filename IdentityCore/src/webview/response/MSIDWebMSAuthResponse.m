@@ -27,7 +27,6 @@
 
 #import "MSIDWebMSAuthResponse.h"
 #import "MSIDClientInfo.h"
-#import "MSIDRequestContext.h"
 
 @implementation MSIDWebMSAuthResponse
 
