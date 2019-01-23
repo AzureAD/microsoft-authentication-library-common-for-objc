@@ -357,16 +357,21 @@
     
     NSSet<NSString *> *filterAccountIds = nil;
 
+    NSError *localError;
     // we only return accounts for which we have refresh tokens in cache
     filterAccountIds = [self homeAccountIdsFromRTsWithAuthority:authority
                                                        clientId:clientId
                                                        familyId:familyId
                                          accountCredentialCache:_accountCredentialCache
                                                         context:context
-                                                          error:error];
+                                                          error:&localError];
     
-    if (*error)
+    if (localError)
     {
+        if (error)
+        {
+            *error = localError;
+        }
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
         return nil;
     }
