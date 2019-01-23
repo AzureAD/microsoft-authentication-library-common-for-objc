@@ -99,33 +99,22 @@ typedef unsigned char byte;
 - (NSString *)msidWWWFormURLDecode
 {
     // Two step decode: first replace + with a space, then percent unescape
-    CFMutableStringRef decodedString = CFStringCreateMutableCopy( NULL, 0, (__bridge CFStringRef)self );
-    CFStringFindAndReplace( decodedString, CFSTR("+"), CFSTR(" "), CFRangeMake( 0, CFStringGetLength( decodedString ) ), kCFCompareCaseInsensitive );
-    
-    CFStringRef unescapedString = CFURLCreateStringByReplacingPercentEscapes( NULL,                    // Allocator
-                                                                                          decodedString,           // Original string
-                                                                                          CFSTR("")); // Encoding
-    CFRelease( decodedString );
-    
-    return CFBridgingRelease(unescapedString);
+    return [[self stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByRemovingPercentEncoding];
 }
 
 
 - (NSString *)msidWWWFormURLEncode
 {
-    static NSCharacterSet* set = nil;
- 
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        
-        NSMutableCharacterSet *allowedSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
-        [allowedSet addCharactersInString:@" "];
-        [allowedSet removeCharactersInString:@"!$&'()*+,/:;=?@"];
-        
-        set = allowedSet;
-    });
-    
-    NSString *encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:set];
+    /*
+     https://www.ietf.org/rfc/rfc3986.txt
+     https://www.w3.org/TR/html5/forms.html#url-encoded-form-data
+     Section 4.10.22.5 gives us the characters not to percent encode:
+    ALPHA / DIGIT / “*” / “-” / “.” / “_”
+     */
+    NSMutableCharacterSet *allowedCharacters = [NSMutableCharacterSet alphanumericCharacterSet];
+    NSString *unreserved = @"*-._ ";
+    [allowedCharacters addCharactersInString:unreserved];
+    NSString *encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacters];
     return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];
 }
 
