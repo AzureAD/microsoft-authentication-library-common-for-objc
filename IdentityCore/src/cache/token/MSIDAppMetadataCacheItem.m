@@ -81,7 +81,7 @@
 
 #pragma mark - JSON
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error
 {
     if (!(self = [super init]))
     {
@@ -119,7 +119,7 @@
 
 - (BOOL)matchesWithClientId:(nullable NSString *)clientId
                 environment:(nullable NSString *)environment
-         environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
+         environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
     if (clientId && ![self.clientId isEqualToString:clientId])
     {

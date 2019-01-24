@@ -174,17 +174,17 @@
 
 #pragma mark - Abstract
 
-- (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
-                                                     oidcScope:(NSString *)oidcScope
-                                                 correlationId:(NSUUID *)correlationID
-                                                         error:(NSError **)error
+- (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(__unused NSDictionary *)encryptedParams
+                                                     oidcScope:(__unused NSString *)oidcScope
+                                                 correlationId:(__unused NSUUID *)correlationID
+                                                         error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;
 }
 
-- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(NSString *)keychainGroup
-                                                  error:(NSError **)error
+- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                  error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;

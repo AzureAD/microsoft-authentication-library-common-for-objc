@@ -59,7 +59,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type
                           clientId:(NSString *)clientId
                              realm:(NSString *)realm
-                      enrollmentId:(NSString *)enrollmentId;
+                      enrollmentId:(NSString *)enrollmentId
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
