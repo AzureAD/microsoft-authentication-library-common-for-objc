@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDCredentialType.h"
 
 @class MSIDOauth2Factory;
 @class MSIDConfiguration;
@@ -36,6 +37,7 @@
 @class MSIDAccount;
 @class MSIDAuthority;
 @class MSIDAccessToken;
+@class MSIDPrimaryRefreshToken;
 
 @protocol MSIDCacheAccessor <NSObject>
 
@@ -68,6 +70,12 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 
+- (MSIDPrimaryRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
+                                                      familyId:(NSString *)familyId
+                                                 configuration:(MSIDConfiguration *)configuration
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError **)error;
+
 - (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
                                          clientId:(NSString *)clientId
                                          familyId:(NSString *)familyId
@@ -91,6 +99,10 @@
 - (BOOL)validateAndRemoveRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
+
+- (BOOL)validateAndRemovePrimaryRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
+                                     context:(id<MSIDRequestContext>)context
+                                       error:(NSError **)error;
 
 - (BOOL)removeAccessToken:(MSIDAccessToken *)token
                   context:(id<MSIDRequestContext>)context

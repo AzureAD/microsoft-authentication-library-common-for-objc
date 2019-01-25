@@ -118,7 +118,7 @@
     completionBlock(nil, appInstallError);
 }
 
-- (void)promptBrokerInstallWithResponse:(MSIDWebMSAuthResponse *)response completionBlock:(MSIDRequestCompletionBlock)completion
+- (void)promptBrokerInstallWithResponse:(__unused MSIDWebMSAuthResponse *)response completionBlock:(MSIDRequestCompletionBlock)completion
 {
 #if TARGET_OS_IPHONE
     if ([NSString msidIsStringNilOrBlank:response.appInstallLink])

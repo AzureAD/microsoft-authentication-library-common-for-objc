@@ -102,7 +102,7 @@
 }
 
 
-+ (BOOL)canUseBrokerOnDeviceWithParameters:(MSIDInteractiveRequestParameters *)parameters
++ (BOOL)canUseBrokerOnDeviceWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
 {
 #if TARGET_OS_IPHONE
 
@@ -132,7 +132,7 @@
 #endif
 }
 
-+ (BOOL)isBrokerInstalled:(MSIDInteractiveRequestParameters *)parameters
++ (BOOL)isBrokerInstalled:(__unused MSIDInteractiveRequestParameters *)parameters
 {
 #if AD_BROKER
     return YES;

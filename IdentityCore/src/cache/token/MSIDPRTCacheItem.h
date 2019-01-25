@@ -21,48 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDIntuneInMemoryCacheDataSource.h"
-#import "MSIDCache.h"
+#import <Foundation/Foundation.h>
+#import "MSIDLegacyTokenCacheItem.h"
 
-@interface MSIDIntuneInMemoryCacheDataSource ()
+@interface MSIDPRTCacheItem : MSIDLegacyTokenCacheItem
 
-@property (nonatomic, readonly) MSIDCache *cache;
-
-@end
-
-@implementation MSIDIntuneInMemoryCacheDataSource
-
-- (instancetype)initWithCache:(MSIDCache *)cache
-{
-    self = [super init];
-    if (self)
-    {
-        _cache = cache ? cache : [MSIDCache new];
-    }
-    
-    return self;
-}
-
-- (instancetype)init
-{
-    return [self initWithCache:nil];
-}
-
-#pragma mark - MSIDIntuneCacheDataSource
-
-- (NSDictionary *)jsonDictionaryForKey:(NSString *)key
-{
-    return [self.cache objectForKey:key];
-}
-
-- (void)setJsonDictionary:(NSDictionary *)dictionary forKey:(NSString *)key
-{
-    [self.cache setObject:dictionary forKey:key];
-}
-
-- (void)removeObjectForKey:(NSString *)key
-{
-    [self.cache removeObjectForKey:key];
-}
+@property NSData *sessionKey;
 
 @end

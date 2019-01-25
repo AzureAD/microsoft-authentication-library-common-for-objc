@@ -26,4 +26,7 @@
 
 @interface MSIDKeyedArchiverSerializer : NSObject <MSIDCredentialItemSerializer>
 
+- (void)addEncodeClassMapping:(NSDictionary *)classMap;
+- (void)addDecodeClassMapping:(NSDictionary *)classMap;
+
 @end

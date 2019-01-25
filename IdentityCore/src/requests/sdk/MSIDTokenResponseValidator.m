@@ -36,7 +36,7 @@
 - (MSIDTokenResult *)validateTokenResponse:(MSIDTokenResponse *)tokenResponse
                               oauthFactory:(MSIDOauth2Factory *)factory
                              configuration:(MSIDConfiguration *)configuration
-                            requestAccount:(MSIDAccountIdentifier *)accountIdentifier
+                            requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
                              correlationID:(NSUUID *)correlationID
                                      error:(NSError **)error
 {
@@ -77,12 +77,12 @@
     return result;
 }
 
-- (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
-              configuration:(MSIDConfiguration *)configuration
-                  oidcScope:(NSString *)oidcScope
-             requestAccount:(MSIDAccountIdentifier *)accountIdentifier
-              correlationID:(NSUUID *)correlationID
-                      error:(NSError **)error
+- (BOOL)validateTokenResult:(__unused MSIDTokenResult *)tokenResult
+              configuration:(__unused MSIDConfiguration *)configuration
+                  oidcScope:(__unused NSString *)oidcScope
+             requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
+              correlationID:(__unused NSUUID *)correlationID
+                      error:(__unused NSError **)error
 {
     // Post saving validation
     return YES;

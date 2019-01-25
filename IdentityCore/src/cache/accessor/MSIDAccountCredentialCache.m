@@ -24,7 +24,7 @@
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
-#import "MSIDAccountCacheItem.h"
+#import "MSIDAccountCacheItem+MSIDAccountMatchers.h"
 #import "MSIDDefaultCredentialCacheKey.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDTokenCacheDataSource.h"
@@ -71,9 +71,9 @@
     NSError *cacheError = nil;
 
     NSArray<MSIDCredentialCacheItem *> *results = [_dataSource tokensWithKey:cacheQuery
-                                                             serializer:_serializer
-                                                                context:context
-                                                                  error:&cacheError];
+                                                                  serializer:_serializer
+                                                                     context:context
+                                                                       error:&cacheError];
 
     if (cacheError)
     {
@@ -224,11 +224,11 @@
 
     MSID_LOG_VERBOSE(context, @"(Default cache) Saving token %@ with environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credential.credentialType], credential.environment, credential.realm, credential.clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.homeAccountId, credential.environment, credential.environment, credential.clientId);
-
+    
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
-                                                                                         environment:credential.environment
-                                                                                            clientId:credential.clientId
-                                                                                      credentialType:credential.credentialType];
+                                                                                          environment:credential.environment
+                                                                                             clientId:credential.clientId
+                                                                                       credentialType:credential.credentialType];
 
     key.familyId = credential.familyId;
     key.realm = credential.realm;

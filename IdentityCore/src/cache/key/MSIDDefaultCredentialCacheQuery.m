@@ -63,6 +63,7 @@
         {
             return [self serviceForAccessToken];
         }
+        case MSIDPrimaryRefreshTokenType:
         case MSIDRefreshTokenType:
         {
             return [self serviceForRefreshToken];

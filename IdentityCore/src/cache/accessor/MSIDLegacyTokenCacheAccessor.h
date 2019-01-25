@@ -26,13 +26,11 @@
 #import "MSIDCacheAccessor.h"
 
 @class MSIDLegacyAccessToken;
-@class MSIDLegacyRefreshToken;
 @class MSIDLegacySingleResourceToken;
 @class MSIDAccountIdentifier;
 @class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @class MSIDLegacyAccessToken;
-@class MSIDOauth2Factory;
 
 @interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDCacheAccessor>
 
