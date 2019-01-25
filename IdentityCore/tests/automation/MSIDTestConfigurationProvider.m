@@ -212,7 +212,13 @@
 #endif
 }
 
+- (MSIDAutomationTestRequest *)defaultConvergedAppRequestWithTenantId:(NSString *)targetTenantId
+{
+    return [self defaultConvergedAppRequestWithTenantId:targetTenantId];
+}
+
 - (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
+                                           targetTenantId:(NSString *)targetTenantId
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
     NSDictionary *defaultConf = self.defaultClients[@"default_converged"];
@@ -229,12 +235,15 @@
         request.requestScopes = [self scopesForEnvironment:testEnvironment type:@"ms_graph"];
         request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:[self scopesForEnvironment:testEnvironment type:@"oidc"]];
         request.configurationAuthority = [self defaultAuthorityForIdentifier:testEnvironment];
+        request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
+        request.cacheAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
     }
 
     return request;
 }
 
-- (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest
+- (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest:(NSString *)environment
+                                              targetTenantId:(NSString *)targetTenantId
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
     NSDictionary *defaultConf = self.defaultClients[@"default_nonconverged"];
@@ -245,6 +254,11 @@
         request.redirectUri = defaultConf[@"redirect_uri"];
         request.validateAuthority = YES;
         request.webViewType = self.defaultWebviewTypeForPlatform;
+        
+        NSString *testEnvironment = environment ? environment : self.wwEnvironment;
+        
+        request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
+        request.cacheAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
     }
 
     return request;
@@ -333,6 +347,11 @@
     }
     
     return self.defaultScopes[type][environment];
+}
+
+- (NSString *)oidcScopes
+{
+    return [self scopesForEnvironment:self.wwEnvironment type:@"oidc"];
 }
 
 - (NSString *)resourceForEnvironment:(NSString *)environment type:(NSString *)type

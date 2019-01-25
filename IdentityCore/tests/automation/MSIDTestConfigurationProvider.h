@@ -44,8 +44,13 @@
 // Default configuration
 - (MSIDAutomationTestRequest *)defaultFociRequestWithBroker;
 - (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker;
-- (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest;
-- (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment;
+
+- (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest:(NSString *)environment
+                                              targetTenantId:(NSString *)targetTenantId;
+
+- (MSIDAutomationTestRequest *)defaultConvergedAppRequestWithTenantId:(NSString *)targetTenantId;
+- (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
+                                           targetTenantId:(NSString *)targetTenantId;
 - (MSIDAutomationTestRequest *)defaultAppRequest;
 
 - (NSDictionary *)appInstallForConfiguration:(NSString *)appId;
@@ -61,6 +66,7 @@
                                                  config:(MSIDTestAutomationConfiguration *)configuration
                                                 account:(MSIDTestAccount *)account;
 
+- (NSString *)oidcScopes;
 - (NSString *)scopesForEnvironment:(NSString *)environment type:(NSString *)type;
 - (NSString *)resourceForEnvironment:(NSString *)environment type:(NSString *)type;
 
