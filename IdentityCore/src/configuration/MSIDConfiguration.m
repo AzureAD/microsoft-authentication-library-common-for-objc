@@ -29,6 +29,7 @@
 @interface MSIDConfiguration()
 
 @property (readwrite) NSString *resource;
+@property (readwrite) NSString *target;
 @property (readwrite) NSOrderedSet<NSString *> *scopes;
 
 @end
@@ -88,7 +89,7 @@
         _clientId = clientId;
         _resource = resource;
         _scopes = scopes;
-        _target = [scopes msidToString];
+        _target = _scopes ? [scopes msidToString] : _resource;
     }
     
     return self;

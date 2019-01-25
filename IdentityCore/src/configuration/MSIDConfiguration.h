@@ -31,7 +31,7 @@
 @property (readwrite) MSIDAuthority *authority;
 @property (readwrite) NSString *redirectUri;
 @property (readwrite) NSString *clientId;
-@property (readwrite) NSString *target;
+@property (readonly) NSString *target;
 
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;
