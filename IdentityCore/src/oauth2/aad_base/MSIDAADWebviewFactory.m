@@ -55,11 +55,6 @@
            }];
     }
     
-    if (configuration.sliceParameters)
-    {
-        [parameters addEntriesFromDictionary:configuration.sliceParameters];
-    }
-    
     parameters[@"haschrome"] = @"1";
     parameters[MSID_OAUTH2_CLAIMS] = configuration.claims;
     [parameters addEntriesFromDictionary:MSIDDeviceId.deviceId];

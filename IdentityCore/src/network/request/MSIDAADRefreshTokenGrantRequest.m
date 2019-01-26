@@ -32,9 +32,10 @@
                            scope:(NSString *)scope
                     refreshToken:(NSString *)refreshToken
                           claims:(NSString *)claims
+                 extraParameters:(NSDictionary *)extraParameters
                          context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken context:context];
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken extraParameters:extraParameters context:context];
     if (self)
     {
         __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];

@@ -420,7 +420,9 @@
                                                                                                clientId:parameters.clientId
                                                                                                   scope:allScopes
                                                                                            refreshToken:refreshToken
+                                                                                        extraParameters:parameters.additionalRequestParameters
                                                                                                 context:parameters];
+    // TODO: add extra query parameters here
     tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];
     
     return tokenRequest;

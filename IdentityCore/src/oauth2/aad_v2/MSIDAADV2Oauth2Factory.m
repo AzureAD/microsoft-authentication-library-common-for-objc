@@ -258,6 +258,7 @@
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
+                                                                                              extraParameters:parameters.additionalRequestParameters
                                                                                                       context:parameters];
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 

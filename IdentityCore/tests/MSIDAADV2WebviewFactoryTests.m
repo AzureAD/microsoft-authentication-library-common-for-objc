@@ -67,7 +67,6 @@
     config.claims = @"claims";
     config.utid = DEFAULT_TEST_UTID;
     config.uid = DEFAULT_TEST_UID;
-    config.sliceParameters = DEFAULT_TEST_SLICE_PARAMS_DICT;
     config.loginHint = @"fakeuser@contoso.com";
     
     NSString *requestState = @"state";
@@ -99,7 +98,6 @@
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-    [expectedQPs addEntriesFromDictionary:DEFAULT_TEST_SLICE_PARAMS_DICT];
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
