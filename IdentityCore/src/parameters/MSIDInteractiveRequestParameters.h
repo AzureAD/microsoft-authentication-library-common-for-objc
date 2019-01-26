@@ -42,12 +42,14 @@
 #endif
 @property (nonatomic) NSString *extraScopesToConsent;
 @property (nonatomic) MSIDPromptType promptType;
-@property (nonatomic) NSDictionary *extraQueryParameters;
+// Additional request parameters that will only be appended to authorize requests in addition to additionalParameters from parent class
+@property (nonatomic) NSDictionary *authorizeEndpointParameters;
 @property (nonatomic) NSString *telemetryWebviewType;
 @property (nonatomic) NSString *supportedBrokerProtocolScheme;
 @property (nonatomic) BOOL enablePkce;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
+- (NSDictionary *)allAuthorizeRequestExtraParameters;
 
 // Initialize parameters with extra scopes, and interactive request type
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority

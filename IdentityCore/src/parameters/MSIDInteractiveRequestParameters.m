@@ -70,6 +70,13 @@
     return requestScopes;
 }
 
+- (NSDictionary *)allAuthorizeRequestExtraParameters
+{
+    NSMutableDictionary *authorizeParams = [[NSMutableDictionary alloc] initWithDictionary:self.authorizeEndpointParameters];
+    [authorizeParams addEntriesFromDictionary:self.additionalRequestParameters];
+    return authorizeParams;
+}
+
 - (BOOL)validateParametersWithError:(NSError **)error
 {
     BOOL result = [super validateParametersWithError:error];
@@ -79,7 +86,7 @@
         return NO;
     }
 
-    if ([self.claims count] && self.extraQueryParameters[MSID_OAUTH2_CLAIMS])
+    if ([self.claims count] && self.authorizeEndpointParameters[MSID_OAUTH2_CLAIMS])
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil);
         return NO;

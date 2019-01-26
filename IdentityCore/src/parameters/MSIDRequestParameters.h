@@ -41,7 +41,8 @@
 @property (nonatomic) NSString *oidcScope;
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic) BOOL validateAuthority;
-@property (nonatomic) NSDictionary *sliceParameters;
+// Additional query parameters that will be appended for both token and authorize requests
+@property (nonatomic) NSDictionary *additionalRequestParameters;
 @property (nonatomic) NSUInteger tokenExpirationBuffer;
 @property (nonatomic) BOOL extendedLifetimeEnabled;
 
