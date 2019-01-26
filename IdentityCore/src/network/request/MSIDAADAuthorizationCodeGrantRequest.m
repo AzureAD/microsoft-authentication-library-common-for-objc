@@ -34,6 +34,7 @@
                             code:(NSString *)code
                           claims:(NSString *)claims
                     codeVerifier:(NSString *)codeVerifier
+                 extraParameters:(NSDictionary *)extraParameters
                          context:(nullable id<MSIDRequestContext>)context
 {
     self = [super initWithEndpoint:endpoint
@@ -43,6 +44,7 @@
                               code:code
                             claims:claims
                       codeVerifier:codeVerifier
+                   extraParameters:extraParameters
                            context:context];
     if (self)
     {

@@ -234,6 +234,7 @@
                                                                                                                    code:authCode
                                                                                                                  claims:claims
                                                                                                            codeVerifier:pkceCodeVerifier
+                                                                                                        extraParameters:parameters.extraTokenRequestParameters
                                                                                                                 context:parameters];
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 

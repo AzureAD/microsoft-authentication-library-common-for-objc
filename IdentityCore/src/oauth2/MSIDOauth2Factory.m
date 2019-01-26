@@ -405,6 +405,7 @@
                                                                                                              code:authCode
                                                                                                            claims:claims
                                                                                                      codeVerifier:pkceCodeVerifier
+                                                                                                  extraParameters:parameters.extraTokenRequestParameters
                                                                                                           context:parameters];
     tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];
     
