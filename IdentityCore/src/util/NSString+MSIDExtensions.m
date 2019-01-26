@@ -111,10 +111,16 @@ typedef unsigned char byte;
      letters, decimal digits, hyphen, period, underscore, and tilde.
      unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
      */
-    NSMutableCharacterSet *allowedCharacters = [NSMutableCharacterSet alphanumericCharacterSet];
-    NSString *unreserved = @"-._~ ";
-    [allowedCharacters addCharactersInString:unreserved];
-    NSString *encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacters];
+    static NSCharacterSet* set = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        
+        NSMutableCharacterSet *allowedSet = [[NSCharacterSet alphanumericCharacterSet] mutableCopy];
+        [allowedSet addCharactersInString:@"-._~ "];
+        set = allowedSet;
+    });
+    
+    NSString *encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:set];
     return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];
 }
 

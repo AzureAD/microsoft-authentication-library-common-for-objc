@@ -73,8 +73,11 @@
 + (NSData *)msidDataFromBase64UrlEncodedString:(NSString *)encodedString
 {
     NSMutableString *encodedStringCopy = [encodedString mutableCopy];
-    encodedStringCopy = (NSMutableString *)[[encodedStringCopy stringByReplacingOccurrencesOfString:@"-" withString:@"+"]
-     stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
+    
+    // Converts base64url to base64.
+    NSRange range = NSMakeRange(0, encodedString.length);
+    [encodedStringCopy replaceOccurrencesOfString:@"-" withString:@"+" options:NSLiteralSearch range:range];
+    [encodedStringCopy replaceOccurrencesOfString:@"_" withString:@"/" options:NSLiteralSearch range:range];
     
     // Converts base64 no padding to base64 with padding
     while (encodedStringCopy.length % 4 != 0) {
