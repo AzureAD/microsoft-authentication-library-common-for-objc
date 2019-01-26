@@ -72,6 +72,11 @@
 
 - (NSDictionary *)allAuthorizeRequestExtraParameters
 {
+    if (!self.authorizeEndpointParameters && !self.additionalRequestParameters)
+    {
+        return nil;
+    }
+    
     NSMutableDictionary *authorizeParams = [[NSMutableDictionary alloc] initWithDictionary:self.authorizeEndpointParameters];
     [authorizeParams addEntriesFromDictionary:self.additionalRequestParameters];
     return authorizeParams;
