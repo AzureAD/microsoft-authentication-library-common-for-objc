@@ -135,7 +135,7 @@
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
-    parameters.authorizeEndpointParameters = authorizeEndpointParameters;
+    parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
     
     NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
     XCTAssertNotNil(eqp);
@@ -146,7 +146,7 @@
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     NSDictionary *additionalParams = @{@"eqp1": @"val1", @"eqp2": @"val2"};
-    parameters.additionalRequestParameters = additionalParams;
+    parameters.extraURLQueryParameters = additionalParams;
     
     NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
     XCTAssertNotNil(eqp);
@@ -157,8 +157,8 @@
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
-    parameters.authorizeEndpointParameters = authorizeEndpointParameters;
-    parameters.additionalRequestParameters = @{@"add1": @"val1", @"add2": @"val2"};
+    parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
+    parameters.extraURLQueryParameters = @{@"add1": @"val1", @"add2": @"val2"};
     
     NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
     XCTAssertNotNil(eqp);

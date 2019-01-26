@@ -146,7 +146,7 @@
     NSString *claimsString = [self claimsParameter];
     NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
-    NSString *extraQueryParameters = [self.requestParameters.authorizeEndpointParameters count] ? [self.requestParameters.authorizeEndpointParameters msidWWWFormURLEncode] : @"";
+    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidWWWFormURLEncode] : @"";
 
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];

@@ -72,13 +72,13 @@
 
 - (NSDictionary *)allAuthorizeRequestExtraParameters
 {
-    if (!self.authorizeEndpointParameters && !self.additionalRequestParameters)
+    if (!self.extraAuthorizeURLQueryParameters && !self.extraURLQueryParameters)
     {
         return nil;
     }
     
-    NSMutableDictionary *authorizeParams = [[NSMutableDictionary alloc] initWithDictionary:self.authorizeEndpointParameters];
-    [authorizeParams addEntriesFromDictionary:self.additionalRequestParameters];
+    NSMutableDictionary *authorizeParams = [[NSMutableDictionary alloc] initWithDictionary:self.extraAuthorizeURLQueryParameters];
+    [authorizeParams addEntriesFromDictionary:self.extraURLQueryParameters];
     return authorizeParams;
 }
 
@@ -91,7 +91,7 @@
         return NO;
     }
 
-    if ([self.claims count] && self.authorizeEndpointParameters[MSID_OAUTH2_CLAIMS])
+    if ([self.claims count] && self.allAuthorizeRequestExtraParameters[MSID_OAUTH2_CLAIMS])
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil);
         return NO;

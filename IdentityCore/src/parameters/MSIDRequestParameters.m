@@ -131,9 +131,9 @@
         endpointQPs = [NSMutableDictionary dictionary];
     }
 
-    if (self.additionalRequestParameters)
+    if (self.extraURLQueryParameters)
     {
-        [endpointQPs addEntriesFromDictionary:self.additionalRequestParameters];
+        [endpointQPs addEntriesFromDictionary:self.extraURLQueryParameters];
     }
 
     tokenEndpoint.query = [endpointQPs msidWWWFormURLEncode];
