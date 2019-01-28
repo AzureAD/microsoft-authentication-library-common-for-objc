@@ -316,6 +316,15 @@
         NSURL *rtAuthority = [refreshToken.authority.url msidURLForPreferredHost:authority.environment context:context error:error];
         account.authority = [MSIDAuthorityFactory authorityFromUrl:rtAuthority rawTenant:refreshToken.realm context:context error:nil];
         account.accountType = MSIDAccountTypeMSSTS;
+        
+        NSError *localError;
+        MSIDIdTokenClaims *idTokenClaims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:refreshToken.idToken error:&localError];
+        if (!localError)
+        {
+            account.name = idTokenClaims.name;
+            account.localAccountId = idTokenClaims.uniqueId;
+        }
+        
         [resultAccounts addObject:account];
     }
 
