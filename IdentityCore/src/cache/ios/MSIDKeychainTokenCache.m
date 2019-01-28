@@ -747,14 +747,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 
 - (NSString *)extractAppKey:(NSString *)cacheKeyString
 {
-    if ([NSString msidIsStringNilOrBlank:cacheKeyString]) return nil;
-    
-    NSArray *components = [cacheKeyString componentsSeparatedByString:@"|"];
-    
-    // app key is added as the 2nd part (default tokens) and 5th part (legacy tokens) by keychain token cache
-    if ((components.count == 2 || components.count == 5) && ![NSString msidIsStringNilOrBlank:components.lastObject])
-        return components.lastObject;
-    
+    // no app key needs to be set here
     return nil;
 }
 
