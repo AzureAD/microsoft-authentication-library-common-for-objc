@@ -58,5 +58,6 @@
 - (instancetype)initWithJSONResponseData:(NSData *)response;
 - (void)addAdditionalAccount:(MSIDTestAccount *)additionalAccount;
 - (NSString *)authorityWithTenantId:(NSString *)tenantId;
+- (NSString *)redirectUriWithPrefix:(NSString *)redirectPrefix;
 
 @end
