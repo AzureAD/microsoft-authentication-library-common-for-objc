@@ -150,6 +150,12 @@
 
 @end
 
+@interface MSIDTestAutomationConfiguration()
+
+@property (nonatomic) NSArray *registeredRedirectURIs;
+
+@end
+
 @implementation MSIDTestAutomationConfiguration
 
 - (BOOL)isEqualToConfiguration:(MSIDTestAutomationConfiguration *)configuration
@@ -204,7 +210,8 @@
     if (self)
     {
         _clientId = responseDict[@"AppID"];
-        _redirectUri = [self redirectURIFromArray:responseDict[@"RedirectURI"]];
+        _registeredRedirectURIs = responseDict[@"RedirectURI"];
+        _redirectUri = [self redirectUriWithPrefix:self.class.defaultRegisteredScheme];
 
         // TODO: why are there multiple resources?
         _resource = responseDict[@"Resource_ids"][0];
@@ -270,17 +277,17 @@
     return [self initWithJSONDictionary:responseDict];
 }
 
-- (NSString *)redirectURIFromArray:(NSArray *)redirectUris
+- (NSString *)redirectUriWithPrefix:(NSString *)redirectPrefix
 {
-    for (NSString *uri in redirectUris)
+    for (NSString *uri in _registeredRedirectURIs)
     {
-        if ([uri hasPrefix:self.class.defaultRegisteredScheme])
+        if ([uri hasPrefix:redirectPrefix])
         {
             return uri;
         }
     }
-
-    return redirectUris[0];
+    
+    return _registeredRedirectURIs[0];
 }
 
 - (void)addAdditionalAccount:(MSIDTestAccount *)additionalAccount
