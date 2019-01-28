@@ -276,7 +276,6 @@
 		600D19BC20964D8C0004CD43 /* MSIDWorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19BB20964D8C0004CD43 /* MSIDWorkPlaceJoinUtil.m */; };
 		600D19BE20964D9E0004CD43 /* MSIDWorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19BD20964D9E0004CD43 /* MSIDWorkPlaceJoinUtil.m */; };
 		600E0EF42091264900BCD67D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EF02091260000BCD67D /* WebKit.framework */; };
-		60261A4C21FBD64C004C4F7D /* MSIDKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60261A4B21FBD64C004C4F7D /* MSIDKeychainTokenCacheTests.m */; };
 		6035CD8C207EA67300369E69 /* MSIDTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6035CD8B207EA67300369E69 /* MSIDTelemetryIntegrationTests.m */; };
 		6035CD8D207EA67300369E69 /* MSIDTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6035CD8B207EA67300369E69 /* MSIDTelemetryIntegrationTests.m */; };
 		6057EE9020B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6057EE8F20B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m */; };
@@ -1199,7 +1198,6 @@
 		600D19BD20964D9E0004CD43 /* MSIDWorkPlaceJoinUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWorkPlaceJoinUtil.m; sourceTree = "<group>"; };
 		600E0EEE209125FA00BCD67D /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		600E0EF02091260000BCD67D /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		60261A4B21FBD64C004C4F7D /* MSIDKeychainTokenCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeychainTokenCacheTests.m; sourceTree = "<group>"; };
 		6035CD8B207EA67300369E69 /* MSIDTelemetryIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryIntegrationTests.m; sourceTree = "<group>"; };
 		6057EE8E20B5FCF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADOAuthEmbeddedWebviewController.h; sourceTree = "<group>"; };
 		6057EE8F20B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADOAuthEmbeddedWebviewController.m; sourceTree = "<group>"; };
@@ -3081,7 +3079,6 @@
 				B2BE923321A0F80000F5AB8C /* MSIDLegacyTokenRequestProviderTests.m */,
 				B25D496321B4BE2A00502BE5 /* MSIDRequestParametersTests.m */,
 				23D204A421D5A745009B5975 /* MSIDDefaultTokenResponseValidatorTests.m */,
-				60261A4B21FBD64C004C4F7D /* MSIDKeychainTokenCacheTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -3671,7 +3668,6 @@
 				23AE9DBB2148574F00B285F3 /* MSIDErrorExtensionsTests.m in Sources */,
 				232C658C2138BED1002A41FE /* MSIDAADAuthorityMetadataResponseSerializerTests.m in Sources */,
 				B2936F7F20ABFF8F0050C585 /* MSIDOauth2FactoryTests.m in Sources */,
-				60261A4C21FBD64C004C4F7D /* MSIDKeychainTokenCacheTests.m in Sources */,
 				B2BE923721A0F99C00F5AB8C /* MSIDDefaultInteractiveTokenRequestTests.m in Sources */,
 				9668B6F72148796A0039AB0A /* MSIDDataExtensionsTests.m in Sources */,
 				B252913B2096698100E78695 /* MSIDAADIdTokenClaimsFactoryTests.m in Sources */,
