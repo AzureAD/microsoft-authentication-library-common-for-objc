@@ -305,6 +305,22 @@
     return request;
 }
 
+- (MSIDAutomationTestRequest *)sharepointFociRequestWithBroker
+{
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    NSDictionary *defaultConf = self.defaultClients[@"default_foci_sharepoint"];
+    
+    if (defaultConf)
+    {
+        request.clientId = defaultConf[@"client_id"];
+        request.redirectUri = defaultConf[@"redirect_uri"];
+        request.validateAuthority = YES;
+        request.webViewType = self.defaultWebviewTypeForPlatform;
+    }
+    
+    return request;
+}
+
 #pragma mark - Environments
 
 - (NSString *)defaultEnvironmentForIdentifier:(NSString *)environmentIDentifier

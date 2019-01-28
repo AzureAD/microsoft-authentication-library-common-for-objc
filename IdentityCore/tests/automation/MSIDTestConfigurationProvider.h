@@ -44,6 +44,7 @@
 // Default configuration
 - (MSIDAutomationTestRequest *)defaultFociRequestWithBroker;
 - (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker;
+- (MSIDAutomationTestRequest *)sharepointFociRequestWithBroker;
 
 - (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest:(NSString *)environment
                                               targetTenantId:(NSString *)targetTenantId;
