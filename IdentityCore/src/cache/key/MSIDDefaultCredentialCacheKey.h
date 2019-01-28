@@ -36,7 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *familyId;
 @property (nullable, nonatomic) NSString *target;
 @property (nullable, nonatomic) NSString *enrollmentId;
-@property (nullable, nonatomic) NSString *appKey;
 @property (nonatomic) MSIDCredentialType credentialType;
 
 - (instancetype)initWithHomeAccountId:(NSString *)homeAccountId

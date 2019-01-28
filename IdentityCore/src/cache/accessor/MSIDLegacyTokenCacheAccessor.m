@@ -409,6 +409,7 @@
                                        target:cacheItem.target
                                        userId:tokenInCache.accountIdentifier.displayableId
                                credentialType:cacheItem.credentialType
+                                       appKey:cacheItem.appKey
                                       context:context
                                         error:error];
     }
@@ -425,6 +426,7 @@
                                    target:token.resource
                                    userId:token.accountIdentifier.displayableId
                            credentialType:token.credentialType
+                                   appKey:nil
                                   context:context
                                     error:error];
 }
@@ -476,10 +478,11 @@
                     && (!authority || [cacheItem.environment msidIsEquivalentWithAnyAlias:aliases]))
                 {
                     result &= [self removeTokenWithAuthority:cacheItem.authority
-                                                    clientId:requestClientID
+                                                    clientId:cacheItem.clientId
                                                       target:cacheItem.target
                                                       userId:cacheItem.idTokenClaims.userId
                                               credentialType:cacheItem.credentialType
+                                                      appKey:cacheItem.appKey
                                                      context:context
                                                        error:error];
                 }
@@ -694,6 +697,7 @@
                           target:(NSString *)target
                           userId:(NSString *)userId
                   credentialType:(MSIDCredentialType)credentialType
+                          appKey:(NSString *)appKey
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
@@ -716,6 +720,7 @@
                                                                              clientId:clientId
                                                                              resource:target
                                                                          legacyUserId:userId];
+    key.appKey = appKey;
 
     BOOL result = [_dataSource removeItemsWithTokenKey:key context:context error:error];
 
