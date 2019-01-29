@@ -26,6 +26,14 @@
 #import "MSIDPkce.h"
 #import "MSIDAuthority.h"
 
+@interface MSIDConfiguration()
+
+@property (readwrite) NSString *resource;
+@property (readwrite) NSString *target;
+@property (readwrite) NSOrderedSet<NSString *> *scopes;
+
+@end
+
 @implementation MSIDConfiguration
 
 - (instancetype)copyWithZone:(NSZone*)zone
@@ -35,6 +43,8 @@
     configuration.redirectUri = [_redirectUri copyWithZone:zone];
     configuration.target = [_target copyWithZone:zone];
     configuration.clientId = [_clientId copyWithZone:zone];
+    configuration.resource = [_resource copyWithZone:zone];
+    configuration.scopes = [_scopes copyWithZone:zone];
     
     return configuration;
 }
@@ -53,19 +63,36 @@
         _redirectUri = redirectUri;
         _clientId = clientId;
         _target = target;
+        
+        if (target)
+        {
+            _resource = target;
+            _scopes = [target msidScopeSet];
+        }
     }
     
     return self;
 }
 
-- (NSString *)resource
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource
+                           scopes:(NSOrderedSet<NSString *> *)scopes
 {
-    return _target;
-}
-
-- (NSOrderedSet<NSString *> *)scopes
-{
-    return [_target msidScopeSet];
+    self = [super init];
+    
+    if (self)
+    {
+        _authority = authority;
+        _redirectUri = redirectUri;
+        _clientId = clientId;
+        _resource = resource;
+        _scopes = scopes;
+        _target = _scopes ? [scopes msidToString] : _resource;
+    }
+    
+    return self;
 }
 
 @end

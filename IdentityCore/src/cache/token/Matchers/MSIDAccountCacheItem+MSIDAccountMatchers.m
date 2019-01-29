@@ -21,48 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDIntuneInMemoryCacheDataSource.h"
-#import "MSIDCache.h"
+#import "MSIDAccountCacheItem+MSIDAccountMatchers.h"
 
-@interface MSIDIntuneInMemoryCacheDataSource ()
+@implementation MSIDAccountCacheItem (MSIDAccountMatchers)
 
-@property (nonatomic, readonly) MSIDCache *cache;
+#pragma mark - Query
 
-@end
-
-@implementation MSIDIntuneInMemoryCacheDataSource
-
-- (instancetype)initWithCache:(MSIDCache *)cache
+- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
+                     environment:(nullable NSString *)environment
+              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
-    self = [super init];
-    if (self)
+    if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
     {
-        _cache = cache ? cache : [MSIDCache new];
+        return NO;
     }
     
-    return self;
-}
-
-- (instancetype)init
-{
-    return [self initWithCache:nil];
-}
-
-#pragma mark - MSIDIntuneCacheDataSource
-
-- (NSDictionary *)jsonDictionaryForKey:(NSString *)key
-{
-    return [self.cache objectForKey:key];
-}
-
-- (void)setJsonDictionary:(NSDictionary *)dictionary forKey:(NSString *)key
-{
-    [self.cache setObject:dictionary forKey:key];
-}
-
-- (void)removeObjectForKey:(NSString *)key
-{
-    [self.cache removeObjectForKey:key];
+    if (environment && ![self.environment isEqualToString:environment])
+    {
+        return NO;
+    }
+    
+    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    {
+        return NO;
+    }
+    
+    return YES;
 }
 
 @end

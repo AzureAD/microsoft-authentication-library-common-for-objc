@@ -31,7 +31,7 @@
 @property (readwrite) MSIDAuthority *authority;
 @property (readwrite) NSString *redirectUri;
 @property (readwrite) NSString *clientId;
-@property (readwrite) NSString *target;
+@property (readonly) NSString *target;
 
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;
@@ -40,5 +40,11 @@
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target;
+
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource
+                           scopes:(NSOrderedSet<NSString *> *)scopes;
 
 @end

@@ -35,7 +35,7 @@
 + (void)resetHandler { }
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                webview:(WKWebView *)webview
+                webview:(__unused WKWebView *)webview
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {

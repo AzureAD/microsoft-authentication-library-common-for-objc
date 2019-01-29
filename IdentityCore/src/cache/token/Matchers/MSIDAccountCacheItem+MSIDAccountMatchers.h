@@ -21,48 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDIntuneInMemoryCacheDataSource.h"
-#import "MSIDCache.h"
+#import "MSIDAccountCacheItem.h"
 
-@interface MSIDIntuneInMemoryCacheDataSource ()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, readonly) MSIDCache *cache;
+@interface MSIDAccountCacheItem (MSIDAccountMatchers)
 
-@end
-
-@implementation MSIDIntuneInMemoryCacheDataSource
-
-- (instancetype)initWithCache:(MSIDCache *)cache
-{
-    self = [super init];
-    if (self)
-    {
-        _cache = cache ? cache : [MSIDCache new];
-    }
-    
-    return self;
-}
-
-- (instancetype)init
-{
-    return [self initWithCache:nil];
-}
-
-#pragma mark - MSIDIntuneCacheDataSource
-
-- (NSDictionary *)jsonDictionaryForKey:(NSString *)key
-{
-    return [self.cache objectForKey:key];
-}
-
-- (void)setJsonDictionary:(NSDictionary *)dictionary forKey:(NSString *)key
-{
-    [self.cache setObject:dictionary forKey:key];
-}
-
-- (void)removeObjectForKey:(NSString *)key
-{
-    [self.cache removeObjectForKey:key];
-}
+- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
+                     environment:(nullable NSString *)environment
+              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
 
 @end
+
+NS_ASSUME_NONNULL_END
