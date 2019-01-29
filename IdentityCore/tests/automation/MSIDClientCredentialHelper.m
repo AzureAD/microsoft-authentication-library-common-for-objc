@@ -133,10 +133,10 @@
           __auto_type authorityUrl = [[NSURL alloc] initWithString:authorityString];
           __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
           
-          MSIDConfiguration *configuration = [MSIDConfiguration new];
-          configuration.authority = authority;
-          configuration.clientId = clientId;
-          configuration.target = resource;
+          MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                              redirectUri:nil
+                                                                                 clientId:clientId
+                                                                                   target:resource];
           
           MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
           
