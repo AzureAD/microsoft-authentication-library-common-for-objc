@@ -269,17 +269,24 @@
         {
             return YES;
         }
-        if (clientId && ![tokenCacheItem.clientId isEqualToString:clientId])
+        
+        if (!clientId && !familyId)
         {
-            return NO;
+            // Nothing else to match by as neither clientId or familyId have been provided
+            return YES;
+        }
+        
+        if (clientId && [tokenCacheItem.clientId isEqualToString:clientId])
+        {
+            return YES;
         }
 
-        if (familyId && ![tokenCacheItem.familyId isEqualToString:familyId])
+        if (familyId && [tokenCacheItem.familyId isEqualToString:familyId])
         {
-            return NO;
+            return YES;
         }
 
-        return YES;
+        return NO;
     };
 
     NSArray *refreshTokens = [MSIDTokenFilteringHelper filterTokenCacheItems:items
