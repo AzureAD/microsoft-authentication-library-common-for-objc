@@ -29,8 +29,8 @@
 @implementation MSIDLegacyTokenResponseValidator
 
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
-              configuration:(MSIDConfiguration *)configuration
-                  oidcScope:(NSString *)oidcScope
+              configuration:(__unused MSIDConfiguration *)configuration
+                  oidcScope:(__unused NSString *)oidcScope
              requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error

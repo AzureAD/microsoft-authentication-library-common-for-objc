@@ -317,8 +317,7 @@
     NSString *scopeInResposne = @"user.read";
     
     // construct configuration
-    MSIDConfiguration *configuration = [MSIDConfiguration new];
-    [configuration setTarget:scopeInRequest];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:nil redirectUri:nil clientId:nil target:scopeInRequest];
     
     // construct response
     NSDictionary *jsonInput = @{@"access_token": @"at",
@@ -346,8 +345,7 @@
     NSString *scopeInResposne = @"user.read";
     
     // construct configuration
-    MSIDConfiguration *configuration = [MSIDConfiguration new];
-    [configuration setTarget:scopeInRequest];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:nil redirectUri:nil clientId:nil target:scopeInRequest];
     
     // construct response
     NSDictionary *jsonInput = @{@"access_token": @"at",
