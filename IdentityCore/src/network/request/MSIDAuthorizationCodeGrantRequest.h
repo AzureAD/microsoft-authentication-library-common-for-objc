@@ -32,6 +32,7 @@
                                        code:(nonnull NSString *)code
                                      claims:(nullable NSString *)claims
                                codeVerifier:(nullable NSString *)codeVerifier
+                            extraParameters:(nullable NSDictionary *)extraParameters
                                     context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint

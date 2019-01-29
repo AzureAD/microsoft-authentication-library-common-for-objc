@@ -161,7 +161,7 @@
 - (void)testInitBrokerRequest_whenParametersWithOptionalParameters_shouldReturnValidPayload
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
-    parameters.extraQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
+    parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
     parameters.claims = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
     parameters.clientCapabilities = @[@"cp1", @"cp2"];
 

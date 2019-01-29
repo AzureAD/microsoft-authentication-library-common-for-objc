@@ -36,6 +36,7 @@
                                      scope:(nullable NSString *)scope
                               refreshToken:(nonnull NSString *)refreshToken
                                     claims:(nullable NSString *)claims
+                           extraParameters:(nullable NSDictionary *)extraParameters
                                    context:(nullable id<MSIDRequestContext>)context;
 
 @end

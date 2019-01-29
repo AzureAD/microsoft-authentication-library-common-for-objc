@@ -234,6 +234,7 @@
                                                                                                                    code:authCode
                                                                                                                  claims:claims
                                                                                                            codeVerifier:pkceCodeVerifier
+                                                                                                        extraParameters:parameters.extraTokenRequestParameters
                                                                                                                 context:parameters];
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 
@@ -258,6 +259,7 @@
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
+                                                                                              extraParameters:parameters.extraTokenRequestParameters
                                                                                                       context:parameters];
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 

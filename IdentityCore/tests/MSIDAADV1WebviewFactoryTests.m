@@ -65,7 +65,6 @@
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     config.promptBehavior = @"login";
     config.claims = @"claims";
-    config.sliceParameters = DEFAULT_TEST_SLICE_PARAMS_DICT;
     config.loginHint = @"fakeuser@contoso.com";
     
     NSString *requestState = @"state";
@@ -92,7 +91,6 @@
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-    [expectedQPs addEntriesFromDictionary:DEFAULT_TEST_SLICE_PARAMS_DICT];
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
@@ -112,7 +110,6 @@
     config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     config.promptBehavior = @"login";
     config.claims = @"claims";
-    config.sliceParameters = DEFAULT_TEST_SLICE_PARAMS_DICT;
     config.loginHint = @"fakeuser@contoso.com";
     
     NSString *requestState = @"state";
@@ -140,7 +137,6 @@
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-    [expectedQPs addEntriesFromDictionary:DEFAULT_TEST_SLICE_PARAMS_DICT];
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
