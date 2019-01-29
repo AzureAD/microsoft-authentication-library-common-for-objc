@@ -1490,6 +1490,53 @@
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
 }
 
+- (void)testAccountsWithAuthority_whenNilAuthority_NonNilClientId_andNonNilFamilyId_andNilAccountIdentifier_andTokensInLegacyCache_shouldReturnMatch
+{
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+    
+    [self saveResponseWithUPN:@"upn2@test.com"
+                     clientId:@"test_client_id2"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid2"
+                         utid:@"utid2"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:nil
+                     accessor:_otherAccessor];
+    
+    [self saveResponseWithUPN:@"upn3@test.com"
+                     clientId:@"test_client_id3"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid3"
+                         utid:@"utid3"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:@"4"
+                     accessor:_otherAccessor];
+    
+    NSError *error = nil;
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id2" familyId:@"3" accountIdentifier:nil context:nil error:&error];
+    XCTAssertEqual([accounts count], 2);
+    NSArray *accountUPNs = @[[accounts[0] username], [accounts[1] username]];
+    XCTAssertTrue([accountUPNs containsObject:@"upn@test.com"]);
+    XCTAssertTrue([accountUPNs containsObject:@"upn2@test.com"]);
+    XCTAssertFalse([accountUPNs containsObject:@"upn3@test.com"]);
+}
+
 #pragma mark - Get single account
 
 - (void)testGetAccount_whenNoAccountsInCache_shouldReturnNilAndNilError

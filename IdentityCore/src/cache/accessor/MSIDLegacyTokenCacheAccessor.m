@@ -270,18 +270,22 @@
             return YES;
         }
         
-        // TODO: simplify this logic
-        if ((clientId && [tokenCacheItem.clientId isEqualToString:clientId])
-            || (familyId && [tokenCacheItem.familyId isEqualToString:familyId]))
-        {
-            return YES;
-        }
-        
         if (!clientId && !familyId)
         {
+            // Nothing else to match by as neither clientId or familyId have been provided
             return YES;
         }
         
+        if (clientId && [tokenCacheItem.clientId isEqualToString:clientId])
+        {
+            return YES;
+        }
+
+        if (familyId && [tokenCacheItem.familyId isEqualToString:familyId])
+        {
+            return YES;
+        }
+
         return NO;
     };
 
