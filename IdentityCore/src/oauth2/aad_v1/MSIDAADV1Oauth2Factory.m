@@ -68,7 +68,7 @@
 #pragma mark - Response
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
-                                     context:(id<MSIDRequestContext>)context
+                                     context:(__unused id<MSIDRequestContext>)context
                                        error:(NSError **)error
 {
     return [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:json error:error];
@@ -76,7 +76,7 @@
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                 refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                     context:(id<MSIDRequestContext>)context
+                                     context:(__unused id<MSIDRequestContext>)context
                                        error:(NSError * __autoreleasing *)error
 {
     return [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:json refreshToken:token error:error];
@@ -220,17 +220,17 @@
 
 #pragma mark - Network requests
 
-- (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                         codeVerifier:(NSString *)pkceCodeVerifier
-                                                                             authCode:(NSString *)authCode
-                                                                        homeAccountId:(NSString *)homeAccountId;
+- (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(__unused MSIDRequestParameters *)parameters
+                                                                         codeVerifier:(__unused NSString *)pkceCodeVerifier
+                                                                             authCode:(__unused NSString *)authCode
+                                                                        homeAccountId:(__unused NSString *)homeAccountId
 {
     // TODO: implement me for ADAL
     return nil;
 }
 
-- (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                              refreshToken:(NSString *)refreshToken
+- (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(__unused MSIDRequestParameters *)parameters
+                                                              refreshToken:(__unused NSString *)refreshToken
 {
     // TODO: implement me for ADAL
     return nil;

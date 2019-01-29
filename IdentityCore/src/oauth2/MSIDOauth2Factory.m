@@ -51,7 +51,7 @@
 #pragma mark - Response
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
-                                     context:(id<MSIDRequestContext>)context
+                                     context:(__unused id<MSIDRequestContext>)context
                                        error:(NSError **)error
 {
     return [[MSIDTokenResponse alloc] initWithJSONDictionary:json error:error];
@@ -370,7 +370,7 @@
 }
 
 - (BOOL)fillAppMetadata:(MSIDAppMetadataCacheItem *)metadata
-           fromResponse:(MSIDTokenResponse *)response
+           fromResponse:(__unused MSIDTokenResponse *)response
           configuration:(MSIDConfiguration *)configuration
 {
     metadata.clientId = configuration.clientId;
@@ -393,7 +393,7 @@
 - (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
                                                                              authCode:(NSString *)authCode
-                                                                        homeAccountId:(NSString *)homeAccountId;
+                                                                        homeAccountId:(__unused NSString *)homeAccountId
 {
     NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
     NSString *allScopes = [parameters allTokenRequestScopes];

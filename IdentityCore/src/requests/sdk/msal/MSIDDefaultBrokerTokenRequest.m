@@ -30,7 +30,7 @@
 @implementation MSIDDefaultBrokerTokenRequest
 
 // Those parameters will be different depending on the broker protocol version
-- (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
+- (NSDictionary *)protocolPayloadContentsWithError:(__unused NSError **)error
 {
     NSString *homeAccountId = self.requestParameters.accountIdentifier.homeAccountId;
     NSString *username = self.requestParameters.accountIdentifier.displayableId;

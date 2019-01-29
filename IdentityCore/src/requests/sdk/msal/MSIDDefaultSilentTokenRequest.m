@@ -93,7 +93,7 @@
 
 - (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
                                        refreshToken:(id<MSIDRefreshableToken>)refreshToken
-                                              error:(NSError * _Nullable * _Nullable)error
+                                              error:(__unused NSError * _Nullable * _Nullable)error
 {
     if (!accessToken)
     {

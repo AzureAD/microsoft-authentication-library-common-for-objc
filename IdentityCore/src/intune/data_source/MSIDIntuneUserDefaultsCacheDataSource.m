@@ -72,7 +72,7 @@
     [self.userDefaults setObject:jsonString forKey:key];
 }
 
-- (void)removeObjectForKey:(NSString *)key;
+- (void)removeObjectForKey:(NSString *)key
 {
     [self.userDefaults removeObjectForKey:key];
 }

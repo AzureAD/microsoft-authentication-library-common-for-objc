@@ -38,7 +38,7 @@
 
 @implementation MSIDLegacyBrokerResponseHandler
 
-- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(NSString *)keychainGroup
+- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
                                                   error:(NSError **)error
 {
 #if TARGET_OS_IPHONE

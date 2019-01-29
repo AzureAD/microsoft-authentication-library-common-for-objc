@@ -41,6 +41,7 @@ static NSInteger kCredentialTypePrefix = 2000;
                         realm:(NSString *)realm
                  enrollmentId:(NSString *)enrollmentId
                        target:(NSString *)target
+                       appKey:(NSString *)appKey
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
@@ -52,6 +53,12 @@ static NSInteger kCredentialTypePrefix = 2000;
                          credentialId,
                          keyDelimiter,
                          (target ? target : @"")];
+    
+    if (![NSString msidIsStringNilOrBlank:appKey])
+    {
+        service  = [NSString stringWithFormat:@"%@|%@", service, appKey];
+    }
+    
     return service;
 }
 
@@ -59,7 +66,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type
                           clientId:(NSString *)clientId
                              realm:(NSString *)realm
-                      enrollmentId:(NSString *)enrollmentId;
+                      enrollmentId:(NSString *)enrollmentId
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
@@ -130,7 +137,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSString *)service
 {
     NSString *clientId = self.familyId ? self.familyId : self.clientId;
-    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm enrollmentId:self.enrollmentId target:self.target];
+    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm enrollmentId:self.enrollmentId target:self.target appKey:self.appKey];
 }
 
 @end

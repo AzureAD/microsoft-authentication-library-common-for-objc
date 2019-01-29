@@ -80,7 +80,8 @@
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn
                                                  context:self.requestParameters
-                                         completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
+                                         __unused BOOL validated, NSError *error)
      {
          if (error)
          {
@@ -89,7 +90,7 @@
          }
 
          [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                         completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+                                                         completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *error)
           {
               if (error)
               {

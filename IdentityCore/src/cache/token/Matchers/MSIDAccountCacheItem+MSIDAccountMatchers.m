@@ -21,34 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDLegacyTokenCacheQuery.h"
+#import "MSIDAccountCacheItem+MSIDAccountMatchers.h"
 
-@implementation MSIDLegacyTokenCacheQuery
+@implementation MSIDAccountCacheItem (MSIDAccountMatchers)
 
-- (NSString *)account
+#pragma mark - Query
+
+- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
+                     environment:(nullable NSString *)environment
+              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
-    if (self.legacyUserId)
+    if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
     {
-        return [self adalAccountWithUserId:self.legacyUserId];
+        return NO;
     }
-
-    return nil;
-}
-
-- (NSString *)service
-{
-    if (self.authority
-        && self.clientId)
+    
+    if (environment && ![self.environment isEqualToString:environment])
     {
-        return [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId appKey:self.appKey];
+        return NO;
     }
-
-    return nil;
-}
-
-- (BOOL)exactMatch
-{
-    return self.legacyUserId && self.authority && self.clientId;
+    
+    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    {
+        return NO;
+    }
+    
+    return YES;
 }
 
 @end

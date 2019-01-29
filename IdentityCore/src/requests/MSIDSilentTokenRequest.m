@@ -79,7 +79,8 @@
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn
                                                  context:self.requestParameters
-                                         completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint, 
+                                         __unused BOOL validated, NSError *error)
      {
          if (error)
          {
@@ -304,7 +305,7 @@
     MSID_LOG_INFO(self.requestParameters, @"Refreshing access token");
 
     [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                    completionBlock:^(MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error) {
+                                                    completionBlock:^(__unused MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error) {
 
                                                         if (error)
                                                         {
@@ -396,40 +397,40 @@
 
 #pragma mark - Abstract
 
-- (nullable MSIDAccessToken *)accessTokenWithError:(NSError **)error
+- (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
-                                       refreshToken:(id<MSIDRefreshableToken>)refreshToken
-                                              error:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDTokenResult *)resultWithAccessToken:(__unused MSIDAccessToken *)accessToken
+                                       refreshToken:(__unused id<MSIDRefreshableToken>)refreshToken
+                                              error:(__unused NSError * _Nullable * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (BOOL)updateFamilyIdCacheWithServerError:(NSError *)serverError
-                                cacheError:(NSError **)cacheError
+- (BOOL)updateFamilyIdCacheWithServerError:(__unused NSError *)serverError
+                                cacheError:(__unused NSError **)cacheError
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return NO;
 }
 
-- (BOOL)shouldRemoveRefreshToken:(NSError *)serverError
+- (BOOL)shouldRemoveRefreshToken:(__unused NSError *)serverError
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return NO;

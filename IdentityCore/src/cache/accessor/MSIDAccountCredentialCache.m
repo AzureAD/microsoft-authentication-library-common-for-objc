@@ -24,7 +24,7 @@
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
-#import "MSIDAccountCacheItem.h"
+#import "MSIDAccountCacheItem+MSIDAccountMatchers.h"
 #import "MSIDDefaultCredentialCacheKey.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDTokenCacheDataSource.h"
@@ -315,6 +315,7 @@
     key.realm = credential.realm;
     key.target = credential.target;
     key.enrollmentId = credential.enrollmentId;
+    key.appKey = credential.appKey;
 
     BOOL result = [_dataSource removeItemsWithTokenKey:key context:context error:error];
 

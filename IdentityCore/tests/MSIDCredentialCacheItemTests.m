@@ -240,4 +240,5 @@
     cacheItem2.clientId = DEFAULT_TEST_CLIENT_ID;
     XCTAssertNotEqualObjects(cacheItem1, cacheItem2);
 }
+
 @end

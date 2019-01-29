@@ -50,7 +50,7 @@
 
 #pragma mark - MSIDIntuneCacheDataSource
 
-- (NSDictionary *)jsonDictionaryForKey:(NSString *)key;
+- (NSDictionary *)jsonDictionaryForKey:(NSString *)key
 {
     return [self.cache objectForKey:key];
 }
@@ -60,7 +60,7 @@
     [self.cache setObject:dictionary forKey:key];
 }
 
-- (void)removeObjectForKey:(NSString *)key;
+- (void)removeObjectForKey:(NSString *)key
 {
     [self.cache removeObjectForKey:key];
 }

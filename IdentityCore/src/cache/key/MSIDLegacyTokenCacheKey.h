@@ -41,7 +41,8 @@ extern NSString *const MSID_LEGACY_CACHE_NIL_KEY;
 
 - (NSString *)serviceWithAuthority:(NSURL *)authority
                           resource:(nullable NSString *)resource
-                          clientId:(NSString *)clientId;
+                          clientId:(NSString *)clientId
+                            appKey:(nullable NSString *)appKey;
 
 - (NSString *)adalAccountWithUserId:(NSString *)userId;
 

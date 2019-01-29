@@ -265,7 +265,7 @@
 #pragma mark - Abstract
 
 // Thos parameters will be different depending on the broker protocol version
-- (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
+- (NSDictionary *)protocolPayloadContentsWithError:(__unused NSError **)error
 {
     return @{};
 }
