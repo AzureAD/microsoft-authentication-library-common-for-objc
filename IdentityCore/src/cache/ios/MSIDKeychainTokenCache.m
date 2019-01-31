@@ -714,6 +714,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     {
         NSData *itemData = [attrs objectForKey:(id)kSecValueData];
         MSIDCredentialCacheItem *tokenItem = [serializer deserializeCredentialCacheItem:itemData];
+        tokenItem.appKey = [self extractAppKey:attrs[(id)kSecAttrService]];
         
         if (tokenItem)
         {
@@ -742,6 +743,12 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
 - (MSIDCacheKey *)overrideTokenKey:(MSIDCacheKey *)key
 {
     return key;
+}
+
+- (NSString *)extractAppKey:(NSString *)cacheKeyString
+{
+    // no app key needs to be set here
+    return nil;
 }
 
 @end

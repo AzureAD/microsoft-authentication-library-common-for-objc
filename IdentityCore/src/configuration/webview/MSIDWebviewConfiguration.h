@@ -44,7 +44,6 @@
 @property (readwrite) NSUUID *correlationId;
 
 @property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
-@property (readwrite) NSDictionary<NSString *, NSString *> *sliceParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
 

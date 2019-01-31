@@ -46,6 +46,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 - (NSString *)serviceWithAuthority:(NSURL *)authority
                           resource:(NSString *)resource
                           clientId:(NSString *)clientId
+                            appKey:(NSString *)appKey
 {
     // Trim first for faster nil or empty checks. Also lowercase and trimming is
     // needed to ensure that the cache handles correctly same items with different
@@ -54,11 +55,18 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     resource = resource.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
 
-    return [NSString stringWithFormat:s_adalServiceFormat,
-            s_adalLibraryString,
-            authorityString.msidBase64UrlEncode,
-            [self getAttributeName:resource],
-            clientId.msidBase64UrlEncode];
+    NSString *service = [NSString stringWithFormat:s_adalServiceFormat,
+                         s_adalLibraryString,
+                         authorityString.msidBase64UrlEncode,
+                         [self getAttributeName:resource],
+                         clientId.msidBase64UrlEncode];
+    
+    if (![NSString msidIsStringNilOrBlank:appKey])
+    {
+        service  = [NSString stringWithFormat:@"%@|%@", service, appKey];
+    }
+    
+    return service;
 }
 
 - (instancetype)initWithAccount:(NSString *)account
@@ -101,7 +109,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
 - (NSString *)service
 {
-    return _service ? _service : [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+    return _service ? _service : [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId appKey:self.appKey];
 }
 
 - (NSData *)generic

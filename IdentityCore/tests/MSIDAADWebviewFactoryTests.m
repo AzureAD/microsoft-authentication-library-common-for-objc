@@ -69,7 +69,6 @@
     config.loginHint = @"fakeuser@contoso.com";
     config.claims = @"claims";
     config.promptBehavior = @"login";
-    config.sliceParameters = DEFAULT_TEST_SLICE_PARAMS_DICT;
     
     NSString *requestState = @"state";
     
@@ -88,13 +87,11 @@
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
                                           @"prompt" : @"login",
-                                          @"slice": @"myslice",
                                           @"haschrome" : @"1",
                                           @"scope" : @"scope1"
                                           
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-    [expectedQPs addEntriesFromDictionary:DEFAULT_TEST_SLICE_PARAMS_DICT];
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }

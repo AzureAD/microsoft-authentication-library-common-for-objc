@@ -30,9 +30,10 @@
                            scope:(NSString *)scope
                     refreshToken:(NSString *)refreshToken
                         resource:(NSString *)resource
+                 extraParameters:(NSDictionary *)extraParameters
                          context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken context:context];
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken extraParameters:extraParameters context:context];
     if (self)
     {
         NSParameterAssert(resource);

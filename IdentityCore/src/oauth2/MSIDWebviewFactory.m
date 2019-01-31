@@ -186,8 +186,7 @@
     NSString *promptParam = MSIDPromptParamFromType(parameters.promptType);
     configuration.promptBehavior = promptParam;
     configuration.loginHint = parameters.accountIdentifier.displayableId ?: parameters.loginHint;
-    configuration.extraQueryParameters = parameters.extraQueryParameters;
-    configuration.sliceParameters = parameters.sliceParameters;
+    configuration.extraQueryParameters = parameters.allAuthorizeRequestExtraParameters;
     configuration.customHeaders = parameters.customWebviewHeaders;
 #if TARGET_OS_IPHONE
     configuration.parentController = parameters.parentViewController;

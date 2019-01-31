@@ -315,6 +315,7 @@
     key.realm = credential.realm;
     key.target = credential.target;
     key.enrollmentId = credential.enrollmentId;
+    key.appKey = credential.appKey;
 
     BOOL result = [_dataSource removeItemsWithTokenKey:key context:context error:error];
 
