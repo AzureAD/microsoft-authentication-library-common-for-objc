@@ -23,8 +23,11 @@
 
 #import "MSIDAutomation.h"
 
+typedef void (^MSIDAutomationCancelTappedCallback)(void);
+
 @interface MSIDAutomationPassedInWebViewController : MSIDAutoViewController
 
 @property (nonatomic, weak) WKWebView *passedInWebview;
+@property (nonatomic, class, copy) MSIDAutomationCancelTappedCallback cancelTappedCallback;
 
 @end

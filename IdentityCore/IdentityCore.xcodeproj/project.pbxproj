@@ -554,9 +554,6 @@
 		B25A39F021C4CD6300213A62 /* MSIDAutomationActionConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A39EE21C4CD6300213A62 /* MSIDAutomationActionConstants.h */; };
 		B25A39F121C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39EF21C4CD6300213A62 /* MSIDAutomationActionConstants.m */; };
 		B25A39F221C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39EF21C4CD6300213A62 /* MSIDAutomationActionConstants.m */; };
-		B25A39FF21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A39FD21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h */; };
-		B25A3A0021C60A9E00213A62 /* NSString+MSIDAutomationUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */; };
-		B25A3A0121C60A9E00213A62 /* NSString+MSIDAutomationUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */; };
 		B25A436D21C33D88000B3DD4 /* MSIDClearCookiesTestAction.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A436B21C33D88000B3DD4 /* MSIDClearCookiesTestAction.h */; };
 		B25A436E21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A436C21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m */; };
 		B25A436F21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A436C21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m */; };
@@ -592,33 +589,6 @@
 		B274DEC821FC002300DB7757 /* MSIDInteractiveRequestParametersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B274DEC621FC002300DB7757 /* MSIDInteractiveRequestParametersTests.m */; };
 		B27551C22081705300AA7A38 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
 		B27551C32081705300AA7A38 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
-		B27551DE20817A5E00AA7A38 /* MSIDClientCredentialHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */; };
-		B27551DF20817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
-		B27551E020817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
-		B27551EA20817CD400AA7A38 /* MSIDTestAutomationConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E420817CD300AA7A38 /* MSIDTestAutomationConfiguration.h */; };
-		B27551EB20817CD400AA7A38 /* MSIDTestConfigurationProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestConfigurationProvider.m */; };
-		B27551EC20817CD400AA7A38 /* MSIDTestConfigurationProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestConfigurationProvider.m */; };
-		B27551ED20817CD400AA7A38 /* MSIDTestConfigurationProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E620817CD400AA7A38 /* MSIDTestConfigurationProvider.h */; };
-		B27551EE20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */; };
-		B27551EF20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */; };
-		B27551F020817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E820817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h */; };
-		B27551F120817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */; };
-		B27551F220817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */; };
-		B27551FE208182BE00AA7A38 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F8208182BE00AA7A38 /* Authentication.swift */; };
-		B27551FF208182BE00AA7A38 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F8208182BE00AA7A38 /* Authentication.swift */; };
-		B2755200208182BE00AA7A38 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F9208182BE00AA7A38 /* Result.swift */; };
-		B2755201208182BE00AA7A38 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F9208182BE00AA7A38 /* Result.swift */; };
-		B2755202208182BE00AA7A38 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FA208182BE00AA7A38 /* Network.swift */; };
-		B2755203208182BE00AA7A38 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FA208182BE00AA7A38 /* Network.swift */; };
-		B2755204208182BE00AA7A38 /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FB208182BE00AA7A38 /* Secret.swift */; };
-		B2755205208182BE00AA7A38 /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FB208182BE00AA7A38 /* Secret.swift */; };
-		B2755206208182BE00AA7A38 /* KeyVaultError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FC208182BE00AA7A38 /* KeyVaultError.swift */; };
-		B2755207208182BE00AA7A38 /* KeyVaultError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FC208182BE00AA7A38 /* KeyVaultError.swift */; };
-		B2755208208182BE00AA7A38 /* AuthHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FD208182BE00AA7A38 /* AuthHeader.swift */; };
-		B2755209208182BE00AA7A38 /* AuthHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FD208182BE00AA7A38 /* AuthHeader.swift */; };
-		B275520B208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */; };
-		B275520C208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */; };
-		B275520E208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */; };
 		B279835A20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B2807FF7204CAFDF00944D89 /* MSIDHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = B2807FF5204CAFDF00944D89 /* MSIDHelpers.h */; };
@@ -936,6 +906,39 @@
 		B2DD5BC320479D9D0084313F /* MSIDKeyedArchiverSerializerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2321531D1FDA1AF100C6960D /* MSIDKeyedArchiverSerializerTests.m */; };
 		B2E7698E206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E7698D206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m */; };
 		B2E7698F206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E7698D206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m */; };
+		B2ED1BBC2204D29400A24E82 /* MSIDAutomationTestRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A437F21C3516B000B3DD4 /* MSIDAutomationTestRequest.h */; };
+		B2ED1BBD2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A438021C3516B000B3DD4 /* MSIDAutomationTestRequest.m */; };
+		B2ED1BBE2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A438021C3516B000B3DD4 /* MSIDAutomationTestRequest.m */; };
+		B2ED1BBF2204D2B000A24E82 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F8208182BE00AA7A38 /* Authentication.swift */; };
+		B2ED1BC02204D2B100A24E82 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F8208182BE00AA7A38 /* Authentication.swift */; };
+		B2ED1BC12204D2B400A24E82 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F9208182BE00AA7A38 /* Result.swift */; };
+		B2ED1BC22204D2B400A24E82 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551F9208182BE00AA7A38 /* Result.swift */; };
+		B2ED1BC32204D2B800A24E82 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FA208182BE00AA7A38 /* Network.swift */; };
+		B2ED1BC42204D2B800A24E82 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FA208182BE00AA7A38 /* Network.swift */; };
+		B2ED1BC52204D2BC00A24E82 /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FB208182BE00AA7A38 /* Secret.swift */; };
+		B2ED1BC62204D2BC00A24E82 /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FB208182BE00AA7A38 /* Secret.swift */; };
+		B2ED1BC72204D2BF00A24E82 /* KeyVaultError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FC208182BE00AA7A38 /* KeyVaultError.swift */; };
+		B2ED1BC82204D2C000A24E82 /* KeyVaultError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FC208182BE00AA7A38 /* KeyVaultError.swift */; };
+		B2ED1BC92204D2C300A24E82 /* AuthHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FD208182BE00AA7A38 /* AuthHeader.swift */; };
+		B2ED1BCA2204D2C300A24E82 /* AuthHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27551FD208182BE00AA7A38 /* AuthHeader.swift */; };
+		B2ED1BCB2204D2C800A24E82 /* MSIDTestConfigurationProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E620817CD400AA7A38 /* MSIDTestConfigurationProvider.h */; };
+		B2ED1BCC2204D2CC00A24E82 /* MSIDTestConfigurationProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestConfigurationProvider.m */; };
+		B2ED1BCD2204D2CC00A24E82 /* MSIDTestConfigurationProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E520817CD400AA7A38 /* MSIDTestConfigurationProvider.m */; };
+		B2ED1BCE2204D2D100A24E82 /* MSIDTestAutomationConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E420817CD300AA7A38 /* MSIDTestAutomationConfiguration.h */; };
+		B2ED1BCF2204D34900A24E82 /* MSIDTestAutomationConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */; };
+		B2ED1BD02204D34900A24E82 /* MSIDTestAutomationConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */; };
+		B2ED1BD12204D34D00A24E82 /* MSIDTestAutomationConfigurationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B27551E820817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h */; };
+		B2ED1BD22204D35000A24E82 /* MSIDTestAutomationConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */; };
+		B2ED1BD32204D35100A24E82 /* MSIDTestAutomationConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */; };
+		B2ED1BD42204D35400A24E82 /* MSIDClientCredentialHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */; };
+		B2ED1BD52204D35700A24E82 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
+		B2ED1BD62204D35800A24E82 /* MSIDClientCredentialHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */; };
+		B2ED1BD72204D35C00A24E82 /* MSIDAutomation-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */; };
+		B2ED1BD82204D36200A24E82 /* KeyvaultAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */; };
+		B2ED1BD92204D36200A24E82 /* KeyvaultAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */; };
+		B2ED1BDA2204D36C00A24E82 /* NSString+MSIDAutomationUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A39FD21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h */; };
+		B2ED1BDB2204D36F00A24E82 /* NSString+MSIDAutomationUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */; };
+		B2ED1BDC2204D36F00A24E82 /* NSString+MSIDAutomationUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */; };
 		B2EF143A1FF2F225005DC1C0 /* MSIDAADV2TokenResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B2EF14391FF2F21E005DC1C0 /* MSIDAADV2TokenResponse.h */; };
 		B2EF143B1FF2F228005DC1C0 /* MSIDAADV2TokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EF14381FF2F21D005DC1C0 /* MSIDAADV2TokenResponse.m */; };
 		B2EF143C1FF2F228005DC1C0 /* MSIDAADV2TokenResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EF14381FF2F21D005DC1C0 /* MSIDAADV2TokenResponse.m */; };
@@ -1013,6 +1016,15 @@
 
 /* Begin PBXCopyFilesBuildPhase section */
 		B27551C6208179EE00AA7A38 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2ED1BA42204D24700A24E82 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
@@ -1744,6 +1756,8 @@
 		B2DD5BA3204761720084313F /* MSIDRefreshTokenTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDRefreshTokenTests.m; sourceTree = "<group>"; };
 		B2DD5BB0204789FB0084313F /* MSIDIdTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDIdTokenTests.m; sourceTree = "<group>"; };
 		B2E7698D206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryCacheEventTests.m; sourceTree = "<group>"; };
+		B2ED1BA62204D24700A24E82 /* libIdentityLabAutomation iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIdentityLabAutomation iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2ED1BB32204D26700A24E82 /* libIdentityLabAutomation Mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIdentityLabAutomation Mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2EF14381FF2F21D005DC1C0 /* MSIDAADV2TokenResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV2TokenResponse.m; sourceTree = "<group>"; };
 		B2EF14391FF2F21E005DC1C0 /* MSIDAADV2TokenResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADV2TokenResponse.h; sourceTree = "<group>"; };
 		B4A5ACCB21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDAccountCacheItem+MSIDAccountMatchers.h"; sourceTree = "<group>"; };
@@ -1809,6 +1823,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B27551D220817A1E00AA7A38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2ED1BA32204D24700A24E82 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2ED1BB12204D26700A24E82 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -2941,15 +2969,15 @@
 			path = macos;
 			sourceTree = "<group>";
 		};
-        B4A5ACD021F7F1DF00D2A780 /* Matchers */ = {
-            isa = PBXGroup;
-            children = (
-                B4A5ACCB21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h */,
-                B4A5ACCC21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m */,
-            );
-            path = Matchers;
-            sourceTree = "<group>";
-        };
+		B4A5ACD021F7F1DF00D2A780 /* Matchers */ = {
+			isa = PBXGroup;
+			children = (
+				B4A5ACCB21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h */,
+				B4A5ACCC21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m */,
+			);
+			path = Matchers;
+			sourceTree = "<group>";
+		};
 		D62600091FBD305800EE4487 /* util */ = {
 			isa = PBXGroup;
 			children = (
@@ -3103,6 +3131,8 @@
 				231CE99D1FE86EA300E95D3E /* MSIDTestsHostApp.app */,
 				B27551C8208179EE00AA7A38 /* libIdentityAutomation iOS.a */,
 				B27551D520817A1E00AA7A38 /* libIdentityAutomation Mac.dylib */,
+				B2ED1BA62204D24700A24E82 /* libIdentityLabAutomation iOS.a */,
+				B2ED1BB32204D26700A24E82 /* libIdentityLabAutomation Mac.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3294,10 +3324,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B27551F020817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h in Headers */,
 				B2D8582E21C1DC2E0043035A /* MSIDAutomationPassedInWebViewController.h in Headers */,
 				B2D8582F21C1DC2E0043035A /* MSIDAutomationMainViewController.h in Headers */,
-				B275520E208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h in Headers */,
 				B2D0A68A21D0875C0071E0DA /* MSIDAutomationErrorResult.h in Headers */,
 				B25A39E321C4C81B00213A62 /* MSIDOpenURLAction.h in Headers */,
 				B2D8582521C1DAF20043035A /* MSIDAutomationActionManager.h in Headers */,
@@ -3305,18 +3333,28 @@
 				B2D8582421C1DAF20043035A /* MSIDAutomation.h in Headers */,
 				B2D0A68F21D087790071E0DA /* MSIDAutomationSuccessResult.h in Headers */,
 				B25A437721C34CB6000B3DD4 /* MSIDClearKeychainTestAction.h in Headers */,
-				B25A39FF21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h in Headers */,
 				B25A438121C3516B000B3DD4 /* MSIDAutomationTestRequest.h in Headers */,
 				B2D8582121C1DAF20043035A /* MSIDAutomationTestAction.h in Headers */,
-				B27551EA20817CD400AA7A38 /* MSIDTestAutomationConfiguration.h in Headers */,
 				B25A436D21C33D88000B3DD4 /* MSIDClearCookiesTestAction.h in Headers */,
 				B2D8583221C1DC2E0043035A /* MSIDAutomationRequestViewController.h in Headers */,
-				B27551DE20817A5E00AA7A38 /* MSIDClientCredentialHelper.h in Headers */,
 				B2D0A69B21D09F220071E0DA /* MSIDAutomationUserInformation.h in Headers */,
 				B2D0A6A021D09F8D0071E0DA /* MSIDAutomationAccountsResult.h in Headers */,
 				B25A437221C34A26000B3DD4 /* MSIDAutomationTestResult.h in Headers */,
-				B27551ED20817CD400AA7A38 /* MSIDTestConfigurationProvider.h in Headers */,
 				B2D8583021C1DC2E0043035A /* MSIDAutomationResultViewController.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2ED1BAF2204D26700A24E82 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2ED1BBC2204D29400A24E82 /* MSIDAutomationTestRequest.h in Headers */,
+				B2ED1BD12204D34D00A24E82 /* MSIDTestAutomationConfigurationRequest.h in Headers */,
+				B2ED1BD72204D35C00A24E82 /* MSIDAutomation-Bridging-Header.h in Headers */,
+				B2ED1BD42204D35400A24E82 /* MSIDClientCredentialHelper.h in Headers */,
+				B2ED1BDA2204D36C00A24E82 /* NSString+MSIDAutomationUtils.h in Headers */,
+				B2ED1BCB2204D2C800A24E82 /* MSIDTestConfigurationProvider.h in Headers */,
+				B2ED1BCE2204D2D100A24E82 /* MSIDTestAutomationConfiguration.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3589,6 +3627,40 @@
 			productReference = B27551D520817A1E00AA7A38 /* libIdentityAutomation Mac.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		B2ED1BA52204D24700A24E82 /* IdentityLabAutomation iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B2ED1BAE2204D24700A24E82 /* Build configuration list for PBXNativeTarget "IdentityLabAutomation iOS" */;
+			buildPhases = (
+				B2ED1BA22204D24700A24E82 /* Sources */,
+				B2ED1BA32204D24700A24E82 /* Frameworks */,
+				B2ED1BA42204D24700A24E82 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "IdentityLabAutomation iOS";
+			productName = "IdentityLabAutomation iOS";
+			productReference = B2ED1BA62204D24700A24E82 /* libIdentityLabAutomation iOS.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		B2ED1BB22204D26700A24E82 /* IdentityLabAutomation Mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B2ED1BB92204D26700A24E82 /* Build configuration list for PBXNativeTarget "IdentityLabAutomation Mac" */;
+			buildPhases = (
+				B2ED1BAF2204D26700A24E82 /* Headers */,
+				B2ED1BB02204D26700A24E82 /* Sources */,
+				B2ED1BB12204D26700A24E82 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "IdentityLabAutomation Mac";
+			productName = "IdentityLabAutomation Mac";
+			productReference = B2ED1BB32204D26700A24E82 /* libIdentityLabAutomation Mac.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D626FF541FBA6DFD00EE4487 /* Build configuration list for PBXNativeTarget "IdentityCoreTests iOS" */;
@@ -3723,6 +3795,14 @@
 						CreatedOnToolsVersion = 9.3;
 						ProvisioningStyle = Automatic;
 					};
+					B2ED1BA52204D24700A24E82 = {
+						CreatedOnToolsVersion = 10.1;
+						ProvisioningStyle = Automatic;
+					};
+					B2ED1BB22204D26700A24E82 = {
+						CreatedOnToolsVersion = 10.1;
+						ProvisioningStyle = Automatic;
+					};
 					D626FF491FBA6DFC00EE4487 = {
 						CreatedOnToolsVersion = 9.1;
 						LastSwiftMigration = 0940;
@@ -3774,6 +3854,8 @@
 				231CE99C1FE86EA300E95D3E /* MSIDTestsHostApp */,
 				B27551C7208179EE00AA7A38 /* IdentityAutomation iOS */,
 				B27551D420817A1E00AA7A38 /* IdentityAutomation Mac */,
+				B2ED1BA52204D24700A24E82 /* IdentityLabAutomation iOS */,
+				B2ED1BB22204D26700A24E82 /* IdentityLabAutomation Mac */,
 			);
 		};
 /* End PBXProject section */
@@ -3821,30 +3903,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				B25A436E21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m in Sources */,
-				B2755200208182BE00AA7A38 /* Result.swift in Sources */,
-				B27551DF20817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */,
 				B2D8583A21C1DD830043035A /* MSIDAutomationResultViewController.m in Sources */,
 				B25A438221C3516B000B3DD4 /* MSIDAutomationTestRequest.m in Sources */,
-				B2755208208182BE00AA7A38 /* AuthHeader.swift in Sources */,
 				B25A437821C34CB6000B3DD4 /* MSIDClearKeychainTestAction.m in Sources */,
 				B2D0A69021D087790071E0DA /* MSIDAutomationSuccessResult.m in Sources */,
-				B27551F120817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m in Sources */,
-				B27551EE20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */,
 				B25A39F121C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */,
-				B27551FE208182BE00AA7A38 /* Authentication.swift in Sources */,
-				B25A3A0021C60A9E00213A62 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2D8583B21C1DD830043035A /* MSIDAutomationPassedInWebViewController.m in Sources */,
 				B2D8583C21C1DD830043035A /* MSIDAutomationRequestViewController.m in Sources */,
-				B2755204208182BE00AA7A38 /* Secret.swift in Sources */,
-				B275520B208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */,
 				B2D8582221C1DAF20043035A /* MSIDAutomationActionManager.m in Sources */,
 				B25A437321C34A26000B3DD4 /* MSIDAutomationTestResult.m in Sources */,
-				B2755202208182BE00AA7A38 /* Network.swift in Sources */,
-				B2755206208182BE00AA7A38 /* KeyVaultError.swift in Sources */,
 				B2D0A69C21D09F220071E0DA /* MSIDAutomationUserInformation.m in Sources */,
 				B2D8583921C1DD830043035A /* MSIDAutomationMainViewController.m in Sources */,
 				B2D0A68B21D0875C0071E0DA /* MSIDAutomationErrorResult.m in Sources */,
-				B27551EB20817CD400AA7A38 /* MSIDTestConfigurationProvider.m in Sources */,
 				B2D0A6A121D09F8D0071E0DA /* MSIDAutomationAccountsResult.m in Sources */,
 				B25A39E421C4C81B00213A62 /* MSIDOpenURLAction.m in Sources */,
 			);
@@ -3855,31 +3925,59 @@
 			buildActionMask = 2147483647;
 			files = (
 				B25A436F21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m in Sources */,
-				B2755201208182BE00AA7A38 /* Result.swift in Sources */,
 				B2D8584421C1DD9A0043035A /* MSIDAutomationMainViewController.m in Sources */,
-				B27551E020817A6200AA7A38 /* MSIDClientCredentialHelper.m in Sources */,
 				B25A438321C3516B000B3DD4 /* MSIDAutomationTestRequest.m in Sources */,
 				B2D8584221C1DD9A0043035A /* MSIDAutomationResultViewController.m in Sources */,
-				B2755209208182BE00AA7A38 /* AuthHeader.swift in Sources */,
 				B2D0A69121D087790071E0DA /* MSIDAutomationSuccessResult.m in Sources */,
 				B2D8584121C1DD9A0043035A /* MSIDAutomationRequestViewController.m in Sources */,
-				B27551F220817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m in Sources */,
 				B25A39F221C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */,
-				B27551EF20817CD400AA7A38 /* MSIDTestAutomationConfiguration.m in Sources */,
-				B25A3A0121C60A9E00213A62 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2D8584321C1DD9A0043035A /* MSIDAutomationPassedInWebViewController.m in Sources */,
-				B27551FF208182BE00AA7A38 /* Authentication.swift in Sources */,
-				B2755205208182BE00AA7A38 /* Secret.swift in Sources */,
-				B275520C208185E600AA7A38 /* KeyvaultAuthentication.swift in Sources */,
 				B25A437421C34A26000B3DD4 /* MSIDAutomationTestResult.m in Sources */,
 				B2D8582321C1DAF20043035A /* MSIDAutomationActionManager.m in Sources */,
-				B2755203208182BE00AA7A38 /* Network.swift in Sources */,
 				B2D0A69D21D09F220071E0DA /* MSIDAutomationUserInformation.m in Sources */,
-				B2755207208182BE00AA7A38 /* KeyVaultError.swift in Sources */,
 				B2D0A68C21D0875C0071E0DA /* MSIDAutomationErrorResult.m in Sources */,
-				B27551EC20817CD400AA7A38 /* MSIDTestConfigurationProvider.m in Sources */,
 				B2D0A6A221D09F8D0071E0DA /* MSIDAutomationAccountsResult.m in Sources */,
 				B25A39E721C4C83E00213A62 /* MSIDOpenURLAction.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2ED1BA22204D24700A24E82 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2ED1BD52204D35700A24E82 /* MSIDClientCredentialHelper.m in Sources */,
+				B2ED1BC12204D2B400A24E82 /* Result.swift in Sources */,
+				B2ED1BC72204D2BF00A24E82 /* KeyVaultError.swift in Sources */,
+				B2ED1BCF2204D34900A24E82 /* MSIDTestAutomationConfiguration.m in Sources */,
+				B2ED1BDB2204D36F00A24E82 /* NSString+MSIDAutomationUtils.m in Sources */,
+				B2ED1BD82204D36200A24E82 /* KeyvaultAuthentication.swift in Sources */,
+				B2ED1BCC2204D2CC00A24E82 /* MSIDTestConfigurationProvider.m in Sources */,
+				B2ED1BC92204D2C300A24E82 /* AuthHeader.swift in Sources */,
+				B2ED1BC52204D2BC00A24E82 /* Secret.swift in Sources */,
+				B2ED1BBD2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */,
+				B2ED1BC32204D2B800A24E82 /* Network.swift in Sources */,
+				B2ED1BD22204D35000A24E82 /* MSIDTestAutomationConfigurationRequest.m in Sources */,
+				B2ED1BBF2204D2B000A24E82 /* Authentication.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2ED1BB02204D26700A24E82 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2ED1BD62204D35800A24E82 /* MSIDClientCredentialHelper.m in Sources */,
+				B2ED1BC22204D2B400A24E82 /* Result.swift in Sources */,
+				B2ED1BC82204D2C000A24E82 /* KeyVaultError.swift in Sources */,
+				B2ED1BD02204D34900A24E82 /* MSIDTestAutomationConfiguration.m in Sources */,
+				B2ED1BDC2204D36F00A24E82 /* NSString+MSIDAutomationUtils.m in Sources */,
+				B2ED1BD92204D36200A24E82 /* KeyvaultAuthentication.swift in Sources */,
+				B2ED1BCD2204D2CC00A24E82 /* MSIDTestConfigurationProvider.m in Sources */,
+				B2ED1BCA2204D2C300A24E82 /* AuthHeader.swift in Sources */,
+				B2ED1BC62204D2BC00A24E82 /* Secret.swift in Sources */,
+				B2ED1BBE2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */,
+				B2ED1BC42204D2B800A24E82 /* Network.swift in Sources */,
+				B2ED1BD32204D35100A24E82 /* MSIDTestAutomationConfigurationRequest.m in Sources */,
+				B2ED1BC02204D2B100A24E82 /* Authentication.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4990,6 +5088,251 @@
 			};
 			name = Release;
 		};
+		B2ED1BAC2204D24700A24E82 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B27551E320817AF400AA7A38 /* identitycore__automation__ios.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B2ED1BAD2204D24700A24E82 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B27551E320817AF400AA7A38 /* identitycore__automation__ios.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B2ED1BBA2204D26700A24E82 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B27551E220817AF400AA7A38 /* identitycore__automation__mac.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		B2ED1BBB2204D26700A24E82 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B27551E220817AF400AA7A38 /* identitycore__automation__mac.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 		D626FF521FBA6DFD00EE4487 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
@@ -5143,6 +5486,24 @@
 			buildConfigurations = (
 				B27551DC20817A1E00AA7A38 /* Debug */,
 				B27551DD20817A1E00AA7A38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B2ED1BAE2204D24700A24E82 /* Build configuration list for PBXNativeTarget "IdentityLabAutomation iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B2ED1BAC2204D24700A24E82 /* Debug */,
+				B2ED1BAD2204D24700A24E82 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B2ED1BB92204D26700A24E82 /* Build configuration list for PBXNativeTarget "IdentityLabAutomation Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B2ED1BBA2204D26700A24E82 /* Debug */,
+				B2ED1BBB2204D26700A24E82 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

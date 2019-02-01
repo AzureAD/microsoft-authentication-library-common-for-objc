@@ -35,5 +35,6 @@
 - (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs;
 - (void)showPassedInWebViewControllerWithContext:(NSDictionary *)context;
 - (WKWebView *)passedinWebView;
++ (void)forwardIdentitySDKLog:(NSString *)logLine;
 
 @end

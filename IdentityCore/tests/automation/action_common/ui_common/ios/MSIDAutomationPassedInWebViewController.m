@@ -29,6 +29,8 @@
 @property (weak, nonatomic) IBOutlet UIView *contentView;
 @end
 
+static MSIDAutomationCancelTappedCallback s_cancelTappedCallback;
+
 @implementation MSIDAutomationPassedInWebViewController
 
 - (void)viewDidLoad
@@ -47,8 +49,21 @@
 - (IBAction)cancelTapped:(id)sender {
     
     [self dismissViewControllerAnimated:YES completion:^{
-        [MSIDWebviewAuthorization cancelCurrentSession];
+        if (self.class.cancelTappedCallback)
+        {
+            self.class.cancelTappedCallback();
+        }
     }];
+}
+
++ (void)setCancelTappedCallback:(MSIDAutomationCancelTappedCallback)cancelTappedCallback
+{
+    s_cancelTappedCallback = cancelTappedCallback;
+}
+
++ (MSIDAutomationCancelTappedCallback)cancelTappedCallback
+{
+    return s_cancelTappedCallback;
 }
 
 @end

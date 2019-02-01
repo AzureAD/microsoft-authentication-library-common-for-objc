@@ -24,6 +24,8 @@
 #import "MSIDAutomationPassedInWebViewController.h"
 #import <WebKit/WebKit.h>
 
+static MSIDAutomationCancelTappedCallback s_cancelTappedCallback;
+
 @interface MSIDAutomationPassedInWebViewController ()
 {
     WKWebView *_webview;
@@ -41,6 +43,24 @@
      [self.view addSubview:_webview];
     
     self.passedInWebview = _webview;
+}
+
+- (IBAction)cancelTapped:(id)sender {
+    
+    if (self.class.cancelTappedCallback)
+    {
+        self.class.cancelTappedCallback();
+    }
+}
+
++ (void)setCancelTappedCallback:(MSIDAutomationCancelTappedCallback)cancelTappedCallback
+{
+    s_cancelTappedCallback = cancelTappedCallback;
+}
+
++ (MSIDAutomationCancelTappedCallback)cancelTappedCallback
+{
+    return s_cancelTappedCallback;
 }
 
 @end

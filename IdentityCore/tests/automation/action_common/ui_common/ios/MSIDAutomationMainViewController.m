@@ -35,7 +35,7 @@
 @interface MSIDAutomationMainViewController ()
 
 @property (nonatomic, strong) IBOutlet UIStackView *actionsView;
-@property (atomic) NSMutableString *resultLogs;
+@property (atomic, class) NSMutableString *resultLogs;
 
 @end
 
@@ -140,22 +140,34 @@
     self.webView = [[WKWebView alloc] init];
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self setupActions];
-    //[self setupLogger]; // TODO: check how to implement it for ADAL
 }
 
 #pragma mark - Logger
 
-- (void)setupLogger
+static NSMutableString *s_resultLogs = nil;
+
++ (void)setResultLogs:(NSMutableString *)resultLogs
 {
-    [[MSIDLogger sharedLogger] setCallback:^(MSIDLogLevel level, NSString *message, BOOL containsPII) {
+    @synchronized (self)
+    {
+        s_resultLogs = resultLogs;
+    }
+}
 
-        if (self.resultLogs)
-        {
-            [self.resultLogs appendString:message];
-        }
-    }];
++ (NSMutableString *)resultLogs
+{
+    @synchronized (self)
+    {
+        return s_resultLogs;
+    }
+}
 
-    [[MSIDLogger sharedLogger] setLevel:MSIDLogLevelVerbose];
++ (void)forwardIdentitySDKLog:(NSString *)logLine
+{
+    @synchronized (self)
+    {
+        [self.resultLogs appendString:logLine];
+    }
 }
 
 #pragma mark - Actions
@@ -179,7 +191,7 @@
 
 - (void)performAction:(UIButton *)sender
 {
-    self.resultLogs = [NSMutableString new];
+    self.class.resultLogs = [NSMutableString new];
 
     id<MSIDAutomationTestAction> action = [[MSIDAutomationActionManager sharedInstance] actionForIdentifier:sender.titleLabel.text];
 
@@ -200,7 +212,7 @@
         if (!requestParams)
         {
             MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:action.actionIdentifier success:NO additionalInfo:nil];
-            [self showResultViewWithResult:result.jsonDictionary logs:self.resultLogs];
+            [self showResultViewWithResult:result.jsonDictionary logs:self.class.resultLogs];
             return;
         }
 
@@ -216,7 +228,7 @@
                     containerController:self
                         completionBlock:^(MSIDAutomationTestResult *result) {
 
-                            [self showResultViewWithResult:result.jsonDictionary logs:self.resultLogs];
+                            [self showResultViewWithResult:result.jsonDictionary logs:self.class.resultLogs];
 
                         }];
 }
