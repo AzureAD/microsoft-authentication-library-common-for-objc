@@ -58,7 +58,7 @@
                                                                                            redirectUri:DEFAULT_TEST_REDIRECT_URI
                                                                                               clientId:DEFAULT_TEST_CLIENT_ID
                                                                                               resource:nil
-                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
+                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", @"scope2", nil]
                                                                                          correlationId:correlationId
                                                                                             enablePkce:YES];
     
@@ -89,7 +89,7 @@
                                           @"client-request-id" : correlationId.UUIDString,
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
-                                          @"scope" : @"scope1 openid offline_access profile",
+                                          @"scope" : @"scope1 scope2",
                                           @"client_info" : @"1",
                                           @"login_req" : config.uid,
                                           @"domain_req" : config.utid,
